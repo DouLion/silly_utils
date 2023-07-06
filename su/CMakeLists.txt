@@ -16,6 +16,13 @@ include_directories(${OTL_INCLUDE_DIRS})
 
 add_library(${PROJECT_NAME} STATIC ${SU_SRC_FILES})
 
+set(Boost_LIB_PREFIX "")
+set(CMAKE_VERBOSE_MAKEFILE ON)
+# set(Boost_DEBUG TRUE)
+set(Boost_USE_STATIC_LIBS ON)
+set(Boost_USE_MULTITHREADED ON)
+set(Boost_NO_WARN_NEW_VERSIONS 1)
+
 ### Packages 
 find_package(Boost REQUIRED COMPONENTS system thread date_time chrono regex filesystem unit_test_framework program_options iostreams locale serialization )
 target_link_libraries(${PROJECT_NAME} PUBLIC Boost::boost Boost::system Boost::thread Boost::date_time Boost::chrono Boost::regex Boost::filesystem Boost::unit_test_framework Boost::program_options Boost::iostreams Boost::locale Boost::serialization) 
