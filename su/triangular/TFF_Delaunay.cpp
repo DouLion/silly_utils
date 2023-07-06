@@ -25,8 +25,8 @@
 // Version 1.0 (C) 2004, Sjaak Priester, Amsterdam.
 // mailto:sjaak@sjaakpriester.nl
 
-#include "common/triangular/TFF_Delaunay.h"
-#include "common/triangular/TFF_CovexHull.h"
+#include "triangular/TFF_Delaunay.h"
+#include "triangular/TFF_CovexHull.h"
 #include <algorithm>
 #include <iterator>
 #include <cstring>

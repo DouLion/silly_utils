@@ -1,5 +1,5 @@
 #pragma once
-#include "common/math/TFF_Vector.h"
+#include "math/TFF_Vector.h"
 namespace common {
 
 /** @class Point

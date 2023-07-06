@@ -14,7 +14,7 @@
 #define COORDINATE_CONVERT
 
 #include "marco.h"
-#include "common/geo/TFF_Geo.h"
+#include "geo/TFF_Geo.h"
 
 class CoordinateConvert
 {

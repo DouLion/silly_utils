@@ -1,6 +1,6 @@
 #pragma once
 
-#include "common/triangular/TFF_Delaunay.h"
+#include "triangular/TFF_Delaunay.h"
 
 class PointN 
 {

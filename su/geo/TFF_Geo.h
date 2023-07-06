@@ -2,9 +2,9 @@
 
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
-#include "common/math/TFF_Double2.h"
-#include "common/math/TFF_Rectangle.h"
-#include "common/math/TFF_MathUtils.h"
+#include "math/TFF_Double2.h"
+#include "math/TFF_Rectangle.h"
+#include "math/TFF_MathUtils.h"
 
 #define MIN_LNG_VAL -180.0
 #define MAX_LNG_VAL 180.0

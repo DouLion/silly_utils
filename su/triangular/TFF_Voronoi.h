@@ -15,8 +15,8 @@
 #pragma once
 
 
-#include "common/triangular/TFF_Delaunay.h"
-#include "common/triangular/TFF_ThiessenPolygon.h"
+#include "triangular/TFF_Delaunay.h"
+#include "triangular/TFF_ThiessenPolygon.h"
 /** @class Voronoi
 	@brief The class of building voronoi.
 	@note		

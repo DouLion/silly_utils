@@ -13,7 +13,7 @@
 #ifndef ISOLINERE_OTL_TOOLS_H
 #define ISOLINERE_OTL_TOOLS_H
 
-#include "common/otl/otl_header.hpp"
+#include "otl/otl_header.hpp"
 #include <json/json.h>
 
 class otl_tools

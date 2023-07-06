@@ -1,5 +1,5 @@
 #pragma once
-#include "common/math/TFF_Float4.h"
+#include "math/TFF_Float4.h"
 namespace common {
 
 /** @class Vector

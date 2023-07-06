@@ -1,4 +1,4 @@
-#inlcude <iostream>
+#include <iostream>
 int main()
 {
 	std::cout << "to fix it" << std::endl;

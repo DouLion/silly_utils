@@ -16,7 +16,7 @@ using std::vector;
 
 using std::deque;
 
-#include "common/triangular/TFF_Delaunay.h"
+#include "triangular/TFF_Delaunay.h"
 
 class vertex;
 

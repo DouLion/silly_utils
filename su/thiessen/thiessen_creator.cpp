@@ -2,7 +2,7 @@
 // Created by dell on 2023/1/16.
 //
 
-#include "common/thiessen/thiessen_creator.h"
+#include "thiessen/thiessen_creator.h"
 
 // 计算面积
 static double PolygonArea(const std::vector<jcv_point>& polygon)

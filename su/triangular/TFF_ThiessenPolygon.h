@@ -14,7 +14,7 @@
 
 #pragma once
 
-#include "common/triangular/TFF_Delaunay.h"
+#include "triangular/TFF_Delaunay.h"
 // GDAL.
 #include "ogr_spatialref.h"
 #include "gdal_priv.h"

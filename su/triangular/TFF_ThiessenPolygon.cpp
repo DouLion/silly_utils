@@ -13,9 +13,9 @@
 ////////////////////////////////////////////////////////////////////////////////////
 
 
-#include <common/triangular/TFF_ThiessenPolygon.h>
-#include <common/triangular/TFF_Delaunay.h>
-#include <common/math/TFF_GeometryCalc.h>
+#include "triangular/TFF_ThiessenPolygon.h"
+#include "triangular/TFF_Delaunay.h"
+#include "math/TFF_GeometryCalc.h"
 
 //------------------------------------------------------------------------------
 // Implementation:

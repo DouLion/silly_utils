@@ -1,12 +1,12 @@
 //
 // Created by dell on 2023/1/16.
 //
-#include "common/vacuate/psimpl.h"
+#include "vacuate/psimpl.h"
 
 using namespace psimpl;
 
 #include <iterator>
-#include "common/vacuate/vacuate_wrapper.h"
+#include "vacuate/vacuate_wrapper.h"
 
 bool vacuate_wrapper::VacuateNPoint(const int& n, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
 {

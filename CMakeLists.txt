@@ -58,6 +58,7 @@ elseif (CMAKE_HOST_SYSTEM_NAME MATCHES "Windows")
 
 endif ()
 
+include_directories(${CMAKE_SOURCE_DIR}/su)
 
 ##########################################
 # Add sub dirs.

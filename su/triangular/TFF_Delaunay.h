@@ -34,7 +34,7 @@
 #include <algorithm>
 #include <math.h>
 #include <vector>
-#include "common/math/TFF_Point.h"
+#include "math/TFF_Point.h"
 
 using namespace std;
 
