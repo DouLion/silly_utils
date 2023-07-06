@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 
+project(sutils CXX)
+
 foreach(dirname ${CMAKE_CURRENT_SOURCE_DIR})
     file(GLOB_RECURSE SU_SRC_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
             "${dirname}/*.h"
