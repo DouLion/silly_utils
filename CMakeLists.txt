@@ -63,4 +63,7 @@ endif ()
 # Add sub dirs.
 ##########################################
 add_subdirectory(su)
+if(NO_BUILD_SU_TEST)
+else()
 add_subdirectory(test)
+endif()
