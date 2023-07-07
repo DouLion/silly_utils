@@ -45,7 +45,7 @@
 #pragma  comment(lib, "odbc32.lib")
 #endif
 
-using OtlConnPool = otl_connect_pool<otl_connect, otl_exception>;
+using OtlConnPool = otl_connect_pool<otl_connect, otl_exception>;	// 不建议使用连接池
 
 enum class EDBType
 {

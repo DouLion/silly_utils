@@ -37,3 +37,16 @@ target_link_libraries(${PROJECT_NAME} PUBLIC Iconv::Iconv)
 
 find_package(polyclipping CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC polyclipping::polyclipping)
+
+find_package(jsoncpp CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC JsonCpp::JsonCpp)
+
+# 解压缩模块
+find_package(ZLIB REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC ZLIB::ZLIB)
+
+find_package(libzip CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC libzip::zip)
+
+find_package(BZip2 REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC BZip2::BZip2)
