@@ -2,6 +2,7 @@
 // Created by dell on 2023/7/10.
 //
 
+#include <string>
 #include "ftp_utils.h"
 
 

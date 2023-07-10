@@ -12,6 +12,9 @@
 
 #ifndef SILLY_UTILS_HTTP_UTILS_H
 #define SILLY_UTILS_HTTP_UTILS_H
+#include <iostream>
+#include <map>
+#include <vector>
 
 class http_utils
 {
@@ -19,7 +22,7 @@ class http_utils
 	std::string request_post(const std::string& url, const std::string& body, const std::map<std::string, std::string>& headers);
 
 	std::string request_download(const std::string& url, const std::string& body, const std::map<std::string, std::string>& headers);
-	std::string request_upload(const std::string& url, const std::string& body, const std::vector<std::string> files, const std::map<std::string, std::string>& headers)
+	std::string request_upload(const std::string& url, const std::string& body, const std::vector<std::string> files, const std::map<std::string, std::string>& headers);
 };
 
 #endif //SILLY_UTILS_HTTP_UTILS_H
