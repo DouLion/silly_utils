@@ -7,6 +7,8 @@
 #include <filesystem>
 
 #define BZ2_SUFFIX    ".bz2"
+// 1024*1024*512
+#define BZ2_DECOMPRESS_DEFAULT_SIZE        536870912
 
 std::string bz2_wrapper::compress(const std::string& src_file, const std::string& dst_file)
 {
@@ -148,9 +150,17 @@ std::string bz2_wrapper::decompress(const std::string& src_file, const std::stri
 	}
 
 	// 调用bz2进行解压
-	unsigned int dst_len = 1024*1024*1024;
+	unsigned int dst_len = BZ2_DECOMPRESS_DEFAULT_SIZE;
 	char* decompress = (char*)malloc(dst_len);      //接收解压缩的数据。解压缩需要的内存大小事先是不知道的。
 	int rc = BZ2_bzBuffToBuffDecompress(decompress, &dst_len, file_content, file_len, 0, 0);
+	while (BZ_OUTBUFF_FULL == rc)	// 预设解压空间较小,需要扩大,其他情况再看如何解决
+	{
+		dst_len += BZ2_DECOMPRESS_DEFAULT_SIZE;
+		if (decompress)
+		{ free(decompress); }
+		decompress = (char*)malloc(dst_len);
+		rc = BZ2_bzBuffToBuffDecompress(decompress, &dst_len, file_content, file_len, 0, 0);
+	}
 	if (BZ_OK != rc)
 	{
 		printf_s("File: %s, line: %d. Error: decompression failed: %d", __FILE__, __LINE__, rc);
@@ -167,6 +177,8 @@ std::string bz2_wrapper::decompress(const std::string& src_file, const std::stri
 	}
 	else
 	{
+		free(file_content);
+		free(decompress);
 		return "";
 	}
 	free(file_content);

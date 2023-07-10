@@ -32,7 +32,7 @@
 ## VCPKG依赖库:
 
 ```
-vcpkg install zlib bzip2 libzip jsoncpp
+vcpkg install boost zlib bzip2 libzip jsoncpp polyclipping cryptopp libiconv otl
 ```
 
 
