@@ -29,6 +29,14 @@
 
   
 
+## VCPKG依赖库:
+
+```
+vcpkg install zlib bzip2 libzip jsoncpp
+```
+
+
+
 ## 功能列表
 
 TODO:
