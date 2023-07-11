@@ -5,7 +5,7 @@
 #ifndef TFF_INLINE_SPECIFIER
 #define TFF_INLINE_SPECIFIER inline
 #endif
-namespace common {
+namespace silly_utils {
 
 /** @class Double2
 	@brief 2-component double vector.
@@ -19,7 +19,7 @@ public:
 	/// Copy constructor.
 	TFF_INLINE_SPECIFIER Double2(const Double2& rhv);
 	/// Construct from given x,y.
-	TFF_INLINE_SPECIFIER Double2(const double x, const double y);
+	TFF_INLINE_SPECIFIER Double2(const double& x, const double& y);
 
 	/// Assign operator.
 	TFF_INLINE_SPECIFIER void operator = (const Double2& rhv);
@@ -107,7 +107,7 @@ Double2::Double2(const Double2& rhv) :
 	// Empty.
 }
 
-Double2::Double2(const double x, const double y) :
+Double2::Double2(const double& x, const double& y) :
 	m_x(x), 
 	m_y(y)
 {

@@ -163,7 +163,7 @@ public:
 	 *  @attention      
 	 *  @see          
 	**/
-	static void GetCircleRect(const common::Double2& center, const double radius, common::Rectangle<double>& rect);
+	static void GetCircleRect(const silly_utils::Double2& center, const double radius, silly_utils::Rectangle<double>& rect);
 
 	/**
 	 *  @name			GetDistance
@@ -177,7 +177,7 @@ public:
 	 *  @attention      
 	 *  @see          
 	**/
-	static double GetDistance(const common::Double2& point1, const common::Double2& point2);
+	static double GetDistance(const silly_utils::Double2& point1, const silly_utils::Double2& point2);
 
 	/**
 	 *  @name			GetPolygonCenterPoint
@@ -190,9 +190,9 @@ public:
 	 *  @attention      
 	 *  @see          
 	**/
-	static  common::Float2 GetPolygonCenterPoint(const std::vector<common::Float2>& vertices)
+	static  silly_utils::Float2 GetPolygonCenterPoint(const std::vector<silly_utils::Float2>& vertices)
 	{
-		common::Float2 centerPoint;
+		silly_utils::Float2 centerPoint;
 
 
 		double area = 0.0;//��������
@@ -236,9 +236,9 @@ public:
 
 	static void CalcPolygonText(float xmin, float ymin, float xmax, float ymax, int Number, float* PointList, int ytest, float* x,float* y);
 
-	static common::Float2 CalcPointPos(const common::Float2& pos, const common::Float2& widthAndHeight, std::vector<common::Rectangle<float>>& rectBeingUsed, const common::Float2& miss = common::Float2(0.0f, 0.0f));
+	static silly_utils::Float2 CalcPointPos(const silly_utils::Float2& pos, const silly_utils::Float2& widthAndHeight, std::vector<silly_utils::Rectangle<float>>& rectBeingUsed, const silly_utils::Float2& miss = silly_utils::Float2(0.0f, 0.0f));
 
-	static bool RectIsBeingUsed(const common::Rectangle<float>& rc, const std::vector<common::Rectangle<float>>& rectBeingUsed);
+	static bool RectIsBeingUsed(const silly_utils::Rectangle<float>& rc, const std::vector<silly_utils::Rectangle<float>>& rectBeingUsed);
 
 	static float* CalcEccentricityPoint(const float* pPointList, const int pointNum, const int offsetFactor, const bool isPolygon, int& newPointNum);
 

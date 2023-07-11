@@ -4,7 +4,7 @@
 #ifndef TFF_INLINE_SPECIFIER
 #define TFF_INLINE_SPECIFIER inline
 #endif
-namespace common {
+namespace silly_utils {
 
 //class Matrix44;
 

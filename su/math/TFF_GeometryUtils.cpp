@@ -371,7 +371,7 @@ double GeometryUtils::CalcPolygonArea(const std::vector<double>& pointList)
 	return (area < 0 ? -area : area);
 }
 
-void GeometryUtils::GetCircleRect(const common::Double2& center, const double radius, common::Rectangle<double>& rect)
+void GeometryUtils::GetCircleRect(const silly_utils::Double2& center, const double radius, silly_utils::Rectangle<double>& rect)
 {
 	double latitude = center.Y();
 	double longitude = center.X();
@@ -384,7 +384,7 @@ void GeometryUtils::GetCircleRect(const common::Double2& center, const double ra
 	double minLat = latitude - radiusLat;
 	double maxLat = latitude + radiusLat;
 
-	double mpdLng = degree * std::cos(latitude * (TFF_PI / 180));
+	double mpdLng = degree * std::cos(latitude * (SU_PI / 180));
 	double dpmLng = 1 / mpdLng;
 	double radiusLng = dpmLng * raidusMile;
 	double minLng = longitude - radiusLng;
@@ -396,7 +396,7 @@ void GeometryUtils::GetCircleRect(const common::Double2& center, const double ra
 	rect.g_bottom = maxLat;
 }  
 
-double GeometryUtils::GetDistance(const common::Double2& point1, const common::Double2& point2)
+double GeometryUtils::GetDistance(const silly_utils::Double2& point1, const silly_utils::Double2& point2)
 {
 	/*//double radLat1 = t_deg2rad(point1.Y());
 	//double radLat2 = t_deg2rad(point2.Y());  
@@ -428,9 +428,9 @@ double GeometryUtils::GetDistance(const common::Double2& point1, const common::D
     return 0;
 }
 
-float area(const common::Float2& a, const common::Float2& b, const common::Float2& c) //�����������ʽ1/2 * cross(Point A, Point B)
+float area(const silly_utils::Float2& a, const silly_utils::Float2& b, const silly_utils::Float2& c) //�����������ʽ1/2 * cross(Point A, Point B)
 {
-	/*common::Float2 A, B;
+	/*silly_utils::Float2 A, B;
 	A = b - a;
 	B = c - a;
 	return t_cross_product(A.X(), A.Y(), B.X(), B.Y());//����Ҫ�ٳ���2����Ϊ�����Ľ���е����ˣ�*/
@@ -438,14 +438,14 @@ float area(const common::Float2& a, const common::Float2& b, const common::Float
     return 0;
 }
 
-double Area(const common::Float2& p1, const common::Float2& p2, const common::Float2& p3)
+double Area(const silly_utils::Float2& p1, const silly_utils::Float2& p2, const silly_utils::Float2& p3)
 {
 	return ((p2.X() - p1.X()) * (p3.Y() - p1.Y()) - (p3.X() - p1.X()) * (p2.Y() - p1.Y())) * 0.5;
 }
 
-//common::Float2 GeometryUtils::GetPolygonCenterPoint(const std::vector<common::Float2>& vertices)
+//silly_utils::Float2 GeometryUtils::GetPolygonCenterPoint(const std::vector<silly_utils::Float2>& vertices)
 //{
-//	common::Float2 centerPoint;
+//	silly_utils::Float2 centerPoint;
 //
 //
 //	double area = 0.0;//��������
@@ -682,7 +682,7 @@ int GeometryUtils::GetTextPositionOfBrokenLine(const char* pCaption, int PointNu
 
 
 	// ��ȡ�����еİ�Χ��.
-	common::Rectangle<float> pointRect;
+	silly_utils::Rectangle<float> pointRect;
 	pointRect.g_left = 9999.0f;
 	pointRect.g_top = 9999.0f;
 	pointRect.g_right = -9999.0f;
@@ -696,8 +696,8 @@ int GeometryUtils::GetTextPositionOfBrokenLine(const char* pCaption, int PointNu
 	}
 
 	// ��������.
-	common::Float2 beginPoint(pPos1[0], pPos1[1]);
-	common::Float2 endPoint(pPos1[PointNum * 2 - 2], pPos1[PointNum * 2 - 1]);
+	silly_utils::Float2 beginPoint(pPos1[0], pPos1[1]);
+	silly_utils::Float2 endPoint(pPos1[PointNum * 2 - 2], pPos1[PointNum * 2 - 1]);
 	float gridWidth = 0.005f;
 	float gridHeight = gridWidth;
 	int gridXCount = (int)std::ceilf(pointRect.Width() / gridWidth);
@@ -904,10 +904,10 @@ void GeometryUtils::CalcPolygonText(float xmin, float ymin, float xmax, float ym
 	}	
 }
 
-common::Float2 GeometryUtils::CalcPointPos(const common::Float2& pos, const common::Float2& widthAndHeight, std::vector<common::Rectangle<float>>& rectBeingUsed, const common::Float2& miss)
+silly_utils::Float2 GeometryUtils::CalcPointPos(const silly_utils::Float2& pos, const silly_utils::Float2& widthAndHeight, std::vector<silly_utils::Rectangle<float>>& rectBeingUsed, const silly_utils::Float2& miss)
 {
 	float FivePiexl = 2.0f;
-	common::Rectangle<float> m_rectTmp;
+	silly_utils::Rectangle<float> m_rectTmp;
 	m_rectTmp.Set(pos.X(),pos.Y(),pos.X()+widthAndHeight.X(),pos.Y()+widthAndHeight.Y());
 
 	if (!RectIsBeingUsed(m_rectTmp, rectBeingUsed))
@@ -916,7 +916,7 @@ common::Float2 GeometryUtils::CalcPointPos(const common::Float2& pos, const comm
 		return pos;
 	}
 
-	common::Float2 resultF;
+	silly_utils::Float2 resultF;
 	// �ֱ��ж������ļ�������
 	//1	--	2 .-		3 +- 
 	//4	-.	5 ..		6 +.
@@ -1000,7 +1000,7 @@ common::Float2 GeometryUtils::CalcPointPos(const common::Float2& pos, const comm
 	return resultF;
 }
 
-bool GeometryUtils::RectIsBeingUsed(const common::Rectangle<float>& rc, const std::vector<common::Rectangle<float>>& rectBeingUsed)
+bool GeometryUtils::RectIsBeingUsed(const silly_utils::Rectangle<float>& rc, const std::vector<silly_utils::Rectangle<float>>& rectBeingUsed)
 {
 	size_t  rectUsedSize = rectBeingUsed.size();
 	for (size_t i = 0; i < rectUsedSize; ++i)
@@ -1672,7 +1672,7 @@ bool GeometryUtils::IsPolyOnPoly(const T2* pointList1, const size_t pointNum1, c
 
 	return false;*/
 
-	//common::Rectangle<T2> list1Rect;
+	//silly_utils::Rectangle<T2> list1Rect;
 	//list1Rect.g_left = 9999.0;
 	//list1Rect.g_right = 0.0;
 	//list1Rect.g_top = 9999.0;
@@ -1686,7 +1686,7 @@ bool GeometryUtils::IsPolyOnPoly(const T2* pointList1, const size_t pointNum1, c
 	//    list1Rect.g_bottom = std::max(list1Rect.g_bottom, pointList1[2 * i + 1]);
 	//}
 
-	//common::Rectangle<T2> list2Rect;
+	//silly_utils::Rectangle<T2> list2Rect;
 	//list2Rect.g_left = 9999.0;
 	//list2Rect.g_right = 0.0;
 	//list2Rect.g_top = 9999.0;

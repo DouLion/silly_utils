@@ -74,7 +74,7 @@ class vertex
 public:
 	vertex()					: m_Pnt(0.0f, 0.0f, 0.0f),value(0.0F),m_Index(-1)	{}
 	vertex(const vertex& v)		: m_Pnt(v.m_Pnt),value(v.value),m_Index(v.m_Index) {}
-	vertex(const common::Point& pnt)	: m_Pnt(pnt)				{}
+	vertex(const silly_utils::Point& pnt)	: m_Pnt(pnt)				{}
 	vertex(double x, double y)		: m_Pnt(x, y, 0.0f)				{}
 	vertex(double x, double y, double z)		: m_Pnt(x, y, z)				{value=z;}
 	vertex(int x, int y)		: m_Pnt((float) x, (float) y, 0.0f)	{}
@@ -106,9 +106,9 @@ public:
 	void SetValue(double v)	{ value   = v; }
 	void SetIndex(int Index)	{ m_Index   = Index; }
 
-	const common::Point& GetPoint() const		{ return m_Pnt; }
+	const silly_utils::Point& GetPoint() const		{ return m_Pnt; }
 protected:
-	common::Point	m_Pnt;
+	silly_utils::Point	m_Pnt;
 	double	value;
 	int m_Index;
 };
@@ -254,7 +254,7 @@ public:
 //		if (y > (m_Center.Y + m_R)) return false;
 //		if (y < (m_Center.Y - m_R)) return false;
 
-		common::Point dist = itVertex->GetPoint() - m_Center;		// the distance between v and the circle center
+		silly_utils::Point dist = itVertex->GetPoint() - m_Center;		// the distance between v and the circle center
 		double dist2 = dist.X() * dist.X() + dist.Y() * dist.Y();		// squared
 		return dist2 < m_R2;								// compare with squared radius
 	}
@@ -280,7 +280,7 @@ public:
 	bool Encompasses(const vertex & Vertex) const
 	{
 		
-		common::Point dist = Vertex.GetPoint() - m_Center;
+		silly_utils::Point dist = Vertex.GetPoint() - m_Center;
 		double x = fabs(dist.X());
 		double y = fabs(dist.Y());
 
@@ -358,7 +358,7 @@ public:
 	}
 protected:
 	const vertex * m_Vertices[3];	// the three triangle vertices
-	common::Point m_Center;				// center of circumcircle
+	silly_utils::Point m_Center;				// center of circumcircle
 	double m_R;			// radius of circumcircle
 	double m_R2;			// radius of circumcircle, squared
 	CSimpleRect m_Rect;				// bound

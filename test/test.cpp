@@ -4,11 +4,33 @@
 #include <files/TFF_FileUtils.h>
 #include <assert.h>
 #include <bzlib.h>
-#include <vld.h>
+#include "marco.h"
+//#include <vld.h>
+
+
+struct ZAx
+{
+	int a;
+	std::string c;
+};
+struct ZAe
+{
+	int a;
+	std::string c;
+	ZAx f;
+};
 
 int main()
 {
 
-	std::string decompress_path = bz2_wrapper::decompress("E:/SL_CHINA_20230607_0000_060-1hourAccCOTREC.LatLon.bz2");
+	std::string decompress_path;//bz2_wrapper::decompress("E:/SL_CHINA_20230607_0000_060-1hourAccCOTREC.LatLon.bz2");
+	std::filesystem::path tt("E:/SL_CHINA_20230607_0000_060-1hourAccCOTREC.LatLon.bz2");
+	std::cout << tt.extension().string() << std::endl;
+	std::string a = SU_VAR_NAME(decompress_path);
+
+	ZAx fff;
+	std::cout << SU_VAR_NAME(fff.f) << std::endl;
+	std::cout << a << std::endl;
+	std::cout << a << std::endl;
 	return 0;
 }

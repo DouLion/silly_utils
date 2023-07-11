@@ -75,7 +75,7 @@ std::string bz2_wrapper::compress(const std::string& src_file, const std::string
 
 	if (rc != BZ_OK)
 	{
-		printf_s("File: %s, line: %d. Error: compression failed: %d", __FILE__, __LINE__, rc);
+		printf("File: %s, line: %d. Error: compression failed: %d", __FILE__, __LINE__, rc);
 		free(compressed);
 		free(file_content);
 		return "";
@@ -110,7 +110,7 @@ std::string bz2_wrapper::decompress(const std::string& src_file, const std::stri
 	// TODO: 这里要区分大小写
 	if (src_path.extension().string() != BZ2_SUFFIX)// 判断文件扩展名是否正确
 	{
-		printf_s("File: %s, line: %d. Error: invalid bz2 extension: %s.\n", __FILE__, __LINE__, src_path.string().c_str());
+		printf("File: %s, line: %d. Error: invalid bz2 extension: %s.\n", __FILE__, __LINE__, src_path.string().c_str());
 		return ret_dst_file;
 	}
 
@@ -165,7 +165,7 @@ std::string bz2_wrapper::decompress(const std::string& src_file, const std::stri
 	}
 	if (BZ_OK != rc)
 	{
-		printf_s("File: %s, line: %d. Error: decompression failed: %d", __FILE__, __LINE__, rc);
+		printf("File: %s, line: %d. Error: decompression failed: %d", __FILE__, __LINE__, rc);
 		free(file_content);
 		free(decompress);
 		return "";
@@ -194,7 +194,7 @@ bool bz2_wrapper::compress(const char* inval, const unsigned int& inlen, char** 
 {
 	if (!inval || ! inlen)
 	{
-		printf_s("File: %s, line: %d. Error: empty in value.\n", __FILE__, __LINE__);
+		printf("File: %s, line: %d. Error: empty in value.\n", __FILE__, __LINE__);
 		return false;
 	}
 	unsigned int dst_len = BZ2_SUGGEST_COMPRESS_SIZE(inlen);
@@ -205,13 +205,13 @@ bool bz2_wrapper::compress(const char* inval, const unsigned int& inlen, char** 
 	}
 	else
 	{
-		printf_s("File: %s, line: %d. Error: clean outval and set null.\n", __FILE__, __LINE__);
+		printf("File: %s, line: %d. Error: clean outval and set null.\n", __FILE__, __LINE__);
 		return false;
 	}
 	int rc = BZ2_bzBuffToBuffCompress(*outval, &dst_len, c_inval, inlen, 1, 0, 30);
 	if (rc != BZ_OK)
 	{
-		printf_s("File: %s, line: %d. Error: compression failed: %d.\n", __FILE__, __LINE__, rc);
+		printf("File: %s, line: %d. Error: compression failed: %d.\n", __FILE__, __LINE__, rc);
 
 		return false;
 	}
@@ -222,7 +222,7 @@ bool bz2_wrapper::decompress(const char* inval, const unsigned int& inlen, char*
 {
 	if (!inval || ! inlen)
 	{
-		printf_s("File: %s, line: %d. Error: empty in value.\n", __FILE__, __LINE__);
+		printf("File: %s, line: %d. Error: empty in value.\n", __FILE__, __LINE__);
 		return false;
 	}
 	unsigned int dst_len = BZ2_DECOMPRESS_DEFAULT_SIZE;
@@ -234,7 +234,7 @@ bool bz2_wrapper::decompress(const char* inval, const unsigned int& inlen, char*
 	}
 	else
 	{
-		printf_s("File: %s, line: %d. Error: clean outval and set null.\n", __FILE__, __LINE__);
+		printf("File: %s, line: %d. Error: clean outval and set null.\n", __FILE__, __LINE__);
 		return false;
 	}
 	char* decompress = (char*)malloc(dst_len);      //接收解压缩的数据。解压缩需要的内存大小事先是不知道的。
@@ -249,7 +249,7 @@ bool bz2_wrapper::decompress(const char* inval, const unsigned int& inlen, char*
 	}
 	if (BZ_OK != rc)
 	{
-		printf_s("File: %s, line: %d. Error: decompression failed: %d.\n", __FILE__, __LINE__, rc);
+		printf("File: %s, line: %d. Error: decompression failed: %d.\n", __FILE__, __LINE__, rc);
 		if (decompress)
 		{ free(decompress); decompress= nullptr;}
 		return false;

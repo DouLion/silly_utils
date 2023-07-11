@@ -22,7 +22,7 @@
 	@brief This class wraps a rectangle shape in any type.
 	@remark
 */
-namespace common {
+namespace silly_utils {
 	template <class Type>
 	class  Rectangle
 	{

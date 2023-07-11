@@ -17,7 +17,7 @@
 #ifndef TFF_INLINE_SPECIFIER
 #define TFF_INLINE_SPECIFIER inline
 #endif
-namespace common {
+namespace silly_utils {
 	/** @class Float2
 		@brief 2-component float vector.
 		@remark

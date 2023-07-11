@@ -17,7 +17,7 @@
 #ifndef TFF_INLINE_SPECIFIER
 #define TFF_INLINE_SPECIFIER inline
 #endif
-namespace common {
+namespace silly_utils {
 
 /** @class FourCC
  	@brief A four-character-code whitch is human readable.

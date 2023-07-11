@@ -112,7 +112,7 @@ ThiessenPolygon::PositionalRelationship ThiessenPolygon::JudgePositionalRelation
 	{
 		for (size_t j = 0; j < nPolyPtsB; ++j)
 		{
-			if (1 == calc.segcross(this->vecPolygonPts[i], this->vecPolygonPts[(i + 1) % nPolyPtsA],
+			if (1 == calc.seg_cross(this->vecPolygonPts[i], this->vecPolygonPts[(i + 1) % nPolyPtsA],
 				poly.vecPolygonPts[j], poly.vecPolygonPts[(j + 1) % nPolyPtsB], vP))
 			{
 				return POS_INTERSECT;

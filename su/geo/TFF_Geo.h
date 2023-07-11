@@ -17,8 +17,8 @@
 */
 enum EGeoType
 {
-	GeoPointType,			/**< geo point */  
-	GeoRectType,			/**< geo rect */  
+	GeoPointType,            /**< geo point */
+	GeoRectType,            /**< geo rect */
 
 	NumberOfGeoType,
 	InvalidGeoType
@@ -28,17 +28,18 @@ enum EGeoType
 	@brief The class of geo point.
 	@remark
 */
-class  GeoPoint : public common::Double2
+class GeoPoint : public silly_utils::Double2
 {
 public:
 	/// Constructor.
 	GeoPoint()
 	{
-
+		m_x = 0;
+		m_y = 0;
 	}
 
 	GeoPoint(const double x, const double y) :
-		Double2(x, y)
+			Double2(x, y)
 	{
 		//if(latitude<MIN_LAT_VAL||latitude>MAX_LAT_VAL){
 		//	this->latitude = 0.0;
@@ -65,7 +66,7 @@ public:
 	@brief The class of geo rect.
 	@remark
 */
-class  GeoRect : public common::Rectangle<double>
+class GeoRect : public silly_utils::Rectangle<double>
 {
 public:
 	/// Default constructor.
@@ -83,46 +84,44 @@ public:
 	}
 
 	/// Destructor.
-	virtual ~GeoRect()
-	{
-
-	}
+	virtual ~GeoRect() = default;
 
 	bool IsValid()
 	{
-		return !(MathUtils::IsZero(g_left) 
-			&& MathUtils::IsZero(g_top) 
-			&& MathUtils::IsZero(g_right) 
-			&& MathUtils::IsZero(g_bottom)
-			&& g_left <= g_right
-			&& g_top <= g_bottom);
+		return !(MathUtils::IsZero(g_left)
+				 && MathUtils::IsZero(g_top)
+				 && MathUtils::IsZero(g_right)
+				 && MathUtils::IsZero(g_bottom)
+				 && g_left <= g_right
+				 && g_top <= g_bottom);
 	}
 
 	std::string ToString()
 	{
-		return str(boost::format("%1%,%2%,%3%,%4%") %g_left %g_top %g_right %g_bottom);
+		return str(boost::format("%1%,%2%,%3%,%4%") % g_left % g_top % g_right % g_bottom);
 	}
 
-	void FromString(const std::string& geoBoudStr)
+	bool FromString(const std::string& bound_str)
 	{
 		std::vector<std::string> tmpVec;
-		boost::split(tmpVec, geoBoudStr, boost::is_any_of(","));
+		boost::split(tmpVec, bound_str, boost::is_any_of(","));
 		size_t num = tmpVec.size();
 		if (num >= 4)
 		{
-			g_left = atof(tmpVec[0].c_str());
-			g_top = atof(tmpVec[1].c_str());
-			g_right = atof(tmpVec[2].c_str());
-			g_bottom = atof(tmpVec[3].c_str());
+			g_left = std::stof(tmpVec[0]);
+			g_top = std::stof(tmpVec[1]);
+			g_right = std::stof(tmpVec[2]);
+			g_bottom = std::stof(tmpVec[3]);
 		}
+		return IsValid();
 	}
 
 	bool IsEqual(const GeoRect& tmpGeoRect)
 	{
-		return (MathUtils::IsEqual(g_left, tmpGeoRect.g_left) 
-			&& MathUtils::IsEqual(g_top, tmpGeoRect.g_top) 
-			&& MathUtils::IsEqual(g_right, tmpGeoRect.g_right) 
-			&& MathUtils::IsEqual(g_bottom, tmpGeoRect.g_bottom));
+		return (MathUtils::IsEqual(g_left, tmpGeoRect.g_left)
+				&& MathUtils::IsEqual(g_top, tmpGeoRect.g_top)
+				&& MathUtils::IsEqual(g_right, tmpGeoRect.g_right)
+				&& MathUtils::IsEqual(g_bottom, tmpGeoRect.g_bottom));
 	}
 };
 

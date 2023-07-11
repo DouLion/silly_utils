@@ -3,7 +3,7 @@
 #define TFF_INLINE_SPECIFIER inline
 #endif
 #include "math/TFF_Float4.h"
-namespace common {
+namespace silly_utils {
 
 /** @class Vector
  	@brief A vector in homogenous space. A vector represents a direction and lengh in 3d space and it's
