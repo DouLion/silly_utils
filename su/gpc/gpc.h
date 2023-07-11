@@ -24,10 +24,10 @@
 #include <math.h>
 #include <stdio.h>
 
-//#ifndef BOOL
-//
-//#define BOOL bool
-//#endif
+#ifndef BOOL
+
+#define BOOL bool
+#endif
 
 
 typedef enum                        /* Set operation type                */

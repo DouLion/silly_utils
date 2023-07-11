@@ -2,7 +2,9 @@
 
 #include <cmath>
 #include <algorithm>
-
+#ifndef TFF_INLINE_SPECIFIER
+#define TFF_INLINE_SPECIFIER inline
+#endif
 namespace common {
 
 /** @class Double2

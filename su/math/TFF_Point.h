@@ -1,5 +1,8 @@
 #pragma once
 #include "math/TFF_Vector.h"
+#ifndef TFF_INLINE_SPECIFIER
+#define TFF_INLINE_SPECIFIER inline
+#endif
 namespace common {
 
 /** @class Point

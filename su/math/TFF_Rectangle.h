@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright(c)2003-2017 ±±¾©ÌìÖÇÏéĞÅÏ¢¿Æ¼¼ÓĞÏŞ¹«Ë¾(http://www.tianzhixiang.net)
+//  Copyright(c)2003-2017 åŒ—äº¬å¤©æ™ºç¥¥ä¿¡æ¯ç§‘æŠ€æœ‰é™å…¬å¸(http://www.tianzhixiang.net)
 //  All rights reserved.
 //
 //	@file       TFF_Rectangle.h
@@ -13,7 +13,9 @@
 ////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-
+#ifndef TFF_INLINE_SPECIFIER
+#define TFF_INLINE_SPECIFIER inline
+#endif
 #include <vector>
 #include <assert.h>
 /** @class Rectangle
@@ -457,7 +459,7 @@ namespace common {
 			}
 		} while (!bStopPass && !srcRectsOfPass.IsEmpty());
 
-		// ½«»¥²»Ïà½»µÄrect¼ÓÈëµ½rectsInOutÖĞ...
+		// å°†äº’ä¸ç›¸äº¤çš„rectåŠ å…¥åˆ°rectsInOutä¸­...
 		if (!mergedIdxs.IsEmpty() && mergedIdxs.Size() != srcRectsOfOld.Size())
 		{
 			for (unsigned int i = 0; i < srcRectsOfOld.Size(); ++i)

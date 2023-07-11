@@ -14,6 +14,9 @@
 
 #pragma once
 #include "marco.h"
+#ifndef TFF_INLINE_SPECIFIER
+#define TFF_INLINE_SPECIFIER inline
+#endif
 namespace common {
 	/** @class Float2
 		@brief 2-component float vector.

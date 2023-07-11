@@ -1,4 +1,7 @@
 #pragma once
+#ifndef TFF_INLINE_SPECIFIER
+#define TFF_INLINE_SPECIFIER inline
+#endif
 #include "math/TFF_Float4.h"
 namespace common {
 

@@ -13,7 +13,10 @@
 ////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-
+#include <iostream>
+#ifndef TFF_INLINE_SPECIFIER
+#define TFF_INLINE_SPECIFIER inline
+#endif
 namespace common {
 
 /** @class FourCC

@@ -10,8 +10,8 @@
  */
 #pragma once
 
-#ifndef ISOLINERE_OTL_HEADER_HPP
-#define ISOLINERE_OTL_HEADER_HPP
+#ifndef OTL_HEADER_HPP
+#define OTL_HEADER_HPP
 
 #define OTL_ODBC
 
@@ -207,4 +207,4 @@ protected:
 };
 
 
-#endif //ISOLINERE_OTL_HEADER_HPP
+#endif //OTL_HEADER_HPP

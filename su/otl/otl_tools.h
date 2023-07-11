@@ -10,8 +10,8 @@
  */
 #pragma once
 
-#ifndef ISOLINERE_OTL_TOOLS_H
-#define ISOLINERE_OTL_TOOLS_H
+#ifndef OTL_TOOLS_H
+#define OTL_TOOLS_H
 
 #include "otl/otl_header.hpp"
 #include <json/json.h>
@@ -26,4 +26,4 @@ public:
     static OtlConnOption conn_opt_from_json(const Json::Value& root);
 };
 
-#endif //ISOLINERE_OTL_TOOLS_H
+#endif //OTL_TOOLS_H

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright(c)2003-2017 ±±¾©ÌìÖÇÏéĞÅÏ¢¿Æ¼¼ÓĞÏŞ¹«Ë¾(http://www.tianzhixiang.net)
+//  Copyright(c)2003-2017 åŒ—äº¬å¤©æ™ºç¥¥ä¿¡æ¯ç§‘æŠ€æœ‰é™å…¬å¸(http://www.tianzhixiang.net)
 //  All rights reserved.
 //
 //	@file       TFF_MathUtils.h
@@ -15,7 +15,9 @@
 #pragma once
 
 #include <boost/any.hpp>
-
+#ifndef TFF_INLINE_SPECIFIER
+#define TFF_INLINE_SPECIFIER inline
+#endif
 // Float error value.
 #define FLOAT_ERROR 1e-6  
 
@@ -48,9 +50,9 @@ public:
     TFF_INLINE_SPECIFIER static void GetIntFromDouble(double fValue, long long & iValue);
 
     /**
-    * °Ñ¸¡µãÊı°´ÕÕµ¥Î»ºÍ¾«¶È×öÕûÊı»¯
+    * æŠŠæµ®ç‚¹æ•°æŒ‰ç…§å•ä½å’Œç²¾åº¦åšæ•´æ•°åŒ–
     *
-    * ×¢Òâ£ºunitÓ¦¸ÃÊÇ1, 10, 100... µÄĞÎÊ½£¬¶øprecÖ¸ÔÚunitÏÂ±£Áô¼¸Î»Ğ¡ÊıµÄ¾«¶È
+    * æ³¨æ„ï¼šunitåº”è¯¥æ˜¯1, 10, 100... çš„å½¢å¼ï¼Œè€ŒprecæŒ‡åœ¨unitä¸‹ä¿ç•™å‡ ä½å°æ•°çš„ç²¾åº¦
     */
     TFF_INLINE_SPECIFIER static long long  GetIntFromDouble(double fValue, const std::pair<int, int>& multiplier);
     TFF_INLINE_SPECIFIER static long long  GetIntFromDouble(double fValue, const int& unit, const int& pre);
