@@ -16,7 +16,7 @@
 #include <cmath>
 #include "marco.h"
 
-class scaler
+class Scaler
 {
 public:
 	static bool equal(const float& f1, const float& f2)
