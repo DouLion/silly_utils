@@ -15,7 +15,7 @@
 
 #include <cmath>
 #include "marco.h"
-
+namespace silly_utils{
 class Scaler
 {
 public:
@@ -39,5 +39,5 @@ public:
 		return (d * SU_PI) / 180.0;
 	}
 };
-
+}
 #endif //SILLY_UTILS_SCALER_HPP
