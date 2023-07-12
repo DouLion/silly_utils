@@ -58,6 +58,14 @@ elseif (CMAKE_HOST_SYSTEM_NAME MATCHES "Windows")
 
 endif ()
 
+# 设置默认程序根目录,程序中所有路径均参照此路径,方便调试和发布
+if(IS_DEBUG)
+    add_definitions("-DDEFAULT_ROOT_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}\"")
+else()
+    # add_definitions("-DDEFAULT_ROOT_DIR=\"\"")
+    add_definitions("-DDEFAULT_ROOT_DIR=\"./\"")
+endif()
+
 include_directories(${CMAKE_SOURCE_DIR}/su)
 
 ##########################################
