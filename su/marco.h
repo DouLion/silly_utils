@@ -28,8 +28,8 @@
 #endif
 #define SU_TINY TINY
 
-#define		EPS .1e-12
-#define		SU_EPS EPS
+// #define		EPS 与opencv的冲突
+#define		SU_EPS .1e-12
 
 /** earth radius */
 #ifndef EARTH_RADIUS

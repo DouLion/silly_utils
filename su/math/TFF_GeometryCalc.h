@@ -68,7 +68,7 @@ public:
 
 	bool coincident(PointN a, PointN b)
 	{
-		return (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.x - b.x) < EPS;
+		return (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.x - b.x) < SU_EPS;
 	}
 
 	/*
