@@ -19,9 +19,6 @@
 #include "encode/convert.hpp"
 #include "TFF_FileUtils.h"
 
-#ifndef DEFAULT_ROOT_DIR
-#define DEFAULT_ROOT_DIR "./"
-#endif 
 
 using namespace boost::xpressive;
 using namespace std::filesystem;
