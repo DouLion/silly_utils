@@ -22,61 +22,61 @@
 
 using namespace boost::xpressive;
 using namespace std::filesystem;
-std::filesystem::path FileUtils::GetPath(const std::string& path)
-{
-	std::filesystem::path fspath(path);
-	return GetPath(fspath);
-}
-std::filesystem::path FileUtils::GetPath(const std::filesystem::path& path)
-{
-	bool isAbs = false;	// 是否是绝对路径
-	std::string filepathstr = path.string();
-#if IS_WIN32
-	for (int i = 0; i < filepathstr.size(); ++i)
-	{
-		if (filepathstr[i]== ':') // 文件名中存在盘符符号,window也不允许文件名中存在 \ / : * | ? " < >特殊字符
-		{
-			isAbs = true;
-			break;
-		}
-	}
-#elif IS_LINUX
-	if (!filepathstr.empty())
-	{
-		if (filepathstr[0] == '/')	// 
-		{
-			isAbs = true;
-		}
-	}
-#endif
-	if (isAbs)
-	{
-		return std::filesystem::path(filepathstr);
-	}
-	std::filesystem::path fspath(DEFAULT_ROOT_DIR);
-	fspath.append(filepathstr);
-	return fspath;
-}
-
-std::filesystem::path FileUtils::GetPath(const char* path)
-{
-	std::filesystem::path fspath(path);
-	return GetPath(fspath);
-}
-
-std::string FileUtils::GetPathStr(const std::string& path)
-{
-	return GetPath(path).string();
-}
-std::string FileUtils::GetPathStr(const std::filesystem::path& path)
-{
-	return GetPath(path).string();
-}
-
-std::string FileUtils::GetPathStr(const char* path)
-{
-	return GetPath(path).string();
-}
+//std::filesystem::path FileUtils::GetPath(const std::string& path)
+//{
+//	std::filesystem::path fspath(path);
+//	return GetPath(fspath);
+//}
+//std::filesystem::path FileUtils::GetPath(const std::filesystem::path& path)
+//{
+//	bool isAbs = false;	// 是否是绝对路径
+//	std::string filepathstr = path.string();
+//#if IS_WIN32
+//	for (int i = 0; i < filepathstr.size(); ++i)
+//	{
+//		if (filepathstr[i]== ':') // 文件名中存在盘符符号,window也不允许文件名中存在 \ / : * | ? " < >特殊字符
+//		{
+//			isAbs = true;
+//			break;
+//		}
+//	}
+//#elif IS_LINUX
+//	if (!filepathstr.empty())
+//	{
+//		if (filepathstr[0] == '/')	//
+//		{
+//			isAbs = true;
+//		}
+//	}
+//#endif
+//	if (isAbs)
+//	{
+//		return std::filesystem::path(filepathstr);
+//	}
+//	std::filesystem::path fspath(DEFAULT_ROOT_DIR);
+//	fspath.append(filepathstr);
+//	return fspath;
+//}
+//
+//std::filesystem::path FileUtils::GetPath(const char* path)
+//{
+//	std::filesystem::path fspath(path);
+//	return GetPath(fspath);
+//}
+//
+//std::string FileUtils::GetPathStr(const std::string& path)
+//{
+//	return GetPath(path).string();
+//}
+//std::string FileUtils::GetPathStr(const std::filesystem::path& path)
+//{
+//	return GetPath(path).string();
+//}
+//
+//std::string FileUtils::GetPathStr(const char* path)
+//{
+//	return GetPath(path).string();
+//}
 
 bool FileUtils::IsDirectory(const char* dirPath)
 {

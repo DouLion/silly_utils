@@ -15,12 +15,12 @@ class  FileUtils
 {
 public:
 	/// Whether is directory.
-	static std::filesystem::path GetPath(const char* path);
-	static std::filesystem::path GetPath(const std::string& path);
-	static std::filesystem::path GetPath(const std::filesystem::path& path);
-	static std::string GetPathStr(const char* path);
-	static std::string GetPathStr(const std::string& path);
-	static std::string GetPathStr(const std::filesystem::path& path);
+//	static std::filesystem::path GetPath(const char* path);
+//	static std::filesystem::path GetPath(const std::string& path);
+//	static std::filesystem::path GetPath(const std::filesystem::path& path);
+//	static std::string GetPathStr(const char* path);
+//	static std::string GetPathStr(const std::string& path);
+//	static std::string GetPathStr(const std::filesystem::path& path);
 	static bool IsDirectory(const char* dirPath);
 	static bool IsDirectory(const std::string& dirPath);
 	/// Whether is regular file.
