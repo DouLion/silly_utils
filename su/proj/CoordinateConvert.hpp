@@ -25,10 +25,10 @@ public:
 
 		if (bPrecise)
 		{
-			double mapY0 = std::log(std::tan(TFF_PI / 4.0 + geo.g_bottom * TFF_PI / 360.0));
-			double mapY1 = std::log(std::tan(TFF_PI / 4.0 + geo.g_top * TFF_PI / 360.0));
+			double mapY0 = std::log(std::tan(SU_PI / 4.0 + geo.g_bottom * SU_PI / 360.0));
+			double mapY1 = std::log(std::tan(SU_PI / 4.0 + geo.g_top * SU_PI / 360.0));
 			double mapH = std::abs(mapY1 - mapY0);
-			sy = ((mapY0 - std::log(std::tan(TFF_PI / 4.0 + lat * TFF_PI / 360.0))) * height) / mapH;
+			sy = ((mapY0 - std::log(std::tan(SU_PI / 4.0 + lat * SU_PI / 360.0))) * height) / mapH;
 		}
 		else
 		{
@@ -48,10 +48,10 @@ public:
 
 		if (bPrecise)
 		{
-			double mapy0 = std::log(std::tan(TFF_PI / 4.0 + geo.g_bottom * TFF_PI / 360.0));
-			double mapy1 = std::log(std::tan(TFF_PI / 4.0 + geo.g_top * TFF_PI / 360.0));
+			double mapy0 = std::log(std::tan(SU_PI / 4.0 + geo.g_bottom * SU_PI / 360.0));
+			double mapy1 = std::log(std::tan(SU_PI / 4.0 + geo.g_top * SU_PI / 360.0));
 			double maph = std::abs(mapy1 - mapy0);
-			sy = int(((mapy0 - std::log(std::tan(TFF_PI / 4.0 + lat * TFF_PI / 360.0))) * height) / maph);
+			sy = int(((mapy0 - std::log(std::tan(SU_PI / 4.0 + lat * SU_PI / 360.0))) * height) / maph);
 		}
 		else
 		{
