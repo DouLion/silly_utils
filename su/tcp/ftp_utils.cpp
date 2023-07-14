@@ -23,7 +23,7 @@ static size_t write_info_resp_func(void* ptr, size_t size, size_t nmb, void* dat
 		info->size += size;
 		info->cache = (unsigned char*)realloc(info->cache, info->size);
 	}
-	memcpy_s(info->cache + info->size - size, size, ptr, size);
+	memcpy(info->cache + info->size - size, ptr, size);
 	return size;
 }
 
