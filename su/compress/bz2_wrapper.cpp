@@ -31,7 +31,7 @@ std::string bz2_wrapper::compress(const std::string& src_file, const std::string
 	size_t file_len = 0;
 	FILE* rf = nullptr;
 	rf = fopen(src_file.c_str(), "rb");
-	if (rf && !err)    // 读取文件内容
+	if (rf)    // 读取文件内容
 	{
 		char buffer[1024 * 10] = { 0 };
 		size_t cur = fread(buffer, 1, sizeof(buffer), rf);
@@ -124,7 +124,7 @@ std::string bz2_wrapper::decompress(const std::string& src_file, const std::stri
 	int file_len = 0;
 	FILE* pf = nullptr;
 	pf = fopen(src_file.c_str(), "rb");
-	if (pf && !err)    // 读取文件内容
+	if (pf)    // 读取文件内容
 	{
 		char buffer[1024 * 10] = { 0 };
 		size_t cur = fread(buffer, 1, sizeof(buffer), pf);
