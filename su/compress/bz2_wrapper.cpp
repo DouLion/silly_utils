@@ -5,6 +5,7 @@
 #include "bz2_wrapper.h"
 #include <bzlib.h>
 #include <filesystem>
+#include <cstring>
 
 #define BZ2_SUFFIX    ".bz2"
 // 1024*1024*512
@@ -29,7 +30,7 @@ std::string bz2_wrapper::compress(const std::string& src_file, const std::string
 	char* file_content = nullptr;
 	size_t file_len = 0;
 	FILE* rf = nullptr;
-	errno_t err = fopen_s(&rf, src_file.c_str(), "rb");
+	rf = fopen(src_file.c_str(), "rb");
 	if (rf && !err)    // 读取文件内容
 	{
 		char buffer[1024 * 10] = { 0 };
@@ -82,7 +83,7 @@ std::string bz2_wrapper::compress(const std::string& src_file, const std::string
 	}
 
 	FILE* wf = nullptr;
-	fopen_s(&wf, ret_dst_file.c_str(), "wb");
+	wf = fopen(ret_dst_file.c_str(), "wb");
 	if (wf)
 	{
 		fwrite(compressed, 1, dst_len, wf);
@@ -122,7 +123,7 @@ std::string bz2_wrapper::decompress(const std::string& src_file, const std::stri
 	char* file_content = nullptr;
 	int file_len = 0;
 	FILE* pf = nullptr;
-	errno_t err = fopen_s(&pf, src_file.c_str(), "rb");
+	pf = fopen(src_file.c_str(), "rb");
 	if (pf && !err)    // 读取文件内容
 	{
 		char buffer[1024 * 10] = { 0 };
@@ -171,7 +172,7 @@ std::string bz2_wrapper::decompress(const std::string& src_file, const std::stri
 		return "";
 	}
 	FILE* wf = nullptr;
-	fopen_s(&wf, ret_dst_file.c_str(), "wb");
+	wf = fopen(ret_dst_file.c_str(), "wb");
 	if (wf)
 	{
 		fwrite(decompress, 1, dst_len, wf);
