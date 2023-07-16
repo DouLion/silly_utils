@@ -175,7 +175,7 @@ public:
 						schema + ";UID=" + user + ";PWD=" + password + ";";
 				break;
 			case EDBType::dbORACLE:
-				m_pOtlConnStr = "Driver={" + driver + "};Server=" + ip + ":" + std::to_string(port) + "/" + schema +
+				m_pOtlConnStr = "Driver={" + driver + "};DBQ=" + ip + ":" + std::to_string(port) + "/" + schema +
 								";Uid=" + user + ";Pwd=" + password + ";";
 				break;
 			default:
