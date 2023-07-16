@@ -1,5 +1,5 @@
 #include <iostream>
-#include <otl/otl_tools.h>
+#include <database/otl/otl_tools.h>
 #include <compress/bz2_wrapper.h>
 #include <files/TFF_FileUtils.h>
 #include <assert.h>
