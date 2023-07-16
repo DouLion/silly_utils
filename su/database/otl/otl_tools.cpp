@@ -91,7 +91,19 @@ otl_datetime otl_tools::otl_time_from_string(const std::string &str) {
 
 std::string otl_tools::otl_time_to_string(const otl_datetime &tm) {
     char datetime_buff[32] = {};
-    sprintf(datetime_buff, "%04d-%02d-%02d %02d:%02d", tm.year, tm.month, tm.day, tm.hour, tm.minute);
+    sprintf(datetime_buff, "%04d-%02d-%02d %02d:%02d:%02d", tm.year, tm.month, tm.day, tm.hour, tm.minute, tm.second);
 
     return datetime_buff;
+}
+
+OtlConnOption otl_tools::conn_opt_from_json(const std::string& json_str)
+{
+	OtlConnOption ret_opt;
+	Json::Reader reader;
+	Json::Value root;
+	if (reader.parse(json_str, root))
+	{
+		ret_opt = otl_tools::conn_opt_from_json(root);
+	}
+	return ret_opt;
 }

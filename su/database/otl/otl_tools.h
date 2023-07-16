@@ -24,6 +24,8 @@ public:
 	static std::string otl_time_to_string(const otl_datetime& tm);
 
     static OtlConnOption conn_opt_from_json(const Json::Value& root);
+
+	static OtlConnOption conn_opt_from_json(const std::string& json_str);
 };
 
 #endif //OTL_TOOLS_H
