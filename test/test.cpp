@@ -5,6 +5,7 @@
 #include <assert.h>
 #include <bzlib.h>
 #include "marco.h"
+#include <triangular/bowyer_watson_delaunay.hpp>
 //#include <vld.h>
 
 
