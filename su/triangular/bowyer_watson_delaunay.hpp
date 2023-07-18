@@ -224,7 +224,11 @@ namespace delaunay {
 			points.push_back(Point(dx[i], dy[i], dz[i]));
 		}
 		Delaunay<T> delaunay = triangulate(points);
-		retnum = delaunay.triangles.size();
+		if (delaunay.triangles.empty())
+		{
+			return 0;
+		}
+		int retnum = delaunay.triangles.size();
 		tax = (T*)malloc(retnum * sizeof(T));
 		tay = (T*)malloc(retnum * sizeof(T));
 		taz = (T*)malloc(retnum * sizeof(T));
