@@ -23,7 +23,8 @@ struct ZAe
 
 int main()
 {
-
+	std::vector<delaunay::Point<double>> points;
+	delaunay::triangulate(points);
 	std::string decompress_path;//bz2_wrapper::decompress("E:/SL_CHINA_20230607_0000_060-1hourAccCOTREC.LatLon.bz2");
 	std::filesystem::path tt("E:/SL_CHINA_20230607_0000_060-1hourAccCOTREC.LatLon.bz2");
 	std::cout << tt.extension().string() << std::endl;

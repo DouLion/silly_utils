@@ -21,13 +21,14 @@ namespace delaunay {
 	template <typename T>
 	struct Point {
 		T x, y;
-		T v;
+		double v;
 
 		Point() : x{ 0 }, y{ 0 }, v{ 0 } {}
-		Point(T _x, T _y, T _v) : x{ _x }, y{ _y }, v{ _v } {}
+		Point(T _x, T _y, double _v) : x{ _x }, y{ _y }, v{ _v } {}
+		Point(T _x, T _y) : x{ _x }, y{ _y }, v{ 0 } {}
 
 		template <typename U>
-		Point(U _x, U _y, T _v) : x{ static_cast<T>(_x) }, y{ static_cast<T>(_y) }, v{ _v }
+		Point(U _x, U _y) : x{ static_cast<T>(_x) }, y{ static_cast<T>(_y) }, v{ 0 }
 		{
 		}
 
@@ -44,7 +45,7 @@ namespace delaunay {
 
 		bool operator!=(const Point<T>& other) const { return !operator==(other); }
 
-		bool operator=(const Point<T>& other)
+		Point<T>& operator=(const Point<T>& other)
 		{
 			this->x = other.x;
 			this->y = other.y;
