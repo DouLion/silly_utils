@@ -7,6 +7,7 @@
 #include "marco.h"
 #include "geo/silly_geo.h"
 #include <triangular/silly_delaunay.hpp>
+#include <triangular/TFF_Delaunay.h>
 //#include <vld.h>
 static char* GetDouble(char* q, double& v)
 {
@@ -64,18 +65,25 @@ int main()
 	content.append(",\0");
 
 	auto points = get_points(content);
-	delaunay::d_delaunay dln = delaunay::triangulate(points);
+	Delaunay DelaunayTri;
+	//// ddx, ddy, ddz  生成三角形,每个三角形 a b c 三个边, z 值为?
+	vertexSet vertices;
+	for (auto& p:  points) {
+		vertices.insert(vertex(p.x, p.y, p.v));
+	}
+	triangleSet output;
+	DelaunayTri.Triangulate(vertices, output);
+	delaunay::d_delaunay dln;// =  delaunay::triangulate(points);
 	std::vector<silly_poly> polys;
-	int i = 0;
-	for (auto tri : dln.triangles)
+	for (auto& tri : output)
 	{
 		silly_poly poly;
-		poly.outer_ring.points.push_back({tri.p0.x, tri.p0.y});
-		poly.outer_ring.points.push_back({tri.p1.x, tri.p1.y});
-		poly.outer_ring.points.push_back({tri.p2.x, tri.p2.y});
-		poly.outer_ring.points.push_back({tri.p0.x, tri.p0.y});
+		poly.outer_ring.points.push_back({tri.GetVertex(0)->GetX(), tri.GetVertex(0)->GetY() });
+		poly.outer_ring.points.push_back({ tri.GetVertex(1)->GetX(), tri.GetVertex(1)->GetY() });
+		poly.outer_ring.points.push_back({ tri.GetVertex(2)->GetX(), tri.GetVertex(2)->GetY() });
+		poly.outer_ring.points.push_back({ tri.GetVertex(0)->GetX(), tri.GetVertex(0)->GetY() });
 		polys.push_back(poly);
-		if (i == 15000)
+		/*if (i == 15000)
 		{
 			break;
 		}
@@ -83,7 +91,7 @@ int main()
 		if (i == 15421)
 		{
 			int a = 0;
-		}
+		}*/
 	}
 	std::string geojson = silly_geo::dump_geojson(polys);
 	FileUtils::WriteAll("E:/hebei_tri.geojson", geojson);

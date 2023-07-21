@@ -142,23 +142,19 @@ namespace delaunay
 			const auto ay = p1.y - p0.y;
 			const auto bx = p2.x - p0.x;
 			const auto by = p2.y - p0.y;
-
-			const auto m = p1.x * p1.x - p0.x * p0.x + p1.y * p1.y - p0.y * p0.y;
-			const auto u = p2.x * p2.x - p0.x * p0.x + p2.y * p2.y - p0.y * p0.y;
-			const auto s = 1. / (2. * (ax * by - ay * bx));
-			if (std::isinf(s))
+			if (ax < REAL_EPSILON || ay < REAL_EPSILON || bx < REAL_EPSILON || by < REAL_EPSILON)
 			{
 				circle.radius = 0;
 			}
-			else
-			{
-				circle.x = ((p2.y - p0.y) * m + (p0.y - p1.y) * u) * s;
-				circle.y = ((p0.x - p2.x) * m + (p1.x - p0.x) * u) * s;
+			const auto m = p1.x * p1.x - p0.x * p0.x + p1.y * p1.y - p0.y * p0.y;
+			const auto u = p2.x * p2.x - p0.x * p0.x + p2.y * p2.y - p0.y * p0.y;
+			const auto s = 1. / (2. * (ax * by - ay * bx));
+			circle.x = ((p2.y - p0.y) * m + (p0.y - p1.y) * u) * s;
+			circle.y = ((p0.x - p2.x) * m + (p1.x - p0.x) * u) * s;
 
-				const auto dx = p0.x - circle.x;
-				const auto dy = p0.y - circle.y;
-				circle.radius = dx * dx + dy * dy;
-			}
+			const auto dx = p0.x - circle.x;
+			const auto dy = p0.y - circle.y;
+			circle.radius = dx * dx + dy * dy;
 			
 		}
 	};
@@ -244,6 +240,7 @@ namespace delaunay
 			}
 			int tri_num = tmps.size();
 
+			int ignore_radius_cnt = 0;
 			for (auto [i0, i1_c]: bad_edge_records)
 			{
 				for (auto [i1, c]: i1_c)
@@ -252,6 +249,11 @@ namespace delaunay
 					{
 						edge_num++;
 						d_triangle ttt{ n_points[i0], n_points[i1], { pt.x, pt.y, pt.v, pt.i }};
+						if (ttt.circle.radius==0)// 外接圆半径过小的就不处理了,可能点坐标就有问题
+						{
+							continue;
+							ignore_radius_cnt++;
+						}
 						tmps.push_back({ ttt });
 					}
 				}
