@@ -28,8 +28,8 @@ public:
 
 	static std::string decompress(const std::string& src_file, const std::string& dst_file = "");
 
-	static bool compress(const char* inval, const unsigned int& inlen, char** outval, unsigned int* outlen);
-	static bool decompress(const char* inval, const unsigned int& inlen, char** outval, unsigned int* outlen);
+	static bool compress(const char* inval, const unsigned int& inlen, char* outval, unsigned int* outlen);
+	static bool decompress(const char* inval, const unsigned int& inlen, char* outval, unsigned int* outlen);
 };
 
 #endif //SILLY_UTILS_BZ2_WRAPPER_H

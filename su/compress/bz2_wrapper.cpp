@@ -191,7 +191,7 @@ std::string bz2_wrapper::decompress(const std::string& src_file, const std::stri
 	return ret_dst_file;
 }
 
-bool bz2_wrapper::compress(const char* inval, const unsigned int& inlen, char** outval, unsigned int* outlen)
+bool bz2_wrapper::compress(const char* inval, const unsigned int& inlen, char* outval, unsigned int* outlen)
 {
 	if (!inval || ! inlen)
 	{
@@ -200,16 +200,16 @@ bool bz2_wrapper::compress(const char* inval, const unsigned int& inlen, char** 
 	}
 	unsigned int dst_len = BZ2_SUGGEST_COMPRESS_SIZE(inlen);
 	char* c_inval = (char*)inval;
-	if (!*outval)
+	if (!outval)
 	{
-		*outval = (char*)malloc(dst_len);
+		outval = (char*)malloc(dst_len);
 	}
 	else
 	{
 		printf("File: %s, line: %d. Error: clean outval and set null.\n", __FILE__, __LINE__);
 		return false;
 	}
-	int rc = BZ2_bzBuffToBuffCompress(*outval, &dst_len, c_inval, inlen, 1, 0, 30);
+	int rc = BZ2_bzBuffToBuffCompress(outval, &dst_len, c_inval, inlen, 1, 0, 30);
 	if (rc != BZ_OK)
 	{
 		printf("File: %s, line: %d. Error: compression failed: %d.\n", __FILE__, __LINE__, rc);
@@ -219,7 +219,7 @@ bool bz2_wrapper::compress(const char* inval, const unsigned int& inlen, char** 
 	return true;
 }
 
-bool bz2_wrapper::decompress(const char* inval, const unsigned int& inlen, char** outval, unsigned int* outlen)
+bool bz2_wrapper::decompress(const char* inval, const unsigned int& inlen, char* outval, unsigned int* outlen)
 {
 	if (!inval || ! inlen)
 	{
@@ -229,30 +229,30 @@ bool bz2_wrapper::decompress(const char* inval, const unsigned int& inlen, char*
 	unsigned int dst_len = BZ2_DECOMPRESS_DEFAULT_SIZE;
 	*outlen = 0;
 	char* c_inval = (char*)inval;
-	if (!*outval)
+	if (!outval)
 	{
-		*outval = (char*)malloc(dst_len);
+		outval = (char*)malloc(dst_len);
 	}
 	else
 	{
 		printf("File: %s, line: %d. Error: clean outval and set null.\n", __FILE__, __LINE__);
 		return false;
 	}
-	char* decompress = (char*)malloc(dst_len);      //接收解压缩的数据。解压缩需要的内存大小事先是不知道的。
-	int rc = BZ2_bzBuffToBuffDecompress(decompress, &dst_len, c_inval, inlen, 0, 0);
+	//char* decompress = (char*)malloc(dst_len);      //接收解压缩的数据。解压缩需要的内存大小事先是不知道的。
+	int rc = BZ2_bzBuffToBuffDecompress(outval, &dst_len, c_inval, inlen, 0, 0);
 	while (BZ_OUTBUFF_FULL == rc)	// 预设解压空间较小,需要扩大,其他情况再看如何解决
 	{
 		dst_len += BZ2_DECOMPRESS_DEFAULT_SIZE;
-		if (decompress)
-		{ free(decompress); }
-		decompress = (char*)malloc(dst_len);
-		rc = BZ2_bzBuffToBuffDecompress(decompress, &dst_len, c_inval, inlen, 0, 0);
+		if (outval)
+		{ free(outval); }
+		outval = (char*)malloc(dst_len);
+		rc = BZ2_bzBuffToBuffDecompress(outval, &dst_len, c_inval, inlen, 0, 0);
 	}
 	if (BZ_OK != rc)
 	{
 		printf("File: %s, line: %d. Error: decompression failed: %d.\n", __FILE__, __LINE__, rc);
-		if (decompress)
-		{ free(decompress); decompress= nullptr;}
+		if (outval)
+		{ free(outval); outval = nullptr;}
 		return false;
 	}
 	*outlen = dst_len;
