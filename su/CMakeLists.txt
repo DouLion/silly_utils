@@ -26,8 +26,8 @@ set(Boost_USE_MULTITHREADED ON)
 set(Boost_NO_WARN_NEW_VERSIONS 1)
 
 ### Packages 
-find_package(Boost REQUIRED COMPONENTS system thread date_time chrono regex filesystem unit_test_framework program_options iostreams locale serialization )
-target_link_libraries(${PROJECT_NAME} PUBLIC Boost::boost Boost::system Boost::thread Boost::date_time Boost::chrono Boost::regex Boost::filesystem Boost::unit_test_framework Boost::program_options Boost::iostreams Boost::locale Boost::serialization) 
+find_package(Boost REQUIRED COMPONENTS system thread date_time chrono regex filesystem program_options iostreams locale serialization )
+target_link_libraries(${PROJECT_NAME} PUBLIC Boost::boost Boost::system Boost::thread Boost::date_time Boost::chrono Boost::regex Boost::filesystem Boost::program_options Boost::iostreams Boost::locale Boost::serialization) 
 
 find_package(cryptopp CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC cryptopp::cryptopp)

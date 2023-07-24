@@ -19,7 +19,7 @@
   include_directories(silly_utils/su)
   ```
 
-  这几行代码结合cmake/silly_utils.cmakem 会将gitlab上的silly_utils项目源码下载到项目根目录下,并且以源码的形式嵌入当前项目
+  这几行代码结合cmake/silly_utils.cmake 会将gitlab上的silly_utils项目源码下载到项目根目录下,并且以源码的形式嵌入当前项目
 
 + 记得要链接这个库
 
