@@ -26,18 +26,42 @@ bool netcdf_utils::read_netcdf(const std::string& path, const std::string& group
 		NcVar value_var = nc_group.getVar(group);
 
 		std::vector<NcDim> ncDimVector = value_var.getDims();
+		/*for (auto& nd : ncDimVector)
+		{
+			std::cout << nd.getName() << std::endl;
+		}
 		if (ncDimVector.size() != 3) {
 			return false;
-		}
+		}*/
 
 		std::string time_name, lan_name, lon_name;
-		time_name = ncDimVector[0].getName();
-		lan_name = ncDimVector[1].getName();
-		lon_name = ncDimVector[2].getName();
-		size_t time_len, lat_len, lon_len;
-		time_len = ncDimVector[0].getSize();
-		lat_len = ncDimVector[1].getSize();
-		lon_len = ncDimVector[2].getSize();
+		size_t time_len;
+		if (ncDimVector.size() == 2)
+		{
+			lan_name = ncDimVector[0].getName();
+			lon_name = ncDimVector[1].getName();
+			info.geo.y_size = ncDimVector[0].getSize();
+			info.geo.x_size = ncDimVector[1].getSize();
+		}
+		if (ncDimVector.size() == 3)
+		{
+			time_name = ncDimVector[0].getName();
+			lan_name = ncDimVector[1].getName();
+			lon_name = ncDimVector[2].getName();
+			time_len = ncDimVector[0].getSize();
+			info.geo.y_size = ncDimVector[1].getSize();
+			info.geo.x_size = ncDimVector[2].getSize();
+		}
+		if (ncDimVector.size() == 4)
+		{
+			time_name = ncDimVector[0].getName();
+			lan_name = ncDimVector[2].getName();
+			lon_name = ncDimVector[3].getName();
+			time_len = ncDimVector[0].getSize();
+			info.geo.y_size = ncDimVector[2].getSize();
+			info.geo.x_size = ncDimVector[3].getSize();
+		}
+		
 		NcVar time_var, lat_var, lon_var;
 		lat_var = nc_group.getVar(lan_name);
 		if (lat_var.isNull()) {
@@ -47,29 +71,31 @@ bool netcdf_utils::read_netcdf(const std::string& path, const std::string& group
 		if (lon_var.isNull()) {
 			return false;
 		}
-		nc_val_data = (float *) malloc(time_len * lat_len * lon_len * sizeof(float));
-		nc_lon_data = (float *) malloc(lon_len * sizeof(float));
-		nc_lat_data = (float *) malloc(lat_len * sizeof(float));
+		nc_val_data = (float *) malloc(time_len * info.geo.y_size * info.geo.x_size * sizeof(float));
+		nc_lon_data = (float *) malloc(info.geo.x_size * sizeof(float));
+		nc_lat_data = (float *) malloc(info.geo.y_size * sizeof(float));
 
 		lon_var.getVar(nc_lon_data);
 		lat_var.getVar(nc_lat_data);
 
-		for (auto j = 0; j < lat_len; ++j) {
+		for (auto j = 0; j < info.geo.y_size; ++j) {
 			info.geo.rect.g_bottom = std::min(info.geo.rect.g_bottom, (double)nc_lat_data[j]);
 			info.geo.rect.g_top = std::max(info.geo.rect.g_top, (double)nc_lat_data[j]);
 		}
-		for (auto i = 0; i < lon_len; ++i) {
+		for (auto i = 0; i < info.geo.x_size; ++i) {
 			info.geo.rect.g_left = std::min(info.geo.rect.g_left, (double)nc_lon_data[i]);
 			info.geo.rect.g_right = std::max(info.geo.rect.g_right, (double)nc_lon_data[i]);
 		}
+		info.geo.x_delta = (info.geo.rect.g_right - info.geo.rect.g_left) / info.geo.x_size;
+		info.geo.y_delta = (info.geo.rect.g_top - info.geo.rect.g_bottom) / info.geo.y_size;
 
 		value_var.getVar(nc_val_data);
 		for (int lvl = 0; lvl < time_len; lvl++) {
-			cv::Mat mat_data(lon_len, lat_len, CV_32FC1);
-			size_t lvlStart = lvl * lat_len * lon_len;
-			for (int lat = 0; lat < lat_len; lat++) {
-				for (int lon = 0; lon < lon_len; lon++) {
-					mat_data.ptr<float>(lon, lat)[0] = nc_val_data[lvlStart + (lon_len - lon - 1) * lat_len + lat];
+			cv::Mat mat_data(info.geo.x_size, info.geo.y_size, CV_32FC1);
+			size_t lvlStart = lvl * info.geo.y_size * info.geo.x_size;
+			for (int lat = 0; lat < info.geo.y_size; lat++) {
+				for (int lon = 0; lon < info.geo.x_size; lon++) {
+					mat_data.ptr<float>(lon, lat)[0] = nc_val_data[lvlStart + (info.geo.x_size - lon - 1) * info.geo.y_size + lat];
 				}
 			}
 			data.insert({lvl, mat_data});
@@ -185,6 +211,8 @@ bool netcdf_utils::write_netcdf(const std::string& path, const nc_info& info, co
 			}
 		}
 		presVar.putVar(rains);
+		free(lats);
+		free(lons);
 		free(rains);
 		//tempVar.putVar(tempOut);
 
@@ -278,6 +306,8 @@ bool netcdf_utils::write_netcdf(const std::string& path, const nc_info& info, co
 			}
 		}
 		presVar.putVar(rains);
+		free(lats);
+		free(lons);
 		free(rains);
 		//tempVar.putVar(tempOut);
 

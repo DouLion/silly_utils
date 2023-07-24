@@ -18,10 +18,10 @@
 #include <opencv2/opencv.hpp>
 
 struct nc_geo_rect {
-	double g_left;
-	double g_top;
-	double g_right;
-	double g_bottom;
+	double g_left{180.};
+	double g_top{-90.};
+	double g_right{-180.};
+	double g_bottom{90.};
 };
 
 struct nc_dim_info
@@ -36,8 +36,8 @@ struct nc_geo_info
 	nc_geo_rect rect;
 	double x_delta;
 	double y_delta;
-	int x_size;
-	int y_size;
+	size_t x_size;
+	size_t y_size;
 };
 
 struct nc_info{

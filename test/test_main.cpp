@@ -8,7 +8,10 @@
 #include "geo/silly_geo.h"
 #include <triangular/silly_delaunay.hpp>
 #include <triangular/TFF_Delaunay.h>
-//#include <vld.h>
+#include <weather/netcdf_utils.h>
+#if IS_WIN32
+#include <vld.h>
+#endif
 static char* GetDouble(char* q, double& v)
 {
 	char d[100] = { 0 };
@@ -53,6 +56,23 @@ std::vector<delaunay::d_point> get_points(const std::string& data)
 
 int main()
 {
+	std::map<int, cv::Mat> cm;
+	nc_info ni;
+	netcdf_utils::read_netcdf("E:/ncf_20210624_065933.nc", "RATE_HYBRID", cm, ni);
+	nc_dim_info dimlat, dimlon;
+	dimlat.name = "Latitude";
+	dimlat.attributes["units"] = "degress_north";
+	dimlat.size = 200;
+
+	dimlon.name = "Longitude";
+	dimlon.attributes["units"] = "degress_north";
+	dimlon.size = 200;
+
+	ni.dims.push_back(dimlat);
+	ni.dims.push_back(dimlon);
+
+	netcdf_utils::write_netcdf("E:/fff.nc", ni, "ggf", cm[0]);
+	return 0;
 	/*delaunay::d_point p0{0, 0, 0, 1}, p1{0,0, 0, 2}, p2{1,1, 0,3};
 	delaunay::d_triangle tt{ p0, p1, p2 };
 	double z1 = 10, z2 = 10;
