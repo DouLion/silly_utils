@@ -53,3 +53,9 @@ target_link_libraries(${PROJECT_NAME} PUBLIC BZip2::BZip2)
 
 find_package(RapidJSON CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC rapidjson)
+
+find_package( OpenCV CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC opencv_core opencv_imgcodecs opencv_imgproc)
+
+find_package(netCDFCxx CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC netCDF::netcdf netCDF::netcdf-cxx4)

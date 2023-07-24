@@ -120,7 +120,6 @@ namespace delaunay
 
 	struct d_triangle
 	{
-		using d_point = d_point;
 		d_point p0, p1, p2;
 		d_edge e0, e1, e2;
 		d_circle circle;
