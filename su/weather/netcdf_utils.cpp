@@ -61,6 +61,25 @@ bool netcdf_utils::read_netcdf(const std::string& path, const std::string& group
 			info.geo.y_size = ncDimVector[2].getSize();
 			info.geo.x_size = ncDimVector[3].getSize();
 		}
+		float addOffset = 0;
+		float scaleFactor = 1.0;
+		float invalid_data = 0;
+		std::map<std::string, NcVarAtt> extra_vars = value_var.getAtts();
+		for (auto [key_, attr_] : extra_vars)
+		{
+			if (key_ == "_FillValue")
+			{
+				attr_.getValues(&invalid_data);
+			}
+			else if (key_ == "add_offset")
+			{
+				attr_.getValues(&addOffset);
+			}
+			else if (key_ == "scale_factor")
+			{
+				attr_.getValues(&scaleFactor);
+			}
+		}
 		
 		NcVar time_var, lat_var, lon_var;
 		lat_var = nc_group.getVar(lan_name);
@@ -95,7 +114,15 @@ bool netcdf_utils::read_netcdf(const std::string& path, const std::string& group
 			size_t lvlStart = lvl * info.geo.y_size * info.geo.x_size;
 			for (int lat = 0; lat < info.geo.y_size; lat++) {
 				for (int lon = 0; lon < info.geo.x_size; lon++) {
-					mat_data.ptr<float>(lon, lat)[0] = nc_val_data[lvlStart + (info.geo.x_size - lon - 1) * info.geo.y_size + lat];
+					if (invalid_data == nc_val_data[lvlStart + (info.geo.x_size - lon - 1) * info.geo.y_size + lat])
+					{
+						mat_data.ptr<float>(lon, lat)[0] = 0;
+					}
+					else
+					{
+						mat_data.ptr<float>(lon, lat)[0] = nc_val_data[lvlStart + (info.geo.x_size - lon - 1) * info.geo.y_size + lat] * scaleFactor + addOffset;
+					}
+					
 				}
 			}
 			data.insert({lvl, mat_data});
