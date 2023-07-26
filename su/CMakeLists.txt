@@ -59,3 +59,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC opencv_core opencv_imgcodecs opencv
 
 find_package(netCDFCxx CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC netCDF::netcdf netCDF::netcdf-cxx4)
+
+find_package(PNG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC PNG::PNG)

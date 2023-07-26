@@ -9,6 +9,10 @@
 #include <triangular/silly_delaunay.hpp>
 #include <triangular/TFF_Delaunay.h>
 #include <weather/netcdf_utils.h>
+
+#include <image/png_utils.h>
+using namespace silly_image;
+
 #if IS_WIN32
 #include <vld.h>
 #endif
@@ -56,6 +60,14 @@ std::vector<delaunay::d_point> get_points(const std::string& data)
 
 int main()
 {
+	png_data data = png_utils::create_empty(100, 100, png_type::eptRGBA);
+	for (int i = 0; i < data.width; ++i)
+	{
+		data.set_pixel(i, i,png_pixel(0xff, 0,0, 0xff));
+	}
+	png_utils::write("./test_empty.png", data);
+	data.release();
+	return 0;
 	std::map<int, cv::Mat> cm;
 	nc_info ni;
 	netcdf_utils::read_netcdf("E:/ncf_20210624_065933.nc", "RATE_HYBRID", cm, ni);
@@ -86,7 +98,7 @@ int main()
 
 	auto points = get_points(content);
 	Delaunay DelaunayTri;
-	//// ddx, ddy, ddz  Éú³ÉÈı½ÇĞÎ,Ã¿¸öÈı½ÇĞÎ a b c Èı¸ö±ß, z ÖµÎª?
+	//// ddx, ddy, ddz  ç”Ÿæˆä¸‰è§’å½¢,æ¯ä¸ªä¸‰è§’å½¢ a b c ä¸‰ä¸ªè¾¹, z å€¼ä¸º?
 	vertexSet vertices;
 	for (auto& p:  points) {
 		vertices.insert(vertex(p.x, p.y, p.v));

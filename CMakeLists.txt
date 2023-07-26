@@ -66,6 +66,13 @@ else()
     add_definitions("-DDEFAULT_ROOT_DIR=\"./\"")
 endif()
 
+##########################################
+# 设置全局的可执行程序和链接库的生成路径.
+##########################################
+set(EXECUTABLE_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/Bin/${PLATFORM_NAME}/${ARCH_NAME}/${CMAKE_BUILD_TYPE}")
+set(LIBRARY_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/Bin/${PLATFORM_NAME}/${ARCH_NAME}/${CMAKE_BUILD_TYPE}")
+
+
 include_directories(${CMAKE_SOURCE_DIR}/su)
 
 ##########################################
