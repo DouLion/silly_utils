@@ -57,7 +57,9 @@
 #ifndef NDEBUG
 #define SU_DEBUG_PRINT printf
 #else
-#define SU_DEBUG_PRINT
+#define SU_DEBUG_PRINT //
 #endif
 
+#define SU_RETURN_OK printf("OK.\n"); return 0;
+#define SU_RETURN_ERR printf("ERR.\n"); return 1;
 
