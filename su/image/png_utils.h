@@ -48,7 +48,7 @@ namespace silly_image
 
 		}
 
-		png_pixel(png_byte g, png_byte a) : red(0), green(0), blue(0), alpha(a), gray(0)
+		png_pixel(png_byte g, png_byte a) : red(0), green(0), blue(0), alpha(a), gray(g)
 		{
 
 		}
