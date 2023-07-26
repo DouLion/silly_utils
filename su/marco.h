@@ -50,4 +50,14 @@
 #define SU_RGBA(r, g, b, a)			SU_ARGB( a, r, g, b )
 #define SU_XRGB(r, g, b)			SU_ARGB( 0xff, r, g, b )
 
+#ifndef __FILENAME__
+#define __FILENAME__ (strrchr("/" __FILE__, '/') + 1)
+#endif
+
+#ifndef NDEBUG
+#define SU_DEBUG_PRINT printf
+#else
+#define SU_DEBUG_PRINT
+#endif
+
 

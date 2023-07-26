@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <cstring>
 #include "png_utils.h"
+#include "marco.h"
 using namespace silly_image;
 
 png_data png_utils::create_empty(const size_t& rows, const size_t& cols, const png_uint_32& color_type, const png_uint_32& depth)
@@ -109,7 +110,7 @@ bool png_utils::write(const char* path, const png_data& data)
 
 	if(!data.height || !data.width || !data.data)
 	{
-		sprintf("%s_%d: invalid png data.\n", __FILE__, __LINE__);
+		SU_DEBUG_PRINT("%s_%d: invalid png data.\n", __FILENAME__, __LINE__);
 		return false;
 	}
 
@@ -119,13 +120,13 @@ bool png_utils::write(const char* path, const png_data& data)
 	png_structp png_write_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, 0, 0, 0);
 	if (nullptr == png_write_ptr)
 	{
-		sprintf("%s_%d: png_create_write_struct failed.\n", __FILE__, __LINE__);
+		SU_DEBUG_PRINT("%s_%d: png_create_write_struct failed.\n", __FILENAME__, __LINE__);
 		return false;
 	}
 	png_infop png_w_info = png_create_info_struct(png_write_ptr);
 	if (nullptr == png_write_info)
 	{
-		sprintf("%s_%d: png_create_info_struct failed.\n", __FILE__, __LINE__);
+		SU_DEBUG_PRINT("%s_%d: png_create_info_struct failed.\n", __FILENAME__, __LINE__);
 		return false;
 	}
 	if (setjmp(png_jmpbuf(png_write_ptr)))
@@ -171,7 +172,7 @@ void png_data::set_pixel(const size_t& r, const size_t& c, const png_pixel& sp)
 {
 	if(!(r < height && c < width) )
 	{
-		sprintf("%s_%d: invalid %d < %d and %d < d.\n", __FILE__, __LINE__, r , height, c, width);
+		SU_DEBUG_PRINT("%s_%d: invalid %d < %d and %d < %d.\n", __FILENAME__, __LINE__, r , height, c, width);
 		return;
 	}
 	size_t col_pos = c* pixel_size;

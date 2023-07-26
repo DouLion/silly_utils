@@ -65,6 +65,7 @@ int main()
 	{
 		data.set_pixel(i, i,png_pixel(0xff, 0,0, 0xff));
 	}
+	data.set_pixel(200, 200, png_pixel(0xff, 0, 0, 0xff));
 	png_utils::write("./test_empty.png", data);
 	data.release();
 	return 0;
