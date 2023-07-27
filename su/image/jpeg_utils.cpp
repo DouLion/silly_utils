@@ -20,7 +20,7 @@ void my_error_exit(j_common_ptr cinfo)
 }
 
 
-bool jpeg_data::release()
+bool jpeg_data::release() 
 {
     if (nullptr == image_data)
     {
