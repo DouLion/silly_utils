@@ -21,7 +21,7 @@
 
 #include "jpeglib.h"
 #include "jerror.h"
-#include <setjmp.h>  
+#include <setjmp.h>    
    
 
  // 像素颜色结构体 pixel_color
