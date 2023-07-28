@@ -11,6 +11,7 @@
 #include <weather/netcdf_utils.h>
 
 #include <image/png_utils.h>
+#include <image/jpeg_utils.h>
 using namespace silly_image;
 
 #if IS_WIN32
@@ -60,6 +61,69 @@ std::vector<delaunay::d_point> get_points(const std::string& data)
 
 int main()
 {
+
+	jpeg_utils ju;
+
+	// 创建空白灰色
+	{
+		jpeg_data temp_jpeg = ju.creat_empty_jpeg(300, 300, 1, JCS_GRAYSCALE);
+		std::string ru_1 = "./empty_gray.jpeg";
+		ju.write_jpeg_data(ru_1.c_str(), temp_jpeg);
+		temp_jpeg.release();
+
+	}
+
+	{
+		// 改变灰色某像素点坐标
+		std::string ru_4 = "./empty_gray.jpeg";
+		jpeg_data temp_jpeg_3 = ju.read_jpeg(ru_4.c_str());
+		std::string ru_5 = "./one_blace_gray.jpeg";
+		int row = 50;
+		int col = 30;
+		jpeg_pixel jp(0);
+		temp_jpeg_3.set_pixel(row, col, jp);
+		ju.write_jpeg_data(ru_5.c_str(), temp_jpeg_3);
+		temp_jpeg_3.release();
+
+	}
+
+	{
+		// 创建空白，并写出来
+		jpeg_data temp_jpeg_2 = ju.creat_empty_jpeg(300, 300, 3, JCS_RGB);
+		std::string ru_6 = "./empty_while.jpeg";
+		ju.write_jpeg_data(ru_6.c_str(), temp_jpeg_2);
+		temp_jpeg_2.release();
+	}
+
+
+	{
+		// 对边读一张图片，并另存
+		std::string ru_1 = "./1.jpeg";
+		jpeg_data temp_jpeg_2 = ju.read_jpeg(ru_1.c_str());
+		std::string ru_2 = "./color_2.jpeg";
+		ju.write_jpeg_data(ru_2.c_str(), temp_jpeg_2);
+		temp_jpeg_2.release();
+
+	}
+
+	{
+		// 改变某像素点坐标
+		std::string ru_4 = "./empty_while.jpeg";
+		jpeg_data temp_jpeg_3 = ju.read_jpeg(ru_4.c_str());
+		std::string ru_5 = "./one_blace.jpeg";
+		int row = 50;
+		int col = 30;
+		jpeg_pixel jp(0, 0, 0);
+		temp_jpeg_3.set_pixel(row, col, jp);
+		ju.write_jpeg_data(ru_5.c_str(), temp_jpeg_3);
+		temp_jpeg_3.release();
+
+	}
+
+	return 0;
+
+
+
 	png_data data = png_utils::create_empty(100, 100, png_type::eptRGBA);
 	for (int i = 0; i < data.width; ++i)
 	{

@@ -3,7 +3,7 @@
 //
 
 #include "jpeg_utils.h"
-
+#include <cstring>
 
 struct my_error_mgr
 {
@@ -183,16 +183,17 @@ bool jpeg_data::set_pixel(const size_t& row, const size_t& col, const jpeg_pixel
         return false;
     }
     int row_stride = jpeg_width * jpeg_components;
+    int start = (col * row_stride) + (row * jpeg_components);
     if (3 == jpeg_components)
     {
-        image_data[col * row_stride + row * jpeg_components] = pixel.red;
-        image_data[col * row_stride + row * jpeg_components + 1] = pixel.green;
-        image_data[col * row_stride + row * jpeg_components + 2] = pixel.blue;
+        image_data[start] = pixel.red;
+        image_data[start + 1] = pixel.green;
+        image_data[start + 2] = pixel.blue;
 
     }
-    if (1 == jpeg_components)
+    else if (1 == jpeg_components)
     {
-        image_data[col * row_stride + row * jpeg_components] = pixel.gray;
+        image_data[start] = pixel.gray;
     }
 
     return true;
