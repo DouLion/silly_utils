@@ -354,7 +354,7 @@ nc_mat::nc_mat(const size_t& rows, const size_t& cols, const int& type, const si
 
 }
 
-nc_mat& nc_mat::operator=(const nc_mat& other)
+nc_mat nc_mat::operator=(const nc_mat& other)
 {
 	return nc_mat();
 }
@@ -366,13 +366,13 @@ inline T nc_mat::at(const size_t& r, const size_t& c)
 }
 
 template<typename T>
-nc_mat& nc_mat::nc_and(const nc_mat& other, const T& fill)
+nc_mat nc_mat::nc_and(const nc_mat& other, const T& fill)
 {
 	return nc_mat();
 }
 
 template<typename T>
-nc_mat& nc_mat::nc_or(const nc_mat& other, const T& fill)
+nc_mat nc_mat::nc_or(const nc_mat& other, const T& fill)
 {
 	return nc_mat();
 }

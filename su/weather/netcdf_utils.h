@@ -61,7 +61,7 @@ public:
 	T at(const size_t& r, const size_t& c);
 
 
-	nc_mat& operator=(const nc_mat& other);
+	nc_mat operator=(const nc_mat& other);
 
 	/// <summary>
 	///  ”Î
@@ -71,7 +71,7 @@ public:
 	/// <param name="fill"></param>
 	/// <returns></returns>
 	template<typename T>
-	nc_mat& nc_and(const nc_mat& other, const T& fill);
+	nc_mat nc_and(const nc_mat& other, const T& fill);
 
 
 	/// <summary>
@@ -82,7 +82,7 @@ public:
 	/// <param name="fill"></param>
 	/// <returns></returns>
 	template<typename T>
-	nc_mat& nc_or(const nc_mat& other, const T& fill);
+	nc_mat nc_or(const nc_mat& other, const T& fill);
 
 	template<typename T>
 	matrix_2d<T> convert_matrix();
