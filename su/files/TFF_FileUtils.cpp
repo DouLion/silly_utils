@@ -144,6 +144,7 @@ bool FileUtils::IsRegularFile(const char* filePath)
 	}
 	catch(std::filesystem::filesystem_error& err) 
 	{
+		printf("err: %s",err.what());
 		return false;
 	}
 }
@@ -169,6 +170,7 @@ bool FileUtils::IsSymlinkFile(const char* filePath)
 	}
 	catch(std::filesystem::filesystem_error& err) 
 	{
+		printf("err: %s", err.what());
 		return false;
 	}
 }
@@ -187,6 +189,7 @@ std::string FileUtils::GetInitialPath()
 	}
 	catch(std::filesystem::filesystem_error& err) 
 	{
+		printf("err: %s", err.what());
 		return "";
 	} 
 }
@@ -200,6 +203,7 @@ std::string FileUtils::GetCurrentPath()
 	}
 	catch(std::filesystem::filesystem_error& err) 
 	{
+		printf("err: %s", err.what());
 		return "";
 	} 
 }
@@ -243,6 +247,7 @@ bool FileUtils::ModifyLastWriteTime(const char* dstPath, const std::filesystem::
 	}
 	catch(std::filesystem::filesystem_error& err) 
 	{
+		printf("err: %s", err.what());
 		return false;
 	} 
 }
@@ -268,7 +273,7 @@ std::filesystem::space_info FileUtils::GetSpaceInfo(const char* dstPath)
 	}
 	catch(std::filesystem::filesystem_error& err)
 	{
-
+		printf("err: %s", err.what());
 	} 
 
 	return si;
@@ -311,6 +316,7 @@ bool FileUtils::IsExists(const char* path, const bool bDir)
 	}
 	catch(std::filesystem::filesystem_error& err) 
 	{
+		printf("err: %s", err.what());
 		return false;
 	}
 }
@@ -356,6 +362,7 @@ int FileUtils::GetFileSize(const char* filePath)
 	}
 	catch(std::filesystem::filesystem_error& err) 
 	{
+		printf("err: %s", err.what());
 		return 0;
 	}
 }
@@ -381,6 +388,7 @@ std::string FileUtils::GetParentDirectory(const char* currentPath)
 	}
 	catch(std::filesystem::filesystem_error& err) 
 	{
+		printf("err: %s", err.what());
 		return "";
 	}
 #else 
@@ -412,6 +420,7 @@ bool FileUtils::Mkdir(const char* dirPath)
 	}
 	catch(std::filesystem::filesystem_error& err) 
 	{
+		printf("err: %s", err.what());
 		return false;
 	}
 }
@@ -446,7 +455,7 @@ std::string FileUtils::ExtractDirectory(const char* filePath)
 	}
 	catch(std::filesystem::filesystem_error& err) 
 	{
-
+		printf("err: %s", err.what());
 	}
 
 	return ret;
@@ -622,7 +631,7 @@ void FileUtils::ListFiles(const char* currentPath, const std::string& filter, st
 	}
 	catch(std::filesystem::filesystem_error& err) 
 	{
-
+		printf("err: %s", err.what());
 	}
 }
 
@@ -677,7 +686,7 @@ void FileUtils::ListFiles(const std::string& currentPath, const std::string& giv
 	}
 	catch(std::filesystem::filesystem_error& err) 
 	{
-
+		printf("err: %s", err.what());
 	}
 }
 
@@ -710,7 +719,7 @@ void FileUtils::ListDirs(const char* currentPath, std::vector<std::string>& dirP
 	}
 	catch(std::filesystem::filesystem_error& err) 
 	{
-
+		printf("err: %s", err.what());
 	}
 }
 
@@ -751,6 +760,7 @@ bool FileUtils::CopyFile(const char* srcFilePath, const char* dstFilePath, const
 	}
 	catch(std::filesystem::filesystem_error& err) 
 	{
+		printf("err: %s", err.what());
 		return false;
 	}
 }
@@ -829,6 +839,7 @@ bool FileUtils::CopyDirectory(const char* srcDirPath, const char* dstDirPath, co
 	}
 	catch(std::filesystem::filesystem_error& err) 
 	{
+		printf("err: %s", err.what());
 		return false;
 	}
 }
@@ -897,6 +908,7 @@ bool FileUtils::MoveDirectory(const char* srcDirPath, const char* dstDirPath, co
 	}
 	catch(std::filesystem::filesystem_error& err) 
 	{
+		printf("err: %s", err.what());
 		return false;
 	}
 }
@@ -953,6 +965,7 @@ bool FileUtils::DelFile(const char* filePath)
 	}
 	catch(std::filesystem::filesystem_error& err) 
 	{
+		printf("err: %s", err.what());
 		return false;
 	}
 }
@@ -981,6 +994,7 @@ bool FileUtils::DelGivenFile(const std::string& dirPath, const std::string& give
 	}
 	catch(std::filesystem::filesystem_error& err) 
 	{
+		printf("err: %s", err.what());
 		return false;
 	}
 }
@@ -1005,6 +1019,7 @@ bool FileUtils::Rename(const char* srcPath, const char* dstPath)
 	}
 	catch(std::filesystem::filesystem_error& err) 
 	{
+		printf("err: %s", err.what());
 		return false;
 	}
 }

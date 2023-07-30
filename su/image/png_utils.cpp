@@ -11,19 +11,19 @@ using namespace silly_image;
 png_data png_utils::create_empty(const size_t& rows, const size_t& cols, const png_uint_32& color_type, const png_uint_32& depth)
 {
 	png_data ret_data;
-	switch(color_type)
+	switch (color_type)
 	{
 	case PNG_COLOR_TYPE_GRAY:
-		ret_data.pixel_size = sizeof(png_byte)*1;
+		ret_data.pixel_size = sizeof(png_byte) * 1;
 		break;
 	case PNG_COLOR_TYPE_RGB:
-		ret_data.pixel_size = sizeof(png_byte)*3;
+		ret_data.pixel_size = sizeof(png_byte) * 3;
 		break;
 	case PNG_COLOR_TYPE_GRAY_ALPHA:
-		ret_data.pixel_size = sizeof(png_byte)*2;
+		ret_data.pixel_size = sizeof(png_byte) * 2;
 		break;
 	case PNG_COLOR_TYPE_RGB_ALPHA:
-		ret_data.pixel_size = sizeof(png_byte)*4;
+		ret_data.pixel_size = sizeof(png_byte) * 4;
 		break;
 	default:
 		break;
@@ -32,15 +32,17 @@ png_data png_utils::create_empty(const size_t& rows, const size_t& cols, const p
 	{
 		return ret_data;
 	}
+	ret_data.color_type = color_type;
+	ret_data.bit_depth = depth;
 	if (rows && cols)
 	{
 		ret_data.height = rows;
 		ret_data.width = cols;
-		ret_data.data = (png_bytep*)malloc(rows*sizeof(png_bytep));
-		for (int r = 0; r < rows; ++r)
+		ret_data.data = (png_bytep*)malloc(rows * sizeof(png_bytep));
+		for (int r = 0; r < rows && ret_data.data; ++r)
 		{
-			ret_data.data[r] =(png_byte*)malloc(cols*ret_data.pixel_size);
-			memset(ret_data.data[r], 0, cols*ret_data.pixel_size);
+			ret_data.data[r] = (png_byte*)malloc(cols * ret_data.pixel_size);
+			memset(ret_data.data[r], 0, cols * ret_data.pixel_size);
 		}
 	}
 	return ret_data;
@@ -74,7 +76,7 @@ png_data png_utils::read(const char* path)
 	}
 	FILE* fp = nullptr;
 	fp = fopen(path, "rb");
-	if(nullptr == fp)
+	if (nullptr == fp)
 	{
 		fclose(fp);
 		return ret_data;
@@ -108,7 +110,7 @@ png_data png_utils::read(const char* path)
 bool png_utils::write(const char* path, const png_data& data)
 {
 
-	if(!data.height || !data.width || !data.data)
+	if (!data.height || !data.width || !data.data)
 	{
 		SU_DEBUG_PRINT("%s_%d: invalid png data.\n", __FILENAME__, __LINE__);
 		return false;
@@ -170,31 +172,31 @@ png_data png_data::operator=(const png_data& other)
 
 void png_data::set_pixel(const size_t& r, const size_t& c, const png_pixel& sp)
 {
-	if(!(r < height && c < width) )
+	if (!(r < height && c < width))
 	{
-		SU_DEBUG_PRINT("%s_%d: invalid %d < %d and %d < %d.\n", __FILENAME__, __LINE__, r , height, c, width);
+		SU_DEBUG_PRINT("%s_%d: invalid %d < %d and %d < %d.\n", __FILENAME__, __LINE__, r, height, c, width);
 		return;
 	}
-	size_t col_pos = c* pixel_size;
-	switch(color_type)
+	size_t col_pos = c * pixel_size;
+	switch (color_type)
 	{
 	case PNG_COLOR_TYPE_GRAY:
 		data[r][col_pos] = sp.gray;
 		break;
 	case PNG_COLOR_TYPE_RGB:
 		data[r][col_pos] = sp.red;
-		data[r][col_pos+1] = sp.green;
-		data[r][col_pos+2] = sp.blue;
+		data[r][col_pos + 1] = sp.green;
+		data[r][col_pos + 2] = sp.blue;
 		break;
 	case PNG_COLOR_TYPE_GRAY_ALPHA:
 		data[r][col_pos] = sp.gray;
-		data[r][col_pos+1] = sp.alpha;
+		data[r][col_pos + 1] = sp.alpha;
 		break;
 	case PNG_COLOR_TYPE_RGB_ALPHA:
 		data[r][col_pos] = sp.red;
-		data[r][col_pos+1] = sp.green;
-		data[r][col_pos+2] = sp.blue;
-		data[r][col_pos+3] = sp.alpha;
+		data[r][col_pos + 1] = sp.green;
+		data[r][col_pos + 2] = sp.blue;
+		data[r][col_pos + 3] = sp.alpha;
 		break;
 	default:
 		break;
