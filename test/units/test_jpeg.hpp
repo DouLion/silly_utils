@@ -78,18 +78,15 @@ BOOST_AUTO_TEST_CASE(MATRIX_TO_JPEG)      // 将二维矩阵转化为jpeg
 	jpeg_utils ju;
 	// 创建一个unsigned char类型的二维矩阵 并为他虚拟出逐列递增的值
 	matrix_2d<unsigned char> matrix;
-	matrix.rows = 400;
-	matrix.cols = 300;
-	matrix.data = (unsigned char**)malloc(matrix.cols * sizeof(unsigned char*));
-	for (int row = 0; row < matrix.cols; ++row)
+	int width = 300;
+	int height = 400;
+	matrix.create(height, width);
+	unsigned char** data = matrix.get_data();
+	for (int r = 0; r < height; r++)
 	{
-		matrix.data[row] = (unsigned char*)malloc(matrix.rows * sizeof(unsigned char*));
-	}
-	for (int i = 0; i < matrix.cols; i++)
-	{
-		for (int j = 0; j < matrix.rows; j++)
+		for (int c = 0; c < width; c++)
 		{
-			matrix.data[i][j] = (unsigned char)(j / 401.0 * 255);
+			data[r][c] = (unsigned char)(c / 401.0 * 255);
 		}
 
 	}
@@ -105,12 +102,7 @@ BOOST_AUTO_TEST_CASE(MATRIX_TO_JPEG)      // 将二维矩阵转化为jpeg
 	jd.matrix2d_to_rgb_jpeg<unsigned char>(matrix, threshold, pixel_colors);
 	ju.write_jpeg_data(data_root_6.string().c_str(), jd);
 	jd.release();
-
-	for (int row = 0; row < matrix.cols; ++row)
-	{
-		free(matrix.data[row]);
-	}
-	free(matrix.data);
+	matrix.destroy();
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -60,12 +60,43 @@ struct silly_point    // 普通坐标点
 
 	bool operator==(const silly_point& point) const
 	{
-		return std::abs(point.lgtd - this->lgtd) < FLOAT_IGNORE_DIFF && std::abs(point.lttd - this->lttd) < FLOAT_IGNORE_DIFF;
+		return std::abs(point.lgtd - this->lgtd) <= FLOAT_IGNORE_DIFF && std::abs(point.lttd - this->lttd) <= FLOAT_IGNORE_DIFF;
 	}
 
 	bool operator!=(const silly_point& point) const
 	{
 		return std::abs(point.lgtd - this->lgtd) > FLOAT_IGNORE_DIFF || std::abs(point.lttd - this->lttd) > FLOAT_IGNORE_DIFF;
+	}
+};
+
+struct silly_geo_rect    // 普通坐标点
+{
+	silly_geo_rect() = default;
+
+	silly_geo_rect(double l, double t, double r, double b)
+	{
+		left = l;
+		top = t;
+		right = r;
+		bottom = b;
+	}
+
+	double left{ 0 };
+	double top{ 0 };
+	double right{ 0 };
+	double bottom{ 0 };
+
+	silly_geo_rect& operator=(const silly_geo_rect& rect)
+		= default;
+
+	bool operator==(const silly_geo_rect& rect) const
+	{
+		return std::abs(rect.left - this->left) <= FLOAT_IGNORE_DIFF && std::abs(rect.top - this->top) <= FLOAT_IGNORE_DIFF && std::abs(rect.right - this->right) <= FLOAT_IGNORE_DIFF && std::abs(rect.bottom - this->bottom) <= FLOAT_IGNORE_DIFF;
+	}
+
+	bool operator!=(const silly_geo_rect& rect) const
+	{
+		return std::abs(rect.left - this->left) > FLOAT_IGNORE_DIFF || std::abs(rect.top - this->top) > FLOAT_IGNORE_DIFF || std::abs(rect.right - this->right) > FLOAT_IGNORE_DIFF || std::abs(rect.bottom - this->bottom) > FLOAT_IGNORE_DIFF;
 	}
 };
 

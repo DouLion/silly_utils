@@ -13,16 +13,138 @@
 #ifndef SILLY_UTILS_SILLY_MATRIX_H
 #define SILLY_UTILS_SILLY_MATRIX_H
 #include <cstddef>
-// TODO: finish
+ // TODO: finish
 namespace silly_math
 {
 
-	template<typename T>
-	struct matrix_2d
+	template <typename T>
+	class matrix_2d
 	{
-		T** data;
-		size_t rows;
-		size_t cols;
+	/// <summary>
+	/// 这个目前是线程不安全的,使用时需要注意
+	/// </summary>
+	public:
+		matrix_2d<T>() = default;
+
+		/// <summary>
+		/// 仅传递数据指针
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		matrix_2d<T>& operator = (const matrix_2d<T>& other)
+		{
+			this->rows = other.rows;
+			this->cols = other.cols;
+			this->data = other.data;
+			return *this;
+		}
+
+		/// <summary>
+		/// 创建一个指定大小的二维数据
+		/// </summary>
+		/// <param name="r"></param>
+		/// <param name="c"></param>
+		/// <param name="reset">true: 如果有数据就清空并且重新初始化 false: 做任何操作,并且返回false</param>
+		/// <returns></returns>
+		bool create(size_t r, size_t c, bool reset = false)
+		{
+			if (data && !reset)
+			{
+				return false;
+			}
+			if (data && reset)	// 重复调用此函数, 会重置
+			{
+				destroy();
+			}
+			rows = r;
+			cols = c;
+			data = (T**)malloc(rows * sizeof(T*));
+			size_t col_size = cols * sizeof(T);
+			for (size_t r = 0; r < rows; r++)
+			{
+				data[r] = (T*)malloc(col_size);
+				if (data[r])
+				{
+					memcpy(data[r], data[r], col_size);
+				}
+			}
+
+			return true;
+		}
+
+		/// <summary>
+		/// 复制数据内容到新的指针地址
+		/// </summary>
+		/// <returns></returns>
+		matrix_2d<T>& copy()
+		{
+			matrix_2d<T> ret;
+			ret.cols = cols;
+			ret.rows = rows;
+			if (data)
+			{
+				ret.data = (T**)malloc(ret.rows * sizeof(T*));
+				size_t col_size = cols * sizeof(T);
+				for (size_t r = 0; r < ret.rows; r++)
+				{
+					ret.data[r] = (T*)malloc(col_size);
+					if (ret.data[r] && data[r])
+					{
+						memcpy(ret.data[r], data[r], col_size);
+					}
+				}
+			}
+
+			return ret;
+		}
+
+		T& at(size_t r, size_t c)
+		{
+			if (data)
+			{
+				return data[r][c];
+			}
+			return mp;
+		}
+
+		T** get_data()
+		{
+			return data;
+		}
+
+		void destroy()
+		{
+			if (data)
+			{
+				for (size_t r = 0; r < rows; r++)
+				{
+					if (data[r])
+					{
+						free(data[r]);
+						data[r] = nullptr;
+					}
+				}
+				free(data);
+				data = nullptr;
+			}
+			
+		}
+		size_t row()
+		{
+			return rows;
+		}
+
+		size_t col()
+		{
+			return cols;
+		}
+	private:
+		T** data{ nullptr };
+		// 行数
+		size_t rows{ 0 }; 
+		// 列数
+		size_t cols{ 0 };
+		T mp{ 0 };
 	};
 
 	typedef matrix_2d<int> IMatrix;
@@ -35,48 +157,6 @@ namespace silly_math
 	typedef matrix_2d<unsigned char> UCMatrix;
 	typedef matrix_2d<long long> LMatrix;
 	typedef matrix_2d<unsigned long long> UMatrix;
-
-	class matrix_utils
-	{
-	public:
-		template<typename T>
-		static matrix_2d<T> init(const size_t& rows, const size_t& cols, const T* v = nullptr);
-
-		template<typename T>
-		static void destroy(matrix_2d<T>& mtx);
-
-		template<typename T>
-		static void reset(matrix_2d<T>& mtx, const T& v);
-
-		template<typename T>
-		static bool resize(const matrix_2d<T>& src, const size_t& t_rows, const size_t& t_cols, matrix_2d<T>& dst );
-
-		// TODO: 需要添加滤波核
-		template<typename T>
-		// 中值滤波
-		static bool median_blur(const matrix_2d<T>& src, matrix_2d<T>& dst );
-
-		template<typename T>
-		// 高斯滤波
-		static bool gauss_blur(const matrix_2d<T>& src, matrix_2d<T>& dst );
-
-		template<typename T>
-		// 均值滤波
-		static bool mean_blur(const matrix_2d<T>& src, matrix_2d<T>& dst );
-
-		template<typename T>
-		// 双边滤波
-		static bool bilateral_blur(const matrix_2d<T>& src, matrix_2d<T>& dst );
-
-		template<typename T>
-		// 膨胀
-		static bool dilate(const matrix_2d<T>& src, matrix_2d<T>& dst );
-
-		template<typename T>
-		// 腐蚀
-		static bool erode(const matrix_2d<T>& src, matrix_2d<T>& dst );
-	};
-
 
 }
 

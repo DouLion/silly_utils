@@ -87,14 +87,14 @@ public:
             std::cout << "阈值与阈值颜色个数不匹配 " << std::endl;
             return false;
         }
-        if (nullptr == matrix.data)
+        if (nullptr == matrix.get_data())
         {
             std::cout << "矩阵为空 " << std::endl;
             return false;
         }
 
-        this->jpeg_width = matrix.rows;
-        this->jpeg_height = matrix.cols;
+        this->jpeg_width = matrix.col();
+        this->jpeg_height = matrix.row();
         this->jpeg_components = 3;
         this->color_space = JCS_RGB;
 
@@ -103,6 +103,7 @@ public:
         int row_size = jpeg_width * jpeg_components;
         int  jmp = sizeof(unsigned char) * jpeg_components;
         int m = threshold.size() - 1;
+        T** mtrix_data = matrix.get_data();
         for (int i = 0; i < jpeg_height; i++)
         {
             for (int j = 0; j < jpeg_width; j++)
@@ -110,7 +111,7 @@ public:
                 bool change = false;
                 for (int n = 0; n < threshold.size()-1; n++)
                 {
-                    if (matrix.data[i][j] >= threshold[n] && matrix.data[i][j] <= threshold[n+1])
+                    if (mtrix_data[i][j] >= threshold[n] && mtrix_data[i][j] <= threshold[n + 1])
                     {
                         set_pixel(i, j, pixel_colors[n]);
                         change = true;
