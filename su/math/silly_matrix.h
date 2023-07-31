@@ -38,7 +38,7 @@ namespace silly_math
 
 	class matrix_utils
 	{
-
+	public:
 		template<typename T>
 		static matrix_2d<T> init(const size_t& rows, const size_t& cols, const T* v = nullptr);
 

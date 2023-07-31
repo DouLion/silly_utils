@@ -69,7 +69,78 @@ public:
 	bool set_pixel(const size_t& row, const size_t& col, const jpeg_pixel& pixel);
 
 	template<typename T>
-	bool matrix2d_to_rgb_jpeg(matrix_2d<T> matrix, std::vector<T> threshold, std::vector<jpeg_pixel> pixel_colors);
+	bool matrix2d_to_rgb_jpeg(matrix_2d<T> matrix, std::vector<T> threshold, std::vector<jpeg_pixel> pixel_colors)
+	{
+        if (threshold.empty())
+        {
+            std::cout << "阈值为空 " << std::endl;
+            return false;
+        }
+        if (pixel_colors.empty())
+        {
+            std::cout << "色彩位空 " << std::endl;
+            return false;
+        }
+        if (threshold.size() != pixel_colors.size())
+        {
+            std::cout << "阈值与阈值颜色个数不匹配 " << std::endl;
+            return false;
+        }
+        if (nullptr == matrix.data)
+        {
+            std::cout << "矩阵为空 " << std::endl;
+            return false;
+        }
+
+        this->jpeg_width = matrix.rows;
+        this->jpeg_height = matrix.cols;
+        this->jpeg_components = 3;
+        this->color_space = JCS_RGB;
+
+        this->image_data = (unsigned char*)malloc(sizeof(unsigned char*) * jpeg_width * jpeg_height * jpeg_components);
+        memset(this->image_data, 255, sizeof(unsigned char*) * jpeg_width * jpeg_height * jpeg_components);
+        int row_size = jpeg_width * jpeg_components;
+        int  jmp = sizeof(unsigned char) * jpeg_components;
+        for (int i = 0; i < jpeg_height; i++)
+        {
+            for (int j = 0; j < jpeg_width; j++)
+            {
+                for (int i = 0; i < threshold.size(); i++)
+                {
+                    //if (matrix.data[i][j] >= threshold[i] && matrix.data[i][j] < threshold[i+1])
+                    if (matrix.data[i][j] >= threshold[i])
+                    {
+                        set_pixel(i, j, pixel_colors[i]);
+                        break;
+                    }
+                }
+                //if (matrix.data[i][j] >= threshold[0] && matrix.data[i][j] < threshold[1])
+                //{
+                //    set_pixel(i, j, pixel_colors[0]);
+                //}
+                //else if (matrix.data[i][j] >= threshold[1] && matrix.data[i][j] < threshold[2])
+                //{
+                //    set_pixel(i, j, jpeg_pixel(pixel_colors[1][0], pixel_colors[1][1], pixel_colors[1][2]));
+                //}
+                //else if (matrix.data[i][j] >= threshold[2] && matrix.data[i][j] < threshold[3])
+                //{
+                //    set_pixel(i, j, jpeg_pixel(pixel_colors[2][0], pixel_colors[2][1], pixel_colors[2][2]));
+                //}
+                //else if (matrix.data[i][j] >= threshold[3] && matrix.data[i][j] < threshold[4])
+                //{
+                //    set_pixel(i, j, jpeg_pixel(pixel_colors[3][0], pixel_colors[3][1], pixel_colors[3][2]));
+                //}
+                //else
+                //{
+                //    set_pixel(i, j, jpeg_pixel(pixel_colors[4][0], pixel_colors[4][1], pixel_colors[4][2]));
+                //}
+
+            }
+        }
+
+        return true;
+
+	}
 
 
 	jpeg_data  operator=(const jpeg_data& other);

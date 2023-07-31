@@ -5,14 +5,13 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/bind.hpp>
 using boost::unit_test_framework::test_suite;
-
-#if IS_WIN32
+#include "image/jpeg_utils.h"
+#if IS_WIN32 && 0
 #include <vld.h>
 #endif
 
-#include "test_jpeg.hpp"
-
-
+#include  "test_jpeg.hpp"
+#include "test_database.hpp"
 
 //#include <iostream>
 //#include <database/otl/otl_tools.h>
