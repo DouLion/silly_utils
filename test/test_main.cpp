@@ -9,6 +9,8 @@
 #include <triangular/silly_delaunay.hpp>
 #include <triangular/TFF_Delaunay.h>
 #include <weather/netcdf_utils.h>
+#include <loguru/loguru.hpp>
+#include <database/otl/otl_header.hpp>
 
 #include <image/png_utils.h>
 #include <image/jpeg_utils.h>
@@ -59,9 +61,12 @@ std::vector<delaunay::d_point> get_points(const std::string& data)
 }
 
 
+void dm8connect();
+
 int main()
 {
-
+	dm8connect();
+	return 0;
 	jpeg_utils ju;
 
 	// 创建空白灰色
@@ -194,4 +199,39 @@ int main()
 	FileUtils::WriteAll("E:/hebei_tri.geojson", geojson);
 
 	return 0;
+}
+
+
+void dm8connect()
+{
+	otl_connect db;
+	otl_stream query_stream;
+	try
+	{
+
+		db.rlogon("Driver={DM8 ODBC DRIVER};Server=192.168.0.201;Port=5236;Database=TzxTest;Uid=TZX;Pwd=3edc9ijn~;", true);
+		//db.rlogon("UID=TZX;PWD=3edc9ijn~;DSN=dmtest;");
+		
+		query_stream.open(2048, "select CITY_ID,CITY_NAME,REGION_ID from CITY", db);
+		for (auto& ts : query_stream)
+		{
+
+			otl_value<std::string> city_id, city_name;
+			otl_value<int> region_id;
+			otl_read_row(ts, city_id, city_name, region_id);
+			std::cout << city_id.v << "," << city_name.v << "," << region_id.v << std::endl;
+		
+		}
+	}
+	catch (otl_exception& e)
+	{
+		LOG_F(ERROR, "%s失败, \nsql:%s \nmessage:%s \n state:%s", __FUNCTION__, e.stm_text, e.msg, e.sqlstate);
+	}
+	catch (const std::exception& p)
+	{
+		LOG_F(ERROR, "%s", p.what());
+	}
+	query_stream.close();
+	db.logoff();
+
 }

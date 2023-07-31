@@ -348,3 +348,38 @@ bool netcdf_utils::write_netcdf(const std::string& path, const nc_info& info, co
 	}
 	return status;
 }
+
+nc_mat::nc_mat(const size_t& rows, const size_t& cols, const int& type, const size_t& dszie, const su_ncbyte* data)
+{
+
+}
+
+nc_mat nc_mat::operator=(const nc_mat& other)
+{
+	return nc_mat();
+}
+
+template<typename T>
+inline T nc_mat::at(const size_t& r, const size_t& c)
+{
+	return T();
+}
+
+template<typename T>
+nc_mat nc_mat::nc_and(const nc_mat& other, const T& fill)
+{
+	return nc_mat();
+}
+
+template<typename T>
+nc_mat nc_mat::nc_or(const nc_mat& other, const T& fill)
+{
+	return nc_mat();
+}
+
+template<typename T>
+matrix_2d<T> nc_mat::convert_matrix()
+{
+	return matrix_2d<T>();
+}
+

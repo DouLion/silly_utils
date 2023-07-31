@@ -11,6 +11,23 @@ foreach(dirname ${CMAKE_CURRENT_SOURCE_DIR})
             )
    
 endforeach()
+# 检查达梦数据库的一些信息
+
+ message(STATUS  "DM8 libs: $ENV{DM_HOME}.")
+ message(STATUS  "JAVA: $ENV{JAVA_HOME}.")
+if(True)
+    add_definitions("-DHAS_DM8")
+    set(DM8_HOME  $ENV{DM_HOME})
+    set(DM8_INCLUDE ${DM8_HOME}/include)
+    set(DM8_BIN ${DM8_HOME}/bin)
+    include_directories(DM8_INCLUDE)
+    foreach(dirname ${DM8_BIN})
+        file(GLOB_RECURSE DM8_LIBRARIES "${dirname}/*.lib")
+    endforeach()
+    message("DM8 libs: ${DM8_LIBRARIES}")
+else()
+    message("DM8 libs: not exist.")
+endif()
 
 
 find_path(OTL_INCLUDE_DIRS "otl/otlv4.h")
@@ -62,3 +79,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC netCDF::netcdf netCDF::netcdf-cxx4)
 
 find_package(PNG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC PNG::PNG)
+
+find_package(JPEG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC ${JPEG_LIBRARIES})
+target_include_directories(${PROJECT_NAME} PUBLIC ${JPEG_INCLUDE_DIR})

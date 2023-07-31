@@ -12,7 +12,7 @@
 
 #ifndef SILLY_UTILS_SILLY_MATRIX_H
 #define SILLY_UTILS_SILLY_MATRIX_H
-
+#include <cstddef>
 // TODO: finish
 namespace silly_math
 {
@@ -33,6 +33,8 @@ namespace silly_math
 	typedef matrix_2d<unsigned short> USMatrix;
 	typedef matrix_2d<char> CMatrix;
 	typedef matrix_2d<unsigned char> UCMatrix;
+	typedef matrix_2d<long long> LMatrix;
+	typedef matrix_2d<unsigned long long> UMatrix;
 
 	class matrix_utils
 	{
