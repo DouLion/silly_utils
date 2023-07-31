@@ -68,8 +68,8 @@ public:
 
 	bool set_pixel(const size_t& row, const size_t& col, const jpeg_pixel& pixel);
 
-
-	bool matrix2d_to_rgb_jpeg(UCMatrix matrix, std::vector<int> threshold, std::vector<char*> pixel_colors);
+	template<typename T>
+	bool matrix2d_to_rgb_jpeg(matrix_2d<T> matrix, std::vector<T> threshold, std::vector<jpeg_pixel> pixel_colors);
 
 
 	jpeg_data  operator=(const jpeg_data& other);

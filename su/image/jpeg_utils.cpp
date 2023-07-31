@@ -225,16 +225,22 @@ jpeg_data  jpeg_data::operator=(const jpeg_data& other)
 
 
 
-bool jpeg_data::matrix2d_to_rgb_jpeg(UCMatrix matrix, std::vector<int> threshold, std::vector<char*> pixel_colors)
+template<typename T>
+bool jpeg_data::matrix2d_to_rgb_jpeg(matrix_2d<T> matrix, std::vector<T> threshold, std::vector<jpeg_pixel> pixel_colors)
 {
-    if (threshold.size() < 6)
+    if (threshold.empty() )
     {
-        std::cout << "阈值不足6个 " << std::endl;
+        std::cout << "阈值为空 " << std::endl;
         return false;
     }
-    if (pixel_colors.size() < 5)
+    if (pixel_colors.empty() )
     {
-        std::cout << "色彩不足5个 " << std::endl;
+        std::cout << "色彩位空 " << std::endl;
+        return false;
+    }
+    if (threshold.size() != pixel_colors.size())
+    {
+        std::cout << "阈值与阈值颜色个数不匹配 " << std::endl;
         return false;
     }
     if (nullptr == matrix.data)
@@ -256,36 +262,36 @@ bool jpeg_data::matrix2d_to_rgb_jpeg(UCMatrix matrix, std::vector<int> threshold
     {
         for (int j = 0; j < jpeg_width; j++)
         {
-            //int p = i * row_size + j * jpeg_components;
-            //char* pp;
-            if (matrix.data[i][j] >= threshold[0] && matrix.data[i][j] < threshold[1])
+            for (int i = 0; i < threshold.size(); i++)
             {
-                set_pixel(i, j, jpeg_pixel(pixel_colors[0][0], pixel_colors[0][1], pixel_colors[0][2]));
-                //pp = pixel_colors[0];
+                //if (matrix.data[i][j] >= threshold[i] && matrix.data[i][j] < threshold[i+1])
+                if (matrix.data[i][j] >= threshold[i])
+                {
+                    set_pixel(i, j, pixel_colors[i]);
+                    break;
+                }
             }
-            else if (matrix.data[i][j] >= threshold[1] && matrix.data[i][j] < threshold[2])
-            {
-                set_pixel(i, j, jpeg_pixel(pixel_colors[1][0], pixel_colors[1][1], pixel_colors[1][2]));
-                //pp = pixel_colors[1];
-            }
-            else if (matrix.data[i][j] >= threshold[2] && matrix.data[i][j] < threshold[3])
-            {
-                set_pixel(i, j, jpeg_pixel(pixel_colors[2][0], pixel_colors[2][1], pixel_colors[2][2]));
-                //pp = pixel_colors[2];
-            }
-            else if (matrix.data[i][j] >= threshold[3] && matrix.data[i][j] < threshold[4])
-            {
-                set_pixel(i, j, jpeg_pixel(pixel_colors[3][0], pixel_colors[3][1], pixel_colors[3][2]));
-                //pp = pixel_colors[3];
-            }
-            else
-            {
-                set_pixel(i, j, jpeg_pixel(pixel_colors[4][0], pixel_colors[4][1], pixel_colors[4][2]));
-                //pp = pixel_colors[4];
-            }
+            //if (matrix.data[i][j] >= threshold[0] && matrix.data[i][j] < threshold[1])
+            //{
+            //    set_pixel(i, j, pixel_colors[0]);
+            //}
+            //else if (matrix.data[i][j] >= threshold[1] && matrix.data[i][j] < threshold[2])
+            //{
+            //    set_pixel(i, j, jpeg_pixel(pixel_colors[1][0], pixel_colors[1][1], pixel_colors[1][2]));
+            //}
+            //else if (matrix.data[i][j] >= threshold[2] && matrix.data[i][j] < threshold[3])
+            //{
+            //    set_pixel(i, j, jpeg_pixel(pixel_colors[2][0], pixel_colors[2][1], pixel_colors[2][2]));
+            //}
+            //else if (matrix.data[i][j] >= threshold[3] && matrix.data[i][j] < threshold[4])
+            //{
+            //    set_pixel(i, j, jpeg_pixel(pixel_colors[3][0], pixel_colors[3][1], pixel_colors[3][2]));
+            //}
+            //else
+            //{
+            //    set_pixel(i, j, jpeg_pixel(pixel_colors[4][0], pixel_colors[4][1], pixel_colors[4][2]));
+            //}
 
-            //memcpy(image_data, pp, jmp);
-            //image_data += jmp;
         }
     }
 
