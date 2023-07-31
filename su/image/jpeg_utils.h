@@ -25,7 +25,8 @@
 #include "jerror.h"
 #include <setjmp.h>
 
-#include "math\silly_matrix.h"
+#include "math/silly_matrix.h"
+using namespace silly_math;
 
  // 像素颜色结构体 pixel_color
 struct jpeg_pixel
@@ -67,7 +68,6 @@ public:
 
 	bool set_pixel(const size_t& row, const size_t& col, const jpeg_pixel& pixel);
 
-	bool jpeg_gray_to_rgb();
 
 	bool matrix2d_to_rgb_jpeg(UCMatrix matrix, std::vector<int> threshold, std::vector<char*> pixel_colors);
 
