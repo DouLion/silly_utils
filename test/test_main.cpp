@@ -9,7 +9,7 @@ using boost::unit_test_framework::test_suite;
 #include <vld.h>
 #endif
 
-#include "test_jpeg.hpp"
-#include "test_database.hpp"
-#include "test_triangular.h"
+#include "units/test_jpeg.hpp"
+#include "units/test_database.hpp"
+#include "units/test_triangular.h"
 
