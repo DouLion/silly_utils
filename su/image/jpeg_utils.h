@@ -66,6 +66,7 @@ public:
 
 	bool release();
 
+    // row : 第几行   col :第几列
 	bool set_pixel(const size_t& row, const size_t& col, const jpeg_pixel& pixel);
 
 	template<typename T>
@@ -101,45 +102,28 @@ public:
         memset(this->image_data, 255, sizeof(unsigned char*) * jpeg_width * jpeg_height * jpeg_components);
         int row_size = jpeg_width * jpeg_components;
         int  jmp = sizeof(unsigned char) * jpeg_components;
+        int m = threshold.size() - 1;
         for (int i = 0; i < jpeg_height; i++)
         {
             for (int j = 0; j < jpeg_width; j++)
             {
-                for (int i = 0; i < threshold.size(); i++)
+                bool change = false;
+                for (int n = 0; n < threshold.size()-1; n++)
                 {
-                    //if (matrix.data[i][j] >= threshold[i] && matrix.data[i][j] < threshold[i+1])
-                    if (matrix.data[i][j] >= threshold[i])
+                    if (matrix.data[i][j] >= threshold[n] && matrix.data[i][j] <= threshold[n+1])
                     {
-                        set_pixel(i, j, pixel_colors[i]);
+                        set_pixel(i, j, pixel_colors[n]);
+                        change = true;
                         break;
                     }
                 }
-                //if (matrix.data[i][j] >= threshold[0] && matrix.data[i][j] < threshold[1])
-                //{
-                //    set_pixel(i, j, pixel_colors[0]);
-                //}
-                //else if (matrix.data[i][j] >= threshold[1] && matrix.data[i][j] < threshold[2])
-                //{
-                //    set_pixel(i, j, jpeg_pixel(pixel_colors[1][0], pixel_colors[1][1], pixel_colors[1][2]));
-                //}
-                //else if (matrix.data[i][j] >= threshold[2] && matrix.data[i][j] < threshold[3])
-                //{
-                //    set_pixel(i, j, jpeg_pixel(pixel_colors[2][0], pixel_colors[2][1], pixel_colors[2][2]));
-                //}
-                //else if (matrix.data[i][j] >= threshold[3] && matrix.data[i][j] < threshold[4])
-                //{
-                //    set_pixel(i, j, jpeg_pixel(pixel_colors[3][0], pixel_colors[3][1], pixel_colors[3][2]));
-                //}
-                //else
-                //{
-                //    set_pixel(i, j, jpeg_pixel(pixel_colors[4][0], pixel_colors[4][1], pixel_colors[4][2]));
-                //}
-
+                if (false == change)
+                {
+                    set_pixel(i, j, pixel_colors[m]);
+                }
             }
         }
-
         return true;
-
 	}
 
 

@@ -183,6 +183,7 @@ jpeg_data jpeg_utils::read_jpeg(const char* path)
 }
 
 
+// row : 第几行   col :第几列
 bool jpeg_data::set_pixel(const size_t& row, const size_t& col, const jpeg_pixel& pixel)
 {
 
