@@ -302,7 +302,7 @@ bool jpeg_data::jpeg_gray_to_rgb()
 
 
     return true;
-}
+} 
 
 bool jpeg_data::matrix2d_to_rgb_jpeg(UCMatrix matrix, std::vector<int> threshold, std::vector<char*> pixel_colors)
 {

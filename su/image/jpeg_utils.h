@@ -59,7 +59,7 @@ struct jpeg_pixel
 
 class jpeg_data
 {
-public:
+public: 
 
 	jpeg_data() = default;
 
