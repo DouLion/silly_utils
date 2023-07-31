@@ -26,10 +26,13 @@ BOOST_AUTO_TEST_CASE(JPEG_READ)      // 根据二维数组value 创建一个jpeg
 	std::cout << "\r\n\r\n****************" << "JPEG_READ" << "****************" << std::endl;
 	// 对边读一张图片，并另存
 	jpeg_utils ju;
-	std::string ru_1 = "./jpeg/color_1.jpeg";
-	jpeg_data temp_jpeg_7 = ju.read_jpeg(ru_1.c_str());
-	std::string ru_2 = "./jpeg/color_2.jpeg";
-	ju.write_jpeg_data(ru_2.c_str(), temp_jpeg_7);
+	std::filesystem::path data_root(DEFAULT_DATA_DIR);
+	data_root += "/jpeg/color_1.jpeg";
+	//std::string ru_1 = "./jpeg/color_1.jpeg";
+	jpeg_data temp_jpeg_7 = ju.read_jpeg(data_root.string().c_str());
+	std::filesystem::path data_root_2(DEFAULT_DATA_DIR);
+	data_root_2+="/jpeg/color_2.jpeg";
+	ju.write_jpeg_data(data_root_2.string().c_str(), temp_jpeg_7);
 	temp_jpeg_7.release();
 
 
@@ -42,30 +45,34 @@ BOOST_AUTO_TEST_CASE(WRITE_JPEG)      // 写入 JPEG
 	// 创建空白图片并写入
 	jpeg_utils ju;
 	jpeg_data temp_jpeg_2 = ju.creat_empty_jpeg(300, 300, 3, JCS_RGB);
-	std::string ru_6 = "./jpeg/empty_while.jpeg";
-	ju.write_jpeg_data(ru_6.c_str(), temp_jpeg_2);
+	std::filesystem::path data_root_3(DEFAULT_DATA_DIR);
+	data_root_3+="/jpeg/empty_while.jpeg";
+	ju.write_jpeg_data(data_root_3.string().c_str(), temp_jpeg_2);
 	temp_jpeg_2.release();
 
 }
 
 
-BOOST_AUTO_TEST_CASE(SET_PIXEL_COLOR)      // 写入 JPEG
+BOOST_AUTO_TEST_CASE(SET_PIXEL_COLOR)      // 设置像素点颜色
 {
 	std::cout << "\r\n\r\n****************" << "SET_PIXEL_COLOR" << "****************" << std::endl;
 	// 改变某像素点坐标
 	jpeg_utils ju;
-	std::string ru_4 = "./jpeg/empty_while.jpeg";
-	jpeg_data temp_jpeg_8 = ju.read_jpeg(ru_4.c_str());
-	std::string ru_5 = "./jpeg/one_blace.jpeg";
+	std::filesystem::path data_root_4(DEFAULT_DATA_DIR);
+	data_root_4+="/jpeg/empty_while.jpeg";
+	jpeg_data temp_jpeg_8 = ju.read_jpeg(data_root_4.string().c_str());
+
+	std::filesystem::path data_root_5(DEFAULT_DATA_DIR);
+	data_root_5+="/jpeg/one_blace.jpeg";
 	int row = 50; // 第几行
 	int col = 30; // 第几列
 	jpeg_pixel jp(0,0,0);
 	temp_jpeg_8.set_pixel(row, col, jp);
-	ju.write_jpeg_data(ru_5.c_str(), temp_jpeg_8);
+	ju.write_jpeg_data(data_root_5.string().c_str(), temp_jpeg_8);
 	temp_jpeg_8.release();
 }
 
-BOOST_AUTO_TEST_CASE(MATRIX_TO_JPEG)      // 写入 JPEG
+BOOST_AUTO_TEST_CASE(MATRIX_TO_JPEG)      // 将二维矩阵转化为jpeg
 {
 	std::cout << "\r\n\r\n****************" << "MATRIX_TO_JPEG" << "****************" << std::endl;
 	jpeg_utils ju;
@@ -93,9 +100,10 @@ BOOST_AUTO_TEST_CASE(MATRIX_TO_JPEG)      // 写入 JPEG
 
 
 	jpeg_data jd;
+	std::filesystem::path data_root_6(DEFAULT_DATA_DIR);
+	data_root_6+="/jpeg/matrix_to_color_1.jpeg";
 	jd.matrix2d_to_rgb_jpeg<unsigned char>(matrix, threshold, pixel_colors);
-	std::string ma = "./jpeg/matrix_to_color_1.jpeg";
-	ju.write_jpeg_data(ma.c_str(), jd);
+	ju.write_jpeg_data(data_root_6.string().c_str(), jd);
 	jd.release();
 
 	for (int row = 0; row < matrix.cols; ++row)
