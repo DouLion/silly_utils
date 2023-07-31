@@ -13,9 +13,9 @@
   ```cmake
   # 
   set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
-  # 
+  include(env_check)
+  include(dm8_check)
   include(silly_utils)
-  # 头文件
   include_directories(silly_utils/su)
   ```
 

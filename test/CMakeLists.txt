@@ -9,7 +9,7 @@ set(Boost_USE_MULTITHREADED ON)
 set(Boost_NO_WARN_NEW_VERSIONS 1)
 
 find_package(Boost COMPONENTS unit_test_framework REQUIRED)		
-add_executable(${PROJECT_NAME} test_main.cpp test_jpeg.hpp)
+add_executable(${PROJECT_NAME} test_main.cpp)
 target_link_libraries(${PROJECT_NAME} PUBLIC sutils)
 # TODO: 准备添加boost 或者 google test模块以测试所有功能
 target_link_libraries(${PROJECT_NAME} PUBLIC Boost::unit_test_framework)
