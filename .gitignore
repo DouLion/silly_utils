@@ -3,3 +3,6 @@
 /.idea
 /cmake-build-debug-visual-studio-x64
 /Bin
+/data/hebei_station.txt.bz2
+/data/hebei_tri.geojson
+/CMakeSettings.json
