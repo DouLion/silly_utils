@@ -13,6 +13,8 @@ else()
 endif()
 
 add_definitions("-DDEFAULT_DATA_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/data\"")
+message("CC ${CMAKE_CURRENT_SOURCE_DIR}")
+message("DD ${CMAKE_SOURCE_DIR}")
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
 include(env_check)
