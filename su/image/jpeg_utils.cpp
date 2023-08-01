@@ -4,7 +4,7 @@
 
 #include "jpeg_utils.h"
 #include <cstring>
-
+#include <string.h>
 struct my_error_mgr
 {
     struct jpeg_error_mgr pub;    /* "public" fields */
