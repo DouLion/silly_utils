@@ -216,6 +216,7 @@ bool bz2_wrapper::compress(const char* inval, const unsigned int& inlen, char** 
 
 		return false;
 	}
+	*outlen = dst_len;
 	return true;
 }
 

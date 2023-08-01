@@ -24,8 +24,9 @@ BOOST_AUTO_TEST_SUITE(TestTCP)
 BOOST_AUTO_TEST_CASE(FTP_UPLOATE)      // FTPÉÏ´«
 {
 	std::cout << "\r\n\r\n****************" << "FTP_UPLOATE" << "****************" << std::endl;
-
-	BOOST_CHECK(ftp_utils::ftp_upload("E:/radar.png", "ftp://192.168.0.202:21/240/radar.png", "radar", "3edc9ijn", 10, false));
+	std::filesystem::path upoad_file(DEFAULT_DATA_DIR);
+	upoad_file.append("hebei_station.txt");
+	BOOST_CHECK(ftp_utils::ftp_upload(upoad_file.string(), "ftp://192.168.0.202:21/240/hebei_station.txt", "radar", "3edc9ijn", 10, false));
 };
 
 BOOST_AUTO_TEST_SUITE_END()
