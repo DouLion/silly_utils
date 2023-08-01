@@ -12,7 +12,8 @@
 
 #ifndef SILLY_UTILS_TEST_DATABASE_HPP
 #define SILLY_UTILS_TEST_DATABASE_HPP
-#define BOOST_TEST_MODULE TestDataBase
+
+#define BOOST_TEST_INCLUDED
 
 #include "database/dm8/dm8_dpi.h"
 #include <boost/test/unit_test.hpp>

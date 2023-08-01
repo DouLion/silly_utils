@@ -5,6 +5,16 @@
 #include <string>
 #include <cstring>
 #include "ftp_utils.h"
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <filesystem>
+#ifdef WIN32
+#include <io.h>
+#else
+#include <unistd.h>
+#endif
 
 
 // 不落地获取信息
@@ -89,7 +99,25 @@ static int upload_read_func(void* ptr, int size, int nmemb, void* stream)
 	return n;
 }
 
-ftp_file_info_list ftp_utils::get_ftp_info(const std::string& url, const std::string& user, const std::string& password, ftp_file_info_callback cbfunc)
+
+static size_t ftp_upload_read_callback(char* ptr, size_t size, size_t nmemb, void* stream)
+{
+	unsigned long nread;
+	/* in real-world cases, this would probably get this data differently
+	   as this fread() stuff is exactly what the library already would do
+	   by default internally */
+
+	size_t retcode = fread(ptr, size, nmemb, (FILE*)stream);
+
+	if (retcode > 0) {
+		nread = (unsigned long)retcode;
+		fprintf(stderr, "*** We read %lu bytes from file\n", nread);
+	}
+
+	return retcode;
+}
+
+ftp_file_info_list ftp_utils::get_ftp_info(const std::string& url, const std::string& user, const std::string& passwd, ftp_file_info_callback cbfunc)
 {
 	ftp_file_info_list ret_list_info;
 	CURL* curl;
@@ -116,7 +144,7 @@ ftp_file_info_list ftp_utils::get_ftp_info(const std::string& url, const std::st
 		//curl_easy_setopt(curl, CURLOPT_URL, "ftp://10.13.100.102:21212/5km/72/");
 		curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 		/*user & pwd*/
-		std::string user_pwd = user + ":" + password;
+		std::string user_pwd = user + ":" + passwd;
 		//curl_easy_setopt(curl, CURLOPT_USERPWD, "bjtzxxxkjyxgs:Tzx1@3$");
 		curl_easy_setopt(curl, CURLOPT_USERPWD, user_pwd.c_str());
 
@@ -216,95 +244,86 @@ bool ftp_utils::ftp_download(const std::string& remote_file_path, const std::str
 bool ftp_utils::ftp_upload(const std::string& localFileFath, const std::string& remote_file_path, const std::string& user, const std::string& passwd, int timeout, bool IsDir)
 {
 	{
-		CURL* curl_handle = nullptr;
-		bool bRet = false;
-		curl_global_init(CURL_GLOBAL_ALL);
+		CURL* curl;
+		CURLcode res;
+		FILE* hd_src;
+		struct stat file_info;
+		unsigned long fsize;
 
-		curl_handle = curl_easy_init();
-		if (nullptr == curl_handle)
-		{
-			return bRet;
-		}
-		FILE* f;
-		long uploaded_len = 0;
-		CURLcode r = CURLE_GOT_NOTHING;
-		int c;
+		//struct curl_slist* headerlist = NULL;
+		/*static const char buf_1[] = "RNFR " UPLOAD_FILE_AS;
+		static const char buf_2[] = "RNTO " RENAME_FILE_TO;*/
 
-		f = fopen(localFileFath.c_str(), "rb");
-		if (!f) {
-			perror(nullptr);
+		std::filesystem::path sp(localFileFath);
+		const char* file_name = sp.filename().string().c_str();
+
+
+		/* get the file size of the local file */
+		if (stat(localFileFath.c_str(), &file_info)) {
+			printf("Couldn't open '%s': %s\n", localFileFath.c_str(), strerror(errno));
 			return false;
 		}
+		fsize = (unsigned long)file_info.st_size;
 
-		curl_easy_setopt(curl_handle, CURLOPT_UPLOAD, 1L);
+		printf("Local file size: %lu bytes.\n", fsize);
 
-		curl_easy_setopt(curl_handle, CURLOPT_URL, remote_file_path.c_str());
+		/* get a FILE * of the same file */
+		hd_src = fopen(localFileFath.c_str(), "rb");
 
-		if (timeout)
-			curl_easy_setopt(curl_handle, CURLOPT_FTP_RESPONSE_TIMEOUT, timeout);
+		/* In windows, this will init the winsock stuff */
+		curl_global_init(CURL_GLOBAL_ALL);
 
-		curl_easy_setopt(curl_handle, CURLOPT_HEADERFUNCTION, upload_get_content_len_func);
-		curl_easy_setopt(curl_handle, CURLOPT_HEADERDATA, &uploaded_len);
+		/* get a curl handle */
+		curl = curl_easy_init();
+		if (curl) {
+			/* build a list of commands to pass to libcurl */
+			/*headerlist = curl_slist_append(headerlist, file_name);
+			headerlist = curl_slist_append(headerlist, file_name);*/
+			std::string user_pwd = user + ":" + passwd;
+			//curl_easy_setopt(curl, CURLOPT_USERPWD, "bjtzxxxkjyxgs:Tzx1@3$");
+			curl_easy_setopt(curl, CURLOPT_USERPWD, user_pwd.c_str());
 
-		curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, upload_discard_func);
+			/* we want to use our own read function */
+			// curl_easy_setopt(curl, CURLOPT_READFUNCTION, ftp_upload_read_callback);
 
-		curl_easy_setopt(curl_handle, CURLOPT_READFUNCTION, upload_read_func);
-		curl_easy_setopt(curl_handle, CURLOPT_READDATA, f);
+			/* enable uploading */
+			curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
 
-		/* disable passive mode */
-		curl_easy_setopt(curl_handle, CURLOPT_FTPPORT, "-");
-		curl_easy_setopt(curl_handle, CURLOPT_FTP_CREATE_MISSING_DIRS, 1L);
+			/* specify target */
+			curl_easy_setopt(curl, CURLOPT_URL, remote_file_path.c_str());
 
-		curl_easy_setopt(curl_handle, CURLOPT_VERBOSE, 1L);
+			/* pass in that last of FTP commands to run after the transfer */
+			//curl_easy_setopt(curl, CURLOPT_POSTQUOTE, headerlist);
 
-		for (c = 0; (r != CURLE_OK) && (c < 3); c++) {
-			/* are we resuming? */
-			if (c) { /* yes */
-				/* determine the length of the file already written */
+			/* now specify which file to upload */
+			curl_easy_setopt(curl, CURLOPT_READDATA, hd_src);
 
-				/*
-				* With NOBODY and NOHEADER, libcurl will issue a SIZE
-				* command, but the only way to retrieve the result is
-				* to parse the returned Content-Length header. Thus,
-				* getcontentlengthfunc(). We need discardfunc() above
-				* because HEADER will dump the headers to stdout
-				* without it.
-				*/
-				curl_easy_setopt(curl_handle, CURLOPT_NOBODY, 1L);
-				curl_easy_setopt(curl_handle, CURLOPT_HEADER, 1L);
+			curl_easy_setopt(curl, CURLOPT_TIMEOUT, timeout);
+			curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, timeout);
 
-				r = curl_easy_perform(curl_handle);
-				if (r != CURLE_OK)
-				{
-					continue;
-				}
+			/* Set the size of the file to upload (optional).  If you give a *_LARGE
+			   option you MUST make sure that the type of the passed-in argument is a
+			   curl_off_t. If you use CURLOPT_INFILESIZE (without _LARGE) you must
+			   make sure that to pass in a type 'long' argument. */
+			curl_easy_setopt(curl, CURLOPT_INFILESIZE_LARGE,
+				(curl_off_t)fsize);
 
-				curl_easy_setopt(curl_handle, CURLOPT_NOBODY, 0L);
-				curl_easy_setopt(curl_handle, CURLOPT_HEADER, 0L);
+			/* Now run off and do what you have been told! */
+			res = curl_easy_perform(curl);
+			/* Check for errors */
+			if (res != CURLE_OK)
+				fprintf(stderr, "curl_easy_perform() failed: %s\n",
+					curl_easy_strerror(res));
 
-				fseek(f, uploaded_len, SEEK_SET);
+			/* clean up the FTP commands list */
+			//curl_slist_free_all(headerlist);
 
-				curl_easy_setopt(curl_handle, CURLOPT_APPEND, 1L);
-			}
-			else { /* no */
-				curl_easy_setopt(curl_handle, CURLOPT_APPEND, 0L);
-			}
-
-			r = curl_easy_perform(curl_handle);
+			/* always cleanup */
+			curl_easy_cleanup(curl);
 		}
+		fclose(hd_src); /* close the local file */
 
-		fclose(f);
-
-
-		curl_easy_cleanup(curl_handle);
 		curl_global_cleanup();
-
-		if (r == CURLE_OK)
-			bRet = true;
-		else {
-			fprintf(stderr, "%s\n", curl_easy_strerror(r));
-		}
-
-		return bRet;
+		return true;
 	}
 }
