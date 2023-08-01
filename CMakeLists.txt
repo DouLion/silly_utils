@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.15)
 project(silly_utils)
 
 include(CheckIncludeFileCXX)
-if(SUB_PROJECT)
+if(SU_AS_SUB_PROJECT)
 
 
 else()
