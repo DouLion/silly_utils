@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <cstdlib>
 
 #include "jpeglib.h"
 #include "jerror.h"
@@ -100,7 +101,7 @@ public:
         this->color_space = JCS_RGB;
 
         this->image_data = (unsigned char*)malloc(sizeof(unsigned char*) * jpeg_width * jpeg_height * jpeg_components);
-        memset(this->image_data, 255, sizeof(unsigned char*) * jpeg_width * jpeg_height * jpeg_components);
+        memset((void*)this->image_data, 255, sizeof(unsigned char*) * jpeg_width * jpeg_height * jpeg_components);
         int row_size = jpeg_width * jpeg_components;
         int  jmp = sizeof(unsigned char) * jpeg_components;
         int m = threshold.size() - 1;

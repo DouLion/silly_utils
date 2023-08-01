@@ -13,6 +13,9 @@
 #ifndef SILLY_UTILS_SILLY_MATRIX_H
 #define SILLY_UTILS_SILLY_MATRIX_H
 #include <cstddef>
+#include <string.h>
+#include <stdlib.h>
+#include <cstdlib>
  // TODO: finish
 namespace silly_math
 {
