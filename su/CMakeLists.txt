@@ -68,3 +68,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC PNG::PNG)
 find_package(JPEG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC ${JPEG_LIBRARIES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${JPEG_INCLUDE_DIR})
+
+find_package(OpenSSL REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC OpenSSL::SSL OpenSSL::Crypto)
