@@ -1,5 +1,5 @@
 //
-// Created by dell on 2023/7/10.
+// Created by dly on 2023/7/10.
 //
 
 #include "grib_utils.h"
@@ -153,7 +153,7 @@ bool grib_utils::read(const std::string& grib_file, DMatrix* matrix, int& type)
 	}
 	grib_keys_iterator_delete(kiter);
 
-	// »ñÈ¡Êý¾Ý
+	// ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½
 	if (m_pGeoInfo.rows * m_pGeoInfo.cols != m_pGeoInfo.dnum || 0 == m_pGeoInfo.rows || 0 == m_pGeoInfo.cols)
 	{
 		fclose(file);

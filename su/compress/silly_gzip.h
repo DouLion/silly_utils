@@ -3,19 +3,19 @@
  * reserved.
  * @website: http://www.tianzhixiang.com.cn/
  * @author: dou li yang
- * @date: 2023/7/10 11:11
+ * @date: 2023/7/10 11:28
  * @version: 1.0.1
  * @software: silly_utils
  * @description:
  */
 #pragma once
 
-#ifndef SILLY_UTILS_C7Z_WRAPPER_H
-#define SILLY_UTILS_C7Z_WRAPPER_H
+#ifndef SILLY_UTILS_SILLY_GZIP_H
+#define SILLY_UTILS_SILLY_GZIP_H
 
-class c7z_wrapper
+class silly_gzip
 {
 
 };
 
-#endif //SILLY_UTILS_C7Z_WRAPPER_H
+#endif //SILLY_UTILS_SILLY_GZIP_H

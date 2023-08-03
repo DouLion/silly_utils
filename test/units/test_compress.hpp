@@ -13,21 +13,21 @@
 #ifndef SILLY_UTILS_TEST_COMPRESS_HPP
 #define SILLY_UTILS_TEST_COMPRESS_HPP
 #include "files/TFF_FileUtils.h"
-#include "compress/bz2_wrapper.h"
+#include "compress/silly_bz2.h"
 
 BOOST_AUTO_TEST_SUITE(TestCompress)
 
-BOOST_AUTO_TEST_CASE(BZ2_COMPRESS_FILE)      // BZ2Ñ¹ËõÎÄ¼þ
+BOOST_AUTO_TEST_CASE(BZ2_COMPRESS_FILE)      // BZ2Ñ¹ï¿½ï¿½ï¿½Ä¼ï¿½
 {
 	std::cout << "\r\n\r\n****************" << "BZ2_COMPRESS_FILE" << "****************" << std::endl;
 	std::filesystem::path to_compress_file(DEFAULT_DATA_DIR);
 	to_compress_file.append("hebei_station.txt");
-	std::string dst = bz2_wrapper::compress(to_compress_file.string());
+	std::string dst = silly_bz2::compress(to_compress_file.string());
 	BOOST_CHECK(!dst.empty());
 	std::cout << "Compress to " << dst << std::endl;
 };
 
-BOOST_AUTO_TEST_CASE(BZ2_COMPRESS_DATA)      // BZ2Ñ¹ËõÄÚ´æÊý¾Ý
+BOOST_AUTO_TEST_CASE(BZ2_COMPRESS_DATA)      // BZ2Ñ¹ï¿½ï¿½ï¿½Ú´ï¿½ï¿½ï¿½ï¿½ï¿½
 {
 	std::cout << "\r\n\r\n****************" << "BZ2_COMPRESS_DATA" << "****************" << std::endl;
 	std::filesystem::path to_compress_file(DEFAULT_DATA_DIR);
@@ -39,7 +39,7 @@ BOOST_AUTO_TEST_CASE(BZ2_COMPRESS_DATA)      // BZ2Ñ¹ËõÄÚ´æÊý¾Ý
 	{
 		char* dst = nullptr;
 		unsigned int dstl = 0;
-		if (bz2_wrapper::compress(data, len, &dst, &dstl))
+		if (silly_bz2::compress(data, len, &dst, &dstl))
 		{
 			std::cout << "Compress data from size " << len << " to size " << (int)dstl << std::endl;
 		}
@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_CASE(BZ2_COMPRESS_DATA)      // BZ2Ñ¹ËõÄÚ´æÊý¾Ý
 
 };
 
-BOOST_AUTO_TEST_CASE(BZ2_DECOMPRESS_FILE)      // BZ2½âÑ¹ËõÎÄ¼þ
+BOOST_AUTO_TEST_CASE(BZ2_DECOMPRESS_FILE)      // BZ2ï¿½ï¿½Ñ¹ï¿½ï¿½ï¿½Ä¼ï¿½
 {
 	std::cout << "\r\n\r\n****************" << "BZ2_DECOMPRESS_FILE" << "****************" << std::endl;
 	std::filesystem::path upoad_file(DEFAULT_DATA_DIR);
@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_CASE(BZ2_DECOMPRESS_FILE)      // BZ2½âÑ¹ËõÎÄ¼þ
 	
 };
 
-BOOST_AUTO_TEST_CASE(BZ2_DECOMPRESS_DATA)      // BZ2½âÑ¹ËõÄÚ´æÊý¾Ý
+BOOST_AUTO_TEST_CASE(BZ2_DECOMPRESS_DATA)      // BZ2ï¿½ï¿½Ñ¹ï¿½ï¿½ï¿½Ú´ï¿½ï¿½ï¿½ï¿½ï¿½
 {
 	std::cout << "\r\n\r\n****************" << "BZ2_DECOMPRESS_DATA" << "****************" << std::endl;
 };

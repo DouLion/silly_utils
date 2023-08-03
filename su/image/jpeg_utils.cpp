@@ -1,5 +1,5 @@
 //
-// Created by dell on 2023/7/26.
+// Created by dly on 2023/7/26.
 //
 
 #include "jpeg_utils.h"
@@ -69,28 +69,28 @@ bool jpeg_utils::write_jpeg_data(const char* path, const jpeg_data& jpeg_data)
     int row, col;
 
     cinfo.err = jpeg_std_error(&jerr);
-    /*³õÊ¼»¯JPEGÑ¹Ëõ¶ÔÏó*/
+    /*ï¿½ï¿½Ê¼ï¿½ï¿½JPEGÑ¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½*/
     jpeg_create_compress(&cinfo);
 
     FILE* outfile;
     if ((outfile = fopen(path, "wb")) == NULL)
     {
         //ERREXIT(&cinfo, JERR_FILE_WRITE);
-        std::cout << "ÎÄ¼þ´ò¿ªÊ§°Ü" << std::endl;
+        std::cout << "ï¿½Ä¼ï¿½ï¿½ï¿½Ê§ï¿½ï¿½" << std::endl;
         return false;
     }
     jpeg_stdio_dest(&cinfo, outfile);
 
-    cinfo.image_width = jpeg_data.jpeg_width;            // ¿í¶È
-    cinfo.image_height = jpeg_data.jpeg_height;          // ¸ß¶È
-    cinfo.input_components = jpeg_data.jpeg_components;    /* # Ã¿¸öÏñËØµÄÑÕÉ«·ÖÁ¿ 3»ò1 */
-    cinfo.in_color_space = jpeg_data.color_space;       /* ÊäÈëÍ¼ÏñµÄÉ«²Ê¿Õ¼ä±ØÐëÎªJ_COLOR_SPACEÃ¶¾Ù³£Á¿Ö®Ò»£¬Í¨³£ÎªJCS_RGB»òJCS_GRAYSCALE*/
-    cinfo.data_precision = jpeg_data.data_precision; /* ÊäÈëÍ¼ÏñµÄÊý¾Ý¾«¶È Ò»°ãÎª8*/
+    cinfo.image_width = jpeg_data.jpeg_width;            // ï¿½ï¿½ï¿½
+    cinfo.image_height = jpeg_data.jpeg_height;          // ï¿½ß¶ï¿½
+    cinfo.input_components = jpeg_data.jpeg_components;    /* # Ã¿ï¿½ï¿½ï¿½ï¿½ï¿½Øµï¿½ï¿½ï¿½É«ï¿½ï¿½ï¿½ï¿½ 3ï¿½ï¿½1 */
+    cinfo.in_color_space = jpeg_data.color_space;       /* ï¿½ï¿½ï¿½ï¿½Í¼ï¿½ï¿½ï¿½É«ï¿½Ê¿Õ¼ï¿½ï¿½ï¿½ï¿½ÎªJ_COLOR_SPACEÃ¶ï¿½Ù³ï¿½ï¿½ï¿½Ö®Ò»ï¿½ï¿½Í¨ï¿½ï¿½ÎªJCS_RGBï¿½ï¿½JCS_GRAYSCALE*/
+    cinfo.data_precision = jpeg_data.data_precision; /* ï¿½ï¿½ï¿½ï¿½Í¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý¾ï¿½ï¿½ï¿½ Ò»ï¿½ï¿½Îª8*/
 
     jpeg_set_defaults(&cinfo);
 
     jpeg_set_quality(&cinfo, jpeg_data.quality, TRUE);
-    //Ê¹ÓÃ4 : 4 : 4×Ó²ÉÑù£¨Ä¬ÈÏÎª4 : 2 : 0£©
+    //Ê¹ï¿½ï¿½4 : 4 : 4ï¿½Ó²ï¿½ï¿½ï¿½ï¿½ï¿½Ä¬ï¿½ï¿½Îª4 : 2 : 0ï¿½ï¿½
     cinfo.comp_info[0].h_samp_factor = cinfo.comp_info[0].v_samp_factor = 1;
     jpeg_start_compress(&cinfo, TRUE);
 
@@ -165,14 +165,14 @@ jpeg_data jpeg_utils::read_jpeg(const char* path)
     buffer = (*cinfo.mem->alloc_sarray)((j_common_ptr)&cinfo, JPOOL_IMAGE, row_stride, 1);
 
 
-    // ´´½¨´æ´¢Í¼ÏñÊý¾ÝµÄÊý×é
+    // ï¿½ï¿½ï¿½ï¿½ï¿½æ´¢Í¼ï¿½ï¿½ï¿½ï¿½ï¿½Ýµï¿½ï¿½ï¿½ï¿½ï¿½
     res_jpeg.image_data = (unsigned char*)malloc(cinfo.output_width * cinfo.output_height * cinfo.output_components);
 
     int row = 0;
     while (cinfo.output_scanline < cinfo.output_height)
     {
         jpeg_read_scanlines(&cinfo, buffer, 1);
-        // ½«µ±Ç°É¨ÃèÐÐµÄÊý¾Ý´æ´¢µ½Êý×éÖÐ
+        // ï¿½ï¿½ï¿½ï¿½Ç°É¨ï¿½ï¿½ï¿½Ðµï¿½ï¿½ï¿½ï¿½Ý´æ´¢ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         memcpy(res_jpeg.image_data + row * row_stride, buffer[0], row_stride);
         row++;
     }
@@ -183,7 +183,7 @@ jpeg_data jpeg_utils::read_jpeg(const char* path)
 }
 
 
-// row : µÚ¼¸ÐÐ   col :µÚ¼¸ÁÐ
+// row : ï¿½Ú¼ï¿½ï¿½ï¿½   col :ï¿½Ú¼ï¿½ï¿½ï¿½
 bool jpeg_data::set_pixel(const size_t& row, const size_t& col, const jpeg_pixel& pixel)
 {
 

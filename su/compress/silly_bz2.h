@@ -10,8 +10,8 @@
  */
 #pragma once
 
-#ifndef SILLY_UTILS_BZ2_WRAPPER_H
-#define SILLY_UTILS_BZ2_WRAPPER_H
+#ifndef SILLY_UTILS_SILLY_BZ2_H
+#define SILLY_UTILS_SILLY_BZ2_H
 #include <iostream>
 
 /*
@@ -21,7 +21,7 @@
  * 程序本身不包含用于多个文件、加密或者文档切分的工具，相反按照UNIX的传统需要使用如tar或者GnuPG这样的外部工具。
  * */
 
-class bz2_wrapper
+class silly_bz2
 {
 public:
 	static std::string compress(const std::string& src_file, const std::string& dst_file = "");
@@ -32,4 +32,4 @@ public:
 	static bool decompress(const char* inval, const unsigned int& inlen, char** outval, unsigned int* outlen);
 };
 
-#endif //SILLY_UTILS_BZ2_WRAPPER_H
+#endif //SILLY_UTILS_SILLY_BZ2_H

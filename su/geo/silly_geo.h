@@ -86,8 +86,7 @@ struct silly_geo_rect    // 普通坐标点
 	double right{ 0 };
 	double bottom{ 0 };
 
-	silly_geo_rect& operator=(const silly_geo_rect& rect)
-		= default;
+	silly_geo_rect& operator=(const silly_geo_rect& rect) = default;
 
 	bool operator==(const silly_geo_rect& rect) const
 	{
@@ -99,6 +98,10 @@ struct silly_geo_rect    // 普通坐标点
 		return std::abs(rect.left - this->left) > FLOAT_IGNORE_DIFF || std::abs(rect.top - this->top) > FLOAT_IGNORE_DIFF || std::abs(rect.right - this->right) > FLOAT_IGNORE_DIFF || std::abs(rect.bottom - this->bottom) > FLOAT_IGNORE_DIFF;
 	}
 };
+
+// TODO: 后面这个要统一为此类型
+// typedef silly_point GeoPoint;
+// typedef silly_geo_rect GeoRect;
 
 typedef std::vector<silly_point> silly_multi_point;
 

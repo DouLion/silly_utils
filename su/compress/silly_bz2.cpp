@@ -1,8 +1,8 @@
 //
-// Created by dell on 2023/7/10.
+// Created by dly on 2023/7/10.
 //
 
-#include "bz2_wrapper.h"
+#include "silly_bz2.h"
 #include <bzlib.h>
 #include <filesystem>
 #include <cstring>
@@ -13,7 +13,7 @@
 // /* recommended size */
 #define BZ2_SUGGEST_COMPRESS_SIZE(inlen) ((unsigned int)(inlen * 1.1 + 600))
 
-std::string bz2_wrapper::compress(const std::string& src_file, const std::string& dst_file)
+std::string silly_bz2::compress(const std::string& src_file, const std::string& dst_file)
 {
 	std::string ret_dst_file = dst_file;
 	std::filesystem::path src_path(src_file);
@@ -100,7 +100,7 @@ std::string bz2_wrapper::compress(const std::string& src_file, const std::string
 	return ret_dst_file;
 }
 
-std::string bz2_wrapper::decompress(const std::string& src_file, const std::string& dst_file)
+std::string silly_bz2::decompress(const std::string& src_file, const std::string& dst_file)
 {
 	std::string ret_dst_file = dst_file;
 	std::filesystem::path src_path(src_file);
@@ -191,7 +191,7 @@ std::string bz2_wrapper::decompress(const std::string& src_file, const std::stri
 	return ret_dst_file;
 }
 
-bool bz2_wrapper::compress(const char* inval, const unsigned int& inlen, char** outval, unsigned int* outlen)
+bool silly_bz2::compress(const char* inval, const unsigned int& inlen, char** outval, unsigned int* outlen)
 {
 	if (!inval || ! inlen)
 	{
@@ -220,7 +220,7 @@ bool bz2_wrapper::compress(const char* inval, const unsigned int& inlen, char** 
 	return true;
 }
 
-bool bz2_wrapper::decompress(const char* inval, const unsigned int& inlen, char** outval, unsigned int* outlen)
+bool silly_bz2::decompress(const char* inval, const unsigned int& inlen, char** outval, unsigned int* outlen)
 {
 	if (!inval || ! inlen)
 	{
