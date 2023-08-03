@@ -57,6 +57,10 @@ namespace silly_image
 		{
 
 		}
+		png_pixel():red(0), green(0), blue(0), alpha(0), gray(0)
+		{
+
+		}
 
 		png_byte gray{ 0 };
 		png_byte red{ 0 };
