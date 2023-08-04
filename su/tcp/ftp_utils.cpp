@@ -250,10 +250,7 @@ bool ftp_utils::ftp_upload(const std::string& localFileFath, const std::string& 
 	struct stat file_info;
 	unsigned long fsize;
 
-	struct curl_slist* headerlist = NULL;
-	/*static const char buf_1[] = "RNFR " UPLOAD_FILE_AS;
-	static const char buf_2[] = "RNTO " RENAME_FILE_TO;*/
-
+	
 	std::filesystem::path sp(localFileFath);
 	// const char* file_name = sp.filename().string();
 	std::string UPLOAD_FILE_AS = "RNFR ";
@@ -280,11 +277,8 @@ bool ftp_utils::ftp_upload(const std::string& localFileFath, const std::string& 
 	/* get a curl handle */
 	curl = curl_easy_init();
 	if (curl) {
-		/* build a list of commands to pass to libcurl */
-		headerlist = curl_slist_append(headerlist, UPLOAD_FILE_AS.c_str());
-		headerlist = curl_slist_append(headerlist, RENAME_FILE_TO.c_str());
+		
 		std::string user_pwd = user + ":" + passwd;
-		//curl_easy_setopt(curl, CURLOPT_USERPWD, "bjtzxxxkjyxgs:Tzx1@3$");
 		curl_easy_setopt(curl, CURLOPT_USERPWD, user_pwd.c_str());
 
 		/* we want to use our own read function */
@@ -325,9 +319,6 @@ bool ftp_utils::ftp_upload(const std::string& localFileFath, const std::string& 
 			status = true;
 		}
 			
-		/* clean up the FTP commands list */
-		curl_slist_free_all(headerlist);
-
 		/* always cleanup */
 		curl_easy_cleanup(curl);
 	}

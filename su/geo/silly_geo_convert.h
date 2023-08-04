@@ -63,17 +63,17 @@ bool silly_geo_convert::matrix_geo_to_mercator(const silly_math::matrix_2d<T>& s
 		for (int j = 0; j < tmp.row(); ++j)
 		{
 
-			double m_x = i * m_width / width + m_left;	// 每个matrix网格点对应的mecator坐标
-			double m_y = m_top - j * m_height / height;
+			double m_x = i * m_width / tmp.col() + m_left;	// 每个matrix网格点对应的mecator坐标
+			double m_y = m_top - j * m_height / tmp.row();
 			double lgtd, lttd;
 			silly_projection::mercator_to_geo(m_x, m_y, lgtd, lttd);
-			int dst_c = std::round((lgtd - rect.left) / g_width * width);
-			int dst_r = std::round((rect.top - lttd) / g_height * height);
+			int dst_c = std::round((lgtd - rect.left) / g_width * tmp.col());
+			int dst_r = std::round((rect.top - lttd) / g_height * tmp.row());
 			// TODO: 这一步是不是有问题,是否是必须的,防止访问溢出
-			dst_c = std::min(std::max(0, gI), max_c);
-			dst_r = std::min(std::max(0, gJ), max_r);
+			dst_c = std::min(std::max(0, dst_c), max_c);
+			dst_r = std::min(std::max(0, dst_r), max_r);
 			// std::cout << gI << "," << gJ << std::endl;
-			dst.get_data()[j][i] = tmp.[dst_r][dst_c];
+			dst.get_data()[j][i] = tmp.get_data()[dst_r][dst_c];
 		}
 	}
 	tmp.destroy();
