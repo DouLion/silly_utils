@@ -249,15 +249,7 @@ bool ftp_utils::ftp_upload(const std::string& localFileFath, const std::string& 
 	FILE* hd_src;
 	struct stat file_info;
 	unsigned long fsize;
-
-	
 	std::filesystem::path sp(localFileFath);
-	// const char* file_name = sp.filename().string();
-	std::string UPLOAD_FILE_AS = "RNFR ";
-	UPLOAD_FILE_AS.append(sp.filename().string());
-	std::string RENAME_FILE_TO = "RNTO";
-	RENAME_FILE_TO.append(sp.filename().string());
-
 
 	/* get the file size of the local file */
 	if (stat(localFileFath.c_str(), &file_info)) {
@@ -298,6 +290,9 @@ bool ftp_utils::ftp_upload(const std::string& localFileFath, const std::string& 
 
 		curl_easy_setopt(curl, CURLOPT_TIMEOUT, timeout);
 		curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, timeout);
+
+		/* 如果远程目录不存在就创建 */
+		curl_easy_setopt(curl, CURLOPT_FTP_CREATE_MISSING_DIRS, 1L);
 
 		/* Set the size of the file to upload (optional).  If you give a *_LARGE
 		   option you MUST make sure that the type of the passed-in argument is a
