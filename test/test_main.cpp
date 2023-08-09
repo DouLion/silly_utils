@@ -9,6 +9,7 @@ using boost::unit_test_framework::test_suite;
 #include <vld.h>
 #endif
 
+#include "units/test_system.hpp"
 #include "units/test_jpeg.hpp"
 #include "units/test_database.hpp"
 #include "units/test_triangular.h"

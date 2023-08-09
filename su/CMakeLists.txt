@@ -71,3 +71,10 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${JPEG_INCLUDE_DIR})
 
 find_package(OpenSSL REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC OpenSSL::SSL OpenSSL::Crypto)
+
+if(IS_LINUX)
+
+    find_package(unofficial-libuuid CONFIG REQUIRED)
+    target_link_libraries(${PROJECT_NAME} PUBLIC unofficial::UUID::uuid)
+
+endif()
