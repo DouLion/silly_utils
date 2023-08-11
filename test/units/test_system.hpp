@@ -19,7 +19,7 @@
 
 BOOST_AUTO_TEST_SUITE(TestSystem)
 
-BOOST_AUTO_TEST_CASE(CREATE_UUID)      // BZ2Ñ¹ËõÎÄ¼þ
+BOOST_AUTO_TEST_CASE(CREATE_UUID)      // BZ2åŽ‹ç¼©æ–‡ä»¶
 {
 	std::cout << "\r\n\r\n****************" << "CREATE_UUID" << "****************" << std::endl;
 	std::cout << silly_uuid::random_uuid() << std::endl;

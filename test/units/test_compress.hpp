@@ -14,10 +14,12 @@
 #define SILLY_UTILS_TEST_COMPRESS_HPP
 #include "files/TFF_FileUtils.h"
 #include "compress/silly_bz2.h"
+#include "compress/silly_minizip.h"
+#include "encode/convert.hpp"
 
 BOOST_AUTO_TEST_SUITE(TestCompress)
 
-BOOST_AUTO_TEST_CASE(BZ2_COMPRESS_FILE)      // BZ2ѹ���ļ�
+BOOST_AUTO_TEST_CASE(BZ2_COMPRESS_FILE)      // BZ2压缩文件
 {
 	std::cout << "\r\n\r\n****************" << "BZ2_COMPRESS_FILE" << "****************" << std::endl;
 	std::filesystem::path to_compress_file(DEFAULT_DATA_DIR);
@@ -27,7 +29,7 @@ BOOST_AUTO_TEST_CASE(BZ2_COMPRESS_FILE)      // BZ2ѹ���ļ�
 	std::cout << "Compress to " << dst << std::endl;
 };
 
-BOOST_AUTO_TEST_CASE(BZ2_COMPRESS_DATA)      // BZ2ѹ���ڴ�����
+BOOST_AUTO_TEST_CASE(BZ2_COMPRESS_DATA)      // BZ2压缩数据
 {
 	std::cout << "\r\n\r\n****************" << "BZ2_COMPRESS_DATA" << "****************" << std::endl;
 	std::filesystem::path to_compress_file(DEFAULT_DATA_DIR);
@@ -52,7 +54,7 @@ BOOST_AUTO_TEST_CASE(BZ2_COMPRESS_DATA)      // BZ2ѹ���ڴ�����
 
 };
 
-BOOST_AUTO_TEST_CASE(BZ2_DECOMPRESS_FILE)      // BZ2��ѹ���ļ�
+BOOST_AUTO_TEST_CASE(BZ2_DECOMPRESS_FILE)      // BZ2解压缩文件
 {
 	std::cout << "\r\n\r\n****************" << "BZ2_DECOMPRESS_FILE" << "****************" << std::endl;
 	std::filesystem::path upoad_file(DEFAULT_DATA_DIR);
@@ -61,9 +63,16 @@ BOOST_AUTO_TEST_CASE(BZ2_DECOMPRESS_FILE)      // BZ2��ѹ���ļ�
 	
 };
 
-BOOST_AUTO_TEST_CASE(BZ2_DECOMPRESS_DATA)      // BZ2��ѹ���ڴ�����
+BOOST_AUTO_TEST_CASE(BZ2_DECOMPRESS_DATA)      // BZ2解压缩数据
 {
 	std::cout << "\r\n\r\n****************" << "BZ2_DECOMPRESS_DATA" << "****************" << std::endl;
+};
+
+
+BOOST_AUTO_TEST_CASE(MINIZIP_COMPRESS_DIR)      // minizip压缩文件夹
+{
+	std::cout << "\r\n\r\n****************" << "MINIZIP_COMPRESS_DIR" << "****************" << std::endl;
+	silly_minizip::compressu(silly_conv::UTF82GBK(R"(E:/dly/workspace/文档)"), silly_conv::UTF82GBK(R"(E:/dly/workspace/文档.zip)"));
 };
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -12,6 +12,7 @@
 
   ```cmake
   # 
+  set(SU_AS_SUB_PROJECT TRUE)
   set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
   include(env_check)
   include(dm8_check)

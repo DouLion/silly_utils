@@ -19,6 +19,7 @@
 
 class silly_projection
 {
+public:
 
 	/// <summary>
 	/// 经纬度坐标转墨卡托

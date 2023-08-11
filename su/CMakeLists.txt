@@ -53,6 +53,9 @@ target_link_libraries(${PROJECT_NAME} PUBLIC libzip::zip)
 find_package(BZip2 REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC BZip2::BZip2)
 
+find_package(minizip CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC minizip::minizip)
+
 find_package(RapidJSON CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC rapidjson)
 

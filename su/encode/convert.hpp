@@ -18,7 +18,7 @@
 #include <cstring>
 // iconv
 #include <iconv.h>
-namespace TZXCONVERT
+namespace silly_conv
 {
 
 	static std::wstring Cxx11PlusS2WS(const std::string& str)
@@ -110,7 +110,7 @@ namespace TZXCONVERT
 	It can convert from any of these encodings to any other, through Unicode conversion.
 */
 
-namespace TZXICONV
+namespace silly_conv
 {
 	/// <summary>
 	///
