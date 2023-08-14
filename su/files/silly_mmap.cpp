@@ -20,6 +20,27 @@
 #include <stdint.h>
 
 
+
+#define PROT_NONE       0
+#define PROT_READ       1
+#define PROT_WRITE      2
+#define PROT_EXEC       4
+
+#define MAP_FILE        0
+#define MAP_SHARED      1
+#define MAP_PRIVATE     2
+#define MAP_TYPE        0xf
+#define MAP_FIXED       0x10
+#define MAP_ANONYMOUS   0x20
+#define MAP_ANON        MAP_ANONYMOUS
+
+#define MAP_FAILED      ((void *)-1)
+
+/* Flags for msync. */
+#define MS_ASYNC        1
+#define MS_SYNC         2
+#define MS_INVALIDATE   4
+
 #if defined(_WIN32)
 typedef int64_t OffsetType;
 #else
@@ -31,6 +52,9 @@ typedef uint32_t OffsetType;
 #include <windows.h>
 #include <io.h>
 #include <process.h>
+
+
+
 
 
 static int __map_mman_error(const DWORD err, const int deferr)
@@ -187,22 +211,34 @@ int _mprotect(void* addr, size_t len, int prot)
 
 bool silly_mmap::open(const std::string& file, const int mode)
 {
-	int fd = _open(file.c_str(), O_RDONLY);
+
+	int fd_mode = O_RDONLY;
+	int mmap_mode = PROT_READ;
+	/*switch (mode)
+	{
+	case open_mode::WRITE:
+		mmap_mode = PROT_WRITE;
+		fd_mode = O_WRONLY;
+		break;
+	case open_mode::RW:
+		mmap_mode = PROT_READ | PROT_WRITE;
+		fd_mode = O_RDWR;
+		break;
+	case open_mode::READ:
+	default:
+		break;
+	}*/
+
 #if defined(_WIN32)
-
+	int fd = _open(file.c_str(), fd_mode);
 	struct _stat64 stat;
-	if (0 == _fstati64(fd, &stat))
-	{
-		m_mmap = (char*)mmap(nullptr, stat.st_size, PROT_READ, mode, fd, 0);
-	}
-
+	int ret = _fstati64(fd, &stat);
+	m_mmap = (char*)mmap(NULL, stat.st_size, mmap_mode, MAP_SHARED, fd, 0);
 #else
+	int fd = open(file.c_str(), fd_mode);
 	struct stat  stat;
-	if (0 == fstat(fd, &stat))
-	{
-		m_mmap = (char*)mmap(nullptr, stat.st_size, PROT_READ, mode, fd, 0);
-	}
-
+	int ret = fstat(fd, &stat);
+	m_mmap = (char*)mmap(NULL, stat.st_size, mmap_mode, MAP_SHARED, fd, 0);
 #endif
 	m_size = stat.st_size;
 	close(fd);
@@ -228,13 +264,9 @@ bool silly_mmap::read(mmap_cur* dst, const size_t& size, const size_t& offset)
 	return false;
 }
 
-bool silly_mmap::write(mmap_cur* dst, const size_t& size, const size_t& offset)
+bool silly_mmap::write(mmap_cur* src, const size_t& size, const size_t& offset)
 {
-	/*if (m_mmap && dst && size + offset < m_size)
-	{
-		memcpy(dst, m_mmap + offset, size);
-		return true;
-	}*/
+	// msync(m_mmap, m_size, MS_SYNC);
 	return false;
 }
 

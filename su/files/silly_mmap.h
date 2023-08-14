@@ -14,25 +14,16 @@
 #define SILLY_UTILS_SILLY_MMAP_H
 #include <iostream>
 
-#define PROT_NONE       0
-#define PROT_READ       1
-#define PROT_WRITE      2
-#define PROT_EXEC       4
 
-#define MAP_FILE        0
-#define MAP_SHARED      1
-#define MAP_PRIVATE     2
-#define MAP_TYPE        0xf
-#define MAP_FIXED       0x10
-#define MAP_ANONYMOUS   0x20
-#define MAP_ANON        MAP_ANONYMOUS
+enum open_mode
+{
+	READ = 1,	// 目前仅支持读,不支持写和改
+	WRITE = 2,
+	APP_WRITE = 3,
+	TRUNC_WRITE = 4
 
-#define MAP_FAILED      ((void *)-1)
+};
 
- /* Flags for msync. */
-#define MS_ASYNC        1
-#define MS_SYNC         2
-#define MS_INVALIDATE   4
 
 typedef char mmap_cur;
 
@@ -40,6 +31,7 @@ typedef char mmap_cur;
 /// 内存文件映射功能.
 /// 同一个资源文件，不能同时读和写，否则指向文件的指针会乱掉，导致程序异常奔溃。
 /// 参照: https://blog.csdn.net/baidu_38172402/article/details/106673606
+/// https://zhuanlan.zhihu.com/p/477641987
 /// </summary>
 
 class silly_mmap
@@ -50,13 +42,13 @@ public:
 	silly_mmap(const std::string);
 	~silly_mmap();
 
-	bool open(const std::string& file, const int mode = MAP_SHARED);
+	bool open(const std::string& file, const int mode = open_mode::READ);
 
 	mmap_cur* at(const size_t& offset = 0);
 
 	bool read(mmap_cur* dst, const size_t& size, const size_t& offset = 0);
 
-	bool write(mmap_cur* dst, const size_t& size, const size_t& offset = 0);
+	bool write(mmap_cur* src, const size_t& size, const size_t& offset = 0);
 
 
 private:
