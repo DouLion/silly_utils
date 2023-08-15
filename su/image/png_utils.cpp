@@ -149,6 +149,55 @@ bool png_utils::write(const char* path, const png_data& data)
 	return true;
 }
 
+#include <vector>
+
+static void PngWriteCallback(png_structp  png_ptr, png_bytep data, png_size_t length) {
+	std::vector<unsigned char>* p = (std::vector<unsigned char>*)png_get_io_ptr(png_ptr);
+	p->insert(p->end(), data, data + length);
+}
+bool silly_image::png_utils::encode_to_memory(const png_data& data, char** buf, size_t& len)
+{
+	png_structp p = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+	if (!p)
+	{
+		return false;
+	}
+	png_infop info_ptr = png_create_info_struct(p);
+	if (!info_ptr)
+	{
+		return false;
+	}
+	if (setjmp(png_jmpbuf(p)))
+	{
+		return false;
+	}
+	png_set_IHDR(p, info_ptr, data.width, data.height, data.bit_depth,
+		data.color_type,
+		PNG_INTERLACE_NONE,
+		PNG_COMPRESSION_TYPE_DEFAULT,
+		PNG_FILTER_TYPE_DEFAULT);
+	//png_set_compression_level(p, 1);
+	std::vector<unsigned char*> rows(data.height);
+	for (size_t y = 0; y < data.height; ++y)
+		rows[y] = (unsigned char*)data.data + y * data.width * 4;
+	png_set_rows(p, info_ptr, &rows[0]);
+	std::vector<unsigned char> out;
+	png_set_write_fn(p, &out, PngWriteCallback, NULL);
+	png_write_png(p, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
+	if (out.empty())
+	{
+		return false;
+	}
+	len = out.size();
+	*buf = (char*)malloc(len);
+	if (*buf)
+	{
+		memcpy(*buf, &out[0], len);
+		return true;
+	}
+	return false;
+}
+
 void png_data::release()
 {
 	for (int r = 0; r < height; ++r)
@@ -159,6 +208,7 @@ void png_data::release()
 	free(data);
 	data = nullptr;
 }
+
 png_data png_data::operator=(const png_data& other)
 {
 	this->data = other.data;

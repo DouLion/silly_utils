@@ -104,7 +104,7 @@ namespace silly_image
 		/// <param name="color_type">RGB,RGBA,GRAY,GRAY ALPHA</param>
 		/// <param name="depth">这个参数暂时没用</param>
 		/// <returns></returns>
-		static png_data create_empty(const size_t& rows, const size_t& cols, const png_uint_32& color_type, const png_uint_32& depth = 8);
+		static png_data create_empty(const size_t& rows, const size_t& cols, const png_uint_32& color_type = PNG_COLOR_TYPE_RGB_ALPHA, const png_uint_32& depth = 8);
 
 		/// <summary>
 		/// 从png中读取一个数据块
@@ -120,6 +120,15 @@ namespace silly_image
 		/// <param name="data"></param>
 		/// <returns></returns>
 		static bool write(const char* path, const png_data& data);
+
+		/// <summary>
+		/// 将png_data转编码为内存png数据
+		/// </summary>
+		/// <param name="data"></param>
+		/// <param name="buf"></param>
+		/// <param name="len"></param>
+		/// <returns></returns>
+		static bool encode_to_memory(const png_data& data, char** buf, size_t& len);
 	};
 }
 #endif //SILLY_UTILS_PNG_UTILS_H
