@@ -10,12 +10,9 @@ silly_pyramid_data::silly_pyramid_data()
 	m_desc[1] = 'D';
 	m_desc[2] = 'A';
 	m_desc[3] = 'T';
+	
 }
 
-bool silly_pyramid_data::open(const std::string, int mode)
-{
-	return false;
-}
 
 std::string silly_pyramid_data::read_block(uint32_t layer, uint64_t row, uint64_t col)
 {

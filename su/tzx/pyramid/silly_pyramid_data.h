@@ -32,13 +32,7 @@ class silly_pyramid_data : public silly_pyramid_base
 
 public:
 	silly_pyramid_data();
-	/// <summary>
-	/// 
-	/// </summary>
-	/// <param name=""></param>
-	/// <param name="mode"></param>
-	/// <returns></returns>
-	bool open(const std::string, int mode);
+
 
 	/// <summary>
 	///  

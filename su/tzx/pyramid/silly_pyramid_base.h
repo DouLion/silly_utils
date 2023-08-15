@@ -161,17 +161,17 @@ protected:
 	// 文件名称
 	std::string									m_pfile;
 	// 是否为普通文件流
-	bool										m_normal;
+	bool										m_normal{true};
 	// mmap文件
 	silly_mmap								    m_mmap;
 	// 文件流
-	FILE*										m_stream;
+	FILE*										m_stream{nullptr};
 	// 主版本号
-	unsigned short								m_major_ver;
+	unsigned short								m_major_ver{2};
 	// 次版本号
-	unsigned short								m_primary_ver;
+	unsigned short								m_primary_ver{0};
 
-	unsigned int								m_version;
+	unsigned int								m_version{2<<2|0};
 	// 头信息
 	char									    m_desc[4];
 	// 多线程读写时用的锁

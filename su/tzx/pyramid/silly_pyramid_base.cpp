@@ -30,6 +30,11 @@ bool silly_pyramid_base::open(const char* file, const open_mode& mode)
 
 bool silly_pyramid_base::close()
 {
+	if (m_stream)
+	{
+		stream_close();
+	}
+
 	return false;
 }
 
@@ -65,7 +70,7 @@ void silly_pyramid_base::seek(const size_t& pos, const int& flag)
 
 bool silly_pyramid_base::stream_open(const char* file, const char* mode)
 {
-	if(mode)
+	printf("Opening %s ...\n", file);
 	m_stream = fopen(file, mode);
 	if (m_stream) return true;
 	return false;
