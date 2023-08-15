@@ -7,7 +7,8 @@
  * @version: 1.0.1
  * @software: silly_utils
  * @description:
- */
+
+*/
 #pragma once
 
 #ifndef SILLY_UTILS_SILLY_MATRIX_H
@@ -16,6 +17,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <cstdlib>
+#include <cmath>
+
  // TODO: finish
 namespace silly_math
 {
@@ -23,9 +26,9 @@ namespace silly_math
 	template <typename T>
 	class matrix_2d
 	{
-	/// <summary>
-	/// 这个目前是线程不安全的,使用时需要注意
-	/// </summary>
+		/// <summary>
+		/// 这个目前是线程不安全的,使用时需要注意
+		/// </summary>
 	public:
 		matrix_2d<T>() = default;
 
@@ -49,7 +52,7 @@ namespace silly_math
 		/// <param name="c"></param>
 		/// <param name="reset">true: 如果有数据就清空并且重新初始化 false: 做任何操作,并且返回false</param>
 		/// <returns></returns>
-		bool create(size_t r, size_t c, bool reset = false)
+		bool create(const size_t& row, const size_t& col, bool reset = false)
 		{
 			if (data && !reset)
 			{
@@ -59,8 +62,8 @@ namespace silly_math
 			{
 				destroy();
 			}
-			rows = r;
-			cols = c;
+			rows = row;
+			cols = col;
 			data = (T**)malloc(rows * sizeof(T*));
 			size_t col_size = cols * sizeof(T);
 			for (size_t r = 0; r < rows; r++)
@@ -130,7 +133,7 @@ namespace silly_math
 				free(data);
 				data = nullptr;
 			}
-			
+
 		}
 		size_t row()
 		{
@@ -144,7 +147,7 @@ namespace silly_math
 	private:
 		T** data{ nullptr };
 		// 行数
-		size_t rows{ 0 }; 
+		size_t rows{ 0 };
 		// 列数
 		size_t cols{ 0 };
 		T mp{ 0 };
@@ -161,7 +164,53 @@ namespace silly_math
 	typedef matrix_2d<long long> LMatrix;
 	typedef matrix_2d<unsigned long long> UMatrix;
 
+	/// 参照opencv
+	enum InterpolationFlags {
+		/** nearest neighbor interpolation 最临近插值 */
+		INTER_NEAREST = 0,
+		/** bilinear interpolation 二次性插值 */
+		INTER_LINEAR = 1,
+	};
+
+	class matrix_tools
+	{
+	public:
+
+		/// <summary>
+		/// 对矩阵进行缩放操作
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="src">源矩阵</param>
+		/// <param name="dst">目标矩阵</param>
+		/// <param name="dst_row">目标矩阵行数</param>
+		/// <param name="dst_col">目标矩阵列数</param>
+		/// <param name="flag">插值算法</param>
+		/// <returns></returns>
+		template<typename T>
+		bool resize(matrix_2d<T>& src, matrix_2d<T>& dst, const size_t& dst_row, const size_t& dst_col, const InterpolationFlags& flag = INTER_NEAREST)
+		{
+			switch(flag)
+			{
+			case INTER_LINEAR:
+				return bilinear_resize(src,dst, dst_row, dst_col);
+			default:
+				return inter_nearest_resize(src,dst, dst_row, dst_col);
+			}
+		}
+	private:
+		template<typename T>
+		bool inter_nearest_resize(matrix_2d<T>& src, matrix_2d<T>& dst, const size_t& dst_row, const size_t& dst_col)
+		{
+			return false;
+		}
+
+		template<typename T>
+		bool bilinear_resize(matrix_2d<T>& src, matrix_2d<T>& dst, const size_t& dst_row, const size_t& dst_col)
+		{
+			return false;
+		}
+	};
+
 }
 
-
-#endif //SILLY_UTILS_SILLY_MATRIX_H
+#endif // SILLY_UTILS_SILLY_MATRIX_H

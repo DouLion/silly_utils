@@ -12,21 +12,21 @@
 
 #ifndef SILLY_UTILS_SILLY_PYRAMID_H
 #define SILLY_UTILS_SILLY_PYRAMID_H
-
+#include <cmath>
 #include "geo/silly_geo.h"
 
-#define GLOBAL_LEFT  	-180.0
-#define GLOBAL_RIGHT	 180.0
-#define GLOBAL_LNG_LEN 	360.0
-#define GLOBAL_TOP 		90.0
-#define GLOBAL_BOTTOM 	-90.0
+#define SILLY_GLOBAL_LEFT  		-180.0
+#define SILLY_GLOBAL_RIGHT		180.0
+#define SILLY_GLOBAL_LNG_LEN 	360.0
+#define SILLY_GLOBAL_TOP 		90.0
+#define SILLY_GLOBAL_BOTTOM 	-90.0
 
 class google_pyramid
 {
 public:
 
 	size_t layer {0};
-	size_t col{0};
+	size_t col {0};
 	size_t row{0};
 
 	static silly_geo_rect get_block_rect(size_t l, size_t c, size_t r)

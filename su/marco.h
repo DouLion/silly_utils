@@ -63,3 +63,11 @@
 #define SU_RETURN_OK printf("OK.\n"); return 0;
 #define SU_RETURN_ERR printf("ERR.\n"); return 1;
 
+#ifndef SU_MAX
+#define SU_MAX(a, b)	(((a) > (b)) ? (a) : (b))
+#endif
+
+#ifndef SU_MIN
+#define SU_MIN(a, b)	(((a) < (b)) ? (a) : (b))
+#endif
+
