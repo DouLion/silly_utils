@@ -28,11 +28,18 @@ BOOST_AUTO_TEST_CASE(PYRAMID_WRITE)
 	sp.open("E:/ccad", open_mode::APP_WRITE);
 	sp.close();
 
-	auto a = silly_image::png_utils::create_empty(100, 100);
+	auto apdata = silly_image::png_utils::create_empty(100, 100);
 
 	char* result = nullptr;
 	size_t len = 0;
-	silly_image::png_utils::encode_to_memory(a, &result, len);
+	silly_image::png_utils::encode_to_memory(apdata, &result, len);
+
+	silly_image::png_pixel pp;
+	int a = 0x12;
+	int b = 0x34;
+	int c = 0x56;
+	int d = 0x78;
+	pp.from_hex_argb("12345678");
 
 	int ccc = 0;
 

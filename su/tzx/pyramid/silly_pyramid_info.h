@@ -29,7 +29,6 @@
 
 class silly_pyramid_info : public silly_pyramid_base
 {
-public:
 	silly_pyramid_info();
 
 	bool read_info();

@@ -189,6 +189,7 @@ namespace silly_math
 		template<typename T>
 		bool resize(matrix_2d<T>& src, matrix_2d<T>& dst, const size_t& dst_row, const size_t& dst_col, const InterpolationFlags& flag = INTER_NEAREST)
 		{
+			
 			switch(flag)
 			{
 			case INTER_LINEAR:
@@ -201,14 +202,75 @@ namespace silly_math
 		template<typename T>
 		bool inter_nearest_resize(matrix_2d<T>& src, matrix_2d<T>& dst, const size_t& dst_row, const size_t& dst_col)
 		{
-			return false;
+			const size_t src_row = src.row();
+			const size_t src_col = src.col();
+			
+
+			const float row_ratio = static_cast<float>(src_row) / dst_row;
+			const float col_ratio = static_cast<float>(src_col) / dst_col;
+
+			dst.create(dst_row, dst_col);
+
+			for (size_t i = 0; i < dst_row; ++i)
+			{
+				const size_t src_i = std::min(static_cast<size_t>(i * row_ratio), src_row - 1);
+
+				for (size_t j = 0; j < dst_col; ++j)
+				{
+					const size_t src_j = std::min(static_cast<size_t>(j * col_ratio), src_col - 1);
+					dst.at(i, j) = src.at(src_i, src_j);
+				}
+			}
+
+			return true;
 		}
 
 		template<typename T>
 		bool bilinear_resize(matrix_2d<T>& src, matrix_2d<T>& dst, const size_t& dst_row, const size_t& dst_col)
 		{
-			return false;
+			size_t src_row = src.row();
+			size_t src_col = src.col();
+
+			float row_ratio = (float)(src_row) / dst_row; // 缩放比例 扩大多少倍分之一
+			float col_ratio = (float)(src_col) / dst_col;
+
+			dst.create(dst_row, dst_col);
+
+			for (size_t i = 0; i < dst_row; ++i)
+			{
+				float src_i_float = i * row_ratio;  // 扩展后x的在原矩阵的位置
+				size_t src_i_floor = static_cast<size_t>(std::floor(src_i_float));
+				size_t src_i_ceil = std::min(src_i_floor + 1, src_row - 1);
+
+				float y_diff = src_i_float - src_i_floor;
+
+				for (size_t j = 0; j < dst_col; ++j)
+				{
+					float src_j_float = j * col_ratio;	// 扩展后y的在原矩阵的位置
+					size_t src_j_floor = static_cast<size_t>(std::floor(src_j_float));
+					size_t src_j_ceil = std::min(src_j_floor + 1, src_col - 1);
+
+					float x_diff = src_j_float - src_j_floor;
+
+					T src_top_left = src.at(src_i_floor, src_j_floor);
+					T src_top_right = src.at(src_i_floor, src_j_ceil);
+					T src_bottom_left = src.at(src_i_ceil, src_j_floor);
+					T src_bottom_right = src.at(src_i_ceil, src_j_ceil);
+
+					T interpolated_value = static_cast<T>(
+						(1 - x_diff) * (1 - y_diff) * src_top_left +
+						x_diff * (1 - y_diff) * src_top_right +
+						(1 - x_diff) * y_diff * src_bottom_left +
+						x_diff * y_diff * src_bottom_right
+						);
+
+					dst.at(i, j) = interpolated_value;
+				}
+			}
+
+			return true;
 		}
+
 	};
 
 }

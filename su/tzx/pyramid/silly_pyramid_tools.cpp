@@ -38,10 +38,6 @@ bool silly_pyramid::open(const std::string& root, const open_mode& mode)
     }
     else
     {
-        if (!std::filesystem::exists(root))
-        {
-            std::filesystem::create_directories(root);
-        }
 
         if (OK != m_info.open(info_path.string().c_str(), mode))
         {
@@ -49,21 +45,20 @@ bool silly_pyramid::open(const std::string& root, const open_mode& mode)
             return false;
         }
 
-        if (OK != m_index.open(index_path.string().c_str(), mode))
+        if (OK != m_index.open(index_path.string().c_str(), open_mode::READ))
         {
             m_info.close();
             m_index.close();
             return false;
         }
 
-        if (OK != m_data.open(data_path.string().c_str(), mode))
+        if (OK != m_data.open(data_path.string().c_str(), open_mode::READ))
         {
             m_info.close();
             m_index.close();
             m_data.close();
             return false;
         }
-        return true;
     }
     return false;
 }
