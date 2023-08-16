@@ -30,7 +30,7 @@
 #include "math/silly_matrix.h"
 using namespace silly_math;
 
- // ÏñËØÑÕÉ«½á¹¹Ìå pixel_color
+ // åƒç´ é¢œè‰²ç»“æ„ä½“ pixel_color
 struct jpeg_pixel
 {
 	jpeg_pixel() : red(0), green(0), blue(0), gray(0)
@@ -45,10 +45,10 @@ struct jpeg_pixel
 	{
 
 	}
-	JSAMPLE  red{ 0 };     // ºìÉ«·ÖÁ¿
-	JSAMPLE  green{ 0 };   // ÂÌÉ«·ÖÁ¿
-	JSAMPLE  blue{ 0 };    // À¶É«·ÖÁ¿
-	JSAMPLE  gray{ 0 };    // »ÒÉ«·ÖÁ¿
+	JSAMPLE  red{ 0 };     // çº¢è‰²åˆ†é‡
+	JSAMPLE  green{ 0 };   // ç»¿è‰²åˆ†é‡
+	JSAMPLE  blue{ 0 };    // è“è‰²åˆ†é‡
+	JSAMPLE  gray{ 0 };    // ç°è‰²åˆ†é‡
 	// unsigned char = JSAMPLE
 };
 
@@ -68,7 +68,7 @@ public:
 
 	bool release();
 
-    // row : µÚ¼¸ĞĞ   col :µÚ¼¸ÁĞ
+    // row : ç¬¬å‡ è¡Œ   col :ç¬¬å‡ åˆ—
 	bool set_pixel(const size_t& row, const size_t& col, const jpeg_pixel& pixel);
 
 	template<typename T>
@@ -76,22 +76,22 @@ public:
 	{
         if (threshold.empty())
         {
-            std::cout << "ãĞÖµÎª¿Õ " << std::endl;
+            std::cout << "é˜ˆå€¼ä¸ºç©º " << std::endl;
             return false;
         }
         if (pixel_colors.empty())
         {
-            std::cout << "É«²ÊÎ»¿Õ " << std::endl;
+            std::cout << "è‰²å½©ä½ç©º " << std::endl;
             return false;
         }
         if (threshold.size() != pixel_colors.size())
         {
-            std::cout << "ãĞÖµÓëãĞÖµÑÕÉ«¸öÊı²»Æ¥Åä " << std::endl;
+            std::cout << "é˜ˆå€¼ä¸é˜ˆå€¼é¢œè‰²ä¸ªæ•°ä¸åŒ¹é… " << std::endl;
             return false;
         }
         if (nullptr == matrix.get_data())
         {
-            std::cout << "¾ØÕóÎª¿Õ " << std::endl;
+            std::cout << "çŸ©é˜µä¸ºç©º " << std::endl;
             return false;
         }
 
@@ -131,13 +131,13 @@ public:
 
 
 	jpeg_data  operator=(const jpeg_data& other);
-	// ²ÎÊı-----------------
+	// å‚æ•°-----------------
 	JDIMENSION jpeg_width{ 0 };
 	JDIMENSION jpeg_height{ 0 };
-	int jpeg_components{ 3 };		// É«´øÍ¨µÀÊı 1 ro 3
-	J_COLOR_SPACE color_space;		// É«²Ê¿Õ¼ä±ØĞëÎªÃ¶¾Ù³£Á¿Ö®Ò»£¬Í¨³£ÎªJCS_RGB»òJCS_GRAYSCALE
+	int jpeg_components{ 3 };		// è‰²å¸¦é€šé“æ•° 1 ro 3
+	J_COLOR_SPACE color_space;		// è‰²å½©ç©ºé—´å¿…é¡»ä¸ºæšä¸¾å¸¸é‡ä¹‹ä¸€ï¼Œé€šå¸¸ä¸ºJCS_RGBæˆ–JCS_GRAYSCALE
 	int quality{ 75 };
-	int data_precision{ 8 };				/* ÊäÈëÍ¼ÏñµÄÊı¾İ¾«¶È Ò»°ãÎª8*/
+	int data_precision{ 8 };				/* è¾“å…¥å›¾åƒçš„æ•°æ®ç²¾åº¦ ä¸€èˆ¬ä¸º8*/
 
 	unsigned char* image_data{ nullptr };
 
