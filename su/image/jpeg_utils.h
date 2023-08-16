@@ -157,7 +157,7 @@ public:
 
 	jpeg_data read_jpeg(const char* path);
 
-    //将jpeg_data转编码为内存jpeg数据
+    //将jpeg_data数据转编码为内存jpeg数据
     static bool encode_to_memory(const jpeg_data& jpeg_data, char** buf, size_t& len);
 
 

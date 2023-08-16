@@ -112,7 +112,7 @@ bool jpeg_utils::write_jpeg_data(const char* path, const jpeg_data& jpeg_data)
 
 }
 
-bool jpeg_utils::encode_to_memory(const jpeg_data& jpeg_data, char** buf, size_t& len)
+bool jpeg_utils::encode_to_memory(const jpeg_data& jpeg_data, char** buf, size_t& len) 
 {
     jpeg_compress_struct cinfo;
     jpeg_error_mgr jerr;
