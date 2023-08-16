@@ -1,10 +1,10 @@
 //
-// Created by dly on 2023/7/26.
+// Created by dell on 2023/7/26.
 //
 
 #include "jpeg_utils.h"
 #include <cstring>
-
+#include <string.h>
 struct my_error_mgr
 {
     struct jpeg_error_mgr pub;    /* "public" fields */
@@ -69,28 +69,28 @@ bool jpeg_utils::write_jpeg_data(const char* path, const jpeg_data& jpeg_data)
     int row, col;
 
     cinfo.err = jpeg_std_error(&jerr);
-    /*��ʼ��JPEGѹ������*/
+    /*初始化JPEG压缩对象*/
     jpeg_create_compress(&cinfo);
 
     FILE* outfile;
     if ((outfile = fopen(path, "wb")) == NULL)
     {
         //ERREXIT(&cinfo, JERR_FILE_WRITE);
-        std::cout << "�ļ���ʧ��" << std::endl;
+        std::cout << "文件打开失败" << std::endl;
         return false;
     }
     jpeg_stdio_dest(&cinfo, outfile);
 
-    cinfo.image_width = jpeg_data.jpeg_width;            // ���
-    cinfo.image_height = jpeg_data.jpeg_height;          // �߶�
-    cinfo.input_components = jpeg_data.jpeg_components;    /* # ÿ�����ص���ɫ���� 3��1 */
-    cinfo.in_color_space = jpeg_data.color_space;       /* ����ͼ���ɫ�ʿռ����ΪJ_COLOR_SPACEö�ٳ���֮һ��ͨ��ΪJCS_RGB��JCS_GRAYSCALE*/
-    cinfo.data_precision = jpeg_data.data_precision; /* ����ͼ������ݾ��� һ��Ϊ8*/
+    cinfo.image_width = jpeg_data.jpeg_width;            // 宽度
+    cinfo.image_height = jpeg_data.jpeg_height;          // 高度
+    cinfo.input_components = jpeg_data.jpeg_components;    /* # 每个像素的颜色分量 3或1 */
+    cinfo.in_color_space = jpeg_data.color_space;       /* 输入图像的色彩空间必须为J_COLOR_SPACE枚举常量之一，通常为JCS_RGB或JCS_GRAYSCALE*/
+    cinfo.data_precision = jpeg_data.data_precision; /* 输入图像的数据精度 一般为8*/
 
     jpeg_set_defaults(&cinfo);
 
     jpeg_set_quality(&cinfo, jpeg_data.quality, TRUE);
-    //ʹ��4 : 4 : 4�Ӳ�����Ĭ��Ϊ4 : 2 : 0��
+    //使用4 : 4 : 4子采样（默认为4 : 2 : 0）
     cinfo.comp_info[0].h_samp_factor = cinfo.comp_info[0].v_samp_factor = 1;
     jpeg_start_compress(&cinfo, TRUE);
 
@@ -165,14 +165,14 @@ jpeg_data jpeg_utils::read_jpeg(const char* path)
     buffer = (*cinfo.mem->alloc_sarray)((j_common_ptr)&cinfo, JPOOL_IMAGE, row_stride, 1);
 
 
-    // �����洢ͼ�����ݵ�����
+    // 创建存储图像数据的数组
     res_jpeg.image_data = (unsigned char*)malloc(cinfo.output_width * cinfo.output_height * cinfo.output_components);
 
     int row = 0;
     while (cinfo.output_scanline < cinfo.output_height)
     {
         jpeg_read_scanlines(&cinfo, buffer, 1);
-        // ����ǰɨ���е����ݴ洢��������
+        // 将当前扫描行的数据存储到数组中
         memcpy(res_jpeg.image_data + row * row_stride, buffer[0], row_stride);
         row++;
     }
@@ -183,7 +183,7 @@ jpeg_data jpeg_utils::read_jpeg(const char* path)
 }
 
 
-// row : �ڼ���   col :�ڼ���
+// row : 第几行   col :第几列
 bool jpeg_data::set_pixel(const size_t& row, const size_t& col, const jpeg_pixel& pixel)
 {
 
