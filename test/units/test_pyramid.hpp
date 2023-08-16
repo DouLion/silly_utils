@@ -52,8 +52,10 @@ BOOST_AUTO_TEST_CASE(PYRAMID_WRITE)
 	size_t len = 0;
 	silly_image::png_utils::encode_to_memory(apdata, &result, len);
 	
-	apdata.release();
+	
 	FileUtils::WriteAll("E:/ttpng.png", result, len);
+	FileUtils::WriteAll("E:/ttpng.png", png_utils::encode_to_memory(apdata));
+	apdata.release();
 	free(result);
 	/*silly_image::*/
 

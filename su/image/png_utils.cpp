@@ -226,8 +226,9 @@ std::string silly_image::png_utils::encode_to_memory(const png_data& data)
 	{
 		return result;
 	}
-	result.resize(out.empty());
-	memcpy(&result[0], &out[0], out.size());
+	size_t len = out.size();
+	result.resize(len);
+	memcpy(&result[0], &out[0], len);
 	return result;
 }
 
