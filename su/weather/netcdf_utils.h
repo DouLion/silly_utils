@@ -15,7 +15,6 @@
 #include <vector>
 #include <iostream>
 #include <map>
-#include <opencv2/opencv.hpp>
 #include <math/silly_matrix.h>
 using namespace silly_math;
 typedef unsigned char su_ncbyte;
@@ -101,11 +100,11 @@ private:
 class netcdf_utils
 {
 public:
-	static bool read_netcdf(const std::string& path, const std::string& group, std::map<int, cv::Mat>& data, nc_info& info);
+	static bool read_netcdf(const std::string& path, const std::string& group, std::map<int, DMatrix>& data, nc_info& info);
 
-	static bool write_netcdf(const std::string& path, const nc_info& info, const std::string& name, std::map<int, cv::Mat>& data);
+	static bool write_netcdf(const std::string& path, const nc_info& info, const std::string& name, std::map<int, DMatrix>& data);
 
-	static bool write_netcdf(const std::string& path, const nc_info& info, const std::string& name, cv::Mat data);
+	static bool write_netcdf(const std::string& path, const nc_info& info, const std::string& name, DMatrix data);
 };
 
 #endif //SILLY_UTILS_NETCDF_UTILS_H

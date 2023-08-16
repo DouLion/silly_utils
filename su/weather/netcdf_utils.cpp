@@ -9,7 +9,7 @@
 using namespace netCDF;
 using namespace netCDF::exceptions;
 
-bool netcdf_utils::read_netcdf(const std::string& path, const std::string& group, std::map<int, cv::Mat>& data, nc_info& info)
+bool netcdf_utils::read_netcdf(const std::string& path, const std::string& group, std::map<int, DMatrix>& data, nc_info& info)
 {
 	// TODO: 这里不应该假定数据的类型
 	float *nc_val_data = nullptr;
@@ -110,22 +110,24 @@ bool netcdf_utils::read_netcdf(const std::string& path, const std::string& group
 
 		value_var.getVar(nc_val_data);
 		for (int lvl = 0; lvl < time_len; lvl++) {
-			cv::Mat mat_data(info.geo.x_size, info.geo.y_size, CV_32FC1);
+			DMatrix mtx;
+			mtx.create(info.geo.y_size, info.geo.x_size);
 			size_t lvlStart = lvl * info.geo.y_size * info.geo.x_size;
 			for (int lat = 0; lat < info.geo.y_size; lat++) {
 				for (int lon = 0; lon < info.geo.x_size; lon++) {
-					if (invalid_data == nc_val_data[lvlStart + (info.geo.x_size - lon - 1) * info.geo.y_size + lat])
+					float tval = nc_val_data[lvlStart + info.geo.x_size * lat + lon];
+					if (invalid_data == tval)
 					{
-						mat_data.ptr<float>(lon, lat)[0] = 0;
+						mtx.get_data()[lat][lon] = invalid_data;
 					}
 					else
 					{
-						mat_data.ptr<float>(lon, lat)[0] = nc_val_data[lvlStart + (info.geo.x_size - lon - 1) * info.geo.y_size + lat] * scaleFactor + addOffset;
+						mtx.get_data()[lat][lon] = tval * scaleFactor + addOffset;
 					}
 					
 				}
 			}
-			data.insert({lvl, mat_data});
+			data.insert({lvl, mtx });
 
 		}
 		ret_status = true;
@@ -151,7 +153,7 @@ bool netcdf_utils::read_netcdf(const std::string& path, const std::string& group
 	return ret_status;
 }
 
-bool netcdf_utils::write_netcdf(const std::string& path, const nc_info& info, const std::string& name, std::map<int, cv::Mat>& data)
+bool netcdf_utils::write_netcdf(const std::string& path, const nc_info& info, const std::string& name, std::map<int, DMatrix>& data)
 {
 	bool status = false;
 	try
@@ -227,7 +229,7 @@ bool netcdf_utils::write_netcdf(const std::string& path, const nc_info& info, co
 		// surface temperature data. The arrays of data are the same size
 		// as the netCDF variables we have defined.
 		int curr_idx = 0;
-		for (auto [idx, mat]: data)
+		/*for (auto [idx, mat]: data)
 		{
 			for (int r = 0; r < mat.rows; ++r)
 			{
@@ -236,7 +238,7 @@ bool netcdf_utils::write_netcdf(const std::string& path, const nc_info& info, co
 					rains[curr_idx + r * mat.cols + c] = mat.ptr<float>(mat.rows - r -1, c)[0];
 				}
 			}
-		}
+		}*/
 		presVar.putVar(rains);
 		free(lats);
 		free(lons);
@@ -259,7 +261,7 @@ bool netcdf_utils::write_netcdf(const std::string& path, const nc_info& info, co
 	return status;
 }
 
-bool netcdf_utils::write_netcdf(const std::string& path, const nc_info& info, const std::string& name, cv::Mat data)
+bool netcdf_utils::write_netcdf(const std::string& path, const nc_info& info, const std::string& name, DMatrix data)
 {
 	bool status = false;
 	try
@@ -325,13 +327,13 @@ bool netcdf_utils::write_netcdf(const std::string& path, const nc_info& info, co
 
 
 		int curr_idx = 0;
-		for (int r = 0; r < data.rows; ++r)
+		/*for (int r = 0; r < data.rows; ++r)
 		{
 			for (int c = 0; c < data.cols; ++c)
 			{
 				rains[curr_idx + r * data.cols + c] = data.ptr<float>(data.rows - r -1, c)[0];
 			}
-		}
+		}*/
 		presVar.putVar(rains);
 		free(lats);
 		free(lons);
