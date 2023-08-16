@@ -5,15 +5,16 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/bind.hpp>
 using boost::unit_test_framework::test_suite;
-#if IS_WIN32 && 0
+#if IS_WIN32
 #include <vld.h>
 #endif
 
+#include "units/test_pyramid.hpp"
 //#include "units/test_file.hpp"
 //#include "units/test_geo.hpp"
 //#include "units/test_compress.hpp"
 //#include "units/test_system.hpp"
-#include "units/test_jpeg.hpp"
+// #include "units/test_jpeg.hpp"
 //#include "units/test_database.hpp"
 //#include "units/test_triangular.h"
 //#include "units/test_tcp.hpp"

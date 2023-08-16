@@ -35,7 +35,7 @@ bool netcdf_utils::read_netcdf(const std::string& path, const std::string& group
 		}*/
 
 		std::string time_name, lan_name, lon_name;
-		size_t time_len;
+		size_t time_len = 1;
 		if (ncDimVector.size() == 2)
 		{
 			lan_name = ncDimVector[0].getName();

@@ -28,7 +28,8 @@
 class silly_pyramid
 {
 public:
-	silly_pyramid() = default;
+	silly_pyramid(void) = default;
+
 	bool open(const std::string& root, const open_mode& mode = open_mode::READ);
 	void close();
 
