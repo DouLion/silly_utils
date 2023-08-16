@@ -112,6 +112,47 @@ bool jpeg_utils::write_jpeg_data(const char* path, const jpeg_data& jpeg_data)
 
 }
 
+bool jpeg_utils::encode_to_memory(const jpeg_data& jpeg_data, char** buf, size_t& len)
+{
+    jpeg_compress_struct cinfo;
+    jpeg_error_mgr jerr;
+
+    JSAMPROW row_pointer[1];
+
+    cinfo.err = jpeg_std_error(&jerr);
+    jpeg_create_compress(&cinfo);
+
+     //分配内存缓冲区
+    unsigned long mem_size = 0;
+    jpeg_mem_dest(&cinfo, (unsigned char**)(buf), &mem_size);
+    len = jpeg_data.fileSize;
+
+    cinfo.image_width = jpeg_data.jpeg_width;
+    cinfo.image_height = jpeg_data.jpeg_height;
+    cinfo.input_components = jpeg_data.jpeg_components;
+    cinfo.in_color_space = jpeg_data.color_space;
+    cinfo.data_precision = jpeg_data.data_precision;
+
+    jpeg_set_defaults(&cinfo);
+    jpeg_set_quality(&cinfo, jpeg_data.quality, TRUE);
+    cinfo.comp_info[0].h_samp_factor = cinfo.comp_info[0].v_samp_factor = 1;
+
+    jpeg_start_compress(&cinfo, TRUE);
+
+    unsigned int row_stride = cinfo.image_width * cinfo.input_components;
+
+    while (cinfo.next_scanline < cinfo.image_height)
+    {
+        row_pointer[0] = &jpeg_data.image_data[cinfo.next_scanline * row_stride];
+        jpeg_write_scanlines(&cinfo, row_pointer, 1);
+    }
+    
+    jpeg_finish_compress(&cinfo);
+    jpeg_destroy_compress(&cinfo);
+
+    return true;
+}
+
 
 jpeg_data jpeg_utils::read_jpeg(const char* path)
 {
@@ -122,13 +163,17 @@ jpeg_data jpeg_utils::read_jpeg(const char* path)
 
     FILE* infile;                 /* source file */
     JSAMPARRAY buffer = NULL;                 /* Output row buffer */
-    int col;
     int row_stride;               /* physical row width in output buffer */
 
     if ((infile = fopen(path, "rb")) == NULL) {
         fprintf(stderr, "can't open %s\n", path);
         return res_jpeg;
     }
+    fseek(infile, 0, SEEK_END); // 将文件指针定位到文件末尾
+    long size = ftell(infile); // 获取文件大小（字节数）
+    fseek(infile, 0, SEEK_SET); // 将文件指针重新定位到文件开头
+    res_jpeg.fileSize = size;
+
 
     cinfo.err = jpeg_std_error(&jerr.pub);
     jerr.pub.error_exit = my_error_exit;
@@ -160,6 +205,7 @@ jpeg_data jpeg_utils::read_jpeg(const char* path)
     res_jpeg.jpeg_components = cinfo.output_components;
     res_jpeg.color_space = cinfo.out_color_space;
     res_jpeg.data_precision = cinfo.data_precision;
+    
 
 
     buffer = (*cinfo.mem->alloc_sarray)((j_common_ptr)&cinfo, JPOOL_IMAGE, row_stride, 1);

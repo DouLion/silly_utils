@@ -138,7 +138,7 @@ public:
 	J_COLOR_SPACE color_space;		// 色彩空间必须为枚举常量之一，通常为JCS_RGB或JCS_GRAYSCALE
 	int quality{ 75 };
 	int data_precision{ 8 };				/* 输入图像的数据精度 一般为8*/
-
+    long fileSize;  // 该jpeg栈多少字节
 	unsigned char* image_data{ nullptr };
 
 private:
@@ -157,7 +157,8 @@ public:
 
 	jpeg_data read_jpeg(const char* path);
 
-
+    //将jpeg_data转编码为内存jpeg数据
+    static bool encode_to_memory(const jpeg_data& jpeg_data, char** buf, size_t& len);
 
 
 	jpeg_utils() = default;

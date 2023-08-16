@@ -252,3 +252,5 @@ void png_data::set_pixel(const size_t& r, const size_t& c, const png_pixel& sp)
 		break;
 	}
 }
+
+
