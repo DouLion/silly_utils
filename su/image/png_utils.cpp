@@ -1,9 +1,11 @@
+#include "png_utils.h"
 //
 // Created by dly on 2023/7/25.
 //
 
 #include <cstdlib>
 #include <cstring>
+#include <vector>
 #include "png_utils.h"
 #include "marco.h"
 using namespace silly_image;
@@ -149,12 +151,11 @@ bool png_utils::write(const char* path, const png_data& data)
 	return true;
 }
 
-#include <vector>
-
-static void PngWriteCallback(png_structp  png_ptr, png_bytep data, png_size_t length) {
+static void png_mem_write_callback(png_structp  png_ptr, png_bytep data, png_size_t length) {
 	std::vector<unsigned char>* p = (std::vector<unsigned char>*)png_get_io_ptr(png_ptr);
 	p->insert(p->end(), data, data + length);
 }
+
 bool silly_image::png_utils::encode_to_memory(const png_data& data, char** buf, size_t& len)
 {
 	png_structp p = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
@@ -182,7 +183,7 @@ bool silly_image::png_utils::encode_to_memory(const png_data& data, char** buf, 
 		rows[y] = (unsigned char*)data.data + y * data.width * 4;
 	png_set_rows(p, info_ptr, &rows[0]);
 	std::vector<unsigned char> out;
-	png_set_write_fn(p, &out, PngWriteCallback, NULL);
+	png_set_write_fn(p, &out, png_mem_write_callback, NULL);
 	png_write_png(p, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
 	if (out.empty())
 	{
@@ -196,6 +197,48 @@ bool silly_image::png_utils::encode_to_memory(const png_data& data, char** buf, 
 		return true;
 	}
 	return false;
+}
+
+std::string silly_image::png_utils::encode_to_memory(const png_data& data)
+{
+	std::string result;
+	png_structp p = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+	if (!p)
+	{
+		return result;
+	}
+	png_infop info_ptr = png_create_info_struct(p);
+	if (!info_ptr)
+	{
+		return result;
+	}
+	if (setjmp(png_jmpbuf(p)))
+	{
+		return result;
+	}
+	png_set_IHDR(p, info_ptr, data.width, data.height, data.bit_depth,
+		data.color_type,
+		PNG_INTERLACE_NONE,
+		PNG_COMPRESSION_TYPE_DEFAULT,
+		PNG_FILTER_TYPE_DEFAULT);
+	//png_set_compression_level(p, 1);
+	std::vector<unsigned char*> rows(data.height);
+	for (size_t y = 0; y < data.height; ++y)
+		rows[y] = (unsigned char*)data.data + y * data.width * 4;
+	png_set_rows(p, info_ptr, &rows[0]);
+	std::vector<unsigned char> out;
+	png_set_write_fn(p, &out, png_mem_write_callback, NULL);
+	png_write_png(p, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
+	
+	if (out.empty())
+	{
+		return result;
+	}
+	result.resize(out.size());
+	
+	memcpy(&result[0], &out[0], out.size());
+	
+	return result;
 }
 
 void png_data::release()

@@ -16,6 +16,8 @@
 #include <png.h>
 #include <setjmp.h>
 
+#include <iostream>
+
 #ifndef png_jmpbuf
 #define png_jmpbuf(png_ptr) ((png_ptr)->png_jmpbuf)
 #endif
@@ -162,6 +164,8 @@ namespace silly_image
 		/// <param name="len"></param>
 		/// <returns></returns>
 		static bool encode_to_memory(const png_data& data, char** buf, size_t& len);
+
+		static std::string encode_to_memory(const png_data& data);
 	};
 }
 #endif //SILLY_UTILS_PNG_UTILS_H
