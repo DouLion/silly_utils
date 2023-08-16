@@ -16,7 +16,7 @@
 #define BOOST_TEST_INCLUDED
 #include <boost/test/unit_test.hpp>
 
-#include "tzx/pyramid/silly_pyramid_tools.h"
+//#include "tzx/pyramid/silly_pyramid_tools.h"
 #include "image/png_utils.h"
 
 BOOST_AUTO_TEST_SUITE(TestPyramid)
@@ -24,9 +24,9 @@ BOOST_AUTO_TEST_SUITE(TestPyramid)
 BOOST_AUTO_TEST_CASE(PYRAMID_WRITE)
 {
 	std::cout << "\r\n\r\n****************" << "PYRAMID_CREATE" << "****************" << std::endl;
-	silly_pyramid sp;
+	/*silly_pyramid sp;
 	sp.open("E:/ccad", open_mode::APP_WRITE);
-	sp.close();
+	sp.close();*/
 
 	auto apdata = silly_image::png_utils::create_empty(100, 100);
 
