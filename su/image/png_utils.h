@@ -21,9 +21,9 @@
 #endif
 
 
-//#define SU_PNG_PIXEL_RGBA(p, r, g, b, a) {p.red = r;  p.green = g; p.blue = b; p.alpha = a;}
-//#define SU_PNG_PIXEL_RGB(p, r, g, b) {p.red = r;  p.green = g; p.blue = b; }
-//#define SU_PNG_PIXEL_GA(p, g, a) {p.gray = g; p.alpha = a;}
+ //#define SU_PNG_PIXEL_RGBA(p, r, g, b, a) {p.red = r;  p.green = g; p.blue = b; p.alpha = a;}
+ //#define SU_PNG_PIXEL_RGB(p, r, g, b) {p.red = r;  p.green = g; p.blue = b; }
+ //#define SU_PNG_PIXEL_GA(p, g, a) {p.gray = g; p.alpha = a;}
 
 namespace silly_image
 {
@@ -57,9 +57,42 @@ namespace silly_image
 		{
 
 		}
-		png_pixel():red(0), green(0), blue(0), alpha(0), gray(0)
+		png_pixel() :red(0), green(0), blue(0), alpha(0), gray(0)
 		{
 
+		}
+
+		/// <summary>
+		/// ä»å­—ç¬¦ä¸²åŠ è½½  å¦‚ ABE0457B
+		/// </summary>
+		/// <param name="color"></param>
+		bool from_hex_argb(const char* color)
+		{
+			size_t v = 0;
+			if (1 != sscanf(color, "%x", &v))
+			{
+				return false;
+			}
+			// æˆ–è€… å·¦ç§»ç„¶å å’Œ 0xFF åšä¸
+			blue = (v << 24) >> 24;
+			green = (v << 16) >> 24;
+			red = (v << 8) >> 24;
+			alpha = v >> 24;
+
+			return true;
+		}
+
+		bool from_hex_rgb(const char* color)
+		{
+			size_t v = 0;
+			if (1 != sscanf(color, "%x", &v))
+			{
+				return false;
+			}
+			blue = (v << 16) >> 16;
+			green = (v << 8) >> 16;
+			red = v >> 16;
+			return true;
 		}
 
 		png_byte gray{ 0 };
@@ -77,7 +110,7 @@ namespace silly_image
 		void release();
 
 		/// <summary>
-		/// ÉèÖÃÖ¸¶¨ÏñËØÎ»ÖÃµÄÖµ(ÑÕÉ«)
+		/// è®¾ç½®æŒ‡å®šåƒç´ ä½ç½®çš„å€¼(é¢œè‰²)
 		/// </summary>
 		/// <param name="r"></param>
 		/// <param name="c"></param>
@@ -97,24 +130,24 @@ namespace silly_image
 	{
 	public:
 		/// <summary>
-		/// ´´½¨Ò»¸ö¿ÕµÄpngÊı¾İ¿é
+		/// åˆ›å»ºä¸€ä¸ªç©ºçš„pngæ•°æ®å—
 		/// </summary>
-		/// <param name="rows">ĞĞÊı</param>
-		/// <param name="cols">ÁĞÊı</param>
+		/// <param name="rows">è¡Œæ•°</param>
+		/// <param name="cols">åˆ—æ•°</param>
 		/// <param name="color_type">RGB,RGBA,GRAY,GRAY ALPHA</param>
-		/// <param name="depth">Õâ¸ö²ÎÊıÔİÊ±Ã»ÓÃ</param>
+		/// <param name="depth">è¿™ä¸ªå‚æ•°æš‚æ—¶æ²¡ç”¨</param>
 		/// <returns></returns>
 		static png_data create_empty(const size_t& rows, const size_t& cols, const png_uint_32& color_type = PNG_COLOR_TYPE_RGB_ALPHA, const png_uint_32& depth = 8);
 
 		/// <summary>
-		/// ´ÓpngÖĞ¶ÁÈ¡Ò»¸öÊı¾İ¿é
+		/// ä»pngä¸­è¯»å–ä¸€ä¸ªæ•°æ®å—
 		/// </summary>
 		/// <param name="path"></param>
 		/// <returns></returns>
 		static png_data read(const char* path);
 
 		/// <summary>
-		/// ½«pngÊı¾İ¿éĞ´»ØÎÄ¼ş
+		/// å°†pngæ•°æ®å—å†™å›æ–‡ä»¶
 		/// </summary>
 		/// <param name="path"></param>
 		/// <param name="data"></param>
@@ -122,7 +155,7 @@ namespace silly_image
 		static bool write(const char* path, const png_data& data);
 
 		/// <summary>
-		/// ½«png_data×ª±àÂëÎªÄÚ´æpngÊı¾İ
+		/// å°†png_dataè½¬ç¼–ç ä¸ºå†…å­˜pngæ•°æ®
 		/// </summary>
 		/// <param name="data"></param>
 		/// <param name="buf"></param>
