@@ -187,7 +187,7 @@ namespace silly_image
 			{
 				for (int c = 0; c < evel.col(); c++)
 				{
-					T value = evelevel.at(r, c);
+					T value = evel.at(r, c);
 					size_t n;
 					for (n = 0; n < threshold.size(); n++) // 从1开始，因为初始值不需要比较
 					{
