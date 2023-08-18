@@ -173,7 +173,7 @@ namespace silly_image
 
 
 		template<typename T>
-		png_data evel_share_to_png(silly_math::matrix_2d<T> evel, silly_math::matrix_2d<T> share, std::vector<T> threshold, std::vector<png_pixel> pixel_colors)
+		static png_data evel_share_to_png(silly_math::matrix_2d<T> evel, silly_math::matrix_2d<T> share, std::vector<T> threshold, std::vector<png_pixel> pixel_colors)
 		{
 			int height = evel.row();
 			int width = evel.col();
@@ -189,9 +189,9 @@ namespace silly_image
 				{
 					T value = evel.at(r, c);
 					size_t n;
-					for (n = 0; n < coler.size(); n++) // 从1开始，因为初始值不需要比较
+					for (n = 0; n < threshold.size(); n++) // 从1开始，因为初始值不需要比较
 					{
-						if (value < coler.at(n).value)
+						if (value < threshold.at(n))
 						{
 							break; // 找到匹配的值后，跳出内循环
 						}
