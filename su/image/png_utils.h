@@ -204,7 +204,6 @@ namespace silly_image
 				
 				}
 			}
-			png_utils::write(image_path.c_str(), block_image);
 			return block_image;
 		}
 
