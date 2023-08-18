@@ -15,7 +15,11 @@
 
 #include <png.h>
 #include <setjmp.h>
+#include <vector>
 #include <iostream>
+#include "math/silly_matrix.h"
+
+
 
 #ifndef png_jmpbuf
 #define png_jmpbuf(png_ptr) ((png_ptr)->png_jmpbuf)
@@ -165,6 +169,44 @@ namespace silly_image
 		static bool encode_to_memory(const png_data& data, char** buf, size_t& len);
 
 		static std::string encode_to_memory(const png_data& data);
+
+
+
+		template<typename T>
+		png_data evel_share_to_png(silly_math::matrix_2d<T> evel, silly_math::matrix_2d<T> share, std::vector<T> threshold, std::vector<png_pixel> pixel_colors)
+		{
+			int height = evel.row();
+			int width = evel.col();
+			if (height != share.row() || width != share.col())
+			{
+				std::cout << "The size of the elevation matrix and shadow matrix is not equal " << std::endl;
+				return png_data();
+			}
+			png_data block_image = silly_image::png_utils::create_empty(height, width, PNG_COLOR_TYPE_RGB_ALPHA);
+			for (int r = 0; r < evel.row(); r++)
+			{
+				for (int c = 0; c < evel.col(); c++)
+				{
+					T value = evel.at(r, c);
+					size_t n;
+					for (n = 0; n < coler.size(); n++) // 从1开始，因为初始值不需要比较
+					{
+						if (value < coler.at(n).value)
+						{
+							break; // 找到匹配的值后，跳出内循环
+						}
+					}
+					block_image.data[r][col_pos] = pixel_colors[i].red;
+					block_image.data[r][col_pos + 1] = pixel_colors[i].green;
+					block_image.data[r][col_pos + 2] = pixel_colors[i].blue;
+					block_image.data[r][col_pos + 3] = pixel_colors[i].alpha;
+				
+				}
+			}
+			png_utils::write(image_path.c_str(), block_image);
+			return block_image;
+		}
+
 	};
 }
 #endif //SILLY_UTILS_PNG_UTILS_H
