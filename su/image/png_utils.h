@@ -196,7 +196,7 @@ namespace silly_image
 							break; // 找到匹配的值后，跳出内循环
 						}
 					}
-					size_t col_pos = c * pixel_size;
+					size_t col_pos = c * block_image.pixel_size;
 					block_image.data[r][col_pos] = pixel_colors[n].red;
 					block_image.data[r][col_pos + 1] = pixel_colors[n].green;
 					block_image.data[r][col_pos + 2] = pixel_colors[n].blue;
