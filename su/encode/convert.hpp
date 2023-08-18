@@ -16,7 +16,7 @@
 #include <codecvt>
 #include <string>
 #include <cstring>
-// iconv
+ // iconv
 #include <iconv.h>
 namespace silly_conv
 {
@@ -44,6 +44,106 @@ namespace silly_conv
 #else
 		return "";
 #endif
+	}
+}
+
+
+
+namespace silly_code
+{
+	enum Encode { eeANSI = 1, eeUTF16_LE, eeUTF16_BE, eeUTF8_BOM, eeUTF8 };
+
+	/// <summary>
+	/// 判断中文字符串是否为UTF8编码
+	/// </summary>
+	/// <param name="data"></param>
+	/// <param name="size"></param>
+	/// <returns></returns>
+	static Encode IsUTF8(const uint8_t* data, size_t size)
+	{
+		bool bAnsi = true;
+		uint8_t ch = 0x00;
+		int32_t nBytes = 0;
+		for (auto i = 0; i < size; i++)
+		{
+			ch = *(data + i);
+			if ((ch & 0x80) != 0x00)
+			{
+				bAnsi = false;
+			}
+			if (nBytes == 0)
+			{
+				if (ch >= 0x80)
+				{
+					if (ch >= 0xFC && ch <= 0xFD)
+					{
+						nBytes = 6;
+					}
+					else if (ch >= 0xF8)
+					{
+						nBytes = 5;
+					}
+					else if (ch >= 0xF0)
+					{
+						nBytes = 4;
+					}
+					else if (ch >= 0xE0)
+					{
+						nBytes = 3;
+					}
+
+					else if (ch >= 0xC0)
+					{
+						nBytes = 2;
+					}
+					else
+					{
+						return Encode::eeANSI;
+					}
+					nBytes--;
+				}
+			}
+			else
+			{
+				if ((ch & 0xC0) != 0x80)
+				{
+					return Encode::eeANSI;
+				}
+				nBytes--;
+			}
+		}
+		if (nBytes > 0 || bAnsi)
+		{
+			return Encode::eeANSI;
+		}
+		return Encode::eeUTF8;
+
+	}
+
+	/// <summary>
+	/// 检查字符串的编码格式
+	/// </summary>
+	/// <param name="data"></param>
+	/// <param name="size"></param>
+	/// <returns></returns>
+	static Encode DetectEncode(const uint8_t* data, size_t size)
+	{
+		if (size > 2 && data[0] == 0xFF && data[1] == 0xFE)
+		{
+			return Encode::eeUTF16_LE;
+		}
+		else if (size > 2 && data[0] == 0xFE && data[1] == 0xFF)
+		{
+			return Encode::eeUTF16_BE;
+		}
+		else if (size > 3 && data[0] == 0xEF && data[1] == 0xBB && data[2] == 0xBF)
+		{
+			return Encode::eeUTF8_BOM;
+		}
+		else
+		{
+			return IsUTF8(data, size);
+		}
 	}
 }
 
@@ -109,6 +209,7 @@ namespace silly_conv
 	ATARIST, RISCOS-LATIN1
 	It can convert from any of these encodings to any other, through Unicode conversion.
 */
+
 
 namespace silly_conv
 {

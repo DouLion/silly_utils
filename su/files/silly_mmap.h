@@ -18,7 +18,7 @@
 enum open_mode
 {
 	READ = 1,	// 目前仅支持读,不支持写和改
-	WRITE = 2,
+	// WRITE = 2,
 	APP_WRITE = 3,
 	TRUNC_WRITE = 4
 

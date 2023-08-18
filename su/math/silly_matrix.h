@@ -118,6 +118,28 @@ namespace silly_math
 			return data;
 		}
 
+		/// <summary>
+		/// 将矩阵设置为一个值
+		/// </summary>
+		/// <param name="val"></param>
+		void set(T val)
+		{
+			if (data)
+			{
+				for (size_t r = 0; r < rows; r++)
+				{
+					for (size_t c = 0; c < cols; ++c)
+					{
+
+						data[r][c] = val;
+					}
+				}
+			}
+		}
+
+		/// <summary>
+		/// 释放内存,需要手动调用
+		/// </summary>
 		void destroy()
 		{
 			if (data)
@@ -133,7 +155,6 @@ namespace silly_math
 				free(data);
 				data = nullptr;
 			}
-
 		}
 		size_t row()
 		{
