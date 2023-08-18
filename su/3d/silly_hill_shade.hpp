@@ -18,24 +18,25 @@ using namespace  silly_math;
 
 class silly_hill_shade
 {
-	/// <summary>
-	/// ¼ÆËãDEMÖĞÃ¿¸ö¸ß³ÌµãµÄÒõÓ°Öµ
-	/// </summary>
-	/// <typeparam name="T1"></typeparam>
-	/// <typeparam name="T2"></typeparam>
-	/// <param name="dem">demÊı¾İ</param>
-	/// <param name="shade">Êä³öÊı¾İ, dem¶ÔÓ¦µÄÒõÓ°Öµ(»Ò¶ÈÖµ)</param>
-	/// <param name="delta_lng">Ã¿¸ö¸ß³Ìµã´ú±íµÄºáÏò¾­¶È³¤¶È</param>
-	/// <param name="delta"></param>
-	/// <param name="azimuth_deg">¹âÔ´µÄ·½Î»½Ç£¬ÒÔ¶ÈÎªµ¥Î»</param>
-	/// <param name="heightDeg">¹âÔ´µÄ¸ß¶È½Ç£¬ÒÔ¶ÈÎªµ¥Î» </param>
-	/// <returns></returns>
-	template <typename T1, typename T2>
-	static bool hill_shading(const matrix_2d<T1>& dem, matrix_2d<T2>& shade, const double& delta_lng, const double& delta_lat, const double& azimuth_deg= 315.0, const double& height_deg = 45.0 )
-	{
-
-        size_t height = dem.rows();
-        size_t width = dem.cols();
+public:
+    /// <summary>
+    /// è®¡ç®—DEMä¸­æ¯ä¸ªé«˜ç¨‹ç‚¹çš„é˜´å½±å€¼
+    /// </summary>
+    /// <typeparam name="T1"></typeparam>
+    /// <typeparam name="T2"></typeparam>
+    /// <param name="dem">demæ•°æ®</param>
+    /// <param name="shade">è¾“å‡ºæ•°æ®, demå¯¹åº”çš„é˜´å½±å€¼(ç°åº¦å€¼)</param>
+    /// <param name="delta_lng">æ¯ä¸ªé«˜ç¨‹ç‚¹ä»£è¡¨çš„æ¨ªå‘ç»åº¦é•¿åº¦</param>
+    /// <param name="delta"></param>
+    /// <param name="azimuth_deg">å…‰æºçš„æ–¹ä½è§’ï¼Œä»¥åº¦ä¸ºå•ä½</param>
+    /// <param name="heightDeg">å…‰æºçš„é«˜åº¦è§’ï¼Œä»¥åº¦ä¸ºå•ä½</param>
+    /// <returns></returns>
+    template <typename T1, typename T2>
+    static bool hill_shading(const matrix_2d<T1>& dem, matrix_2d<T2>& shade, const double& delta_lng, const double& delta_lat, const double& azimuth_deg = 315.0, const double& height_deg = 45.0, double z_factor = 1.0)
+    {
+        matrix_2d<T1> tmp_dem = dem;
+        size_t height = tmp_dem.row();
+        size_t width = tmp_dem.col();
         if (!height || !width)
         {
             return false;
@@ -43,7 +44,7 @@ class silly_hill_shade
         shade.create(height, width, true);
 
         const double zenithDeg = 90 - height_deg;
-        const double zenithRad = zenithDeg * M_PI / 180.0;    // »¡¶È×ª»»
+        const double zenithRad = zenithDeg * M_PI / 180.0;    // å¼§åº¦è½¬æ¢
         double azimuthRad = 360.0 - azimuth_deg + 90.0;
         if (azimuthRad >= 360.0)
         {
@@ -53,39 +54,39 @@ class silly_hill_shade
 
         double zenithRad_cos = cos(zenithRad);
         double zenithRad_sin = sin(zenithRad);
-
+        T1** dem_data = tmp_dem.get_data();
         for (int i = 1; i < height - 1; i++) {
             for (int j = 1; j < width - 1; j++) {
-                double a = dem.get_data()[i - 1][j - 1];            // e = ÖĞĞÄÏñËØ, other letters = neighbours
-                double b = dem.get_data()[i][j - 1];
-                double c = dem.get_data()[i + 1][j - 1];
-                double d = dem.get_data()[i - 1][j];
-                double e = dem.get_data()[i][j];               // It was too ugly not to put a letter e, even if it is unused
-                double f = dem.get_data()[i + 1][j];
-                double g = dem.get_data()[i - 1][j + 1];
-                double h = dem.get_data()[i][j + 1];
-                double k = dem.get_data()[i + 1][j + 1];        // Not i because of the for (int i = ...)
+                double a = dem_data[i - 1][j - 1];            // e = ä¸­å¿ƒåƒç´ , other letters = neighbours
+                double b = dem_data[i][j - 1];
+                double c = dem_data[i + 1][j - 1];
+                double d = dem_data[i - 1][j];
+                double e = dem_data[i][j];               // It was too ugly not to put a letter e, even if it is unused
+                double f = dem_data[i + 1][j];
+                double g = dem_data[i - 1][j + 1];
+                double h = dem_data[i][j + 1];
+                double k = dem_data[i + 1][j + 1];        // Not i because of the for (int i = ...)
 
                 double dz_dx = ((c + k + (2 * f)) - (a + g + (2 * d))) / (8 * delta_lat);         // Derivatives
                 double dz_dy = ((g + k + (2 * h)) - (a + c + (2 * b))) / (8 * delta_lng);
-                double slopeRad = atan(sqrt((dz_dx * dz_dx) + (dz_dy * dz_dy)));
+                double slopeRad = atan(z_factor * sqrt((dz_dx * dz_dx) + (dz_dy * dz_dy)));
                 double aspectRad;
 
                 if (dz_dx != 0)             // Indexing conditions (from the "how does Hillshading work" website)
                 {
                     aspectRad = atan2(dz_dy, -dz_dx);
-                    if (aspectRad < 0)                                        // Ä£ 2pi ÒÔ±ÜÃâ¸ºÖµ
+                    if (aspectRad < 0)                                        // æ¨¡ 2pi ä»¥é¿å…è´Ÿå€¼
                     {
                         aspectRad = 2 * M_PI + aspectRad;
                     }
-                       
+
                 }
                 else
                 {
                     if (dz_dy > 0)
                     {
                         aspectRad = M_PI / 2;
-                    }    
+                    }
                     else
                     {
                         if (dz_dy < 0)
@@ -100,14 +101,14 @@ class silly_hill_shade
                 }
                 double tmp_shade = 255.0 * ((zenithRad_cos * cos(slopeRad)) + (zenithRad_sin * sin(slopeRad) * cos(azimuthRad - aspectRad)));
                 tmp_shade = SU_MIN(255., SU_MAX(0., tmp_shade));
-              
+
                 shade.get_data()[i][j] = (T2)tmp_shade;
 
             }
         }
 
         return true;
-	}
+    }
 };
 
 #endif //SILLY_UTILS_SILLY_HILL_SHADE_HPP

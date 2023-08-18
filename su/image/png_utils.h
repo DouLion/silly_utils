@@ -187,7 +187,7 @@ namespace silly_image
 			{
 				for (int c = 0; c < evel.col(); c++)
 				{
-					T value = evel.at(r, c);
+					T value = evelevel.at(r, c);
 					size_t n;
 					for (n = 0; n < threshold.size(); n++) // 从1开始，因为初始值不需要比较
 					{
@@ -200,7 +200,7 @@ namespace silly_image
 					block_image.data[r][col_pos] = pixel_colors[n].red;
 					block_image.data[r][col_pos + 1] = pixel_colors[n].green;
 					block_image.data[r][col_pos + 2] = pixel_colors[n].blue;
-					block_image.data[r][col_pos + 3] = pixel_colors[n].alpha;
+					block_image.data[r][col_pos + 3] = share.at(r, c);
 				
 				}
 			}
