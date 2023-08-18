@@ -197,10 +197,10 @@ namespace silly_image
 						}
 					}
 					size_t col_pos = c * pixel_size;
-					block_image.data[r][col_pos] = pixel_colors[i].red;
-					block_image.data[r][col_pos + 1] = pixel_colors[i].green;
-					block_image.data[r][col_pos + 2] = pixel_colors[i].blue;
-					block_image.data[r][col_pos + 3] = pixel_colors[i].alpha;
+					block_image.data[r][col_pos] = pixel_colors[n].red;
+					block_image.data[r][col_pos + 1] = pixel_colors[n].green;
+					block_image.data[r][col_pos + 2] = pixel_colors[n].blue;
+					block_image.data[r][col_pos + 3] = pixel_colors[n].alpha;
 				
 				}
 			}
