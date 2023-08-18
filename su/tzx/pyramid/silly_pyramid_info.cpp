@@ -3,7 +3,7 @@
 //
 
 #include "silly_pyramid_info.h"
-
+#include <cstring>
 silly_pyramid_info::silly_pyramid_info()
 {
 	m_desc[0] = 'I';

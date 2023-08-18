@@ -3,7 +3,7 @@
 //
 
 #include "silly_pyramid_base.h"
-
+#include <cstring>
 
 bool silly_pyramid_base::open(const char* file, const open_mode& mode, const bool& usemmap)
 {
@@ -90,7 +90,7 @@ bool silly_pyramid_base::stream_open(const char* file, const char* mode)
 bool silly_pyramid_base::mmap_open(const char* file)
 {
 	m_normal = false;
-	m_opened = m_mmap.open(file);
+	m_opened = m_mmap.open_m(file);
 
 	return m_opened;
 }
@@ -152,7 +152,7 @@ void silly_pyramid_base::mmap_close()
 {
 	if (m_opened)
 	{
-		m_mmap.close();
+		m_mmap.close_m();
 	}
 	
 }

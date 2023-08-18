@@ -42,7 +42,7 @@ public:
 	silly_mmap(const std::string);
 	~silly_mmap();
 
-	bool open(const std::string& file, const int mode = open_mode::READ);
+	bool open_m(const std::string& file, const int mode = open_mode::READ);
 
 	mmap_cur* at(const size_t& offset = 0);
 
@@ -50,7 +50,7 @@ public:
 
 	bool write(mmap_cur* src, const size_t& size, const size_t& offset = 0);
 
-	void close();
+	void close_m();
 
 
 private:

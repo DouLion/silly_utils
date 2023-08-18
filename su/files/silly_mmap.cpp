@@ -8,7 +8,6 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -18,6 +17,7 @@
 #include <assert.h>
 #include <iostream>
 #include <stdint.h>
+#include <unistd.h>
 
 
 
@@ -209,7 +209,7 @@ int _mprotect(void* addr, size_t len, int prot)
 #endif
 
 
-bool silly_mmap::open(const std::string& file, const int mode)
+bool silly_mmap::open_m(const std::string& file, const int mode)
 {
 
 	int fd_mode = O_RDONLY;
@@ -241,7 +241,7 @@ bool silly_mmap::open(const std::string& file, const int mode)
 	m_mmap = (char*)mmap(NULL, stat.st_size, mmap_mode, MAP_SHARED, fd, 0);
 #endif
 	m_size = stat.st_size;
-	_close(fd);
+	close(fd);
 	return (nullptr != m_mmap);
 }
 
@@ -270,7 +270,7 @@ bool silly_mmap::write(mmap_cur* src, const size_t& size, const size_t& offset)
 	return false;
 }
 
-void silly_mmap::close()
+void silly_mmap::close_m()
 {
 	if (m_mmap)
 	{
@@ -285,5 +285,5 @@ silly_mmap::silly_mmap(const std::string)
 
 silly_mmap::~silly_mmap()
 {
-	close();
+	close_m();
 }
