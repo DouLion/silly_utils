@@ -60,11 +60,9 @@ char* silly_pyramid_data::read_block(uint32_t layer, uint64_t row, uint64_t col,
 
 bool silly_pyramid_data::write_block(const uint32_t& layer, const uint64_t& row, const uint64_t& col, const block_data& bdata)
 {
-	std::scoped_lock lock(m_mutex);
-	seek(bdata.offset);
 	if (bdata.size && bdata.data)
 	{
-		return write(bdata.data, bdata.size, 0);
+		return write(bdata.offset, bdata.data, bdata.size, 0);
 	}
 
 	return true;

@@ -62,7 +62,6 @@ bool silly_geo_convert::matrix_geo_to_mercator(const silly_math::matrix_2d<T>& s
 	{
 		for (int j = 0; j < tmp.row(); ++j)
 		{
-
 			double m_x = i * m_width / tmp.col() + m_left;	// 每个matrix网格点对应的mecator坐标
 			double m_y = m_top - j * m_height / tmp.row();
 			double lgtd, lttd;
@@ -72,7 +71,6 @@ bool silly_geo_convert::matrix_geo_to_mercator(const silly_math::matrix_2d<T>& s
 			// TODO: 这一步是不是有问题,是否是必须的,防止访问溢出
 			dst_c = std::min(std::max(0, dst_c), max_c);
 			dst_r = std::min(std::max(0, dst_r), max_r);
-			// std::cout << gI << "," << gJ << std::endl;
 			dst.get_data()[j][i] = tmp.get_data()[dst_r][dst_c];
 		}
 	}

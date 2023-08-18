@@ -71,3 +71,9 @@
 #define SU_MIN(a, b)	(((a) < (b)) ? (a) : (b))
 #endif
 
+//转化小端序的int值
+#define CONVERT_LITTLE_ENDIAN_LONG(src_ptr) (src_ptr[3] << 24 | (src_ptr[2] << 16) | src_ptr[1] << 8 | src_ptr[0])
+//转化小端序的int值
+#define CONVERT_LITTLE_ENDIAN_INT(src_ptr) (src_ptr[3] << 24 | (src_ptr[2] << 16) | src_ptr[1] << 8 | src_ptr[0])
+//转化小端序的short值
+#define CONVERT_LITTLE_ENDIAN_SHORT(src_ptr) (src_ptr[1] << 8) + src_ptr[0]

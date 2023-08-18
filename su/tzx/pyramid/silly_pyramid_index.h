@@ -18,14 +18,14 @@
 #include "tzx/pyramid/silly_pyramid_base.h"
 #include <map>
 
-#define DATA_POS_SIZE		8		// 记录data数据位置的数据大小
-#define DATA_SIZE_SIZE		4		// 记录data数据大小的数据的大小
-#define INDEX_INFO_SIZE		8
-#define LAYER_SIZE			1
-#define COLROW_SIZE			4
+#define TZX_IMAGE_DATA_POS_SIZE					8		// 记录data数据位置的数据大小
+#define TZX_IMAGE_DATA_SIZE_SIZE				4		// 记录data数据大小的数据的大小
+#define TZX_IMAGE_INDEX_INFO_SIZE				8
+#define TZX_IMAGE_LAYER_SIZE					1
+#define TZX_IMAGE_COLROW_SIZE					4
 
-#define MAX_LEVEL			24
-#define INDEX_DATA_BEGIN_POS	1024
+#define TZX_IMAGE_MAX_LEVEL						24
+#define TZX_IMAGE_INDEX_DATA_BEGIN_POS			1024
 
 struct block_index
 {
@@ -56,9 +56,17 @@ class silly_pyramid_index : public silly_pyramid_base
 {
 public:
 	silly_pyramid_index();
-	//ErrorCode read_info();
+
+	/// <summary>
+	/// 初始化各层的关键信息, 加快后面的计算
+	/// </summary>
+	/// <returns></returns>
+	bool init_layer_info();
+
+	bool open(const char* file, const open_mode& mode);
+
 	err_code read_block_pos(uint32_t layer, uint64_t row, uint64_t col, uint32_t& datasize, uint64_t& datapos);
-	bool init_key_pos();
+	
 
 	/// <summary>
 	/// 获取索引文件,对应层数的起始位置

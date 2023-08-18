@@ -23,9 +23,10 @@ BOOST_AUTO_TEST_SUITE(TestPyramid)
 BOOST_AUTO_TEST_CASE(PYRAMID_WRITE)
 {
 	std::cout << "\r\n\r\n****************" << "PYRAMID_CREATE" << "****************" << std::endl;
-
+	std::filesystem::path pyramid_dir(DEFAULT_DATA_DIR);
+	pyramid_dir.append("line_river_s5000");
 	silly_pyramid sp;
-	sp.open("E:/ccad", open_mode::APP_WRITE);
+	sp.open(pyramid_dir.string(), open_mode::READ);
 	sp.close();
 
 	/*silly_image::*/

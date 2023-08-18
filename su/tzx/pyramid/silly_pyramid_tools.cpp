@@ -15,20 +15,20 @@ bool silly_pyramid::open(const std::string& root, const open_mode& mode)
             return false;
         }
        
-        if (OK != m_info.open(info_path.string().c_str(), open_mode::READ))
+        if (!m_info.open(info_path.string().c_str(), open_mode::READ))
         {
             m_info.close();
             return false;
         }
 
-        if (OK != m_index.open(index_path.string().c_str(), open_mode::READ))
+        if (!m_index.open(index_path.string().c_str(), open_mode::READ))
         {
             m_info.close();
             m_index.close();
             return false;
         }
 
-        if (OK != m_data.open(data_path.string().c_str(), open_mode::READ))
+        if (!m_data.open(data_path.string().c_str(), open_mode::READ))
         {
             m_info.close();
             m_index.close();
@@ -39,20 +39,20 @@ bool silly_pyramid::open(const std::string& root, const open_mode& mode)
     else
     {
 
-        if (OK != m_info.open(info_path.string().c_str(), mode))
+        if (!m_info.open(info_path.string().c_str(), mode))
         {
             m_info.close();
             return false;
         }
 
-        if (OK != m_index.open(index_path.string().c_str(), open_mode::READ))
+        if (!m_index.open(index_path.string().c_str(), open_mode::READ))
         {
             m_info.close();
             m_index.close();
             return false;
         }
 
-        if (OK != m_data.open(data_path.string().c_str(), open_mode::READ))
+        if (!m_data.open(data_path.string().c_str(), open_mode::READ))
         {
             m_info.close();
             m_index.close();

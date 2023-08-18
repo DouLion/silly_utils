@@ -21,10 +21,10 @@
 #define PYRAMID_DESC_LENGTH		4
 /// 金字塔文件主版本信息偏移量即信息长度
 #define PYRAMID_MVER_OFFSET		4
-#define PYRAMID_MVER_LENGTH		2
+#define PYRAMID_MVER_LENGTH		4
 /// 金字塔文件次版本信息偏移量即信息长度
-#define PYRAMID_PVER_OFFSET		6
-#define PYRAMID_PVER_LENGTH		2
+#define PYRAMID_PVER_OFFSET		8
+#define PYRAMID_PVER_LENGTH		4
 
 enum err_code {
 	OK = 0,
@@ -71,7 +71,7 @@ public:
 	/// <param name="size"></param>
 	/// <param name="offset"></param>
 	/// <returns></returns>
-	bool read(char* data, const size_t& size, const size_t& offset);
+	bool read(size_t seek_offset, char* data, const size_t& size, const size_t& offset = 0);
 
 	/// <summary>
 	/// 写入指定大小的数据库
@@ -80,7 +80,7 @@ public:
 	/// <param name="size"></param>
 	/// <param name="offset"></param>
 	/// <returns></returns>
-	bool write(char* data, const size_t& size, const size_t& offset);
+	bool write(size_t seek_offset, char* data, const size_t& size, const size_t& offset = 0);
 
 
 	/// <summary>
@@ -114,7 +114,7 @@ protected:
 	/// <param name="size"></param>
 	/// <param name="offset"></param>
 	/// <returns></returns>
-	bool stream_read(char* data, const size_t& size, const size_t& offset);
+	bool stream_read(size_t seek_offset, char* data, const size_t& size, const size_t& offset);
 
 	/// <summary>
 	/// 内存文件映射读取
@@ -123,7 +123,7 @@ protected:
 	/// <param name="size"></param>
 	/// <param name="offset"></param>
 	/// <returns></returns>
-	bool mmap_read(char* data, const size_t& size, const size_t& offset);
+	bool mmap_read(size_t seek_offset, char* data, const size_t& size, const size_t& offset);
 
 
 	/// <summary>
@@ -133,7 +133,7 @@ protected:
 	/// <param name="size"></param>
 	/// <param name="offset"></param>
 	/// <returns></returns>
-	bool stream_write(char* data, const size_t& size, const size_t& offset);
+	bool stream_write(size_t seek_offset, char* data, const size_t& size, const size_t& offset);
 
 	/// <summary>
 	/// TODO: 内存文件映射写入, 这个目前有问题,暂不实现
@@ -142,7 +142,7 @@ protected:
 	/// <param name="size"></param>
 	/// <param name="offset"></param>
 	/// <returns></returns>
-	bool mmap_write(char* data, const size_t& size, const size_t& offset);
+	bool mmap_write(size_t seek_offset, char* data, const size_t& size, const size_t& offset);
 
 	/// <summary>
 	/// 关闭文件流
@@ -160,22 +160,26 @@ protected:
 protected:
 	// 文件名称
 	std::string									m_pfile;
+
+	// 是否已经打开
+	bool										m_opened{false};
 	// 是否为普通文件流
 	bool										m_normal;
 	// mmap文件
 	silly_mmap								    m_mmap;
 	// 文件流
 	FILE*										m_stream;
-	// 主版本号
-	unsigned short								m_major_ver;
+	// 主版本号	这两个再内存中总是为小端序 读写, 与文档描述中有出入
+	unsigned int								m_major_ver{2};
 	// 次版本号
-	unsigned short								m_primary_ver;
+	unsigned int								m_primary_ver{0};
 
-	unsigned int								m_version;
 	// 头信息
 	char									    m_desc[4];
 	// 多线程读写时用的锁
 	std::mutex									m_mutex;
+	// 加载类型
+	open_mode									m_mode;
 };
 
 #endif //SILLY_UTILS_SILLY_IMAGE_BASE_H
