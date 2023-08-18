@@ -31,24 +31,26 @@ bool silly_pyramid_index::open(const char* file, const open_mode& mode)
 
 err_code silly_pyramid_index::read_block_pos(uint32_t layer, uint64_t row, uint64_t col, uint32_t& datasize, uint64_t& datapos)
 {
-	//if (row > lyrEndRow[layer] || row < lyrBeginRow[layer] || col > lyrEndCol[layer] || col < lyrBeginCol[layer]) {
-	//	datasize = 0;
-	//	datapos = 0;
-	//	return err_code::OK;
-	//}
+	if (row > m_layer_infos[layer].end_row || row < m_layer_infos[layer].start_row || col > m_layer_infos[layer].end_col || col < m_layer_infos[layer].start_col) {
+		datasize = 0;
+		datapos = 0;
+		return err_code::OK;
+	}
 
-	//uint64_t pos = lyrBeginPos[layer];
-	//if (0 == pos) {
-	//	datasize = 0;
-	//	datapos = 0;
-	//	return err_code::OK;
-	//}
-	//pos += ((lyrEndCol[layer] - lyrBeginCol[layer] + 1) * (row - lyrBeginRow[layer]) + (col - lyrBeginCol[layer])) * 12;
-	////pos += (col - lyrBeginCol[layer]) * 12;
+	uint64_t pos = m_layer_bpos[layer];
+	if (0 == pos) {
+		datasize = 0;
+		datapos = 0;
+		return err_code::OK;
+	}
+	pos += ((m_layer_infos[layer].end_col - m_layer_infos[layer].start_col + 1) * (row - m_layer_infos[layer].start_row) + (col - m_layer_infos[layer].start_col)) * (TZX_IMAGE_DATA_POS_SIZE + TZX_IMAGE_DATA_SIZE_SIZE);
 
-	//datasize = datapos = 0;
-	//datapos = ((uint64_t*)(m_mmap + pos))[0];
-	//datasize = ((uint32_t*)(m_mmap + pos + DATA_POS_SIZE))[0];
+	datasize = datapos = 0;
+	char buff[TZX_IMAGE_DATA_POS_SIZE + TZX_IMAGE_DATA_SIZE_SIZE] = { 0 };
+	read(pos, buff, TZX_IMAGE_DATA_POS_SIZE + TZX_IMAGE_DATA_SIZE_SIZE);
+	// read(pos + TZX_IMAGE_DATA_POS_SIZE, (char*)(&datasize), TZX_IMAGE_DATA_SIZE_SIZE);
+	datapos = ((uint64_t*)buff)[0];
+	datasize = ((uint32_t*)buff)[2];
 	return err_code::OK;
 }
 

@@ -32,6 +32,7 @@ bool silly_pyramid_base::open(const char* file, const open_mode& mode)
 
 bool silly_pyramid_base::close()
 {
+	m_opened = false;
 	return false;
 }
 
@@ -117,7 +118,7 @@ void silly_pyramid_base::stream_close()
 	{
 		write_info(); 
 	}
-	if (m_stream)
+	if (m_stream && m_opened)
 	{
 		fclose(m_stream);
 	}

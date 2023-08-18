@@ -58,7 +58,6 @@ private:
 	open_mode						m_mode;
 	std::string						m_root;
 	silly_pyramid_info				m_info;
-	silly_pyramid_index				m_index;
 	silly_pyramid_data				m_data;
 };
 

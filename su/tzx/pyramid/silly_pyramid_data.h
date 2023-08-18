@@ -38,7 +38,7 @@ public:
 	/// <param name=""></param>
 	/// <param name="mode"></param>
 	/// <returns></returns>
-	bool open(const std::string, int mode);
+	bool open(const char* file, const open_mode& mode);
 
 	/// <summary>
 	///  
@@ -47,7 +47,7 @@ public:
 	/// <param name="row"></param>
 	/// <param name="col"></param>
 	/// <returns></returns>
-	std::string read_block(uint32_t layer, uint64_t row, uint64_t col);
+	std::string read_block(const uint32_t& layer, const uint64_t& row, const uint64_t& col);
 
 	/// <summary>
 	/// 
@@ -57,7 +57,7 @@ public:
 	/// <param name="col"></param>
 	/// <param name="datasize"></param>
 	/// <returns></returns>
-	char* read_block(uint32_t layer, uint64_t row, uint64_t col, uint32_t& datasize);
+	char* read_block(const uint32_t& layer, const uint64_t& row, const uint64_t& col, uint32_t& datasize);
 
 	bool write_block(const uint32_t& layer, const uint64_t& row, const uint64_t& col, const block_data& bdata);
 

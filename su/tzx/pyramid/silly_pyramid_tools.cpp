@@ -21,17 +21,17 @@ bool silly_pyramid::open(const std::string& root, const open_mode& mode)
             return false;
         }
 
-        if (!m_index.open(index_path.string().c_str(), open_mode::READ))
+        if (!m_data.m_index.open(index_path.string().c_str(), open_mode::READ))
         {
             m_info.close();
-            m_index.close();
+            m_data.m_index.close();
             return false;
         }
 
         if (!m_data.open(data_path.string().c_str(), open_mode::READ))
         {
             m_info.close();
-            m_index.close();
+            m_data.m_index.close();
             m_data.close();
             return false;
         }
@@ -45,17 +45,17 @@ bool silly_pyramid::open(const std::string& root, const open_mode& mode)
             return false;
         }
 
-        if (!m_index.open(index_path.string().c_str(), open_mode::READ))
+        if (!m_data.m_index.open(index_path.string().c_str(), open_mode::READ))
         {
             m_info.close();
-            m_index.close();
+            m_data.m_index.close();
             return false;
         }
 
         if (!m_data.open(data_path.string().c_str(), open_mode::READ))
         {
             m_info.close();
-            m_index.close();
+            m_data.m_index.close();
             m_data.close();
             return false;
         }
@@ -66,13 +66,17 @@ bool silly_pyramid::open(const std::string& root, const open_mode& mode)
 void silly_pyramid::close()
 {
     m_info.close();
-    m_index.close();
+    m_data.m_index.close();
     m_data.close();
 }
 
 char* silly_pyramid::read_data(const uint32_t& layer, const uint64_t& row, const uint64_t& col, size_t& size)
 {
-    return nullptr;
+    // char* ret = nullptr;
+    uint32_t ss = 0;
+    char* ret = m_data.read_block(layer, row, col, ss);
+    size = ss;
+    return ret;
 }
 
 bool silly_pyramid::write(const uint32_t& layer, const uint64_t& row, const uint64_t& col, const size_t& size, const char* data)
