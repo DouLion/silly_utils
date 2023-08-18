@@ -5,17 +5,20 @@
 #include "silly_pyramid_base.h"
 
 
-void silly_pyramid_base::mmap_close()
-{
-}
-
-
-bool silly_pyramid_base::open(const char* file, const open_mode& mode)
+bool silly_pyramid_base::open(const char* file, const open_mode& mode, const bool& usemmap)
 {
 	m_mode = mode;
 	if (open_mode::READ == mode)
 	{
-		stream_open(file, "rb"); // 后面改成mmap形式
+		if (usemmap)
+		{
+			mmap_open(file);
+		}
+		else
+		{
+			stream_open(file, "rb"); 
+		}
+		
 		read_info();
 	}
 	else if (open_mode::APP_WRITE == mode)
@@ -33,7 +36,15 @@ bool silly_pyramid_base::open(const char* file, const open_mode& mode)
 bool silly_pyramid_base::close()
 {
 	m_opened = false;
-	return false;
+	if (m_normal)
+	{
+		stream_close();
+	}
+	else
+	{
+		mmap_close();
+	}
+	return true;
 }
 
 bool silly_pyramid_base::read(size_t seek_offset, char* data, const size_t& size, const size_t& offset)
@@ -78,6 +89,9 @@ bool silly_pyramid_base::stream_open(const char* file, const char* mode)
 
 bool silly_pyramid_base::mmap_open(const char* file)
 {
+	m_normal = false;
+	m_opened = m_mmap.open(file);
+
 	return m_opened;
 }
 
@@ -94,6 +108,15 @@ bool silly_pyramid_base::stream_read(size_t seek_offset, char* data, const size_
 
 bool silly_pyramid_base::mmap_read(size_t seek_offset, char* data, const size_t& size, const size_t& offset)
 {
+	if (m_opened)
+	{
+		mmap_cur* cur =  m_mmap.at(seek_offset + size);	// 追踪到数据尾部,防止访问越界
+		if (cur)
+		{
+			memcpy(data, cur - size, size);
+			return true;
+		}
+	}
 	return false;
 }
 
@@ -122,6 +145,16 @@ void silly_pyramid_base::stream_close()
 	{
 		fclose(m_stream);
 	}
+}
+
+
+void silly_pyramid_base::mmap_close()
+{
+	if (m_opened)
+	{
+		m_mmap.close();
+	}
+	
 }
 
 

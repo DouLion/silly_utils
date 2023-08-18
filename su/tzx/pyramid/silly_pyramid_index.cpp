@@ -16,9 +16,9 @@ silly_pyramid_index::silly_pyramid_index()
 	}
 }
 
-bool silly_pyramid_index::open(const char* file, const open_mode& mode)
+bool silly_pyramid_index::open(const char* file, const open_mode& mode, const bool& usemmap)
 {
-	if (!silly_pyramid_base::open(file, mode))
+	if (!silly_pyramid_base::open(file, mode, usemmap))
 	{
 		return false;
 	}

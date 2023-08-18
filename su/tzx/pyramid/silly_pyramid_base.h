@@ -54,8 +54,9 @@ public:
 	/// </summary>
 	/// <param name="filePath"></param>
 	/// <param name="mode">1 读 2 写</param>
+	/// <param name="usemmap">读取时默认 使用mmap, 写总是使用文件流</param>
 	/// <returns></returns>
-	bool open(const char* file, const open_mode& mode);
+	bool open(const char* file, const open_mode& mode, const bool& usemmap);
 
 	/// <summary>
 	/// 关闭文件
@@ -149,6 +150,7 @@ protected:
 	/// </summary>
 	void stream_close();
 
+
 	/// <summary>
 	/// 关闭内存文件映射
 	/// </summary>
@@ -169,7 +171,7 @@ protected:
 	silly_mmap								    m_mmap;
 	// 文件流
 	FILE*										m_stream;
-	// 主版本号	这两个再内存中总是为小端序 读写, 与文档描述中有出入
+	// 主版本号	这两个再文件中总是为小端序 读写, 与文档描述中有出入
 	unsigned int								m_major_ver{2};
 	// 次版本号
 	unsigned int								m_primary_ver{0};

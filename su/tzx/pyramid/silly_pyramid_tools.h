@@ -30,7 +30,7 @@ class silly_pyramid
 public:
 	silly_pyramid(void) = default;
 
-	bool open(const std::string& root, const open_mode& mode = open_mode::READ);
+	bool open(const std::string& root, const open_mode& mode = open_mode::READ, bool usemmap = false);
 	void close();
 
 	/// <summary>
@@ -53,6 +53,13 @@ public:
 	/// <param name="data"></param>
 	/// <returns></returns>
 	bool write(const uint32_t& layer, const uint64_t& row, const uint64_t& col, const size_t& size, const char* data);
+
+	/// <summary>
+	/// 将版本1的金字塔转为版本2的金字塔
+	/// </summary>
+	/// <param name="target_root"></param>
+	/// <returns></returns>
+	bool rebuild_to_v2(const std::string& target_root);
 
 private:
 	open_mode						m_mode;

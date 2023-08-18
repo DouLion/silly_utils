@@ -241,7 +241,7 @@ bool silly_mmap::open(const std::string& file, const int mode)
 	m_mmap = (char*)mmap(NULL, stat.st_size, mmap_mode, MAP_SHARED, fd, 0);
 #endif
 	m_size = stat.st_size;
-	close(fd);
+	_close(fd);
 	return (nullptr != m_mmap);
 }
 
@@ -270,14 +270,20 @@ bool silly_mmap::write(mmap_cur* src, const size_t& size, const size_t& offset)
 	return false;
 }
 
+void silly_mmap::close()
+{
+	if (m_mmap)
+	{
+		munmap(m_mmap, m_size);
+		m_mmap = nullptr;
+	}
+}
+
 silly_mmap::silly_mmap(const std::string)
 {
 }
 
 silly_mmap::~silly_mmap()
 {
-	if (m_mmap)
-	{
-		munmap(m_mmap, m_size);
-	}
+	close();
 }

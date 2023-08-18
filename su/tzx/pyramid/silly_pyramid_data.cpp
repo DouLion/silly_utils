@@ -12,9 +12,9 @@ silly_pyramid_data::silly_pyramid_data()
 	m_desc[3] = 'T';
 }
 
-bool silly_pyramid_data::open(const char* file, const open_mode& mode)
+bool silly_pyramid_data::open(const char* file, const open_mode& mode, const bool& usemmap)
 {
-	return silly_pyramid_base::open(file, mode);
+	return silly_pyramid_base::open(file, mode, usemmap);
 }
 
 std::string silly_pyramid_data::read_block(const uint32_t& layer, const uint64_t& row, const uint64_t& col)

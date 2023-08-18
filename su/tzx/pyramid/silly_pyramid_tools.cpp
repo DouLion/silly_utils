@@ -1,7 +1,7 @@
 #include "silly_pyramid_tools.h"
 #include <filesystem>
 
-bool silly_pyramid::open(const std::string& root, const open_mode& mode)
+bool silly_pyramid::open(const std::string& root, const open_mode& mode, bool usemmap)
 {
     std::filesystem::path pyrmid_root(root);
     auto info_path = pyrmid_root; info_path.append(TZX_IMAGE_DATA_INFO_NAME);
@@ -15,20 +15,20 @@ bool silly_pyramid::open(const std::string& root, const open_mode& mode)
             return false;
         }
        
-        if (!m_info.open(info_path.string().c_str(), open_mode::READ))
+        if (!m_info.open(info_path.string().c_str(), open_mode::READ, usemmap))
         {
             m_info.close();
             return false;
         }
 
-        if (!m_data.m_index.open(index_path.string().c_str(), open_mode::READ))
+        if (!m_data.m_index.open(index_path.string().c_str(), open_mode::READ, usemmap))
         {
             m_info.close();
             m_data.m_index.close();
             return false;
         }
 
-        if (!m_data.open(data_path.string().c_str(), open_mode::READ))
+        if (!m_data.open(data_path.string().c_str(), open_mode::READ, usemmap))
         {
             m_info.close();
             m_data.m_index.close();
@@ -39,20 +39,20 @@ bool silly_pyramid::open(const std::string& root, const open_mode& mode)
     else
     {
 
-        if (!m_info.open(info_path.string().c_str(), mode))
+        if (!m_info.open(info_path.string().c_str(), mode, usemmap))
         {
             m_info.close();
             return false;
         }
 
-        if (!m_data.m_index.open(index_path.string().c_str(), open_mode::READ))
+        if (!m_data.m_index.open(index_path.string().c_str(), open_mode::READ, usemmap))
         {
             m_info.close();
             m_data.m_index.close();
             return false;
         }
 
-        if (!m_data.open(data_path.string().c_str(), open_mode::READ))
+        if (!m_data.open(data_path.string().c_str(), open_mode::READ, usemmap))
         {
             m_info.close();
             m_data.m_index.close();
@@ -83,5 +83,10 @@ bool silly_pyramid::write(const uint32_t& layer, const uint64_t& row, const uint
 {
     
 
+    return false;
+}
+
+bool silly_pyramid::rebuild_to_v2(const std::string& target_root)
+{
     return false;
 }

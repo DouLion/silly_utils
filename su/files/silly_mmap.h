@@ -50,6 +50,8 @@ public:
 
 	bool write(mmap_cur* src, const size_t& size, const size_t& offset = 0);
 
+	void close();
+
 
 private:
 	std::string m_file;
