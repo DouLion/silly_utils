@@ -17,7 +17,7 @@
 #include <assert.h>
 #include <iostream>
 #include <stdint.h>
-#include <unistd.h>
+
 
 
 
@@ -44,7 +44,7 @@
 #if defined(_WIN32)
 typedef int64_t OffsetType;
 #else
-
+#include <unistd.h>
 typedef uint32_t OffsetType;
 #endif
 
