@@ -9,7 +9,7 @@ using boost::unit_test_framework::test_suite;
 #include <vld.h>
 #endif
 
-#include "units/test_pyramid.hpp"
+//#include "units/test_pyramid.hpp"
 //#include "units/test_file.hpp"
 //#include "units/test_geo.hpp"
 //#include "units/test_compress.hpp"
@@ -21,6 +21,6 @@ using boost::unit_test_framework::test_suite;
 //
 //#include "units/test_compress.hpp"
 
-//#include "units/test_matrix.hpp"
+#include "units/test_matrix.hpp"
 
 

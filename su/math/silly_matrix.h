@@ -165,6 +165,7 @@ namespace silly_math
 		{
 			return cols;
 		}
+
 	private:
 		T** data{ nullptr };
 		// 行数
@@ -196,6 +197,36 @@ namespace silly_math
 	class matrix_tools
 	{
 	public:
+
+		/// <summary>
+		/// 两个不同类型的矩阵相互转换
+		/// </summary>
+		/// <typeparam name="T1"></typeparam>
+		/// <typeparam name="T2"></typeparam>
+		/// <param name="src">源矩阵</param>
+		/// <param name="dst">目标矩阵</param>
+		/// <returns></returns>
+		template <typename T1, typename T2>
+		static bool convert_matrix(silly_math::matrix_2d<T1>& src, silly_math::matrix_2d<T2>& dst)
+		{
+			size_t rows = src.row();
+			size_t cols = src.col();
+
+			bool is_convert = dst.create(rows, cols);
+			if (!is_convert)
+			{
+				return is_convert;
+			}
+
+			for (size_t i = 0; i < rows; ++i)
+			{
+				for (size_t j = 0; j < cols; ++j)
+				{
+					dst.at(i, j) = static_cast<T2>(src.at(i, j));
+				}
+			}
+			return true;
+		}
 
 		/// <summary>
 		/// 对矩阵进行缩放操作
