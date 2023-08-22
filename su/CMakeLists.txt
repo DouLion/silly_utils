@@ -75,6 +75,9 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${JPEG_INCLUDE_DIR})
 find_package(OpenSSL REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC OpenSSL::SSL OpenSSL::Crypto)
 
+find_path(PROTOZERO_INCLUDE_DIRS "protozero/basic_pbf_builder.hpp")
+target_include_directories(${PROJECT_NAME} PUBLIC ${PROTOZERO_INCLUDE_DIRS})
+
 if(IS_LINUX)
 
     find_package(unofficial-libuuid CONFIG REQUIRED)
