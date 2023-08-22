@@ -35,4 +35,5 @@ if(SUB_PROJECT)
 
 else()
 add_subdirectory(test)
+add_subdirectory(tools)
 endif()
