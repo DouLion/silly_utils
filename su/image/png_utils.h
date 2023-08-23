@@ -171,7 +171,15 @@ namespace silly_image
 		static std::string encode_to_memory(const png_data& data);
 
 
-
+		/// <summary>
+		/// 将两个矩阵转为png,一个矩阵存储RGB,一个矩阵存阴影值
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="evel">存储这RGB的值</param>
+		/// <param name="share">只存储阴影值</param>
+		/// <param name="threshold">阈值</param>
+		/// <param name="pixel_colors">颜色</param>
+		/// <returns></returns>
 		template<typename T>
 		static png_data evel_share_to_png(silly_math::matrix_2d<T> evel, silly_math::matrix_2d<T> share, std::vector<T> threshold, std::vector<png_pixel> pixel_colors)
 		{
