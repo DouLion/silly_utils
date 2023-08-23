@@ -43,8 +43,19 @@ private:
 class geotiff_utils
 {
 public:
+
+	/// <summary>
+	/// 读取tif到二维矩阵
+	/// </summary>
+	/// <param name="filePath"></param>
+	/// <param name="tif_matrix"></param>
 	static void readGeoTiff(std::string filePath, matrix_2d<unsigned char>& tif_matrix);
 
+	/// <summary>
+	/// 写入二维矩阵到tif文件
+	/// </summary>
+	/// <param name="filePath"></param>
+	/// <param name="tif_matrix"></param>
 	static void writeGeoTiff(std::string filePath, matrix_2d<unsigned char>& tif_matrix);
 
 };

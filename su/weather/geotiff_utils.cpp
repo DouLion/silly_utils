@@ -119,10 +119,6 @@ void geotiff_utils::readGeoTiff(std::string filePath, matrix_2d<unsigned char>& 
     }
 
 
-
-
-    // 确定存储矩阵的数据类型（int、float等）和维度
-    // 这里以int类型的二维矩阵为例，可以根据实际需要进行修改
     tif_matrix.create(height, width);
     int a = sizeof(unsigned char);
     // 逐行读取像素数据
@@ -161,10 +157,10 @@ void geotiff_utils::writeGeoTiff(std::string filePath, matrix_2d<unsigned char>&
     TIFFSetField(tiff, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
     TIFFSetField(tiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_MINISBLACK);
 
-        // 写入像素数据
-        for (size_t row = 0; row < rows; ++row) {
-            TIFFWriteScanline(tiff, tif_matrix.get_data()[row], row);
-        }
+    // 写入像素数据
+    for (size_t row = 0; row < rows; ++row) {
+        TIFFWriteScanline(tiff, tif_matrix.get_data()[row], row);
+    }
 
     // 关闭 TIFF 文件
     TIFFClose(tiff);
