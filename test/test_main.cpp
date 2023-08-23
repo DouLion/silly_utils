@@ -6,7 +6,7 @@
 #include <boost/bind.hpp>
 using boost::unit_test_framework::test_suite;
 #if IS_WIN32
-#include <vld.h>
+//#include <vld.h>
 #endif
 
 //#include "units/test_pyramid.hpp"
@@ -21,6 +21,8 @@ using boost::unit_test_framework::test_suite;
 //
 //#include "units/test_compress.hpp"
 
-#include "units/test_matrix.hpp"
+//#include "units/test_matrix.hpp"
+
+#include "units/test_weather.hpp"
 
 

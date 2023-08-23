@@ -13,8 +13,39 @@
 #ifndef SILLY_UTILS_GEOTIFF_UTILS_H
 #define SILLY_UTILS_GEOTIFF_UTILS_H
 
+#include <iostream>
+#include <string>
+#include <vector>
+
+
+#include "math/silly_matrix.h"
+using namespace silly_math;
+
+#include <geotiffio.h>
+#include <xtiffio.h>
+
+class tif_data
+{
+public:
+
+
+
+
+
+	tif_data() = default;
+	~tif_data() = default;
+
+private:
+
+};
+
+
 class geotiff_utils
 {
+public:
+	static void readGeoTiff(std::string filePath, matrix_2d<unsigned char>& tif_matrix);
+
+	static void writeGeoTiff(std::string filePath, matrix_2d<unsigned char>& tif_matrix);
 
 };
 

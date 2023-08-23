@@ -78,6 +78,10 @@ target_link_libraries(${PROJECT_NAME} PUBLIC OpenSSL::SSL OpenSSL::Crypto)
 find_path(PROTOZERO_INCLUDE_DIRS "protozero/basic_pbf_builder.hpp")
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROTOZERO_INCLUDE_DIRS})
 
+find_package(GeoTIFF CONFIG REQUIRED)
+target_include_directories(${PROJECT_NAME} PUBLIC ${GEOTIFF_INCLUDE_DIR})
+target_link_libraries(${PROJECT_NAME} PUBLIC ${GEOTIFF_LIBRARIES})
+
 if(IS_LINUX)
 
     find_package(unofficial-libuuid CONFIG REQUIRED)
