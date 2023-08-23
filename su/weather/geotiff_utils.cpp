@@ -54,7 +54,7 @@ void geotiff_utils::readGeoTiff(std::string filePath, matrix_2d<unsigned char>& 
     // 获取影像属性信息
     GTIF* gtif = GTIFNew(tiff);
     if (gtif == nullptr) {
-        std::cout << "获取影像属性信息失败" << std::endl;
+        std::cout << "获取影像属性信息失败 " << std::endl;
         XTIFFClose(tiff);
         return;
     }
@@ -71,24 +71,24 @@ void geotiff_utils::readGeoTiff(std::string filePath, matrix_2d<unsigned char>& 
     uint16_t sampleFormat;
     if (TIFFGetField(tiff, TIFFTAG_SAMPLEFORMAT, &sampleFormat)) {
         if (sampleFormat == SAMPLEFORMAT_UINT) {
-            std::cout << "数据类型：无符号整数" << std::endl;
+            std::cout << "数据类型：无符号整数 " << std::endl;
         }
         else if (sampleFormat == SAMPLEFORMAT_INT) {
-            std::cout << "数据类型：有符号整数" << std::endl;
+            std::cout << "数据类型：有符号整数 " << std::endl;
         }
         else if (sampleFormat == SAMPLEFORMAT_IEEEFP) {
-            std::cout << "数据类型：浮点数" << std::endl;
+            std::cout << "数据类型：浮点数 " << std::endl;
         }
         else if (sampleFormat == SAMPLEFORMAT_VOID) {
-            std::cout << "数据类型：未知数据类型" << std::endl;
+            std::cout << "数据类型：未知数据类型 " << std::endl;
         }
         else {
             // 其他未知数据类型
-            std::cout << "未知的数据类型" << std::endl;
+            std::cout << "未知的数据类型 " << std::endl;
         }
     }
     else {
-        std::cout << "无法获取数据类型" << std::endl;
+        std::cout << "无法获取数据类型 " << std::endl;
     }
 
     // 图像的方向标签
@@ -97,7 +97,7 @@ void geotiff_utils::readGeoTiff(std::string filePath, matrix_2d<unsigned char>& 
         std::cout << "图像的方向标签: " << orientation << std::endl;
     }
     else {
-        std::cout << "无法读取 图像的方向标签 标签的值" << std::endl;
+        std::cout << "无法读取 图像的方向标签 标签的值 " << std::endl;
     }
 
     // 图像的平面配置标签
@@ -106,7 +106,7 @@ void geotiff_utils::readGeoTiff(std::string filePath, matrix_2d<unsigned char>& 
         std::cout << "图像的平面配置标签: " << planarConfig << std::endl;
     }
     else {
-        std::cout << "无法读取 图像的平面配置标签 标签的值" << std::endl;
+        std::cout << "无法读取 图像的平面配置标签 标签的值 " << std::endl;
     }
 
     // 图像的光度标签
@@ -115,7 +115,7 @@ void geotiff_utils::readGeoTiff(std::string filePath, matrix_2d<unsigned char>& 
         std::cout << "图像的光度标签: " << photometric << std::endl;
     }
     else {
-        std::cout << "无法读取 TIFFTAG_PHOTOMETRIC 标签的值" << std::endl;
+        std::cout << "无法读取 TIFFTAG_PHOTOMETRIC 标签的值 " << std::endl;
     }
 
 
@@ -143,7 +143,7 @@ void geotiff_utils::writeGeoTiff(std::string filePath, matrix_2d<unsigned char>&
     // 打开 TIFF 文件进行写入
     TIFF* tiff = TIFFOpen(filePath.c_str(), "w");
     if (!tiff) {
-        std::cerr << "无法打开 TIFF 文件进行写入" << std::endl;
+        std::cerr << "无法打开 TIFF 文件进行写入 " << std::endl;
         return;
     }
 
@@ -165,7 +165,7 @@ void geotiff_utils::writeGeoTiff(std::string filePath, matrix_2d<unsigned char>&
     // 关闭 TIFF 文件
     TIFFClose(tiff);
 
-    std::cout << "TIFF 文件写入成功" << std::endl;
+    std::cout << "TIFF 文件写入成功 " << std::endl;
 }
 
 

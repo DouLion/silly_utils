@@ -33,7 +33,11 @@
 ## VCPKG依赖库:
 
 ```
-vcpkg install boost zlib bzip2 libzip jsoncpp polyclipping cryptopp libiconv otl curl
+vcpkg install boost zlib bzip2 libzip jsoncpp polyclipping cryptopp libiconv otl curl minizip rapidjson protozero libpng libjpeg-turbo libzip netcdf-cxx4
+
+yum install 
+
+linux 额外安装 libuuid
 ```
 
 
