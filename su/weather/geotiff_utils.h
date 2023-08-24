@@ -66,14 +66,14 @@ class geotiff_utils
 public:
 
 	/// <summary>
-	/// 读取tif到二维矩阵
+	/// 读取tif到tif_data结构体
 	/// </summary>
 	/// <param name="filePath"></param>
 	/// <param name="tif_matrix"></param>
 	static tif_data readGeoTiff(std::string filePath);
 
 	/// <summary>
-	/// 写入二维矩阵到tif文件
+	/// tif_data结构体写入tif文件
 	/// </summary>
 	/// <param name="filePath"></param>
 	/// <param name="tif_matrix"></param>
