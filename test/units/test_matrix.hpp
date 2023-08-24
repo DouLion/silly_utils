@@ -5,9 +5,9 @@
 #include <iostream>
 #include <random>
 
-//#include <opencv2/opencv.hpp>
-//using namespace cv;
-//using namespace silly_math;
+
+
+using namespace silly_math;
 //
 //matrix_2d<short> convertToMatrix(const std::string& imagePath)
 //{
