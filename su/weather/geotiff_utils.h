@@ -28,16 +28,29 @@ class tif_data
 {
 public:
 
+	unsigned int tif_width;
+	unsigned int tif_height;
 
+	unsigned short tif_bitsPerSample; // 每个数据占几位(8位一个byte)
 
+	unsigned short tif_samplesPerPixel;  // 获取每个像素的样本数
 
+	// SAMPLEFORMAT_UINT:1 uint 
+	// SAMPLEFORMAT_INT:2 int 
+	// SAMPLEFORMAT_IEEEFP float
+	unsigned short tif_sampleFormat;  // 数据的类型(uint  int  float 无法确定)
 
-	tif_data() = default;
-	~tif_data() = default;
+	double tif_letf = 0.0;
+	double tif_top = 0.0;
+
+	// 以字节为将tif矩阵存入
+	//matrix_2d<float> tif_matrix2;
+	matrix_2d<unsigned char> tif_matrix2;
 
 private:
 
 };
+
 
 
 class geotiff_utils
@@ -49,14 +62,14 @@ public:
 	/// </summary>
 	/// <param name="filePath"></param>
 	/// <param name="tif_matrix"></param>
-	static void readGeoTiff(std::string filePath, matrix_2d<unsigned char>& tif_matrix);
+	static tif_data readGeoTiff(std::string filePath);
 
 	/// <summary>
 	/// 写入二维矩阵到tif文件
 	/// </summary>
 	/// <param name="filePath"></param>
 	/// <param name="tif_matrix"></param>
-	static void writeGeoTiff(std::string filePath, matrix_2d<unsigned char>& tif_matrix);
+	static bool writeGeoTiff(std::string filePath, tif_data tif_matrix2);
 
 };
 
