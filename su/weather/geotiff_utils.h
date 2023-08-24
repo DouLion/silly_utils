@@ -30,14 +30,16 @@ class tif_data
 {
 public:
 
-	unsigned int tif_width;
-	unsigned int tif_height;
+	uint32_t tif_width;
+	uint32_t tif_height;
 
-	unsigned short tif_bitsPerSample; // 每个数据占几位(8位一个byte)
+	uint16_t tif_bitsPerSample; // 每个数据占几位(8位一个byte)
+	uint16_t tif_samplesPerPixel;  // 获取每个像素的样本数
 
-	unsigned short tif_samplesPerPixel;  // 获取每个像素的样本数
-
-
+		
+	uint16_t tif_orientation = 1;	// 图像的方向标签
+	uint16_t tif_planarConfig = 1;	// 图像的平面配置标签
+	uint16_t tif_photometric = 1;	// 图像的光度标签
 
 	// SAMPLEFORMAT_UINT:1 uint 
 	// SAMPLEFORMAT_INT:2 int 

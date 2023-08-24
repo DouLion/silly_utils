@@ -25,9 +25,8 @@ BOOST_AUTO_TEST_CASE(readGeoTiff)
     std::filesystem::path word(t);
 
     matrix_2d<unsigned char> tif_matrix;
-    tif_data ti = geotiff_utils::readGeoTiff(tif_data_path.string().c_str());
-    matrix_2d<unsigned char> tif_matrix2;
-    //tif_data ti = geotiff_utils::readGeoTiff(word.string().c_str());
+    //tif_data ti = geotiff_utils::readGeoTiff(tif_data_path.string().c_str());
+    tif_data ti = geotiff_utils::readGeoTiff(word.string().c_str());
     std::cout << "-------- " << static_cast<float>(ti.tif_matrix2.at(1, 1)) << std::endl;
 
 
@@ -47,7 +46,7 @@ BOOST_AUTO_TEST_CASE(readGeoTiff)
 
     ti.tif_matrix2.destroy();
     tif_matrix.destroy();
-    //tif_matrix2.destroy();
+
 }
 
 

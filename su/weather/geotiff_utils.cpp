@@ -53,11 +53,7 @@ tif_data geotiff_utils::readGeoTiff(std::string filePath)
         std::cout << "获取地理坐标失败 " << std::endl;
         return res_tif;
     }
-    for (int i = 0; i < tif_coordinate_count; i++)
-    {
-        printf("%lf ", tif_coordinate[i]);
-    }
-    std::cout << std::endl;
+
 
     std::cout << "GTIFF_PIXELSCALE 像素分辨率 " << std::endl;
     double* pixel_scale = NULL;
@@ -74,10 +70,6 @@ tif_data geotiff_utils::readGeoTiff(std::string filePath)
     {
         std::cout << "像素分辨率失败 " << std::endl;
         return res_tif;
-    }
-    for (int i = 0; i < pixel_scale_count; i++)
-    {
-        printf("%lf ", pixel_scale[i]);
     }
 
     // 每个点占的位数
@@ -124,32 +116,32 @@ tif_data geotiff_utils::readGeoTiff(std::string filePath)
     else 
     {
         std::cout <<  "无法获取数据类型 " << std::endl;
-        status = false;
+        return res_tif;
     }
 
     // 图像的方向标签
-    uint16_t orientation;
-    TIFFGetField(tiff, TIFFTAG_ORIENTATION, &orientation);
-    std::cout <<  "图像的方向标签:  " << orientation << std::endl;
+    TIFFGetField(tiff, TIFFTAG_ORIENTATION, &res_tif.tif_orientation);
+    std::cout <<  "图像的方向标签:  " << res_tif.tif_orientation << std::endl;
 
     // 图像的平面配置标签
-    uint16_t planarConfig;
-    TIFFGetField(tiff, TIFFTAG_PLANARCONFIG, &planarConfig);
-    std::cout <<  "图像的平面配置标签:  " << planarConfig << std::endl;
-
+    TIFFGetField(tiff, TIFFTAG_PLANARCONFIG, &res_tif.tif_planarConfig);
+    std::cout <<  "图像的平面配置标签:  " << res_tif.tif_planarConfig << std::endl;
 
     // 图像的光度标签
     uint16_t photometric;
-    TIFFGetField(tiff, TIFFTAG_PHOTOMETRIC, &photometric);
-    std::cout <<  "图像的光度标签:  " << photometric << std::endl;
+    TIFFGetField(tiff, TIFFTAG_PHOTOMETRIC, &res_tif.tif_photometric);
+    std::cout <<  "图像的光度标签:  " << res_tif.tif_photometric << std::endl;
 
-    res_tif.tif_matrix2.create(res_tif.tif_height , res_tif.tif_width);
+
     // 逐行读取像素数据
+    res_tif.tif_matrix2.create(res_tif.tif_height , res_tif.tif_width);
     for (uint32_t row = 0; row < res_tif.tif_height; ++row)
     {
         TIFFReadScanline(tiff, &(res_tif.tif_matrix2.at(row, 0)), row);
     }
     std::cout << "******** " << static_cast<float>(res_tif.tif_matrix2.at(1, 1)) << std::endl;
+
+
     // 关闭影像数据和GTIF对象
     XTIFFClose(tiff);
     GTIFFree(gtif);
