@@ -14,7 +14,7 @@ tif_data geotiff_utils::readGeoTiff(std::string filePath)
     if (tiff == nullptr) 
     {
         std::cout <<  "打开影像数据失败 " << std::endl;
-        status = false;
+        return res_tif;
     }
 
     // 获取影像属性信息
@@ -26,12 +26,59 @@ tif_data geotiff_utils::readGeoTiff(std::string filePath)
     }
     GTIFPrint(gtif, 0, 0); // 打印属性信息
 
+    //// 获取图像起始点的投影坐标
+    //GTIFImageToPCS(gtif, &res_tif.tif_letf, &res_tif.tif_top);
+    //std::cout << "tif_letf: " << res_tif.tif_letf << std::endl;
+    //std::cout << "tif_top: " << res_tif.tif_top << std::endl;
 
     // 读取图像基本信息
     TIFFGetField(tiff, TIFFTAG_IMAGEWIDTH, &res_tif.tif_width);
     TIFFGetField(tiff, TIFFTAG_IMAGELENGTH, &res_tif.tif_height);
     std::cout <<  "宽: " << res_tif.tif_width << std::endl;
     std::cout <<  "高: " << res_tif.tif_height << std::endl;
+
+    std::cout << "GTIFF_TIEPOINTS 地理坐标 " << std::endl;
+    double* tif_coordinate = NULL;
+    int16_t tif_coordinate_count;
+    TIFFGetField(tiff, GTIFF_TIEPOINTS, &tif_coordinate_count, &tif_coordinate);
+    if (tif_coordinate_count > 4)
+    {
+        res_tif.tif_letf = tif_coordinate[3];
+        res_tif.tif_top = tif_coordinate[4];
+        std::cout << "tif_letf: " << res_tif.tif_letf << std::endl;
+        std::cout << "tif_top: " << res_tif.tif_top << std::endl;
+    }
+    else
+    {
+        std::cout << "获取地理坐标失败 " << std::endl;
+        return res_tif;
+    }
+    for (int i = 0; i < tif_coordinate_count; i++)
+    {
+        printf("%lf ", tif_coordinate[i]);
+    }
+    std::cout << std::endl;
+
+    std::cout << "GTIFF_PIXELSCALE 像素分辨率 " << std::endl;
+    double* pixel_scale = NULL;
+    int16_t pixel_scale_count;
+    TIFFGetField(tiff, GTIFF_PIXELSCALE, &pixel_scale_count, &pixel_scale);
+    if (pixel_scale_count > 2)
+    {
+        res_tif.pixelSizeX = pixel_scale[0];
+        res_tif.pixelSizeY = pixel_scale[1];
+        std::cout << "pixelSizeX: " << res_tif.pixelSizeX << std::endl;
+        std::cout << "pixelSizeY: " << res_tif.pixelSizeY << std::endl;
+    }
+    else
+    {
+        std::cout << "像素分辨率失败 " << std::endl;
+        return res_tif;
+    }
+    for (int i = 0; i < pixel_scale_count; i++)
+    {
+        printf("%lf ", pixel_scale[i]);
+    }
 
     // 每个点占的位数
     TIFFGetField(tiff, TIFFTAG_BITSPERSAMPLE, &res_tif.tif_bitsPerSample);
@@ -47,41 +94,6 @@ tif_data geotiff_utils::readGeoTiff(std::string filePath)
     std::cout <<  "每个像素的样本数:  " << res_tif.tif_samplesPerPixel << std::endl;
 
 
-    // 获取图像起始点的投影坐标
-    
-    GTIFImageToPCS(gtif, &res_tif.tif_letf, &res_tif.tif_top);
-    std::cout << "tif_letf: " << res_tif.tif_letf << std::endl;
-    std::cout << "tif_top: " << res_tif.tif_top << std::endl;
-
-
-
-    double pixelScale[3];
-    double modelTransform[6];
-    TIFFGetField(tiff, TIFFTAG_GEOPIXELSCALE,&pixelScale[0], &pixelScale[1], &pixelScale[2]);
-    TIFFGetField(tiff, TIFFTAG_GEOTRANSMATRIX , &modelTransform[0], &modelTransform[1], &modelTransform[2], &modelTransform[3], &modelTransform[4], &modelTransform[5]);
-    std::cout << "pixelScale数组的值：" << std::endl;
-    for (int i = 0; i < 3; i++) {
-        std::cout << "pixelScale[" << i << "] = " << pixelScale[i] << std::endl;
-    }
-
-    std::cout << "modelTransform数组的值：" << std::endl;
-    for (int i = 0; i < 6; i++) {
-        std::cout << "modelTransform[" << i << "] = " << modelTransform[i] << std::endl;
-    }
-    
-    //// 计算像素大小
-    //double pixelSizeX = pixelScale[0];
-    //double pixelSizeY = pixelScale[1];
-    //// 计算原点位置
-    //double originX = modelTransform[0];
-    //double originY = modelTransform[3];
-    //// 打印获取到的值
-    //std::cout << "pixelSizeX: " << pixelSizeX << std::endl;
-    //std::cout << "pixelSizeY: " << pixelSizeY << std::endl;
-    //std::cout << "originX: " << originX << std::endl;
-    //std::cout << "originY: " << originY << std::endl;
-
-
     //----------------------------------------------------
     // 
     // 数据类型 :TIFFTAG_SAMPLEFORMAT
@@ -89,15 +101,15 @@ tif_data geotiff_utils::readGeoTiff(std::string filePath)
     {
         if (res_tif.tif_sampleFormat == SAMPLEFORMAT_UINT)
         {
-            std::cout <<  "数据类型：无符号整数 " << std::endl;
+            std::cout <<  "数据类型：uint " << std::endl;
         }
         else if (res_tif.tif_sampleFormat == SAMPLEFORMAT_INT)
         {
-            std::cout <<  "数据类型：有符号整数 " << std::endl;
+            std::cout <<  "数据类型：int " << std::endl;
         }
         else if (res_tif.tif_sampleFormat == SAMPLEFORMAT_IEEEFP)
         {
-            std::cout <<  "数据类型：浮点数 " << std::endl;
+            std::cout <<  "数据类型：float " << std::endl;
         }
         else if (res_tif.tif_sampleFormat == SAMPLEFORMAT_VOID)
         {
@@ -170,19 +182,11 @@ bool geotiff_utils::writeGeoTiff(std::string filePath, tif_data tif_matrix2)
     TIFFSetField(tiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_MINISBLACK);    // 图像的光度标签
 
 
-    // 创建地理信息数组（GeoTIFF 格式）
-    double pixelSizeX = 0.1;
-    double pixelSizeY = -0.1;
-    double originX = 0.0;
-    double originY = 0.0;
+    double pixelScale[3] = { tif_matrix2.pixelSizeX, tif_matrix2.pixelSizeY, 1.0 };
+    double modelTransform[6] = { 0.0, 0.0, 0.0,tif_matrix2.tif_letf , tif_matrix2.tif_top, 0.0 };
 
-    double pixelScale[3] = { pixelSizeX, pixelSizeY, 0.0 };
-    double modelTransform[6] = { originX, pixelSizeX, 0.0,originY, 0.0, pixelSizeY };
-
-    TIFFSetField(tiff, TIFFTAG_GEOPIXELSCALE, 3 ,pixelScale);
-    TIFFSetField(tiff, TIFFTAG_GEOTRANSMATRIX, 6 ,modelTransform);
-
-    // 写入像素数据
+    TIFFSetField(tiff, GTIFF_PIXELSCALE,3, &pixelScale);
+    TIFFSetField(tiff, GTIFF_TIEPOINTS, 6, &modelTransform);
 
     // 写入像素数据
     for (size_t row = 0; row < rows; ++row) {

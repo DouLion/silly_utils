@@ -23,6 +23,8 @@ using namespace silly_math;
 
 #include <geotiffio.h>
 #include <xtiffio.h>
+#include "geo_tiffp.h"
+
 
 class tif_data
 {
@@ -35,13 +37,17 @@ public:
 
 	unsigned short tif_samplesPerPixel;  // 获取每个像素的样本数
 
+
+
 	// SAMPLEFORMAT_UINT:1 uint 
 	// SAMPLEFORMAT_INT:2 int 
 	// SAMPLEFORMAT_IEEEFP float
 	unsigned short tif_sampleFormat;  // 数据的类型(uint  int  float 无法确定)
 
-	double tif_letf = 0.0;
-	double tif_top = 0.0;
+	double tif_letf = 0.0;  // 左上角经纬
+	double tif_top = 0.0;   //左上角纬度
+	double pixelSizeX;  // 横向分辨率
+	double pixelSizeY;  // 纵向分辨率
 
 	// 以字节为将tif矩阵存入
 	//matrix_2d<float> tif_matrix2;

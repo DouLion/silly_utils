@@ -20,20 +20,20 @@ BOOST_AUTO_TEST_CASE(readGeoTiff)
 {
     std::cout << "\r\n\r\n****************" << "读取tif" << "****************" << std::endl;
     std::filesystem::path tif_data_path(DEFAULT_DATA_DIR);
-    tif_data_path += "/tif/byte.tif";
+    tif_data_path += "/tif/write2.tif";
     std::string t = "D:/1_wangyingjie/code/2_hill_shading/世界/地图/ETOPO_2022_v1_60s_N90W180_bed.tif";
     std::filesystem::path word(t);
 
     matrix_2d<unsigned char> tif_matrix;
     tif_data ti = geotiff_utils::readGeoTiff(tif_data_path.string().c_str());
-    //matrix_2d<unsigned char> tif_matrix2;
-    //tif_data ti = geotiff_utils::readGeoTiff(word.string().c_str(), tif_matrix2);
+    matrix_2d<unsigned char> tif_matrix2;
+    //tif_data ti = geotiff_utils::readGeoTiff(word.string().c_str());
     std::cout << "-------- " << static_cast<float>(ti.tif_matrix2.at(1, 1)) << std::endl;
 
 
-    std::filesystem::path tif_data_w(DEFAULT_DATA_DIR);
-    tif_data_w += "/tif/write2.tif";
-    geotiff_utils::writeGeoTiff(tif_data_w.string().c_str(), ti);
+    //std::filesystem::path tif_data_w(DEFAULT_DATA_DIR);
+    //tif_data_w += "/tif/write2.tif";
+    //geotiff_utils::writeGeoTiff(tif_data_w.string().c_str(), ti);
     //std::cout << "---------------------------------------" << std::endl;
 
 
