@@ -85,7 +85,6 @@ tif_data geotiff_utils::readGeoTiff(std::string filePath)
     //----------------------------------------------------
     // 
     // 数据类型 :TIFFTAG_SAMPLEFORMAT
-    uint16_t sampleFormat;
     if (TIFFGetField(tiff, TIFFTAG_SAMPLEFORMAT, &res_tif.tif_sampleFormat))
     {
         if (res_tif.tif_sampleFormat == SAMPLEFORMAT_UINT)
