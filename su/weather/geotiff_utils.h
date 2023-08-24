@@ -36,6 +36,9 @@ public:
 	uint16_t tif_bitsPerSample; // 每个数据占几位(8位一个byte)
 	uint16_t tif_samplesPerPixel;  // 获取每个像素的样本数
 
+	uint32_t tif_tileWidth;
+	uint32_t tif_tileHeight;
+
 		
 	uint16_t tif_orientation = 1;	// 图像的方向标签
 	uint16_t tif_planarConfig = 1;	// 图像的平面配置标签
@@ -52,8 +55,8 @@ public:
 	double pixelSizeY;  // 纵向分辨率
 
 	// 以字节为将tif矩阵存入
-	//matrix_2d<float> tif_matrix2;
-	matrix_2d<unsigned char> tif_matrix2;
+	matrix_2d<float> tif_matrix2;
+	//matrix_2d<unsigned char> tif_matrix2;
 
 private:
 
@@ -72,12 +75,18 @@ public:
 	/// <param name="tif_matrix"></param>
 	static tif_data readGeoTiff(std::string filePath);
 
+	static tif_data readGeoTiffTile(std::string filePath);
+
+
 	/// <summary>
 	/// tif_data结构体写入tif文件
 	/// </summary>
 	/// <param name="filePath"></param>
 	/// <param name="tif_matrix"></param>
 	static bool writeGeoTiff(std::string filePath, tif_data tif_matrix2);
+
+	static bool writeGeoTiffTile(std::string filePath, tif_data tif_matrix2);
+
 
 };
 

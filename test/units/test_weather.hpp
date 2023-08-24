@@ -22,27 +22,30 @@ BOOST_AUTO_TEST_CASE(readGeoTiff)
     std::filesystem::path tif_data_path(DEFAULT_DATA_DIR);
     tif_data_path += "/tif/write2.tif";
     std::string t = "D:/1_wangyingjie/code/2_hill_shading/世界/地图/ETOPO_2022_v1_60s_N90W180_bed.tif";
+    //std::string t = "D:/1_wangyingjie/code/2_hill_shading/HillShading/dem_data/ETOPO_2022_v1_15s_N60W030_bed.tif";
     std::filesystem::path word(t);
 
     matrix_2d<unsigned char> tif_matrix;
     //tif_data ti = geotiff_utils::readGeoTiff(tif_data_path.string().c_str());
-    tif_data ti = geotiff_utils::readGeoTiff(word.string().c_str());
+    //tif_data ti = geotiff_utils::readGeoTiff(word.string().c_str());
+    tif_data ti = geotiff_utils::readGeoTiffTile(word.string().c_str());
+
     std::cout << "-------- " << static_cast<float>(ti.tif_matrix2.at(1, 1)) << std::endl;
 
 
-    //std::filesystem::path tif_data_w(DEFAULT_DATA_DIR);
-    //tif_data_w += "/tif/write2.tif";
-    //geotiff_utils::writeGeoTiff(tif_data_w.string().c_str(), ti);
-    //std::cout << "---------------------------------------" << std::endl;
-
-
-    for (size_t r = 0; r < tif_matrix.row(); ++r) {
-        for (size_t c = 0; c < tif_matrix.col(); ++c) {
-            std::cout << static_cast<float>(tif_matrix.at(r, c)) << " ";
-        }
-        std::cout << std::endl;
-    }
+    std::filesystem::path tif_data_w(DEFAULT_DATA_DIR);
+    tif_data_w += "/tif/word_1.tif";
+    geotiff_utils::writeGeoTiffTile(tif_data_w.string().c_str(), ti);
     std::cout << "---------------------------------------" << std::endl;
+
+
+    //for (size_t r = 0; r < ti.tif_height; ++r) {
+    //    for (size_t c = 0; c < ti.tif_width; ++c) {
+    //        std::cout << static_cast<float>(ti.tif_matrix2.at(r, c)) << " ";
+    //    }
+    //    std::cout << std::endl;
+    //}
+    //std::cout << "---------------------------------------" << std::endl;
 
     ti.tif_matrix2.destroy();
     tif_matrix.destroy();
