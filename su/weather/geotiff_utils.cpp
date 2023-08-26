@@ -9,37 +9,37 @@ tif_data geotiff_utils::readGeoTiff(std::string filePath)
 {
     tif_data res_tif;
     bool status = true;
-    // æ‰“å¼€å½±åƒæ•°æ®
+    // ´ò¿ªÓ°ÏñÊı¾İ
     TIFF* tiff = XTIFFOpen(filePath.c_str(),  "r ");
     if (tiff == nullptr) 
     {
-        std::cout <<  "æ‰“å¼€å½±åƒæ•°æ®å¤±è´¥ " << std::endl;
+        std::cout <<  "´ò¿ªÓ°ÏñÊı¾İÊ§°Ü " << std::endl;
         return res_tif;
     }
 
-    // è·å–å½±åƒå±æ€§ä¿¡æ¯
+    // »ñÈ¡Ó°ÏñÊôĞÔĞÅÏ¢
     GTIF* gtif = GTIFNew(tiff);
     if (gtif == nullptr) {
-        std::cout << "è·å–å½±åƒå±æ€§ä¿¡æ¯å¤±è´¥ " << std::endl;
+        std::cout << "»ñÈ¡Ó°ÏñÊôĞÔĞÅÏ¢Ê§°Ü " << std::endl;
         XTIFFClose(tiff);
         status = false;
     }
-    GTIFPrint(gtif, 0, 0); // æ‰“å°å±æ€§ä¿¡æ¯
+    GTIFPrint(gtif, 0, 0); // ´òÓ¡ÊôĞÔĞÅÏ¢
 
-    //// è·å–å›¾åƒèµ·å§‹ç‚¹çš„æŠ•å½±åæ ‡
+    //// »ñÈ¡Í¼ÏñÆğÊ¼µãµÄÍ¶Ó°×ø±ê
     //GTIFImageToPCS(gtif, &res_tif.tif_letf, &res_tif.tif_top);
     //std::cout << "tif_letf: " << res_tif.tif_letf << std::endl;
     //std::cout << "tif_top: " << res_tif.tif_top << std::endl;
 
-    // è¯»å–å›¾åƒåŸºæœ¬ä¿¡æ¯
+    // ¶ÁÈ¡Í¼Ïñ»ù±¾ĞÅÏ¢
     TIFFGetField(tiff, TIFFTAG_IMAGEWIDTH, &res_tif.tif_width);
     TIFFGetField(tiff, TIFFTAG_IMAGELENGTH, &res_tif.tif_height);
-    std::cout <<  "å®½: " << res_tif.tif_width << std::endl;
-    std::cout <<  "é«˜: " << res_tif.tif_height << std::endl;
+    std::cout <<  "¿í: " << res_tif.tif_width << std::endl;
+    std::cout <<  "¸ß: " << res_tif.tif_height << std::endl;
 
-    std::cout << "GTIFF_TIEPOINTS åœ°ç†åæ ‡ " << std::endl;
+    std::cout << "GTIFF_TIEPOINTS µØÀí×ø±ê " << std::endl;
     double* tif_coordinate = NULL;
-    int tif_coordinate_count;
+    uint32_t tif_coordinate_count;
     TIFFGetField(tiff, GTIFF_TIEPOINTS, &tif_coordinate_count, &tif_coordinate);
     if (tif_coordinate_count > 4)
     {
@@ -50,12 +50,12 @@ tif_data geotiff_utils::readGeoTiff(std::string filePath)
     }
     else
     {
-        std::cout << "è·å–åœ°ç†åæ ‡å¤±è´¥ " << std::endl;
+        std::cout << "»ñÈ¡µØÀí×ø±êÊ§°Ü " << std::endl;
         return res_tif;
     }
 
 
-    std::cout << "GTIFF_PIXELSCALE åƒç´ åˆ†è¾¨ç‡ " << std::endl;
+    std::cout << "GTIFF_PIXELSCALE ÏñËØ·Ö±æÂÊ " << std::endl;
     double* pixel_scale = NULL;
     int pixel_scale_count;
     TIFFGetField(tiff, GTIFF_PIXELSCALE, &pixel_scale_count, &pixel_scale);
@@ -68,79 +68,79 @@ tif_data geotiff_utils::readGeoTiff(std::string filePath)
     }
     else
     {
-        std::cout << "åƒç´ åˆ†è¾¨ç‡å¤±è´¥ " << std::endl;
+        std::cout << "ÏñËØ·Ö±æÂÊÊ§°Ü " << std::endl;
         return res_tif;
     }
 
-    // æ¯ä¸ªç‚¹å çš„ä½æ•°
+    // Ã¿¸öµãÕ¼µÄÎ»Êı
     TIFFGetField(tiff, TIFFTAG_BITSPERSAMPLE, &res_tif.tif_bitsPerSample);
-    std::cout <<  "æ¯ä¸ªç‚¹å çš„ä½æ•°:  " << res_tif.tif_bitsPerSample << std::endl;
+    std::cout <<  "Ã¿¸öµãÕ¼µÄÎ»Êı:  " << res_tif.tif_bitsPerSample << std::endl;
 
-    //// è·å–åˆ†è¾¨ç‡å•ä½
+    //// »ñÈ¡·Ö±æÂÊµ¥Î»
     //uint16_t resolutionUnit;
     //TIFFGetField(tiff, TIFFTAG_RESOLUTIONUNIT, &resolutionUnit);
-    //std::cout <<  "åˆ†è¾¨ç‡å•ä½:  " << resolutionUnit << std::endl;
+    //std::cout <<  "·Ö±æÂÊµ¥Î»:  " << resolutionUnit << std::endl;
 
-    // è·å–æ¯ä¸ªåƒç´ çš„æ ·æœ¬æ•°
+    // »ñÈ¡Ã¿¸öÏñËØµÄÑù±¾Êı
     TIFFGetField(tiff, TIFFTAG_SAMPLESPERPIXEL, &res_tif.tif_samplesPerPixel);
-    std::cout <<  "æ¯ä¸ªåƒç´ çš„æ ·æœ¬æ•°:  " << res_tif.tif_samplesPerPixel << std::endl;
+    std::cout <<  "Ã¿¸öÏñËØµÄÑù±¾Êı:  " << res_tif.tif_samplesPerPixel << std::endl;
 
 
     //----------------------------------------------------
     // 
-    // æ•°æ®ç±»å‹ :TIFFTAG_SAMPLEFORMAT
+    // Êı¾İÀàĞÍ :TIFFTAG_SAMPLEFORMAT
     if (TIFFGetField(tiff, TIFFTAG_SAMPLEFORMAT, &res_tif.tif_sampleFormat))
     {
         if (res_tif.tif_sampleFormat == SAMPLEFORMAT_UINT)
         {
-            std::cout <<  "æ•°æ®ç±»å‹ï¼šuint " << std::endl;
+            std::cout <<  "Êı¾İÀàĞÍ£ºuint " << std::endl;
         }
         else if (res_tif.tif_sampleFormat == SAMPLEFORMAT_INT)
         {
-            std::cout <<  "æ•°æ®ç±»å‹ï¼šint " << std::endl;
+            std::cout <<  "Êı¾İÀàĞÍ£ºint " << std::endl;
         }
         else if (res_tif.tif_sampleFormat == SAMPLEFORMAT_IEEEFP)
         {
-            std::cout <<  "æ•°æ®ç±»å‹ï¼šfloat " << std::endl;
+            std::cout <<  "Êı¾İÀàĞÍ£ºfloat " << std::endl;
         }
         else if (res_tif.tif_sampleFormat == SAMPLEFORMAT_VOID)
         {
-            std::cout <<  "æ•°æ®ç±»å‹ï¼šæœªçŸ¥æ•°æ®ç±»å‹ " << std::endl;
+            std::cout <<  "Êı¾İÀàĞÍ£ºÎ´ÖªÊı¾İÀàĞÍ " << std::endl;
         }
         else 
         {
-            // å…¶ä»–æœªçŸ¥æ•°æ®ç±»å‹
-            std::cout <<  "æœªçŸ¥çš„æ•°æ®ç±»å‹ " << std::endl;
+            // ÆäËûÎ´ÖªÊı¾İÀàĞÍ
+            std::cout <<  "Î´ÖªµÄÊı¾İÀàĞÍ " << std::endl;
         }
     }
     else 
     {
-        std::cout <<  "æ— æ³•è·å–æ•°æ®ç±»å‹ " << std::endl;
+        std::cout <<  "ÎŞ·¨»ñÈ¡Êı¾İÀàĞÍ " << std::endl;
         return res_tif;
     }
 
-    // å›¾åƒçš„æ–¹å‘æ ‡ç­¾
+    // Í¼ÏñµÄ·½Ïò±êÇ©
     TIFFGetField(tiff, TIFFTAG_ORIENTATION, &res_tif.tif_orientation);
-    std::cout <<  "å›¾åƒçš„æ–¹å‘æ ‡ç­¾:  " << res_tif.tif_orientation << std::endl;
+    std::cout <<  "Í¼ÏñµÄ·½Ïò±êÇ©:  " << res_tif.tif_orientation << std::endl;
 
-    // å›¾åƒçš„å¹³é¢é…ç½®æ ‡ç­¾
+    // Í¼ÏñµÄÆ½ÃæÅäÖÃ±êÇ©
     TIFFGetField(tiff, TIFFTAG_PLANARCONFIG, &res_tif.tif_planarConfig);
-    std::cout <<  "å›¾åƒçš„å¹³é¢é…ç½®æ ‡ç­¾:  " << res_tif.tif_planarConfig << std::endl;
+    std::cout <<  "Í¼ÏñµÄÆ½ÃæÅäÖÃ±êÇ©:  " << res_tif.tif_planarConfig << std::endl;
 
-    // å›¾åƒçš„å…‰åº¦æ ‡ç­¾
+    // Í¼ÏñµÄ¹â¶È±êÇ©
     uint16_t photometric;
     TIFFGetField(tiff, TIFFTAG_PHOTOMETRIC, &res_tif.tif_photometric);
-    std::cout <<  "å›¾åƒçš„å…‰åº¦æ ‡ç­¾:  " << res_tif.tif_photometric << std::endl;
+    std::cout <<  "Í¼ÏñµÄ¹â¶È±êÇ©:  " << res_tif.tif_photometric << std::endl;
     //----------------------------------
 
-    // é€è¡Œè¯»å–åƒç´ æ•°æ®
+    // ÖğĞĞ¶ÁÈ¡ÏñËØÊı¾İ
     res_tif.tif_matrix2.create(res_tif.tif_height , res_tif.tif_width);
     for (uint32_t row = 0; row < res_tif.tif_height; ++row)
     {
         TIFFReadScanline(tiff, res_tif.tif_matrix2.get_data()[row], row);
     }
 
-    // å…³é—­å½±åƒæ•°æ®å’ŒGTIFå¯¹è±¡
+    // ¹Ø±ÕÓ°ÏñÊı¾İºÍGTIF¶ÔÏó
     XTIFFClose(tiff);
     GTIFFree(gtif);
     return res_tif;
@@ -150,26 +150,26 @@ tif_data geotiff_utils::readGeoTiff(std::string filePath)
 bool geotiff_utils::writeGeoTiff(std::string filePath, tif_data tif_matrix2)
 {
     bool status = true;
-    // è·å–çŸ©é˜µçš„è¡Œæ•°å’Œåˆ—æ•°
+    // »ñÈ¡¾ØÕóµÄĞĞÊıºÍÁĞÊı
     size_t cols = tif_matrix2.tif_width;
     size_t rows = tif_matrix2.tif_height;
 
-    // æ‰“å¼€ TIFF æ–‡ä»¶è¿›è¡Œå†™å…¥
+    // ´ò¿ª TIFF ÎÄ¼ş½øĞĞĞ´Èë
     TIFF* tiff = TIFFOpen(filePath.c_str(),  "w ");
     if (!tiff) {
-        std::cerr <<  "æ— æ³•æ‰“å¼€ TIFF æ–‡ä»¶è¿›è¡Œå†™å…¥ " << std::endl;
+        std::cerr <<  "ÎŞ·¨´ò¿ª TIFF ÎÄ¼ş½øĞĞĞ´Èë " << std::endl;
         status = false;
     }
 
-    // è®¾ç½® TIFF å›¾åƒçš„åŸºæœ¬ä¿¡æ¯
+    // ÉèÖÃ TIFF Í¼ÏñµÄ»ù±¾ĞÅÏ¢
     TIFFSetField(tiff, TIFFTAG_IMAGEWIDTH, cols);
     TIFFSetField(tiff, TIFFTAG_IMAGELENGTH, rows);
     TIFFSetField(tiff, TIFFTAG_SAMPLESPERPIXEL, tif_matrix2.tif_samplesPerPixel);
     TIFFSetField(tiff, TIFFTAG_BITSPERSAMPLE, tif_matrix2.tif_bitsPerSample);
     TIFFSetField(tiff, TIFFTAG_SAMPLEFORMAT, tif_matrix2.tif_sampleFormat);
-    TIFFSetField(tiff, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);       //å›¾åƒçš„æ–¹å‘æ ‡ç­¾
-    TIFFSetField(tiff, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);      // å›¾åƒçš„å¹³é¢é…ç½®æ ‡ç­¾
-    TIFFSetField(tiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_MINISBLACK);    // å›¾åƒçš„å…‰åº¦æ ‡ç­¾
+    TIFFSetField(tiff, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);       //Í¼ÏñµÄ·½Ïò±êÇ©
+    TIFFSetField(tiff, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);      // Í¼ÏñµÄÆ½ÃæÅäÖÃ±êÇ©
+    TIFFSetField(tiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_MINISBLACK);    // Í¼ÏñµÄ¹â¶È±êÇ©
 
 
     double pixelScale[3] = { tif_matrix2.pixelSizeX, tif_matrix2.pixelSizeY, 1.0 };
@@ -178,15 +178,15 @@ bool geotiff_utils::writeGeoTiff(std::string filePath, tif_data tif_matrix2)
     TIFFSetField(tiff, GTIFF_PIXELSCALE,3, &pixelScale);
     TIFFSetField(tiff, GTIFF_TIEPOINTS, 6, &modelTransform);
 
-    // å†™å…¥åƒç´ æ•°æ®
+    // Ğ´ÈëÏñËØÊı¾İ
     for (size_t row = 0; row < rows; ++row) {
         TIFFWriteScanline(tiff, tif_matrix2.tif_matrix2.get_data()[row], row);
     }
 
-    // å…³é—­ TIFF æ–‡ä»¶
+    // ¹Ø±Õ TIFF ÎÄ¼ş
     TIFFClose(tiff);
 
-    std::cout <<  "TIFF æ–‡ä»¶å†™å…¥æˆåŠŸ " << std::endl;
+    std::cout <<  "TIFF ÎÄ¼şĞ´Èë³É¹¦ " << std::endl;
     return status;
 
 }
@@ -199,17 +199,17 @@ tif_data geotiff_utils::readGeoTiffTile(std::string filePath)
     tif_data tileData;
     TIFF* tif = TIFFOpen(filePath.c_str(), "r");
     if (tif == nullptr) {
-        // å¤„ç†æ‰“å¼€tifæ–‡ä»¶å¤±è´¥çš„æƒ…å†µ
+        // ´¦Àí´ò¿ªtifÎÄ¼şÊ§°ÜµÄÇé¿ö
         return tileData;
     }
 
-    // è·å–tifæ–‡ä»¶çš„åŸºæœ¬ä¿¡æ¯
-    TIFFGetField(tif, TIFFTAG_IMAGEWIDTH, &(tileData.tif_width)); // è·å–å›¾åƒå®½åº¦
-    TIFFGetField(tif, TIFFTAG_IMAGELENGTH, &(tileData.tif_height)); // è·å–å›¾åƒé«˜åº¦
-    TIFFGetField(tif, TIFFTAG_BITSPERSAMPLE, &(tileData.tif_bitsPerSample)); // è·å–æ¯ä¸ªæ•°æ®çš„ä½æ•°
-    TIFFGetField(tif, TIFFTAG_SAMPLESPERPIXEL, &(tileData.tif_samplesPerPixel)); // è·å–æ¯ä¸ªåƒç´ çš„æ ·æœ¬æ•°
+    // »ñÈ¡tifÎÄ¼şµÄ»ù±¾ĞÅÏ¢
+    TIFFGetField(tif, TIFFTAG_IMAGEWIDTH, &(tileData.tif_width)); // »ñÈ¡Í¼Ïñ¿í¶È
+    TIFFGetField(tif, TIFFTAG_IMAGELENGTH, &(tileData.tif_height)); // »ñÈ¡Í¼Ïñ¸ß¶È
+    TIFFGetField(tif, TIFFTAG_BITSPERSAMPLE, &(tileData.tif_bitsPerSample)); // »ñÈ¡Ã¿¸öÊı¾İµÄÎ»Êı
+    TIFFGetField(tif, TIFFTAG_SAMPLESPERPIXEL, &(tileData.tif_samplesPerPixel)); // »ñÈ¡Ã¿¸öÏñËØµÄÑù±¾Êı
 
-    std::cout << "GTIFF_TIEPOINTS åœ°ç†åæ ‡ " << std::endl;
+    std::cout << "GTIFF_TIEPOINTS µØÀí×ø±ê " << std::endl;
     double* tif_coordinate;
     int tif_coordinate_count;
     TIFFGetField(tif, GTIFF_TIEPOINTS, &tif_coordinate_count, &tif_coordinate);
@@ -222,12 +222,12 @@ tif_data geotiff_utils::readGeoTiffTile(std::string filePath)
     }
     else
     {
-        std::cout << "è·å–åœ°ç†åæ ‡å¤±è´¥ " << std::endl;
+        std::cout << "»ñÈ¡µØÀí×ø±êÊ§°Ü " << std::endl;
         return tileData;
     }
 
 
-    std::cout << "GTIFF_PIXELSCALE åƒç´ åˆ†è¾¨ç‡ " << std::endl;
+    std::cout << "GTIFF_PIXELSCALE ÏñËØ·Ö±æÂÊ " << std::endl;
     double* pixel_scale = NULL;
     int pixel_scale_count;
     TIFFGetField(tif, GTIFF_PIXELSCALE, &pixel_scale_count, &pixel_scale);
@@ -240,7 +240,7 @@ tif_data geotiff_utils::readGeoTiffTile(std::string filePath)
     }
     else
     {
-        std::cout << "åƒç´ åˆ†è¾¨ç‡å¤±è´¥ " << std::endl;
+        std::cout << "ÏñËØ·Ö±æÂÊÊ§°Ü " << std::endl;
         return tileData;
     }
 
@@ -249,51 +249,51 @@ tif_data geotiff_utils::readGeoTiffTile(std::string filePath)
     {
         if (tileData.tif_sampleFormat == SAMPLEFORMAT_UINT)
         {
-            std::cout << "æ•°æ®ç±»å‹ï¼šuint " << std::endl;
+            std::cout << "Êı¾İÀàĞÍ£ºuint " << std::endl;
         }
         else if (tileData.tif_sampleFormat == SAMPLEFORMAT_INT)
         {
-            std::cout << "æ•°æ®ç±»å‹ï¼šint " << std::endl;
+            std::cout << "Êı¾İÀàĞÍ£ºint " << std::endl;
         }
         else if (tileData.tif_sampleFormat == SAMPLEFORMAT_IEEEFP)
         {
-            std::cout << "æ•°æ®ç±»å‹ï¼šfloat " << std::endl;
+            std::cout << "Êı¾İÀàĞÍ£ºfloat " << std::endl;
         }
         else if (tileData.tif_sampleFormat == SAMPLEFORMAT_VOID)
         {
-            std::cout << "æ•°æ®ç±»å‹ï¼šæœªçŸ¥æ•°æ®ç±»å‹ " << std::endl;
+            std::cout << "Êı¾İÀàĞÍ£ºÎ´ÖªÊı¾İÀàĞÍ " << std::endl;
         }
         else
         {
-            // å…¶ä»–æœªçŸ¥æ•°æ®ç±»å‹
-            std::cout << "æœªçŸ¥çš„æ•°æ®ç±»å‹ " << std::endl;
+            // ÆäËûÎ´ÖªÊı¾İÀàĞÍ
+            std::cout << "Î´ÖªµÄÊı¾İÀàĞÍ " << std::endl;
         }
     }
     else
     {
-        std::cout << "æ— æ³•è·å–æ•°æ®ç±»å‹ " << std::endl;
+        std::cout << "ÎŞ·¨»ñÈ¡Êı¾İÀàĞÍ " << std::endl;
         return tileData;
     }
-
+    int ignore = FALSE;
     tileData.tif_matrix2.create(tileData.tif_height, tileData.tif_width);
-    float* buffer = (float*)_TIFFmalloc(TIFFTileSize(tif));
-    // è¯»å–ç¬¬ä¸€å±‚ç“¦ç‰‡æ•°æ®ï¼ˆå‡è®¾ç“¦ç‰‡æ•°æ®ç±»å‹æ˜¯floatï¼‰
-    if (TIFFReadTile(tif, buffer, 0, 0, 0, 0) == -1) {
-        // å¤„ç†è¯»å–é”™è¯¯çš„æƒ…å†µ
+    unsigned char* buffer = (unsigned char*)_TIFFmalloc(TIFFTileSize(tif));
+    // ¶ÁÈ¡µÚÒ»²ãÍßÆ¬Êı¾İ£¨¼ÙÉèÍßÆ¬Êı¾İÀàĞÍÊÇfloat£©
+    if (TIFFReadTile(tif, buffer, 0, 0, 0, 0) < 0 && !ignore){
+        // ´¦Àí¶ÁÈ¡´íÎóµÄÇé¿ö
         XTIFFClose(tif);
     }
-    //// è·å– tile çš„å®½åº¦å’Œé«˜åº¦
+    //// »ñÈ¡ tile µÄ¿í¶ÈºÍ¸ß¶È
     //TIFFGetField(tif, TIFFTAG_TILEWIDTH, &tileData.tif_tileWidth);
     //TIFFGetField(tif, TIFFTAG_TILELENGTH, &tileData.tif_tileHeight);
     //int numTiles = TIFFNumberOfTiles(tif);
-    //// è¯»å–å›¾åƒæ•°æ®
+    //// ¶ÁÈ¡Í¼ÏñÊı¾İ
     //for (uint32_t row = 0; row < tileData.tif_height; row += tileData.tif_tileHeight) {
     //    for (uint32_t col = 0; col < tileData.tif_width; col += tileData.tif_tileWidth) {
     //        TIFFReadTile(tif, &(tileData.tif_matrix2.at(row, col)), col, row, 0, 0);
     //    }
     //}
 
-    TIFFClose(tif);
+    XTIFFClose(tif);
     return tileData;
 }
 
@@ -301,18 +301,18 @@ tif_data geotiff_utils::readGeoTiffTile(std::string filePath)
 bool geotiff_utils::writeGeoTiffTile(std::string filePath, tif_data tif_matrix2)
 {
     bool status = true;
-    // è·å–çŸ©é˜µçš„è¡Œæ•°å’Œåˆ—æ•°
+    // »ñÈ¡¾ØÕóµÄĞĞÊıºÍÁĞÊı
     size_t cols = tif_matrix2.tif_width;
     size_t rows = tif_matrix2.tif_height;
 
-    // æ‰“å¼€ TIFF æ–‡ä»¶è¿›è¡Œå†™å…¥
+    // ´ò¿ª TIFF ÎÄ¼ş½øĞĞĞ´Èë
     TIFF* tiff = TIFFOpen(filePath.c_str(), "w ");
     if (!tiff) {
-        std::cerr << "æ— æ³•æ‰“å¼€ TIFF æ–‡ä»¶è¿›è¡Œå†™å…¥ " << std::endl;
+        std::cerr << "ÎŞ·¨´ò¿ª TIFF ÎÄ¼ş½øĞĞĞ´Èë " << std::endl;
         status = false;
     }
 
-    // è®¾ç½® TIFF å›¾åƒçš„åŸºæœ¬ä¿¡æ¯
+    // ÉèÖÃ TIFF Í¼ÏñµÄ»ù±¾ĞÅÏ¢
     TIFFSetField(tiff, TIFFTAG_IMAGEWIDTH, cols);
     TIFFSetField(tiff, TIFFTAG_IMAGELENGTH, rows);
     TIFFSetField(tiff, TIFFTAG_TILEWIDTH, tif_matrix2.tif_tileWidth);
@@ -320,9 +320,9 @@ bool geotiff_utils::writeGeoTiffTile(std::string filePath, tif_data tif_matrix2)
     TIFFSetField(tiff, TIFFTAG_SAMPLESPERPIXEL, tif_matrix2.tif_samplesPerPixel);
     TIFFSetField(tiff, TIFFTAG_BITSPERSAMPLE, tif_matrix2.tif_bitsPerSample);
     TIFFSetField(tiff, TIFFTAG_SAMPLEFORMAT, tif_matrix2.tif_sampleFormat);
-    TIFFSetField(tiff, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);       //å›¾åƒçš„æ–¹å‘æ ‡ç­¾
-    TIFFSetField(tiff, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);      // å›¾åƒçš„å¹³é¢é…ç½®æ ‡ç­¾
-    TIFFSetField(tiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_MINISBLACK);    // å›¾åƒçš„å…‰åº¦æ ‡ç­¾
+    TIFFSetField(tiff, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);       //Í¼ÏñµÄ·½Ïò±êÇ©
+    TIFFSetField(tiff, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);      // Í¼ÏñµÄÆ½ÃæÅäÖÃ±êÇ©
+    TIFFSetField(tiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_MINISBLACK);    // Í¼ÏñµÄ¹â¶È±êÇ©
 
 
     double pixelScale[3] = { tif_matrix2.pixelSizeX, tif_matrix2.pixelSizeY, 1.0 };
@@ -331,18 +331,18 @@ bool geotiff_utils::writeGeoTiffTile(std::string filePath, tif_data tif_matrix2)
     TIFFSetField(tiff, GTIFF_PIXELSCALE, 3, &pixelScale);
     TIFFSetField(tiff, GTIFF_TIEPOINTS, 6, &modelTransform);
 
-    // å†™å…¥åƒç´ æ•°æ®
-    // å°†å›¾åƒæ•°æ®å†™å…¥ TIFF æ–‡ä»¶
+    // Ğ´ÈëÏñËØÊı¾İ
+    // ½«Í¼ÏñÊı¾İĞ´Èë TIFF ÎÄ¼ş
     for (uint32_t row = 0; row < tif_matrix2.tif_height; row += tif_matrix2.tif_tileHeight) {
         for (uint32_t col = 0; col < tif_matrix2.tif_width; col += tif_matrix2.tif_tileWidth) {
             TIFFWriteTile(tiff, &(tif_matrix2.tif_matrix2.at(row, col)), col, row, 0, 0);
         }
     }
 
-    // å…³é—­ TIFF æ–‡ä»¶
+    // ¹Ø±Õ TIFF ÎÄ¼ş
     TIFFClose(tiff);
 
-    std::cout << "TIFF æ–‡ä»¶å†™å…¥æˆåŠŸ " << std::endl;
+    std::cout << "TIFF ÎÄ¼şĞ´Èë³É¹¦ " << std::endl;
     return status;
 
 }
