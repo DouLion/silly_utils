@@ -25,6 +25,10 @@ using namespace silly_math;
 #include <xtiffio.h>
 #include "geo_tiffp.h"
 
+#define   STRIP_TIF 1
+#define   TILE_TIF	2
+#define   SCANLINE_TIF	3
+
 
 class tif_data
 {
@@ -34,12 +38,16 @@ public:
 	uint32_t tif_height;
 
 	uint16_t tif_bitsPerSample; // 每个数据占几位(8位一个byte)
-	uint16_t tif_samplesPerPixel;  // 获取每个像素的样本数
+	uint16_t tif_samplesPerPixel;  // 获取每个像素的样本数:通道数
 
 	uint32_t tif_tileWidth;
 	uint32_t tif_tileHeight;
+	uint64_t tif_tileSize;
 
-		
+	uint32_t tif_type;
+	uint64_t tif_lineSize;
+	uint16_t tif_numChannels;
+
 	uint16_t tif_orientation = 1;	// 图像的方向标签
 	uint16_t tif_planarConfig = 1;	// 图像的平面配置标签
 	uint16_t tif_photometric = 1;	// 图像的光度标签
@@ -76,6 +84,8 @@ public:
 	static tif_data readGeoTiff(std::string filePath);
 
 	static tif_data readGeoTiffTile(std::string filePath);
+
+	static bool get_tif_data(TIFF* tif, tif_data& res_tif);
 
 
 	/// <summary>

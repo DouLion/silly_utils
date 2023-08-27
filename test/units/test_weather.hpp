@@ -27,8 +27,8 @@ BOOST_AUTO_TEST_CASE(readGeoTiff)
 
     matrix_2d<unsigned char> tif_matrix;
     //tif_data ti = geotiff_utils::readGeoTiff(tif_data_path.string().c_str());
-    //tif_data ti = geotiff_utils::readGeoTiff(word.string().c_str());
-    tif_data ti = geotiff_utils::readGeoTiffTile(word.string().c_str());
+    tif_data ti = geotiff_utils::readGeoTiff(word.string().c_str());
+    //tif_data ti = geotiff_utils::readGeoTiffTile(word.string().c_str());
 
     std::cout << "-------- " << static_cast<float>(ti.tif_matrix2.at(1, 1)) << std::endl;
 
