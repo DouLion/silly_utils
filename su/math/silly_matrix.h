@@ -78,6 +78,36 @@ namespace silly_math
 			return true;
 		}
 
+		matrix_2d<T>& operator += (const matrix_2d<T>& other)
+		{
+			if (data && other.data() && rows == other.rows() && cols == other.cols())
+			{
+				for (size_t r = 0; r < rows; r++)
+				{
+					for (size_t c = 0; c < cols; ++c)
+					{
+						data[r][c] += other.data()[r][c]
+					}
+				}
+			}
+			return *this;
+		}
+
+		matrix_2d<T>& operator -= (const matrix_2d<T>& other)
+		{
+			if (data && other.data() && rows == other.rows() && cols == other.cols())
+			{
+				for (size_t r = 0; r < rows; r++)
+				{
+					for (size_t c = 0; c < cols; ++c)
+					{
+						data[r][c] -= other.data()[r][c]
+					}
+				}
+			}
+			return *this;
+		}
+
 		/// <summary>
 		/// 复制数据内容到新的指针地址
 		/// </summary>
