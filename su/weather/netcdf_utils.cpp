@@ -326,14 +326,13 @@ bool netcdf_utils::write_netcdf(const std::string& path, const nc_info& info, co
 		// tempVar.putAtt(UNITS, "celsius");
 
 
-		int curr_idx = 0;
-		/*for (int r = 0; r < data.rows; ++r)
+		for (int r = 0; r < data.row(); ++r)
 		{
-			for (int c = 0; c < data.cols; ++c)
+			for (int c = 0; c < data.col(); ++c)
 			{
-				rains[curr_idx + r * data.cols + c] = data.ptr<float>(data.rows - r -1, c)[0];
+				rains[r * data.col() + c] = (float)(data.get_data()[data.row() - r -1][c]);
 			}
-		}*/
+		}
 		presVar.putVar(rains);
 		free(lats);
 		free(lons);
