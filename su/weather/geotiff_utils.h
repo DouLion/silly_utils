@@ -95,8 +95,6 @@ public:
 	/// <param name="tif_matrix"></param>
 	static bool writeGeoTiff(std::string filePath, tif_data tif_matrix2);
 
-	static bool writeGeoTiffTile(std::string filePath, tif_data tif_matrix2);
-
 
 };
 
