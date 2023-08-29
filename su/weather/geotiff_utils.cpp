@@ -341,8 +341,8 @@ bool geotiff_utils::writeGeoTiff(std::string filePath, tif_data tif_matrix2)
     // 设置 TIFF 图像的基本信息
     TIFFSetField(tiff, TIFFTAG_IMAGEWIDTH, cols);
     TIFFSetField(tiff, TIFFTAG_IMAGELENGTH, rows);
-    TIFFSetField(tiff, TIFFTAG_TILEWIDTH, tif_matrix2.tif_tileWidth);
-    TIFFSetField(tiff, TIFFTAG_TILELENGTH, tif_matrix2.tif_tileHeight);
+    //TIFFSetField(tiff, TIFFTAG_TILEWIDTH, tif_matrix2.tif_tileWidth);
+    //TIFFSetField(tiff, TIFFTAG_TILELENGTH, tif_matrix2.tif_tileHeight);
     TIFFSetField(tiff, TIFFTAG_SAMPLESPERPIXEL, tif_matrix2.tif_samplesPerPixel);
     TIFFSetField(tiff, TIFFTAG_BITSPERSAMPLE, tif_matrix2.tif_bitsPerSample);
     TIFFSetField(tiff, TIFFTAG_SAMPLEFORMAT, tif_matrix2.tif_sampleFormat);
@@ -359,7 +359,7 @@ bool geotiff_utils::writeGeoTiff(std::string filePath, tif_data tif_matrix2)
 
     // 写入像素数据
     for (size_t row = 0; row < rows; ++row) {
-        TIFFWriteScanline(tiff, tif_matrix2.tif_matrix2.get_data()[row], row);
+        TIFFWriteScanline(tiff, tif_matrix2.tif_matrix2.get_data()[row], row,0);
     }
 
     // 关闭 TIFF 文件
@@ -371,53 +371,3 @@ bool geotiff_utils::writeGeoTiff(std::string filePath, tif_data tif_matrix2)
 }
 
 
-
-
-bool geotiff_utils::writeGeoTiffTile(std::string filePath, tif_data tif_matrix2)
-{
-    bool status = true;
-    // 获取矩阵的行数和列数
-    size_t cols = tif_matrix2.tif_width;
-    size_t rows = tif_matrix2.tif_height;
-
-    // 打开 TIFF 文件进行写入
-    TIFF* tiff = TIFFOpen(filePath.c_str(), "w ");
-    if (!tiff) {
-        std::cerr << "无法打开 TIFF 文件进行写入 " << std::endl;
-        status = false;
-    }
-
-    // 设置 TIFF 图像的基本信息
-    TIFFSetField(tiff, TIFFTAG_IMAGEWIDTH, cols);
-    TIFFSetField(tiff, TIFFTAG_IMAGELENGTH, rows);
-    TIFFSetField(tiff, TIFFTAG_TILEWIDTH, tif_matrix2.tif_tileWidth);
-    TIFFSetField(tiff, TIFFTAG_TILELENGTH, tif_matrix2.tif_tileHeight);
-    TIFFSetField(tiff, TIFFTAG_SAMPLESPERPIXEL, tif_matrix2.tif_samplesPerPixel);
-    TIFFSetField(tiff, TIFFTAG_BITSPERSAMPLE, tif_matrix2.tif_bitsPerSample);
-    TIFFSetField(tiff, TIFFTAG_SAMPLEFORMAT, tif_matrix2.tif_sampleFormat);
-    TIFFSetField(tiff, TIFFTAG_ORIENTATION, tif_matrix2.tif_orientation);       //图像的方向标签
-    TIFFSetField(tiff, TIFFTAG_PLANARCONFIG, tif_matrix2.tif_planarConfig);     //图像的平面配置标签 planar_config
-    TIFFSetField(tiff, TIFFTAG_PHOTOMETRIC, tif_matrix2.tif_photometric);    // 图像的光度标签.
-
-
-    double pixelScale[3] = { tif_matrix2.pixelSizeX, tif_matrix2.pixelSizeY, 1.0 };
-    double modelTransform[6] = { 0.0, 0.0, 0.0,tif_matrix2.tif_letf , tif_matrix2.tif_top, 0.0 };
-
-    TIFFSetField(tiff, GTIFF_PIXELSCALE, 3, &pixelScale);
-    TIFFSetField(tiff, GTIFF_TIEPOINTS, 6, &modelTransform);
-
-    // 写入像素数据
-    // 将图像数据写入 TIFF 文件
-    for (uint32_t row = 0; row < tif_matrix2.tif_height; row += tif_matrix2.tif_tileHeight) {
-        for (uint32_t col = 0; col < tif_matrix2.tif_width; col += tif_matrix2.tif_tileWidth) {
-            TIFFWriteTile(tiff, &(tif_matrix2.tif_matrix2.at(row, col)), col, row, 0, 0);
-        }
-    }
-
-    // 关闭 TIFF 文件
-    XTIFFClose(tiff);
-
-    std::cout << "TIFF 文件写入成功 " << std::endl;
-    return status;
-
-}
