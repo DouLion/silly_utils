@@ -64,8 +64,9 @@ BOOST_AUTO_TEST_CASE(writeGeoTiff)
     }
    
     std::filesystem::path tif_data_w(DEFAULT_DATA_DIR);
-    tif_data_w += "/tif/word_2.tif";
-    geotiff_utils::writeGeoTiff(tif_data_w.string().c_str(), res_tif);
+    tif_data_w += "/tif/word_3.tif";
+    //geotiff_utils::writeGeoTiff(tif_data_w.string().c_str(), res_tif);
+    geotiff_utils::writeFourChannelTiff(tif_data_w.string().c_str(), res_tif);
     //std::cout << "---------------------------------------" << std::endl;
 
 
