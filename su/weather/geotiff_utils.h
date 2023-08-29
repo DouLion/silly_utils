@@ -83,7 +83,6 @@ public:
 	/// <param name="tif_matrix"></param>
 	static tif_data readGeoTiff(std::string filePath);
 
-	static tif_data readGeoTiffTile(std::string filePath);
 
 	static bool get_tif_data(TIFF* tif, tif_data& res_tif);
 
@@ -95,6 +94,7 @@ public:
 	/// <param name="tif_matrix"></param>
 	static bool writeGeoTiff(std::string filePath, tif_data tif_matrix2);
 
+	static bool geotiff_utils::writeFourChannelTiff(std::string filePath, tif_data tif_matrix2);
 
 };
 

@@ -1,1 +1,2 @@
 add_subdirectory(tzx_image)
+add_subdirectory(write_color_box)

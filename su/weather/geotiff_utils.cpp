@@ -9,10 +9,7 @@ bool geotiff_utils::get_tif_data(TIFF* tiff, tif_data& res_tif)
     // 读取图像基本信息
     TIFFGetField(tiff, TIFFTAG_IMAGEWIDTH, &res_tif.tif_width);
     TIFFGetField(tiff, TIFFTAG_IMAGELENGTH, &res_tif.tif_height);
-    std::cout << "宽: " << res_tif.tif_width << std::endl;
-    std::cout << "高: " << res_tif.tif_height << std::endl;
 
-    std::cout << "GTIFF_TIEPOINTS 地理坐标 " << std::endl;
     double* tif_coordinate = NULL;
     uint32_t tif_coordinate_count;
     TIFFGetField(tiff, GTIFF_TIEPOINTS, &tif_coordinate_count, &tif_coordinate);
@@ -20,17 +17,14 @@ bool geotiff_utils::get_tif_data(TIFF* tiff, tif_data& res_tif)
     {
         res_tif.tif_letf = tif_coordinate[3];
         res_tif.tif_top = tif_coordinate[4];
-        std::cout << "tif_letf: " << res_tif.tif_letf << std::endl;
-        std::cout << "tif_top: " << res_tif.tif_top << std::endl;
     }
     else
     {
-        std::cout << "获取地理坐标失败 " << std::endl;
+        std::cout << "Failed to obtain longitude and latitude " << std::endl;
         return false;
     }
 
 
-    std::cout << "GTIFF_PIXELSCALE 像素分辨率 " << std::endl;
     double* pixel_scale = NULL;
     uint32_t pixel_scale_count;
     TIFFGetField(tiff, GTIFF_PIXELSCALE, &pixel_scale_count, &pixel_scale);
@@ -38,18 +32,15 @@ bool geotiff_utils::get_tif_data(TIFF* tiff, tif_data& res_tif)
     {
         res_tif.pixelSizeX = pixel_scale[0];
         res_tif.pixelSizeY = pixel_scale[1];
-        std::cout << "pixelSizeX: " << res_tif.pixelSizeX << std::endl;
-        std::cout << "pixelSizeY: " << res_tif.pixelSizeY << std::endl;
     }
     else
     {
-        std::cout << "像素分辨率失败 " << std::endl;
+        std::cout << "Failed to obtain pixel division value " << std::endl;
         return false;
     }
 
     // 每个点占的位数
     TIFFGetField(tiff, TIFFTAG_BITSPERSAMPLE, &res_tif.tif_bitsPerSample);
-    std::cout << "每个点占的位数:  " << res_tif.tif_bitsPerSample << std::endl;
 
     //// 获取分辨率单位
     //uint16_t resolutionUnit;
@@ -58,7 +49,6 @@ bool geotiff_utils::get_tif_data(TIFF* tiff, tif_data& res_tif)
 
     // 获取每个像素的样本数
     TIFFGetField(tiff, TIFFTAG_SAMPLESPERPIXEL, &res_tif.tif_samplesPerPixel);
-    std::cout << "每个像素的样本数:  " << res_tif.tif_samplesPerPixel << std::endl;
 
     //----------------------------------------------------
     // 
@@ -67,45 +57,37 @@ bool geotiff_utils::get_tif_data(TIFF* tiff, tif_data& res_tif)
     {
         if (res_tif.tif_sampleFormat == SAMPLEFORMAT_UINT)
         {
-            std::cout << "数据类型：uint " << std::endl;
+            std::cout << "type：uint " << std::endl;
         }
         else if (res_tif.tif_sampleFormat == SAMPLEFORMAT_INT)
         {
-            std::cout << "数据类型：int " << std::endl;
+            std::cout << "type：int " << std::endl;
         }
         else if (res_tif.tif_sampleFormat == SAMPLEFORMAT_IEEEFP)
         {
-            std::cout << "数据类型：float " << std::endl;
-        }
-        else if (res_tif.tif_sampleFormat == SAMPLEFORMAT_VOID)
-        {
-            std::cout << "数据类型：未知数据类型 " << std::endl;
+            std::cout << "type：float " << std::endl;
         }
         else
         {
             // 其他未知数据类型
-            std::cout << "未知的数据类型 " << std::endl;
+            std::cout << "Unknown type " << std::endl;
+            return false;
         }
     }
     else
     {
-        std::cout << "无法获取数据类型 " << std::endl;
+        std::cout << "Unable to obtain data type " << std::endl;
         return false;
     }
 
     // 图像的方向标签
     TIFFGetField(tiff, TIFFTAG_ORIENTATION, &res_tif.tif_orientation);
-    std::cout << "图像的方向标签:  " << res_tif.tif_orientation << std::endl;
 
     // 图像的平面配置标签 planar_config
     TIFFGetField(tiff, TIFFTAG_PLANARCONFIG, &res_tif.tif_planarConfig);
-    std::cout << "图像的平面配置标签:  " << res_tif.tif_planarConfig << std::endl;
 
     // 图像的光度标签
-    uint16_t photometric;
     TIFFGetField(tiff, TIFFTAG_PHOTOMETRIC, &res_tif.tif_photometric);
-    std::cout << "图像的光度标签:  " << res_tif.tif_photometric << std::endl;
-    //----------------------------------
 
     // 通道数
     TIFFGetField(tiff, TIFFTAG_SAMPLESPERPIXEL, &res_tif.tif_numChannels);
@@ -123,6 +105,7 @@ bool geotiff_utils::get_tif_data(TIFF* tiff, tif_data& res_tif)
 
     //TIFFIsTiled(tiff) ? printf("图像存储类型: Tiled\n") : printf("图像存储类型: Strip\n");
     //TIFFIsTiled(tiff) ? (res_tif.tif_type = TILE_TIF) : (res_tif.tif_type = STRIP_TIF);
+    
     // Determine TIFF type
     if (rc_2 && rc_3 && res_tif.tif_tileWidth > 1 && res_tif.tif_tileHeight > 1 && TIFFIsTiled(tiff))
     {
@@ -307,12 +290,11 @@ tif_data geotiff_utils::readGeoTiff(std::string filePath)
         }
         else
         {
-            std::cout << "tif行数据为空 " << std::endl;
+            std::cout << "The tif row data is empty " << std::endl;
         }
-
         break;
     default:
-        std::cout << "无法处理改类型的tif:  " << std::endl;
+        std::cout << "Unable to process tif of this type  " << std::endl;
         break;
     }
 
@@ -334,7 +316,7 @@ bool geotiff_utils::writeGeoTiff(std::string filePath, tif_data tif_matrix2)
     // 打开 TIFF 文件进行写入
     TIFF* tiff = XTIFFOpen(filePath.c_str(), "w ");
     if (!tiff) {
-        std::cerr << "无法打开 TIFF 文件进行写入 " << std::endl;
+        std::cerr << "Unable to open TIFF file for writing " << std::endl;
         status = false;
     }
 
@@ -358,16 +340,68 @@ bool geotiff_utils::writeGeoTiff(std::string filePath, tif_data tif_matrix2)
     TIFFSetField(tiff, GTIFF_TIEPOINTS, 6, &modelTransform);
 
     // 写入像素数据
-    for (size_t row = 0; row < rows; ++row) {
-        TIFFWriteScanline(tiff, tif_matrix2.tif_matrix2.get_data()[row], row,0);
+    for (size_t row = 0; row < rows; row++) 
+    {
+        if (TIFFWriteScanline(tiff, tif_matrix2.tif_matrix2.get_data()[row], row, 0) < 0)
+        {
+            std::cout << "TIFFWriteScanline error " << std::endl;
+        }
     }
 
     // 关闭 TIFF 文件
     TIFFClose(tiff);
 
-    std::cout << "TIFF 文件写入成功 " << std::endl;
+    std::cout << "TIFF file successfully written " << std::endl;
     return status;
 
 }
 
 
+bool geotiff_utils::writeFourChannelTiff(std::string filePath, tif_data tif_matrix2)
+{
+    bool status = true;
+    // 获取矩阵的行数和列数
+    size_t cols = tif_matrix2.tif_width /5;
+    size_t rows = tif_matrix2.tif_height /5;
+
+    // 打开 TIFF 文件进行写入
+    TIFF* tiff = XTIFFOpen(filePath.c_str(), "w");
+    if (!tiff) {
+        std::cerr << "Unable to open TIFF file for writing " << std::endl;
+        status = false;
+    }
+
+    // 设置 TIFF 图像的基本信息
+    TIFFSetField(tiff, TIFFTAG_IMAGEWIDTH, cols);
+    TIFFSetField(tiff, TIFFTAG_IMAGELENGTH, rows);
+    TIFFSetField(tiff, TIFFTAG_SAMPLESPERPIXEL, 4);        // 四通道图像
+    TIFFSetField(tiff, TIFFTAG_BITSPERSAMPLE, sizeof(float) * 8);    // 每个通道的位深度为 sizeof(float) * 8
+    TIFFSetField(tiff, TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_IEEEFP);   // 浮点数样本格式
+    TIFFSetField(tiff, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);       // 图像的方向标签
+    TIFFSetField(tiff, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);     // 图像的平面配置标签 planar_config
+    TIFFSetField(tiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);    // 图像的光度标签.
+
+
+    double pixelScale[3] = { tif_matrix2.pixelSizeX, tif_matrix2.pixelSizeY, 1.0 };
+    double modelTransform[6] = { 0.0, 0.0, 0.0,tif_matrix2.tif_letf , tif_matrix2.tif_top, 0.0 };
+
+    TIFFSetField(tiff, GTIFF_PIXELSCALE, 3, pixelScale);
+    TIFFSetField(tiff, GTIFF_TIEPOINTS, 6, modelTransform);
+
+    // 写入像素数据
+    for (size_t row = 0; row < rows; row++)
+    {
+        if (TIFFWriteScanline(tiff, tif_matrix2.tif_matrix2.get_data()[row], row, 0) < 0)
+        {
+            std::cout << "TIFFWriteScanline error " << std::endl;
+            status = false;
+            break;
+        }
+    }
+
+    // 关闭 TIFF 文件
+    TIFFClose(tiff);
+
+    std::cout << "TIFF file successfully written " << std::endl;
+    return status;
+}
