@@ -27,7 +27,12 @@ if (CMAKE_HOST_SYSTEM_NAME MATCHES "Linux")
     set(THREADS_PREFER_PTHREAD_FLAG ON)
     # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17  -lodbc -lpthread -fPIC -L. /usr/local/ssl/lib64/libssl.a /usr/local/ssl/lib64/libcrypto.a")
     # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17  -lodbc -lpthread -fPIC -Wl,-Bstatic")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17  -lodbc -lpthread -fPIC ")
+
+
+    set(dm_include_path /opt/dmdbms/include)
+    set(dm_lib_path /opt/dmdbms/bin)
+    add_definitions("-DDM8_ENABLED")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17  -lodbc -lpthread -fPIC -I/opt/dmdbms/include -DDM64 -L/opt/dmdbms/bin -ldmdpi -Wall")
     set(STATIC_LIB_SUFFIX "a")
     set(DYNAMIC_LIB_SUFFIX "so")
 elseif (CMAKE_HOST_SYSTEM_NAME MATCHES "Windows")
