@@ -86,7 +86,7 @@ namespace silly_math
 				{
 					for (size_t c = 0; c < cols; ++c)
 					{
-						data[r][c] += other.data()[r][c]
+						data[r][c] += other.data()[r][c];
 					}
 				}
 			}
@@ -101,7 +101,7 @@ namespace silly_math
 				{
 					for (size_t c = 0; c < cols; ++c)
 					{
-						data[r][c] -= other.data()[r][c]
+						data[r][c] -= other.data()[r][c];
 					}
 				}
 			}
