@@ -94,7 +94,7 @@ public:
 	/// <param name="tif_matrix"></param>
 	static bool writeGeoTiff(std::string filePath, tif_data tif_matrix2);
 
-	static bool geotiff_utils::writeFourChannelTiff(std::string filePath, tif_data tif_matrix2);
+	static bool writeFourChannelTiff(std::string filePath, tif_data tif_matrix2);
 
 };
 

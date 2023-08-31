@@ -66,19 +66,27 @@ BOOST_AUTO_TEST_SUITE(TestDataBase)
 		dpi.logout();
 	}
 
+	BOOST_AUTO_TEST_CASE(DM8_DPI_CREATE)      // 达梦DPI 建表
+	{
+		std::cout << "\r\n\r\n****************" << "DM8_DPI_INSERT" << "****************" << std::endl;
+		std::string create_sql = "CREATE TABLE TZX_TEST ( id INTEGER, name VARCHAR2(20) NOT NULL, hire_date DATE, salary NUMERIC(10,2), desc TEXT, pic IMAGE);";
+		dm8_dpi dpi;
+		BOOST_CHECK(dpi.login("192.168.0.201:5236", "TZX", "3edc9ijn~"));
+		DPIRETURN rt = dpi_exec_direct(dpi.h_stmt, (sdbyte*)create_sql.c_str());
+		if (!DSQL_SUCCEEDED(rt))
+		{
+			// dpi_err_msg_print(DSQL_HANDLE_STMT, dpi.h_stmt);
+		}
+		printf("dpi: create success\n");
+		dpi.logout();
+
+	}
 
 	BOOST_AUTO_TEST_CASE(DM8_DPI_INSERT)      // 达梦DPI 添加数据
 	{
 		std::cout << "\r\n\r\n****************" << "DM8_DPI_INSERT" << "****************" << std::endl;
 
 	}
-
-	BOOST_AUTO_TEST_CASE(DM8_DPI_DELETE)      // 达梦DPI 删除数据
-	{
-		std::cout << "\r\n\r\n****************" << "DM8_DPI_DELETE" << "****************" << std::endl;
-
-	}
-
 	BOOST_AUTO_TEST_CASE(DM8_DPI_QUERY)      // 达梦DPI 查询数据
 	{
 		std::cout << "\r\n\r\n****************" << "DM8_DPI_QUERY" << "****************" << std::endl;
@@ -112,6 +120,20 @@ BOOST_AUTO_TEST_SUITE(TestDataBase)
 		std::cout << "\r\n\r\n****************" << "DM8_DPI_MODIFY" << "****************" << std::endl;
 
 	}
+
+	BOOST_AUTO_TEST_CASE(DM8_DPI_DELETE)      // 达梦DPI 删除数据
+	{
+		std::cout << "\r\n\r\n****************" << "DM8_DPI_DELETE" << "****************" << std::endl;
+
+	}
+
+
+	BOOST_AUTO_TEST_CASE(DM8_DPI_DROP)      // 达梦DPI 删除表
+	{
+		std::cout << "\r\n\r\n****************" << "DM8_DPI_DELETE" << "****************" << std::endl;
+
+	}
+
 
 #endif
 
