@@ -3,37 +3,42 @@ cmake_minimum_required(VERSION 3.15)
 project(silly_utils)
 
 include(CheckIncludeFileCXX)
-if(SU_AS_SUB_PROJECT)
 
+# 判断当前目录是否为 cmake的根目录,如果不是,则是被其他项目引用的,不需要编译测试,工具模块
+if ("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_SOURCE_DIR}")
+    set(SU_AS_PROJECT TRUE)
+    set(SU_AS_LIB FALSE)
+else ()
+    set(SU_AS_PROJECT FALSE)
+    set(SU_AS_LIB TRUE)
+endif ()
 
-else()
+if (SU_AS_PROJECT)
 
-# 设置默认程序根目录,程序中所有路径均参照此路径,方便调试和发布
-if(IS_DEBUG)
-    add_definitions("-DDEFAULT_ROOT_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}\"")
-else()
-    # add_definitions("-DDEFAULT_ROOT_DIR=\"\"")
-    add_definitions("-DDEFAULT_ROOT_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}\"")
-endif()
+    # 设置默认程序根目录,程序中所有路径均参照此路径,方便调试和发布
+    if (IS_DEBUG)
+        add_definitions("-DDEFAULT_ROOT_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}\"")
+    else ()
+        # add_definitions("-DDEFAULT_ROOT_DIR=\"\"")
+        add_definitions("-DDEFAULT_ROOT_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}\"")
+    endif ()
 
-add_definitions("-DDEFAULT_DATA_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/data\"")
-message("CC ${CMAKE_CURRENT_SOURCE_DIR}")
-message("DD ${CMAKE_SOURCE_DIR}")
+    add_definitions("-DDEFAULT_DATA_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/data\"")
+    set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
+    include(env_check)
+    include(dm8_check)
+    #include(grib_api_check)
+    
+endif ()
 
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
-include(env_check)
-include(dm8_check)
-#include(grib_api_check)
-include_directories(${CMAKE_SOURCE_DIR}/su)
-endif()
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/su)
 
 ##########################################
 # Add sub dirs.
 ##########################################
 add_subdirectory(su)
-if(SUB_PROJECT)
-
-else()
-add_subdirectory(test)
-add_subdirectory(tools)
-endif()
+link_libraries(sutils)
+if (SU_AS_PROJECT)
+    add_subdirectory(test)
+    add_subdirectory(tools)
+endif ()

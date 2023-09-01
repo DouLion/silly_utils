@@ -62,10 +62,10 @@ bool write_png_color_box(std::string in_png_path, std::string out_png_path, std:
     cairo_set_font_size(cr, 40.0 * scale);
     cairo_move_to(cr, 0.5 * w - 140 * scale, 80 * scale);
     //cairo_show_text(cr, GBK2UTF8("雷达站实测降雨 ").c_str());
-    cairo_show_text(cr, "雷达站实测降雨 ");
+    cairo_show_text(cr, " 雷达站实测降雨 ");
     cairo_set_font_size(cr, 20.0 * scale);
     cairo_move_to(cr, 0.5 * w - 200 * scale, 120 * scale);
-    std::string time_strrr = "2023年08月01日08时 至 2023年08月02日08时"; // TimeToFormatString(btm, "%Y年%m月%d日%H时 至 ") + TimeToFormatString(etm, "%Y年%m月%d日%H时");
+    std::string time_strrr = " 2023年08月01日08时 至 2023年08月02日08时 "; // TimeToFormatString(btm, "%Y年%m月%d日%H时 至 ") + TimeToFormatString(etm, "%Y年%m月%d日%H时");
     cairo_show_text(cr, time_strrr.c_str());
     cairo_stroke(cr);
     std::string new_path = out_png_path;

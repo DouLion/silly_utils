@@ -45,7 +45,7 @@ elseif (CMAKE_HOST_SYSTEM_NAME MATCHES "Windows")
     set(STATIC_LIB_SUFFIX "lib")
     set(DYNAMIC_LIB_SUFFIX "dll")
 
-    if(MSVC)
+    if (MSVC)
         # Set cmake cxx flags.
         set(CMAKE_CXX_FLAGS_DEBUG "")
         set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /D_DEBUG /MDd /Zi /Ob0  /Od /RTC1 /Gy /EHsc")
@@ -58,7 +58,7 @@ elseif (CMAKE_HOST_SYSTEM_NAME MATCHES "Windows")
 
         set(CMAKE_CXX_FLAGS_RELEASE "")
         set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD /Zi /O2 /Ob1 /D NDEBUG ")
-    endif(MSVC)
+    endif (MSVC)
 
 endif ()
 
