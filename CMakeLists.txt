@@ -37,7 +37,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/su)
 # Add sub dirs.
 ##########################################
 add_subdirectory(su)
-link_libraries(sutils)
 if (SU_AS_PROJECT)
     add_subdirectory(test)
     add_subdirectory(tools)
