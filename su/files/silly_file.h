@@ -13,6 +13,7 @@
 #ifndef SILLY_UTILS_SILLY_FILE_H
 #define SILLY_UTILS_SILLY_FILE_H
 #include <filesystem>
+#include <files/TFF_FileUtils.h>
 class silly_file
 {
 

@@ -14,6 +14,7 @@
 #define SILLY_UTILS_SILLY_GEO_H
 #include <vector>
 #include <iostream>
+#include <map>
 
 #define FLOAT_IGNORE_DIFF   0.000000000000001
 
@@ -122,6 +123,8 @@ struct silly_poly	// 普通面
 {
 	silly_ring outer_ring;		// 外环
 	std::vector<silly_ring> inner_rings; // 内环
+
+	std::map<std::string, std::string> props;
 };
 
 typedef  std::vector<silly_poly> silly_multi_poly ;
@@ -134,6 +137,7 @@ public:
 	static std::string dump_geojson(const std::vector<silly_point> points);
 	static std::string dump_geojson(const std::vector<silly_line> lines);
 	static std::string dump_geojson(const std::vector<silly_poly> polys);
+	static std::vector<silly_poly> load_geojson(const std::string& geojson);
 
 };
 

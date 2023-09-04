@@ -4,6 +4,34 @@
 #include <cairo/cairo.h>
 #include <vector>
 #include <string>
+#include "encode/convert.hpp"
+#include "geo/silly_geo.h"
+#include "geo/silly_geo_convert.h"
+#include "files/TFF_FileUtils.h"
+#include "geo/silly_projection.h"
+
+#define COLOR_ALPHA 0.75
+
+struct st_png_data
+{
+    char* data;
+    unsigned int offset;
+    unsigned int length;
+};
+
+static cairo_status_t cairo_read_func_mine(void* closure, unsigned char* data, unsigned int length)
+{
+    st_png_data* pPngData = (st_png_data*)closure;
+    if (pPngData->length - pPngData->offset < length)
+    {
+        length = pPngData->length - pPngData->offset;
+    }
+
+    memcpy(data, pPngData->data + pPngData->offset, length);
+    pPngData->offset += length;
+
+    return CAIRO_STATUS_SUCCESS;
+}
 
 class DataValue
 {
@@ -25,80 +53,160 @@ public:
     }
 };
 
+//std::vector<DataValue> data_values =
+//{
+//    DataValue("1-10mm", 140, 247, 148),  // Ê¹ÓÃÓĞ²Î¹¹Ôìº¯Êı´´½¨Ò»¸ö¾ßÓĞÎÄ±¾ºÍ RGB ÖµµÄ DataValue ¶ÔÏó
+//    DataValue("10-25mm", 0, 174, 33),
+//    DataValue("25-50mm", 33, 190, 255),
+//    DataValue("50-100mm", 0, 4, 255),
+//    DataValue("100-250mm", 255, 0, 255),
+//    DataValue("250-400mm", 132, 0, 66),
+//    DataValue(">400mm", 255, 170, 0),
+//};
 std::vector<DataValue> data_values =
 {
-    DataValue("1-10mm", 140, 247, 148),  // ä½¿ç”¨æœ‰å‚æ„é€ å‡½æ•°åˆ›å»ºä¸€ä¸ªå…·æœ‰æ–‡æœ¬å’Œ RGB å€¼çš„ DataValue å¯¹è±¡
-    DataValue("10-25mm", 0, 174, 33),
-    DataValue("25-50mm", 33, 190, 255),
-    DataValue("50-100mm", 0, 4, 255),
-    DataValue("100-250mm", 255, 0, 255),
-    DataValue("250-400mm", 132, 0, 66),
-    DataValue(">400mm", 255, 170, 0),
+    DataValue("¿ÉÄÜĞÔºÜ´ó", 255, 0, 0), 
+    DataValue("¿ÉÄÜĞÔ´ó", 255, 160, 0),
+    DataValue("¿ÉÄÜĞÔ½Ï´ó", 255, 255, 0),
+    DataValue("¿ÉÄÜ·¢Éú", 0, 0, 255),
 };
 
+void draw_polygon(cairo_t* cr, std::vector<silly_poly>& g2p)
+{
+    double left= 108.5568806, top= 30.7777413, right= 114.4857615, bottom= 24.0583430;
+    double m_left, m_top, m_right, m_bottom;
+    silly_projection::geo_to_mercator(left, top, m_left, m_top);
+    silly_projection::geo_to_mercator(right, bottom, m_right, m_bottom);
+    int w =7087, h = 8031;
+    for (auto& polygon : g2p)
+    {
+        if (polygon.props["grade"] == "4")
+        {
+            std::cout << "À¶" << std::endl;
+            cairo_set_source_rgba(cr, 0, 0, 1, COLOR_ALPHA);
+        }
+        else if (polygon.props["grade"] == "3")
+        {
+            std::cout << "»Æ" << std::endl;
+            cairo_set_source_rgba(cr, 1, 1, 0, COLOR_ALPHA);
+        }
+        else if (polygon.props["grade"] == "2")
+        {
+            std::cout << "³È" << std::endl;
+            cairo_set_source_rgba(cr, 1, 0.55, 0, COLOR_ALPHA);
+        }
+        else if (polygon.props["grade"] == "1")
+        {
+            std::cout << "ºì" << std::endl;
+            cairo_set_source_rgba(cr, 1, 0, 0, COLOR_ALPHA);
+        }
+
+        if (polygon.outer_ring.points.empty())
+        {
+            continue;
+        }
+        double m_x, m_y;
+        silly_projection::geo_to_mercator(polygon.outer_ring.points[0].lgtd, polygon.outer_ring.points[0].lttd, m_x, m_y);
+        cairo_move_to(cr, (m_x - m_left) * w / (m_right - m_left), (m_top - m_y) * h / (m_top - m_bottom));
+        for (int j = 1; j < polygon.outer_ring.points.size(); ++j)
+        {
+            silly_projection::geo_to_mercator(polygon.outer_ring.points[j].lgtd, polygon.outer_ring.points[j].lttd, m_x, m_y);
+            cairo_line_to(cr, (m_x - m_left) * w / (m_right - m_left), (m_top - m_y) * h / (m_top - m_bottom));
+        }
+        cairo_close_path(cr);
+        for (int i = 1; i < polygon.inner_rings.size(); ++i)
+        {
+            cairo_new_sub_path(cr);
+            silly_projection::geo_to_mercator(polygon.inner_rings[i].points[0].lgtd, polygon.inner_rings[i].points[0].lttd, m_x, m_y);
+            cairo_move_to(cr, (m_x - m_left) * w / (m_right - m_left), (m_top - m_y) * h / (m_top - m_bottom));
+            for (int j = 1; j < polygon.inner_rings[i].points.size(); ++j)
+            {
+                silly_projection::geo_to_mercator(polygon.inner_rings[i].points[j].lgtd, polygon.inner_rings[j].points[0].lttd, m_x, m_y);
+                cairo_line_to(cr, (m_x - m_left) * w / (m_right - m_left), (m_top - m_y) * h / (m_top - m_bottom));
+            }
+
+            cairo_close_path(cr);
+
+        }
+        cairo_set_fill_rule(cr, CAIRO_FILL_RULE_EVEN_ODD);
+        cairo_fill_preserve(cr);
+        cairo_stroke(cr);
+    }
+
+}
 
 /// <summary>
-/// è¯»å–ä¸€ä¸ªpngå›¾ç‰‡,åœ¨å›¾ç‰‡ä¸Šå†™æ–‡ä»¶,å¹¶è®¾ç½®é¢œè‰²æ¡†å’Œå€¼,å’Œå›¾ç‰‡åé›·è¾¾ç«™å®æµ‹é™é›¨
+/// ¶ÁÈ¡Ò»¸öpngÍ¼Æ¬,ÔÚÍ¼Æ¬ÉÏĞ´ÎÄ¼ş,²¢ÉèÖÃÑÕÉ«¿òºÍÖµ,ºÍÍ¼Æ¬ÃûÀ×´ïÕ¾Êµ²â½µÓê
 /// </summary>
-/// <param name="in_png_path">è¯»å–pngåœ°å€</param>
-/// <param name="out_png_path">pngåœ°å€</param>
-/// <param name="data_values">ä¼ å…¥vectorç±»å‹çš„é¢œè‰²æ¡†æ ‡é¢˜å’Œè¯¥æ¡†å¯¹åº”çš„rgbå€¼</param>
+/// <param name="in_png_path">¶ÁÈ¡pngµØÖ·</param>
+/// <param name="out_png_path">pngµØÖ·</param>
+/// <param name="data_values">´«ÈëvectorÀàĞÍµÄÑÕÉ«¿ò±êÌâºÍ¸Ã¿ò¶ÔÓ¦µÄrgbÖµ</param>
 bool write_png_color_box(std::string in_png_path, std::string out_png_path, std::vector<DataValue> data_values)
 {
     bool res = false;
     cairo_surface_t* surface;
     cairo_t* cr;
+    std::string content;
+    FileUtils::ReadAll("E:/fff.geojson", content);
 
-    surface = cairo_image_surface_create_from_png(in_png_path.c_str()); // (CAIRO_FORMAT_A8, _param_width, _param_height);
+    std::vector<silly_poly> polys = silly_geo::load_geojson(content);
+    char* data = nullptr;
+    int size;
+    FileUtils::ReadAll(in_png_path, &data, size);
+    st_png_data pngData = { (char*)data, 0, (unsigned int)size };
+    surface = cairo_image_surface_create_from_png_stream(cairo_read_func_mine, &pngData);
+    //surface = cairo_image_surface_create_from_png(in_png_path.c_str()); // (CAIRO_FORMAT_A8, _param_width, _param_height);
     int w = cairo_image_surface_get_width(surface);
     int h = cairo_image_surface_get_height(surface);
     cr = cairo_create(surface);
+    
+    draw_polygon(cr, polys);
+    cairo_set_source_rgba(cr, 0, 0, 0, 255);
+    cairo_select_font_face(cr, "SimSun", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
 
-    cairo_set_source_rgb(cr, 0, 0, 0);
-    cairo_select_font_face(cr, "LiSu", CAIRO_FONT_SLANT_NORMAL,
-        CAIRO_FONT_WEIGHT_BOLD);
-
-    float scale = 5.0;
+    float scale = 7.0;
+    int font_size_1 = 40;
     cairo_set_font_size(cr, 40.0 * scale);
-    cairo_move_to(cr, 0.5 * w - 140 * scale, 80 * scale);
-    //cairo_show_text(cr, GBK2UTF8("é›·è¾¾ç«™å®æµ‹é™é›¨ ").c_str());
-    cairo_show_text(cr, " é›·è¾¾ç«™å®æµ‹é™é›¨ ");
+    cairo_move_to(cr, 0.5 * w - font_size_1 * 14 * scale/2, 60 * scale);
+    //cairo_show_text(cr, GBK2UTF8("À×´ïÕ¾Êµ²â½µÓê ").c_str());
+    cairo_show_text(cr, silly_conv::GBK2UTF8("ºşÄÏÊ¡É½ºéÔÖº¦ÆøÏó·çÏÕÔ¤¾¯Í¼").c_str());
+    // cairo_show_text(cr, " AABBBCCCCCC ");
+
     cairo_set_font_size(cr, 20.0 * scale);
-    cairo_move_to(cr, 0.5 * w - 200 * scale, 120 * scale);
-    std::string time_strrr = " 2023å¹´08æœˆ01æ—¥08æ—¶ è‡³ 2023å¹´08æœˆ02æ—¥08æ—¶ "; // TimeToFormatString(btm, "%Yå¹´%mæœˆ%dæ—¥%Hæ—¶ è‡³ ") + TimeToFormatString(etm, "%Yå¹´%mæœˆ%dæ—¥%Hæ—¶");
-    cairo_show_text(cr, time_strrr.c_str());
+    cairo_move_to(cr, 0.5 * w - 200 * scale, 90 * scale);
+    std::string time_strrr = "2023Äê08ÔÂ01ÈÕ08Ê± ÖÁ 2023Äê08ÔÂ02ÈÕ08Ê±"; // TimeToFormatString(btm, "%YÄê%mÔÂ%dÈÕ%HÊ± ÖÁ ") + TimeToFormatString(etm, "%YÄê%mÔÂ%dÈÕ%HÊ±");
+    cairo_show_text(cr, silly_conv::GBK2UTF8(time_strrr).c_str());
     cairo_stroke(cr);
-    std::string new_path = out_png_path;
-    cairo_surface_write_to_png(surface, new_path.c_str()); cairo_destroy(cr);
-    cairo_surface_destroy(surface);
+  
 
     int symobl_width = 40 * scale;
     int symbol_height = 15 * scale;
     int symbol_step = 5 * scale;
-    int symbol_start_x = 1000 * scale;
+    int symbol_start_x = 100 * scale;
     int symbol_start_y = 900 * scale;
 
-    surface = cairo_image_surface_create_from_png(new_path.c_str());
-    cr = cairo_create(surface);
-
-    cairo_set_source_rgb(cr, 0, 0, 0);
-    cairo_select_font_face(cr, "LiSu", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+    cairo_set_source_rgba(cr, 0, 0, 0, 255);
+    // cairo_select_font_face(cr, "LiSu", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+    cairo_select_font_face(cr, "SimSun", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
     cairo_set_font_size(cr, 20.0 * scale);
-
 
     for (int i = 0; i < data_values.size(); i++)
     {
-        cairo_move_to(cr, symbol_start_x - 100 * scale, symbol_start_y + symbol_height * i + symbol_step * i + symbol_height * 1);
-        cairo_set_source_rgb(cr, 0, 0, 0);
-        cairo_show_text(cr, data_values[i].text.c_str()); // ä½¿ç”¨ç›¸åº”çš„æ–‡æœ¬
+        cairo_set_source_rgba(cr, (data_values[i].r) / 255.0, (data_values[i].g) / 255.0, (data_values[i].b) / 255.0, 1.0);
         cairo_rectangle(cr, symbol_start_x, symbol_start_y + symbol_height * i + symbol_step * i, symobl_width, symbol_height);
-        cairo_set_source_rgb(cr, (data_values[i].r) / 255.0, (data_values[i].g) / 255.0, (data_values[i].b) / 255.0);
+        cairo_fill(cr);
+        cairo_set_line_width(cr, 2* scale);
+        cairo_move_to(cr, symbol_start_x + symobl_width + 5 * scale , symbol_start_y + symbol_height * i + symbol_step * i + symbol_height * 1);
+        cairo_set_source_rgba(cr, 0, 0, 0, 1);
+        cairo_show_text(cr, silly_conv::GBK2UTF8(data_values[i].text.c_str()).c_str()); // Ê¹ÓÃÏàÓ¦µÄÎÄ±¾
+       
         cairo_fill(cr);
     }
 
-    cairo_surface_write_to_png(surface, new_path.c_str());
+    cairo_surface_write_to_png(surface, out_png_path.c_str());
     cairo_destroy(cr);
     cairo_surface_destroy(surface);
+    free(data);
     res = true;
     return res;
 }
@@ -106,8 +214,8 @@ bool write_png_color_box(std::string in_png_path, std::string out_png_path, std:
 
 int main()
 {
-    std::string in_png_path = "D:/1_wangyingjie/code/20230829115818.png ";
-    std::string out_png_path = "D:/1_wangyingjie/code/202308010800_3.title.png";
+    std::string in_png_path = "E:/FF2.png";
+    std::string out_png_path = "E:/HunanRiskOutput.png";
     bool res = write_png_color_box(in_png_path, out_png_path, data_values);
     return 0;
 }

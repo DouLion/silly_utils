@@ -9,6 +9,7 @@
 #define GEOJSON_KEY_GEOMETRY  "geometry"
 #define GEOJSON_KEY_TYPE  "type"
 #define GEOJSON_KEY_COORDINATES  "coordinates"
+#define GEOJSON_KEY_PROPERTIES  "properties"
 
 // --------
 #define GEOJSON_VAL_FEATURE_COLLECTION "FeatureCollection"
@@ -23,7 +24,7 @@ enum_geometry_types silly_geo::check_geojson_type(const std::string& content)
 	{
 		if (root.isMember(GEOJSON_KEY_FEATURES))
 		{
-			for (auto& f: root[GEOJSON_KEY_FEATURES])
+			for (auto& f : root[GEOJSON_KEY_FEATURES])
 			{
 				if (f.isMember(GEOJSON_KEY_GEOMETRY))
 				{
@@ -81,7 +82,7 @@ std::string silly_geo::dump_geojson(const std::vector<silly_poly> polys)
 	Json::Value groot = Json::objectValue;
 	groot[GEOJSON_KEY_TYPE] = GEOJSON_VAL_FEATURE_COLLECTION;
 	groot[GEOJSON_KEY_FEATURES] = Json::arrayValue;
-	for (auto& poly: polys)
+	for (auto& poly : polys)
 	{
 		Json::Value o = Json::objectValue;
 		o[GEOJSON_KEY_TYPE] = GEOJSON_VAL_FEATURE;
@@ -91,7 +92,7 @@ std::string silly_geo::dump_geojson(const std::vector<silly_poly> polys)
 
 		// Json::Value coord_arr = Json::arrayValue;
 		Json::Value outer_arr = Json::arrayValue;
-		for (auto point: poly.outer_ring.points)
+		for (auto point : poly.outer_ring.points)
 		{
 			Json::Value point_arr = Json::arrayValue;
 			point_arr.append(point.lgtd);
@@ -101,10 +102,10 @@ std::string silly_geo::dump_geojson(const std::vector<silly_poly> polys)
 		}
 		o[GEOJSON_KEY_GEOMETRY][GEOJSON_KEY_COORDINATES].append(outer_arr);
 
-		for (auto& ring: poly.inner_rings)
+		for (auto& ring : poly.inner_rings)
 		{
 			Json::Value ring_arr = Json::arrayValue;
-			for (auto point: ring.points)
+			for (auto point : ring.points)
 			{
 				Json::Value point_arr = Json::arrayValue;
 				point_arr.append(point.lgtd);
@@ -117,5 +118,85 @@ std::string silly_geo::dump_geojson(const std::vector<silly_poly> polys)
 		groot[GEOJSON_KEY_FEATURES].append(o);
 	}
 	return Json::FastWriter().write(groot);
+}
+
+std::vector<silly_poly> silly_geo::load_geojson(const std::string& geojson)
+{
+	std::vector<silly_poly> ret_polys;
+	Json::Reader reader;
+	Json::Value root;
+	if (reader.parse(geojson, root))
+	{
+		if (root.isMember(GEOJSON_KEY_FEATURES))
+		{
+			for (auto& f : root[GEOJSON_KEY_FEATURES])
+			{
+				std::map<std::string, std::string> props;
+				for (auto& key : f[GEOJSON_KEY_PROPERTIES].getMemberNames())
+				{
+					if (f[GEOJSON_KEY_PROPERTIES][key].isString())
+					{
+						props[key] = f[GEOJSON_KEY_PROPERTIES][key].asString();
+					}
+					else if (f[GEOJSON_KEY_PROPERTIES][key].isInt())
+					{
+						props[key] = std::to_string(f[GEOJSON_KEY_PROPERTIES][key].asInt());
+					}
+					else if (f[GEOJSON_KEY_PROPERTIES][key].isDouble())
+					{
+						props[key] = std::to_string(f[GEOJSON_KEY_PROPERTIES][key].asDouble());
+					}
+
+
+				}
+				if (f.isMember(GEOJSON_KEY_GEOMETRY))
+				{
+
+					std::string type_str = f[GEOJSON_KEY_GEOMETRY][GEOJSON_KEY_TYPE].asString();
+					if (GEOJSON_GEOMETRY_MULTI_POLYGON == type_str)
+					{
+
+						// 多面处理
+						for (auto& poly : f[GEOJSON_KEY_GEOMETRY][GEOJSON_KEY_COORDINATES])
+						{
+
+							silly_poly tmp_poly;
+							for (int i = 0; i < poly.size(); ++i)
+							{
+								silly_ring ring;
+								for (auto& pnt : poly[i])
+								{
+									silly_point s_point;
+									s_point.lgtd = pnt[0].asDouble();
+									s_point.lttd = pnt[1].asDouble();
+									ring.points.push_back(s_point);
+								}
+								if (0 == i)
+								{
+									tmp_poly.outer_ring = ring;
+								}
+								else
+								{
+									tmp_poly.inner_rings.push_back(ring);
+								}
+							}
+							tmp_poly.props = props;
+							ret_polys.push_back(tmp_poly);
+						}
+
+					}
+					else if (GEOJSON_GEOMETRY_POLYGON == type_str)
+					{
+						// 单面处理
+
+					}
+
+				}
+			}
+		}
+
+	}
+
+	return ret_polys;
 }
 

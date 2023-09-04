@@ -258,7 +258,7 @@ bool ftp_utils::ftp_upload(const std::string& localFileFath, const std::string& 
 	}
 	fsize = (unsigned long)file_info.st_size;
 
-	printf("Local file size: %lu bytes.\n", fsize);
+	// printf("Local file size: %lu bytes.\n", fsize);
 
 	/* get a FILE * of the same file */
 	hd_src = fopen(localFileFath.c_str(), "rb");
@@ -311,6 +311,10 @@ bool ftp_utils::ftp_upload(const std::string& localFileFath, const std::string& 
 		}
 		else
 		{
+			int code = 0;
+			double speed;
+			res = curl_easy_getinfo(curl, CURLINFO_SPEED_UPLOAD, &speed);
+			printf("Upload [%s] with speed %.2f kb/sec.", localFileFath.c_str(), speed/1024);
 			status = true;
 		}
 			
