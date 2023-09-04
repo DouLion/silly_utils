@@ -23,7 +23,7 @@
 #define SU_OLD_HTTP_JSON_RESPONSE_HEADER			"header"
 #define SU_OLD_HTTP_JSON_RESPONSE_BODY				"body"
 #define SU_OLD_HTTP_JSON_RESPONSE_RET_CODE			"return_code"
-#define SU_OLD_HTTP_JSON_RESPONSE_RET_MESSAGE		"return_message"
+#define SU_OLD_HTTP_JSON_RESPONSE_RET_MESSAGE		"return_msg"
 
 
 
