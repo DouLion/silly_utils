@@ -1,0 +1,65 @@
+﻿{
+  "configurations": [
+    {
+      "name": "x64-Debug",
+      "generator": "Ninja",
+      "configurationType": "Debug",
+      "inheritEnvironments": [ "msvc_x64_x64" ],
+      "buildRoot": "${projectDir}\\out\\build\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "",
+      "ctestCommandArgs": ""
+    },
+    {
+      "name": "x64-Release",
+      "generator": "Ninja",
+      "configurationType": "RelWithDebInfo",
+      "buildRoot": "${projectDir}\\out\\build\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "",
+      "ctestCommandArgs": "",
+      "inheritEnvironments": [ "msvc_x64_x64" ],
+      "variables": []
+    },
+    {
+      "name": "Linux-GCC-Debug",
+      "generator": "Unix Makefiles",
+      "configurationType": "Debug",
+      "cmakeExecutable": "cmake",
+      "remoteCopySourcesExclusionList": [ ".vs", ".git", "out" ],
+      "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=/home/tzx/project/vcpkg/scripts/buildsystems/vcpkg.cmake  -DCMAKE_CXX_COMPILER=/opt/rh/devtoolset-9/root/usr/bin/g++ -DCMAKE_C_COMPILER=/opt/rh/devtoolset-9/root/usr/bin/gcc",
+      "buildCommandArgs": "",
+      "ctestCommandArgs": "",
+      "inheritEnvironments": [ "linux_x64" ],
+      "remoteMachineName": "865119549;192.168.0.202 (username=root, port=22, authentication=Password)",
+      "remoteCMakeListsRoot": "/home/tzx/project/${projectDirName}/src",
+      "remoteBuildRoot": "/home/tzx/project/${projectDirName}/out/build/${name}",
+      "remoteInstallRoot": "",
+      "remoteCopySources": true,
+      "rsyncCommandArgs": "-t --delete --delete-excluded --exclude=Bin --exclude=build --exclude=out --exclude=.vs --exclude=Bin --exclude=cmake-*",
+      "remoteCopyBuildOutput": false,
+      "remoteCopySourcesMethod": "rsync"
+    },
+    {
+      "name": "Linux-GCC-Release",
+      "generator": "Unix Makefiles",
+      "configurationType": "Release",
+      "cmakeExecutable": "cmake",
+      "remoteCopySourcesExclusionList": [ ".vs", ".git", "out" ],
+      "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=/home/tzx/project/vcpkg/scripts/buildsystems/vcpkg.cmake  -DCMAKE_CXX_COMPILER=/opt/rh/devtoolset-9/root/usr/bin/g++ -DCMAKE_C_COMPILER=/opt/rh/devtoolset-9/root/usr/bin/gcc",
+      "buildCommandArgs": "",
+      "ctestCommandArgs": "",
+      "inheritEnvironments": [ "linux_x64" ],
+      "remoteMachineName": "865119549;192.168.0.202 (username=root, port=22, authentication=Password)",
+      "remoteCMakeListsRoot": "/home/tzx/project/${projectDirName}/src",
+      "remoteBuildRoot": "/home/tzx/project/${projectDirName}/out/build/${name}",
+      "remoteInstallRoot": "",
+      "remoteCopySources": true,
+      "rsyncCommandArgs": "-t --delete --delete-excluded --exclude=Bin --exclude=build --exclude=out --exclude=.vs --exclude=cmake-*",
+      "remoteCopyBuildOutput": false,
+      "remoteCopySourcesMethod": "rsync"
+    }
+  ]
+}
