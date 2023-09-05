@@ -19,6 +19,16 @@
 #include <boost/test/unit_test.hpp>
 #include <filesystem>
 
+void dpi_err_msg_print(sdint2 hndl_type, dhandle hndl)
+{
+	sdint4 err_code;
+	sdint2 msg_len;
+	sdbyte err_msg[SDBYTE_MAX];
+
+	/* 获取错误信息集合 */
+	dpi_get_diag_rec(hndl_type, hndl, 1, &err_code, err_msg, sizeof(err_msg), &msg_len);
+	printf("err_msg = %s, err_code = %d\n", err_msg, err_code);
+}
 
 BOOST_AUTO_TEST_SUITE(TestDataBase)
 
@@ -68,25 +78,114 @@ BOOST_AUTO_TEST_SUITE(TestDataBase)
 
 	BOOST_AUTO_TEST_CASE(DM8_DPI_CREATE)      // 达梦DPI 建表
 	{
-		std::cout << "\r\n\r\n****************" << "DM8_DPI_INSERT" << "****************" << std::endl;
-		std::string create_sql = "CREATE TABLE TZX_TEST ( id INTEGER, name VARCHAR2(20) NOT NULL, hire_date DATE, salary NUMERIC(10,2), desc TEXT, pic IMAGE);";
+		std::cout << "\r\n\r\n****************" << "DM8_DPI_INSERT 建表" << "****************" << std::endl;
+
+		std::string create_sql = "CREATE TABLE TZX_TEST (id INTEGER, name VARCHAR2(20) NOT NULL);";
 		dm8_dpi dpi;
 		BOOST_CHECK(dpi.login("192.168.0.201:5236", "TZX", "3edc9ijn~"));
-		DPIRETURN rt = dpi_exec_direct(dpi.h_stmt, (sdbyte*)create_sql.c_str());
-		if (!DSQL_SUCCEEDED(rt))
+		dpi.rt = dpi_exec_direct(dpi.h_stmt, (sdbyte*)create_sql.c_str());
+		if (!DSQL_SUCCEEDED(dpi.rt))
 		{
-			// dpi_err_msg_print(DSQL_HANDLE_STMT, dpi.h_stmt);
+			 dpi_err_msg_print(DSQL_HANDLE_STMT, dpi.h_stmt);
 		}
 		printf("dpi: create success\n");
+
 		dpi.logout();
 
 	}
 
 	BOOST_AUTO_TEST_CASE(DM8_DPI_INSERT)      // 达梦DPI 添加数据
 	{
-		std::cout << "\r\n\r\n****************" << "DM8_DPI_INSERT" << "****************" << std::endl;
+		std::cout << "\r\n\r\n****************" << "DM8_DPI_ADD" << "****************" << std::endl;
+		dm8_dpi dpi;
+		sdbyte city_id[3] = { 0 };
+		slength city_id_ind = 0;
+		ulength row_num;
+		BOOST_CHECK(dpi.login("192.168.0.201:5236", "TZX", "3edc9ijn~"));
+		dpi.rt = dpi_exec_direct(dpi.h_stmt,(sdbyte *) "insert into CITY(CITY_ID,city_name) values('BJ','北京')");
+		if (!DSQL_SUCCEEDED(dpi.rt))
+		{
+			dpi_err_msg_print(DSQL_HANDLE_STMT, dpi.h_stmt);
+		}
+		//查询
+		dpi.rt = dpi_exec_direct(dpi.h_stmt, (sdbyte*)"select CITY_ID from CITY");
+		if (!DSQL_SUCCEEDED(dpi.rt))
+		{
+			dpi_err_msg_print(DSQL_HANDLE_STMT, dpi.h_stmt);
+		}
+		dpi_bind_col(dpi.h_stmt, 1, DSQL_C_NCHAR, &city_id, sizeof(city_id), &city_id_ind);
+		while (dpi_fetch(dpi.h_stmt, &row_num) != DSQL_NO_DATA)
+		{
+			printf("city_id = %s\n", city_id);
+		}
+		dpi.logout();
+	}
+
+
+	BOOST_AUTO_TEST_CASE(DM8_DPI_MODIFY)      // 达梦DPI 修改数据
+	{
+		std::cout << "\r\n\r\n****************" << "DM8_DPI_MODIFY" << "****************" << std::endl;
+		dm8_dpi dpi;
+		sdbyte city_id[3] = { 0 };
+		slength city_id_ind = 0;
+		ulength row_num;
+		BOOST_CHECK(dpi.login("192.168.0.201:5236", "TZX", "3edc9ijn~"));
+		dpi.rt = dpi_exec_direct(dpi.h_stmt, (sdbyte*)"update CITY set city_id = 'BH' where city_id='BJ' ");
+		if (!DSQL_SUCCEEDED(dpi.rt))
+		{
+			dpi_err_msg_print(DSQL_HANDLE_STMT, dpi.h_stmt);
+		}
+		//查询
+		dpi.rt = dpi_exec_direct(dpi.h_stmt, (sdbyte*)"select CITY_ID from CITY");
+		if (!DSQL_SUCCEEDED(dpi.rt))
+		{
+			dpi_err_msg_print(DSQL_HANDLE_STMT, dpi.h_stmt);
+		}
+		dpi_bind_col(dpi.h_stmt, 1, DSQL_C_NCHAR, &city_id, sizeof(city_id), &city_id_ind);
+		while (dpi_fetch(dpi.h_stmt, &row_num) != DSQL_NO_DATA)
+		{
+			printf("city_id = %s\n", city_id);
+		}
+
+		dpi.logout();
+	}
+
+	BOOST_AUTO_TEST_CASE(DM8_DPI_DELETE)      // 达梦DPI 删除数据
+	{
+		std::cout << "\r\n\r\n****************" << "DM8_DPI_DELETE" << "****************" << std::endl;
+		dm8_dpi dpi;
+		sdbyte city_id[3] = { 0 };
+		slength city_id_ind = 0;
+		ulength row_num;
+		BOOST_CHECK(dpi.login("192.168.0.201:5236", "TZX", "3edc9ijn~"));
+		dpi.rt = dpi_exec_direct(dpi.h_stmt, (sdbyte*)"delete from CITY where city_id = 'BH'");
+		if (!DSQL_SUCCEEDED(dpi.rt))
+		{
+			dpi_err_msg_print(DSQL_HANDLE_STMT, dpi.h_stmt);
+		}
+		//查询
+		dpi.rt = dpi_exec_direct(dpi.h_stmt, (sdbyte*)"select CITY_ID from CITY");
+		if (!DSQL_SUCCEEDED(dpi.rt))
+		{
+			dpi_err_msg_print(DSQL_HANDLE_STMT, dpi.h_stmt);
+		}
+		dpi_bind_col(dpi.h_stmt, 1, DSQL_C_NCHAR, &city_id, sizeof(city_id), &city_id_ind);
+		while (dpi_fetch(dpi.h_stmt, &row_num) != DSQL_NO_DATA)
+		{
+			printf("city_id = %s\n", city_id);
+		}
+
+		dpi.logout();
 
 	}
+
+
+	BOOST_AUTO_TEST_CASE(DM8_DPI_DROP)      // 达梦DPI 删除表
+	{
+		std::cout << "\r\n\r\n****************" << "DM8_DPI_DELETE 删除表" << "****************" << std::endl;
+
+	}
+
 	BOOST_AUTO_TEST_CASE(DM8_DPI_QUERY)      // 达梦DPI 查询数据
 	{
 		std::cout << "\r\n\r\n****************" << "DM8_DPI_QUERY" << "****************" << std::endl;
@@ -105,6 +204,7 @@ BOOST_AUTO_TEST_SUITE(TestDataBase)
 		dpi_bind_col(dpi.h_stmt, 2, DSQL_C_NCHAR, &city_name, sizeof(city_name), &city_name_ind);
 		dpi_bind_col(dpi.h_stmt, 3, DSQL_C_SLONG, &region_id, sizeof(region_id), &region_id_ind);
 
+
 		printf("dpi: select from table...\n");
 		while (dpi_fetch(dpi.h_stmt, &row_num) != DSQL_NO_DATA)
 		{
@@ -113,25 +213,6 @@ BOOST_AUTO_TEST_SUITE(TestDataBase)
 		printf("dpi: select success\n");
 
 		dpi.logout();
-	}
-
-	BOOST_AUTO_TEST_CASE(DM8_DPI_MODIFY)      // 达梦DPI 修改数据
-	{
-		std::cout << "\r\n\r\n****************" << "DM8_DPI_MODIFY" << "****************" << std::endl;
-
-	}
-
-	BOOST_AUTO_TEST_CASE(DM8_DPI_DELETE)      // 达梦DPI 删除数据
-	{
-		std::cout << "\r\n\r\n****************" << "DM8_DPI_DELETE" << "****************" << std::endl;
-
-	}
-
-
-	BOOST_AUTO_TEST_CASE(DM8_DPI_DROP)      // 达梦DPI 删除表
-	{
-		std::cout << "\r\n\r\n****************" << "DM8_DPI_DELETE" << "****************" << std::endl;
-
 	}
 
 
