@@ -57,11 +57,12 @@
 
 class silly_http
 {
-	std::string request_get(const std::string& url, const std::map<std::string, std::string>& headers);
-	std::string request_post(const std::string& url, const std::string& body, const std::map<std::string, std::string>& headers);
+public:
+	static std::string request_get(const std::string& url, const std::map<std::string, std::string>& headers);
+	static std::string request_post(const std::string& url, const std::string& body, const std::map<std::string, std::string>& headers);
 
-	std::string request_download(const std::string& url, const std::string& body, const std::map<std::string, std::string>& headers);
-	std::string request_upload(const std::string& url, const std::string& body, const std::vector<std::string> files, const std::map<std::string, std::string>& headers);
+	static std::string request_download(const std::string& url, const std::string& body, const std::map<std::string, std::string>& headers);
+	static std::string request_upload(const std::string& url, const std::string& body, const std::vector<std::string> files, const std::map<std::string, std::string>& headers);
 };
 
 #endif //SILLY_UTILS_SILLY_HTTP_H
