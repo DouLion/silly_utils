@@ -15,9 +15,9 @@ using boost::unit_test_framework::test_suite;
 //#include "units/test_compress.hpp"
 //#include "units/test_system.hpp"
 // #include "units/test_jpeg.hpp"
-// #include "units/test_database.hpp"
+#include "units/test_database.hpp"
 //#include "units/test_triangular.h"
-#include "units/test_tcp.hpp"
+//#include "units/test_tcp.hpp"
 //
 //#include "units/test_compress.hpp"
 
