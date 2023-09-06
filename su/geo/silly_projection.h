@@ -15,7 +15,6 @@
 
 #include "marco.h"
 #include <cmath>
-#include "silly_geo.h"
 
 class silly_projection
 {
