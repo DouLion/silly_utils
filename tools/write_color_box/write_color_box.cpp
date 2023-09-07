@@ -214,6 +214,7 @@ bool write_png_color_box(std::string in_png_path, std::string out_png_path, std:
 
 int main()
 {
+   
     std::string in_png_path = "E:/FF2.png";
     std::string out_png_path = "E:/HunanRiskOutput.png";
     bool res = write_png_color_box(in_png_path, out_png_path, data_values);

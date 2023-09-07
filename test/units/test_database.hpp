@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_SUITE(TestDataBase)
 	{
 		std::cout << "\r\n\r\n****************" << "DM8_DPI_INSERT 建表" << "****************" << std::endl;
 
-		std::string create_sql = "CREATE TABLE TZX_TEST (id INTEGER, name VARCHAR2(20) NOT NULL);";
+		std::string create_sql = "CREATE TABLE CITY ( \"CITY_ID\" CHAR(3) NOT NULL, \"CITY_NAME\" VARCHAR(40), \"REGION_ID\" INT); ";
 		dm8_dpi dpi;
 		BOOST_CHECK(dpi.login("192.168.0.201:5236", "TZX", "3edc9ijn~"));
 		dpi.rt = dpi_exec_direct(dpi.h_stmt, (sdbyte*)create_sql.c_str());
@@ -119,6 +119,7 @@ BOOST_AUTO_TEST_SUITE(TestDataBase)
 			printf("city_id = %s\n", city_id);
 		}
 		dpi.logout();
+		//exit(0);
 	}
 
 

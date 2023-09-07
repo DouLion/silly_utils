@@ -1,2 +1,5 @@
 add_subdirectory(tzx_image)
 add_subdirectory(write_color_box)
+if(IS_WINDOWS)
+add_subdirectory(windows)
+endif()
