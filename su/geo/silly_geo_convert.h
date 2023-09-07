@@ -6,7 +6,7 @@
  * @date: 2023/8/3 11:28
  * @version: 1.0.1
  * @software: silly_utils
- * @description: GEOåæ ‡ç‚¹è½¬æ¢
+ * @description: GEO×ø±êµã×ª»»
  */
 #pragma once
 
@@ -19,8 +19,14 @@
 
 class silly_geo_convert
 {
+public:
+	//static bool shp_to_geojson(const char* shpFile, const char* geojsonFile);
+
+	//static bool geojson_to_shp(const char* geojsonFile, const char* shpFile);
+
+
 	/// <summary>
-	/// å°†ä¸€ä¸ªGEOç»„ç»‡çš„äºŒç»´çŸ©é˜µè½¬ä¸ºå¢¨å¡æ‰˜ç»„ç»‡çš„äºŒç»´çŸ©é˜µ
+	/// ½«Ò»¸öGEO×éÖ¯µÄ¶şÎ¬¾ØÕó×ªÎªÄ«¿¨ÍĞ×éÖ¯µÄ¶şÎ¬¾ØÕó
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
 	/// <param name="src"></param>
@@ -28,6 +34,8 @@ class silly_geo_convert
 	/// <param name="dst"></param>
 	template <typename T>
 	static bool matrix_geo_to_mercator(const silly_math::matrix_2d<T>& src, const silly_geo_rect& rect, silly_math::matrix_2d<T>& dst);
+
+private:
 
 };
 
@@ -40,7 +48,7 @@ bool silly_geo_convert::matrix_geo_to_mercator(const silly_math::matrix_2d<T>& s
 	{
 		return false;
 	}
-	// é˜²æ­¢ä¼ å‚æ•°è¿›æ¥æ˜¯srcä¸dstæ˜¯åŒä¸€ä¸ªå¯¹è±¡
+	// ·ÀÖ¹´«²ÎÊı½øÀ´ÊÇsrcÓëdstÊÇÍ¬Ò»¸ö¶ÔÏó
 	silly_math::matrix_2d<T> tmp = src.copy();
 	if (!dst.create(src.row(), src.col(), true))
 	{
@@ -57,18 +65,18 @@ bool silly_geo_convert::matrix_geo_to_mercator(const silly_math::matrix_2d<T>& s
 	double g_height = rect.top - rect.bottom;
 	int max_r = tmp.row() - 1;
 	int max_c = tmp.col() - 1;
-	// ä¸ºdstå³å¢¨å¡æ‰˜ä¸Šæ¯ä¸ªä½ç½®æ‰¾åˆ°geoä¸Šå¯¹åº”çš„ä½ç½®, ç„¶åå–å€¼, é˜²æ­¢å›¾ç‰‡æœ‰æ’•è£‚çš„æƒ…å†µ
+	// Îªdst¼´Ä«¿¨ÍĞÉÏÃ¿¸öÎ»ÖÃÕÒµ½geoÉÏ¶ÔÓ¦µÄÎ»ÖÃ, È»ºóÈ¡Öµ, ·ÀÖ¹Í¼Æ¬ÓĞËºÁÑµÄÇé¿ö
 	for (int i = 0; i < tmp.col(); ++i)
 	{
 		for (int j = 0; j < tmp.row(); ++j)
 		{
-			double m_x = i * m_width / tmp.col() + m_left;	// æ¯ä¸ªmatrixç½‘æ ¼ç‚¹å¯¹åº”çš„mecatoråæ ‡
+			double m_x = i * m_width / tmp.col() + m_left;	// Ã¿¸ömatrixÍø¸ñµã¶ÔÓ¦µÄmecator×ø±ê
 			double m_y = m_top - j * m_height / tmp.row();
 			double lgtd, lttd;
 			silly_projection::mercator_to_geo(m_x, m_y, lgtd, lttd);
 			int dst_c = std::round((lgtd - rect.left) / g_width * tmp.col());
 			int dst_r = std::round((rect.top - lttd) / g_height * tmp.row());
-			// TODO: è¿™ä¸€æ­¥æ˜¯ä¸æ˜¯æœ‰é—®é¢˜,æ˜¯å¦æ˜¯å¿…é¡»çš„,é˜²æ­¢è®¿é—®æº¢å‡º
+			// TODO: ÕâÒ»²½ÊÇ²»ÊÇÓĞÎÊÌâ,ÊÇ·ñÊÇ±ØĞëµÄ,·ÀÖ¹·ÃÎÊÒç³ö
 			dst_c = std::min(std::max(0, dst_c), max_c);
 			dst_r = std::min(std::max(0, dst_r), max_r);
 			dst.get_data()[j][i] = tmp.get_data()[dst_r][dst_c];

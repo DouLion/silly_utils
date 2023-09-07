@@ -17,8 +17,63 @@
 #include <boost/test/unit_test.hpp>
 #include <iostream>
 #include "geo/silly_projection.h"
+#include "geo/silly_geo_operation.h"
+#include "geo/silly_geo_convert.h"
+#include <filesystem>
 
 BOOST_AUTO_TEST_SUITE(TestGeo)
+
+
+BOOST_AUTO_TEST_CASE(GEO_SHP_GEOJSON)
+{
+	std::cout << "\r\n\r\n****************" << "GEO_SHP_GEOJSON" << "****************" << std::endl;
+
+	std::string geojson_1 = "D:/1_wangyingjie/code/project_data/geojson_shp/100KM.geojson";
+	std::filesystem::path geojson_save(geojson_1);
+	std::string shp_1 = "D:/1_wangyingjie/code/project_data/geojson_shp/100KM.shp";
+	std::filesystem::path shp_save(shp_1);
+	
+	//bool gts = geo_operation::geojson_to_shp(geojson_save.string().c_str(), shp_save.string().c_str());
+
+	std::string geojson_2 = "D:/1_wangyingjie/code/project_data/geojson_shp/res.geojson";
+	std::filesystem::path geojson_2_save(geojson_2);
+	bool gts = geo_operation::shp_to_geojson(shp_save.string().c_str() , geojson_2_save.string().c_str());
+
+
+	int a = 0;
+};
+
+
+
+BOOST_AUTO_TEST_CASE(GEO_AZIMUTH)
+{
+	std::cout << "\r\n\r\n****************" << "GEO_AZIMUTH" << "****************" << std::endl;
+
+	silly_ring square_1;
+	silly_ring square_2;
+
+
+	square_1.points.push_back(silly_point(0, 0));
+	square_1.points.push_back(silly_point(3, 0));
+	square_1.points.push_back(silly_point(3, 3));
+	square_1.points.push_back(silly_point(0, 3));
+
+	square_2.points.push_back(silly_point(3, 0));
+	square_2.points.push_back(silly_point(6, 0));
+	square_2.points.push_back(silly_point(6, 3));
+	square_2.points.push_back(silly_point(3, 3));
+
+
+	silly_point center_1 = geo_operation::ring_to_center(square_1);
+	silly_point center_2 = geo_operation::ring_to_center(square_2);
+
+	double azimuth = geo_operation::two_point_azimuth(center_1, center_2);
+	std::cout << "azimuth: " << azimuth << std::endl;
+
+	int a = 0;
+};
+
+
 
 BOOST_AUTO_TEST_CASE(GEO_PROJECTION)
 {

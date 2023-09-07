@@ -18,55 +18,55 @@
 using namespace silly_math;
 #include <map>
 #include <iostream>
- // æ°”è±¡æ•°æ®ç›¸å…³å®šä¹‰
-#define DEFAULT_NOAA_DATE_TYPE											"APCP"		// é»˜è®¤é™é›¨ç±»å‹ 
-#define NOAA_RH															"RH"		// æ¹¿åº¦
-#define NOAA_TMAX														"TMAX"		// æœ€å¤§æ¸©åº¦
-#define NOAA_TMIN														"TMIN"		// æœ€å°æ¸©åº¦
-#define NOAA_PRES														"PRES"		// æ°”å‹
-#define NOAA_UGRD														"UGRD"		// ä¸œè¥¿é£å‘	è¿™ä¸¤ä¸ªçŸ¢é‡åˆå¹¶
-#define NOAA_VGRD														"VGRD"		// å—åŒ—é£å‘
-#define NOAA_DSWRF														"DSWRF"		// çŸ­æ³¢è¾å°„
-#define NOAA_URLWRF														"ULWRF"		// é•¿æ³¢è¾å°„
-#define NOAA_ALBDO														"ALBDO"		// åç…§ç‡
-#define NOAA_APCP														"APCP"		// é™é›¨
-#define NOAA_WIND														"FS"		// é£å‘ï¼Œç”±UGRDï¼ŒVGRDåˆå¹¶
+ // ÆøÏóÊı¾İÏà¹Ø¶¨Òå
+#define DEFAULT_NOAA_DATE_TYPE											"APCP"		// Ä¬ÈÏ½µÓêÀàĞÍ 
+#define NOAA_RH															"RH"		// Êª¶È
+#define NOAA_TMAX														"TMAX"		// ×î´óÎÂ¶È
+#define NOAA_TMIN														"TMIN"		// ×îĞ¡ÎÂ¶È
+#define NOAA_PRES														"PRES"		// ÆøÑ¹
+#define NOAA_UGRD														"UGRD"		// ¶«Î÷·çÏò	ÕâÁ½¸öÊ¸Á¿ºÏ²¢
+#define NOAA_VGRD														"VGRD"		// ÄÏ±±·çÏò
+#define NOAA_DSWRF														"DSWRF"		// ¶Ì²¨·øÉä
+#define NOAA_URLWRF														"ULWRF"		// ³¤²¨·øÉä
+#define NOAA_ALBDO														"ALBDO"		// ·´ÕÕÂÊ
+#define NOAA_APCP														"APCP"		// ½µÓê
+#define NOAA_WIND														"FS"		// ·çÏò£¬ÓÉUGRD£¬VGRDºÏ²¢
 
 #define NOAAMISSVALUE														1.0e36
 
-// é»˜è®¤ä¸‹è½½çš„ç»çº¬èŒƒå›´, ä¸­å›½é™¤å—æ²™ç¾¤å²›çš„å¤§è‡´èŒƒå›´
+// Ä¬ÈÏÏÂÔØµÄ¾­Î³·¶Î§, ÖĞ¹ú³ıÄÏÉ³ÈºµºµÄ´óÖÂ·¶Î§
 #define DEFAULT_LEFT														74
 #define DEFAULT_RIGHT														135
 #define DEFAULT_TOP															54
 #define DEFAULT_BOTTOM														18
-// å—æ²™ç¾¤å²›æœ€å—ç«¯çš„çº¬åº¦
+// ÄÏÉ³Èºµº×îÄÏ¶ËµÄÎ³¶È
 #define NANSHA_BOTTOM														3
 
 #define PI (3.1415926535897932384626433832795028841971693993751f)
 
-// Noaaæ•°æ®ä¸­å‡ ä¸ªå…³é”®çš„æ—¶é—´ç‚¹
-#define FUTURE_HOUR_120 											120		// 5å¤©
+// NoaaÊı¾İÖĞ¼¸¸ö¹Ø¼üµÄÊ±¼äµã
+#define FUTURE_HOUR_120 											120		// 5Ìì
 #define FUTURE_HOUR_123 											123	
-#define FUTURE_HOUR_240 											240		// 10å¤©
+#define FUTURE_HOUR_240 											240		// 10Ìì
 #define FUTURE_HOUR_252 											252		
-#define FUTURE_HOUR_384 											384		// 16å¤©
+#define FUTURE_HOUR_384 											384		// 16Ìì
 
 
-#define HOURS_IN_DAY													24			//  ä¸€å¤©24å°æ—¶
-#define DEFAULT_DOWNLOAD_HOURS											384		// é»˜è®¤é¢„æŠ¥å¤©æ•° 16å¤©
-#define OFFSET_HOURS													8			// æ—¶å·®,åŒ—äº¬æ—¶é—´ä¸æ ¼æ—å°¼æ²»æ—¶é—´
+#define HOURS_IN_DAY													24			//  Ò»Ìì24Ğ¡Ê±
+#define DEFAULT_DOWNLOAD_HOURS											384		// Ä¬ÈÏÔ¤±¨ÌìÊı 16Ìì
+#define OFFSET_HOURS													8			// Ê±²î,±±¾©Ê±¼äÓë¸ñÁÖÄáÖÎÊ±¼ä
 namespace grib_data {
 
 
 
 	struct time_info {
 	public:
-		std::uint16_t		year;					// å‘å¸ƒçš„å¹´
-		std::uint16_t		month;				// å‘å¸ƒçš„æœˆ
-		std::uint16_t		day;					// å‘å¸ƒçš„æ—¥
-		std::uint16_t		hour;				// å‘å¸ƒçš„æ—¶
-		std::uint16_t		miniute;			// å‘å¸ƒçš„æ—¶
-		std::uint16_t		second;			// å‘å¸ƒçš„æ—¶
+		std::uint16_t		year;					// ·¢²¼µÄÄê
+		std::uint16_t		month;				// ·¢²¼µÄÔÂ
+		std::uint16_t		day;					// ·¢²¼µÄÈÕ
+		std::uint16_t		hour;				// ·¢²¼µÄÊ±
+		std::uint16_t		miniute;			// ·¢²¼µÄÊ±
+		std::uint16_t		second;			// ·¢²¼µÄÊ±
 	};
 
 	struct geo_info {
@@ -85,16 +85,16 @@ namespace grib_data {
 
 	struct normal_info {
 	public:
-		std::string			name;	// åç§°
-		std::string			units;	// å•ä½
-		std::string			short_name;	// ç®€ç§°
-		std::float_t		max;		// æœ€å¤§å€¼
-		std::float_t		min;		// æœ€å°å€¼
+		std::string			name;	// Ãû³Æ
+		std::string			units;	// µ¥Î»
+		std::string			short_name;	// ¼ò³Æ
+		std::float_t		max;		// ×î´óÖµ
+		std::float_t		min;		// ×îĞ¡Öµ
 	};
 
 
 	//typedef std::map<std::uint16_t, cv::Mat	> data_set;
-	//typedef std::map<std::string, data_set> data_cluster;	// Noaaæ•°æ®ç°‡
+	//typedef std::map<std::string, data_set> data_cluster;	// NoaaÊı¾İ´Ø
 
 	class grib_utils
 	{

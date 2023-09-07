@@ -18,18 +18,18 @@ BOOST_AUTO_TEST_SUITE(Test)
 
 BOOST_AUTO_TEST_CASE(writeGeoTiff)
 {
-    std::cout << "\r\n\r\n****************" << "å†™å…¥ä¸€ä¸ªéšæœºçš„tif" << "****************" << std::endl;
-    std::string t = "D:/1_wangyingjie/code/2_hill_shading/ä¸–ç•Œ/åœ°å›¾/ETOPO_2022_v1_60s_N90W180_bed.tif";
+    std::cout << "\r\n\r\n****************" << "Ð´ÈëÒ»¸öËæ»úµÄtif" << "****************" << std::endl;
+    std::string t = "D:/1_wangyingjie/code/2_hill_shading/ÊÀ½ç/µØÍ¼/ETOPO_2022_v1_60s_N90W180_bed.tif";
     std::filesystem::path word2(t);
     tif_data res_tif;
     bool status = true;
-    // æ‰“å¼€å½±åƒæ•°æ®
+    // ´ò¿ªÓ°ÏñÊý¾Ý
     TIFF* tiff = XTIFFOpen(word2.string().c_str(), "r ");
     if (tiff == nullptr)
     {
-        std::cout << "æ‰“å¼€å½±åƒæ•°æ®å¤±è´¥ " << std::endl;
+        std::cout << "´ò¿ªÓ°ÏñÊý¾ÝÊ§°Ü " << std::endl;
     }
-    // èŽ·å–tifçš„å‚æ•°å±žæ€§
+    // »ñÈ¡tifµÄ²ÎÊýÊôÐÔ
     bool get_data = geotiff_utils::get_tif_data(tiff, res_tif);
     if (!get_data)
     {
@@ -40,7 +40,7 @@ BOOST_AUTO_TEST_CASE(writeGeoTiff)
     res_tif.tif_matrix2.create(res_tif.tif_height, res_tif.tif_width);
     for (int j = 0; j < res_tif.tif_height; j++) 
     {
-        // é€åˆ—å¢žåŠ  30
+        // ÖðÁÐÔö¼Ó 30
         for (int i = 0; i < res_tif.tif_width; i++) 
         {
             if (0 == i)
@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_CASE(writeGeoTiff)
     }
     for (int j = 0; j < res_tif.tif_height; j++)
     {
-        // é€åˆ—å¢žåŠ  30
+        // ÖðÁÐÔö¼Ó 30
         for (int i = 0; i < res_tif.tif_width; i++)
         {
             std::cout << res_tif.tif_matrix2.at(j, i) << " ";
@@ -76,10 +76,10 @@ BOOST_AUTO_TEST_CASE(writeGeoTiff)
 
 BOOST_AUTO_TEST_CASE(readGeoTiff)
 {
-    std::cout << "\r\n\r\n****************" << "è¯»å–tif" << "****************" << std::endl;
+    std::cout << "\r\n\r\n****************" << "¶ÁÈ¡tif" << "****************" << std::endl;
     std::filesystem::path tif_data_path(DEFAULT_DATA_DIR);
     tif_data_path += "/tif/write2.tif";
-    std::string t = "D:/1_wangyingjie/code/2_hill_shading/ä¸–ç•Œ/åœ°å›¾/ETOPO_2022_v1_60s_N90W180_bed.tif";
+    std::string t = "D:/1_wangyingjie/code/2_hill_shading/ÊÀ½ç/µØÍ¼/ETOPO_2022_v1_60s_N90W180_bed.tif";
     //std::string t = "D:/1_wangyingjie/code/2_hill_shading/HillShading/dem_data/ETOPO_2022_v1_15s_N60W030_bed.tif";
     std::filesystem::path word(t);
 

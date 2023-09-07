@@ -15,7 +15,7 @@ endforeach()
 find_path(OTL_INCLUDE_DIRS "otl/otlv4.h")
 include_directories(${OTL_INCLUDE_DIRS})
 
-add_library(${PROJECT_NAME} STATIC ${SU_SRC_FILES})
+add_library(${PROJECT_NAME} STATIC ${SU_SRC_FILES} "geo/silly_geo_operation.cpp" "geo/silly_geo_operation.h")
 
 set(Boost_LIB_PREFIX "")
 set(CMAKE_VERBOSE_MAKEFILE ON)
@@ -40,7 +40,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC polyclipping::polyclipping)
 find_package(jsoncpp CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC JsonCpp::JsonCpp)
 
-# Ëß£ÂéãÁº©Ê®°Âùó
+# Ω‚—πÀıƒ£øÈ
 find_package(ZLIB REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC ZLIB::ZLIB)
 
@@ -75,6 +75,10 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${PROTOZERO_INCLUDE_DIRS})
 find_package(GeoTIFF CONFIG REQUIRED)
 target_include_directories(${PROJECT_NAME} PUBLIC ${GEOTIFF_INCLUDE_DIR})
 target_link_libraries(${PROJECT_NAME} PUBLIC ${GEOTIFF_LIBRARIES})
+
+find_package(GDAL CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC GDAL::GDAL)
+
 
 if(IS_LINUX)
 

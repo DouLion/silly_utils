@@ -153,7 +153,7 @@ bool grib_utils::read(const std::string& grib_file, DMatrix* matrix, int& type)
 	}
 	grib_keys_iterator_delete(kiter);
 
-	// ��ȡ����
+	// ???????
 	if (m_pGeoInfo.rows * m_pGeoInfo.cols != m_pGeoInfo.dnum || 0 == m_pGeoInfo.rows || 0 == m_pGeoInfo.cols)
 	{
 		fclose(file);

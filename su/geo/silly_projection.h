@@ -6,7 +6,7 @@
  * @date: 2023/8/3 11:27
  * @version: 1.0.1
  * @software: silly_utils
- * @description: GEOåæ ‡ç‚¹æŠ•å½±æ–¹æ³•
+ * @description: GEO×ø±êµãÍ¶Ó°·½·¨
  */
 #pragma once
 
@@ -21,7 +21,7 @@ class silly_projection
 public:
 
 	/// <summary>
-	/// ç»çº¬åº¦åæ ‡è½¬å¢¨å¡æ‰˜
+	/// ¾­Î³¶È×ø±ê×ªÄ«¿¨ÍĞ
 	/// </summary>
 	/// <param name="lgtd"></param>
 	/// <param name="lttd"></param>
@@ -35,7 +35,7 @@ public:
 	}
 
 	/// <summary>
-	/// å¢¨å¡æ‰˜åæ ‡è½¬ç»çº¬åº¦
+	/// Ä«¿¨ÍĞ×ø±ê×ª¾­Î³¶È
 	/// </summary>
 	/// <param name="x"></param>
 	/// <param name="y"></param>

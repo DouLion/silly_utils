@@ -6,7 +6,7 @@
 
 bool geotiff_utils::get_tif_data(TIFF* tiff, tif_data& res_tif)
 {
-    // è¯»å–å›¾åƒåŸºæœ¬ä¿¡æ¯
+    // ¶ÁÈ¡Í¼Ïñ»ù±¾ĞÅÏ¢
     TIFFGetField(tiff, TIFFTAG_IMAGEWIDTH, &res_tif.tif_width);
     TIFFGetField(tiff, TIFFTAG_IMAGELENGTH, &res_tif.tif_height);
 
@@ -39,37 +39,37 @@ bool geotiff_utils::get_tif_data(TIFF* tiff, tif_data& res_tif)
         return false;
     }
 
-    // æ¯ä¸ªç‚¹å çš„ä½æ•°
+    // Ã¿¸öµãÕ¼µÄÎ»Êı
     TIFFGetField(tiff, TIFFTAG_BITSPERSAMPLE, &res_tif.tif_bitsPerSample);
 
-    //// è·å–åˆ†è¾¨ç‡å•ä½
+    //// »ñÈ¡·Ö±æÂÊµ¥Î»
     //uint16_t resolutionUnit;
     //TIFFGetField(tiff, TIFFTAG_RESOLUTIONUNIT, &resolutionUnit);
-    //std::cout <<  "åˆ†è¾¨ç‡å•ä½:  " << resolutionUnit << std::endl;
+    //std::cout <<  "·Ö±æÂÊµ¥Î»:  " << resolutionUnit << std::endl;
 
-    // è·å–æ¯ä¸ªåƒç´ çš„æ ·æœ¬æ•°
+    // »ñÈ¡Ã¿¸öÏñËØµÄÑù±¾Êı
     TIFFGetField(tiff, TIFFTAG_SAMPLESPERPIXEL, &res_tif.tif_samplesPerPixel);
 
     //----------------------------------------------------
     // 
-    // æ•°æ®ç±»å‹ :TIFFTAG_SAMPLEFORMAT
+    // Êı¾İÀàĞÍ :TIFFTAG_SAMPLEFORMAT
     if (TIFFGetField(tiff, TIFFTAG_SAMPLEFORMAT, &res_tif.tif_sampleFormat))
     {
         if (res_tif.tif_sampleFormat == SAMPLEFORMAT_UINT)
         {
-            std::cout << "typeï¼šuint " << std::endl;
+            std::cout << "type£ºuint " << std::endl;
         }
         else if (res_tif.tif_sampleFormat == SAMPLEFORMAT_INT)
         {
-            std::cout << "typeï¼šint " << std::endl;
+            std::cout << "type£ºint " << std::endl;
         }
         else if (res_tif.tif_sampleFormat == SAMPLEFORMAT_IEEEFP)
         {
-            std::cout << "typeï¼šfloat " << std::endl;
+            std::cout << "type£ºfloat " << std::endl;
         }
         else
         {
-            // å…¶ä»–æœªçŸ¥æ•°æ®ç±»å‹
+            // ÆäËûÎ´ÖªÊı¾İÀàĞÍ
             std::cout << "Unknown type " << std::endl;
             return false;
         }
@@ -80,20 +80,20 @@ bool geotiff_utils::get_tif_data(TIFF* tiff, tif_data& res_tif)
         return false;
     }
 
-    // å›¾åƒçš„æ–¹å‘æ ‡ç­¾
+    // Í¼ÏñµÄ·½Ïò±êÇ©
     TIFFGetField(tiff, TIFFTAG_ORIENTATION, &res_tif.tif_orientation);
 
-    // å›¾åƒçš„å¹³é¢é…ç½®æ ‡ç­¾ planar_config
+    // Í¼ÏñµÄÆ½ÃæÅäÖÃ±êÇ© planar_config
     TIFFGetField(tiff, TIFFTAG_PLANARCONFIG, &res_tif.tif_planarConfig);
 
-    // å›¾åƒçš„å…‰åº¦æ ‡ç­¾
+    // Í¼ÏñµÄ¹â¶È±êÇ©
     TIFFGetField(tiff, TIFFTAG_PHOTOMETRIC, &res_tif.tif_photometric);
 
-    // é€šé“æ•°
+    // Í¨µÀÊı
     TIFFGetField(tiff, TIFFTAG_SAMPLESPERPIXEL, &res_tif.tif_numChannels);
 
 
-    res_tif.tif_lineSize = TIFFScanlineSize64(tiff); // ä¸€è¡Œå¤šå°‘å­—èŠ‚
+    res_tif.tif_lineSize = TIFFScanlineSize64(tiff); // Ò»ĞĞ¶àÉÙ×Ö½Ú
     res_tif.tif_tileSize = TIFFTileSize64(tiff);
 
     uint32 nstrips = TIFFNumberOfStrips(tiff); // Number of strips in file
@@ -103,7 +103,7 @@ bool geotiff_utils::get_tif_data(TIFF* tiff, tif_data& res_tif)
     int rc_3 = TIFFGetField(tiff, TIFFTAG_TILELENGTH, &res_tif.tif_tileHeight);
 
 
-    //TIFFIsTiled(tiff) ? printf("å›¾åƒå­˜å‚¨ç±»å‹: Tiled\n") : printf("å›¾åƒå­˜å‚¨ç±»å‹: Strip\n");
+    //TIFFIsTiled(tiff) ? printf("Í¼Ïñ´æ´¢ÀàĞÍ: Tiled\n") : printf("Í¼Ïñ´æ´¢ÀàĞÍ: Strip\n");
     //TIFFIsTiled(tiff) ? (res_tif.tif_type = TILE_TIF) : (res_tif.tif_type = STRIP_TIF);
     
     // Determine TIFF type
@@ -132,25 +132,25 @@ bool geotiff_utils::get_tif_data(TIFF* tiff, tif_data& res_tif)
 
     return true;
 
-    //// è·å–å›¾åƒçš„å­˜å‚¨ç±»å‹
+    //// »ñÈ¡Í¼ÏñµÄ´æ´¢ÀàĞÍ
     //int tileOrStrip = -1;
     //if (TIFFGetField(tiff, TIFFTAG_TILEWIDTH, &tileOrStrip)) {
-    //    std::cout << "å›¾åƒå­˜å‚¨ç±»å‹: Tiled\n"<< std::endl;
-    //    std::cout << "ç“¦ç‰‡å®½åº¦: %d\n"<< tileOrStrip<< std::endl;
+    //    std::cout << "Í¼Ïñ´æ´¢ÀàĞÍ: Tiled\n"<< std::endl;
+    //    std::cout << "ÍßÆ¬¿í¶È: %d\n"<< tileOrStrip<< std::endl;
     //    if (TIFFGetField(tiff, TIFFTAG_TILELENGTH, &tileOrStrip)) {
-    //        std::cout << "ç“¦ç‰‡é•¿åº¦: %d" << tileOrStrip << std::endl;
+    //        std::cout << "ÍßÆ¬³¤¶È: %d" << tileOrStrip << std::endl;
     //    }
     //    else {
-    //        // å¤„ç†è·å–ç“¦ç‰‡é•¿åº¦å¤±è´¥çš„æƒ…å†µ
+    //        // ´¦Àí»ñÈ¡ÍßÆ¬³¤¶ÈÊ§°ÜµÄÇé¿ö
     //    }
     //}
     //else {
-    //    std::cout << "å›¾åƒå­˜å‚¨ç±»å‹: Strip"<< std::endl;
+    //    std::cout << "Í¼Ïñ´æ´¢ÀàĞÍ: Strip"<< std::endl;
     //    if (TIFFGetField(tiff, TIFFTAG_ROWSPERSTRIP, &tileOrStrip)) {
-    //        std::cout << "è¡Œæ•°æ¯æ¡å¸¦: %d"<<tileOrStrip << std::endl;
+    //        std::cout << "ĞĞÊıÃ¿Ìõ´ø: %d"<<tileOrStrip << std::endl;
     //    }
     //    else {
-    //        // å¤„ç†è·å–è¡Œæ•°æ¯æ¡å¸¦å¤±è´¥çš„æƒ…å†µ
+    //        // ´¦Àí»ñÈ¡ĞĞÊıÃ¿Ìõ´øÊ§°ÜµÄÇé¿ö
     //    }
     //}
 
@@ -160,29 +160,29 @@ tif_data geotiff_utils::readGeoTiff(std::string filePath)
 {
     tif_data res_tif;
     bool status = true;
-    // æ‰“å¼€å½±åƒæ•°æ®
+    // ´ò¿ªÓ°ÏñÊı¾İ
     TIFF* tiff = XTIFFOpen(filePath.c_str(), "r ");
     if (tiff == nullptr)
     {
-        std::cout << "æ‰“å¼€å½±åƒæ•°æ®å¤±è´¥ " << std::endl;
+        std::cout << "´ò¿ªÓ°ÏñÊı¾İÊ§°Ü " << std::endl;
         return res_tif;
     }
 
-    // è·å–å½±åƒå±æ€§ä¿¡æ¯
+    // »ñÈ¡Ó°ÏñÊôĞÔĞÅÏ¢
     GTIF* gtif = GTIFNew(tiff);
     if (gtif == nullptr) {
-        std::cout << "è·å–å½±åƒå±æ€§ä¿¡æ¯å¤±è´¥ " << std::endl;
+        std::cout << "»ñÈ¡Ó°ÏñÊôĞÔĞÅÏ¢Ê§°Ü " << std::endl;
         XTIFFClose(tiff);
         status = false;
     }
-    GTIFPrint(gtif, 0, 0); // æ‰“å°å±æ€§ä¿¡æ¯
+    GTIFPrint(gtif, 0, 0); // ´òÓ¡ÊôĞÔĞÅÏ¢
     GTIFFree(gtif);
 
-    // è·å–tifçš„å‚æ•°å±æ€§
+    // »ñÈ¡tifµÄ²ÎÊıÊôĞÔ
     bool get_data = geotiff_utils::get_tif_data(tiff, res_tif);
     if (!get_data)
     {
-        // å…³é—­å½±åƒæ•°æ®å’ŒGTIFå¯¹è±¡
+        // ¹Ø±ÕÓ°ÏñÊı¾İºÍGTIF¶ÔÏó
         XTIFFClose(tiff);
         return res_tif;
     }
@@ -190,7 +190,7 @@ tif_data geotiff_utils::readGeoTiff(std::string filePath)
     switch (res_tif.tif_type)
     {
     case STRIP_TIF:
-        // é€è¡Œè¯»å–åƒç´ æ•°æ®
+        // ÖğĞĞ¶ÁÈ¡ÏñËØÊı¾İ
         res_tif.tif_matrix2.create(res_tif.tif_height, res_tif.tif_width);
         for (uint32_t row = 0; row < res_tif.tif_height; ++row)
         {
@@ -201,7 +201,7 @@ tif_data geotiff_utils::readGeoTiff(std::string filePath)
         if (res_tif.tif_lineSize > 0)
         {
             res_tif.tif_matrix2.create(res_tif.tif_height, res_tif.tif_width);
-            // è¯»å–å›¾åƒæ•°æ®
+            // ¶ÁÈ¡Í¼ÏñÊı¾İ
             //void* line_buf = _TIFFmalloc(res_tif.tif_lineSize);
             unsigned char* line_buf = (unsigned char*)_TIFFmalloc(res_tif.tif_lineSize);
             unsigned char* tilebuf = (unsigned char*)_TIFFmalloc(res_tif.tif_tileSize);
@@ -283,7 +283,7 @@ tif_data geotiff_utils::readGeoTiff(std::string filePath)
 
                 }
                 memcpy(&(res_tif.tif_matrix2.at(row, 0)), line_buf, res_tif.tif_lineSize);
-                // è¯»å–ä¸€è¡Œ
+                // ¶ÁÈ¡Ò»ĞĞ
             }
             _TIFFfree(line_buf);
             _TIFFfree(tilebuf);
@@ -298,7 +298,7 @@ tif_data geotiff_utils::readGeoTiff(std::string filePath)
         break;
     }
 
-    // å…³é—­å½±åƒæ•°æ®å’ŒGTIFå¯¹è±¡
+    // ¹Ø±ÕÓ°ÏñÊı¾İºÍGTIF¶ÔÏó
 
     res_tif.tif_matrix2.destroy();
     XTIFFClose(tiff);
@@ -309,18 +309,18 @@ tif_data geotiff_utils::readGeoTiff(std::string filePath)
 bool geotiff_utils::writeGeoTiff(std::string filePath, tif_data tif_matrix2)
 {
     bool status = true;
-    // è·å–çŸ©é˜µçš„è¡Œæ•°å’Œåˆ—æ•°
+    // »ñÈ¡¾ØÕóµÄĞĞÊıºÍÁĞÊı
     size_t cols = tif_matrix2.tif_width;
     size_t rows = tif_matrix2.tif_height;
 
-    // æ‰“å¼€ TIFF æ–‡ä»¶è¿›è¡Œå†™å…¥
+    // ´ò¿ª TIFF ÎÄ¼ş½øĞĞĞ´Èë
     TIFF* tiff = XTIFFOpen(filePath.c_str(), "w ");
     if (!tiff) {
         std::cerr << "Unable to open TIFF file for writing " << std::endl;
         status = false;
     }
 
-    // è®¾ç½® TIFF å›¾åƒçš„åŸºæœ¬ä¿¡æ¯
+    // ÉèÖÃ TIFF Í¼ÏñµÄ»ù±¾ĞÅÏ¢
     TIFFSetField(tiff, TIFFTAG_IMAGEWIDTH, cols);
     TIFFSetField(tiff, TIFFTAG_IMAGELENGTH, rows);
     //TIFFSetField(tiff, TIFFTAG_TILEWIDTH, tif_matrix2.tif_tileWidth);
@@ -328,9 +328,9 @@ bool geotiff_utils::writeGeoTiff(std::string filePath, tif_data tif_matrix2)
     TIFFSetField(tiff, TIFFTAG_SAMPLESPERPIXEL, tif_matrix2.tif_samplesPerPixel);
     TIFFSetField(tiff, TIFFTAG_BITSPERSAMPLE, tif_matrix2.tif_bitsPerSample);
     TIFFSetField(tiff, TIFFTAG_SAMPLEFORMAT, tif_matrix2.tif_sampleFormat);
-    TIFFSetField(tiff, TIFFTAG_ORIENTATION, tif_matrix2.tif_orientation);       //å›¾åƒçš„æ–¹å‘æ ‡ç­¾
-    TIFFSetField(tiff, TIFFTAG_PLANARCONFIG, tif_matrix2.tif_planarConfig);     //å›¾åƒçš„å¹³é¢é…ç½®æ ‡ç­¾ planar_config
-    TIFFSetField(tiff, TIFFTAG_PHOTOMETRIC, tif_matrix2.tif_photometric);    // å›¾åƒçš„å…‰åº¦æ ‡ç­¾.
+    TIFFSetField(tiff, TIFFTAG_ORIENTATION, tif_matrix2.tif_orientation);       //Í¼ÏñµÄ·½Ïò±êÇ©
+    TIFFSetField(tiff, TIFFTAG_PLANARCONFIG, tif_matrix2.tif_planarConfig);     //Í¼ÏñµÄÆ½ÃæÅäÖÃ±êÇ© planar_config
+    TIFFSetField(tiff, TIFFTAG_PHOTOMETRIC, tif_matrix2.tif_photometric);    // Í¼ÏñµÄ¹â¶È±êÇ©.
 
 
     double pixelScale[3] = { tif_matrix2.pixelSizeX, tif_matrix2.pixelSizeY, 1.0 };
@@ -339,7 +339,7 @@ bool geotiff_utils::writeGeoTiff(std::string filePath, tif_data tif_matrix2)
     TIFFSetField(tiff, GTIFF_PIXELSCALE, 3, &pixelScale);
     TIFFSetField(tiff, GTIFF_TIEPOINTS, 6, &modelTransform);
 
-    // å†™å…¥åƒç´ æ•°æ®
+    // Ğ´ÈëÏñËØÊı¾İ
     for (size_t row = 0; row < rows; row++) 
     {
         if (TIFFWriteScanline(tiff, tif_matrix2.tif_matrix2.get_data()[row], row, 0) < 0)
@@ -348,7 +348,7 @@ bool geotiff_utils::writeGeoTiff(std::string filePath, tif_data tif_matrix2)
         }
     }
 
-    // å…³é—­ TIFF æ–‡ä»¶
+    // ¹Ø±Õ TIFF ÎÄ¼ş
     TIFFClose(tiff);
 
     std::cout << "TIFF file successfully written " << std::endl;
@@ -360,26 +360,26 @@ bool geotiff_utils::writeGeoTiff(std::string filePath, tif_data tif_matrix2)
 bool geotiff_utils::writeFourChannelTiff(std::string filePath, tif_data tif_matrix2)
 {
     bool status = true;
-    // è·å–çŸ©é˜µçš„è¡Œæ•°å’Œåˆ—æ•°
+    // »ñÈ¡¾ØÕóµÄĞĞÊıºÍÁĞÊı
     size_t cols = tif_matrix2.tif_width /5;
     size_t rows = tif_matrix2.tif_height /5;
 
-    // æ‰“å¼€ TIFF æ–‡ä»¶è¿›è¡Œå†™å…¥
+    // ´ò¿ª TIFF ÎÄ¼ş½øĞĞĞ´Èë
     TIFF* tiff = XTIFFOpen(filePath.c_str(), "w");
     if (!tiff) {
         std::cerr << "Unable to open TIFF file for writing " << std::endl;
         status = false;
     }
 
-    // è®¾ç½® TIFF å›¾åƒçš„åŸºæœ¬ä¿¡æ¯
+    // ÉèÖÃ TIFF Í¼ÏñµÄ»ù±¾ĞÅÏ¢
     TIFFSetField(tiff, TIFFTAG_IMAGEWIDTH, cols);
     TIFFSetField(tiff, TIFFTAG_IMAGELENGTH, rows);
-    TIFFSetField(tiff, TIFFTAG_SAMPLESPERPIXEL, 4);        // å››é€šé“å›¾åƒ
-    TIFFSetField(tiff, TIFFTAG_BITSPERSAMPLE, sizeof(float) * 8);    // æ¯ä¸ªé€šé“çš„ä½æ·±åº¦ä¸º sizeof(float) * 8
-    TIFFSetField(tiff, TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_IEEEFP);   // æµ®ç‚¹æ•°æ ·æœ¬æ ¼å¼
-    TIFFSetField(tiff, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);       // å›¾åƒçš„æ–¹å‘æ ‡ç­¾
-    TIFFSetField(tiff, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);     // å›¾åƒçš„å¹³é¢é…ç½®æ ‡ç­¾ planar_config
-    TIFFSetField(tiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);    // å›¾åƒçš„å…‰åº¦æ ‡ç­¾.
+    TIFFSetField(tiff, TIFFTAG_SAMPLESPERPIXEL, 4);        // ËÄÍ¨µÀÍ¼Ïñ
+    TIFFSetField(tiff, TIFFTAG_BITSPERSAMPLE, sizeof(float) * 8);    // Ã¿¸öÍ¨µÀµÄÎ»Éî¶ÈÎª sizeof(float) * 8
+    TIFFSetField(tiff, TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_IEEEFP);   // ¸¡µãÊıÑù±¾¸ñÊ½
+    TIFFSetField(tiff, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);       // Í¼ÏñµÄ·½Ïò±êÇ©
+    TIFFSetField(tiff, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);     // Í¼ÏñµÄÆ½ÃæÅäÖÃ±êÇ© planar_config
+    TIFFSetField(tiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);    // Í¼ÏñµÄ¹â¶È±êÇ©.
 
 
     double pixelScale[3] = { tif_matrix2.pixelSizeX, tif_matrix2.pixelSizeY, 1.0 };
@@ -388,7 +388,7 @@ bool geotiff_utils::writeFourChannelTiff(std::string filePath, tif_data tif_matr
     TIFFSetField(tiff, GTIFF_PIXELSCALE, 3, pixelScale);
     TIFFSetField(tiff, GTIFF_TIEPOINTS, 6, modelTransform);
 
-    // å†™å…¥åƒç´ æ•°æ®
+    // Ğ´ÈëÏñËØÊı¾İ
     for (size_t row = 0; row < rows; row++)
     {
         if (TIFFWriteScanline(tiff, tif_matrix2.tif_matrix2.get_data()[row], row, 0) < 0)
@@ -399,7 +399,7 @@ bool geotiff_utils::writeFourChannelTiff(std::string filePath, tif_data tif_matr
         }
     }
 
-    // å…³é—­ TIFF æ–‡ä»¶
+    // ¹Ø±Õ TIFF ÎÄ¼ş
     TIFFClose(tiff);
 
     std::cout << "TIFF file successfully written " << std::endl;
