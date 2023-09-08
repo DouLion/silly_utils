@@ -76,13 +76,16 @@ find_package(GeoTIFF CONFIG REQUIRED)
 target_include_directories(${PROJECT_NAME} PUBLIC ${GEOTIFF_INCLUDE_DIR})
 target_link_libraries(${PROJECT_NAME} PUBLIC ${GEOTIFF_LIBRARIES})
 
-find_package(GDAL CONFIG REQUIRED)
-target_link_libraries(${PROJECT_NAME} PUBLIC GDAL::GDAL)
+
 
 
 if(IS_LINUX)
 
     find_package(unofficial-libuuid CONFIG REQUIRED)
     target_link_libraries(${PROJECT_NAME} PUBLIC unofficial::UUID::uuid)
+
+
+    find_package(GDAL CONFIG REQUIRED)
+    target_link_libraries(${PROJECT_NAME} PUBLIC  GDAL::GDAL)
 
 endif()

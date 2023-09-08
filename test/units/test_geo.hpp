@@ -23,6 +23,42 @@
 
 BOOST_AUTO_TEST_SUITE(TestGeo)
 
+BOOST_AUTO_TEST_CASE(GEO_AZIMUTH)
+{
+	std::cout << "\r\n\r\n****************" << "GEO_AZIMUTH" << "****************" << std::endl;
+
+	silly_ring square_1;
+	silly_ring square_2;
+	// 起始点左下角
+	//square_1.points.push_back(silly_point(0, 0));
+	//square_1.points.push_back(silly_point(3, 2));
+	//square_1.points.push_back(silly_point(4, 5));
+	//square_1.points.push_back(silly_point(1, 6));
+
+	//square_2.points.push_back(silly_point(3, 0));
+	//square_2.points.push_back(silly_point(7, 1));
+	//square_2.points.push_back(silly_point(6, 4));
+	//square_2.points.push_back(silly_point(3, 3));
+
+	// 左上角坐标系
+	square_1.points.push_back(silly_point(0, -6));
+	square_1.points.push_back(silly_point(3, -4));
+	square_1.points.push_back(silly_point(4, -1));
+	square_1.points.push_back(silly_point(1, 0));
+
+	square_2.points.push_back(silly_point(3, -6));
+	square_2.points.push_back(silly_point(7, -5));
+	square_2.points.push_back(silly_point(6, -2));
+	square_2.points.push_back(silly_point(3, -3));
+
+	silly_point center_1 = geo_operation::ring_to_center(square_1);
+	silly_point center_2 = geo_operation::ring_to_center(square_2);
+
+	double azimuth = geo_operation::two_point_azimuth(center_1, center_2);
+	std::cout << "azimuth: " << azimuth << std::endl;
+
+	int a = 0;
+};
 
 BOOST_AUTO_TEST_CASE(GEO_SHP_GEOJSON)
 {
@@ -35,7 +71,7 @@ BOOST_AUTO_TEST_CASE(GEO_SHP_GEOJSON)
 	
 	//bool gts = geo_operation::geojson_to_shp(geojson_save.string().c_str(), shp_save.string().c_str());
 
-	std::string geojson_2 = "D:/1_wangyingjie/code/project_data/geojson_shp/res.geojson";
+	std::string geojson_2 = "D:/1_wangyingjie/code/project_data/geojson_shp/res2.geojson";
 	std::filesystem::path geojson_2_save(geojson_2);
 	bool gts = geo_operation::shp_to_geojson(shp_save.string().c_str() , geojson_2_save.string().c_str());
 
@@ -45,33 +81,6 @@ BOOST_AUTO_TEST_CASE(GEO_SHP_GEOJSON)
 
 
 
-BOOST_AUTO_TEST_CASE(GEO_AZIMUTH)
-{
-	std::cout << "\r\n\r\n****************" << "GEO_AZIMUTH" << "****************" << std::endl;
-
-	silly_ring square_1;
-	silly_ring square_2;
-
-
-	square_1.points.push_back(silly_point(0, 0));
-	square_1.points.push_back(silly_point(3, 0));
-	square_1.points.push_back(silly_point(3, 3));
-	square_1.points.push_back(silly_point(0, 3));
-
-	square_2.points.push_back(silly_point(3, 0));
-	square_2.points.push_back(silly_point(6, 0));
-	square_2.points.push_back(silly_point(6, 3));
-	square_2.points.push_back(silly_point(3, 3));
-
-
-	silly_point center_1 = geo_operation::ring_to_center(square_1);
-	silly_point center_2 = geo_operation::ring_to_center(square_2);
-
-	double azimuth = geo_operation::two_point_azimuth(center_1, center_2);
-	std::cout << "azimuth: " << azimuth << std::endl;
-
-	int a = 0;
-};
 
 
 
