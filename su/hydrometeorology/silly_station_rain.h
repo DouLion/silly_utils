@@ -21,9 +21,9 @@ struct station_info
 {
 	std::string code;
 	std::string name;
-	double lgtd{ 0 };
-	double lttd{ 0 };
-	double drp{ 0 };
+	double lgtd{0};
+	double lttd{0};
+	double drp{0};
 	station_info& operator=(const station_info& other)
 	{
 		this->code = other.code;
@@ -34,7 +34,6 @@ struct station_info
 		return *this;
 	}
 };
-
 
 /// <summary>
 /// 测站雨量计算相关
@@ -68,7 +67,7 @@ public:
 	double point_rain(const double& lgtd, const double& lttd);
 private:
 	thiessen_creator  m_creater;
-	bool m_created{ false };
+	bool m_created{false};
 	std::map<std::string, station_info> m_marked_station;
 
 };

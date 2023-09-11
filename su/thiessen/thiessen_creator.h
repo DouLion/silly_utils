@@ -16,7 +16,7 @@
 #define USING_DOUBLE
 #define JC_VORONOI_IMPLEMENTATION
 
-#include "thiessen/jc_voronoi.h"
+#include <thiessen/jvc_struct.h>
 #include <vector>
 #include <polyclipping/clipper.hpp>
 #include <map>

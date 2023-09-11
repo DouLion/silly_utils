@@ -1,8 +1,9 @@
 //
 // Created by dly on 2023/1/16.
 //
-
+#pragma once
 #include "thiessen/thiessen_creator.h"
+#include "thiessen/jc_voronoi.h"
 
 // 计算面积
 static double PolygonArea(const std::vector<jcv_point>& polygon)

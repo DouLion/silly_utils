@@ -2,6 +2,7 @@
 // Created by dell on 2023/9/11.
 //
 
+#pragma once
 #include "silly_station_rain.h"
 
 void silly_station_rain::set(const std::vector<station_info>& stations)
