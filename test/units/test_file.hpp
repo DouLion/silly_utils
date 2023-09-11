@@ -26,7 +26,7 @@ BOOST_AUTO_TEST_CASE(MMAP_READ)		// mmapÎÄ¼þ¶ÁÈ¡
 	std::filesystem::path p(DEFAULT_DATA_DIR);
 	p.append("compress").append("R_RADR_I_S2400_20230721115441_O_DOR_YLD4-D_CAP_FMT.bin.bz2");
 	silly_mmap test;
-	if (test.open(p.string()))
+	if (test.open_m(p.string()))
 	{
 		std::cout << "success" << std::endl;
 	}

@@ -10,12 +10,12 @@ using boost::unit_test_framework::test_suite;
 #endif
 
 //#include "units/test_pyramid.hpp"
-//#include "units/test_file.hpp"
+#include "units/test_file.hpp"
 // #include "units/test_geo.hpp"
 //#include "units/test_compress.hpp"
 //#include "units/test_system.hpp"
 // #include "units/test_jpeg.hpp"
-#include "units/test_database.hpp"
+//#include "units/test_database.hpp"
 //#include "units/test_triangular.h"
 //#include "units/test_tcp.hpp"
 //
