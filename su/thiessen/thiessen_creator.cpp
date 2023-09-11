@@ -163,6 +163,10 @@ bool thiessen_creator::generate_thiessen(const bool& isClip, const bool& isCalcA
 	}
 	memset(&m_pDiagram, 0, sizeof(jcv_diagram));
 	jcv_diagram_generate(m_pCtrlPoint.size(), (const jcv_point *)cpnts, &m_pRect, nullptr, &m_pDiagram);
+	if (cpnts)
+	{
+		free(cpnts);
+	}
 	m_pSites = (jcv_site*)jcv_diagram_get_sites(&m_pDiagram);
 	m_pTotalArea = 0;
 	// 这里为了运行效率高一点, 减少大循环内的判断, 有部分代码会重复,
