@@ -155,6 +155,12 @@ void thiessen_creator::NotClipButCalcArea(const int& index)
 
 bool thiessen_creator::generate_thiessen(const bool& isClip, const bool& isCalcArea)
 {
+	jcv_point* cpnts = (jcv_point*)malloc(m_pCtrlPoint.size() * sizeof(jcv_point));
+	for (int i = 0; i < m_pCtrlPoint.size(); ++i)
+	{
+		cpnts[i].x = m_pCtrlPoint[i].x;
+		cpnts[i].y = m_pCtrlPoint[i].y;
+	}
 
 	jcv_diagram_generate(m_pCtrlPoint.size(), (const jcv_point *)&m_pCtrlPoint, &m_pRect, nullptr, &m_pDiagram);
 	m_pSites = (jcv_site*)jcv_diagram_get_sites(&m_pDiagram);
@@ -241,4 +247,5 @@ std::map<std::string, thiessen_polygons> thiessen_creator::GetThiessenPolygon()
 
 	return markedThiessen;
 }
+
 
