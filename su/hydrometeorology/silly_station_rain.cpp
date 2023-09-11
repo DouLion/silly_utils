@@ -11,8 +11,8 @@ void silly_station_rain::set(const std::vector<station_info>& stations)
     for (auto& st : stations)
     {
         jcv_point jp;
-        jp.x = st.lgtd;
-        jp.y = st.lttd;
+        jp.x = (jcv_real)st.lgtd;
+        jp.y = (jcv_real)st.lttd;
         marked_point[st.code] = jp;
         m_marked_station[st.code] = st;
     }
