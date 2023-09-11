@@ -161,7 +161,7 @@ bool thiessen_creator::generate_thiessen(const bool& isClip, const bool& isCalcA
 		cpnts[i].x = m_pCtrlPoint[i].x;
 		cpnts[i].y = m_pCtrlPoint[i].y;
 	}
-
+	memset(&m_pDiagram, 0, sizeof(jcv_diagram));
 	jcv_diagram_generate(m_pCtrlPoint.size(), (const jcv_point *)cpnts, &m_pRect, nullptr, &m_pDiagram);
 	m_pSites = (jcv_site*)jcv_diagram_get_sites(&m_pDiagram);
 	m_pTotalArea = 0;
