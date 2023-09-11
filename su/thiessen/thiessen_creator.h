@@ -28,6 +28,7 @@ typedef std::vector<thiessen_polygon> thiessen_polygons;
 // 1 有无边界   2 切割  3 是否需要计算面积和面积百分比
 class thiessen_creator
 {
+public:
 	thiessen_creator() = default;
 
 	~thiessen_creator();

@@ -4,7 +4,7 @@ project(silly_utils)
 
 include(CheckIncludeFileCXX)
 
-# �жϵ�ǰĿ¼�Ƿ�Ϊ cmake�ĸ�Ŀ¼,�������,���Ǳ�������Ŀ���õ�,����Ҫ�������,����ģ��
+# 判断当前目录是否为 cmake的根目录,如果不是,则是被其他项目引用的,不需要编译测试,工具模块
 if ("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_SOURCE_DIR}")
     set(SU_AS_PROJECT TRUE)
     set(SU_AS_LIB FALSE)
@@ -15,7 +15,7 @@ endif ()
 
 if (SU_AS_PROJECT)
 
-    # ����Ĭ�ϳ����Ŀ¼,����������·�������մ�·��,������Ժͷ���
+    # 设置默认程序根目录,程序中所有路径均参照此路径,方便调试和发布
     if (IS_DEBUG)
         add_definitions("-DDEFAULT_ROOT_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}\"")
     else ()

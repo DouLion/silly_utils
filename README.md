@@ -42,3 +42,5 @@ vcpkg install boost zlib bzip2 libzip jsoncpp polyclipping cryptopp libiconv otl
 
 TODO:
 
+#### hydrometeorology(水文气象相关)
+
