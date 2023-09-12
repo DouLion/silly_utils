@@ -31,7 +31,7 @@ size_t HandleWriteStrData(void* pBuffer, size_t nSize, size_t nMemByte, void* pP
 }
 struct MemoryStruct {
 	char* memory{ nullptr };
-	size_t size{0};
+	size_t size{ 0 };
 };
 
 static size_t
@@ -60,51 +60,60 @@ std::string silly_http::request_get(const std::string& url, const std::map <std:
 {
 	std::string ret_content;
 	//curl初始化  
+	curl_global_init(CURL_GLOBAL_ALL);
+
+	/* init the curl session */
 	CURL* curl = curl_easy_init();
 	// curl返回值 
 	struct MemoryStruct chunk;
 	CURLcode res;
 	if (curl)
 	{
-		//设置curl的请求头
-		struct curl_slist* header_list = NULL;
-		header_list = curl_slist_append(header_list, "User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko");
-		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, header_list);
 
-		//不接收响应头数据0代表不接收 1代表接收
-		curl_easy_setopt(curl, CURLOPT_HEADER, 0);
-
-		//设置请求的URL地址 
+		/* specify URL to get */
 		curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 
-		//设置ssl验证
-		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, false);
-		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, false);
-
-		//CURLOPT_VERBOSE的值为1时，会显示详细的调试信息
-		curl_easy_setopt(curl, CURLOPT_VERBOSE, 0);
-
-		curl_easy_setopt(curl, CURLOPT_READFUNCTION, NULL);
-
-		//设置数据接收函数
+		/* send all data to this function  */
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
+
+		/* we pass our 'chunk' struct to the callback function */
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*)&chunk);
 
-		curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1);
+		/* some servers do not like requests that are made without a user-agent
+		   field, so we provide one */
+		curl_easy_setopt(curl, CURLOPT_USERAGENT, "libcurl-agent/1.0");
 
-		//设置超时时间
-		curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 6); // set transport and time out time  
-		curl_easy_setopt(curl, CURLOPT_TIMEOUT, 6);
-
-		// 开启请求  
+		/* get it! */
 		res = curl_easy_perform(curl);
+
+		/* check for errors */
+		if (res != CURLE_OK) {
+			fprintf(stderr, "curl_easy_perform() failed: %s\n",
+				curl_easy_strerror(res));
+		}
+		//else {
+		//	/*
+		//	 * Now, our chunk.memory points to a memory block that is chunk.size
+		//	 * bytes big and contains the remote file.
+		//	 *
+		//	 * Do something nice with it!
+		//	 */
+
+		//	printf("%lu bytes retrieved\n", (unsigned long)chunk.size);
+		//}
+
 	}
 	// 释放curl 
 	curl_easy_cleanup(curl);
+
+
+	curl_global_cleanup();
+
 	if (chunk.size && chunk.memory)
 	{
 		ret_content.resize(chunk.size);
 		memcpy(&ret_content[0], chunk.memory, chunk.size);
+		free(chunk.memory);
 	}
 	return ret_content;
 }
