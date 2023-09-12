@@ -4,6 +4,10 @@
 
 #include "silly_http.h"
 #include "curl/curl.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 size_t req_reply(void* ptr, size_t size, size_t nmemb, void* stream)
 {
 	//在注释的里面可以打印请求流，cookie的信息
@@ -25,6 +29,32 @@ size_t HandleWriteStrData(void* pBuffer, size_t nSize, size_t nMemByte, void* pP
 	str->append(pData, nSize * nMemByte);
 	return nMemByte;
 }
+struct MemoryStruct {
+	char* memory{ nullptr };
+	size_t size{0};
+};
+
+static size_t
+WriteMemoryCallback(void* contents, size_t size, size_t nmemb, void* userp)
+{
+	size_t realsize = size * nmemb;
+	struct MemoryStruct* mem = (struct MemoryStruct*)userp;
+
+	// 注意这里根据每次被调用获得的数据重新动态分配缓存区的大小
+	char* ptr = (char*)realloc(mem->memory, mem->size + realsize + 1);
+	if (ptr == NULL) {
+		/* out of memory! */
+		printf("not enough memory (realloc returned NULL)\n");
+		return 0;
+	}
+
+	mem->memory = ptr;
+	memcpy(&(mem->memory[mem->size]), contents, realsize);
+	mem->size += realsize;
+	mem->memory[mem->size] = 0;
+
+	return realsize;
+}
 
 std::string silly_http::request_get(const std::string& url, const std::map <std::string, std::string>& headers)
 {
@@ -32,6 +62,7 @@ std::string silly_http::request_get(const std::string& url, const std::map <std:
 	//curl初始化  
 	CURL* curl = curl_easy_init();
 	// curl返回值 
+	struct MemoryStruct chunk;
 	CURLcode res;
 	if (curl)
 	{
@@ -56,8 +87,8 @@ std::string silly_http::request_get(const std::string& url, const std::map <std:
 		curl_easy_setopt(curl, CURLOPT_READFUNCTION, NULL);
 
 		//设置数据接收函数
-		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, req_reply);
-		curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*)&ret_content);
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*)&chunk);
 
 		curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1);
 
@@ -70,6 +101,11 @@ std::string silly_http::request_get(const std::string& url, const std::map <std:
 	}
 	// 释放curl 
 	curl_easy_cleanup(curl);
+	if (chunk.size && chunk.memory)
+	{
+		ret_content.resize(chunk.size);
+		memcpy(&ret_content[0], chunk.memory, chunk.size);
+	}
 	return ret_content;
 }
 
