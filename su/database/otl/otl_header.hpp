@@ -52,7 +52,9 @@ enum class EDBType
 	dbINVALID = 0,                  // 无效数据源类型
 	dbSQLSERVER = 1,                // SQLSERVER 数据库
 	dbMYSSQL = 2,                   // MYSQL 数据库
-	dbORACLE = 3                    // ORACLE 数据库
+	dbORACLE = 3,                    // ORACLE 数据库
+	dbDM8 = 4,						// 达梦
+	dbPG = 5,						// postgres
 };
 
 
@@ -70,23 +72,33 @@ enum class EDBType
     lob.close();
 
 
-const static char* DB_TYPE_MSSQL_STR = "sqlserver";
-const static char* DB_TYPE_MYSQL_STR = "mysql";
-const static char* DB_TYPE_ORACLE_STR = "oracle";
+#define OTL_DB_TYPE_STR_MSSQL			"sqlserver"
+#define OTL_DB_TYPE_STR_MYSQL			"mysql"
+#define OTL_DB_TYPE_STR_ORACLE			"oracle"
+#define OTL_DB_TYPE_STR_DM8				"dm8"
+#define OTL_DB_TYPE_STR_PG				"postgresql"
 
 static EDBType GetType(const std::string& desc)
 {
-	if (DB_TYPE_MSSQL_STR == desc)
+	if (OTL_DB_TYPE_STR_MSSQL == desc)
 	{
 		return EDBType::dbSQLSERVER;
 	}
-	else if (DB_TYPE_MYSQL_STR == desc)
+	else if (OTL_DB_TYPE_STR_MYSQL == desc)
 	{
 		return EDBType::dbMYSSQL;
 	}
-	else if (DB_TYPE_ORACLE_STR == desc)
+	else if (OTL_DB_TYPE_STR_ORACLE == desc)
 	{
 		return EDBType::dbORACLE;
+	}
+	else if (OTL_DB_TYPE_STR_DM8 == desc)
+	{
+		return EDBType::dbDM8;
+	}
+	else if (OTL_DB_TYPE_STR_PG == desc)
+	{
+		return EDBType::dbPG;
 	}
 	return EDBType::dbINVALID;
 }
@@ -96,11 +108,15 @@ static std::string DBTypeToString(const EDBType& type)
 	switch (type)
 	{
 	case EDBType::dbMYSSQL:
-		return DB_TYPE_MYSQL_STR;
+		return OTL_DB_TYPE_STR_MSSQL;
 	case EDBType::dbSQLSERVER:
-		return DB_TYPE_MSSQL_STR;
+		return OTL_DB_TYPE_STR_MYSQL;
 	case EDBType::dbORACLE:
-		return DB_TYPE_ORACLE_STR;
+		return OTL_DB_TYPE_STR_ORACLE;
+	case EDBType::dbDM8:
+		return OTL_DB_TYPE_STR_DM8;
+	case EDBType::dbPG:
+		return OTL_DB_TYPE_STR_PG;
 	default:
 		break;
 	}

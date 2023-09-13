@@ -20,6 +20,7 @@
 #include "database/dm8/dm8_dpi.h"
 #include <boost/test/unit_test.hpp>
 #include <filesystem>
+#include "database/sql_studio.hpp"
 
 void dpi_err_msg_print(sdint2 hndl_type, dhandle hndl)
 {
@@ -205,7 +206,7 @@ BOOST_AUTO_TEST_SUITE(TestDataBase)
 
 	BOOST_AUTO_TEST_CASE(DM8_DPI_DROP)      // 达梦DPI 删除表
 	{
-		std::cout << "\r\n\r\n****************" << "DM8_DPI_DELETE 删除表" << "****************" << std::endl;
+		std::cout << "\r\n\r\n****************" << "DM8_DPI_DELETE" << "****************" << std::endl;
 
 	}
 

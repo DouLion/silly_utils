@@ -3,9 +3,12 @@
 #include <fstream>
 #include <map>
 
-const static char* CFG_SQL_MYSQL = "MYSQL";
-const static char* CFG_SQL_MSSQL = "MSSQL";
-const static char* CFG_SQL_ORACLE = "ORACLE";
+#define SU_SQL_STUDIO_MYSQL			"MYSQL"
+#define SU_SQL_STUDIO_MSSQL			"MSSQL"
+#define SU_SQL_STUDIO_ORACLE		"ORACLE"
+#define SU_SQL_STUDIO_DM8			"DM8"
+#define SU_SQL_STUDIO_POSTGRE		"POSTGRESQL"
+#define SU_SQL_STUDIO_OTHER			"OTHER"
 
 class SqlStudio
 {
@@ -30,25 +33,40 @@ public:
 		for (auto iter = mem.begin(); iter != mem.end(); iter++)
 		{
 			std::string key = (*iter);
-			if (sqlJson[key].isMember(CFG_SQL_MYSQL))
+			if (sqlJson[key].isMember(SU_SQL_STUDIO_MYSQL))
 			{
-				std::string sql = sqlJson[key][CFG_SQL_MYSQL].asString();
+				std::string sql = sqlJson[key][SU_SQL_STUDIO_MYSQL].asString();
 				m_pMYSQL.insert({ key , sql });
 			}
 
-			if (sqlJson[key].isMember(CFG_SQL_MSSQL))
+			if (sqlJson[key].isMember(SU_SQL_STUDIO_MSSQL))
 			{
-				std::string sql = sqlJson[key][CFG_SQL_MSSQL].asString();
+				std::string sql = sqlJson[key][SU_SQL_STUDIO_MSSQL].asString();
 				m_pMSSQL.insert({ key , sql });
 			}
 
-			if (sqlJson[key].isMember(CFG_SQL_ORACLE))
+			if (sqlJson[key].isMember(SU_SQL_STUDIO_ORACLE))
 			{
-				std::string sql = sqlJson[key][CFG_SQL_ORACLE].asString();
+				std::string sql = sqlJson[key][SU_SQL_STUDIO_ORACLE].asString();
 				m_pORACLE.insert({ key , sql });
 			}
+			if (sqlJson[key].isMember(SU_SQL_STUDIO_DM8))
+			{
+				std::string sql = sqlJson[key][SU_SQL_STUDIO_DM8].asString();
+				m_pDM8.insert({ key , sql });
+			}
+			if (sqlJson[key].isMember(SU_SQL_STUDIO_POSTGRE))
+			{
+				std::string sql = sqlJson[key][SU_SQL_STUDIO_POSTGRE].asString();
+				m_pDM8.insert({ key , sql });
+			}
+			if (sqlJson[key].isMember(SU_SQL_STUDIO_OTHER))
+			{
+				std::string sql = sqlJson[key][SU_SQL_STUDIO_OTHER].asString();
+				m_pOTHER.insert({ key , sql });
+			}
 		}
-		if (m_pMYSQL.empty() && m_pMSSQL.empty() && m_pORACLE.empty()) // 全部为空
+		if (m_pMYSQL.empty() && m_pMSSQL.empty() && m_pORACLE.empty() && m_pDM8.empty() && m_pPG.empty() && m_pOTHER.empty()) // 全部为空
 		{
 			return false;
 		}
@@ -59,7 +77,7 @@ public:
 	/// <summary>
 	/// 获取指定类型和功能的SQL
 	/// </summary>
-	/// <param name="type">数据库 类型 参照  otl_header EDBType</param>
+	/// <param name="type">数据库 类型 参照  otl_header.hpp EDBType</param>
 	/// <param name="key"></param>
 	/// <returns></returns>
 	std::string Get(const int& type, const std::string& key)
@@ -72,6 +90,10 @@ public:
 			return m_pMYSQL[key];
 		case 3:
 			return m_pORACLE[key];
+		case 4:
+			return m_pDM8[key];
+		case 5:
+			return m_pPG[key];
 		default:
 			return "";
 		}
@@ -85,5 +107,8 @@ private:
 	std::map<std::string, std::string> m_pMYSQL;
 	std::map<std::string, std::string> m_pMSSQL;
 	std::map<std::string, std::string> m_pORACLE;
+	std::map<std::string, std::string> m_pDM8;
+	std::map<std::string, std::string> m_pPG;
+	std::map<std::string, std::string> m_pOTHER;
 
 };
