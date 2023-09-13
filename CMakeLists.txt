@@ -27,7 +27,9 @@ if (SU_AS_PROJECT)
     set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
     include(env_check)
     include(dm8_check)
-    #include(grib_api_check)
+    if(IS_WINDOWS)
+        include(grib_api_check)
+    endif()
     
 endif ()
 

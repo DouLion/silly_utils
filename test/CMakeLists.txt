@@ -23,3 +23,8 @@ add_executable(${PROJECT_NAME} ${SU_TEST_SRC_FILES})
 target_link_libraries(${PROJECT_NAME} PUBLIC sutils)
 # TODO: 准备添加boost 或者 google test模块以测试所有功能
 target_link_libraries(${PROJECT_NAME} PUBLIC Boost::unit_test_framework)
+if(IS_LINUX)
+    target_link_libraries(${PROJECT_NAME} PUBLIC /opt/dmdbms/bin/libdodbc.so)
+     target_link_libraries(${PROJECT_NAME} PUBLIC /opt/dmdbms/bin/libdmfldr.so)
+     target_link_libraries(${PROJECT_NAME} PUBLIC /opt/dmdbms/bin/libdmdpi.so)
+endif()

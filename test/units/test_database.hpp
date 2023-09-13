@@ -15,6 +15,8 @@
 
 #define BOOST_TEST_INCLUDED
 
+#include <database/otl/otl_header.hpp>
+
 #include "database/dm8/dm8_dpi.h"
 #include <boost/test/unit_test.hpp>
 #include <filesystem>
@@ -36,6 +38,26 @@ BOOST_AUTO_TEST_SUITE(TestDataBase)
 	BOOST_AUTO_TEST_CASE(OTL_CONNECT)      // OTL链接数据库
 	{
 		std::cout << "\r\n\r\n****************" << "OTL_CONNECT" << "****************" << std::endl;
+		otl_connect db;
+		try
+		{
+			db.rlogon("DSN=DM_HUBEI;UID=SYSDBA;PWD=SYSDBA;database=TZX_DYNAMIC_ANALYSIS_HUBEI;");
+			otl_stream os;
+			os.open(256, "select ADCD,ADNM from TZX_DYNAMIC_ANALYSIS_HUBEI.HUBEI_ADCD_INFO;", db);
+			for (auto& s : os)
+			{
+				otl_value<std::string> adcd, adnm;
+				otl_read_row(s, adcd, adnm);
+				std::cout << adcd.v << ", " << adnm.v << std::endl;
+			}
+		}
+		catch (otl_exception& e)
+		{
+			
+			printf("sql:%s \nmessage:%s \n state:%s", e.stm_text, e.msg, e.sqlstate);
+		}
+		db.logoff();
+
 
 	};
 
