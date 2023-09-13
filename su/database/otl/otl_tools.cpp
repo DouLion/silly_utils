@@ -21,34 +21,22 @@ OtlConnOption otl_tools::conn_opt_from_json(const Json::Value &root) {
     {
         retOpt.ip = root[OTL_OPT_JSON_IP].asString();
     }
-    else
-    {
-        return retOpt;
-    }
+   
     if (root.isMember(OTL_OPT_JSON_PORT))
     {
         retOpt.port = root[OTL_OPT_JSON_PORT].asInt();
     }
-    else
-    {
-        return retOpt;
-    }
+   
     if (root.isMember(OTL_OPT_JSON_DRIVER))
     {
         retOpt.driver = root[OTL_OPT_JSON_DRIVER].asString();
     }
-    else
-    {
-        return retOpt;
-    }
+    
     if (root.isMember(OTL_OPT_JSON_SCHEMA))
     {
         retOpt.schema = root[OTL_OPT_JSON_SCHEMA].asString();
     }
-    else
-    {
-        return retOpt;
-    }
+    
     if (root.isMember(OTL_OPT_JSON_USER))
     {
         retOpt.user = root[OTL_OPT_JSON_USER].asString();
