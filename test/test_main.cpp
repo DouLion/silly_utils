@@ -1,5 +1,5 @@
 #pragma once 
-#define BOOST_TEST_MAIN                 // ±ØĞë¶¨ÒåÖ÷²âÊÔÌ×¼ş£¬±ØĞëÎ»ÓÚÍ·ÎÄ¼şÖ®Ç°
+#define BOOST_TEST_MAIN                 // å¿…é¡»å®šä¹‰ä¸»æµ‹è¯•å¥—ä»¶ï¼Œå¿…é¡»ä½äºå¤´æ–‡ä»¶ä¹‹å‰
 #define BOOST_TEST_STATIC_LINK
 
 #include <boost/test/unit_test.hpp>
@@ -11,11 +11,11 @@ using boost::unit_test_framework::test_suite;
 
 //#include "units/test_pyramid.hpp"
 // #include "units/test_file.hpp"
-// #include "units/test_geo.hpp"
+ #include "units/test_geo.hpp"
 //#include "units/test_compress.hpp"
 //#include "units/test_system.hpp"
 // #include "units/test_jpeg.hpp"
-#include "units/test_database.hpp"
+//#include "units/test_database.hpp"
 //#include "units/test_triangular.h"
 //#include "units/test_tcp.hpp"
 //
