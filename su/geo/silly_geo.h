@@ -19,17 +19,17 @@
 #define FLOAT_IGNORE_DIFF   0.000000000000001
 
 //geometry types
-// µã
+// ç‚¹
 #define GEOJSON_GEOMETRY_POINT				"Point"
-// Ïß
+// çº¿
 #define GEOJSON_GEOMETRY_LINE_STRING		"LineString"
-// Ãæ
+// é¢
 #define GEOJSON_GEOMETRY_POLYGON			"Polygon"
-// ¶àµã
+// å¤šç‚¹
 #define GEOJSON_GEOMETRY_MULTI_POINT		"MultiPoint"
-// ¶àÏß
+// å¤šçº¿
 #define GEOJSON_GEOMETRY_MULTI_LINE_STRING	"MultiLineString"
-// ¶àÃæ
+// å¤šé¢
 #define GEOJSON_GEOMETRY_MULTI_POLYGON		"MultiPolygon"
 
 enum enum_geometry_types{
@@ -42,8 +42,8 @@ enum enum_geometry_types{
 	eMultiPolygon = 6
 };
 
-/// µã
-struct silly_point    // ÆÕÍ¨×ø±êµã
+/// ç‚¹
+struct silly_point    // æ™®é€šåæ ‡ç‚¹
 {
 	silly_point() = default;
 
@@ -70,7 +70,7 @@ struct silly_point    // ÆÕÍ¨×ø±êµã
 	}
 };
 
-struct silly_geo_rect    // ÆÕÍ¨×ø±êµã
+struct silly_geo_rect    // æ™®é€šåæ ‡ç‚¹
 {
 	silly_geo_rect() = default;
 
@@ -100,36 +100,36 @@ struct silly_geo_rect    // ÆÕÍ¨×ø±êµã
 	}
 };
 
-// TODO: ºóÃæÕâ¸öÒªÍ³Ò»Îª´ËÀàĞÍ
+// TODO: åé¢è¿™ä¸ªè¦ç»Ÿä¸€ä¸ºæ­¤ç±»å‹
 // typedef silly_point GeoPoint;
 // typedef silly_geo_rect GeoRect;
 
 typedef std::vector<silly_point> silly_multi_point;
 
-/// Ïß
+/// çº¿
 
 typedef std::vector<silly_point> silly_line;
 
 typedef std::vector<silly_line>  silly_multi_silly_line;
 
-/// Ãæ
+/// é¢
 struct silly_ring
 {
 	std::vector<silly_point> points;
 	int is_outer{ 1 };
 };
 
-struct silly_poly	// ÆÕÍ¨Ãæ
+struct silly_poly	// æ™®é€šé¢
 {
-	silly_ring outer_ring;		// Íâ»·
-	std::vector<silly_ring> inner_rings; // ÄÚ»·
+	silly_ring outer_ring;		// å¤–ç¯
+	std::vector<silly_ring> inner_rings; // å†…ç¯
 
 	std::map<std::string, std::string> props;
 };
 
 typedef  std::vector<silly_poly> silly_multi_poly ;
 
-/// ¹¤¾ßÀà
+/// å·¥å…·ç±»
 class silly_geo
 {
 public:

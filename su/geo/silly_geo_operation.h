@@ -11,21 +11,41 @@ class geo_operation
 {
 public:
 
-	// ÇóÒ»¸öÃæµÄĞÎĞÄ(¼¸ºÎÖĞĞÄ)
+	// æ±‚ä¸€ä¸ªé¢çš„å½¢å¿ƒ(å‡ ä½•ä¸­å¿ƒ)
 	static silly_point ring_to_center(silly_ring ring);
 
 	/// <summary>
-	/// ÇóÁ½¸öµãµÄ·½Î»½Ç,p2Ïà¶ÔÓÚp1µÄ·½Î»½Ç(×óÉÏ½ÇÓÒÏÂ½Ç×ø±êÏµ¾ù¿É)
+	/// æ±‚ä¸¤ä¸ªç‚¹çš„æ–¹ä½è§’,p2ç›¸å¯¹äºp1çš„æ–¹ä½è§’(å·¦ä¸Šè§’å³ä¸‹è§’åæ ‡ç³»å‡å¯)
 	/// </summary>
-	/// <param name="p1">²ÎÕÕÎï</param>
-	/// <param name="p2">²ÎÕÕ·½Ïò</param>
-	/// <returns>p2Ïà¶ÔÓÚp1µÄ·½Î»½Ç,½á¹ûÎª½Ç¶ÈÖµ,</returns>
+	/// <param name="p1">å‚ç…§ç‰©</param>
+	/// <param name="p2">å‚ç…§æ–¹å‘</param>
+	/// <returns>p2ç›¸å¯¹äºp1çš„æ–¹ä½è§’,ç»“æœä¸ºè§’åº¦å€¼,</returns>
 	static double two_point_azimuth(silly_point p1, silly_point p2);
 
-	// shp×ªgeojson
+	// shpè½¬geojson
 	static bool shp_to_geojson(const char* shpFile, const char* geojsonFile);
-	// gesjson×ªshp
+	// gesjsonè½¬shp
 	static bool geojson_to_shp(const char* geojsonFile, const char* shpFile);
+
+	static std::vector<silly_ring> read_geojson(const char* geojsonFile);
+
+	/// <summary>
+	/// è¯»å–shpä¸­çš„çŸ¢é‡ç¯,å¹¶è¿”å›å¤šä¸ªç¯çš„æ•°æ®
+	/// </summary>
+	static std::vector<silly_ring> read_shp_ring(const char* shp);
+
+	/// <summary>
+	/// å°†å¤šä¸ªç‚¹åœ¨shpæ–‡ä»¶ä¸­å±•ç¤º
+	/// </summary>
+	static bool points_to_shp(std::vector<silly_point>& points, const char* shpFilePath, const char* outputShpFilePath);
+
+	/// <summary>
+	/// åˆ¤æ–­ä¸¤ä¸ªé¢æ˜¯å¦ç›¸äº¤,å¦‚æœç›¸äº¤æ±‚å‡ºç›¸äº¤åŒºåŸŸ,å¦‚æœä¸ç›¸äº¤,è¿”å›ä¸€ä¸ªç©ºé¢
+	/// </summary>
+	static silly_ring intersect_area(silly_ring ring_1, silly_ring ring_2);
+
+	static silly_ring intersect_area2(silly_ring ring_1, silly_ring ring_2);
+
 
 	geo_operation() = default;
 	~geo_operation() = default;

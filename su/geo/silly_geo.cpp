@@ -156,7 +156,7 @@ std::vector<silly_poly> silly_geo::load_geojson(const std::string& geojson)
 					if (GEOJSON_GEOMETRY_MULTI_POLYGON == type_str)
 					{
 
-						// 多面处理
+						// 澶氶潰澶勭悊
 						for (auto& poly : f[GEOJSON_KEY_GEOMETRY][GEOJSON_KEY_COORDINATES])
 						{
 
@@ -187,7 +187,7 @@ std::vector<silly_poly> silly_geo::load_geojson(const std::string& geojson)
 					}
 					else if (GEOJSON_GEOMETRY_POLYGON == type_str)
 					{
-						// 单面处理
+						// 鍗曢潰澶勭悊
 
 					}
 

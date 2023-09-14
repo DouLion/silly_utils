@@ -23,39 +23,174 @@
 
 BOOST_AUTO_TEST_SUITE(TestGeo)
 
-BOOST_AUTO_TEST_CASE(GEO_AZIMUTH)
+BOOST_AUTO_TEST_CASE(GEO_READ)
 {
-	std::cout << "\r\n\r\n****************" << "GEO_AZIMUTH" << "****************" << std::endl;
+	std::cout << "\r\n\r\n****************" << "GEO_READ" << "****************" << std::endl;
+
+	std::string geo_1 = "D:/1_wangyingjie/code/project_data/read_shp2/risk2.geojson";
+	std::filesystem::path geos_1(geo_1);
+
+
+	// 计算预警区域外环
+	std::string geo_shp = "D:/1_wangyingjie/code/project_data/read_shp2/risk2.shp";
+	std::filesystem::path geo_shp_save(geo_shp);
+	std::vector<silly_ring> risk_rings = geo_operation::read_shp_ring(geo_shp_save.string().c_str());
+	if (risk_rings.empty())
+	{
+		std::cout << "Read risk SHP error! " << std::endl;
+	}
+
+
+	// 读取湖南市区的环
+	std::string shp_1 = "D:/1_wangyingjie/code/project_data/read_shp/hunan_shi_boundary.shp";
+	std::filesystem::path shp_path(shp_1);
+	std::string shp_2 = "D:/1_wangyingjie/code/project_data/read_shp2/area_center_2.shp";
+	std::filesystem::path shp_path2(shp_2);
+	std::vector<silly_ring> shp_rings = geo_operation::read_shp_ring(shp_path.string().c_str());
+	if (shp_rings.empty())
+	{
+		std::cout << "Read area SHP error! " << std::endl;
+	}
+
+	// 排列组合求出相交区域
+	std::vector<silly_ring> intersect_ring;
+	for (int i =0 ; i < risk_rings.size(); i++)
+	{
+		for (int j = 0; j < shp_rings.size(); j++)
+		{
+			silly_ring temp = geo_operation::intersect_area2(risk_rings.at(i), shp_rings.at(j));
+			if (!temp.points.empty())
+			{
+				silly_point city_center = geo_operation::ring_to_center(shp_rings.at(j));
+				silly_point intersect_center = geo_operation::ring_to_center(temp);
+
+				double azimuth = geo_operation::two_point_azimuth(city_center, intersect_center);
+				std::cout << "azimuth: " << azimuth << std::endl;
+				if (azimuth >= -15.0 && azimuth <= 15.0)
+				{
+					std::cout << "北部" << std::endl;
+				}
+				else if (azimuth > 15.0 && azimuth < 75.0)
+				{
+					std::cout << "东北部" << std::endl;
+				}
+				else if (azimuth >= 75.0 && azimuth <= 105.0)
+				{
+					std::cout << "东部" << std::endl;
+				}
+				else if (azimuth > 105.0 && azimuth < 165.0)
+				{
+					std::cout << "东南部" << std::endl;
+				}
+				else if ((azimuth >= 165.0 && azimuth <= 180.0) || (azimuth >= -180.0 && azimuth <= -165.0))
+				{
+					std::cout << "南部" << std::endl;
+				}
+				else if (azimuth > -165.0 && azimuth < -105.0)
+				{
+					std::cout << "西南部" << std::endl;
+				}
+				else if (azimuth >= -105.0 && azimuth <= -75.0)
+				{
+					std::cout << "西部" << std::endl;
+				}
+				else if (azimuth > -75.0 && azimuth < -15.0)
+				{
+					std::cout << "西北部" << std::endl;
+				}
+
+				intersect_ring.push_back(temp);
+			}
+
+		}
+	}
+
+	// 求出相交区域的形心点并画出
+	std::string intersect = "D:/1_wangyingjie/code/project_data/read_shp2/intersect_center_new_3.shp";
+	std::filesystem::path intersect_path(intersect);
+	std::vector<silly_point> intersect_centers;
+	for (auto ir : intersect_ring)
+	{
+		silly_point center = geo_operation::ring_to_center(ir);
+		intersect_centers.push_back(center);
+	}
+	geo_operation::points_to_shp(intersect_centers, shp_path.string().c_str(), intersect_path.string().c_str());
+
+
+	// 计算市的形心点并画出
+	std::vector<silly_point> centers;
+	for (auto rs : shp_rings)
+	{
+		silly_point center = geo_operation::ring_to_center(rs);
+		centers.push_back(center);
+	}
+	//geo_operation::points_to_shp(centers, shp_path.string().c_str(), shp_path2.string().c_str());
+
+
 
 	silly_ring square_1;
 	silly_ring square_2;
-	// ��ʼ�����½�
-	//square_1.points.push_back(silly_point(0, 0));
-	//square_1.points.push_back(silly_point(3, 2));
-	//square_1.points.push_back(silly_point(4, 5));
-	//square_1.points.push_back(silly_point(1, 6));
+	// 起始点左下角
+	square_1.points.push_back(silly_point(0, 0));
+	square_1.points.push_back(silly_point(3, 2));
+	square_1.points.push_back(silly_point(4, 5));
+	square_1.points.push_back(silly_point(1, 6));
+	square_2.points.push_back(silly_point(3, 0));
+	square_2.points.push_back(silly_point(7, 1));
+	square_2.points.push_back(silly_point(6, 4));
+	square_2.points.push_back(silly_point(3, 3));
 
-	//square_2.points.push_back(silly_point(3, 0));
-	//square_2.points.push_back(silly_point(7, 1));
-	//square_2.points.push_back(silly_point(6, 4));
-	//square_2.points.push_back(silly_point(3, 3));
-
-	// ���Ͻ�����ϵ
-	square_1.points.push_back(silly_point(0, -6));
-	square_1.points.push_back(silly_point(3, -4));
-	square_1.points.push_back(silly_point(4, -1));
-	square_1.points.push_back(silly_point(1, 0));
-
-	square_2.points.push_back(silly_point(3, -6));
-	square_2.points.push_back(silly_point(7, -5));
-	square_2.points.push_back(silly_point(6, -2));
-	square_2.points.push_back(silly_point(3, -3));
+	// 左上角坐标系
+	//square_1.points.push_back(silly_point(0, -6));
+	//square_1.points.push_back(silly_point(3, -4));
+	//square_1.points.push_back(silly_point(4, -1));
+	//square_1.points.push_back(silly_point(1, 0));
+	//square_2.points.push_back(silly_point(3, -6));
+	//square_2.points.push_back(silly_point(7, -5));
+	//square_2.points.push_back(silly_point(6, -2));
+	//square_2.points.push_back(silly_point(3, -3));
 
 	silly_point center_1 = geo_operation::ring_to_center(square_1);
 	silly_point center_2 = geo_operation::ring_to_center(square_2);
+	silly_point from(0,0);
+	silly_point to(-1, 1.73);
 
-	double azimuth = geo_operation::two_point_azimuth(center_1, center_2);
+
+
+	double azimuth = geo_operation::two_point_azimuth(from, to);
 	std::cout << "azimuth: " << azimuth << std::endl;
+	if (azimuth >= -15.0 && azimuth <= 15.0)
+	{
+		std::cout<< "北部";
+	}
+	else if (azimuth > 15.0 && azimuth < 75.0)
+	{
+		std::cout<< "东北部";
+	}
+	else if (azimuth >= 75.0 && azimuth <= 105.0)
+	{
+		std::cout<< "东部";
+	}
+	else if (azimuth > 105.0 && azimuth < 165.0)
+	{
+		std::cout<< "东南部";
+	}
+	else if ((azimuth >= 165.0 && azimuth <= 180.0) || (azimuth >= -180.0 && azimuth <= -165.0))
+	{
+		std::cout<< "南部";
+	}
+	else if (azimuth > -165.0 && azimuth < -105.0)
+	{
+		std::cout<< "西南部";
+	}
+	else if (azimuth >= -105.0 && azimuth <= -75.0)
+	{
+		std::cout<< "西部";
+	}
+	else if (azimuth > -75.0 && azimuth < -15.0)
+	{
+		std::cout<< "西北部";
+	}
 
 	int a = 0;
 };

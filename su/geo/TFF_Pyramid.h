@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright(c)2003-2018 ������������Ϣ�Ƽ����޹�˾(http://www.tianzhixiang.net)
+//  Copyright(c)2003-2018 北京天智祥信息科技有限公司(http://www.tianzhixiang.net)
 //  All rights reserved.
 //
 //	@file       TFF_Pyramid.h

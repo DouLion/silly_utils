@@ -4,12 +4,12 @@ google_pyramid_block google_pyramid_util::get_block_rect(size_t l, size_t c, siz
 {
 
 	google_pyramid_block ret_block(l, c, r);
-	int ceil_num = pow(2, l);	// ¸Ã²ãµÄĞĞÊıÁĞÊı
+	int ceil_num = pow(2, l);	// è¯¥å±‚çš„è¡Œæ•°åˆ—æ•°
 	double x_delta = (SILLY_GLOBAL_RIGHT - SILLY_GLOBAL_LEFT) / ceil_num;
 	double y_delta = (SILLY_GLOBAL_TOP - SILLY_GLOBAL_BOTTOM) / ceil_num;
-	ret_block.rect.left = c * x_delta + (0 - SILLY_GLOBAL_LEFT); // Ô­µãx·½ÏòÉÏµÄÆ«ÒÆÁ¿
+	ret_block.rect.left = c * x_delta + (0 - SILLY_GLOBAL_LEFT); // åŸç‚¹xæ–¹å‘ä¸Šçš„åç§»é‡
 	ret_block.rect.right = ret_block.rect.left + x_delta;
-	ret_block.rect.top = SILLY_GLOBAL_TOP - y_delta * r; // ·½ÏòÉÏÓÉÉÏµ½ÏÂ, Óë¾­Î³¶È±íÊ¾µÄÏà·´, ²¢ÇÒ¼õÈ¥y·½ÏòÉÏµÄÆ«ÒÆÁ¿
+	ret_block.rect.top = SILLY_GLOBAL_TOP - y_delta * r; // æ–¹å‘ä¸Šç”±ä¸Šåˆ°ä¸‹, ä¸ç»çº¬åº¦è¡¨ç¤ºçš„ç›¸å, å¹¶ä¸”å‡å»yæ–¹å‘ä¸Šçš„åç§»é‡
 	ret_block.rect.bottom = ret_block.rect.top - y_delta;
 
 	return ret_block;
@@ -18,10 +18,10 @@ google_pyramid_block google_pyramid_util::get_block_rect(size_t l, size_t c, siz
 
 google_pyramid_block google_pyramid_util::get_point_block(const size_t layer, const silly_point& point)
 {
-	// TODO : Íê³Éº¯Êı, ÕâÁ½¸ö¿ÉÄÜ²»Ì«ºÃÓÃ, ÔÙ¿¼ÂÇ
+	// TODO : å®Œæˆå‡½æ•°, è¿™ä¸¤ä¸ªå¯èƒ½ä¸å¤ªå¥½ç”¨, å†è€ƒè™‘
 	google_pyramid_block ret_block;
 
-	int ceil_num = pow(2, layer);	// ¸Ã²ãµÄĞĞÊıÁĞÊı
+	int ceil_num = pow(2, layer);	// è¯¥å±‚çš„è¡Œæ•°åˆ—æ•°
 	double x_delta = (SILLY_GLOBAL_RIGHT - SILLY_GLOBAL_LEFT) / ceil_num;
 	double y_delta = (SILLY_GLOBAL_TOP - SILLY_GLOBAL_BOTTOM) / ceil_num;
 

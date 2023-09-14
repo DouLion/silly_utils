@@ -40,7 +40,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC polyclipping::polyclipping)
 find_package(jsoncpp CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC JsonCpp::JsonCpp)
 
-# ½âÑ¹ËõÄ£¿é
+# ï¿½ï¿½Ñ¹ï¿½ï¿½Ä£ï¿½ï¿½
 find_package(ZLIB REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC ZLIB::ZLIB)
 
@@ -78,7 +78,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC ${GEOTIFF_LIBRARIES})
 
 find_package(GDAL CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC  GDAL::GDAL)
-
+    
 
 
 if(IS_LINUX)

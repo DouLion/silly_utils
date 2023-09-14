@@ -14,20 +14,20 @@
 //
 //    GDALDataset* shpDataset = (GDALDataset*)GDALOpenEx(shpFile, GDAL_OF_VECTOR, NULL, NULL, NULL);
 //    if (shpDataset == nullptr) {
-//        std::cout << "ÎÞ·¨´ò¿ªSHPÎÄ¼þ£¡" << std::endl;
+//        std::cout << "æ— æ³•æ‰“å¼€SHPæ–‡ä»¶ï¼" << std::endl;
 //        return false;
 //    }
 //
 //    GDALDriver* geojsonDriver = GetGDALDriverManager()->GetDriverByName("GeoJSON");
 //    if (geojsonDriver == nullptr) {
-//        std::cout << "ÎÞ·¨´´½¨GeoJSONÇý¶¯£¡" << std::endl;
+//        std::cout << "æ— æ³•åˆ›å»ºGeoJSONé©±åŠ¨ï¼" << std::endl;
 //        GDALClose(shpDataset);
 //        return false;
 //    }
 //
 //    GDALDataset* geojsonDataset = geojsonDriver->CreateCopy(geojsonFile, shpDataset, FALSE, NULL, NULL, NULL);
 //    if (geojsonDataset == nullptr) {
-//        std::cout << "ÎÞ·¨´´½¨Êä³öGeoJSONÎÄ¼þ£¡" << std::endl;
+//        std::cout << "æ— æ³•åˆ›å»ºè¾“å‡ºGeoJSONæ–‡ä»¶ï¼" << std::endl;
 //        GDALClose(shpDataset);
 //        return false;
 //    }
@@ -35,7 +35,7 @@
 //    GDALClose(geojsonDataset);
 //    GDALClose(shpDataset);
 //
-//    std::cout << "SHPÎÄ¼þ³É¹¦×ª»»ÎªGeoJSONÎÄ¼þ£¡" << std::endl;
+//    std::cout << "SHPæ–‡ä»¶æˆåŠŸè½¬æ¢ä¸ºGeoJSONæ–‡ä»¶ï¼" << std::endl;
 //    return true;
 //}
 //
@@ -45,20 +45,20 @@
 //
 //    GDALDataset* geojsonDataset = (GDALDataset*)GDALOpenEx(geojsonFile, GDAL_OF_VECTOR, NULL, NULL, NULL);
 //    if (geojsonDataset == nullptr) {
-//        std::cout << "ÎÞ·¨´ò¿ªGeoJSONÎÄ¼þ£¡" << std::endl;
+//        std::cout << "æ— æ³•æ‰“å¼€GeoJSONæ–‡ä»¶ï¼" << std::endl;
 //        return false;
 //    }
 //
 //    GDALDriver* shpDriver = GetGDALDriverManager()->GetDriverByName("ESRI Shapefile");
 //    if (shpDriver == nullptr) {
-//        std::cout << "ÎÞ·¨´´½¨SHPÇý¶¯£¡" << std::endl;
+//        std::cout << "æ— æ³•åˆ›å»ºSHPé©±åŠ¨ï¼" << std::endl;
 //        GDALClose(geojsonDataset);
 //        return false;
 //    }
 //
 //    GDALDataset* shpDataset = shpDriver->CreateCopy(shpFile, geojsonDataset, FALSE, NULL, NULL, NULL);
 //    if (shpDataset == nullptr) {
-//        std::cout << "ÎÞ·¨´´½¨Êä³öSHPÎÄ¼þ£¡" << std::endl;
+//        std::cout << "æ— æ³•åˆ›å»ºè¾“å‡ºSHPæ–‡ä»¶ï¼" << std::endl;
 //        GDALClose(geojsonDataset);
 //        return false;
 //    }
@@ -66,6 +66,6 @@
 //    GDALClose(shpDataset);
 //    GDALClose(geojsonDataset);
 //
-//    std::cout << "GeoJSONÎÄ¼þ³É¹¦×ª»»ÎªSHPÎÄ¼þ£¡" << std::endl;
+//    std::cout << "GeoJSONæ–‡ä»¶æˆåŠŸè½¬æ¢ä¸ºSHPæ–‡ä»¶ï¼" << std::endl;
 //    return true;
 //}

@@ -22,7 +22,7 @@
 #define SILLY_GLOBAL_BOTTOM 	-90.0
 
 /// <summary>
-/// �����ͼ���Ͻ�Ϊԭ��, ���½�Ϊ (max, max)
+/// 世界地图左上角为原点, 右下角为 (max, max)
 /// </summary>
 class google_pyramid_block
 {
@@ -34,14 +34,14 @@ public:
 		col = c;
 		row = r;
 	}
-	// ���,���к� ��0 ��ʼ
+	// 层号,行列号 从0 开始
 	size_t layer{ 0 };
 	size_t col{ 0 };
 	size_t row{ 0 };
-	// TODO: �ò��ͼ��Ŀ���, �и����㹫ʽ
+	// TODO: 该层的图像的宽高, 有个计算公式
 	size_t width;
 	size_t height;
-	// ��γ��Χ
+	// 经纬范围
 	silly_geo_rect rect;
 };
 
@@ -49,7 +49,7 @@ class google_pyramid_util
 {
 public:
 	/// <summary>
-	/// ��ȡָ����ľ�γ��Χ
+	/// 获取指定块的经纬范围
 	/// </summary>
 	/// <param name="l"></param>
 	/// <param name="c"></param>
@@ -59,7 +59,7 @@ public:
 	
 
 	/// <summary>
-	/// �������ָ�������ڵĿ���Ϣ
+	/// 坐标点在指定层所在的块信息
 	/// </summary>
 	/// <param name="layer"></param>
 	/// <param name="point"></param>
