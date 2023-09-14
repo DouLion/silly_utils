@@ -28,7 +28,7 @@ if (SU_AS_PROJECT)
     include(env_check)
     include(dm8_check)
     if(IS_WINDOWS)
-        include(grib_api_check)
+        #include(grib_api_check)
     endif()
     
 endif ()

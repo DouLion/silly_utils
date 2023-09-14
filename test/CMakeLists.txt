@@ -21,7 +21,7 @@ set(Boost_NO_WARN_NEW_VERSIONS 1)
 find_package(Boost COMPONENTS unit_test_framework REQUIRED)		
 add_executable(${PROJECT_NAME} ${SU_TEST_SRC_FILES})
 target_link_libraries(${PROJECT_NAME} PUBLIC sutils)
-# TODO: ×¼±¸Ìí¼Óboost »òÕß google testÄ£¿éÒÔ²âÊÔËùÓĞ¹¦ÄÜ
+# TODO: å‡†å¤‡æ·»åŠ boost æˆ–è€… google testæ¨¡å—ä»¥æµ‹è¯•æ‰€æœ‰åŠŸèƒ½
 target_link_libraries(${PROJECT_NAME} PUBLIC Boost::unit_test_framework)
 if(IS_LINUX)
     target_link_libraries(${PROJECT_NAME} PUBLIC /opt/dmdbms/bin/libdodbc.so)

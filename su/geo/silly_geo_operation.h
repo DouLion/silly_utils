@@ -27,6 +27,9 @@ public:
 	// gesjson转shp
 	static bool geojson_to_shp(const char* geojsonFile, const char* shpFile);
 
+	/// <summary>
+	/// 读取geojson中的矢量环,并返回多个环的数据(该函数有问题)
+	/// </summary>
 	static std::vector<silly_ring> read_geojson(const char* geojsonFile);
 
 	/// <summary>
@@ -44,7 +47,7 @@ public:
 	/// </summary>
 	static silly_ring intersect_area(silly_ring ring_1, silly_ring ring_2);
 
-	static silly_ring intersect_area2(silly_ring ring_1, silly_ring ring_2);
+
 
 
 	geo_operation() = default;

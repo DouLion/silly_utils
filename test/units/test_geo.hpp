@@ -23,108 +23,99 @@
 
 BOOST_AUTO_TEST_SUITE(TestGeo)
 
-BOOST_AUTO_TEST_CASE(GEO_READ)
+
+BOOST_AUTO_TEST_CASE(GEO_INTERSECTION_CENTROID)
 {
-	std::cout << "\r\n\r\n****************" << "GEO_READ" << "****************" << std::endl;
+	std::cout << "\r\n\r\n****************" << "GEO_INTERSECTION_CENTROID" << "****************" << std::endl;
 
-	std::string geo_1 = "D:/1_wangyingjie/code/project_data/read_shp2/risk2.geojson";
-	std::filesystem::path geos_1(geo_1);
-
+	// 读取湖南市区的环
+	std::filesystem::path huanan(DEFAULT_DATA_DIR);
+	huanan += "/read_shp/hunan_shi_boundary.shp";
+	std::vector<silly_ring> shp_rings = geo_operation::read_shp_ring(huanan.string().c_str());
+	if (shp_rings.empty())
+	{
+		std::cout << "Read huanan SHP error! " << std::endl;
+	}
 
 	// 计算预警区域外环
-	std::string geo_shp = "D:/1_wangyingjie/code/project_data/read_shp2/risk2.shp";
-	std::filesystem::path geo_shp_save(geo_shp);
-	std::vector<silly_ring> risk_rings = geo_operation::read_shp_ring(geo_shp_save.string().c_str());
+	std::filesystem::path risk2(DEFAULT_DATA_DIR);
+	risk2 += "/read_shp/risk2.shp";
+	std::vector<silly_ring> risk_rings = geo_operation::read_shp_ring(risk2.string().c_str());
 	if (risk_rings.empty())
 	{
 		std::cout << "Read risk SHP error! " << std::endl;
 	}
 
-
-	// 读取湖南市区的环
-	std::string shp_1 = "D:/1_wangyingjie/code/project_data/read_shp/hunan_shi_boundary.shp";
-	std::filesystem::path shp_path(shp_1);
-	std::string shp_2 = "D:/1_wangyingjie/code/project_data/read_shp2/area_center_2.shp";
-	std::filesystem::path shp_path2(shp_2);
-	std::vector<silly_ring> shp_rings = geo_operation::read_shp_ring(shp_path.string().c_str());
-	if (shp_rings.empty())
-	{
-		std::cout << "Read area SHP error! " << std::endl;
-	}
-
 	// 排列组合求出相交区域
 	std::vector<silly_ring> intersect_ring;
-	for (int i =0 ; i < risk_rings.size(); i++)
+	for (int i = 0; i < risk_rings.size(); i++)
 	{
 		for (int j = 0; j < shp_rings.size(); j++)
 		{
-			silly_ring temp = geo_operation::intersect_area2(risk_rings.at(i), shp_rings.at(j));
+			// 求出相交区域
+			silly_ring temp = geo_operation::intersect_area(risk_rings.at(i), shp_rings.at(j));
 			if (!temp.points.empty())
 			{
+				std::cout << "j: " << j << std::endl;
+				// 计算市的形心
 				silly_point city_center = geo_operation::ring_to_center(shp_rings.at(j));
-				silly_point intersect_center = geo_operation::ring_to_center(temp);
+				std::cout << "city_center: " << "x:" << city_center.lgtd << "   y:" << city_center.lttd << std::endl;
 
+				// 计算预警区域的形心
+				silly_point intersect_center = geo_operation::ring_to_center(temp);
+				std::cout << "intersect_center: " << "x:" << intersect_center.lgtd << "   y:" << intersect_center.lttd << std::endl;
+				// 计算两点夹角
 				double azimuth = geo_operation::two_point_azimuth(city_center, intersect_center);
+
+				// 判断方向
 				std::cout << "azimuth: " << azimuth << std::endl;
 				if (azimuth >= -15.0 && azimuth <= 15.0)
 				{
-					std::cout << "北部" << std::endl;
+					std::cout << "north" << std::endl;
 				}
 				else if (azimuth > 15.0 && azimuth < 75.0)
 				{
-					std::cout << "东北部" << std::endl;
+					std::cout << "northeast" << std::endl;
 				}
 				else if (azimuth >= 75.0 && azimuth <= 105.0)
 				{
-					std::cout << "东部" << std::endl;
+					std::cout << "eastern" << std::endl;
 				}
 				else if (azimuth > 105.0 && azimuth < 165.0)
 				{
-					std::cout << "东南部" << std::endl;
+					std::cout << "Southeast" << std::endl;
 				}
 				else if ((azimuth >= 165.0 && azimuth <= 180.0) || (azimuth >= -180.0 && azimuth <= -165.0))
 				{
-					std::cout << "南部" << std::endl;
+					std::cout << "south" << std::endl;
 				}
 				else if (azimuth > -165.0 && azimuth < -105.0)
 				{
-					std::cout << "西南部" << std::endl;
+					std::cout << "southwest" << std::endl;
 				}
 				else if (azimuth >= -105.0 && azimuth <= -75.0)
 				{
-					std::cout << "西部" << std::endl;
+					std::cout << "west" << std::endl;
 				}
 				else if (azimuth > -75.0 && azimuth < -15.0)
 				{
-					std::cout << "西北部" << std::endl;
+					std::cout << "Northwest" << std::endl;
 				}
 
-				intersect_ring.push_back(temp);
+				//intersect_ring.push_back(temp);
+				std::cout << "*********************************" << std::endl;
 			}
+
 
 		}
 	}
 
-	// 求出相交区域的形心点并画出
-	std::string intersect = "D:/1_wangyingjie/code/project_data/read_shp2/intersect_center_new_3.shp";
-	std::filesystem::path intersect_path(intersect);
-	std::vector<silly_point> intersect_centers;
-	for (auto ir : intersect_ring)
-	{
-		silly_point center = geo_operation::ring_to_center(ir);
-		intersect_centers.push_back(center);
-	}
-	geo_operation::points_to_shp(intersect_centers, shp_path.string().c_str(), intersect_path.string().c_str());
+	int a = 0;
+};
 
-
-	// 计算市的形心点并画出
-	std::vector<silly_point> centers;
-	for (auto rs : shp_rings)
-	{
-		silly_point center = geo_operation::ring_to_center(rs);
-		centers.push_back(center);
-	}
-	//geo_operation::points_to_shp(centers, shp_path.string().c_str(), shp_path2.string().c_str());
+BOOST_AUTO_TEST_CASE(GEO_AZIMUTH)
+{
+	std::cout << "\r\n\r\n****************" << "GEO_AZIMUTH" << "****************" << std::endl;
 
 
 
@@ -213,9 +204,6 @@ BOOST_AUTO_TEST_CASE(GEO_SHP_GEOJSON)
 
 	int a = 0;
 };
-
-
-
 
 
 

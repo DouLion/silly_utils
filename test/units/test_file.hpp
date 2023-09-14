@@ -6,7 +6,7 @@
  * @date: 2023/8/10 18:06
  * @version: 1.0.1
  * @software: silly_utils
- * @description: 文件关联处理功能测试
+ * @description: 鏂囦欢鍏宠仈澶勭悊鍔熻兘娴嬭瘯
  */
 #pragma once
 
@@ -20,7 +20,7 @@
 
 BOOST_AUTO_TEST_SUITE(TestFiles)
 
-BOOST_AUTO_TEST_CASE(MMAP_READ)		// mmap文件读取
+BOOST_AUTO_TEST_CASE(MMAP_READ)		// mmap鏂囦欢璇诲彇
 {
 	std::cout << "\r\n\r\n****************" << "MMAP_READ" << "****************" << std::endl;
 	std::filesystem::path p(DEFAULT_DATA_DIR);
