@@ -9,11 +9,11 @@ int main(int argc, char** argv)
 	//SetCursorPos(124, 16);
 	////GetCursorPos(&pt);
 	////printf("---mouse--- x = %d, y = %d---\n", pt.x, pt.y);
-	//mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0); //按下左键
-	//mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);hwnd //松开左键
+	//mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0); //鎸変笅宸﹂敭
+	//mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);hwnd //鏉惧紑宸﹂敭
 	HWND hwnd; 
 	hwnd = FindWindow(NULL, L"VLC media player");
-	//hwnd = FindWindow(NULL, L"WR-X50雷达系统显控软件");
+	//hwnd = FindWindow(NULL, L"WR-X50闆疯揪绯荤粺鏄炬帶杞欢");
 	if (NULL == hwnd)
 	{
 		printf("Not found");
@@ -21,7 +21,7 @@ int main(int argc, char** argv)
 	}
 	ShowWindow(hwnd, SW_NORMAL);
 	
-	// 固定位置,并且置顶显示
+	// 鍥哄畾浣嶇疆,骞朵笖缃《鏄剧ず
 	SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 200, 200, SWP_SHOWWINDOW);
 
 	return 0;

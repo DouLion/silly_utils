@@ -55,7 +55,7 @@ public:
 
 //std::vector<DataValue> data_values =
 //{
-//    DataValue("1-10mm", 140, 247, 148),  // Ê¹ÓÃÓĞ²Î¹¹Ôìº¯Êı´´½¨Ò»¸ö¾ßÓĞÎÄ±¾ºÍ RGB ÖµµÄ DataValue ¶ÔÏó
+//    DataValue("1-10mm", 140, 247, 148),  // ä½¿ç”¨æœ‰å‚æ„é€ å‡½æ•°åˆ›å»ºä¸€ä¸ªå…·æœ‰æ–‡æœ¬å’Œ RGB å€¼çš„ DataValue å¯¹è±¡
 //    DataValue("10-25mm", 0, 174, 33),
 //    DataValue("25-50mm", 33, 190, 255),
 //    DataValue("50-100mm", 0, 4, 255),
@@ -65,10 +65,10 @@ public:
 //};
 std::vector<DataValue> data_values =
 {
-    DataValue("¿ÉÄÜĞÔºÜ´ó", 255, 0, 0), 
-    DataValue("¿ÉÄÜĞÔ´ó", 255, 160, 0),
-    DataValue("¿ÉÄÜĞÔ½Ï´ó", 255, 255, 0),
-    DataValue("¿ÉÄÜ·¢Éú", 0, 0, 255),
+    DataValue("å¯èƒ½æ€§å¾ˆå¤§", 255, 0, 0), 
+    DataValue("å¯èƒ½æ€§å¤§", 255, 160, 0),
+    DataValue("å¯èƒ½æ€§è¾ƒå¤§", 255, 255, 0),
+    DataValue("å¯èƒ½å‘ç”Ÿ", 0, 0, 255),
 };
 
 void draw_polygon(cairo_t* cr, std::vector<silly_poly>& g2p)
@@ -82,22 +82,22 @@ void draw_polygon(cairo_t* cr, std::vector<silly_poly>& g2p)
     {
         if (polygon.props["grade"] == "4")
         {
-            std::cout << "À¶" << std::endl;
+            std::cout << "è“" << std::endl;
             cairo_set_source_rgba(cr, 0, 0, 1, COLOR_ALPHA);
         }
         else if (polygon.props["grade"] == "3")
         {
-            std::cout << "»Æ" << std::endl;
+            std::cout << "é»„" << std::endl;
             cairo_set_source_rgba(cr, 1, 1, 0, COLOR_ALPHA);
         }
         else if (polygon.props["grade"] == "2")
         {
-            std::cout << "³È" << std::endl;
+            std::cout << "æ©™" << std::endl;
             cairo_set_source_rgba(cr, 1, 0.55, 0, COLOR_ALPHA);
         }
         else if (polygon.props["grade"] == "1")
         {
-            std::cout << "ºì" << std::endl;
+            std::cout << "çº¢" << std::endl;
             cairo_set_source_rgba(cr, 1, 0, 0, COLOR_ALPHA);
         }
 
@@ -136,11 +136,11 @@ void draw_polygon(cairo_t* cr, std::vector<silly_poly>& g2p)
 }
 
 /// <summary>
-/// ¶ÁÈ¡Ò»¸öpngÍ¼Æ¬,ÔÚÍ¼Æ¬ÉÏĞ´ÎÄ¼ş,²¢ÉèÖÃÑÕÉ«¿òºÍÖµ,ºÍÍ¼Æ¬ÃûÀ×´ïÕ¾Êµ²â½µÓê
+/// è¯»å–ä¸€ä¸ªpngå›¾ç‰‡,åœ¨å›¾ç‰‡ä¸Šå†™æ–‡ä»¶,å¹¶è®¾ç½®é¢œè‰²æ¡†å’Œå€¼,å’Œå›¾ç‰‡åé›·è¾¾ç«™å®æµ‹é™é›¨
 /// </summary>
-/// <param name="in_png_path">¶ÁÈ¡pngµØÖ·</param>
-/// <param name="out_png_path">pngµØÖ·</param>
-/// <param name="data_values">´«ÈëvectorÀàĞÍµÄÑÕÉ«¿ò±êÌâºÍ¸Ã¿ò¶ÔÓ¦µÄrgbÖµ</param>
+/// <param name="in_png_path">è¯»å–pngåœ°å€</param>
+/// <param name="out_png_path">pngåœ°å€</param>
+/// <param name="data_values">ä¼ å…¥vectorç±»å‹çš„é¢œè‰²æ¡†æ ‡é¢˜å’Œè¯¥æ¡†å¯¹åº”çš„rgbå€¼</param>
 bool write_png_color_box(std::string in_png_path, std::string out_png_path, std::vector<DataValue> data_values)
 {
     bool res = false;
@@ -168,13 +168,13 @@ bool write_png_color_box(std::string in_png_path, std::string out_png_path, std:
     int font_size_1 = 40;
     cairo_set_font_size(cr, 40.0 * scale);
     cairo_move_to(cr, 0.5 * w - font_size_1 * 14 * scale/2, 60 * scale);
-    //cairo_show_text(cr, GBK2UTF8("À×´ïÕ¾Êµ²â½µÓê ").c_str());
-    cairo_show_text(cr, silly_conv::GBK2UTF8("ºşÄÏÊ¡É½ºéÔÖº¦ÆøÏó·çÏÕÔ¤¾¯Í¼").c_str());
+    //cairo_show_text(cr, GBK2UTF8("é›·è¾¾ç«™å®æµ‹é™é›¨ ").c_str());
+    cairo_show_text(cr, silly_conv::GBK2UTF8("æ¹–å—çœå±±æ´ªç¾å®³æ°”è±¡é£é™©é¢„è­¦å›¾").c_str());
     // cairo_show_text(cr, " AABBBCCCCCC ");
 
     cairo_set_font_size(cr, 20.0 * scale);
     cairo_move_to(cr, 0.5 * w - 200 * scale, 90 * scale);
-    std::string time_strrr = "2023Äê08ÔÂ01ÈÕ08Ê± ÖÁ 2023Äê08ÔÂ02ÈÕ08Ê±"; // TimeToFormatString(btm, "%YÄê%mÔÂ%dÈÕ%HÊ± ÖÁ ") + TimeToFormatString(etm, "%YÄê%mÔÂ%dÈÕ%HÊ±");
+    std::string time_strrr = "2023å¹´08æœˆ01æ—¥08æ—¶ è‡³ 2023å¹´08æœˆ02æ—¥08æ—¶"; // TimeToFormatString(btm, "%Yå¹´%mæœˆ%dæ—¥%Hæ—¶ è‡³ ") + TimeToFormatString(etm, "%Yå¹´%mæœˆ%dæ—¥%Hæ—¶");
     cairo_show_text(cr, silly_conv::GBK2UTF8(time_strrr).c_str());
     cairo_stroke(cr);
   
@@ -198,7 +198,7 @@ bool write_png_color_box(std::string in_png_path, std::string out_png_path, std:
         cairo_set_line_width(cr, 2* scale);
         cairo_move_to(cr, symbol_start_x + symobl_width + 5 * scale , symbol_start_y + symbol_height * i + symbol_step * i + symbol_height * 1);
         cairo_set_source_rgba(cr, 0, 0, 0, 1);
-        cairo_show_text(cr, silly_conv::GBK2UTF8(data_values[i].text.c_str()).c_str()); // Ê¹ÓÃÏàÓ¦µÄÎÄ±¾
+        cairo_show_text(cr, silly_conv::GBK2UTF8(data_values[i].text.c_str()).c_str()); // ä½¿ç”¨ç›¸åº”çš„æ–‡æœ¬
        
         cairo_fill(cr);
     }
