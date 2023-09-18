@@ -22,30 +22,34 @@ public:
 	/// <returns>p2相对于p1的方位角,结果为角度值,</returns>
 	static double two_point_azimuth(silly_point p1, silly_point p2);
 
-	// shp转geojson
-	static bool shp_to_geojson(const char* shpFile, const char* geojsonFile);
-	// gesjson转shp
-	static bool geojson_to_shp(const char* geojsonFile, const char* shpFile);
 
 	/// <summary>
 	/// 读取geojson中的矢量环,并返回多个环的数据(该函数有问题)
 	/// </summary>
+	/// <param name="geojsonFile">读取geojson文件地址</param>
 	static std::vector<silly_ring> read_geojson(const char* geojsonFile);
 
 	/// <summary>
 	/// 读取shp中的矢量环,并返回多个环的数据
 	/// </summary>
+	/// <param name="shp">读取SHP文件地址</param>
 	static std::vector<silly_ring> read_shp_ring(const char* shp);
 
 	/// <summary>
-	/// 将多个点在shp文件中展示
+	/// 读取一个shp文件,将多个坐标点绘制在读取的shp文件中的位置,并生成一个新的shp文件
 	/// </summary>
+	/// <param name="points">需要绘制的坐标点</param>
+	/// <param name="shpFilePath">读取SHP文件地址</param>
+	/// <param name="outputShpFilePath">写入SHP文件地址</param>
 	static bool points_to_shp(std::vector<silly_point>& points, const char* shpFilePath, const char* outputShpFilePath);
 
 	/// <summary>
-	/// 判断两个面是否相交,如果相交求出相交区域,如果不相交,返回一个空面
+	/// 判断两个面是否相交,如果相交求出相交区域,如果不相交,返回一个空面的数组
+	/// 两个面的相交可能有多个连续的区域,每个区域要单独存储,返回多个面的数组
 	/// </summary>
-	static silly_ring intersect_area(silly_ring ring_1, silly_ring ring_2);
+	/// <param name="ring_1">面1</param>
+	/// <param name="ring_2">面2</param>
+	static std::vector<silly_ring>  intersect_area(silly_ring ring_1, silly_ring ring_2);
 
 
 

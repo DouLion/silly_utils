@@ -7,7 +7,6 @@
 #include "gdal.h"
 #include "gdal_priv.h"
 #include "ogrsf_frmts.h"
-#include <ogrsf_frmts.h>
 #include <polyclipping/clipper.hpp>
 using namespace ClipperLib;
 #endif
@@ -31,9 +30,9 @@ silly_point geo_operation::ring_to_center(silly_ring ring)
         sumX += (currentPoint.lgtd + nextPoint.lgtd) * product;
         sumY += (currentPoint.lttd + nextPoint.lttd) * product;
     }
-
     area /= 2;
     area < 0 ? -area : area;
+
     // 形心坐标的分母部分
     double denominator = 1 / (6 * area);
 
@@ -53,98 +52,11 @@ double geo_operation::two_point_azimuth(silly_point from, silly_point to)
 {
     double theta = atan2(to.lgtd - from.lgtd, to.lttd - from.lttd);
     theta = theta * 180.0 / UM_PI;
-    // 将角度范围限制在 -180 到 180 度之间
-    //if (theta < -180.0) 
-    //{
-    //    theta += 360.0;
-    //}
-    //else if (theta > 180.0) 
-    //{
-    //    theta -= 360.0;
-    //}
     return theta;
 }
 
 
-bool geo_operation::shp_to_geojson(const char* shpFile, const char* geojsonFile)
-{
-#if IS_WIN32
-    GDALAllRegister();
-    // 支持中文路径
-    CPLSetConfigOption("GDAL_FILENAME_IS_UTF8", "NO");	
-    // 属性表字段支持中文
-    CPLSetConfigOption("SHAPE_ENCODING", "");
-    GDALDataset* shpDataset = (GDALDataset*)GDALOpenEx(shpFile, GDAL_OF_VECTOR, NULL, NULL, NULL);
-    if (shpDataset == nullptr)
-    {
-        std::cout << "Unable to open SHP file  " << std::endl;
-        return false;
-    }
 
-    GDALDriver* geojsonDriver = GetGDALDriverManager()->GetDriverByName("GeoJSON");
-    if (geojsonDriver == nullptr)
-    {
-        std::cout << "Unable to create GeoJSON driver  " << std::endl;
-        GDALClose(shpDataset);
-        return false;
-    }
-
-    GDALDataset* geojsonDataset = geojsonDriver->CreateCopy(geojsonFile, shpDataset, FALSE, NULL, NULL, NULL);
-    if (geojsonDataset == nullptr)
-    {
-        std::cout << "Unable to create output GeoJSON file  " << std::endl;
-        GDALClose(shpDataset);
-        return false;
-    }
-
-    GDALClose(geojsonDataset);
-    GDALClose(shpDataset);
-    std::cout << "SHP file successfully converted to GeoJSON file  " << std::endl;
-#endif
-    return true;
-
-}
-
-bool geo_operation::geojson_to_shp(const char* geojsonFile, const char* shpFile)
-{
-#if IS_WIN32
-
-    GDALAllRegister();
-    // 支持中文路径
-    CPLSetConfigOption("GDAL_FILENAME_IS_UTF8", "NO");
-    // 属性表字段支持中文
-    CPLSetConfigOption("SHAPE_ENCODING", "");
-
-    GDALDataset* geojsonDataset = (GDALDataset*)GDALOpenEx(geojsonFile, GDAL_OF_VECTOR, NULL, NULL, NULL);
-    if (geojsonDataset == nullptr)
-    {
-        std::cout << "Unable to open GeoJSON file " << std::endl;
-        return false;
-    }
-
-    GDALDriver* shpDriver = GetGDALDriverManager()->GetDriverByName("ESRI Shapefile");
-    if (shpDriver == nullptr)
-    {
-        std::cout << "Unable to create SHP driver " << std::endl;
-        GDALClose(geojsonDataset);
-        return false;
-    }
-
-    GDALDataset* shpDataset = shpDriver->CreateCopy(shpFile, geojsonDataset, FALSE, NULL, NULL, NULL);
-    if (shpDataset == nullptr)
-    {
-        std::cout << "Unable to create output SHP file " << std::endl;
-        GDALClose(geojsonDataset);
-        return false;
-    }
-
-    GDALClose(shpDataset);
-    GDALClose(geojsonDataset);
-    std::cout << "GeoJSON file successfully converted to SHP file " << std::endl;
-
-#endif
-    return true;
-}
 
 std::vector<silly_ring> geo_operation::read_shp_ring(const char* shp)
 {
@@ -440,7 +352,7 @@ OGRPolygon* createPolygonFromSillyRing(const silly_ring& ring)
     return polygon;
 }
 
-/// polygon类型转silly_ring
+/// OGRPolygon类型转silly_ring
 silly_ring convertPolygonToSillyRing(OGRPolygon* polygon) 
 {
     silly_ring ring;
@@ -479,108 +391,121 @@ silly_ring convertPolygonToSillyRing(OGRPolygon* polygon)
 #endif
 
 
-silly_ring geo_operation::intersect_area(silly_ring ring_1, silly_ring ring_2)
+std::vector<silly_ring> geo_operation::intersect_area(silly_ring ring_1, silly_ring ring_2)
 {
-    silly_ring intersecting_ring;
+    std::vector<silly_ring> intersecting_rings;
 #if IS_WIN32
     // 创建 OGRPolygon 对象
     OGRPolygon* poly1 = createPolygonFromSillyRing(ring_1);
     OGRPolygon* poly2 = createPolygonFromSillyRing(ring_2);
 
     // 判断两个 OGRPolygon 是否相交
-    if (!poly1->Intersects(poly2)) 
+    if (!poly1->Intersects(poly2))
     {
-        // 不相交，返回空面
+        // 不相交，返回空的vector
         delete poly1;
         delete poly2;
-        return silly_ring();
+        return intersecting_rings;
     }
+
     // 计算相交区域
     OGRGeometry* intersection = poly1->Intersection(poly2);
 
     // 处理不同几何类型的情况
-    int geometryType = intersection->getGeometryType();
-    switch (geometryType) 
+    OGRwkbGeometryType geometryType = intersection->getGeometryType();
+    switch (geometryType)
     {
-        // 单环多边形
-        case wkbPolygon:
+        //单环多边形
+    case wkbPolygon:
+    case wkbPolygon25D:
+    {
+        OGRPolygon* intersectingPolygon = dynamic_cast<OGRPolygon*>(intersection);
+
+        // 获取多边形的外环
+        OGRLinearRing* ring = intersectingPolygon->getExteriorRing();
+        int numPoints = ring->getNumPoints();
+        silly_ring intersecting_ring;
+        for (int i = 0; i < numPoints; i++)
         {
-            OGRPolygon* intersectingPolygon = dynamic_cast<OGRPolygon*>(intersection);
+            OGRPoint point;
+            ring->getPoint(i, &point);
+            intersecting_ring.points.push_back(silly_point(point.getX(), point.getY()));
+        }
+
+        // 获取多边形的内环（如果存在）
+        int numInteriorRings = intersectingPolygon->getNumInteriorRings();
+        for (int j = 0; j < numInteriorRings; j++)
+        {
+            OGRLinearRing* interiorRing = intersectingPolygon->getInteriorRing(j);
+            int numInteriorPoints = interiorRing->getNumPoints();
+            for (int k = 0; k < numInteriorPoints; k++)
+            {
+                OGRPoint interiorPoint;
+                interiorRing->getPoint(k, &interiorPoint);
+                intersecting_ring.points.push_back(silly_point(interiorPoint.getX(), interiorPoint.getY()));
+            }
+        }
+
+        intersecting_rings.push_back(intersecting_ring);
+        delete intersectingPolygon;
+        break;
+    }
+    // 多个多边形
+    case wkbMultiPolygon:
+    case wkbMultiPolygon25D:
+    {
+        OGRMultiPolygon* intersectingMultiPolygon = dynamic_cast<OGRMultiPolygon*>(intersection);
+
+        // 获取多边形集合中的各个多边形
+        int numPolygons = intersectingMultiPolygon->getNumGeometries();
+        for (int i = 0; i < numPolygons; i++)
+        {
+            OGRPolygon* polygon = dynamic_cast<OGRPolygon*>(intersectingMultiPolygon->getGeometryRef(i));
+            silly_ring intersecting_ring;
 
             // 获取多边形的外环
-            OGRLinearRing* ring = intersectingPolygon->getExteriorRing();
+            OGRLinearRing* ring = polygon->getExteriorRing();
             int numPoints = ring->getNumPoints();
-            for (int i = 0; i < numPoints; i++)
+            for (int j = 0; j < numPoints; j++)
             {
                 OGRPoint point;
-                ring->getPoint(i, &point);
+                ring->getPoint(j, &point);
                 intersecting_ring.points.push_back(silly_point(point.getX(), point.getY()));
             }
 
             // 获取多边形的内环（如果存在）
-            int numInteriorRings = intersectingPolygon->getNumInteriorRings();
-            for (int j = 0; j < numInteriorRings; j++)
+            int numInteriorRings = polygon->getNumInteriorRings();
+            for (int k = 0; k < numInteriorRings; k++)
             {
-                OGRLinearRing* interiorRing = intersectingPolygon->getInteriorRing(j);
+                OGRLinearRing* interiorRing = polygon->getInteriorRing(k);
                 int numInteriorPoints = interiorRing->getNumPoints();
-                for (int k = 0; k < numInteriorPoints; k++)
+                for (int m = 0; m < numInteriorPoints; m++)
                 {
                     OGRPoint interiorPoint;
-                    interiorRing->getPoint(k, &interiorPoint);
+                    interiorRing->getPoint(m, &interiorPoint);
                     intersecting_ring.points.push_back(silly_point(interiorPoint.getX(), interiorPoint.getY()));
                 }
             }
-            delete intersectingPolygon;
-            break;
+
+            intersecting_rings.push_back(intersecting_ring);
         }
-        // 多个多边形
-        case wkbMultiPolygon:
-        {
-            OGRMultiPolygon* intersectingMultiPolygon = dynamic_cast<OGRMultiPolygon*>(intersection);
 
-            // 获取多边形集合中的各个多边形
-            int numPolygons = intersectingMultiPolygon->getNumGeometries();
-            for (int i = 0; i < numPolygons; i++)
-            {
-                OGRPolygon* polygon = dynamic_cast<OGRPolygon*>(intersectingMultiPolygon->getGeometryRef(i));
-
-                // 获取多边形的外环
-                OGRLinearRing* ring = polygon->getExteriorRing();
-                int numPoints = ring->getNumPoints();
-                for (int j = 0; j < numPoints; j++)
-                {
-                    OGRPoint point;
-                    ring->getPoint(j, &point);
-                    intersecting_ring.points.push_back(silly_point(point.getX(), point.getY()));
-                }
-
-                // 获取多边形的内环（如果存在）
-                int numInteriorRings = polygon->getNumInteriorRings();
-                for (int k = 0; k < numInteriorRings; k++)
-                {
-                    OGRLinearRing* interiorRing = polygon->getInteriorRing(k);
-                    int numInteriorPoints = interiorRing->getNumPoints();
-                    for (int m = 0; m < numInteriorPoints; m++)
-                    {
-                        OGRPoint interiorPoint;
-                        interiorRing->getPoint(m, &interiorPoint);
-                        intersecting_ring.points.push_back(silly_point(interiorPoint.getX(), interiorPoint.getY()));
-                    }
-                }
-            }
-
-            delete intersectingMultiPolygon;
-            break;
-        }
-        // 处理其他几何类型的情况
-        default:
-            break;
+        delete intersectingMultiPolygon;
+        break;
+    }
+    // 处理其他几何类型的情况
+    default:
+        break;
     }
 
     delete poly1;
     delete poly2;
 
 #endif
-    return intersecting_ring;
+    return intersecting_rings;
 }
+
+
+
+
 

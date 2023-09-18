@@ -45,7 +45,7 @@ BOOST_AUTO_TEST_CASE(GEO_INTERSECTION_CENTROID)
 	{
 		std::cout << "Read risk SHP error! " << std::endl;
 	}
-
+	int b = 0;
 	// 排列组合求出相交区域
 	std::vector<silly_ring> intersect_ring;
 	for (int i = 0; i < risk_rings.size(); i++)
@@ -53,57 +53,82 @@ BOOST_AUTO_TEST_CASE(GEO_INTERSECTION_CENTROID)
 		for (int j = 0; j < shp_rings.size(); j++)
 		{
 			// 求出相交区域
-			silly_ring temp = geo_operation::intersect_area(risk_rings.at(i), shp_rings.at(j));
-			if (!temp.points.empty())
+			std::vector<silly_ring> temp = geo_operation::intersect_area(risk_rings.at(i), shp_rings.at(j));
+			for (int m = 0; m < temp.size(); m++)
 			{
-				std::cout << "j: " << j << std::endl;
-				// 计算市的形心
-				silly_point city_center = geo_operation::ring_to_center(shp_rings.at(j));
-				std::cout << "city_center: " << "x:" << city_center.lgtd << "   y:" << city_center.lttd << std::endl;
+				if (!temp[m].points.empty())
+				{
+					std::cout << "j: " << j << std::endl;
+					// 计算市的形心
+					silly_point city_center = geo_operation::ring_to_center(shp_rings.at(j));
+					std::cout << "city_center: " << "x:" << city_center.lgtd << "   y:" << city_center.lttd << std::endl;
 
-				// 计算预警区域的形心
-				silly_point intersect_center = geo_operation::ring_to_center(temp);
-				std::cout << "intersect_center: " << "x:" << intersect_center.lgtd << "   y:" << intersect_center.lttd << std::endl;
-				// 计算两点夹角
-				double azimuth = geo_operation::two_point_azimuth(city_center, intersect_center);
+					// 计算预警区域的形心
+					silly_point intersect_center = geo_operation::ring_to_center(temp[m]);
+					std::cout << "intersect_center: " << "x:" << intersect_center.lgtd << "   y:" << intersect_center.lttd << std::endl;
 
-				// 判断方向
-				std::cout << "azimuth: " << azimuth << std::endl;
-				if (azimuth >= -15.0 && azimuth <= 15.0)
-				{
-					std::cout << "north" << std::endl;
-				}
-				else if (azimuth > 15.0 && azimuth < 75.0)
-				{
-					std::cout << "northeast" << std::endl;
-				}
-				else if (azimuth >= 75.0 && azimuth <= 105.0)
-				{
-					std::cout << "eastern" << std::endl;
-				}
-				else if (azimuth > 105.0 && azimuth < 165.0)
-				{
-					std::cout << "Southeast" << std::endl;
-				}
-				else if ((azimuth >= 165.0 && azimuth <= 180.0) || (azimuth >= -180.0 && azimuth <= -165.0))
-				{
-					std::cout << "south" << std::endl;
-				}
-				else if (azimuth > -165.0 && azimuth < -105.0)
-				{
-					std::cout << "southwest" << std::endl;
-				}
-				else if (azimuth >= -105.0 && azimuth <= -75.0)
-				{
-					std::cout << "west" << std::endl;
-				}
-				else if (azimuth > -75.0 && azimuth < -15.0)
-				{
-					std::cout << "Northwest" << std::endl;
-				}
+					// 测试画出相交区域和形心点(待删)
+					{
+						std::filesystem::path intersect(DEFAULT_DATA_DIR);
+						char buff[256] = { 0 };
+						sprintf(buff, "/read_shp/intersect_%d.shp", b);
+						intersect += buff;
+						// 画边界
+						geo_operation::points_to_shp(temp[m].points, huanan.string().c_str(), intersect.string().c_str());
 
-				//intersect_ring.push_back(temp);
-				std::cout << "*********************************" << std::endl;
+						std::filesystem::path intersect_center_path(DEFAULT_DATA_DIR);
+						char buff2[256] = { 0 };
+						sprintf(buff2, "/read_shp/intersect_center_%d.shp", b);
+						b++;
+						intersect_center_path += buff2;
+						std::vector<silly_point> temp_inter{ intersect_center };
+						//// 画形心点
+						geo_operation::points_to_shp(temp_inter, huanan.string().c_str(), intersect_center_path.string().c_str());
+
+					}
+
+
+					// 计算两点夹角
+					double azimuth = geo_operation::two_point_azimuth(city_center, intersect_center);
+
+					// 判断方向
+					std::cout << "azimuth: " << azimuth << std::endl;
+					if (azimuth >= -15.0 && azimuth <= 15.0)
+					{
+						std::cout << "north" << std::endl;
+					}
+					else if (azimuth > 15.0 && azimuth < 75.0)
+					{
+						std::cout << "northeast" << std::endl;
+					}
+					else if (azimuth >= 75.0 && azimuth <= 105.0)
+					{
+						std::cout << "eastern" << std::endl;
+					}
+					else if (azimuth > 105.0 && azimuth < 165.0)
+					{
+						std::cout << "Southeast" << std::endl;
+					}
+					else if ((azimuth >= 165.0 && azimuth <= 180.0) || (azimuth >= -180.0 && azimuth <= -165.0))
+					{
+						std::cout << "south" << std::endl;
+					}
+					else if (azimuth > -165.0 && azimuth < -105.0)
+					{
+						std::cout << "southwest" << std::endl;
+					}
+					else if (azimuth >= -105.0 && azimuth <= -75.0)
+					{
+						std::cout << "west" << std::endl;
+					}
+					else if (azimuth > -75.0 && azimuth < -15.0)
+					{
+						std::cout << "Northwest" << std::endl;
+					}
+
+					//intersect_ring.push_back(temp);
+					std::cout << "*********************************" << std::endl;
+				}
 			}
 
 
@@ -195,11 +220,11 @@ BOOST_AUTO_TEST_CASE(GEO_SHP_GEOJSON)
 	std::string shp_1 = "D:/1_wangyingjie/code/project_data/geojson_shp/100KM.shp";
 	std::filesystem::path shp_save(shp_1);
 	
-	//bool gts = geo_operation::geojson_to_shp(geojson_save.string().c_str(), shp_save.string().c_str());
+	//bool gts = silly_geo_convert::geojson_to_shp(geojson_save.string().c_str(), shp_save.string().c_str());
 
 	std::string geojson_2 = "D:/1_wangyingjie/code/project_data/geojson_shp/res2.geojson";
 	std::filesystem::path geojson_2_save(geojson_2);
-	bool gts = geo_operation::shp_to_geojson(shp_save.string().c_str() , geojson_2_save.string().c_str());
+	bool gts = silly_geo_convert::shp_to_geojson(shp_save.string().c_str() , geojson_2_save.string().c_str());
 
 
 	int a = 0;
@@ -221,3 +246,5 @@ BOOST_AUTO_TEST_CASE(GEO_PROJECTION)
 BOOST_AUTO_TEST_SUITE_END()
 
 #endif //SILLY_UTILS_TEST_GEO_HPP
+
+

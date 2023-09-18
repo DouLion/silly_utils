@@ -23,6 +23,26 @@ public:
 
 
 	/// <summary>
+	/// shp文件转geojson
+	/// </summary>
+	/// <param name="shpFile">读取SHP文件地址</param>
+	/// <param name="geojsonFile">生成geojson文件地址</param>
+	/// <returns></returns>
+	static bool shp_to_geojson(const char* shpFile, const char* geojsonFile);
+
+	/// <summary>
+	/// geojson文件转shp
+	/// </summary>
+	/// <param name="geojsonFile">读取geojson文件地址</param>
+	/// <param name="shpFile">生成SHP文件地址</param>
+	/// <returns></returns>
+	static bool geojson_to_shp(const char* geojsonFile, const char* shpFile);
+
+
+
+
+
+	/// <summary>
 	/// 将一个GEO组织的二维矩阵转为墨卡托组织的二维矩阵
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
