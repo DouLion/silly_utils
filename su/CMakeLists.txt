@@ -9,7 +9,7 @@ foreach(dirname ${CMAKE_CURRENT_SOURCE_DIR})
             "${dirname}/*.c"
             "${dirname}/*.cpp"
             )
-   
+
 endforeach()
 
 find_path(OTL_INCLUDE_DIRS "otl/otlv4.h")
@@ -40,7 +40,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC polyclipping::polyclipping)
 find_package(jsoncpp CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC JsonCpp::JsonCpp)
 
-# ��ѹ��ģ��
 find_package(ZLIB REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC ZLIB::ZLIB)
 
@@ -76,16 +75,12 @@ find_package(GeoTIFF CONFIG REQUIRED)
 target_include_directories(${PROJECT_NAME} PUBLIC ${GEOTIFF_INCLUDE_DIR})
 target_link_libraries(${PROJECT_NAME} PUBLIC ${GEOTIFF_LIBRARIES})
 
-find_package(GDAL CONFIG REQUIRED)
-target_link_libraries(${PROJECT_NAME} PUBLIC  GDAL::GDAL)
+# find_package(GDAL CONFIG REQUIRED)
+# target_link_libraries(${PROJECT_NAME} PUBLIC GDAL::GDAL)
     
-
-
 if(IS_LINUX)
 
     find_package(unofficial-libuuid CONFIG REQUIRED)
     target_link_libraries(${PROJECT_NAME} PUBLIC unofficial::UUID::uuid)
-
-
 
 endif()

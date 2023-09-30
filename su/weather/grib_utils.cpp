@@ -23,6 +23,7 @@ bool grib_utils::read(const std::string& grib_file, DMatrix* matrix, int& type)
 	}
 	//grib_context* context = nullptr;
 	//context = grib_context_get_default();
+	
 	int err_code = 0;
 	FILE* file = nullptr;
 	file = fopen(targetPath.string().c_str(), "rb");
@@ -32,6 +33,10 @@ bool grib_utils::read(const std::string& grib_file, DMatrix* matrix, int& type)
 		fclose(file);
 		return false;
 	}
+	int message_count;
+	err_code = grib_count_in_file(nullptr, file, &message_count);
+
+
 	grib_handle* gh = nullptr;
 	while ((gh = grib_handle_new_from_file(nullptr, file, &err_code)) != nullptr)
 	{
@@ -185,7 +190,7 @@ bool grib_utils::read(const std::string& grib_file, DMatrix* matrix, int& type)
 
 		free(data);
 		data = nullptr;
-		grib_handle_delete(gh);
+		//grib_handle_delete(gh);
 	}
 
 	fclose(file);
