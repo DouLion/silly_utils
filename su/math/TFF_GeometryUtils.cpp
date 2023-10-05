@@ -12,7 +12,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////////
 
-
+#if IS_WIN32
 
 #include "math/TFF_GeometryUtils.h"
 #include "math/TFF_MathUtils.h"
@@ -1786,3 +1786,5 @@ bool VectorPyramidFile::IsPointOnPoly(const float x, const float y, const float*
 }
 
 */
+
+#endif

@@ -13,6 +13,7 @@
 ////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+#if IS_WIN32
 // GDAL.
 #include "ogr_spatialref.h"
 #include "gdal_priv.h"
@@ -251,6 +252,8 @@ protected:
 	static float GetMaxXRange(float x, float y, int Numble, float* PointList, float* xx, int quan);
 
 };
+
+#endif
 
 //------------------------------------------------------------------------------
 // Implementation:
