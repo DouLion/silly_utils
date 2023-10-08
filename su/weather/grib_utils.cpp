@@ -5,25 +5,30 @@
 #include "grib_utils.h"
 #if GRIB_ENABLED
 #include "grib_api.h"
+#endif
 using namespace grib_data;
 #include <filesystem>
-#if IS_WIN32
 
-bool grib_utils::read(const std::string& grib_file, DMatrix* matrix, int& type)
+bool grib_utils::read(const std::string& grib_file, std::vector<DMatrix>& matrixs, int& type)
 {
+#if IS_WIN32
 	char* grib_def_path = getenv("GRIB_DEFINITION_PATH");
+#else
+	char* grib_def_path = getenv("ECCODES_DEFINITION_PATH");
+#endif
 	if (!strlen(grib_def_path))
 	{
-		perror("cannot find Enviroment: <GRIB_DEFINITION_PATH> .");
+		perror("cannot find Enviroment: <GRIB_DEFINITION_PATH> or <ECCODES_DEFINITION_PATH>.");
 		return false;
 	}
+
 	std::filesystem::path targetPath(grib_file);
 	if (!std::filesystem::exists(targetPath)) {
 		return false;
 	}
-	//grib_context* context = nullptr;
-	//context = grib_context_get_default();
-	
+#if GRIB_ENABLED
+	// 多波段读取支持
+	grib_multi_support_on(nullptr);
 	int err_code = 0;
 	FILE* file = nullptr;
 	file = fopen(targetPath.string().c_str(), "rb");
@@ -33,10 +38,7 @@ bool grib_utils::read(const std::string& grib_file, DMatrix* matrix, int& type)
 		fclose(file);
 		return false;
 	}
-	int message_count;
-	err_code = grib_count_in_file(nullptr, file, &message_count);
-
-
+	
 	grib_handle* gh = nullptr;
 	while ((gh = grib_handle_new_from_file(nullptr, file, &err_code)) != nullptr)
 	{
@@ -102,7 +104,6 @@ bool grib_utils::read(const std::string& grib_file, DMatrix* matrix, int& type)
 				{
 					m_pTimeInfo.miniute = vlong;
 				}
-				std::cout << name << " : " << vlong << std::endl;
 			}
 			else if (GRIB_TYPE_DOUBLE == type) {
 				double vdouble = 0;
@@ -141,7 +142,7 @@ bool grib_utils::read(const std::string& grib_file, DMatrix* matrix, int& type)
 				{
 					m_pNormalInfo.min = vdouble;
 				}
-				std::cout << name << " : " << vdouble << std::endl;
+				//std::cout << name << " : " << vdouble << std::endl;
 			}
 			else if (GRIB_TYPE_STRING == type) {
 				size_t length = 0;
@@ -159,7 +160,6 @@ bool grib_utils::read(const std::string& grib_file, DMatrix* matrix, int& type)
 				{
 					m_pNormalInfo.short_name = std::string(buf);
 				}
-				std::cout << name << " : " << buf << std::endl;
 			}
 		}
 		grib_keys_iterator_delete(kiter);
@@ -176,32 +176,30 @@ bool grib_utils::read(const std::string& grib_file, DMatrix* matrix, int& type)
 		size_t aa = 0;
 		grib_get_size(gh, "values", &aa);
 		grib_get_double_array(gh, "values", data, &tmpSize);
-		std::cout << tmpSize << std::endl;
-		std::cout << "===============================" << std::endl;
 
-		/*matrix->create(m_pGeoInfo.rows, m_pGeoInfo.cols);
+		DMatrix matrix;
+		matrix.create(m_pGeoInfo.rows, m_pGeoInfo.cols);
 		for (std::uint16_t r = 0; r < m_pGeoInfo.rows; ++r)
 		{
 			for (std::uint16_t c = 0; c < m_pGeoInfo.cols; ++c)
 			{
-				matrix->at(r, c) = (double)data[r * m_pGeoInfo.cols + c];
+				matrix.at(r, c) = (double)data[r * m_pGeoInfo.cols + c];
 			}
-		}*/
+		}
 
 		free(data);
 		data = nullptr;
-		//grib_handle_delete(gh);
+		grib_handle_delete(gh);
+		matrixs.emplace_back(matrix);
 	}
 
 	fclose(file);
-
-
 	return true;
-}
 #else
-bool grib_utils::read(const std::string& grib_file)
-{
+
 	return false;
+#endif
+
+	
 }
-#endif
-#endif
+

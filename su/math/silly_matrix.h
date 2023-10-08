@@ -19,7 +19,6 @@
 #include <cstdlib>
 #include <cmath>
 
- // TODO: finish
 namespace silly_math
 {
 
@@ -163,6 +162,7 @@ namespace silly_math
 
 						data[r][c] = val;
 					}
+					
 				}
 			}
 		}

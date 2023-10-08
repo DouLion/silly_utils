@@ -12,7 +12,6 @@
 
 #ifndef SILLY_UTILS_GRIB_UTILS_H
 #define SILLY_UTILS_GRIB_UTILS_H
-#if GRIB_ENABLED
 #include "geo/silly_geo.h"
 #include "math/silly_matrix.h"
 using namespace silly_math;
@@ -99,12 +98,11 @@ namespace grib_data {
 	class grib_utils
 	{
 	public:
-		bool read(const std::string& grib_file, DMatrix* matrix, int& type);
+		bool read(const std::string& grib_file, std::vector<DMatrix>& matrixs, int& type);
 
 		time_info	m_pTimeInfo;
 		geo_info	m_pGeoInfo;
 		normal_info	m_pNormalInfo;
 	};
 }
-#endif
 #endif //SILLY_UTILS_GRIB_UTILS_H

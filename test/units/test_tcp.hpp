@@ -33,16 +33,16 @@ BOOST_AUTO_TEST_CASE(FTP_UPLOATE)      // FTP�ϴ�
 
 BOOST_AUTO_TEST_CASE(SILLY_FTP_UPLOATE) // silly_ftp �ϴ�
 {
-	std::cout << "\r\n\r\n****************" << "FTP_UPLOATE" << "****************" << std::endl;
-	std::filesystem::path upoad_file(DEFAULT_DATA_DIR);
-	upoad_file.append("hebei_station.txt");
+	//std::cout << "\r\n\r\n****************" << "FTP_UPLOATE" << "****************" << std::endl;
+	//std::filesystem::path upoad_file(DEFAULT_DATA_DIR);
+	//upoad_file.append("hebei_station.txt");
 
-	silly_ftp* ftp = new silly_ftp();
-	int ret = ftp->Connect("192.168.0.202:21");
-	ret = ftp->Login("radar", "3edc9ijn");
-	// ret = ftp->Get("text.txt", "text.txt", silly_ftp::image);
-	ret = ftp->Put(upoad_file.string().c_str(), "ftp://192.168.0.202:21/240/aa.txt", silly_ftp::ascii);
-	ftp->Quit();
+	//silly_ftp* ftp = new silly_ftp();
+	//int ret = ftp->Connect("192.168.0.202:21");
+	//ret = ftp->Login("radar", "3edc9ijn");
+	//// ret = ftp->Get("text.txt", "text.txt", silly_ftp::image);
+	//ret = ftp->Put(upoad_file.string().c_str(), "ftp://192.168.0.202:21/240/aa.txt", silly_ftp::ascii);
+	//ftp->Quit();
 };
 
 BOOST_AUTO_TEST_SUITE_END()

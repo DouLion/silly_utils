@@ -106,15 +106,17 @@ BOOST_AUTO_TEST_CASE(READ_GRID_DATA)
     grib_data_path.append("Z_NWGD_C_BCWH_20230912103553_P_RFFC_SPCC-ER01_202309120800_02401.GRB2");
     
     int type = 0;
-    DMatrix data;
+    std::vector<DMatrix> list;
     grib_data::grib_utils gu;
-    gu.read(grib_data_path.string(), &data, type);
+    gu.read(grib_data_path.string(), list, type);
     //tif_data ti = geotiff_utils::readGeoTiffTile(word.string().c_str());
-    data.destroy();
+    for (auto l : list)
+    {
+        l.destroy();
+    }
+    
+    
 
 }
-
-
-
 
 BOOST_AUTO_TEST_SUITE_END()
