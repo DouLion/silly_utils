@@ -3,13 +3,11 @@
 #include "silly_geo_operation.h"
 #include <math.h>
 
-#if IS_WIN32
 #include "gdal.h"
 #include "gdal_priv.h"
 #include "ogrsf_frmts.h"
 #include <polyclipping/clipper.hpp>
 using namespace ClipperLib;
-#endif
 
 silly_point geo_operation::ring_to_center(silly_ring ring)
 {
@@ -61,7 +59,7 @@ double geo_operation::two_point_azimuth(silly_point from, silly_point to)
 std::vector<silly_ring> geo_operation::read_shp_ring(const char* shp)
 {
     std::vector<silly_ring> rings;
-#if IS_WIN32
+
 
     // 注册 GDAL 驱动
     GDALAllRegister();
@@ -164,14 +162,14 @@ std::vector<silly_ring> geo_operation::read_shp_ring(const char* shp)
     }
 
     GDALClose(dataset);
-#endif
+
     return rings;
 }
 
 std::vector<silly_ring> geo_operation::read_geojson(const char* geojsonFile)
 {
     std::vector<silly_ring> rings;
-#if IS_WIN32
+
 
     GDALAllRegister();  // 注册所有GDAL驱动
     GDALDataset* dataset = (GDALDataset*)GDALOpenEx(geojsonFile, GDAL_OF_VECTOR, nullptr, nullptr, nullptr);
@@ -220,7 +218,7 @@ std::vector<silly_ring> geo_operation::read_geojson(const char* geojsonFile)
     }
     GDALClose(dataset);
 
-#endif
+
     return rings;
 }
 
@@ -228,7 +226,7 @@ std::vector<silly_ring> geo_operation::read_geojson(const char* geojsonFile)
 
 bool geo_operation::points_to_shp(std::vector<silly_point>& points, const char* shpFilePath, const char* outputShpFilePath)
 {
-#if IS_WIN32
+
 
     // 注册 GDAL 驱动
     GDALAllRegister();
@@ -329,13 +327,10 @@ bool geo_operation::points_to_shp(std::vector<silly_point>& points, const char* 
     GDALClose(outputDataset);
 
     std::cout << "Points added to shapefile and saved successfully." << std::endl;
-#endif
+
 
     return true;
 }
-
-#if IS_WIN32
-
 
 // 将 silly_ring 转换为 OGRPolygon
 OGRPolygon* createPolygonFromSillyRing(const silly_ring& ring) 
@@ -388,13 +383,10 @@ silly_ring convertPolygonToSillyRing(OGRPolygon* polygon)
 }
 
 
-#endif
-
-
 std::vector<silly_ring> geo_operation::intersect_area(silly_ring ring_1, silly_ring ring_2)
 {
     std::vector<silly_ring> intersecting_rings;
-#if IS_WIN32
+
     // 创建 OGRPolygon 对象
     OGRPolygon* poly1 = createPolygonFromSillyRing(ring_1);
     OGRPolygon* poly2 = createPolygonFromSillyRing(ring_2);
@@ -501,11 +493,6 @@ std::vector<silly_ring> geo_operation::intersect_area(silly_ring ring_1, silly_r
     delete poly1;
     delete poly2;
 
-#endif
+
     return intersecting_rings;
 }
-
-
-
-
-

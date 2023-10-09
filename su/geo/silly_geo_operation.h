@@ -1,6 +1,5 @@
 #pragma once
 
-
 #ifndef SILLY_UTILS_SILLY_GEO_OPERATION_H
 #define SILLY_UTILS_SILLY_GEO_OPERATION_H
 
@@ -51,17 +50,7 @@ public:
 	/// <param name="ring_2">面2</param>
 	static std::vector<silly_ring>  intersect_area(silly_ring ring_1, silly_ring ring_2);
 
-
-
-
-	geo_operation() = default;
-	~geo_operation() = default;
-
-private:
-
 };
-
-
 
 
 #endif // SILLY_UTILS_SILLY_GEO_OPERATION_H

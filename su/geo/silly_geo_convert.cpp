@@ -4,16 +4,14 @@
 
 #include "silly_geo_convert.h"
 
-
-#if IS_WIN32
 #include "gdal.h"
 #include "gdal_priv.h"
 #include "ogrsf_frmts.h"
-#endif
+
 
 bool silly_geo_convert::shp_to_geojson(const char* shpFile, const char* geojsonFile)
 {
-#if IS_WIN32
+
     GDALAllRegister();
     // 支持中文路径
     CPLSetConfigOption("GDAL_FILENAME_IS_UTF8", "NO");
@@ -45,15 +43,13 @@ bool silly_geo_convert::shp_to_geojson(const char* shpFile, const char* geojsonF
     GDALClose(geojsonDataset);
     GDALClose(shpDataset);
     std::cout << "SHP file successfully converted to GeoJSON file  " << std::endl;
-#endif
+
     return true;
 
 }
 
 bool silly_geo_convert::geojson_to_shp(const char* geojsonFile, const char* shpFile)
 {
-#if IS_WIN32
-
     GDALAllRegister();
     // 支持中文路径
     CPLSetConfigOption("GDAL_FILENAME_IS_UTF8", "NO");
@@ -87,6 +83,5 @@ bool silly_geo_convert::geojson_to_shp(const char* geojsonFile, const char* shpF
     GDALClose(geojsonDataset);
     std::cout << "GeoJSON file successfully converted to SHP file " << std::endl;
 
-#endif
     return true;
 }
