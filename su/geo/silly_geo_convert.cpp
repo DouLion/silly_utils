@@ -3,10 +3,11 @@
 //
 
 #include "silly_geo_convert.h"
-
+#if IS_WIN32
 #include "gdal.h"
 #include "gdal_priv.h"
 #include "ogrsf_frmts.h"
+#endif
 
 
 bool silly_geo_convert::shp_to_geojson(const char* shpFile, const char* geojsonFile)
