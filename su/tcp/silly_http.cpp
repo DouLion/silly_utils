@@ -180,9 +180,84 @@ std::string silly_http::request_post(const std::string& url, const std::string& 
 	return ret_content;
 }
 
-std::string silly_http::request_download(const std::string& url, const std::string& body, const std::map <std::string, std::string>& headers)
+bool silly_http::request_download(const std::string& url, const std::string& save, const std::map <std::string, std::string>& headers)
 {
-	return "";
+	bool status = false;
+	CURLcode res;
+	CURL* curl_handle;
+	struct MemoryStruct chunk;
+
+	chunk.memory = (char*)malloc(1);  /* will be grown as needed by the realloc above */
+	chunk.size = 0;    /* no data at this point */
+
+	curl_global_init(CURL_GLOBAL_ALL);
+
+	/* init the curl session */
+	curl_handle = curl_easy_init();
+
+	curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYPEER, 0L);
+
+	/* specify URL to get */
+	curl_easy_setopt(curl_handle, CURLOPT_URL, url.c_str());
+
+	// timeout 10s
+	curl_easy_setopt(curl_handle, CURLOPT_ACCEPTTIMEOUT_MS, 30000L);
+
+	// 下面两个一起  30秒内小于1个字节则停止
+	curl_easy_setopt(curl_handle, CURLOPT_LOW_SPEED_LIMIT, 1L);
+
+	curl_easy_setopt(curl_handle, CURLOPT_LOW_SPEED_TIME, 30);
+
+	/* send all data to this function  */
+	curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
+
+	/* we pass our 'chunk' struct to the callback function */
+	curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void*)&chunk);
+
+	/* some servers do not like requests that are made without a user-agent
+	   field, so we provide one */
+	curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "libcurl-agent/1.0");
+
+	/* get it! */
+	res = curl_easy_perform(curl_handle);
+	/* check for errors */
+	if (res != CURLE_OK) {
+		//fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+
+	}
+	else {
+		// 添加状态码判断，保证数据下载完成.
+		int code = 0;
+		res = curl_easy_getinfo(curl_handle, CURLINFO_RESPONSE_CODE, &code);
+		double speed;
+		res = curl_easy_getinfo(curl_handle, CURLINFO_SPEED_DOWNLOAD, &speed);
+		/*LOG_F(INFO, "%s", TzxFormat::Format("Download speed {0} bytes/sec", speed).c_str());*/
+		if (res != CURLE_OK || 200 != code) {
+			//LOG_F(ERROR, "%s", TzxFormat::Format("CURL status: {0}, HTTP code: {1}", (int)res, code).c_str());
+			//remoteStatus = false;
+		}
+		if (!chunk.size)
+		{
+			/*LOG_F(ERROR, "%s", TzxFormat::Format("File size is zero or file data empty, check url:", url).c_str());
+			remoteStatus = false;*/
+		}
+		else
+		{
+			FILE* pagefile;
+			pagefile = fopen(save.c_str(), "wb");
+			fwrite(chunk.memory, chunk.size, 1, pagefile);
+			fclose(pagefile);
+		}
+
+	}
+
+	/* cleanup curl stuff */
+	curl_easy_cleanup(curl_handle);
+
+	free(chunk.memory);
+
+	/* we are done with libcurl, so clean it up */
+	curl_global_cleanup();
 }
 
 std::string silly_http::request_upload(const std::string& url, const std::string& body, const std::vector <std::string> files, const std::map <std::string, std::string>& headers)

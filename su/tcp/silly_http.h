@@ -61,7 +61,7 @@ public:
 	static std::string request_get(const std::string& url, const std::map<std::string, std::string>& headers);
 	static std::string request_post(const std::string& url, const std::string& body, const std::map<std::string, std::string>& headers);
 
-	static std::string request_download(const std::string& url, const std::string& body, const std::map<std::string, std::string>& headers);
+	static bool request_download(const std::string& url, const std::string& save, const std::map<std::string, std::string>& headers);
 	static std::string request_upload(const std::string& url, const std::string& body, const std::vector<std::string> files, const std::map<std::string, std::string>& headers);
 };
 
