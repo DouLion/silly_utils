@@ -247,6 +247,7 @@ bool silly_http::request_download(const std::string& url, const std::string& sav
 			pagefile = fopen(save.c_str(), "wb");
 			fwrite(chunk.memory, chunk.size, 1, pagefile);
 			fclose(pagefile);
+			status = true;
 		}
 
 	}
@@ -258,6 +259,7 @@ bool silly_http::request_download(const std::string& url, const std::string& sav
 
 	/* we are done with libcurl, so clean it up */
 	curl_global_cleanup();
+	return status;
 }
 
 std::string silly_http::request_upload(const std::string& url, const std::string& body, const std::vector <std::string> files, const std::map <std::string, std::string>& headers)
