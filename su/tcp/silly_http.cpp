@@ -187,8 +187,8 @@ bool silly_http::request_download(const std::string& url, const std::string& sav
 	CURL* curl_handle;
 	struct MemoryStruct chunk;
 
-	chunk.memory = (char*)malloc(1);  /* will be grown as needed by the realloc above */
-	chunk.size = 0;    /* no data at this point */
+	//chunk.memory = (char*)malloc(1);  /* will be grown as needed by the realloc above */
+	//chunk.size = 0;    /* no data at this point */
 
 	curl_global_init(CURL_GLOBAL_ALL);
 
