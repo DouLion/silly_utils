@@ -180,85 +180,127 @@ std::string silly_http::request_post(const std::string& url, const std::string& 
 	return ret_content;
 }
 
+static size_t su_handle_write_data(void* pBuffer, size_t nSize, size_t nMemByte, void* pParam)
+{
+	std::string* str = dynamic_cast<std::string*>((std::string*)pParam);
+	if (NULL == str || NULL == pBuffer)
+	{
+		return -1;
+	}
+
+	char* pData = (char*)pBuffer;
+	str->append(pData, nSize * nMemByte);
+	return nMemByte;
+}
+
+static size_t sU_handle_write(void* pBuffer, size_t nSize, size_t nMemByte, void* pParam)
+{
+	FILE* fp = (FILE*)pParam;
+	size_t nWrite = fwrite(pBuffer, nSize, nMemByte, fp);
+	return nWrite;
+}
+
 bool silly_http::request_download(const std::string& url, const std::string& save, const std::map <std::string, std::string>& headers)
 {
 	bool status = false;
-	CURLcode res;
-	CURL* curl_handle;
-	struct MemoryStruct chunk;
-
-	//chunk.memory = (char*)malloc(1);  /* will be grown as needed by the realloc above */
-	//chunk.size = 0;    /* no data at this point */
-
-	curl_global_init(CURL_GLOBAL_ALL);
-
-	/* init the curl session */
-	curl_handle = curl_easy_init();
-
-	curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYPEER, 0L);
-
-	/* specify URL to get */
-	curl_easy_setopt(curl_handle, CURLOPT_URL, url.c_str());
-
-	// timeout 10s
-	curl_easy_setopt(curl_handle, CURLOPT_ACCEPTTIMEOUT_MS, 30000L);
-
-	// 下面两个一起  30秒内小于1个字节则停止
-	curl_easy_setopt(curl_handle, CURLOPT_LOW_SPEED_LIMIT, 1L);
-
-	curl_easy_setopt(curl_handle, CURLOPT_LOW_SPEED_TIME, 30);
-
-	/* send all data to this function  */
-	curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
-
-	/* we pass our 'chunk' struct to the callback function */
-	curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void*)&chunk);
-
-	/* some servers do not like requests that are made without a user-agent
-	   field, so we provide one */
-	curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "libcurl-agent/1.0");
-
-	/* get it! */
-	res = curl_easy_perform(curl_handle);
-	/* check for errors */
-	if (res != CURLE_OK) {
-		//fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
-
-	}
-	else {
-		// 添加状态码判断，保证数据下载完成.
-		int code = 0;
-		res = curl_easy_getinfo(curl_handle, CURLINFO_RESPONSE_CODE, &code);
-		double speed;
-		res = curl_easy_getinfo(curl_handle, CURLINFO_SPEED_DOWNLOAD, &speed);
-		/*LOG_F(INFO, "%s", TzxFormat::Format("Download speed {0} bytes/sec", speed).c_str());*/
-		if (res != CURLE_OK || 200 != code) {
-			//LOG_F(ERROR, "%s", TzxFormat::Format("CURL status: {0}, HTTP code: {1}", (int)res, code).c_str());
-			//remoteStatus = false;
-		}
-		if (!chunk.size)
-		{
-			/*LOG_F(ERROR, "%s", TzxFormat::Format("File size is zero or file data empty, check url:", url).c_str());
-			remoteStatus = false;*/
-		}
-		else
-		{
-			FILE* pagefile;
-			pagefile = fopen(save.c_str(), "wb");
-			fwrite(chunk.memory, chunk.size, 1, pagefile);
-			fclose(pagefile);
-			status = true;
-		}
-
+	FILE* pFile = fopen(save.c_str(), "wb");
+	if (NULL == pFile)
+	{
+		return false;
 	}
 
-	/* cleanup curl stuff */
-	curl_easy_cleanup(curl_handle);
+	// Init curl.
+	CURL* pCurl = curl_easy_init();
+	if (NULL == pCurl)
+	{
+		return false;
+	}
+	CURLcode retCode;
+	// Set remot url.
+	retCode = curl_easy_setopt(pCurl, CURLOPT_URL, url.c_str());
+	//if (retCode != CURLE_OK)
+	//{
+	//	fprintf(stderr, "Failed to set writer [%s]\n", errorBuffer);
+	//	return false;
+	//}
+	// Set User-Agent.
+	
+	// Set write file data callback function.
+	curl_easy_setopt(pCurl, CURLOPT_WRITEFUNCTION, sU_handle_write);
+	// Set write file data callback function param.
+	curl_easy_setopt(pCurl, CURLOPT_WRITEDATA, pFile);
+	// 设置重定向的最大次数.
+	curl_easy_setopt(pCurl, CURLOPT_MAXREDIRS, 20);
+	// 设置301、302跳转跟随location.
+	curl_easy_setopt(pCurl, CURLOPT_FOLLOWLOCATION, 1);
+	// Set progress callback.
+	curl_easy_setopt(pCurl, CURLOPT_NOPROGRESS, 0);
+	// curl_easy_setopt(pCurl, CURLOPT_PROGRESSFUNCTION, HandleProgress);
+	curl_easy_setopt(pCurl, CURLOPT_PROGRESSDATA, save.c_str());
+	// 跳过服务器SSL验证，不使用CA证书.
+	curl_easy_setopt(pCurl, CURLOPT_SSL_VERIFYPEER, 0L);
+	// 验证服务器端发送的证书，默认是 2(高)，1（中），0（禁用）.
+	curl_easy_setopt(pCurl, CURLOPT_SSL_VERIFYHOST, 0L);
+	// 设置cURL允许执行的最长秒数.
+	curl_easy_setopt(pCurl, CURLOPT_TIMEOUT, 3600);
+	// 
+	char errorBuffer[CURL_ERROR_SIZE] = { 0 };
+	curl_easy_setopt(pCurl, CURLOPT_ERRORBUFFER, errorBuffer);
+	//if (!httpVerifyUserName.empty() && !httpVerifyUserPwd.empty())
+	//{
+	//	std::string userPwd = httpVerifyUserName + ":" + httpVerifyUserPwd;
+	//	CBase64Coder base64Coder;
+	//	const char* up = base64Coder.encode(userPwd);
 
-	free(chunk.memory);
+	//	// TODO: 这种方式不知道为什么不行.
+	//	//curl_easy_setopt(pCurl, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
+	//	//curl_easy_setopt(pCurl, CURLOPT_USERPWD, up);
 
-	/* we are done with libcurl, so clean it up */
-	curl_global_cleanup();
+	//	struct curl_slist* headers = NULL;
+	//	if (authType == CURLAUTH_BASIC)
+	//	{
+	//		headers = curl_slist_append(headers, ("Authorization: Basic " + string(up)).c_str());
+	//	}
+	//	curl_easy_setopt(pCurl, CURLOPT_HTTPHEADER, headers);
+	//}
+
+	// Excute download operation.
+	retCode = curl_easy_perform(pCurl);
+	if (retCode != CURLE_OK)
+	{
+		fclose(pFile);
+		curl_easy_cleanup(pCurl);
+
+		return false;
+	}
+
+	// Get response code.
+	int responseCode = 0;
+	retCode = curl_easy_getinfo(pCurl, CURLINFO_RESPONSE_CODE, &responseCode);
+	if (retCode != CURLE_OK || responseCode != 200)
+	{
+		fclose(pFile);
+		curl_easy_cleanup(pCurl);
+
+		return false;
+	}
+
+	//TFFFloat64 length = 0.0;
+	//retCode = curl_easy_getinfo(pCurl, CURLINFO_CONTENT_LENGTH_DOWNLOAD , &length); 
+	fflush(pFile);
+	fseek(pFile, 0, SEEK_END);
+	int nDown = ftell(pFile);
+	if (nDown == 0)
+	{
+		printf("DownloadFile %s is 0", save.c_str());
+		fclose(pFile);
+		curl_easy_cleanup(pCurl);
+		return false;
+	}
+
+	fclose(pFile);
+	curl_easy_cleanup(pCurl);
+	return true;
 	return status;
 }
 
