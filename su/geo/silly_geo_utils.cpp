@@ -1,15 +1,21 @@
 
 
-#include "silly_geo_operation.h"
+#include "silly_geo_utils.h"
 #include <math.h>
 
-#include "gdal.h"
+// GDAL.
+#include "ogr_spatialref.h"
 #include "gdal_priv.h"
 #include "ogrsf_frmts.h"
+#include "gdal_alg.h"
+#include "ogr_api.h"
+
 #include <polyclipping/clipper.hpp>
+#include <encode/convert.hpp>
+#include "marco.h"
 using namespace ClipperLib;
 
-silly_point geo_operation::ring_to_center(silly_ring ring)
+silly_point geo_utils::ring_to_center(silly_ring ring)
 {
 
     double sumX = 0;
@@ -46,27 +52,20 @@ silly_point geo_operation::ring_to_center(silly_ring ring)
 }
 
 
-double geo_operation::two_point_azimuth(silly_point from, silly_point to)
+double geo_utils::two_point_azimuth(silly_point from, silly_point to)
 {
     double theta = atan2(to.lgtd - from.lgtd, to.lttd - from.lttd);
-    theta = theta * 180.0 / UM_PI;
+    theta = theta * 180.0 / SU_PI;
     return theta;
 }
 
 
 
 
-std::vector<silly_ring> geo_operation::read_shp_ring(const char* shp)
+std::vector<silly_ring> geo_utils::read_shp_ring(const char* shp)
 {
     std::vector<silly_ring> rings;
 #if IS_WIN32
-
-    // 注册 GDAL 驱动
-    GDALAllRegister();
-    //支持中文路径
-    CPLSetConfigOption("GDAL_FILENAME_IS_UTF8", "NO");
-    //支持属相表中文字符
-    CPLGetConfigOption("SHAPE_ENCODING", "UTF-8");
 
     // 打开 shp 文件
     GDALDataset* dataset = static_cast<GDALDataset*>(GDALOpenEx(shp, GDAL_OF_VECTOR, nullptr, nullptr, nullptr));
@@ -168,12 +167,11 @@ std::vector<silly_ring> geo_operation::read_shp_ring(const char* shp)
     return rings;
 }
 
-std::vector<silly_ring> geo_operation::read_geojson(const char* geojsonFile)
+std::vector<silly_ring> geo_utils::read_geojson(const char* geojsonFile)
 {
     std::vector<silly_ring> rings;
 #if IS_WIN32
 
-    GDALAllRegister();  // 注册所有GDAL驱动
     GDALDataset* dataset = (GDALDataset*)GDALOpenEx(geojsonFile, GDAL_OF_VECTOR, nullptr, nullptr, nullptr);
     if (dataset == nullptr) 
     {
@@ -226,12 +224,9 @@ std::vector<silly_ring> geo_operation::read_geojson(const char* geojsonFile)
 
 
 
-bool geo_operation::points_to_shp(std::vector<silly_point>& points, const char* shpFilePath, const char* outputShpFilePath)
+bool geo_utils::points_to_shp(std::vector<silly_point>& points, const char* shpFilePath, const char* outputShpFilePath)
 {
 #if IS_WIN32
-
-    // 注册 GDAL 驱动
-    GDALAllRegister();
 
     // 打开现有 shp 文件
     GDALDataset* dataset = static_cast<GDALDataset*>(GDALOpenEx(shpFilePath, GDAL_OF_VECTOR | GDAL_OF_UPDATE, nullptr, nullptr, nullptr));
@@ -386,7 +381,7 @@ silly_ring convertPolygonToSillyRing(OGRPolygon* polygon)
 }
 
 
-std::vector<silly_ring> geo_operation::intersect_area(silly_ring ring_1, silly_ring ring_2)
+std::vector<silly_ring> geo_utils::intersect_area(silly_ring ring_1, silly_ring ring_2)
 {
     std::vector<silly_ring> intersecting_rings;
 #if IS_WIN32
@@ -498,4 +493,140 @@ std::vector<silly_ring> geo_operation::intersect_area(silly_ring ring_1, silly_r
 
 #endif
     return intersecting_rings;
+}
+
+void geo_utils::init_gdal_env()
+{
+    GDALAllRegister();
+    CPLSetConfigOption("GDAL_FILENAME_IS_UTF8", "NO");
+    OGRRegisterAll();
+    CPLSetConfigOption("SHAPE_ENCODING", "");
+}
+
+void geo_utils::destory_gdal_env()
+{
+    OGRCleanupAll();
+}
+
+bool geo_utils::is_valid_shp(const std::string& shp_file)
+{
+    GDALDataset* poDSr = (GDALDataset*)GDALOpenEx(shp_file.c_str(), GDAL_OF_ALL | GDAL_OF_READONLY, nullptr, nullptr, nullptr);
+    if (nullptr == poDSr)
+    {
+        return false;
+    }
+    OGRCleanupAll();
+    return true;
+}
+
+bool geo_utils::check_shp_info(const std::string& shp_file, int& type, std::map<std::string, std::string>& properties)
+{
+    bool status = false;
+    std::map<std::string, std::string> result;
+
+    GDALDataset* poDSr = (GDALDataset*)GDALOpenEx(shp_file.c_str(), GDAL_OF_ALL | GDAL_OF_READONLY, NULL, NULL, NULL);
+    if (NULL == poDSr)
+    {
+        return status;
+    }
+    OGRLayer* poLayer_r = poDSr->GetLayer(0);
+    if (poLayer_r == NULL)
+    {
+        GDALClose(poDSr);
+        return status;
+    }
+    OGRFeature* pFeature_r = NULL;
+    //获取Feature特征
+    pFeature_r = poLayer_r->GetNextFeature();
+    if (NULL == pFeature_r)
+    {
+        GDALClose(poDSr);
+        return status;
+    }
+
+    //获取要素的几何形状
+    OGRGeometry* poGeometry_r = pFeature_r->GetGeometryRef();
+    type = wkbFlatten(poGeometry_r->getGeometryType());
+    if (wkbUnknown == type)
+    {
+        GDALClose(poDSr);
+        return status;
+    }
+    // 1 wkbPoint 点
+    // 2 wkbLineString 线
+    // 3 wkbPolygon 面
+    // 4 wkbMultiPoint  多点
+    // 5 wkbMultiLineString  多线
+    // 6 wkbMultiPolygon  多面
+  
+    //循环特征域
+    int fieldCnt = pFeature_r->GetFieldCount();
+    for (int i = 0; i < fieldCnt; i++)
+    {
+        OGRFieldDefn* def = pFeature_r->GetFieldDefnRef(i);
+        OGRFieldType type = def->GetType();
+        std::string field_name = def->GetNameRef();
+        if (!silly_code::IsUTF8((uint8_t*)field_name.c_str(), field_name.size()))
+        {
+            field_name = silly_conv::GBK2UTF8(field_name);
+        }
+
+        std::string field_type = "";
+        switch (type)
+        {
+        case OFTInteger:
+            field_type = "OFTInteger";
+            break;
+        case OFTIntegerList:
+            field_type = "OFTIntegerList";
+            break;
+        case OFTReal:
+            field_type = "OFTReal";
+            break;
+        case OFTRealList:
+            field_type = "OFTRealList";
+            break;
+        case OFTString:
+            field_type = "OFTString";
+            break;
+        case OFTStringList:
+            field_type = "OFTStringList";
+            break;
+#if _DEBUG
+            //弃用 deprecated
+        case OFTWideString:
+            field_type = "Deprecated:OFTWideString";
+
+            break;
+        case OFTWideStringList:
+            field_type = "Deprecated:OFTWideStringList";
+            break;
+#endif
+        case OFTBinary:
+            field_type = "OFTBinary";
+            break;
+        case OFTDate:
+            field_type = "OFTDate";
+            break;
+        case OFTTime:
+            field_type = "OFTTime";
+            break;
+        case OFTDateTime:
+            field_type = "OFTDateTime";
+            break;
+        case OFTInteger64:
+            field_type = "OFTInteger64";
+            break;
+        case OFTInteger64List:
+            field_type = "OFTInteger64List";
+            break;
+        }
+        properties[field_name] = field_name;
+    }
+
+   
+    GDALClose(poDSr);
+
+    return status;
+
 }

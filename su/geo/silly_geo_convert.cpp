@@ -13,11 +13,6 @@
 bool silly_geo_convert::shp_to_geojson(const char* shpFile, const char* geojsonFile)
 {
 #if IS_WIN32
-    GDALAllRegister();
-    // 支持中文路径
-    CPLSetConfigOption("GDAL_FILENAME_IS_UTF8", "NO");
-    // 属性表字段支持中文
-    CPLSetConfigOption("SHAPE_ENCODING", "");
     GDALDataset* shpDataset = (GDALDataset*)GDALOpenEx(shpFile, GDAL_OF_VECTOR, NULL, NULL, NULL);
     if (shpDataset == nullptr)
     {
@@ -52,12 +47,6 @@ bool silly_geo_convert::shp_to_geojson(const char* shpFile, const char* geojsonF
 bool silly_geo_convert::geojson_to_shp(const char* geojsonFile, const char* shpFile)
 {
 #if IS_WIN32
-    GDALAllRegister();
-    // 支持中文路径
-    CPLSetConfigOption("GDAL_FILENAME_IS_UTF8", "NO");
-    // 属性表字段支持中文
-    CPLSetConfigOption("SHAPE_ENCODING", "");
-
     GDALDataset* geojsonDataset = (GDALDataset*)GDALOpenEx(geojsonFile, GDAL_OF_VECTOR, NULL, NULL, NULL);
     if (geojsonDataset == nullptr)
     {

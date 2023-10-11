@@ -4,9 +4,8 @@
 #define SILLY_UTILS_SILLY_GEO_OPERATION_H
 
 #include "silly_geo.h"
-#define UM_PI 3.14159265358979323846
 
-class geo_operation
+class geo_utils
 {
 public:
 
@@ -49,6 +48,35 @@ public:
 	/// <param name="ring_1">面1</param>
 	/// <param name="ring_2">面2</param>
 	static std::vector<silly_ring>  intersect_area(silly_ring ring_1, silly_ring ring_2);
+
+	/// <summary>
+	/// 初始化 GDAL 环境,只需要初始化一次
+	/// </summary>
+	void init_gdal_env();
+
+
+	/// <summary>
+	/// 销毁 GDAL 环境, 一旦执行此方法,那么GDAL可能就无法使用,
+	/// </summary>
+	void destory_gdal_env();
+
+	/// <summary>
+	/// 是否为一个标准的shp文件
+	/// </summary>
+	/// <param name="shp_file"></param>
+	/// <returns></returns>
+	static bool is_valid_shp(const std::string& shp_file);
+
+
+	/// <summary>
+	/// 加载shp文件中的属性信息
+	/// </summary>
+	/// <param name="shp_file"></param>
+	/// <param name="type"></param>
+	/// <param name="properties"></param>
+	/// <returns></returns>
+	static bool check_shp_info(const std::string& shp_file, int& type, std::map<std::string, std::string>& properties);
+
 
 };
 

@@ -27,6 +27,7 @@ bool grib_utils::read(const std::string& grib_file, std::vector<DMatrix>& matrix
 		return false;
 	}
 #if GRIB_ENABLED
+	grib_context* c = grib_context_get_default();
 	// 多波段读取支持
 	grib_multi_support_on(nullptr);
 	int err_code = 0;
@@ -39,8 +40,8 @@ bool grib_utils::read(const std::string& grib_file, std::vector<DMatrix>& matrix
 		return false;
 	}
 	
-	grib_handle* gh = nullptr;
-	while ((gh = grib_handle_new_from_file(nullptr, file, &err_code)) != nullptr)
+	grib_handle* gh = grib_handle_new_from_file(c, file, &err_code);
+	while (gh)
 	{
 
 		if (nullptr == gh)
@@ -57,14 +58,10 @@ bool grib_utils::read(const std::string& grib_file, std::vector<DMatrix>& matrix
 			fclose(file);
 			return false;
 		}
-		char buf[1024] = { 0 };
 		while (grib_keys_iterator_next(kiter)) {
 			const char* name = grib_keys_iterator_get_name(kiter);
 			int type = 0;
 			grib_get_native_type(gh, name, &type);
-#ifndef NDEBUG
-			// std::cout << "Name: " << name << " Type:" << type << std::endl;
-#endif
 			if (strcmp(name, "codedValues") == 0 || strcmp(name, "values") == 0) {
 				continue;
 			}
@@ -147,6 +144,7 @@ bool grib_utils::read(const std::string& grib_file, std::vector<DMatrix>& matrix
 			else if (GRIB_TYPE_STRING == type) {
 				size_t length = 0;
 				grib_get_length(gh, name, &length);
+				char* buf = (char*)malloc(length);
 				grib_get_string(gh, name, buf, &length);
 				if (strcmp(name, "name") == 0)
 				{
@@ -160,6 +158,8 @@ bool grib_utils::read(const std::string& grib_file, std::vector<DMatrix>& matrix
 				{
 					m_pNormalInfo.short_name = std::string(buf);
 				}
+				free(buf);
+				buf = nullptr;
 			}
 		}
 		grib_keys_iterator_delete(kiter);
@@ -190,6 +190,7 @@ bool grib_utils::read(const std::string& grib_file, std::vector<DMatrix>& matrix
 		free(data);
 		data = nullptr;
 		grib_handle_delete(gh);
+		gh = grib_handle_new_from_file(c, file, &err_code);
 		matrixs.emplace_back(matrix);
 	}
 
