@@ -515,7 +515,7 @@ bool geo_utils::is_valid_shp(const std::string& shp_file)
     {
         return false;
     }
-    OGRCleanupAll();
+    GDALClose(poDSr);
     return true;
 }
 
@@ -626,7 +626,7 @@ bool geo_utils::check_shp_info(const std::string& shp_file, int& type, std::map<
 
    
     GDALClose(poDSr);
-
+    status = true;
     return status;
 
 }
