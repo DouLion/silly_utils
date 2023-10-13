@@ -621,7 +621,7 @@ bool geo_utils::check_shp_info(const std::string& shp_file, int& type, std::map<
             field_type = "OFTInteger64List";
             break;
         }
-        properties[field_name] = field_name;
+        properties[field_name] = field_type;
     }
 
    
