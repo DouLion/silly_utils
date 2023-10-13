@@ -12,7 +12,7 @@
 
 #ifndef SILLY_UTILS_SILLY_MINIZIP_H
 #define SILLY_UTILS_SILLY_MINIZIP_H
-
+#include <filesystem>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <stdio.h>
@@ -27,6 +27,7 @@
 
 #include "minizip/zip.h"
 #include "minizip/unzip.h"
+#include <boost/algorithm/string.hpp>
 
 class silly_minizip
 {
@@ -95,6 +96,19 @@ public:
         return ret;
     }
 
+    static void EnumDirFiles2(const std::string& dirPrefix, const std::string& dirName, std::vector<std::string>& vFiles)
+    {
+        std::filesystem::path rel(dirPrefix);
+        std::filesystem::path root = rel;
+        root.append(dirName);
+        for (auto fiter : std::filesystem::recursive_directory_iterator(root))
+        {
+            std::string target = std::filesystem::relative(fiter.path(), rel).string();
+            boost::replace_all(target, "\\", "/");
+            vFiles.push_back(target);
+        }
+    }
+
 
     static int compressu(std::string src, std::string dst)
     {
@@ -128,7 +142,7 @@ public:
                 return -1;
             }
             zipClose(zFile, NULL);
-            std::cout << "zip ok" << std::endl;
+            std::cout << "zip file ok" << std::endl;
         }
         else if (S_ISDIR(fileInfo.st_mode))
         {
@@ -144,11 +158,16 @@ public:
             }
 
             std::vector<std::string> vFiles;
-            EnumDirFiles(dirPrefix, dirName, vFiles);
+           
+            EnumDirFiles2(dirPrefix, dirName, vFiles);
+           /* std::cout << dirPrefix << std::endl;
+            std::cout << dirName << std::endl;
+            EnumDirFiles(dirPrefix, dirName, vFiles);*/
             std::vector<std::string>::iterator itF = vFiles.begin();
             for (; itF != vFiles.end(); ++itF)
             {
                 zip_fileinfo zFileInfo = { 0 };
+                std::cout << itF->c_str() << std::endl;
                 int ret = zipOpenNewFileInZip(zFile, itF->c_str(), &zFileInfo, NULL, 0, NULL, 0, NULL, 0, Z_DEFAULT_COMPRESSION);
                 if (ret != ZIP_OK)
                 {
@@ -166,7 +185,7 @@ public:
             }
 
             zipClose(zFile, NULL);
-            std::cout << "zip ok" << std::endl;
+            std::cout << "zip dir ok" << std::endl;
         }
         return 0;
     }
