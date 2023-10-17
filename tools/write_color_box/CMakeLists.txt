@@ -2,13 +2,13 @@ project(write_color_box)
 
 add_executable(${PROJECT_NAME} write_color_box.cpp)
 
-# -----------------²éÕÒCAIRO¿ªÊ¼------------------
+# -----------------æŸ¥æ‰¾CAIROå¼€å§‹------------------
 find_path(CAIRO_INCLUDE_DIR cairo/cairo.h)
 set(CAIRO_NAMES ${JRTPLIB_NAMES} cairo)
 find_library(CAIRO_LIBRARY NAMES ${CAIRO_NAMES})
 target_link_libraries(${PROJECT_NAME} PUBLIC ${CAIRO_LIBRARY})
 
-# linux ÉÏ¿ÉÄÜÁ´½ÓÓĞµãÎÊÌâĞèÒªÖ÷¶¯ÉèÖÃÏÂÃæµÄÏî
+# linux ä¸Šå¯èƒ½é“¾æ¥æœ‰ç‚¹é—®é¢˜éœ€è¦ä¸»åŠ¨è®¾ç½®ä¸‹é¢çš„é¡¹
 if(IS_LINUX)
 	find_package(Fontconfig REQUIRED) # since CMake 3.14
 	target_link_libraries(${PROJECT_NAME} PUBLIC Fontconfig::Fontconfig)
@@ -19,6 +19,6 @@ if(IS_LINUX)
 	find_library(PIXMAN_LIBRARY NAMES pixman-1)
 	target_link_libraries(${PROJECT_NAME} PUBLIC ${PIXMAN_LIBRARY})
 endif()
-# -----------------²éÕÒCAIRO½áÊø------------------
+# -----------------æŸ¥æ‰¾CAIROç»“æŸ------------------
 
 target_link_libraries(${PROJECT_NAME} PUBLIC sutils)

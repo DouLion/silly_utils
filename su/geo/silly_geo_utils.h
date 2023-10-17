@@ -22,16 +22,12 @@ public:
 
 
 	/// <summary>
-	/// 读取geojson中的矢量环,并返回多个环的数据(该函数有问题)
+	/// 读取geojson和shp中的矢量环,并返回多个环的数据
+	/// 识别区分存储文件中的内环和外环
 	/// </summary>
 	/// <param name="geojsonFile">读取geojson文件地址</param>
-	static std::vector<silly_ring> read_geojson(const char* geojsonFile);
+	static std::vector<silly_poly> read_vector_rings(const char* File);
 
-	/// <summary>
-	/// 读取shp中的矢量环,并返回多个环的数据
-	/// </summary>
-	/// <param name="shp">读取SHP文件地址</param>
-	static std::vector<silly_ring> read_shp_ring(const char* shp);
 
 	/// <summary>
 	/// 读取一个shp文件,将多个坐标点绘制在读取的shp文件中的位置,并生成一个新的shp文件
@@ -52,13 +48,13 @@ public:
 	/// <summary>
 	/// 初始化 GDAL 环境,只需要初始化一次
 	/// </summary>
-	void init_gdal_env();
+	static void init_gdal_env();
 
 
 	/// <summary>
 	/// 销毁 GDAL 环境, 一旦执行此方法,那么GDAL可能就无法使用,
 	/// </summary>
-	void destory_gdal_env();
+	static void destory_gdal_env();
 
 	/// <summary>
 	/// 是否为一个标准的shp文件
