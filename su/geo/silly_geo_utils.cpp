@@ -185,7 +185,8 @@ std::vector<silly_line> geo_utils::read_vector_lines(const char* File)
                 if (geomType == wkbLineString || geomType == wkbLineString25D)
                 {
                     OGRLineString* lineString = dynamic_cast<OGRLineString*>(geometry);
-                    for (int j = 0; j < lineString->getNumPoints(); j++)
+                    int num_points = lineString->getNumPoints();
+                    for (int j = 0; j < num_points; j++)
                     {
                         double x = lineString->getX(j);
                         double y = lineString->getY(j);
@@ -197,11 +198,13 @@ std::vector<silly_line> geo_utils::read_vector_lines(const char* File)
                 else if (geomType == wkbMultiLineString || geomType == wkbMultiLineString25D)
                 {
                     OGRMultiLineString* multiLineString = dynamic_cast<OGRMultiLineString*>(geometry);
-                    for (int j = 0; j < multiLineString->getNumGeometries(); j++)
+                    int num_multiLine = multiLineString->getNumGeometries();
+                    for (int j = 0; j < num_multiLine; j++)
                     {
                         OGRLineString* lineString = dynamic_cast<OGRLineString*>(multiLineString->getGeometryRef(j));
                         silly_line subLine;
-                        for (int k = 0; k < lineString->getNumPoints(); k++)
+                        int num_points = lineString->getNumPoints();
+                        for (int k = 0; k < num_points; k++)
                         {
                             double x = lineString->getX(k);
                             double y = lineString->getY(k);
