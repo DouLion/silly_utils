@@ -107,6 +107,126 @@ void processMultiPolygon(OGRMultiPolygon* multiPolygon, silly_poly& poly)
     }
 }
 
+std::vector<silly_point> geo_utils::read_vector_points(const char* File)
+{
+    std::vector<silly_point> points;
+
+#if IS_WIN32
+
+    GDALDataset* dataset = (GDALDataset*)GDALOpenEx(File, GDAL_OF_VECTOR, nullptr, nullptr, nullptr);
+    if (dataset == nullptr)
+    {
+        std::cout << "Failed to open file! " << std::endl;
+        return points;
+    }
+
+    int layerCount = dataset->GetLayerCount();
+    for (int i = 0; i < layerCount; i++)
+    {
+        OGRLayer* layer = dataset->GetLayer(i);
+
+        layer->ResetReading();
+        OGRFeature* feature;
+        while ((feature = layer->GetNextFeature()) != nullptr)
+        {
+            OGRGeometry* geometry = feature->GetGeometryRef();
+            if (geometry != nullptr)
+            {
+                OGRwkbGeometryType geomType = wkbFlatten(geometry->getGeometryType());
+                // 判断一下类型
+                if (geomType == wkbPoint || geomType == wkbPoint25D)
+                {
+                    OGRPoint* point = dynamic_cast<OGRPoint*>(geometry);
+                    double x = point->getX();
+                    double y = point->getY();
+                    silly_point pt(x, y);
+                    points.push_back(pt);
+                }
+                else
+                {
+                    std::cout << "The file data type cannot be processed temporarily: " << geomType << std::endl;
+                }
+            }
+            OGRFeature::DestroyFeature(feature);
+        }
+    }
+
+    GDALClose(dataset);
+#endif
+    return points;
+}
+
+std::vector<silly_line> geo_utils::read_vector_lines(const char* File)
+{
+    std::vector<silly_line> lines;
+
+#if IS_WIN32
+
+    GDALDataset* dataset = (GDALDataset*)GDALOpenEx(File, GDAL_OF_VECTOR, nullptr, nullptr, nullptr);
+    if (dataset == nullptr)
+    {
+        std::cout << "Failed to open file! " << std::endl;
+        return lines;
+    }
+
+    int layerCount = dataset->GetLayerCount();
+    for (int i = 0; i < layerCount; i++)
+    {
+        OGRLayer* layer = dataset->GetLayer(i);
+        layer->ResetReading();
+        OGRFeature* feature;
+        while ((feature = layer->GetNextFeature()) != nullptr)
+        {
+            silly_line line;
+            OGRGeometry* geometry = feature->GetGeometryRef();
+            if (geometry != nullptr)
+            {
+                OGRwkbGeometryType geomType = wkbFlatten(geometry->getGeometryType());
+                if (geomType == wkbLineString || geomType == wkbLineString25D)
+                {
+                    OGRLineString* lineString = dynamic_cast<OGRLineString*>(geometry);
+                    for (int j = 0; j < lineString->getNumPoints(); j++)
+                    {
+                        double x = lineString->getX(j);
+                        double y = lineString->getY(j);
+                        silly_point point(x, y);
+                        line.push_back(point);
+                    }
+                    lines.push_back(line);
+                }
+                else if (geomType == wkbMultiLineString || geomType == wkbMultiLineString25D)
+                {
+                    OGRMultiLineString* multiLineString = dynamic_cast<OGRMultiLineString*>(geometry);
+                    for (int j = 0; j < multiLineString->getNumGeometries(); j++)
+                    {
+                        OGRLineString* lineString = dynamic_cast<OGRLineString*>(multiLineString->getGeometryRef(j));
+                        silly_line subLine;
+                        for (int k = 0; k < lineString->getNumPoints(); k++)
+                        {
+                            double x = lineString->getX(k);
+                            double y = lineString->getY(k);
+                            silly_point point(x, y);
+                            subLine.push_back(point);
+                        }
+                        lines.push_back(subLine);
+                    }
+                }
+                else
+                {
+                    std::cout << "The file data type cannot be processed temporarily: " << geomType << std::endl;
+                }
+            }
+            OGRFeature::DestroyFeature(feature);
+        }
+    }
+
+    GDALClose(dataset);
+#endif
+
+    return lines;
+}
+
+
 
 
 std::vector<silly_poly> geo_utils::read_vector_rings(const char* File)
@@ -585,3 +705,6 @@ bool geo_utils::check_shp_info(const std::string& shp_file, int& type, std::map<
     return status;
 
 }
+
+
+

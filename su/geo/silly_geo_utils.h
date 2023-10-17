@@ -28,6 +28,21 @@ public:
 	/// <param name="geojsonFile">读取geojson文件地址</param>
 	static std::vector<silly_poly> read_vector_rings(const char* File);
 
+	/// <summary>
+	/// 读取geojson和shp中的点数据,并存储多个点到std::vector<silly_point>
+	/// 可以处理 wkbPolygon和wkbPolygon25D类型两种矢量
+	/// </summary>
+	/// <param name="File">文件地址</param>
+	/// <returns></returns>
+	static std::vector<silly_point> read_vector_points(const char* File);
+
+	/// <summary>
+	/// 读取geojson和shp中的线数据,并存储多个点到std::vector<silly_line>
+	/// 可以处理wkbLineString  wkbLineString25D  wkbMultiLineString  wkbMultiLineString25D 四种矢量
+	/// </summary>
+	/// <param name="File"></param>
+	/// <returns></returns>
+	static std::vector<silly_line> read_vector_lines(const char* File);
 
 	/// <summary>
 	/// 读取一个shp文件,将多个坐标点绘制在读取的shp文件中的位置,并生成一个新的shp文件

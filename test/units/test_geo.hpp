@@ -23,6 +23,88 @@
 
 BOOST_AUTO_TEST_SUITE(TestGeo)
 
+BOOST_AUTO_TEST_CASE(READ_VECTOR_POINT_LINE)
+{
+	std::cout << "\r\n\r\n****************" << "READ_VECTOR_POINT_LINE" << "****************" << std::endl;
+	geo_utils::init_gdal_env();
+
+	// 读取geojson的点
+	std::filesystem::path geo_point(DEFAULT_DATA_DIR);
+	geo_point += "/geojson/xian_point.geojson";
+	std::vector<silly_poly> geojson_rings;
+	//std::vector<silly_poly> geojson_rings = geo_utils::read_vector_rings(geo_point.string().c_str());
+
+	int type;
+	std::map<std::string, std::string> properties;
+	geo_utils::check_shp_info(geo_point.string().c_str(), type, properties);
+
+	std::vector<silly_point> geo_points_v = geo_utils::read_vector_points(geo_point.string().c_str());
+
+	// 读取geojson的线
+	std::filesystem::path geo_line(DEFAULT_DATA_DIR);
+	geo_line += "/geojson/river_line.geojson";
+
+	int type2;
+	std::map<std::string, std::string> properties2;
+	geo_utils::check_shp_info(geo_line.string().c_str(), type2, properties2);
+	std::vector<silly_line> geo_lines_v = geo_utils::read_vector_lines(geo_line.string().c_str());
+
+
+	std::vector<silly_point> geojson_out_point;
+	for (auto& poly : geojson_rings)
+	{
+		for (auto& point : poly.outer_ring.points)
+		{
+			geojson_out_point.push_back(point);
+		}
+
+		for (auto& inner_ring : poly.inner_rings)
+		{
+			for (auto& point : inner_ring.points)
+			{
+				geojson_out_point.push_back(point);
+			}
+		}
+	}
+
+	std::filesystem::path geojson_1013_1(DEFAULT_DATA_DIR);
+	geojson_1013_1 += "/shp/1013_geojson_1.shp";
+	geo_utils::points_to_shp(geojson_out_point, geo_line.string().c_str(), geojson_1013_1.string().c_str());
+
+
+	std::filesystem::path shp_1(DEFAULT_DATA_DIR);
+	shp_1 += "/shp/risk2.shp";
+	std::vector<silly_poly> shp_rings = geo_utils::read_vector_rings(shp_1.string().c_str());
+	std::vector<silly_point> shp_out_point;
+	for (auto& poly : shp_rings)
+	{
+		for (auto& point : poly.outer_ring.points)
+		{
+			shp_out_point.push_back(point);
+		}
+
+		for (auto& inner_ring : poly.inner_rings)
+		{
+			for (auto& point : inner_ring.points)
+			{
+				shp_out_point.push_back(point);
+			}
+		}
+	}
+	std::filesystem::path shp_1013_1(DEFAULT_DATA_DIR);
+	shp_1013_1 += "/shp/1013_shp_1.shp";
+	geo_utils::points_to_shp(shp_out_point, geo_line.string().c_str(), shp_1013_1.string().c_str());
+
+
+	int b = 1;
+	geojson_rings.clear();
+	shp_rings.clear();
+	geo_utils::destory_gdal_env();
+	int a = 0;
+};
+
+
+
 
 BOOST_AUTO_TEST_CASE(READ_GEOJSON_RINGS)
 {
