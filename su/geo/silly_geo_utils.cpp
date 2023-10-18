@@ -140,6 +140,11 @@ std::vector<silly_point> geo_utils::read_vector_points(const char* File)
                     double x = point->getX();
                     double y = point->getY();
                     silly_point pt(x, y);
+
+                    // 获取属性信息，这里属性名为 "adnm"
+                    const char* label = feature->GetFieldAsString("adnm");
+                    std::string name = label;
+
                     points.push_back(pt);
                 }
                 else
@@ -193,6 +198,11 @@ std::vector<silly_line> geo_utils::read_vector_lines(const char* File)
                         silly_point point(x, y);
                         line.push_back(point);
                     }
+
+                    // 获取属性信息，这里属性名为 "RVNM"，
+                    const char* label = feature->GetFieldAsString("RVNM");
+                    std::string name = label;
+
                     lines.push_back(line);
                 }
                 else if (geomType == wkbMultiLineString || geomType == wkbMultiLineString25D)
@@ -211,6 +221,11 @@ std::vector<silly_line> geo_utils::read_vector_lines(const char* File)
                             silly_point point(x, y);
                             subLine.push_back(point);
                         }
+
+                        // 获取属性信息，这里属性名为 "RVNM"，
+                        const char* label = feature->GetFieldAsString("RVNM");
+                        std::string name = label;
+
                         lines.push_back(subLine);
                     }
                 }
@@ -229,12 +244,22 @@ std::vector<silly_line> geo_utils::read_vector_lines(const char* File)
     return lines;
 }
 
-
-
-
-std::vector<silly_poly> geo_utils::read_vector_rings(const char* File)
+//多面的OGRMultiPolygon对象转换为silly_multi_poly对象
+void processMultiPolygon_mul_ploy(OGRMultiPolygon* multiPolygon, silly_multi_poly& poly)
 {
-    std::vector<silly_poly> polygons;  // 存放读取的环数据
+    int polygonCount = multiPolygon->getNumGeometries();
+    for (int i = 0; i < polygonCount; i++)
+    {
+        silly_poly  tmp_poly;
+        OGRPolygon* polygon = dynamic_cast<OGRPolygon*>(multiPolygon->getGeometryRef(i));
+        processPolygon(polygon, tmp_poly);
+        poly.push_back(tmp_poly);
+    }
+}
+
+std::vector<silly_multi_poly> geo_utils::read_vector_polys(const char* File)
+{
+    std::vector<silly_multi_poly> polygons;  // 存放读取的环数据
 #if IS_WIN32
 
     // 打开GeoJSON文件
@@ -255,39 +280,31 @@ std::vector<silly_poly> geo_utils::read_vector_rings(const char* File)
         OGRFeature* feature;
         while ((feature = layer->GetNextFeature()) != nullptr)
         {
-            silly_poly poly;
-            //// 读取多边形的属性
-            //OGRFeatureDefn* featureDefn = layer->GetLayerDefn();
-            //int fieldCount = featureDefn->GetFieldCount();
-            //for (int j = 0; j < fieldCount; j++)
-            //{
-            //    OGRFieldDefn* fieldDefn = featureDefn->GetFieldDefn(j);
-            //    const char* fieldName = fieldDefn->GetNameRef();
-            //    const char* fieldValue = feature->GetFieldAsString(j);
-            //    poly.props[fieldName] = fieldValue;
-            //}
+            silly_multi_poly m_poly;
             // 读取环数据
             OGRGeometry* geometry = feature->GetGeometryRef();
             auto type = geometry->getGeometryType();
             if (geometry != nullptr)
             {
+
                 OGRwkbGeometryType geomType = wkbFlatten(geometry->getGeometryType());
                 if (geomType == wkbPolygon || geomType == wkbPolygon25D)
                 {
+                    silly_poly tmp_poly;
                     OGRPolygon* polygon = dynamic_cast<OGRPolygon*>(geometry);
-                    processPolygon(polygon, poly);
-                    polygons.push_back(poly);
+                    processPolygon(polygon, tmp_poly);
+                    m_poly.push_back(tmp_poly);
                 }
                 else if (geomType == wkbMultiPolygon || geomType == wkbMultiPolygon25D)
                 {
                     OGRMultiPolygon* multiPolygon = dynamic_cast<OGRMultiPolygon*>(geometry);
-                    processMultiPolygon(multiPolygon, poly);
-                    polygons.push_back(poly);
+                    processMultiPolygon_mul_ploy(multiPolygon, m_poly);
                 }
                 else
                 {
                     std::cout << "The file data type cannot be processed temporarily: " << geomType << std::endl;
                 }
+                polygons.push_back(m_poly);
 
             }
             OGRFeature::DestroyFeature(feature);
@@ -297,7 +314,6 @@ std::vector<silly_poly> geo_utils::read_vector_rings(const char* File)
     GDALClose(dataset);  // 关闭数据集
 #endif
     return polygons;
-
 }
 
 

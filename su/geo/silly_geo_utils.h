@@ -22,13 +22,6 @@ public:
 
 
 	/// <summary>
-	/// 读取geojson和shp中的矢量环,并返回多个环的数据
-	/// 识别区分存储文件中的内环和外环
-	/// </summary>
-	/// <param name="geojsonFile">读取geojson文件地址</param>
-	static std::vector<silly_poly> read_vector_rings(const char* File);
-
-	/// <summary>
 	/// 读取geojson和shp中的点数据,并存储多个点到std::vector<silly_point>
 	/// 可以处理 wkbPolygon和wkbPolygon25D类型两种矢量
 	/// </summary>
@@ -43,6 +36,12 @@ public:
 	/// <param name="File"></param>
 	/// <returns></returns>
 	static std::vector<silly_line> read_vector_lines(const char* File);
+
+	/// <summary>
+	/// 读取geojson和shp中的面,并存储为一个多面
+	/// </summary>
+	/// <param name="geojsonFile">读取文件地址</param>
+	static std::vector<silly_multi_poly> geo_utils::read_vector_polys(const char* File);
 
 	/// <summary>
 	/// 读取一个shp文件,将多个坐标点绘制在读取的shp文件中的位置,并生成一个新的shp文件

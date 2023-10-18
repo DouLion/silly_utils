@@ -28,12 +28,25 @@ BOOST_AUTO_TEST_CASE(READ_VECTOR_POINT_LINE)
 	std::cout << "\r\n\r\n****************" << "READ_VECTOR_POINT_LINE" << "****************" << std::endl;
 	geo_utils::init_gdal_env();
 
+	// 读取geojson的面
+	std::filesystem::path geo_rings(DEFAULT_DATA_DIR);
+	geo_rings += "/geojson/xian_poly.geojson";
+
+
+	std::vector<silly_multi_poly> geojson_r_2 = geo_utils::read_vector_polys(geo_rings.string().c_str());
+
+
+
+	//std::vector<silly_multi_poly> geojson_r = geo_utils::read_vector_rings(geo_rings.string().c_str());
+
+
+
+
+
 	// 读取geojson的点
 	std::filesystem::path geo_point(DEFAULT_DATA_DIR);
 	geo_point += "/geojson/xian_point.geojson";
 	std::vector<silly_poly> geojson_rings;
-	//std::vector<silly_poly> geojson_rings = geo_utils::read_vector_rings(geo_point.string().c_str());
-
 	int type;
 	std::map<std::string, std::string> properties;
 	geo_utils::check_shp_info(geo_point.string().c_str(), type, properties);
@@ -48,6 +61,9 @@ BOOST_AUTO_TEST_CASE(READ_VECTOR_POINT_LINE)
 	std::map<std::string, std::string> properties2;
 	geo_utils::check_shp_info(geo_line.string().c_str(), type2, properties2);
 	std::vector<silly_line> geo_lines_v = geo_utils::read_vector_lines(geo_line.string().c_str());
+
+
+
 
 
 	std::vector<silly_point> geojson_out_point;
@@ -74,33 +90,7 @@ BOOST_AUTO_TEST_CASE(READ_VECTOR_POINT_LINE)
 
 	std::filesystem::path shp_1(DEFAULT_DATA_DIR);
 	shp_1 += "/shp/risk2.shp";
-	std::vector<silly_poly> shp_rings = geo_utils::read_vector_rings(shp_1.string().c_str());
-	std::vector<silly_point> shp_out_point;
-	for (auto& poly : shp_rings)
-	{
-		for (auto& point : poly.outer_ring.points)
-		{
-			shp_out_point.push_back(point);
-		}
 
-		for (auto& inner_ring : poly.inner_rings)
-		{
-			for (auto& point : inner_ring.points)
-			{
-				shp_out_point.push_back(point);
-			}
-		}
-	}
-	std::filesystem::path shp_1013_1(DEFAULT_DATA_DIR);
-	shp_1013_1 += "/shp/1013_shp_1.shp";
-	geo_utils::points_to_shp(shp_out_point, geo_line.string().c_str(), shp_1013_1.string().c_str());
-
-
-	int b = 1;
-	geojson_rings.clear();
-	shp_rings.clear();
-	geo_utils::destory_gdal_env();
-	int a = 0;
 };
 
 
@@ -113,7 +103,7 @@ BOOST_AUTO_TEST_CASE(READ_GEOJSON_RINGS)
 	// 读取geojson的环
  	std::filesystem::path geofile_1(DEFAULT_DATA_DIR);
 	geofile_1 += "/geojson/risk2.geojson";
- 	std::vector<silly_poly> geojson_rings = geo_utils::read_vector_rings(geofile_1.string().c_str());
+	std::vector<silly_poly> geojson_rings; // = geo_utils::read_vector_rings(geofile_1.string().c_str());
 
 	// 读取湖南市区的环
 	std::filesystem::path huanan(DEFAULT_DATA_DIR);
@@ -143,7 +133,7 @@ BOOST_AUTO_TEST_CASE(READ_GEOJSON_RINGS)
 
 	std::filesystem::path shp_1(DEFAULT_DATA_DIR);
 	shp_1 += "/shp/risk2.shp";
-	std::vector<silly_poly> shp_rings = geo_utils::read_vector_rings(shp_1.string().c_str());
+	std::vector<silly_poly> shp_rings;// = geo_utils::read_vector_rings(shp_1.string().c_str());
 	std::vector<silly_point> shp_out_point;
 	for (auto& poly : shp_rings)
 	{
