@@ -5,6 +5,17 @@
 
 #include "silly_geo.h"
 
+enum vector_type
+{
+	evtInvalid = 0,
+	evtPoint = 1,
+	evtLine = 2,
+	evtPoly = 3,
+	evtMultiPoint = 4,
+	evtMultiLine = 5,
+	evtMultiPoly = 6,
+};
+
 class geo_utils
 {
 public:
@@ -85,7 +96,7 @@ public:
 	/// <param name="type"></param>
 	/// <param name="properties"></param>
 	/// <returns></returns>
-	static bool check_shp_info(const std::string& shp_file, int& type, std::map<std::string, std::string>& properties);
+	static bool check_shp_info(const std::string& shp_file, vector_type& type, std::map<std::string, std::string>& properties);
 
 
 };
