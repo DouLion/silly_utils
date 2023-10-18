@@ -613,7 +613,7 @@ bool geo_utils::is_valid_shp(const std::string& shp_file)
     return true;
 }
 
-bool geo_utils::check_shp_info(const std::string& shp_file, vector_type& type, std::map<std::string, std::string>& properties)
+bool geo_utils::check_shp_info(const std::string& shp_file, enum_geometry_types& type, std::map<std::string, std::string>& properties)
 {
     bool status = false;
     std::map<std::string, std::string> result;
@@ -640,7 +640,7 @@ bool geo_utils::check_shp_info(const std::string& shp_file, vector_type& type, s
 
     //获取要素的几何形状
     OGRGeometry* poGeometry_r = pFeature_r->GetGeometryRef();
-    type = (vector_type)wkbFlatten(poGeometry_r->getGeometryType());
+    type = (enum_geometry_types)wkbFlatten(poGeometry_r->getGeometryType());
     if (wkbUnknown == type)
     {
         GDALClose(poDSr);
