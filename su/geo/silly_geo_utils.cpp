@@ -59,6 +59,24 @@ double geo_utils::two_point_azimuth(silly_point from, silly_point to)
     return theta;
 }
 
+
+// 将 silly_ring 转换为 OGRPolygon
+OGRPolygon* createPolygonFromSillyRing(const silly_ring& ring)
+{
+    OGRPolygon* polygon = new OGRPolygon;
+#if IS_WIN32
+    OGRLinearRing* ringObj = new OGRLinearRing;
+
+    for (const auto& point : ring.points) {
+        ringObj->addPoint(point.lgtd, point.lttd);
+    }
+
+    polygon->addRingDirectly(ringObj);
+#endif
+    return polygon;
+}
+
+
 // 环OGRLinearRing对象，将其转换为silly_ring对象
 silly_ring processRing(OGRLinearRing* ring)
 {
@@ -74,19 +92,14 @@ silly_ring processRing(OGRLinearRing* ring)
     return result;
 }
 
-// 单面OGRPolygon对象转换为silly_poly对象
+
+// 单面OGRPolygon对象转换为silly_poly(多环:外环+内环)对象
 void processPolygon(OGRPolygon* polygon, silly_poly& poly)
 {
+    // 处理OGRPolygon外环
     OGRLinearRing* outerRing = polygon->getExteriorRing();
-    int outerRingPointCount = outerRing->getNumPoints();
-    for (int k = 0; k < outerRingPointCount; k++)
-    {
-        double x = outerRing->getX(k);
-        double y = outerRing->getY(k);
-        silly_point point(x, y);
-        poly.outer_ring.points.push_back(point);
-    }
-
+    poly.outer_ring = processRing(outerRing);
+    // 处理OGRPolygon内环
     int innerRingCount = polygon->getNumInteriorRings();
     for (int k = 0; k < innerRingCount; k++)
     {
@@ -96,35 +109,50 @@ void processPolygon(OGRPolygon* polygon, silly_poly& poly)
     }
 }
 
-// 多面的OGRMultiPolygon对象转换为silly_poly对象
-void processMultiPolygon(OGRMultiPolygon* multiPolygon, silly_poly& poly)
+
+//多面的OGRMultiPolygon对象转换为silly_multi_poly(多面)对象
+void processMultiPolygon(OGRMultiPolygon* multiPolygon, silly_multi_poly& poly)
 {
     int polygonCount = multiPolygon->getNumGeometries();
     for (int i = 0; i < polygonCount; i++)
     {
+        silly_poly  tmp_poly;
         OGRPolygon* polygon = dynamic_cast<OGRPolygon*>(multiPolygon->getGeometryRef(i));
-        processPolygon(polygon, poly);
+        processPolygon(polygon, tmp_poly);
+        poly.push_back(tmp_poly);
     }
 }
+
+
+// OGRLineString(线)类型转为silly_line(线)类型
+void processLineString(OGRLineString* lineString, silly_line& line)
+{
+    int num_points = lineString->getNumPoints();
+    for (int j = 0; j < num_points; j++)
+    {
+        double x = lineString->getX(j);
+        double y = lineString->getY(j);
+        silly_point point(x, y);
+        line.push_back(point);
+    }
+}
+
 
 std::vector<silly_point> geo_utils::read_vector_points(const char* File)
 {
     std::vector<silly_point> points;
-
 #if IS_WIN32
-
     GDALDataset* dataset = (GDALDataset*)GDALOpenEx(File, GDAL_OF_VECTOR, nullptr, nullptr, nullptr);
     if (dataset == nullptr)
     {
         std::cout << "Failed to open file! " << std::endl;
         return points;
     }
-
+    // 获得数据集中图层数
     int layerCount = dataset->GetLayerCount();
     for (int i = 0; i < layerCount; i++)
     {
         OGRLayer* layer = dataset->GetLayer(i);
-
         layer->ResetReading();
         OGRFeature* feature;
         while ((feature = layer->GetNextFeature()) != nullptr)
@@ -140,11 +168,9 @@ std::vector<silly_point> geo_utils::read_vector_points(const char* File)
                     double x = point->getX();
                     double y = point->getY();
                     silly_point pt(x, y);
-
                     // 获取属性信息，这里属性名为 "adnm"
-                    const char* label = feature->GetFieldAsString("adnm");
-                    std::string name = label;
-
+                    //const char* label = feature->GetFieldAsString("adnm");
+                    //std::string name = label;
                     points.push_back(pt);
                 }
                 else
@@ -161,19 +187,17 @@ std::vector<silly_point> geo_utils::read_vector_points(const char* File)
     return points;
 }
 
+
 std::vector<silly_line> geo_utils::read_vector_lines(const char* File)
 {
     std::vector<silly_line> lines;
-
 #if IS_WIN32
-
     GDALDataset* dataset = (GDALDataset*)GDALOpenEx(File, GDAL_OF_VECTOR, nullptr, nullptr, nullptr);
     if (dataset == nullptr)
     {
         std::cout << "Failed to open file! " << std::endl;
         return lines;
     }
-
     int layerCount = dataset->GetLayerCount();
     for (int i = 0; i < layerCount; i++)
     {
@@ -187,24 +211,18 @@ std::vector<silly_line> geo_utils::read_vector_lines(const char* File)
             if (geometry != nullptr)
             {
                 OGRwkbGeometryType geomType = wkbFlatten(geometry->getGeometryType());
+                // 单线
                 if (geomType == wkbLineString || geomType == wkbLineString25D)
                 {
                     OGRLineString* lineString = dynamic_cast<OGRLineString*>(geometry);
-                    int num_points = lineString->getNumPoints();
-                    for (int j = 0; j < num_points; j++)
-                    {
-                        double x = lineString->getX(j);
-                        double y = lineString->getY(j);
-                        silly_point point(x, y);
-                        line.push_back(point);
-                    }
-
+                    processLineString(lineString, line);
+                    
                     // 获取属性信息，这里属性名为 "RVNM"，
-                    const char* label = feature->GetFieldAsString("RVNM");
-                    std::string name = label;
-
+                    //const char* label = feature->GetFieldAsString("RVNM");
+                    //std::string name = label;
                     lines.push_back(line);
                 }
+                // 多线
                 else if (geomType == wkbMultiLineString || geomType == wkbMultiLineString25D)
                 {
                     OGRMultiLineString* multiLineString = dynamic_cast<OGRMultiLineString*>(geometry);
@@ -213,19 +231,10 @@ std::vector<silly_line> geo_utils::read_vector_lines(const char* File)
                     {
                         OGRLineString* lineString = dynamic_cast<OGRLineString*>(multiLineString->getGeometryRef(j));
                         silly_line subLine;
-                        int num_points = lineString->getNumPoints();
-                        for (int k = 0; k < num_points; k++)
-                        {
-                            double x = lineString->getX(k);
-                            double y = lineString->getY(k);
-                            silly_point point(x, y);
-                            subLine.push_back(point);
-                        }
-
+                        processLineString(lineString, subLine);
                         // 获取属性信息，这里属性名为 "RVNM"，
-                        const char* label = feature->GetFieldAsString("RVNM");
-                        std::string name = label;
-
+                        //const char* label = feature->GetFieldAsString("RVNM");
+                        //std::string name = label;
                         lines.push_back(subLine);
                     }
                 }
@@ -244,18 +253,6 @@ std::vector<silly_line> geo_utils::read_vector_lines(const char* File)
     return lines;
 }
 
-//多面的OGRMultiPolygon对象转换为silly_multi_poly对象
-void processMultiPolygon_mul_ploy(OGRMultiPolygon* multiPolygon, silly_multi_poly& poly)
-{
-    int polygonCount = multiPolygon->getNumGeometries();
-    for (int i = 0; i < polygonCount; i++)
-    {
-        silly_poly  tmp_poly;
-        OGRPolygon* polygon = dynamic_cast<OGRPolygon*>(multiPolygon->getGeometryRef(i));
-        processPolygon(polygon, tmp_poly);
-        poly.push_back(tmp_poly);
-    }
-}
 
 std::vector<silly_multi_poly> geo_utils::read_vector_polys(const char* File)
 {
@@ -286,7 +283,7 @@ std::vector<silly_multi_poly> geo_utils::read_vector_polys(const char* File)
             auto type = geometry->getGeometryType();
             if (geometry != nullptr)
             {
-
+                // 处理单面
                 OGRwkbGeometryType geomType = wkbFlatten(geometry->getGeometryType());
                 if (geomType == wkbPolygon || geomType == wkbPolygon25D)
                 {
@@ -295,10 +292,11 @@ std::vector<silly_multi_poly> geo_utils::read_vector_polys(const char* File)
                     processPolygon(polygon, tmp_poly);
                     m_poly.push_back(tmp_poly);
                 }
+                // 处理多面
                 else if (geomType == wkbMultiPolygon || geomType == wkbMultiPolygon25D)
                 {
                     OGRMultiPolygon* multiPolygon = dynamic_cast<OGRMultiPolygon*>(geometry);
-                    processMultiPolygon_mul_ploy(multiPolygon, m_poly);
+                    processMultiPolygon(multiPolygon, m_poly);
                 }
                 else
                 {
@@ -318,167 +316,12 @@ std::vector<silly_multi_poly> geo_utils::read_vector_polys(const char* File)
 
 
 
-bool geo_utils::points_to_shp(std::vector<silly_point>& points, const char* shpFilePath, const char* outputShpFilePath)
-{
-#if IS_WIN32
-
-    // 打开现有 shp 文件
-    GDALDataset* dataset = static_cast<GDALDataset*>(GDALOpenEx(shpFilePath, GDAL_OF_VECTOR | GDAL_OF_UPDATE, nullptr, nullptr, nullptr));
-    if (dataset == nullptr)
-    {
-        // 处理文件打开失败的情况
-        std::cout << "Failed to open shapefile." << std::endl;
-        return false;
-    }
-
-    // 获取第一个图层
-    OGRLayer* layer = dataset->GetLayer(0);
-    if (layer == nullptr)
-    {
-        // 处理图层获取失败的情况
-        std::cout << "Failed to get layer." << std::endl;
-        GDALClose(dataset);
-        return false;
-    }
-
-    // 创建新的输出 shp 文件
-    GDALDriver* outDriver = GetGDALDriverManager()->GetDriverByName("ESRI Shapefile");
-    GDALDataset* outputDataset = outDriver->Create(outputShpFilePath, 0, 0, 0, GDT_Unknown, nullptr);
-    if (outputDataset == nullptr)
-    {
-        // 处理输出文件创建失败的情况
-        std::cout << "Failed to create output shapefile." << std::endl;
-        GDALClose(dataset);
-        return false;
-    }
-
-    // 创建新的图层
-    OGRLayer* outputLayer = outputDataset->CreateLayer("points", layer->GetSpatialRef(), wkbPoint, nullptr);
-    if (outputLayer == nullptr)
-    {
-        // 处理图层创建失败的情况
-        std::cout << "Failed to create output layer." << std::endl;
-        GDALClose(dataset);
-        GDALClose(outputDataset);
-        return false;
-    }
-
-    // 定义并创建字段
-    OGRFieldDefn fieldSize("Size", OFTReal);
-    if (outputLayer->CreateField(&fieldSize) != OGRERR_NONE)
-    {
-        // 处理字段创建失败的情况
-        std::cout << "Failed to create size field." << std::endl;
-        GDALClose(dataset);
-        GDALClose(outputDataset);
-        return false;
-    }
-
-    OGRFieldDefn fieldColor("Color", OFTString);
-    if (outputLayer->CreateField(&fieldColor) != OGRERR_NONE)
-    {
-        // 处理字段创建失败的情况
-        std::cout << "Failed to create color field." << std::endl;
-        GDALClose(dataset);
-        GDALClose(outputDataset);
-        return false;
-    }
-
-    // 创建要素并进行设置
-    for (const auto& point : points)
-    {
-        OGRFeature* feature = OGRFeature::CreateFeature(outputLayer->GetLayerDefn());
-
-        // 创建点对象
-        OGRPoint ogrPoint;
-        ogrPoint.setX(point.lgtd);
-        ogrPoint.setY(point.lttd);
-
-        // 设置点要素的几何对象
-        feature->SetGeometry(&ogrPoint);
-
-
-        // 将要素添加到图层
-        if (outputLayer->CreateFeature(feature) != OGRERR_NONE)
-        {
-            // 处理要素添加失败的情况
-            std::cout << "Failed to add feature." << std::endl;
-            OGRFeature::DestroyFeature(feature);
-            GDALClose(dataset);
-            GDALClose(outputDataset);
-            return false;
-        }
-
-        // 释放要素
-        OGRFeature::DestroyFeature(feature);
-    }
-
-    // 关闭数据集
-    GDALClose(dataset);
-    GDALClose(outputDataset);
-
-    std::cout << "Points added to shapefile and saved successfully." << std::endl;
-#endif
-
-    return true;
-}
-
-// 将 silly_ring 转换为 OGRPolygon
-OGRPolygon* createPolygonFromSillyRing(const silly_ring& ring)
-{
-    OGRPolygon* polygon = new OGRPolygon;
-#if IS_WIN32
-    OGRLinearRing* ringObj = new OGRLinearRing;
-
-    for (const auto& point : ring.points) {
-        ringObj->addPoint(point.lgtd, point.lttd);
-    }
-
-    polygon->addRingDirectly(ringObj);
-#endif
-    return polygon;
-}
-
-/// OGRPolygon类型转silly_ring
-silly_ring convertPolygonToSillyRing(OGRPolygon* polygon)
-{
-    silly_ring ring;
-
-    // 获取多边形的外环
-    OGRLinearRing* exteriorRing = polygon->getExteriorRing();
-
-    // 获取外环的点数
-    int numPoints = exteriorRing->getNumPoints();
-
-    // 将外环的点转换为 silly_point 类型，并添加到 silly_ring 中
-    for (int i = 0; i < numPoints; i++) {
-        OGRPoint point;
-        exteriorRing->getPoint(i, &point);
-        ring.points.push_back(silly_point(point.getX(), point.getY()));
-    }
-
-    //// 获取多边形的内环（如果存在），并将内环的点转换为 silly_point 类型，并添加到 silly_ring 中
-    int numInteriorRings = polygon->getNumInteriorRings();
-    for (int j = 0; j < numInteriorRings; j++)
-    {
-        OGRLinearRing* interiorRing = polygon->getInteriorRing(j);
-        int numInteriorPoints = interiorRing->getNumPoints();
-        for (int k = 0; k < numInteriorPoints; k++)
-        {
-            OGRPoint interiorPoint;
-            interiorRing->getPoint(k, &interiorPoint);
-            ring.points.push_back(silly_point(interiorPoint.getX(), interiorPoint.getY()));
-        }
-    }
-
-    return ring;
-}
-
 
 std::vector<silly_ring> geo_utils::intersect_area(silly_ring ring_1, silly_ring ring_2)
 {
     std::vector<silly_ring> intersecting_rings;
 #if IS_WIN32
+
     // 创建 OGRPolygon 对象
     OGRPolygon* poly1 = createPolygonFromSillyRing(ring_1);
     OGRPolygon* poly2 = createPolygonFromSillyRing(ring_2);
@@ -516,7 +359,7 @@ std::vector<silly_ring> geo_utils::intersect_area(silly_ring ring_1, silly_ring 
             intersecting_ring.points.push_back(silly_point(point.getX(), point.getY()));
         }
 
-        // 获取多边形的内环（如果存在）
+        // 获取多边形的内环
         int numInteriorRings = intersectingPolygon->getNumInteriorRings();
         for (int j = 0; j < numInteriorRings; j++)
         {
@@ -557,7 +400,7 @@ std::vector<silly_ring> geo_utils::intersect_area(silly_ring ring_1, silly_ring 
                 intersecting_ring.points.push_back(silly_point(point.getX(), point.getY()));
             }
 
-            // 获取多边形的内环（如果存在）
+            // 获取多边形的内环
             int numInteriorRings = polygon->getNumInteriorRings();
             for (int k = 0; k < numInteriorRings; k++)
             {
