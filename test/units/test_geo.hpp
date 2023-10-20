@@ -21,6 +21,18 @@
 #include "geo/silly_geo_convert.h"
 #include <filesystem>
 
+#include "gdal_priv.h"
+#include "ogrsf_frmts.h"
+
+ /// <summary>
+ /// 仅作为测试查看使用
+ /// 读取一个shp文件,将多个坐标点绘制在读取的shp文件中的位置,并生成一个新的shp文件
+ /// </summary>
+ /// <param name="points">需要绘制的坐标点</param>
+ /// <param name="shpFilePath">读取SHP文件地址</param>
+ /// <param name="outputShpFilePath">写入SHP文件地址</param>
+static bool points_to_shp(std::vector<silly_point>& points, const char* shpFilePath, const char* outputShpFilePath);
+
 BOOST_AUTO_TEST_SUITE(TestGeo)
 
 BOOST_AUTO_TEST_CASE(READ_VECTOR_POINT_LINE)
@@ -30,7 +42,15 @@ BOOST_AUTO_TEST_CASE(READ_VECTOR_POINT_LINE)
 
 	// 读取geojson的面
 	std::filesystem::path geo_rings(DEFAULT_DATA_DIR);
-	geo_rings += "/geojson/xian_poly.geojson";
+	geo_rings += "/geojson/xian_poly.shp";
+	// 读取geojson的线
+	std::filesystem::path geo_line(DEFAULT_DATA_DIR);
+	geo_line += "/geojson/river_line.geojson";
+	// 读取geojson的点
+	std::filesystem::path geo_point(DEFAULT_DATA_DIR);
+	geo_point += "/geojson/xian_point.geojson";
+
+	std::vector<silly_line> geo_lines_v = geo_utils::read_vector_lines(geo_line.string().c_str());
 
 
 	std::vector<silly_multi_poly> geojson_r_2 = geo_utils::read_vector_polys(geo_rings.string().c_str());
@@ -43,24 +63,17 @@ BOOST_AUTO_TEST_CASE(READ_VECTOR_POINT_LINE)
 
 
 
-	// 读取geojson的点
-	std::filesystem::path geo_point(DEFAULT_DATA_DIR);
-	geo_point += "/geojson/xian_point.geojson";
 	std::vector<silly_poly> geojson_rings;
-	int type;
+	enum_geometry_types type;
 	std::map<std::string, std::string> properties;
 	geo_utils::check_shp_info(geo_point.string().c_str(), type, properties);
 
 	std::vector<silly_point> geo_points_v = geo_utils::read_vector_points(geo_point.string().c_str());
 
-	// 读取geojson的线
-	std::filesystem::path geo_line(DEFAULT_DATA_DIR);
-	geo_line += "/geojson/river_line.geojson";
 
-	int type2;
+	enum_geometry_types type2;
 	std::map<std::string, std::string> properties2;
 	geo_utils::check_shp_info(geo_line.string().c_str(), type2, properties2);
-	std::vector<silly_line> geo_lines_v = geo_utils::read_vector_lines(geo_line.string().c_str());
 
 
 
@@ -85,7 +98,7 @@ BOOST_AUTO_TEST_CASE(READ_VECTOR_POINT_LINE)
 
 	std::filesystem::path geojson_1013_1(DEFAULT_DATA_DIR);
 	geojson_1013_1 += "/shp/1013_geojson_1.shp";
-	geo_utils::points_to_shp(geojson_out_point, geo_line.string().c_str(), geojson_1013_1.string().c_str());
+	points_to_shp(geojson_out_point, geo_line.string().c_str(), geojson_1013_1.string().c_str());
 
 
 	std::filesystem::path shp_1(DEFAULT_DATA_DIR);
@@ -128,7 +141,7 @@ BOOST_AUTO_TEST_CASE(READ_GEOJSON_RINGS)
 
 	std::filesystem::path geojson_1013_1(DEFAULT_DATA_DIR);
 	geojson_1013_1 += "/shp/1013_geojson_1.shp";
-	geo_utils::points_to_shp(geojson_out_point, huanan.string().c_str(), geojson_1013_1.string().c_str());
+	points_to_shp(geojson_out_point, huanan.string().c_str(), geojson_1013_1.string().c_str());
 
 
 	std::filesystem::path shp_1(DEFAULT_DATA_DIR);
@@ -152,7 +165,7 @@ BOOST_AUTO_TEST_CASE(READ_GEOJSON_RINGS)
 	}
 	std::filesystem::path shp_1013_1(DEFAULT_DATA_DIR);
 	shp_1013_1 += "/shp/1013_shp_1.shp";
-	geo_utils::points_to_shp(shp_out_point, huanan.string().c_str(), shp_1013_1.string().c_str());
+	points_to_shp(shp_out_point, huanan.string().c_str(), shp_1013_1.string().c_str());
 
 
 	int b = 1;
@@ -213,7 +226,7 @@ BOOST_AUTO_TEST_CASE(READ_GEOJSON_RINGS)
 //						sprintf(buff, "/read_shp/intersect_%d.shp", b);
 //						intersect += buff;
 //						// 画边界
-//						geo_operation::points_to_shp(temp[m].points, huanan.string().c_str(), intersect.string().c_str());
+//						points_to_shp(temp[m].points, huanan.string().c_str(), intersect.string().c_str());
 //
 //						std::filesystem::path intersect_center_path(DEFAULT_DATA_DIR);
 //						char buff2[256] = { 0 };
@@ -222,7 +235,7 @@ BOOST_AUTO_TEST_CASE(READ_GEOJSON_RINGS)
 //						intersect_center_path += buff2;
 //						std::vector<silly_point> temp_inter{ intersect_center };
 //						//// 画形心点
-//						geo_operation::points_to_shp(temp_inter, huanan.string().c_str(), intersect_center_path.string().c_str());
+//						points_to_shp(temp_inter, huanan.string().c_str(), intersect_center_path.string().c_str());
 //
 //					}
 //
@@ -387,3 +400,107 @@ BOOST_AUTO_TEST_SUITE_END()
 #endif //SILLY_UTILS_TEST_GEO_HPP
 
 
+bool points_to_shp(std::vector<silly_point>& points, const char* shpFilePath, const char* outputShpFilePath)
+{
+#if IS_WIN32
+
+	// 打开现有 shp 文件
+	GDALDataset* dataset = static_cast<GDALDataset*>(GDALOpenEx(shpFilePath, GDAL_OF_VECTOR | GDAL_OF_UPDATE, nullptr, nullptr, nullptr));
+	if (dataset == nullptr)
+	{
+		// 处理文件打开失败的情况
+		std::cout << "Failed to open shapefile." << std::endl;
+		return false;
+	}
+
+	// 获取第一个图层
+	OGRLayer* layer = dataset->GetLayer(0);
+	if (layer == nullptr)
+	{
+		// 处理图层获取失败的情况
+		std::cout << "Failed to get layer." << std::endl;
+		GDALClose(dataset);
+		return false;
+	}
+
+	// 创建新的输出 shp 文件
+	GDALDriver* outDriver = GetGDALDriverManager()->GetDriverByName("ESRI Shapefile");
+	GDALDataset* outputDataset = outDriver->Create(outputShpFilePath, 0, 0, 0, GDT_Unknown, nullptr);
+	if (outputDataset == nullptr)
+	{
+		// 处理输出文件创建失败的情况
+		std::cout << "Failed to create output shapefile." << std::endl;
+		GDALClose(dataset);
+		return false;
+	}
+
+	// 创建新的图层
+	OGRLayer* outputLayer = outputDataset->CreateLayer("points", layer->GetSpatialRef(), wkbPoint, nullptr);
+	if (outputLayer == nullptr)
+	{
+		// 处理图层创建失败的情况
+		std::cout << "Failed to create output layer." << std::endl;
+		GDALClose(dataset);
+		GDALClose(outputDataset);
+		return false;
+	}
+
+	// 定义并创建字段
+	OGRFieldDefn fieldSize("Size", OFTReal);
+	if (outputLayer->CreateField(&fieldSize) != OGRERR_NONE)
+	{
+		// 处理字段创建失败的情况
+		std::cout << "Failed to create size field." << std::endl;
+		GDALClose(dataset);
+		GDALClose(outputDataset);
+		return false;
+	}
+
+	OGRFieldDefn fieldColor("Color", OFTString);
+	if (outputLayer->CreateField(&fieldColor) != OGRERR_NONE)
+	{
+		// 处理字段创建失败的情况
+		std::cout << "Failed to create color field." << std::endl;
+		GDALClose(dataset);
+		GDALClose(outputDataset);
+		return false;
+	}
+
+	// 创建要素并进行设置
+	for (const auto& point : points)
+	{
+		OGRFeature* feature = OGRFeature::CreateFeature(outputLayer->GetLayerDefn());
+
+		// 创建点对象
+		OGRPoint ogrPoint;
+		ogrPoint.setX(point.lgtd);
+		ogrPoint.setY(point.lttd);
+
+		// 设置点要素的几何对象
+		feature->SetGeometry(&ogrPoint);
+
+
+		// 将要素添加到图层
+		if (outputLayer->CreateFeature(feature) != OGRERR_NONE)
+		{
+			// 处理要素添加失败的情况
+			std::cout << "Failed to add feature." << std::endl;
+			OGRFeature::DestroyFeature(feature);
+			GDALClose(dataset);
+			GDALClose(outputDataset);
+			return false;
+		}
+
+		// 释放要素
+		OGRFeature::DestroyFeature(feature);
+	}
+
+	// 关闭数据集
+	GDALClose(dataset);
+	GDALClose(outputDataset);
+
+	std::cout << "Points added to shapefile and saved successfully." << std::endl;
+#endif
+
+	return true;
+}

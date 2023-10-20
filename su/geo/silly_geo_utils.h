@@ -45,14 +45,6 @@ public:
 	static std::vector<silly_multi_poly> read_vector_polys(const char* File);
 
 	/// <summary>
-	/// 读取一个shp文件,将多个坐标点绘制在读取的shp文件中的位置,并生成一个新的shp文件
-	/// </summary>
-	/// <param name="points">需要绘制的坐标点</param>
-	/// <param name="shpFilePath">读取SHP文件地址</param>
-	/// <param name="outputShpFilePath">写入SHP文件地址</param>
-	static bool points_to_shp(std::vector<silly_point>& points, const char* shpFilePath, const char* outputShpFilePath);
-
-	/// <summary>
 	/// 判断两个面是否相交,如果相交求出相交区域,如果不相交,返回一个空面的数组
 	/// 两个面的相交可能有多个连续的区域,每个区域要单独存储,返回多个面的数组
 	/// </summary>
