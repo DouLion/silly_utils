@@ -42,7 +42,7 @@ public:
 	/// 读取geojson和shp中的面,并存储为一个多面
 	/// </summary>
 	/// <param name="geojsonFile">读取文件地址</param>
-	static std::vector<silly_multi_poly> geo_utils::read_vector_polys(const char* File);
+	static std::vector<silly_multi_poly> read_vector_polys(const char* File);
 
 	/// <summary>
 	/// 读取一个shp文件,将多个坐标点绘制在读取的shp文件中的位置,并生成一个新的shp文件
