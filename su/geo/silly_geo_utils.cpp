@@ -563,7 +563,7 @@ bool geo_utils::check_shp_info(const std::string& shp_file, enum_geometry_types&
 
 
     GDALClose(poDSr);
-
+    status = true;
     return status;
 
 }
