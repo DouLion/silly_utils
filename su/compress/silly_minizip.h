@@ -103,6 +103,10 @@ public:
         root.append(dirName);
         for (auto fiter : std::filesystem::recursive_directory_iterator(root))
         {
+            if (fiter.is_directory())
+            {
+                continue;
+            }
             std::string target = std::filesystem::relative(fiter.path(), rel).string();
             boost::replace_all(target, "\\", "/");
             vFiles.push_back(target);
