@@ -10,7 +10,7 @@
 
 size_t req_reply(void* ptr, size_t size, size_t nmemb, void* stream)
 {
-	//ÔÚ×¢ÊÍµÄÀïÃæ¿ÉÒÔ´òÓ¡ÇëÇóÁ÷£¬cookieµÄĞÅÏ¢
+	//åœ¨æ³¨é‡Šçš„é‡Œé¢å¯ä»¥æ‰“å°è¯·æ±‚æµï¼Œcookieçš„ä¿¡æ¯
 	//cout << "----->reply" << endl;
 	std::string* str = (std::string*)stream;
 	//cout << *str << endl;
@@ -40,7 +40,7 @@ WriteMemoryCallback(void* contents, size_t size, size_t nmemb, void* userp)
 	size_t realsize = size * nmemb;
 	struct MemoryStruct* mem = (struct MemoryStruct*)userp;
 
-	// ×¢ÒâÕâÀï¸ù¾İÃ¿´Î±»µ÷ÓÃ»ñµÃµÄÊı¾İÖØĞÂ¶¯Ì¬·ÖÅä»º´æÇøµÄ´óĞ¡
+	// æ³¨æ„è¿™é‡Œæ ¹æ®æ¯æ¬¡è¢«è°ƒç”¨è·å¾—çš„æ•°æ®é‡æ–°åŠ¨æ€åˆ†é…ç¼“å­˜åŒºçš„å¤§å°
 	char* ptr = (char*)realloc(mem->memory, mem->size + realsize + 1);
 	if (ptr == NULL) {
 		/* out of memory! */
@@ -59,12 +59,12 @@ WriteMemoryCallback(void* contents, size_t size, size_t nmemb, void* userp)
 std::string silly_http::request_get(const std::string& url, const std::map <std::string, std::string>& headers)
 {
 	std::string ret_content;
-	//curl³õÊ¼»¯  
+	//curlåˆå§‹åŒ–  
 	curl_global_init(CURL_GLOBAL_ALL);
 
 	/* init the curl session */
 	CURL* curl = curl_easy_init();
-	// curl·µ»ØÖµ 
+	// curlè¿”å›å€¼ 
 	struct MemoryStruct chunk;
 	CURLcode res;
 	if (curl)
@@ -103,7 +103,7 @@ std::string silly_http::request_get(const std::string& url, const std::map <std:
 		//}
 
 	}
-	// ÊÍ·Åcurl 
+	// é‡Šæ”¾curl 
 	curl_easy_cleanup(curl);
 
 
@@ -134,7 +134,7 @@ std::string silly_http::request_post(const std::string& url, const std::string& 
 	//	CBase64Coder base64Coder;
 	//	const char* up = base64Coder.encode(userPwd);
 
-	//	// TODO: ÕâÖÖ·½Ê½²»ÖªµÀÎªÊ²Ã´²»ĞĞ.
+	//	// TODO: è¿™ç§æ–¹å¼ä¸çŸ¥é“ä¸ºä»€ä¹ˆä¸è¡Œ.
 	//	//curl_easy_setopt(pCurl, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
 	//	//curl_easy_setopt(pCurl, CURLOPT_USERPWD, up);
 
@@ -149,15 +149,15 @@ std::string silly_http::request_post(const std::string& url, const std::string& 
 	curl_easy_setopt(pCurl, CURLOPT_WRITEFUNCTION, HandleWriteStrData);
 	curl_easy_setopt(pCurl, CURLOPT_WRITEDATA, (void*)&ret_content);
 	/**
-	* µ±¶à¸öÏß³Ì¶¼Ê¹ÓÃ³¬Ê±´¦ÀíµÄÊ±ºò£¬Í¬Ê±Ö÷Ïß³ÌÖĞÓĞsleep»òÊÇwaitµÈ²Ù×÷¡£
-	* Èç¹û²»ÉèÖÃÕâ¸öÑ¡Ïî£¬libcurl½«»á·¢ĞÅºÅ´ò¶ÏÕâ¸öwait´Ó¶øµ¼ÖÂ³ÌĞòÍË³ö¡£
+	* å½“å¤šä¸ªçº¿ç¨‹éƒ½ä½¿ç”¨è¶…æ—¶å¤„ç†çš„æ—¶å€™ï¼ŒåŒæ—¶ä¸»çº¿ç¨‹ä¸­æœ‰sleepæˆ–æ˜¯waitç­‰æ“ä½œã€‚
+	* å¦‚æœä¸è®¾ç½®è¿™ä¸ªé€‰é¡¹ï¼Œlibcurlå°†ä¼šå‘ä¿¡å·æ‰“æ–­è¿™ä¸ªwaitä»è€Œå¯¼è‡´ç¨‹åºé€€å‡ºã€‚
 	*/
 	curl_easy_setopt(pCurl, CURLOPT_NOSIGNAL, 1);
-	// Ìø¹ı·şÎñÆ÷SSLÑéÖ¤£¬²»Ê¹ÓÃCAÖ¤Êé.
+	// è·³è¿‡æœåŠ¡å™¨SSLéªŒè¯ï¼Œä¸ä½¿ç”¨CAè¯ä¹¦.
 	curl_easy_setopt(pCurl, CURLOPT_SSL_VERIFYPEER, 0L);
-	// ÑéÖ¤·şÎñÆ÷¶Ë·¢ËÍµÄÖ¤Êé£¬Ä¬ÈÏÊÇ 2(¸ß)£¬1£¨ÖĞ£©£¬0£¨½ûÓÃ£©.
+	// éªŒè¯æœåŠ¡å™¨ç«¯å‘é€çš„è¯ä¹¦ï¼Œé»˜è®¤æ˜¯ 2(é«˜)ï¼Œ1ï¼ˆä¸­ï¼‰ï¼Œ0ï¼ˆç¦ç”¨ï¼‰.
 	curl_easy_setopt(pCurl, CURLOPT_SSL_VERIFYHOST, 0L);
-	// ÔÚ·¢ÆğÁ¬½ÓÇ°µÈ´ıµÄÊ±¼ä£¬Èç¹ûÉèÖÃÎª0£¬ÔòÎŞÏŞµÈ´ı.
+	// åœ¨å‘èµ·è¿æ¥å‰ç­‰å¾…çš„æ—¶é—´ï¼Œå¦‚æœè®¾ç½®ä¸º0ï¼Œåˆ™æ— é™ç­‰å¾….
 	curl_easy_setopt(pCurl, CURLOPT_CONNECTTIMEOUT, 0);
 	curl_easy_setopt(pCurl, CURLOPT_TIMEOUT, 3600);
 	retCode = curl_easy_perform(pCurl);
@@ -229,19 +229,19 @@ bool silly_http::request_download(const std::string& url, const std::string& sav
 	curl_easy_setopt(pCurl, CURLOPT_WRITEFUNCTION, sU_handle_write);
 	// Set write file data callback function param.
 	curl_easy_setopt(pCurl, CURLOPT_WRITEDATA, pFile);
-	// ÉèÖÃÖØ¶¨ÏòµÄ×î´ó´ÎÊı.
+	// è®¾ç½®é‡å®šå‘çš„æœ€å¤§æ¬¡æ•°.
 	curl_easy_setopt(pCurl, CURLOPT_MAXREDIRS, 20);
-	// ÉèÖÃ301¡¢302Ìø×ª¸úËælocation.
+	// è®¾ç½®301ã€302è·³è½¬è·Ÿéšlocation.
 	curl_easy_setopt(pCurl, CURLOPT_FOLLOWLOCATION, 1);
 	// Set progress callback.
 	curl_easy_setopt(pCurl, CURLOPT_NOPROGRESS, 0);
 	// curl_easy_setopt(pCurl, CURLOPT_PROGRESSFUNCTION, HandleProgress);
 	curl_easy_setopt(pCurl, CURLOPT_PROGRESSDATA, save.c_str());
-	// Ìø¹ı·şÎñÆ÷SSLÑéÖ¤£¬²»Ê¹ÓÃCAÖ¤Êé.
+	// è·³è¿‡æœåŠ¡å™¨SSLéªŒè¯ï¼Œä¸ä½¿ç”¨CAè¯ä¹¦.
 	curl_easy_setopt(pCurl, CURLOPT_SSL_VERIFYPEER, 0L);
-	// ÑéÖ¤·şÎñÆ÷¶Ë·¢ËÍµÄÖ¤Êé£¬Ä¬ÈÏÊÇ 2(¸ß)£¬1£¨ÖĞ£©£¬0£¨½ûÓÃ£©.
+	// éªŒè¯æœåŠ¡å™¨ç«¯å‘é€çš„è¯ä¹¦ï¼Œé»˜è®¤æ˜¯ 2(é«˜)ï¼Œ1ï¼ˆä¸­ï¼‰ï¼Œ0ï¼ˆç¦ç”¨ï¼‰.
 	curl_easy_setopt(pCurl, CURLOPT_SSL_VERIFYHOST, 0L);
-	// ÉèÖÃcURLÔÊĞíÖ´ĞĞµÄ×î³¤ÃëÊı.
+	// è®¾ç½®cURLå…è®¸æ‰§è¡Œçš„æœ€é•¿ç§’æ•°.
 	curl_easy_setopt(pCurl, CURLOPT_TIMEOUT, 3600);
 	// 
 	char errorBuffer[CURL_ERROR_SIZE] = { 0 };
@@ -252,7 +252,7 @@ bool silly_http::request_download(const std::string& url, const std::string& sav
 	//	CBase64Coder base64Coder;
 	//	const char* up = base64Coder.encode(userPwd);
 
-	//	// TODO: ÕâÖÖ·½Ê½²»ÖªµÀÎªÊ²Ã´²»ĞĞ.
+	//	// TODO: è¿™ç§æ–¹å¼ä¸çŸ¥é“ä¸ºä»€ä¹ˆä¸è¡Œ.
 	//	//curl_easy_setopt(pCurl, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
 	//	//curl_easy_setopt(pCurl, CURLOPT_USERPWD, up);
 

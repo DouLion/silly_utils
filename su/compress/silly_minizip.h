@@ -32,58 +32,22 @@
 class silly_minizip
 {
 public:
-    static void EnumDirFiles(const std::string& dirPrefix, const std::string& dirName, std::vector<std::string>& vFiles)
-    {
-        if (dirPrefix.empty() || dirName.empty())
-            return;
-        std::string dirNameTmp = dirName;
-        std::string dirPre = dirPrefix;
 
-        if (dirNameTmp.find_last_of("/") != dirNameTmp.length() - 1)
-            dirNameTmp += "/";
-        if (dirNameTmp[0] == '/')
-            dirNameTmp = dirNameTmp.substr(1);
-        if (dirPre.find_last_of("/") != dirPre.length() - 1)
-            dirPre += "/";
-
-        std::string path;
-
-        path = dirPre + dirNameTmp;
-
-
-        struct stat fileStat;
-        DIR* pDir = opendir(path.c_str());
-        if (!pDir) return;
-
-        struct dirent* pDirEnt = NULL;
-        while ((pDirEnt = readdir(pDir)) != NULL)
-        {
-            if (strcmp(pDirEnt->d_name, ".") == 0 || strcmp(pDirEnt->d_name, "..") == 0)
-                continue;
-
-            std::string tmpDir = dirPre + dirNameTmp + pDirEnt->d_name;
-            if (stat(tmpDir.c_str(), &fileStat) != 0)
-                continue;
-
-            std::string innerDir = dirNameTmp + pDirEnt->d_name;
-            if (fileStat.st_mode & S_IFDIR == S_IFDIR)
-            {
-                EnumDirFiles(dirPrefix, innerDir, vFiles);
-                continue;
-            }
-
-            vFiles.push_back(innerDir);
-        }
-
-        if (pDir)
-            closedir(pDir);
-    }
-
+    /// <summary>
+    /// 将一个文件内容写入到一个 ZIP 文件中
+    /// </summary>
+    /// <param name="zFile"></param>
+    /// <param name="file">需要读取的文件</param>
+    /// <returns></returns>
     static int writeInZipFile(zipFile zFile, const std::string& file)
     {
         std::fstream f(file.c_str(), std::ios::binary | std::ios::in);
-        f.seekg(0, std::ios::end);
-        long size = f.tellg();
+        if (!f.is_open())
+        {
+            std::cout << "Failed to open file: " << file << std::endl;
+        }
+        f.seekg(0, std::ios::end); 
+        long size = f.tellg();  //获取文件大小
         f.seekg(0, std::ios::beg);
         if (size <= 0)
         {
@@ -96,103 +60,56 @@ public:
         return ret;
     }
 
-    static void EnumDirFiles2(const std::string& dirPrefix, const std::string& dirName, std::vector<std::string>& vFiles)
+
+
+    /// <summary>
+    /// 列举指定目录及其子目录中的所有文件和子目录
+    /// </summary>
+    /// <param name="dirPrefix">需压缩目录所在目录的绝对路径</param>
+    /// <param name="dirName">需压缩目录名(例如:dirName=comp)</param>
+    /// <param name="vFiles">dirName目录下所有的文件和子目录相对路径(相对需要所目录的路径:comp/file2/1.txt")</param>
+    static void EnumDirFiles(const std::string& dirPrefix, const std::string& dirName, std::vector<std::string>& vFiles)
     {
         std::filesystem::path rel(dirPrefix);
         std::filesystem::path root = rel;
         root.append(dirName);
-        for (auto fiter : std::filesystem::recursive_directory_iterator(root))
+        for (auto fiter : std::filesystem::recursive_directory_iterator(root)) 
         {
-            if (fiter.is_directory())
+            if (fiter.is_directory()) // 目录
             {
-                continue;
+                if (std::filesystem::is_empty(fiter.path()))  // 检测目录是否为空
+                {
+                    std::string target = std::filesystem::relative(fiter.path(), rel).string();
+                    boost::replace_all(target, "\\", "/");
+                    vFiles.push_back(target + "/");  // 添加尾部斜线以表示ZIP中的空目录
+                }
             }
-            std::string target = std::filesystem::relative(fiter.path(), rel).string();
-            boost::replace_all(target, "\\", "/");
-            vFiles.push_back(target);
+            else  // 文件
+            {
+                std::string target = std::filesystem::relative(fiter.path(), rel).string();
+                boost::replace_all(target, "\\", "/");
+                vFiles.push_back(target);
+            }
         }
     }
 
+    /// <summary>
+    /// 将文件或目录压缩为ZIP文件
+    /// </summary>
+    /// <param name="src">被压缩文件的地址</param>
+    /// <param name="dst">生成压缩包地址</param>
+    /// <returns></returns>
+    static int compressZip(std::string src, std::string dst);
 
-    static int compressu(std::string src, std::string dst)
-    {
-        
-        if (src.find_last_of("/") == src.length() - 1)
-            src = src.substr(0, src.length() - 1);
 
-        struct stat fileInfo;
-        stat(src.c_str(), &fileInfo);
-        if (S_ISREG(fileInfo.st_mode))
-        {
-            zipFile zFile = zipOpen(dst.c_str(), APPEND_STATUS_CREATE);
-            if (zFile == NULL)
-            {
-                std::cout << "openfile failed" << std::endl;
-                return -1;
-            }
-            zip_fileinfo zFileInfo = { 0 };
-            int ret = zipOpenNewFileInZip(zFile, src.c_str(), &zFileInfo, NULL, 0, NULL, 0, NULL, 0, Z_DEFAULT_COMPRESSION);
-            if (ret != ZIP_OK)
-            {
-                std::cout << "openfile in zip failed" << std::endl;
-                zipClose(zFile, NULL);
-                return -1;
-            }
-            ret = writeInZipFile(zFile, src);
-            if (ret != ZIP_OK)
-            {
-                std::cout << "write in zip failed" << std::endl;
-                zipClose(zFile, NULL);
-                return -1;
-            }
-            zipClose(zFile, NULL);
-            std::cout << "zip file ok" << std::endl;
-        }
-        else if (S_ISDIR(fileInfo.st_mode))
-        {
-            size_t pos = src.find_last_of("/");
-            std::string dirName = src.substr(pos + 1);
-            std::string dirPrefix = src.substr(0, pos);
+    /// <summary>
+    /// 解压zip文件,解压单独文件和国际目录文件
+    /// </summary>
+    /// <param name="zipFileName">zip文件路径</param>
+    /// <param name="outputDirectory">生成解压文件路径</param>
+    /// <returns></returns>
+    static bool decompressZip(const std::string& zipFileName, const std::string& outputDir = "");
 
-            zipFile zFile = zipOpen(dst.c_str(), APPEND_STATUS_CREATE);
-            if (zFile == NULL)
-            {
-                std::cout << "openfile failed" << std::endl;
-                return -1;
-            }
-
-            std::vector<std::string> vFiles;
-           
-            EnumDirFiles2(dirPrefix, dirName, vFiles);
-           /* std::cout << dirPrefix << std::endl;
-            std::cout << dirName << std::endl;
-            EnumDirFiles(dirPrefix, dirName, vFiles);*/
-            std::vector<std::string>::iterator itF = vFiles.begin();
-            for (; itF != vFiles.end(); ++itF)
-            {
-                zip_fileinfo zFileInfo = { 0 };
-                std::cout << itF->c_str() << std::endl;
-                int ret = zipOpenNewFileInZip(zFile, itF->c_str(), &zFileInfo, NULL, 0, NULL, 0, NULL, 0, Z_DEFAULT_COMPRESSION);
-                if (ret != ZIP_OK)
-                {
-                    std::cout << "openfile in zip failed" << std::endl;
-                    zipClose(zFile, NULL);
-                    return -1;
-                }
-                ret = writeInZipFile(zFile, *itF);
-                if (ret != ZIP_OK)
-                {
-                    std::cout << "write in zip failed" << std::endl;
-                    zipClose(zFile, NULL);
-                    return -1;
-                }
-            }
-
-            zipClose(zFile, NULL);
-            std::cout << "zip dir ok" << std::endl;
-        }
-        return 0;
-    }
 };
 
 #endif //SILLY_UTILS_SILLY_MINIZIP_H
