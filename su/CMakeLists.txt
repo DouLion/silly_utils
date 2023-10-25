@@ -15,7 +15,7 @@ endforeach()
 find_path(OTL_INCLUDE_DIRS "otl/otlv4.h")
 include_directories(${OTL_INCLUDE_DIRS})
 
-add_library(${PROJECT_NAME} STATIC ${SU_SRC_FILES})
+add_library(${PROJECT_NAME} STATIC ${SU_SRC_FILES} geo/silly_spatialite.cpp geo/silly_spatialite.h)
 
 set(Boost_LIB_PREFIX "")
 set(CMAKE_VERBOSE_MAKEFILE ON)
@@ -77,6 +77,12 @@ target_link_libraries(${PROJECT_NAME} PUBLIC ${GEOTIFF_LIBRARIES})
 
 find_package(GDAL CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC GDAL::GDAL)
+
+find_library(SPATIALITE_LIB NAMES "spatialite")
+target_link_libraries(${PROJECT_NAME} PUBLIC ${SPATIALITE_LIB})
+
+find_package(unofficial-sqlite3 CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC unofficial::sqlite3::sqlite3)
     
 if(IS_LINUX)
 
