@@ -29,6 +29,21 @@
 #include "minizip/unzip.h"
 #include <boost/algorithm/string.hpp>
 
+
+enum ZIP_ERROR {
+    SILLY_ZIP_OK = 0,                 // 操作成功
+    SILLY_ZIP_ERROR_OPEN = 1,         // 打开ZIP文件失败
+    SILLY_ZIP_ERROR_EMPTY = 2,        // ZIP文件为空
+    SILLY_ZIP_ERROR_GET_INFO = 3,     // 获取文件信息失败
+    SILLY_ZIP_ERROR_CREATE_DIR = 4,   // 创建目录失败
+    SILLY_ZIP_ERROR_CREATE_FILE = 5,  // 创建文件失败
+    SILLY_ZIP_ERROR_WRITE_FILE = 6,   // 写入文件失败
+    SILLY_ZIP_ERROR_WRITE_ZIP = 7,    // 写入ZIP文件失败
+    SILLY_ZIP_ERROR_WRITE_NEWZIP = 8     // 打开新写入的ZIP失败
+
+};
+
+
 class silly_minizip
 {
 public:
@@ -49,7 +64,7 @@ public:
     /// <param name="zipFileName">zip文件路径</param>
     /// <param name="outputDirectory">生成解压文件路径</param>
     /// <returns></returns>
-    static bool decompressZip(const std::string& zipFileName, const std::string& outputDir = "");
+    static int decompressZip(const std::string& zipFileName, const std::string& outputDir = "");
 
 private:
 
@@ -59,28 +74,7 @@ private:
     /// <param name="zFile"></param>
     /// <param name="file">需要读取的文件</param>
     /// <returns></returns>
-    static int writeInZipFile(zipFile zFile, const std::string& file)
-    {
-        std::fstream f(file.c_str(), std::ios::binary | std::ios::in);
-        if (!f.is_open())
-        {
-            std::cout << "Failed to open file: " << file << std::endl;
-        }
-        f.seekg(0, std::ios::end);
-        long size = f.tellg();  //获取文件大小
-        f.seekg(0, std::ios::beg);
-        if (size <= 0)
-        {
-            return zipWriteInFileInZip(zFile, NULL, 0);
-        }
-        char* buf = new char[size];
-        f.read(buf, size);
-        int ret = zipWriteInFileInZip(zFile, buf, size);
-        delete[] buf;
-        return ret;
-    }
-
-
+    static int writeInZipFile(zipFile zFile, const std::string& file);
 
     /// <summary>
     /// 列举指定目录及其子目录中的所有文件和子目录
@@ -88,30 +82,7 @@ private:
     /// <param name="dirPrefix">需压缩目录所在目录的绝对路径</param>
     /// <param name="dirName">需压缩目录名(例如:dirName=comp)</param>
     /// <param name="vFiles">dirName目录下所有的文件和子目录相对路径(相对需要所目录的路径:comp/file2/1.txt")</param>
-    static void EnumDirFiles(const std::string& dirPrefix, const std::string& dirName, std::vector<std::string>& vFiles)
-    {
-        std::filesystem::path rel(dirPrefix);
-        std::filesystem::path root = rel;
-        root.append(dirName);
-        for (auto fiter : std::filesystem::recursive_directory_iterator(root))
-        {
-            if (fiter.is_directory()) // 目录
-            {
-                if (std::filesystem::is_empty(fiter.path()))  // 检测目录是否为空
-                {
-                    std::string target = std::filesystem::relative(fiter.path(), rel).string();
-                    boost::replace_all(target, "\\", "/");
-                    vFiles.push_back(target + "/");  // 添加尾部斜线以表示ZIP中的空目录
-                }
-            }
-            else  // 文件
-            {
-                std::string target = std::filesystem::relative(fiter.path(), rel).string();
-                boost::replace_all(target, "\\", "/");
-                vFiles.push_back(target);
-            }
-        }
-    }
+    static void EnumDirFiles(const std::string& dirPrefix, const std::string& dirName, std::vector<std::string>& vFiles);
 
 
 };
