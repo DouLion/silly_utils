@@ -90,6 +90,7 @@ int silly_minizip::compressZip(std::string src, std::string dst)
 
 bool silly_minizip::decompressZip(const std::string& zipFileName, const std::string& outputFireDir)
 {
+    bool status = false;
     std::string outputDirectory = outputFireDir;
     if (outputDirectory.empty())  // 如果解压路径为空,默认为压缩包所在目录
     {
@@ -101,7 +102,7 @@ bool silly_minizip::decompressZip(const std::string& zipFileName, const std::str
     if (zipFile == nullptr)
     {
         std::cout << "Failed to open ZIP file: " << zipFileName << std::endl;
-        return false;
+        return status;
     }
     // 创建输出目录
     std::filesystem::path outputDir(outputDirectory);
@@ -126,11 +127,11 @@ bool silly_minizip::decompressZip(const std::string& zipFileName, const std::str
         if (unzGetCurrentFileInfo(zipFile, &file_info, filename, sizeof(filename), nullptr, 0, nullptr, 0) != UNZ_OK)
         {
             std::cout << "Failed to get current file info in ZIP: " << zipFileName << std::endl;
-            unzClose(zipFile);
-            return false;
+          
+            break;
         }
         std::string filePath = outputDirectory + "/" + filename;
-        // 创建目录或文件
+        // TODO: 这里检测一下有没有其他写法, 创建目录或文件
         if (filename[file_info.size_filename - 1] == '/')  // 目录
         {
             std::filesystem::create_directories(filePath);
@@ -161,7 +162,9 @@ bool silly_minizip::decompressZip(const std::string& zipFileName, const std::str
 
     // 关闭ZIP
     unzClose(zipFile);
-
+    return false;
+#ifndef NDEBUG
     std::cout << "Decompression successful: " << zipFileName << std::endl;
+#endif
     return true;
 }

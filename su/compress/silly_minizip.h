@@ -33,6 +33,26 @@ class silly_minizip
 {
 public:
 
+    
+    /// <summary>
+    /// 将文件或目录压缩为ZIP文件
+    /// </summary>
+    /// <param name="src">被压缩文件的地址</param>
+    /// <param name="dst">生成压缩包地址</param>
+    /// <returns></returns>
+    static int compressZip(std::string src, std::string dst);
+
+
+    /// <summary>
+    /// 解压zip文件,解压单独文件和国际目录文件
+    /// </summary>
+    /// <param name="zipFileName">zip文件路径</param>
+    /// <param name="outputDirectory">生成解压文件路径</param>
+    /// <returns></returns>
+    static bool decompressZip(const std::string& zipFileName, const std::string& outputDir = "");
+
+private:
+
     /// <summary>
     /// 将一个文件内容写入到一个 ZIP 文件中
     /// </summary>
@@ -46,7 +66,7 @@ public:
         {
             std::cout << "Failed to open file: " << file << std::endl;
         }
-        f.seekg(0, std::ios::end); 
+        f.seekg(0, std::ios::end);
         long size = f.tellg();  //获取文件大小
         f.seekg(0, std::ios::beg);
         if (size <= 0)
@@ -73,7 +93,7 @@ public:
         std::filesystem::path rel(dirPrefix);
         std::filesystem::path root = rel;
         root.append(dirName);
-        for (auto fiter : std::filesystem::recursive_directory_iterator(root)) 
+        for (auto fiter : std::filesystem::recursive_directory_iterator(root))
         {
             if (fiter.is_directory()) // 目录
             {
@@ -93,22 +113,6 @@ public:
         }
     }
 
-    /// <summary>
-    /// 将文件或目录压缩为ZIP文件
-    /// </summary>
-    /// <param name="src">被压缩文件的地址</param>
-    /// <param name="dst">生成压缩包地址</param>
-    /// <returns></returns>
-    static int compressZip(std::string src, std::string dst);
-
-
-    /// <summary>
-    /// 解压zip文件,解压单独文件和国际目录文件
-    /// </summary>
-    /// <param name="zipFileName">zip文件路径</param>
-    /// <param name="outputDirectory">生成解压文件路径</param>
-    /// <returns></returns>
-    static bool decompressZip(const std::string& zipFileName, const std::string& outputDir = "");
 
 };
 
