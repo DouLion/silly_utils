@@ -83,7 +83,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC ${SPATIALITE_LIB})
 
 find_package(unofficial-sqlite3 CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC unofficial::sqlite3::sqlite3)
-    
+
 if(IS_LINUX)
 
     find_package(unofficial-libuuid CONFIG REQUIRED)
