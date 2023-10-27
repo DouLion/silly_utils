@@ -12,6 +12,7 @@
 #include <spatialite.h>
 #include <spatialite/gaiageo.h>
 
+#if IS_WIN32
 
 struct vector_detail
 {
@@ -209,5 +210,6 @@ private:
     void* cache;
 };
 
+#endif
 
 #endif //SILLY_UTILS_SILLY_SPATIALITE_H

@@ -39,9 +39,9 @@ static bool points_to_shp(std::vector<silly_point>& points, const char* shpFileP
 
 BOOST_AUTO_TEST_SUITE(TestGeo)
 
+#if IS_WIN32
 BOOST_AUTO_TEST_CASE(SILLY_TO_SPATIALITE)
 {
-
 	std::cout << "\r\n\r\n****************" << "SILLY_TO_SPATIALITE" << "****************" << std::endl;
 
 	// 创建silly中点线面的假数据
@@ -368,7 +368,7 @@ BOOST_AUTO_TEST_CASE(SPATIALITE)
 
 };
 
-
+#endif
 BOOST_AUTO_TEST_CASE(READ_VECTOR_POINT_LINE)
 {
 	std::cout << "\r\n\r\n****************" << "READ_VECTOR_POINT_LINE" << "****************" << std::endl;

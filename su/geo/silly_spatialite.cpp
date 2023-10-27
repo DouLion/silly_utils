@@ -3,7 +3,7 @@
 //
 
 #include "silly_spatialite.h"
-
+#if IS_WIN32
 void silly_spatialite::initSpatialite()
 {
     void* cache = spatialite_alloc_connection();
@@ -1059,3 +1059,6 @@ int silly_spatialite::test()
     spatialite_shutdown();
     return 0;
 }
+
+
+#endif
