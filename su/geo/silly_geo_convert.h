@@ -50,7 +50,7 @@ public:
 	/// <param name="rect"></param>
 	/// <param name="dst"></param>
 	template <typename T>
-	static bool matrix_geo_to_mercator(const silly_math::matrix_2d<T>& src, const silly_geo_rect& rect, silly_math::matrix_2d<T>& dst);
+	static bool matrix_geo_to_mercator(silly_math::matrix_2d<double> src, const silly_geo_rect& rect, silly_math::matrix_2d<T>& dst);
 
 private:
 
@@ -59,15 +59,16 @@ private:
 /////////////////////////implement/////////////////////////
 
 template <typename T>
-bool silly_geo_convert::matrix_geo_to_mercator(const silly_math::matrix_2d<T>& src, const silly_geo_rect& rect, silly_math::matrix_2d<T>& dst)
+bool silly_geo_convert::matrix_geo_to_mercator(silly_math::matrix_2d<double> src, const silly_geo_rect& rect, silly_math::matrix_2d<T>& dst)
 {
-	if (!(src.row() && src.col() && src.get_data()))
+    // 防止传参数进来是src与dst是同一个对象
+    silly_math::matrix_2d<T> tmp = src.copy();
+	if (!(tmp.row() && tmp.col() && tmp.get_data()))
 	{
 		return false;
 	}
-	// 防止传参数进来是src与dst是同一个对象
-	silly_math::matrix_2d<T> tmp = src.copy();
-	if (!dst.create(src.row(), src.col(), true))
+
+	if (!dst.create(tmp.row(), tmp.col(), true))
 	{
 		return false;
 	}

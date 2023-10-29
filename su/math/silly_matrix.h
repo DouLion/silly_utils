@@ -26,13 +26,13 @@ namespace silly_math
 	class matrix_2d
 	{
 		/// <summary>
-		/// Õâ¸öÄ¿Ç°ÊÇÏß³Ì²»°²È«µÄ,Ê¹ÓÃÊ±ĞèÒª×¢Òâ
+		/// è¿™ä¸ªç›®å‰æ˜¯çº¿ç¨‹ä¸å®‰å…¨çš„,ä½¿ç”¨æ—¶éœ€è¦æ³¨æ„
 		/// </summary>
 	public:
 		matrix_2d<T>() = default;
 
 		/// <summary>
-		/// ½ö´«µİÊı¾İÖ¸Õë
+		/// ä»…ä¼ é€’æ•°æ®æŒ‡é’ˆ
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
@@ -45,11 +45,11 @@ namespace silly_math
 		}
 
 		/// <summary>
-		/// ´´½¨Ò»¸öÖ¸¶¨´óĞ¡µÄ¶şÎ¬Êı¾İ
+		/// åˆ›å»ºä¸€ä¸ªæŒ‡å®šå¤§å°çš„äºŒç»´æ•°æ®
 		/// </summary>
 		/// <param name="r"></param>
 		/// <param name="c"></param>
-		/// <param name="reset">true: Èç¹ûÓĞÊı¾İ¾ÍÇå¿Õ²¢ÇÒÖØĞÂ³õÊ¼»¯ false: ×öÈÎºÎ²Ù×÷,²¢ÇÒ·µ»Øfalse</param>
+		/// <param name="reset">true: å¦‚æœæœ‰æ•°æ®å°±æ¸…ç©ºå¹¶ä¸”é‡æ–°åˆå§‹åŒ– false: åšä»»ä½•æ“ä½œ,å¹¶ä¸”è¿”å›false</param>
 		/// <returns></returns>
 		bool create(const size_t& row, const size_t& col, bool reset = false)
 		{
@@ -57,7 +57,7 @@ namespace silly_math
 			{
 				return false;
 			}
-			if (data && reset)	// ÖØ¸´µ÷ÓÃ´Ëº¯Êı, »áÖØÖÃ
+			if (data && reset)	// é‡å¤è°ƒç”¨æ­¤å‡½æ•°, ä¼šé‡ç½®
 			{
 				destroy();
 			}
@@ -108,10 +108,10 @@ namespace silly_math
 		}
 
 		/// <summary>
-		/// ¸´ÖÆÊı¾İÄÚÈİµ½ĞÂµÄÖ¸ÕëµØÖ·
+		/// å¤åˆ¶æ•°æ®å†…å®¹åˆ°æ–°çš„æŒ‡é’ˆåœ°å€
 		/// </summary>
 		/// <returns></returns>
-		matrix_2d<T>& copy()
+		matrix_2d<T> copy()
 		{
 			matrix_2d<T> ret;
 			ret.cols = cols;
@@ -148,7 +148,7 @@ namespace silly_math
 		}
 
 		/// <summary>
-		/// ½«¾ØÕóÉèÖÃÎªÒ»¸öÖµ
+		/// å°†çŸ©é˜µè®¾ç½®ä¸ºä¸€ä¸ªå€¼
 		/// </summary>
 		/// <param name="val"></param>
 		void set(T val)
@@ -168,7 +168,7 @@ namespace silly_math
 		}
 
 		/// <summary>
-		/// ÊÍ·ÅÄÚ´æ,ĞèÒªÊÖ¶¯µ÷ÓÃ
+		/// é‡Šæ”¾å†…å­˜,éœ€è¦æ‰‹åŠ¨è°ƒç”¨
 		/// </summary>
 		void destroy()
 		{
@@ -198,9 +198,9 @@ namespace silly_math
 
 	private:
 		T** data{ nullptr };
-		// ĞĞÊı
+		// è¡Œæ•°
 		size_t rows{ 0 };
-		// ÁĞÊı
+		// åˆ—æ•°
 		size_t cols{ 0 };
 		T mp{ 0 };
 	};
@@ -216,11 +216,11 @@ namespace silly_math
 	typedef matrix_2d<long long> LMatrix;
 	typedef matrix_2d<unsigned long long> UMatrix;
 
-	/// ²ÎÕÕopencv
+	/// å‚ç…§opencv
 	enum InterpolationFlags {
-		/** nearest neighbor interpolation ×îÁÙ½ü²åÖµ */
+		/** nearest neighbor interpolation æœ€ä¸´è¿‘æ’å€¼ */
 		INTER_NEAREST = 0,
-		/** bilinear interpolation ¶ş´ÎĞÔ²åÖµ */
+		/** bilinear interpolation äºŒæ¬¡æ€§æ’å€¼ */
 		INTER_LINEAR = 1,
 	};
 
@@ -229,12 +229,12 @@ namespace silly_math
 	public:
 
 		/// <summary>
-		/// Á½¸ö²»Í¬ÀàĞÍµÄ¾ØÕóÏà»¥×ª»»
+		/// ä¸¤ä¸ªä¸åŒç±»å‹çš„çŸ©é˜µç›¸äº’è½¬æ¢
 		/// </summary>
 		/// <typeparam name="T1"></typeparam>
 		/// <typeparam name="T2"></typeparam>
-		/// <param name="src">Ô´¾ØÕó</param>
-		/// <param name="dst">Ä¿±ê¾ØÕó</param>
+		/// <param name="src">æºçŸ©é˜µ</param>
+		/// <param name="dst">ç›®æ ‡çŸ©é˜µ</param>
 		/// <returns></returns>
 		template <typename T1, typename T2>
 		static bool convert_matrix(silly_math::matrix_2d<T1>& src, silly_math::matrix_2d<T2>& dst)
@@ -259,14 +259,14 @@ namespace silly_math
 		}
 
 		/// <summary>
-		/// ¶Ô¾ØÕó½øĞĞËõ·Å²Ù×÷
+		/// å¯¹çŸ©é˜µè¿›è¡Œç¼©æ”¾æ“ä½œ
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
-		/// <param name="src">Ô´¾ØÕó</param>
-		/// <param name="dst">Ä¿±ê¾ØÕó</param>
-		/// <param name="dst_row">Ä¿±ê¾ØÕóĞĞÊı</param>
-		/// <param name="dst_col">Ä¿±ê¾ØÕóÁĞÊı</param>
-		/// <param name="flag">²åÖµËã·¨</param>
+		/// <param name="src">æºçŸ©é˜µ</param>
+		/// <param name="dst">ç›®æ ‡çŸ©é˜µ</param>
+		/// <param name="dst_row">ç›®æ ‡çŸ©é˜µè¡Œæ•°</param>
+		/// <param name="dst_col">ç›®æ ‡çŸ©é˜µåˆ—æ•°</param>
+		/// <param name="flag">æ’å€¼ç®—æ³•</param>
 		/// <returns></returns>
 		template<typename T>
 		bool resize(matrix_2d<T>& src, matrix_2d<T>& dst, const size_t& dst_row, const size_t& dst_col, const InterpolationFlags& flag = INTER_NEAREST)
@@ -313,14 +313,14 @@ namespace silly_math
 			size_t src_row = src.row();
 			size_t src_col = src.col();
 
-			float row_ratio = (float)(src_row) / dst_row; // Ëõ·Å±ÈÀı À©´ó¶àÉÙ±¶·ÖÖ®Ò»
+			float row_ratio = (float)(src_row) / dst_row; // ç¼©æ”¾æ¯”ä¾‹ æ‰©å¤§å¤šå°‘å€åˆ†ä¹‹ä¸€
 			float col_ratio = (float)(src_col) / dst_col;
 
 			dst.create(dst_row, dst_col);
 
 			for (size_t i = 0; i < dst_row; ++i)
 			{
-				float src_i_float = i * row_ratio;  // À©Õ¹ºóxµÄÔÚÔ­¾ØÕóµÄÎ»ÖÃ
+				float src_i_float = i * row_ratio;  // æ‰©å±•åxçš„åœ¨åŸçŸ©é˜µçš„ä½ç½®
 				size_t src_i_floor = static_cast<size_t>(std::floor(src_i_float));
 				size_t src_i_ceil = std::min(src_i_floor + 1, src_row - 1);
 
@@ -328,7 +328,7 @@ namespace silly_math
 
 				for (size_t j = 0; j < dst_col; ++j)
 				{
-					float src_j_float = j * col_ratio;	// À©Õ¹ºóyµÄÔÚÔ­¾ØÕóµÄÎ»ÖÃ
+					float src_j_float = j * col_ratio;	// æ‰©å±•åyçš„åœ¨åŸçŸ©é˜µçš„ä½ç½®
 					size_t src_j_floor = static_cast<size_t>(std::floor(src_j_float));
 					size_t src_j_ceil = std::min(src_j_floor + 1, src_col - 1);
 

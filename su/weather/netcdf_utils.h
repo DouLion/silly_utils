@@ -50,7 +50,7 @@ struct nc_info {
 
 class nc_mat {
 	/// <summary>
-	/// ×óÉÏ½Ç Îª (0, 0)Ô­µã
+	/// å·¦ä¸Šè§’ ä¸º (0, 0)åŽŸç‚¹
 	/// </summary>
 public:
 	nc_mat() = default;
@@ -63,7 +63,7 @@ public:
 	nc_mat operator=(const nc_mat& other);
 
 	/// <summary>
-	///  Óë
+	///  ä¸Ž
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
 	/// <param name="other"></param>
@@ -74,7 +74,7 @@ public:
 
 
 	/// <summary>
-	///  Óë
+	///  ä¸Ž
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
 	/// <param name="other"></param>
