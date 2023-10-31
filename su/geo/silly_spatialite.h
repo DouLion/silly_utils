@@ -10,19 +10,26 @@
 #include <sqlite3.h>
 #include <mutex>
 
+
 struct geo_collection
 {
 	enum_geometry_types m_type{ enum_geometry_types::eInvalid };
 	silly_point m_point;
+	silly_multi_point m_m_points;
 	silly_line m_line;
-	silly_multi_poly m_m_poly;
+	silly_multi_silly_line m_m_lines;
+	silly_poly m_poly;
+	silly_multi_poly m_m_polys;
 
 	geo_collection& operator=(const geo_collection& other)
 	{
 		this->m_type = other.m_type;
 		this->m_point = other.m_point;
+		this->m_m_points = other.m_m_points;
 		this->m_line = other.m_line;
-		this->m_m_poly = other.m_m_poly;
+		this->m_m_lines = other.m_m_lines;
+		this->m_poly = other.m_poly;
+		this->m_m_polys = other.m_m_polys;
 		return *this;
 	}
 
@@ -34,14 +41,22 @@ public:
 	silly_spatialite() = default;
 	~silly_spatialite();
 
+	/// <summary>
+	/// 初始化spatialite和sqlite3环境
+	/// </summary>
+	/// <param name="db_path"></param>
+	/// <returns></returns>
 	bool initialize(const std::string& db_path);
 
+	/// <summary>
+	/// 释放spatialite和sqlite3环境
+	/// </summary>
 	void destory();
 
 	/// <summary>
 	/// 创建表
 	/// </summary>
-	/// <param name="sql"></param>
+	/// <param name="sql">创建表的sql语句</param>
 	/// <returns></returns>
 	bool create_table(const std::string& sql);
 
@@ -54,12 +69,12 @@ public:
 	int insert_geo(const std::vector<geo_collection>& gc, const std::string& sql);
 
 	/// <summary>
-	/// 移除矢量对象
+	/// 获取矢量对象
 	/// </summary>
-	/// <param name="gc">如果gc为空则只执行sql</param>
+	/// <param name="gc"></param>
 	/// <param name="sql"></param>
 	/// <returns>几条数据收到影响</returns>
-	int remove_geo(const std::vector<geo_collection>& gc, const std::string& sql);
+	int select_geo(std::vector<geo_collection>& gc, const std::string& sql);
 
 	/// <summary>
 	/// 修改矢量对象
@@ -67,15 +82,17 @@ public:
 	/// <param name="gc">如果gc为空则只执行sql</param>
 	/// <param name="sql"></param>
 	/// <returns>几条数据收到影响</returns>
-	int modify_geo(const std::vector<geo_collection>& gc, const std::string& sql);
+	int modify_geo(const geo_collection& gc, const std::string& sql);
 
 	/// <summary>
-	/// 获取矢量对象
+	/// 移除矢量对象
 	/// </summary>
-	/// <param name="gc"></param>
+	/// <param name="gc">如果gc为空则只执行sql</param>
 	/// <param name="sql"></param>
-	/// <returns>如果gc为空,根据True 或者 False 判断是应为没有合适条件的数据,还是中间执行出错</returns>
-	bool select_geo(std::vector<geo_collection>& gc, const std::string& sql);
+	/// <returns>几条数据收到影响</returns>
+	int remove_geo(const std::string& sql);
+
+
 
 private:
 	sqlite3*				m_db{ nullptr };

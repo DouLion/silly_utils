@@ -33,13 +33,15 @@
 #define GEOJSON_GEOMETRY_MULTI_POLYGON		"MultiPolygon"
 
 enum enum_geometry_types{
-	eInvalid = 0,
-	ePoint = 1,
-	eLineString = 2,
-	ePolygon = 3,
-	eMultiPoint = 4,
-	eMultiLineString = 5,
-	eMultiPolygon = 6
+	eInvalid = 0,			// 无效
+	ePoint = 1,				// 单点
+	eLineString = 2,		// 单线
+	ePolygon = 3,			// 单面
+	eMultiPoint = 4,		// 多点
+	eMultiLineString = 5,	// 多线
+	eMultiPolygon = 6 ,		// 多面
+	eCompositeType = 7,		// 复合数据类型  
+
 };
 
 /// 点
@@ -57,7 +59,11 @@ struct silly_point    // 普通坐标点
 	double lttd{ 0 };
 
 	silly_point& operator=(const silly_point& point)
-	= default;
+	{
+		lgtd = point.lgtd;
+		lttd = point.lttd;
+		return *this;
+	}
 
 	bool operator==(const silly_point& point) const
 	{

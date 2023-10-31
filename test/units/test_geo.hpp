@@ -20,10 +20,11 @@
 #include "geo/silly_projection.h"
 #include "geo/silly_geo_convert.h"
 #include <filesystem>
-
+#include <sqlite3.h>
 #include "gdal_priv.h"
 #include "ogrsf_frmts.h"
-
+#include <spatialite.h>
+#include <spatialite/gaiageo.h>
 #include "geo/silly_spatialite.h"
 
  /// <summary>
@@ -35,340 +36,405 @@
  /// <param name="outputShpFilePath">写入SHP文件地址</param>
 static bool points_to_shp(std::vector<silly_point>& points, const char* shpFilePath, const char* outputShpFilePath);
 
+/// <summary>
+/// 打印查看gaiaGeomCollPtr类型对象的类型和坐标点
+/// </summary>
+/// <param name="geom"></param>
+static void geometry_printout(gaiaGeomCollPtr geom)
+{
+#if IS_WIN32
+	gaiaPointPtr pt;
+	gaiaLinestringPtr ln;
+	gaiaPolygonPtr pg;
+	gaiaRingPtr rng;
+	int n_pts = 0, n_lns = 0, n_pgs = 0;
+	int cnt, iv, ir;
+	double x = 0.0, y = 0.0;
+	// 计算点数
+	pt = geom->FirstPoint;
+	while (pt) {
+		n_pts++;
+		pt = pt->Next;
+	}
+	// 计算线串数
+	ln = geom->FirstLinestring;
+	while (ln) {
+		n_lns++;
+		ln = ln->Next;
+	}
+	// 计算多边形数
+	pg = geom->FirstPolygon;
+	while (pg) {
+		n_pgs++;
+		pg = pg->Next;
+	}
+	// 打印点坐标
+	if (n_pts) {
+		cnt = 0;
+		pt = geom->FirstPoint;
+		while (pt) {
+			// 扫描POINT的链接列表
+			std::cout << "\t\t\tPOINT " << cnt << "/" << n_pts << " x=" << pt->X << " y=" << pt->Y << std::endl;
+			cnt++;
+			pt = pt->Next;
+		}
+	}
+	// 打印线串坐标
+	if (n_lns) {
+		cnt = 0;
+		ln = geom->FirstLinestring;
+		while (ln) {
+			// 扫描线串的链接列表
+			std::cout << "\t\t\tLINESTRING " << cnt << "/" << n_lns << " has " << ln->Points << " vertices" << std::endl;
+			for (iv = 0; iv < ln->Points; iv++) {
+				// 检索每个顶点的坐标
+				gaiaGetPoint(ln->Coords, iv, &x, &y);
+				std::cout << "\t\t\t\tvertex " << iv << "/" << ln->Points << " x=" << x << " y=" << y << std::endl;
+			}
+			cnt++;
+			ln = ln->Next;
+		}
+	}
+	// 打印多边形坐标
+	if (n_pgs) {
+		cnt = 0;
+		pg = geom->FirstPolygon;
+		while (pg) {
+			// 扫描多边形的链接列表
+			std::cout << "\t\t\tPOLYGON " << cnt << "/" << n_pgs << " has " << pg->NumInteriors << " hole";
+			if (pg->NumInteriors != 1) {
+				std::cout << "s";
+			}
+			std::cout << std::endl;
+			// 打印外环
+			rng = pg->Exterior;
+			std::cout << "\t\t\t\tExteriorRing has " << rng->Points << " vertices" << std::endl;
+			for (iv = 0; iv < rng->Points; iv++) {
+				// 检索每个顶点的坐标
+				gaiaGetPoint(rng->Coords, iv, &x, &y);
+				std::cout << "\t\t\t\t\tvertex " << iv << "/" << rng->Points << " x=" << x << " y=" << y << std::endl;
+			}
+			for (ir = 0; ir < pg->NumInteriors; ir++) {
+				// 多边形可以包含任意数量的内环（包括零）
+				rng = pg->Interiors + ir;
+				std::cout << "\t\t\t\tInteriorRing " << ir << "/" << pg->NumInteriors << " has " << rng->Points << " vertices" << std::endl;
+				for (iv = 0; iv < rng->Points; iv++) {
+					// 检索每个顶点的坐标
+					gaiaGetPoint(rng->Coords, iv, &x, &y);
+					std::cout << "\t\t\t\t\tvertex " << iv << "/" << rng->Points << " x=" << x << " y=" << y << std::endl;
+				}
+			}
+			cnt++;
+			pg = pg->Next;
+		}
+	}
+#endif
+}
 
+/// <summary>
+/// std::vector<geo_collection>假数据
+/// </summary>
+/// <param name="data"></param>
+void createFakeData(std::vector<geo_collection>& data)
+{
+	// 创建多点数据
+	geo_collection multiPointData;
+	multiPointData.m_type = enum_geometry_types::eMultiPoint;
+	multiPointData.m_m_points.push_back(silly_point(1.0, 1.0));
+	multiPointData.m_m_points.push_back(silly_point(2.0, 2.0));
+	multiPointData.m_m_points.push_back(silly_point(3.0, 3.0));
+	multiPointData.m_m_points.push_back(silly_point(4.0, 4.0));
+	data.push_back(multiPointData);
+
+	// 创建单线数据
+	geo_collection singleLineData;
+	singleLineData.m_type = enum_geometry_types::eLineString;
+	singleLineData.m_line.push_back(silly_point(1.0, 1.0));
+	singleLineData.m_line.push_back(silly_point(2.0, 2.0));
+	singleLineData.m_line.push_back(silly_point(3.0, 3.0));
+	singleLineData.m_line.push_back(silly_point(4.0, 4.0));
+	data.push_back(singleLineData);
+
+	// 创建多线数据
+	geo_collection multiLineData;
+	multiLineData.m_type = enum_geometry_types::eMultiLineString;
+	silly_line line1;
+	line1.push_back(silly_point(1.0, 1.0));
+	line1.push_back(silly_point(2.0, 2.0));
+	line1.push_back(silly_point(3.0, 3.0));
+	silly_line line2;
+	line2.push_back(silly_point(4.0, 4.0));
+	line2.push_back(silly_point(5.0, 5.0));
+	line2.push_back(silly_point(6.0, 6.0));
+	multiLineData.m_m_lines.push_back(line1);
+	multiLineData.m_m_lines.push_back(line2);
+	data.push_back(multiLineData);
+
+	// 创建单面数据
+	geo_collection singlePolygonData;
+	singlePolygonData.m_type = enum_geometry_types::ePolygon;
+	singlePolygonData.m_poly.outer_ring.points.push_back(silly_point(1.0, 1.0));
+	singlePolygonData.m_poly.outer_ring.points.push_back(silly_point(2.0, 2.0));
+	singlePolygonData.m_poly.outer_ring.points.push_back(silly_point(3.0, 3.0));
+	singlePolygonData.m_poly.inner_rings.push_back(silly_ring());
+	singlePolygonData.m_poly.inner_rings[0].points.push_back(silly_point(4.0, 4.0));
+	singlePolygonData.m_poly.inner_rings[0].points.push_back(silly_point(5.0, 5.0));
+	singlePolygonData.m_poly.inner_rings[0].points.push_back(silly_point(6.0, 6.0));
+	data.push_back(singlePolygonData);
+
+	// 创建多面数据
+	geo_collection multiPolygonData;
+	multiPolygonData.m_type = enum_geometry_types::eMultiPolygon;
+
+	// 第一个面
+	silly_poly poly1;
+	poly1.outer_ring.points.push_back(silly_point(1.0, 1.0));
+	poly1.outer_ring.points.push_back(silly_point(2.0, 2.0));
+	poly1.outer_ring.points.push_back(silly_point(3.0, 3.0));
+	poly1.inner_rings.push_back(silly_ring());  // 第一个内环
+	poly1.inner_rings[0].points.push_back(silly_point(4.0, 4.0));
+	poly1.inner_rings[0].points.push_back(silly_point(5.0, 5.0));
+	poly1.inner_rings[0].points.push_back(silly_point(6.0, 6.0));
+	poly1.inner_rings.push_back(silly_ring());  // 第二个内环
+	poly1.inner_rings[1].points.push_back(silly_point(7.0, 7.0));
+	poly1.inner_rings[1].points.push_back(silly_point(8.0, 8.0));
+	poly1.inner_rings[1].points.push_back(silly_point(9.0, 9.0));
+
+	// 第二个面
+	silly_poly poly2;
+	poly2.outer_ring.points.push_back(silly_point(10.0, 10.0));
+	poly2.outer_ring.points.push_back(silly_point(11.0, 11.0));
+	poly2.outer_ring.points.push_back(silly_point(12.0, 12.0));
+	poly2.inner_rings.push_back(silly_ring());  // 第一个内环
+	poly2.inner_rings[0].points.push_back(silly_point(13.0, 13.0));
+	poly2.inner_rings[0].points.push_back(silly_point(14.0, 14.0));
+	poly2.inner_rings[0].points.push_back(silly_point(15.0, 15.0));
+	poly2.inner_rings.push_back(silly_ring());  // 第二个内环
+	poly2.inner_rings[1].points.push_back(silly_point(16.0, 16.0));
+	poly2.inner_rings[1].points.push_back(silly_point(17.0, 17.0));
+	poly2.inner_rings[1].points.push_back(silly_point(18.0, 18.0));
+
+	// 添加到多面数据中
+	multiPolygonData.m_m_polys.push_back(poly1);
+	multiPolygonData.m_m_polys.push_back(poly2);
+
+	data.push_back(multiPolygonData);
+
+}
 
 BOOST_AUTO_TEST_SUITE(TestGeo)
 
-#if IS_WIN32
-BOOST_AUTO_TEST_CASE(SILLY_TO_SPATIALITE)
-{
-	std::cout << "\r\n\r\n****************" << "SILLY_TO_SPATIALITE" << "****************" << std::endl;
-
-	// 创建silly中点线面的假数据
-	// 五个点-------------
-	std::vector<silly_point> milt_point;
-	milt_point.push_back(silly_point(1.0, 2.0));
-	milt_point.push_back(silly_point(3.0, 4.0));
-	milt_point.push_back(silly_point(5.0, 6.0));
-	milt_point.push_back(silly_point(7.0, 8.0));
-	milt_point.push_back(silly_point(9.0, 10.0));
-	gaiaGeomCollPtr gaia_milt_point = silly_spatialite::vectorToPointGeomColl(milt_point);
-	geometry_printout(gaia_milt_point);
-	std::vector<silly_point> re_milt_point = silly_spatialite::PointgeomCollToVector(gaia_milt_point);
-	std::cout << "=================================" << std::endl;
-
-
-	// 一条线包含四个点--------------------
-	silly_line single_line;
-	single_line.push_back(silly_point(1.0, 2.0));
-	single_line.push_back(silly_point(3.0, 4.0));
-	single_line.push_back(silly_point(5.0, 6.0));
-	single_line.push_back(silly_point(7.0, 8.0));
-	gaiaGeomCollPtr gaia_single_line = silly_spatialite::sillyLineToGeomColl(single_line);
-	geometry_printout(gaia_single_line);
-	
-	std::cout << "=================================" << std::endl;
-
-	// 两条线，每条线包含四个点-----------------
-	silly_multi_silly_line multi_lines;
-	silly_line line1;
-	line1.push_back(silly_point(1.0, 2.0));
-	line1.push_back(silly_point(3.0, 4.0));
-	line1.push_back(silly_point(5.0, 6.0));
-	line1.push_back(silly_point(7.0, 8.0));
-	silly_line line2;
-	line2.push_back(silly_point(10.0, 20.0));
-	line2.push_back(silly_point(30.0, 40.0));
-	line2.push_back(silly_point(50.0, 60.0));
-	line2.push_back(silly_point(70.0, 80.0));
-	multi_lines.push_back(line1);
-	multi_lines.push_back(line2);
-	gaiaGeomCollPtr gaia_multi_line = silly_spatialite::sillyLineToGeomColl(multi_lines);
-	geometry_printout(gaia_multi_line);
-	silly_multi_silly_line re_multi_line = silly_spatialite::geomCollToMultiLine(gaia_multi_line);
-	std::cout << "=================================" << std::endl;
-
-	// 两个面----------------------------------
-	silly_multi_poly multi_polygons;
-	// 创建第一个面
-	silly_poly poly1;
-	poly1.outer_ring.points.push_back(silly_point(0, 0));
-	poly1.outer_ring.points.push_back(silly_point(10, 0));
-	poly1.outer_ring.points.push_back(silly_point(10, 10));
-	silly_ring innerRing1;
-	innerRing1.points.push_back(silly_point(2, 2));
-	innerRing1.points.push_back(silly_point(4, 2));
-	innerRing1.points.push_back(silly_point(3, 4));
-	silly_ring innerRing2;
-	innerRing2.points.push_back(silly_point(5, 5));
-	innerRing2.points.push_back(silly_point(7, 5));
-	innerRing2.points.push_back(silly_point(6, 7));
-	poly1.inner_rings.push_back(innerRing1);
-	poly1.inner_rings.push_back(innerRing2);
-	multi_polygons.push_back(poly1);
-	// 创建第二个面
-	silly_poly poly2;
-	poly2.outer_ring.points.push_back(silly_point(15, 15));
-	poly2.outer_ring.points.push_back(silly_point(25, 15));
-	poly2.outer_ring.points.push_back(silly_point(25, 25));
-	silly_ring innerRing3;
-	innerRing3.points.push_back(silly_point(17, 17));
-	innerRing3.points.push_back(silly_point(20, 17));
-	innerRing3.points.push_back(silly_point(19, 19));
-	silly_ring innerRing4;
-	innerRing4.points.push_back(silly_point(21, 21));
-	innerRing4.points.push_back(silly_point(23, 21));
-	innerRing4.points.push_back(silly_point(22, 23));
-	poly2.inner_rings.push_back(innerRing3);
-	poly2.inner_rings.push_back(innerRing4);
-	multi_polygons.push_back(poly2);
-	gaiaGeomCollPtr gaia_multi_polygons = silly_spatialite::multiPolyToGeomColl(multi_polygons);
-	geometry_printout(gaia_multi_polygons);
-	silly_multi_poly res_multi_polygons = silly_spatialite::geomCollToMultiPoly(gaia_multi_polygons);
-	std::cout << "=================================" << std::endl;
-
-	std::cout << "0000000000000000000000000000000000000000000000000" << std::endl;
-
-
-
-
-	std::vector<gaiaGeomCollPtr> more_GeomColl;
-	more_GeomColl.push_back(gaia_milt_point);
-	more_GeomColl.push_back(gaia_single_line);
-	more_GeomColl.push_back(gaia_multi_line);
-	more_GeomColl.push_back(gaia_multi_polygons);
-
-	std::filesystem::path geo_db(DEFAULT_DATA_DIR);
-	geo_db += "/geo_db/example6.db";
-	//silly_spatialite::insertSpatialData(geo_db.string().c_str(), more_GeomColl);
-
-	std::vector<gaiaGeomCollPtr> geo_res;
-	if (silly_spatialite::selectSpatialData(geo_db.string().c_str(), geo_res))
-	{
-		std::cout << "Spatial data retrieved successfully!" << std::endl;
-	}
-	for (size_t i = 0; i < geo_res.size(); i++) {
-		geometry_printout(geo_res[i]);
-		std::cout << "11111111111111111111111111111111111111111111" << std::endl;
-	}
-	for (size_t i = 0; i < geo_res.size(); i++) {
-		gaiaFreeGeomColl(geo_res[i]);
-	}
-
-
-
-
-
-	gaiaFreeGeomColl(gaia_milt_point);
-	gaiaFreeGeomColl(gaia_single_line);
-	gaiaFreeGeomColl(gaia_multi_line);
-	gaiaFreeGeomColl(gaia_multi_polygons);
-
-	int e = 0;
-
-
-};
-
-BOOST_AUTO_TEST_CASE(SPATIALITE)
+BOOST_AUTO_TEST_CASE(SPATIALITE_DB)
 {
 	std::cout << "\r\n\r\n****************" << "SPATIALITE" << "****************" << std::endl;
 
 	std::filesystem::path geo_db(DEFAULT_DATA_DIR);
 	geo_db += "/geo_db/example6.db";
 
-	//std::vector<gaiaGeomCollPtr> geo_res;
+	// // 假数据
+	std::vector<geo_collection> insert_data;
+	createFakeData(insert_data);
 
+	silly_spatialite ss;
+	ss.initialize(geo_db.string());
+
+	//// 测试创建一个新表
+	//std::string creatt = "CREATE TABLE IF NOT EXISTS test_date (id INTEGER PRIMARY KEY, geom BLOB);";
+	//ss.create_table(creatt);
+
+	std::string selsql = "SELECT geom FROM test_date;";
+	std::vector<geo_collection> sel_geo0;
+	int selNum0 = ss.select_geo(sel_geo0, selsql);
+	std::cout << "插前: " << selNum0 << std::endl;
+
+	std::string inssql = "INSERT INTO test_date (geom) VALUES (?);";
+	int insNum = ss.insert_geo(insert_data, inssql);
+	std::cout << "插入:" << insNum << std::endl;
+
+	std::vector<geo_collection> sel_geo;
+	int selNum = ss.select_geo(sel_geo, selsql);
+	std::cout << "插后: " << selNum << std::endl;
+
+	std::string modifysql = "UPDATE test_date SET geom = ? WHERE id = 9 OR id = 10 OR id = 11";
+	int modNum = ss.modify_geo(insert_data[0], modifysql);
+	std::cout << "修改: " << modNum << std::endl;
+	std::vector<geo_collection> sel_geo2;
+	int selNum2 = ss.select_geo(sel_geo2, selsql);
+	std::cout << "改后: " << selNum2 << std::endl;
+
+
+	std::string remsql = "DELETE FROM test_date WHERE id = 14 OR id = 16;";
+	int remNum = ss.remove_geo(remsql);
+	std::cout << "删除: " << remNum << std::endl;
+	std::vector<geo_collection> sel_geo3;
+	int selNum3 = ss.select_geo(sel_geo3, selsql);
+	std::cout << "删后: " << selNum3 << std::endl;
+	int amm = 0;
+
+
+
+
+};
+
+
+
+BOOST_AUTO_TEST_CASE(SILLY_TO_SPATIALITE)
+{
+	std::cout << "\r\n\r\n****************" << "SILLY_TO_SPATIALITE" << "****************" << std::endl;
+
+
+	//// 创建silly中点线面的假数据
+	//// 五个点-------------
+	//std::vector<silly_point> milt_point;
+	//milt_point.push_back(silly_point(1.0, 2.0));
+	//milt_point.push_back(silly_point(3.0, 4.0));
+	//milt_point.push_back(silly_point(5.0, 6.0));
+	//milt_point.push_back(silly_point(7.0, 8.0));
+	//milt_point.push_back(silly_point(9.0, 10.0));
+	//gaiaGeomCollPtr gaia_point ;
+	////bool aa = silly_point_to_gaiageo(milt_point[1], gaia_point);
+	//geometry_printout(gaia_point);
+	//silly_point re_point;
+	////bool bb = gaiageo_to_silly_point(gaia_point, re_point);
+	//std::cout << "=================================" << std::endl;
+
+	//gaiaGeomCollPtr gaia_mult_point;
+	////bool cc = silly_multi_point_to_gaiageo(milt_point, gaia_mult_point);
+	//geometry_printout(gaia_mult_point);
+	//silly_multi_point re_mul_point;
+	////bool dd = gaiageo_to_silly_multi_point(gaia_mult_point, re_mul_point);
+	//std::cout << "=================================" << std::endl;
+
+
+	//// 一条线包含四个点--------------------
+	//silly_line single_line;
+	//single_line.push_back(silly_point(1.0, 2.0));
+	//single_line.push_back(silly_point(3.0, 4.0));
+	//single_line.push_back(silly_point(5.0, 6.0));
+	//single_line.push_back(silly_point(7.0, 8.0));
+	//gaiaGeomCollPtr gaia_single_line;
+	////bool ee = silly_line_to_gaiageo(single_line, gaia_single_line);
+	//geometry_printout(gaia_single_line);
+	//silly_line res_single_line;
+	////bool ff = gaiageo_to_silly_line(gaia_single_line, res_single_line);
+	//std::cout << "=================================" << std::endl;
+
+
+	//// 两条线，每条线包含四个点-----------------
+	//silly_multi_silly_line multi_lines;
+	//silly_line line1;
+	//line1.push_back(silly_point(1.0, 2.0));
+	//line1.push_back(silly_point(3.0, 4.0));
+	//line1.push_back(silly_point(5.0, 6.0));
+	//line1.push_back(silly_point(7.0, 8.0));
+	//silly_line line2;
+	//line2.push_back(silly_point(10.0, 20.0));
+	//line2.push_back(silly_point(30.0, 40.0));
+	//line2.push_back(silly_point(50.0, 60.0));
+	//line2.push_back(silly_point(70.0, 80.0));
+	//multi_lines.push_back(line1);
+	//multi_lines.push_back(line2);
+	//gaiaGeomCollPtr gaia_multi_line;
+	////bool gg = silly_multi_silly_line_to_gaiageo(multi_lines, gaia_multi_line);
+	//geometry_printout(gaia_multi_line);
+	//silly_multi_silly_line re_multi_line;
+	////bool hh = gaiageo_to_silly_multi_line(gaia_multi_line, re_multi_line);
+	//std::cout << "=================================" << std::endl;
+
+	//// 两个面----------------------------------
+	//silly_multi_poly multi_polygons;
+	//// 创建第一个面
+	//silly_poly poly1;
+	//poly1.outer_ring.points.push_back(silly_point(0, 0));
+	//poly1.outer_ring.points.push_back(silly_point(10, 0));
+	//poly1.outer_ring.points.push_back(silly_point(10, 10));
+	//silly_ring innerRing1;
+	//innerRing1.points.push_back(silly_point(2, 2));
+	//innerRing1.points.push_back(silly_point(4, 2));
+	//innerRing1.points.push_back(silly_point(3, 4));
+	//silly_ring innerRing2;
+	//innerRing2.points.push_back(silly_point(5, 5));
+	//innerRing2.points.push_back(silly_point(7, 5));
+	//innerRing2.points.push_back(silly_point(6, 7));
+	//poly1.inner_rings.push_back(innerRing1);
+	//poly1.inner_rings.push_back(innerRing2);
+	//multi_polygons.push_back(poly1);
+	//// 创建第二个面
+	//silly_poly poly2;
+	//poly2.outer_ring.points.push_back(silly_point(15, 15));
+	//poly2.outer_ring.points.push_back(silly_point(25, 15));
+	//poly2.outer_ring.points.push_back(silly_point(25, 25));
+	//silly_ring innerRing3;
+	//innerRing3.points.push_back(silly_point(17, 17));
+	//innerRing3.points.push_back(silly_point(20, 17));
+	//innerRing3.points.push_back(silly_point(19, 19));
+	//silly_ring innerRing4;
+	//innerRing4.points.push_back(silly_point(21, 21));
+	//innerRing4.points.push_back(silly_point(23, 21));
+	//innerRing4.points.push_back(silly_point(22, 23));
+	//poly2.inner_rings.push_back(innerRing3);
+	//poly2.inner_rings.push_back(innerRing4);
+	//multi_polygons.push_back(poly2);
+
+	//gaiaGeomCollPtr gaia_single_polygons;
+	////bool ii = silly_poly_to_gaiageo(multi_polygons[0], gaia_single_polygons);
+	//geometry_printout(gaia_single_polygons);
+	//silly_poly res_single_polygons;
+	////bool jj = gaiageo_to_silly_poly(gaia_single_polygons, res_single_polygons);
+	//std::cout << "=================================" << std::endl;
+
+	//gaiaGeomCollPtr gaia_multi_polygons;
+	////bool kk = silly_multi_poly_to_gaiageo(multi_polygons, gaia_multi_polygons);
+	//geometry_printout(gaia_multi_polygons);
+	//silly_multi_poly res_multi_polygons;
+	////bool ll = gaiageo_to_silly_multi_poly(gaia_multi_polygons, res_multi_polygons);
+	//std::cout << "=================================" << std::endl;
+
+
+	//std::cout << "0000000000000000000000000000000000000000000000000" << std::endl;
+
+
+
+
+	//std::vector<gaiaGeomCollPtr> more_GeomColl;
+	//more_GeomColl.push_back(gaia_milt_point);
+	//more_GeomColl.push_back(gaia_single_line);
+	//more_GeomColl.push_back(gaia_multi_line);
+	//more_GeomColl.push_back(gaia_multi_polygons);
+
+	//std::filesystem::path geo_db(DEFAULT_DATA_DIR);
+	//geo_db += "/geo_db/example6.db";
+	////silly_spatialite::insertSpatialData(geo_db.string().c_str(), more_GeomColl);
+
+	//std::vector<gaiaGeomCollPtr> geo_res;
 	//if (silly_spatialite::selectSpatialData(geo_db.string().c_str(), geo_res))
 	//{
 	//	std::cout << "Spatial data retrieved successfully!" << std::endl;
 	//}
 	//for (size_t i = 0; i < geo_res.size(); i++) {
 	//	geometry_printout(geo_res[i]);
+	//	std::cout << "11111111111111111111111111111111111111111111" << std::endl;
 	//}
 	//for (size_t i = 0; i < geo_res.size(); i++) {
 	//	gaiaFreeGeomColl(geo_res[i]);
 	//}
 
-	//// 创建数据库和表
-	//silly_spatialite::createDatabase(geo_db.string().c_str());
 
 
 
 
+	//gaiaFreeGeomColl(gaia_milt_point);
+	//gaiaFreeGeomColl(gaia_single_line);
+	//gaiaFreeGeomColl(gaia_multi_line);
+	//gaiaFreeGeomColl(gaia_multi_polygons);
 
-
-
-
-
-
-
-
-
-	//// 两个单点
-	//// 插入四个不同的点，每个点都有不同的坐标
-	//std::vector<gaiaGeomCollPtr> mult_point;
-	//gaiaGeomCollPtr geo_pt1 = gaiaAllocGeomColl();
-	//gaiaAddPointToGeomColl(geo_pt1, 1.0, 2.0);
-	//gaiaGeomCollPtr geo_pt2 = gaiaAllocGeomColl();
-	//gaiaAddPointToGeomColl(geo_pt2, 3.0, 4.0);
-	//mult_point.push_back(geo_pt1);
-	//mult_point.push_back(geo_pt2);
-	////silly_spatialite::insertSpatialData(geo_db.string().c_str(), mult_point);
-	//// 打印四个点类型的对象
-	//for (size_t i = 0; i < mult_point.size(); i++) {
-	//	geometry_printout(mult_point[i]);
-	//}
-	//for (size_t i = 0; i < mult_point.size(); i++) {
-	//	gaiaFreeGeomColl(mult_point[i]);
-	//}
-	//std::cout << "----------------" << std::endl;
-
-	////多点
-	//gaiaGeomCollPtr geo_mpt = gaiaAllocGeomColl();
-	//gaiaAddPointToGeomColl(geo_mpt, 1.0, 2.0);
-	//gaiaAddPointToGeomColl(geo_mpt, 3.0, 4.0);
-	//gaiaAddPointToGeomColl(geo_mpt, 5.0, 6.0);
-	//gaiaAddPointToGeomColl(geo_mpt, 7.0, 8.0);
-	//gaiaAddPointToGeomColl(geo_mpt, 9.0, 10.0);
-	//geometry_printout(geo_mpt);
-	//// // 将矢量数据存储到数据库表中
-	////silly_spatialite::insertSpatialData(geo_db.string().c_str(), geo_mpt);
-	//gaiaFreeGeomColl(geo_mpt);
-	//std::cout << "----------------" << std::endl;
-
-
-
-	//
-
-
-	//// 线段数据
-	//gaiaLinestringPtr line;
-	//gaiaGeomCollPtr geo_ln = NULL;
-	//geo_ln = gaiaAllocGeomColl();
-	//line = gaiaAddLinestringToGeomColl(geo_ln, 4);
-	//gaiaSetPoint(line->Coords, 0, 1.0, 1.0);
-	//gaiaSetPoint(line->Coords, 1, 2.0, 2.0);
-	//gaiaSetPoint(line->Coords, 2, 3.0, 3.0);
-	//gaiaSetPoint(line->Coords, 3, 4.0, 4.0);
-	//geometry_printout(geo_ln);
-
-	//gaiaFreeGeomColl(geo_ln);
-	//std::cout << "----------------" << std::endl;
-
-	//// 多线
-	//gaiaGeomCollPtr geo_mln = gaiaAllocGeomColl();
-	//line = gaiaAddLinestringToGeomColl(geo_mln, 2);
-	//gaiaSetPoint(line->Coords, 0, 30.0, 10.0);
-	//gaiaSetPoint(line->Coords, 1, 10.0, 30.0);
-	//line = gaiaAddLinestringToGeomColl(geo_mln, 2);
-	//gaiaSetPoint(line->Coords, 0, 40.0, 50.0);
-	//gaiaSetPoint(line->Coords, 1, 50.0, 40.0);
-	//geometry_printout(geo_mln);
-
-	//gaiaFreeGeomColl(geo_mln);
-	//std::cout << "----------------" << std::endl;
-
-	//// 面(一个外环两个内环)
-	//gaiaGeomCollPtr geo_pg = gaiaAllocGeomColl();
-	//// 将具有 4 个点和 2 个内环的外环添加到几何集合
-	//gaiaPolygonPtr polyg = gaiaAddPolygonToGeomColl(geo_pg, 4, 2);
-	//// 获取指向外部环的指针
-	//gaiaRingPtr exteriorRing = polyg->Exterior;
-	//// 设置外环的坐标
-	//gaiaSetPoint(exteriorRing->Coords, 0, 0.0, 0.0);
-	//gaiaSetPoint(exteriorRing->Coords, 1, 50.0, 0.0);
-	//gaiaSetPoint(exteriorRing->Coords, 2, 50.0, 50.0);
-	//gaiaSetPoint(exteriorRing->Coords, 3, 0.0, 50.0);
-	//// 添加第一个带 3 个点的内环
-	//gaiaRingPtr interiorRing1 = gaiaAddInteriorRing(polyg, 0, 3);
-	//gaiaSetPoint(interiorRing1->Coords, 0, 10.0, 10.0);
-	//gaiaSetPoint(interiorRing1->Coords, 1, 20.0, 10.0);
-	//gaiaSetPoint(interiorRing1->Coords, 2, 15.0, 20.0);
-	//// 添加第二个内环 3 点
-	//gaiaRingPtr interiorRing2 = gaiaAddInteriorRing(polyg, 1, 3);
-	//gaiaSetPoint(interiorRing2->Coords, 0, 35.0, 35.0);
-	//gaiaSetPoint(interiorRing2->Coords, 1, 40.0, 35.0);
-	//gaiaSetPoint(interiorRing2->Coords, 2, 37.5, 40.0);
-	//geometry_printout(geo_pg);
-
-	//gaiaFreeGeomColl(geo_pg);
-	//std::cout << "----------------" << std::endl;
-
-	//// 多面
-	//gaiaRingPtr ring;
-	//gaiaGeomCollPtr geo_mpg = gaiaAllocGeomColl();
-	///* 然后我们将插入两个多边形 */
-	//polyg = gaiaAddPolygonToGeomColl(geo_mpg, 5, 0);
-	//ring = polyg->Exterior;
-	//gaiaSetPoint(ring->Coords, 0, 60.0, 60.0);
-	//gaiaSetPoint(ring->Coords, 1, 70.0, 60.0);
-	//gaiaSetPoint(ring->Coords, 2, 70.0, 70.0);
-	//gaiaSetPoint(ring->Coords, 3, 60.0, 70.0);
-	//gaiaSetPoint(ring->Coords, 4, 60.0, 60.0);
-	//polyg = gaiaAddPolygonToGeomColl(geo_mpg, 5, 0);
-	//ring = polyg->Exterior;
-	//gaiaSetPoint(ring->Coords, 0, 80.0, 80.0);
-	//gaiaSetPoint(ring->Coords, 1, 90.0, 80.0);
-	//gaiaSetPoint(ring->Coords, 2, 90.0, 90.0);
-	//gaiaSetPoint(ring->Coords, 3, 80.0, 90.0);
-	//gaiaSetPoint(ring->Coords, 4, 80.0, 80.0);
-	//geometry_printout(geo_mpg);
-
-	//gaiaFreeGeomColl(geo_mpg);
-	//std::cout << "----------------" << std::endl;
-
-	////gaiaFreeLinestring(line);
-	////gaiaFreeRing(ring);
-	////gaiaFreePolygon(polyg);
-	//// 几何图形
-	//gaiaGeomCollPtr geo_coll = gaiaAllocGeomColl();
-	///* 然后我们将插入两个点 */
-	//gaiaAddPointToGeomColl(geo_coll, 100.0, 100.0);
-	//gaiaAddPointToGeomColl(geo_coll, 100.0, 0.0);
-	///* 然后我们将插入两个线串 */
-	//line = gaiaAddLinestringToGeomColl(geo_coll, 2);
-	//gaiaSetPoint(line->Coords, 0, 130.0, 110.0);
-	//gaiaSetPoint(line->Coords, 1, 110.0, 130.0);
-	//line = gaiaAddLinestringToGeomColl(geo_coll, 2);
-	//gaiaSetPoint(line->Coords, 0, 140.0, 150.0);
-	//gaiaSetPoint(line->Coords, 1, 150.0, 140.0);
-	///* 然后我们将插入两个多边形 */
-	//polyg = gaiaAddPolygonToGeomColl(geo_coll, 5, 0);
-	//ring = polyg->Exterior;
-	//gaiaSetPoint(ring->Coords, 0, 160.0, 160.0);
-	//gaiaSetPoint(ring->Coords, 1, 170.0, 160.0);
-	//gaiaSetPoint(ring->Coords, 2, 170.0, 170.0);
-	//gaiaSetPoint(ring->Coords, 3, 160.0, 170.0);
-	//gaiaSetPoint(ring->Coords, 4, 160.0, 160.0);
-	//polyg = gaiaAddPolygonToGeomColl(geo_coll, 5, 0);
-	//ring = polyg->Exterior;
-	//gaiaSetPoint(ring->Coords, 0, 180.0, 180.0);
-	//gaiaSetPoint(ring->Coords, 1, 190.0, 180.0);
-	//gaiaSetPoint(ring->Coords, 2, 190.0, 190.0);
-	//gaiaSetPoint(ring->Coords, 3, 180.0, 190.0);
-	//gaiaSetPoint(ring->Coords, 4, 180.0, 180.0);
-	//geometry_printout(geo_coll);
-
-	//gaiaFreeGeomColl(geo_coll);
-	//std::cout << "----------------" << std::endl;
-
-	
-
-
-
-
-
-
-
-
-
-	int m = 0;
-
+	//int e = 0;
 
 
 };
 
-#endif
+
+
 BOOST_AUTO_TEST_CASE(READ_VECTOR_POINT_LINE)
 {
 	std::cout << "\r\n\r\n****************" << "READ_VECTOR_POINT_LINE" << "****************" << std::endl;
