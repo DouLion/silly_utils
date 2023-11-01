@@ -152,7 +152,7 @@ namespace silly_image
 		static png_data read(const char* path);
 
 		/// <summary>
-		/// 将png数据块写回文件
+		/// 将png数据块写回文件, TODO: 这个函数在Centos上保存图片时,图片会有截断,导致保存内容有缺失,检查问题,优先使用encode_to_memory转为二进制流然后写入文件
 		/// </summary>
 		/// <param name="path"></param>
 		/// <param name="data"></param>

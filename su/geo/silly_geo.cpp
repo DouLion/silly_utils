@@ -180,7 +180,7 @@ std::vector<silly_poly> silly_geo::load_geojson(const std::string& geojson)
 									tmp_poly.inner_rings.push_back(ring);
 								}
 							}
-							tmp_poly.props = props;
+							// tmp_poly.props = props;
 							ret_polys.push_back(tmp_poly);
 						}
 

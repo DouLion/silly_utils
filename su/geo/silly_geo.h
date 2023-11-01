@@ -32,6 +32,8 @@
 // 多面
 #define GEOJSON_GEOMETRY_MULTI_POLYGON		"MultiPolygon"
 
+// 参照GDAL
+
 enum enum_geometry_types{
 	eInvalid = 0,			// 无效
 	ePoint = 1,				// 单点
@@ -42,6 +44,18 @@ enum enum_geometry_types{
 	eMultiPolygon = 6 ,		// 多面
 	eCompositeType = 7,		// 复合数据类型  
 
+};
+
+enum enum_geoprop_types {
+	eNone = 0,				// 无效
+	eInt = 1,				// 整形
+	eNumeric = 2,			// 浮点数
+	eString = 3,			// 字符串
+	eBinary = 4,			// 二进制流
+	eTime = 5,				// 时间
+	eDate = 6  ,			// 日期
+	eDateTime = 7,			// 日期加时间
+	eLong = 8				// 长整形
 };
 
 /// 点
@@ -106,10 +120,6 @@ struct silly_geo_rect    // 普通坐标点
 	}
 };
 
-// TODO: 后面这个要统一为此类型
-// typedef silly_point GeoPoint;
-// typedef silly_geo_rect GeoRect;
-
 typedef std::vector<silly_point> silly_multi_point;
 
 /// 线
@@ -129,11 +139,10 @@ struct silly_poly	// 普通面
 {
 	silly_ring outer_ring;		// 外环
 	std::vector<silly_ring> inner_rings; // 内环
-
-	std::map<std::string, std::string> props;
 };
 
 typedef  std::vector<silly_poly> silly_multi_poly ;
+
 
 /// 工具类
 class silly_geo
