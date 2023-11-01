@@ -116,37 +116,57 @@ bool png_utils::write(const char* path, const png_data& data)
 		return false;
 	}
 
-	FILE* output_fp;
-	output_fp = fopen(path, "wb");
-
-	png_structp png_write_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, 0, 0, 0);
-	if (nullptr == png_write_ptr)
+	png_structp png_ptr;
+	png_infop info_ptr;
+	FILE* png_file = fopen(path, "wb");
+	if (!png_file)
 	{
-		SU_DEBUG_PRINT("%s_%d: png_create_write_struct failed.\n", __FILENAME__, __LINE__);
+		return -1;
+	}
+	png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+	if (png_ptr == NULL)
+	{
+		printf("ERROR:png_create_write_struct/n");
+		fclose(png_file);
+		return 0;
+	}
+	info_ptr = png_create_info_struct(png_ptr);
+	if (info_ptr == NULL)
+	{
+		printf("ERROR:png_create_info_struct/n");
+		png_destroy_write_struct(&png_ptr, NULL);
+		return 0;
+	}
+	png_init_io(png_ptr, png_file);
+	png_set_IHDR(png_ptr, info_ptr, data.width, data.height, data.bit_depth, /*PNG_COLOR_TYPE_PALETTE*/data.color_type,
+		PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+
+
+	png_colorp palette = (png_colorp)png_malloc(png_ptr, PNG_MAX_PALETTE_LENGTH * data.pixel_size);
+	if (!palette) {
+		fclose(png_file);
+		png_destroy_write_struct(&png_ptr, &info_ptr);
 		return false;
 	}
-	png_infop png_w_info = png_create_info_struct(png_write_ptr);
-	if (nullptr == png_write_info)
+	png_set_PLTE(png_ptr, info_ptr, palette, PNG_MAX_PALETTE_LENGTH);
+	png_write_info(png_ptr, info_ptr);
+	png_set_packing(png_ptr);
+	//这里就是图像数据了  
+	png_bytepp rows = (png_bytepp)png_malloc(png_ptr, data.height * sizeof(png_bytep));
+	for (int i = 0; i < data.height; ++i)
 	{
-		SU_DEBUG_PRINT("%s_%d: png_create_info_struct failed.\n", __FILENAME__, __LINE__);
-		return false;
+		rows[i] = (png_bytep)(data.data + (i)*data.width * data.pixel_size);
 	}
-	if (setjmp(png_jmpbuf(png_write_ptr)))
-	{
-		png_destroy_read_struct(&png_write_ptr, &png_w_info, nullptr);
-		fclose(output_fp);
-		return false;
 
-	}
-	png_init_io(png_write_ptr, output_fp);
-	png_set_IHDR(png_write_ptr, png_w_info, data.width, data.height, data.bit_depth, data.color_type, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
-	png_write_info(png_write_ptr, png_w_info);
-	png_write_image(png_write_ptr, data.data);
-	png_write_end(png_write_ptr, nullptr);
+	png_write_image(png_ptr, rows);
+	delete[] rows;
+	png_write_end(png_ptr, info_ptr);
+	png_free(png_ptr, palette);
+	palette = NULL;
+	png_destroy_write_struct(&png_ptr, &info_ptr);
+	fclose(png_file);
+	return 0;
 
-	png_destroy_write_struct(&png_write_ptr, &png_w_info);
-	fclose(output_fp);
-	return true;
 }
 
 #include <vector>
