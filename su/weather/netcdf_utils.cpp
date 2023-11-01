@@ -134,8 +134,7 @@ bool netcdf_utils::read_netcdf(const std::string& path, const std::string& group
 
 	}
 	catch (NcException &e) {
-		std::cout << "FAILURE**************************\n";
-		std::cout << e.what() << std::endl;
+		std::cout << "NetCDF ERROR: [" << path << "]" << e.what() << std::endl;
 	}
 	if (nc_val_data) {
 		free(nc_val_data);
