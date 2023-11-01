@@ -7,7 +7,7 @@
 #include <map>
 #include <string>
 #include "math.h"
-
+#include <cstring>
 #define EPS 1E-10
 
 namespace CVectorToRaster {
