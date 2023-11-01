@@ -48,6 +48,32 @@ public:
 		lttd = 180 / SU_PI * (2 * std::atan(std::exp(lttd * SU_PI / 180)) - SU_PI / 2);
 
 	}
+
+	/// <summary>
+	/// 经纬度坐标转墨卡托
+	/// </summary>
+	/// <param name="lgtd"></param>
+	/// <param name="lttd"></param>
+	/// <param name="x"></param>
+	/// <param name="y"></param>
+	static void geo_to_mercator_ez(const double& lgtd, const double& lttd, const double& scale, double& x, double& y)
+	{
+		x = lgtd * 20037508.34 / 180;
+		y = y * scale * 20037508.34 / 180;
+	}
+
+	/// <summary>
+	/// 墨卡托坐标转经纬度
+	/// </summary>
+	/// <param name="x"></param>
+	/// <param name="y"></param>
+	/// <param name="lgtd"></param>
+	/// <param name="lttd"></param>
+	static void mercator_to_geo_ez(const double& x, const double& y, const double& scale, double& lgtd, double& lttd)
+	{
+		lgtd = x / 20037508.34 * 180;
+		lttd = y / 20037508.34 * 180 * scale;
+	}
 };
 
 #endif //SILLY_UTILS_SILLY_PROJECTION_H

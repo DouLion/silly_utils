@@ -52,6 +52,9 @@ public:
 	template <typename T>
 	static bool matrix_geo_to_mercator(silly_math::matrix_2d<double> src, const silly_geo_rect& rect, silly_math::matrix_2d<T>& dst);
 
+	template <typename T>
+	static bool matrix_geo_to_mercator_ez(silly_math::matrix_2d<double> src, const silly_geo_rect& rect, silly_math::matrix_2d<T>& dst);
+
 private:
 
 };
@@ -92,6 +95,55 @@ bool silly_geo_convert::matrix_geo_to_mercator(silly_math::matrix_2d<double> src
 			double m_y = m_top - j * m_height / tmp.row();
 			double lgtd, lttd;
 			silly_projection::mercator_to_geo(m_x, m_y, lgtd, lttd);
+			int dst_c = std::round((lgtd - rect.left) / g_width * tmp.col());
+			int dst_r = std::round((rect.top - lttd) / g_height * tmp.row());
+			// TODO: 这一步是不是有问题,是否是必须的,防止访问溢出
+			dst_c = std::min(std::max(0, dst_c), max_c);
+			dst_r = std::min(std::max(0, dst_r), max_r);
+			dst.get_data()[j][i] = tmp.get_data()[dst_r][dst_c];
+		}
+	}
+	tmp.destroy();
+	return true;
+}
+
+template <typename T>
+bool silly_geo_convert::matrix_geo_to_mercator_ez(silly_math::matrix_2d<double> src, const silly_geo_rect& rect, silly_math::matrix_2d<T>& dst)
+{
+	// 防止传参数进来是src与dst是同一个对象
+	silly_math::matrix_2d<T> tmp = src.copy();
+	if (!(tmp.row() && tmp.col() && tmp.get_data()))
+	{
+		return false;
+	}
+
+	if (!dst.create(tmp.row(), tmp.col(), true))
+	{
+		return false;
+	}
+	double m_left{ 0 }, m_top{ 0 }, m_right{ 0 }, m_bottom{ 0 };
+	double m_x = 0, m_y = 0;
+
+	double cvt_top = std::log(std::tan((90 + m_top) * SU_PI / 360)) / (SU_PI / 180);
+	double cvt_bottom = std::log(std::tan((90 + m_bottom) * SU_PI / 360)) / (SU_PI / 180);
+	double scale = (cvt_top / m_top + cvt_bottom / m_bottom) / 2.0;
+
+	double m_width = m_right - m_left;
+	double m_height = m_top - m_bottom;
+
+	double g_width = rect.right - rect.left;
+	double g_height = rect.top - rect.bottom;
+	int max_r = tmp.row() - 1;
+	int max_c = tmp.col() - 1;
+	// 为dst即墨卡托上每个位置找到geo上对应的位置, 然后取值, 防止图片有撕裂的情况
+	for (int i = 0; i < tmp.col(); ++i)
+	{
+		for (int j = 0; j < tmp.row(); ++j)
+		{
+			double m_x = i * m_width / tmp.col() + m_left;	// 每个matrix网格点对应的mecator坐标
+			double m_y = m_top - j * m_height / tmp.row();
+			double lgtd = m_x, lttd = m_y / scale;
+			// silly_projection::mercator_to_geo(m_x, m_y, lgtd, lttd);
 			int dst_c = std::round((lgtd - rect.left) / g_width * tmp.col());
 			int dst_r = std::round((rect.top - lttd) / g_height * tmp.row());
 			// TODO: 这一步是不是有问题,是否是必须的,防止访问溢出
