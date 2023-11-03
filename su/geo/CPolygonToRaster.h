@@ -7,18 +7,18 @@
 #include <map>
 #include <string>
 #include "math.h"
-#include <cstring>
+
 #define EPS 1E-10
 
 namespace CVectorToRaster {
 
-	inline char toupper(char c)	{
+	inline char toupper(char c) {
 		if (c >= 'a' && c <= 'z')//是小写字母，执行转换。
 			c -= 'a' - 'A';//转成大写。
 		return c;
 	}
 
-	std::string to_upper(std::string& input)	{
+	std::string to_upper(std::string& input) {
 		std::string OutPut = input;
 		char* p = (char*)OutPut.c_str();
 		while (*p)
@@ -66,7 +66,7 @@ namespace CVectorToRaster {
 		if (PointList.size() < 6) {
 			return 0;
 		}
-		return PointRgn(x, y, PointList.size()/2, &(PointList[0]));
+		return PointRgn(x, y, PointList.size() / 2, &(PointList[0]));
 	}
 
 	class Range {
@@ -92,7 +92,7 @@ namespace CVectorToRaster {
 			if (vVertex.empty()) {
 				return;
 			}
-			UpdateRange(&(vVertex[0]), vVertex.size()/2);
+			UpdateRange(&(vVertex[0]), vVertex.size() / 2);
 		}
 
 		template<typename T>
@@ -210,7 +210,7 @@ namespace CVectorToRaster {
 			return getCrossPoint(*this, Segment, crossPoint);
 		}
 
-		bool getCrossPoint(double x1, double y1, double x2, double y2,  Point& crossPoint) {
+		bool getCrossPoint(double x1, double y1, double x2, double y2, Point& crossPoint) {
 			LineSegment Segment(Point(x1, y1), Point(x2, y2));
 			return getCrossPoint(*this, Segment, crossPoint);
 		}
@@ -311,7 +311,7 @@ namespace CVectorToRaster {
 			}
 			vVertex.clear();
 			vVertex.resize(Num, 0);
-			for (int i = 0; i < Num*2; i++) {
+			for (int i = 0; i < Num * 2; i++) {
 				vVertex[i] = pData[i];
 			}
 			CloseRing(vVertex);
@@ -335,7 +335,7 @@ namespace CVectorToRaster {
 			}
 			std::vector<double> vData;
 			vData.resize(Num, 0);
-			for (int i = 0; i < Num*2; i++) {
+			for (int i = 0; i < Num * 2; i++) {
 				vData[i] = pData[i];
 			}
 			CloseRing(vData);
@@ -361,7 +361,7 @@ namespace CVectorToRaster {
 		}
 
 		double GetX(int HoleIndex, int k) {
-			if (HoleIndex < 0	|| HoleIndex >= vHoles.size()) {
+			if (HoleIndex < 0 || HoleIndex >= vHoles.size()) {
 				return -1;
 			}
 			if (k * 2 < vHoles[HoleIndex].size() && k >= 0) {
@@ -371,8 +371,8 @@ namespace CVectorToRaster {
 		}
 
 		double GetY(int k) {
-			if (k * 2+1 < vVertex.size()) {
-				return vVertex.at(k * 2+1);
+			if (k * 2 + 1 < vVertex.size()) {
+				return vVertex.at(k * 2 + 1);
 			}
 			return -1;
 		}
@@ -381,8 +381,8 @@ namespace CVectorToRaster {
 			if (HoleIndex < 0 || HoleIndex >= vHoles.size()) {
 				return -1;
 			}
-			if (k * 2+1 < vHoles[HoleIndex].size() && k >= 0) {
-				return vHoles[HoleIndex].at(k * 2+1);
+			if (k * 2 + 1 < vHoles[HoleIndex].size() && k >= 0) {
+				return vHoles[HoleIndex].at(k * 2 + 1);
 			}
 			return -1;
 		}
@@ -426,16 +426,16 @@ namespace CVectorToRaster {
 
 			std::vector<double> vXPoints;
 			vXPoints.insert(vXPoints.end(), vXcoords.begin(), vXcoords.end());
-			
+
 			vSegment.clear();
 			bool lastState = false;
 			for (int i = 0; i < vXPoints.size() - 1; i++) {
 				double X = (vXPoints[i] + vXPoints[i + 1]) / 2;
 				if (InRegion(X, Y)) {
-					vSegment.push_back(LineSegment(Point(vXPoints[i], Y), Point(vXPoints[i+1], Y)));
+					vSegment.push_back(LineSegment(Point(vXPoints[i], Y), Point(vXPoints[i + 1], Y)));
 					lastState = true;
 				}
-				else  {
+				else {
 					if (!lastState) {
 						vSegment.push_back(LineSegment(Point(vXPoints[i], Y), Point(vXPoints[i], Y)));
 					}
@@ -446,7 +446,7 @@ namespace CVectorToRaster {
 			return !vSegment.empty();
 		}
 	};
-	
+
 	class MultiPolygon : public Geometry {
 	public:
 		MultiPolygon() {
@@ -497,7 +497,7 @@ namespace CVectorToRaster {
 	};
 
 	class ZipRasterData {
-	public: 
+	public:
 		ZipRasterData() {
 			CellSize = 0.0001;
 			BegX = 0;
@@ -554,8 +554,8 @@ namespace CVectorToRaster {
 				memcpy(pCur, &(size), sizeof(size));
 				pCur += sizeof(size);
 				if (size > 0) {
-					memcpy(pCur, &(iter[0]), sizeof(int)*size);
-					pCur += sizeof(int)*size;
+					memcpy(pCur, &(iter[0]), sizeof(int) * size);
+					pCur += sizeof(int) * size;
 				}
 			}
 			return pCur;
@@ -632,7 +632,7 @@ namespace CVectorToRaster {
 				CellSize = 0.001;
 			}
 
-			cols = floor(fabs(pPoly->Bound.MaxX - pPoly->Bound.MinX)/ CellSize + 0.5) + 1;
+			cols = floor(fabs(pPoly->Bound.MaxX - pPoly->Bound.MinX) / CellSize + 0.5) + 1;
 			rows = floor(fabs(pPoly->Bound.MaxY - pPoly->Bound.MinY) / CellSize + 0.5) + 1;
 
 
@@ -640,9 +640,9 @@ namespace CVectorToRaster {
 			vBegAndEndCols.resize(rows);
 			for (int i = 0; i < rows; i++) {
 				std::set<double> vXcoords;
-				pPoly->GetCrossPoints(BegY + i*CellSize, vXcoords);
+				pPoly->GetCrossPoints(BegY + i * CellSize, vXcoords);
 				for (auto val : vXcoords) {
-					vBegAndEndCols[i].push_back(floor(fabs(val - pPoly->Bound.MinY) / CellSize + 0.5));
+					vBegAndEndCols[i].push_back(floor(fabs(val - pPoly->Bound.MinX) / CellSize + 0.5));
 				}
 			}
 
@@ -671,14 +671,14 @@ namespace CVectorToRaster {
 					std::set<double> vXcoords;
 					if (Poly.GetCrossPoints(BegY + i * CellSize, vXcoords)) {
 						for (auto val : vXcoords) {
-							vBegAndEndCols[i].push_back(floor(fabs(val - pMPoly->Bound.MinY) / CellSize + 0.5));
+							vBegAndEndCols[i].push_back(floor(fabs(val - pMPoly->Bound.MinX) / CellSize + 0.5));
 						}
 					}
 
 				}
 			}
 			return true;
-		}						
+		}
 	};
 
 	class CVectorRasterData
@@ -832,7 +832,7 @@ namespace CVectorToRaster {
 			Info.Offset = ftell(m_FileData);
 
 			ZipRasterData data;
-			data.ZipGeometry(pGeo, GridSize);			
+			data.ZipGeometry(pGeo, GridSize);
 			long BufferSize = 0;
 			unsigned char* pBuffer = (unsigned char*)data.GetBuffer(BufferSize);
 			fseek(m_FileData, 0, SEEK_END);
