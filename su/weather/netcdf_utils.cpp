@@ -4,6 +4,7 @@
 
 #include "netcdf_utils.h"
 #include <netcdf>
+#include <filesystem>
 
 
 using namespace netCDF;
@@ -16,6 +17,10 @@ bool netcdf_utils::read_netcdf(const std::string& path, const std::string& group
 	float *nc_lon_data = nullptr;
 	float *nc_lat_data = nullptr;
 	bool ret_status = false;
+	if (!std::filesystem::exists(path))
+	{
+		return ret_status;
+	}
 
 	try {
 		NcFile nc_file;
