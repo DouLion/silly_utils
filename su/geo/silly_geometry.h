@@ -10,20 +10,20 @@
 namespace silly_geometry {
 
     /// <summary>
-    /// ÊôĞÔ¶Î
+    /// å±æ€§æ®µ
     /// </summary>
     struct property
     {
-        // Ê÷ĞÍÀàĞÍ
+        // æ ‘å‹ç±»å‹
         enum_geoprop_types type{ enum_geoprop_types::eNone };
-        // ÊôĞÔ³¤¶È
+        // å±æ€§é•¿åº¦
         size_t	len{ 0 };
-        // ÊôĞÔÄÚÈİ
+        // å±æ€§å†…å®¹
         unsigned char* data{ nullptr };
     };
 
     /// <summary>
-    /// Ê¸Á¿»ùÀà
+    /// çŸ¢é‡åŸºç±»
     /// </summary>
     class geometry_collection
     {
@@ -32,7 +32,7 @@ namespace silly_geometry {
     };
 
     
-    // ¸÷ÖÖ³£¼ûÀàĞÍµÄÊ¸Á¿
+    // å„ç§å¸¸è§ç±»å‹çš„çŸ¢é‡
 
     class point : public geometry_collection
     {
