@@ -64,7 +64,6 @@ double geo_utils::two_point_azimuth(silly_point from, silly_point to)
 OGRPolygon* createPolygonFromSillyRing(const silly_ring& ring)
 {
     OGRPolygon* polygon = new OGRPolygon;
-#if IS_WIN32
     OGRLinearRing* ringObj = new OGRLinearRing;
 
     for (const auto& point : ring.points) {
@@ -72,7 +71,6 @@ OGRPolygon* createPolygonFromSillyRing(const silly_ring& ring)
     }
 
     polygon->addRingDirectly(ringObj);
-#endif
     return polygon;
 }
 
@@ -141,7 +139,6 @@ void processLineString(OGRLineString* lineString, silly_line& line)
 std::vector<silly_point> geo_utils::read_vector_points(const char* File)
 {
     std::vector<silly_point> points;
-#if IS_WIN32
     GDALDataset* dataset = (GDALDataset*)GDALOpenEx(File, GDAL_OF_VECTOR, nullptr, nullptr, nullptr);
     if (dataset == nullptr)
     {
@@ -183,7 +180,6 @@ std::vector<silly_point> geo_utils::read_vector_points(const char* File)
     }
 
     GDALClose(dataset);
-#endif
     return points;
 }
 
@@ -191,7 +187,6 @@ std::vector<silly_point> geo_utils::read_vector_points(const char* File)
 std::vector<silly_line> geo_utils::read_vector_lines(const char* File)
 {
     std::vector<silly_line> lines;
-#if IS_WIN32
     GDALDataset* dataset = (GDALDataset*)GDALOpenEx(File, GDAL_OF_VECTOR, nullptr, nullptr, nullptr);
     if (dataset == nullptr)
     {
@@ -248,7 +243,6 @@ std::vector<silly_line> geo_utils::read_vector_lines(const char* File)
     }
 
     GDALClose(dataset);
-#endif
 
     return lines;
 }
@@ -257,7 +251,6 @@ std::vector<silly_line> geo_utils::read_vector_lines(const char* File)
 std::vector<silly_multi_poly> geo_utils::read_vector_polys(const char* File)
 {
     std::vector<silly_multi_poly> polygons;  // 存放读取的环数据
-#if IS_WIN32
 
     // 打开GeoJSON文件
     GDALDataset* dataset = (GDALDataset*)GDALOpenEx(File, GDAL_OF_VECTOR, nullptr, nullptr, nullptr);
@@ -310,7 +303,6 @@ std::vector<silly_multi_poly> geo_utils::read_vector_polys(const char* File)
     }
 
     GDALClose(dataset);  // 关闭数据集
-#endif
     return polygons;
 }
 
@@ -320,7 +312,6 @@ std::vector<silly_multi_poly> geo_utils::read_vector_polys(const char* File)
 std::vector<silly_ring> geo_utils::intersect_area(silly_ring ring_1, silly_ring ring_2)
 {
     std::vector<silly_ring> intersecting_rings;
-#if IS_WIN32
 
     // 创建 OGRPolygon 对象
     OGRPolygon* poly1 = createPolygonFromSillyRing(ring_1);
@@ -428,7 +419,6 @@ std::vector<silly_ring> geo_utils::intersect_area(silly_ring ring_1, silly_ring 
     delete poly1;
     delete poly2;
 
-#endif
     return intersecting_rings;
 }
 

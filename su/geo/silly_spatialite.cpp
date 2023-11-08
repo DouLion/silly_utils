@@ -5,16 +5,10 @@
 #include "silly_spatialite.h"
 #include <geo/silly_geo.h>
 #include <geos_c.h>
-
-#define ENABLE_LIBXML2 0
 #include <sqlite3.h>
 #include <spatialite.h>
 #include <spatialite/gaiageo.h>
-#if IS_WIN32
-#define SILLY_SPATIALITE_ENABLE 1
-#else
-#define SILLY_SPATIALITE_ENABLE 0
-#endif
+
 
 //////////////////////////////////////////////////////////////////////////////////////////
 ///////  silly_geo转为spatialite类型互转 实现 
@@ -28,13 +22,10 @@
 /// <returns></returns>
 static bool silly_point_to_gaiageo(const silly_point& point, gaiaGeomCollPtr& ggcp)
 {
-#if SILLY_SPATIALITE_ENABLE
 	ggcp = gaiaAllocGeomColl();
+	ggcp->DimensionModel = GAIA_XY;
 	gaiaAddPointToGeomColl(ggcp, point.lgtd, point.lttd);
 	return true;
-#endif
-
-	return false;
 }
 
 /// <summary>
@@ -45,17 +36,18 @@ static bool silly_point_to_gaiageo(const silly_point& point, gaiaGeomCollPtr& gg
 /// <returns></returns>
 static bool silly_multi_point_to_gaiageo(const silly_multi_point& mpoint, gaiaGeomCollPtr& ggcp)
 {
-#if SILLY_SPATIALITE_ENABLE
+
 	if (!mpoint.empty())
 	{
 		ggcp = gaiaAllocGeomColl();
+		ggcp->DimensionModel = GAIA_XY;
 		for (const auto& point : mpoint)
 		{
 			gaiaAddPointToGeomColl(ggcp, point.lgtd, point.lttd);
 		}
 		return true;
 	}
-#endif
+
 	return false;
 }
 
@@ -67,10 +59,10 @@ static bool silly_multi_point_to_gaiageo(const silly_multi_point& mpoint, gaiaGe
 /// <returns></returns>
 static bool silly_line_to_gaiageo(const silly_line& line, gaiaGeomCollPtr& ggcp)
 {
-#if SILLY_SPATIALITE_ENABLE
 	if (!line.empty())
 	{
 		ggcp = gaiaAllocGeomColl();
+		ggcp->DimensionModel = GAIA_XY;
 		gaiaLinestringPtr gaiaLine = gaiaAddLinestringToGeomColl(ggcp, line.size());
 		for (int i = 0; i < line.size(); i++)
 		{
@@ -78,7 +70,6 @@ static bool silly_line_to_gaiageo(const silly_line& line, gaiaGeomCollPtr& ggcp)
 		}
 		return true;
 	}
-#endif
 	return false;
 }
 
@@ -90,10 +81,10 @@ static bool silly_line_to_gaiageo(const silly_line& line, gaiaGeomCollPtr& ggcp)
 /// <returns></returns>
 static bool silly_multi_silly_line_to_gaiageo(const silly_multi_silly_line& mline, gaiaGeomCollPtr& ggcp)
 {
-#if SILLY_SPATIALITE_ENABLE
 	if (!mline.empty())
 	{
 		ggcp = gaiaAllocGeomColl();
+		ggcp->DimensionModel = GAIA_XY;
 		for (const auto& line : mline)
 		{
 			gaiaLinestringPtr gaiaLine = gaiaAddLinestringToGeomColl(ggcp, line.size());
@@ -104,7 +95,6 @@ static bool silly_multi_silly_line_to_gaiageo(const silly_multi_silly_line& mlin
 		}
 		return true;
 	}
-#endif
 	return false;
 }
 
@@ -116,10 +106,10 @@ static bool silly_multi_silly_line_to_gaiageo(const silly_multi_silly_line& mlin
 /// <returns></returns>
 static bool silly_poly_to_gaiageo(const silly_poly& poly, gaiaGeomCollPtr& ggcp)
 {
-#if SILLY_SPATIALITE_ENABLE
 	if (!poly.outer_ring.points.empty())
 	{
 		ggcp = gaiaAllocGeomColl();
+		ggcp->DimensionModel = GAIA_XY;
 		gaiaPolygonPtr gaiaPoly = gaiaAddPolygonToGeomColl(ggcp, poly.outer_ring.points.size(), poly.inner_rings.size());
 		// 添加外环
 		gaiaRingPtr exteriorRing = gaiaPoly->Exterior;
@@ -144,7 +134,6 @@ static bool silly_poly_to_gaiageo(const silly_poly& poly, gaiaGeomCollPtr& ggcp)
 		}
 		return true;
 	}
-#endif
 	return false;
 }
 
@@ -156,10 +145,10 @@ static bool silly_poly_to_gaiageo(const silly_poly& poly, gaiaGeomCollPtr& ggcp)
 /// <returns></returns>
 static bool silly_multi_poly_to_gaiageo(const silly_multi_poly& mpoly, gaiaGeomCollPtr& ggcp)
 {
-#if SILLY_SPATIALITE_ENABLE
 	if (!mpoly.empty())
 	{
 		ggcp = gaiaAllocGeomColl();
+		ggcp->DimensionModel = GAIA_XY;
 		for (const auto& poly : mpoly)
 		{
 			gaiaPolygonPtr gaiaPoly = gaiaAddPolygonToGeomColl(ggcp, poly.outer_ring.points.size(), poly.inner_rings.size());
@@ -187,7 +176,6 @@ static bool silly_multi_poly_to_gaiageo(const silly_multi_poly& mpoly, gaiaGeomC
 		}
 		return true;
 	}
-#endif
 	return false;
 }
 
@@ -200,7 +188,6 @@ static bool silly_multi_poly_to_gaiageo(const silly_multi_poly& mpoly, gaiaGeomC
 /// <returns></returns>
 static bool gaiageo_to_silly_point(gaiaGeomCollPtr ggcp, silly_point& point)
 {
-#if SILLY_SPATIALITE_ENABLE
 	if (ggcp->FirstPoint)
 	{
 		gaiaPointPtr pt;
@@ -208,7 +195,6 @@ static bool gaiageo_to_silly_point(gaiaGeomCollPtr ggcp, silly_point& point)
 		point = silly_point(pt->X, pt->Y);
 		return true;
 	}
-#endif
 	return false;
 }
 
@@ -220,7 +206,6 @@ static bool gaiageo_to_silly_point(gaiaGeomCollPtr ggcp, silly_point& point)
 /// <returns></returns>
 static bool gaiageo_to_silly_multi_point(gaiaGeomCollPtr ggcp, silly_multi_point& mpoint)
 {
-#if SILLY_SPATIALITE_ENABLE
 	gaiaPointPtr pt;
 	pt = ggcp->FirstPoint;
 	while (pt)
@@ -229,8 +214,6 @@ static bool gaiageo_to_silly_multi_point(gaiaGeomCollPtr ggcp, silly_multi_point
 		pt = pt->Next;
 	}
 	return true;
-#endif
-	return false;
 }
 
 /// <summary>
@@ -241,7 +224,6 @@ static bool gaiageo_to_silly_multi_point(gaiaGeomCollPtr ggcp, silly_multi_point
 /// <returns></returns>
 static bool gaiageo_to_silly_line(gaiaGeomCollPtr ggcp, silly_line& line)
 {
-#if SILLY_SPATIALITE_ENABLE
 	gaiaLinestringPtr gaia_line = ggcp->FirstLinestring;
 	if (gaia_line)
 	{
@@ -253,10 +235,8 @@ static bool gaiageo_to_silly_line(gaiaGeomCollPtr ggcp, silly_line& line)
 		}
 		return true;
 	}
-#endif
 
 	return false;
-
 }
 
 /// <summary>
@@ -267,7 +247,6 @@ static bool gaiageo_to_silly_line(gaiaGeomCollPtr ggcp, silly_line& line)
 /// <returns></returns>
 static bool gaiageo_to_silly_multi_line(gaiaGeomCollPtr ggcp, silly_multi_silly_line& mline)
 {
-#if SILLY_SPATIALITE_ENABLE
 	gaiaLinestringPtr line = ggcp->FirstLinestring;
 	while (line)
 	{
@@ -282,9 +261,6 @@ static bool gaiageo_to_silly_multi_line(gaiaGeomCollPtr ggcp, silly_multi_silly_
 		line = line->Next;
 	}
 	return true;
-#endif
-
-	return false;
 }
 
 /// <summary>
@@ -295,7 +271,6 @@ static bool gaiageo_to_silly_multi_line(gaiaGeomCollPtr ggcp, silly_multi_silly_
 /// <returns></returns>
 static bool gaiageo_to_silly_poly(gaiaGeomCollPtr ggcp, silly_poly& sillyPoly)
 {
-#if SILLY_SPATIALITE_ENABLE
 	gaiaPolygonPtr ggcpoly = ggcp->FirstPolygon;
 	if (ggcpoly)
 	{
@@ -329,9 +304,6 @@ static bool gaiageo_to_silly_poly(gaiaGeomCollPtr ggcp, silly_poly& sillyPoly)
 		}
 	}
 	return true;
-#endif
-
-	return false;
 }
 
 
@@ -343,7 +315,6 @@ static bool gaiageo_to_silly_poly(gaiaGeomCollPtr ggcp, silly_poly& sillyPoly)
 /// <returns></returns>
 static bool gaiageo_to_silly_multi_poly(gaiaGeomCollPtr ggcp, silly_multi_poly& mpoly)
 {
-#if SILLY_SPATIALITE_ENABLE
 	gaiaPolygonPtr poly = ggcp->FirstPolygon;
 	while (poly)
 	{
@@ -381,11 +352,6 @@ static bool gaiageo_to_silly_multi_poly(gaiaGeomCollPtr ggcp, silly_multi_poly& 
 	}
 	return true;
 
-#endif
-
-#ifdef __linux__
-	return false;
-#endif
 }
 
 
@@ -397,9 +363,7 @@ static bool gaiageo_to_silly_multi_poly(gaiaGeomCollPtr ggcp, silly_multi_poly& 
 /// <returns></returns>
 bool geo_silly_to_spatialite(const geo_collection& gc, gaiaGeomCollPtr& ggcp)
 {
-	
 	bool status = false;
-#if SILLY_SPATIALITE_ENABLE
 	switch (gc.m_type)
 	{
 	case enum_geometry_types::ePoint:
@@ -423,7 +387,6 @@ bool geo_silly_to_spatialite(const geo_collection& gc, gaiaGeomCollPtr& ggcp)
 	default:
 		break;
 	}
-#endif
 	return status;
 }
 
@@ -432,7 +395,6 @@ bool geo_silly_to_spatialite(const geo_collection& gc, gaiaGeomCollPtr& ggcp)
 int check_geom_type(int type)
 {
 	int result;
-#if SILLY_SPATIALITE_ENABLE
 	switch (type)
 	{
 	case GAIA_POINT:
@@ -459,7 +421,6 @@ int check_geom_type(int type)
 	default:
 		result = enum_geometry_types::eInvalid;
 	}
-#endif
 	return result;
 }
 
@@ -473,7 +434,6 @@ int check_geom_type(int type)
 bool geo_spatialite_to_silly(const gaiaGeomCollPtr& ggcp, geo_collection& gc)
 {
 	bool status = false;
-#if SILLY_SPATIALITE_ENABLE
 	int type = check_geom_type(gaiaGeometryType(ggcp));
 	switch (type)
 	{
@@ -504,7 +464,6 @@ bool geo_spatialite_to_silly(const gaiaGeomCollPtr& ggcp, geo_collection& gc)
 	default:
 		break;
 	}
-#endif
 	return status;
 }
 
@@ -514,9 +473,10 @@ bool geo_spatialite_to_silly(const gaiaGeomCollPtr& ggcp, geo_collection& gc)
 
 bool silly_spatialite::initialize(const std::string& db_path)
 {
-#if SILLY_SPATIALITE_ENABLE
 	if (m_is_init)  //已经初始化
-	{	return m_is_init;  }
+	{
+		return m_is_init;
+	}
 
 	// 打开数据库连接
 	int rc;
@@ -528,16 +488,18 @@ bool silly_spatialite::initialize(const std::string& db_path)
 	}
 
 	m_sp_cache = spatialite_alloc_connection();
+#ifdef NDEBUG
 	spatialite_init_ex(m_db, m_sp_cache, 0);
-
-	m_is_init = true;
+#else
+	// TODO: 检查这里设置为1后是不是有输出信息
+	spatialite_init_ex(m_db, m_sp_cache, 1);
 #endif
+	m_is_init = true;
 	return m_is_init;
 }
 
 void silly_spatialite::destory()
 {
-#if SILLY_SPATIALITE_ENABLE
 	if (m_is_init)
 	{
 		sqlite3_close(m_db);
@@ -545,7 +507,6 @@ void silly_spatialite::destory()
 		spatialite_shutdown();
 		m_is_init = false;
 	}
-#endif
 }
 
 
@@ -557,7 +518,6 @@ silly_spatialite::~silly_spatialite()
 bool silly_spatialite::create_table(const std::string& sql)
 {
 	bool result = false;
-#if SILLY_SPATIALITE_ENABLE
 	int rc;
 	//const char* sql_creat = "CREATE TABLE IF NOT EXISTS spatial_data (id INTEGER PRIMARY KEY, geom BLOB);";
 	rc = sqlite3_exec(m_db, sql.c_str(), 0, 0, 0);
@@ -571,31 +531,29 @@ bool silly_spatialite::create_table(const std::string& sql)
 		std::cout << "ERROR: Create table failed: " << sqlite3_errmsg(m_db) << std::endl;
 #endif
 	}
-#endif
 	return result;
 }
 
 
-int silly_spatialite::insert_geo(const std::vector<geo_collection>& gc, const std::string& sql)
+int silly_spatialite::insert_geo(const std::vector<geo_collection>& gc, const std::string& sql, int bind_index)
 {
 	int affect_rows = 0;
-#if SILLY_SPATIALITE_ENABLE
 	if (!m_is_init)
 	{
 #ifdef _DEBUG
-		std::cout << "ERROR: SpatiaLite environment not initialized " << std::endl;
+		std::cout << "ERROR: SpatiaLite environment not initialized \nPlease execute the silly_spatialite::initialize() first  " << std::endl;
 #endif
 		return affect_rows;
 	}
 	sqlite3_stmt* stmt;
 	int rc = sqlite3_prepare_v2(m_db, sql.c_str(), sql.size(), &stmt, NULL);
-	if (rc != SQLITE_OK) 
+	if (rc != SQLITE_OK)
 	{
-		std::cout << "ERROR:" << __FILE__ << " line: " << __LINE__ << " : " << sqlite3_errmsg(m_db) << std::endl;
-	    sqlite3_close(m_db);
-	    return affect_rows;
+		printf("err_%s_line%d: %s", __FILE__, __LINE__, sqlite3_errmsg(m_db));
+		sqlite3_close(m_db);
+		return affect_rows;
 	}
-	
+
 	// TODO: 循环中,如果有一个矢量插入有问题应该怎么处理
 	for (const auto& g : gc)
 	{
@@ -607,7 +565,6 @@ int silly_spatialite::insert_geo(const std::vector<geo_collection>& gc, const st
 			gaiaFreeGeomColl(tmp_ggcp);
 			continue;
 		}
-
 		// TODO: 确认这个地方 后面是否需要释放内存 
 		// 将此几何图形转换为 SpatiaLite BLOB 格式 
 		gaiaToSpatiaLiteBlobWkb(tmp_ggcp, &blob, &blob_size);
@@ -617,27 +574,28 @@ int silly_spatialite::insert_geo(const std::vector<geo_collection>& gc, const st
 		sqlite3_clear_bindings(stmt);
 		// TODO: 理解这里绑定1的含义,表里面多个字段还能这么用吗; 
 		// TODO: 如果这里没有执行成功,free会执行吗
-		rc = sqlite3_bind_blob(stmt, 1, blob, blob_size, free);
+		rc = sqlite3_bind_blob(stmt, bind_index, blob, blob_size, free);
 		if (rc != SQLITE_OK)
 		{
-			std::cout << "WARN:" << __FILE__ << " line: " << __LINE__ << ": " << sqlite3_errmsg(m_db) << std::endl;
+			printf("err_%s_line%d: %s", __FILE__, __LINE__, sqlite3_errmsg(m_db));
+			continue;
 		}
 		// 执行SQL语句并提交事务
 		rc = sqlite3_step(stmt);
-		if (SQLITE_DONE == rc ||SQLITE_ROW == rc)
+		if (SQLITE_DONE == rc || SQLITE_ROW == rc)
 		{
-			affect_rows+= sqlite3_changes(m_db);
+
+			affect_rows += sqlite3_changes(m_db);
 		}
 		else
 		{
 			printf("err_%s_line%d: %s", __FILE__, __LINE__, sqlite3_errmsg(m_db));
+			continue;
 		}
-		
+
 	}
 	// TODO:获取提交之后有几条成功了
-	// affect_rows = 0;// 调用函数或者其他方法
 	sqlite3_finalize(stmt);
-#endif
 	return affect_rows;
 }
 
@@ -645,11 +603,10 @@ int silly_spatialite::insert_geo(const std::vector<geo_collection>& gc, const st
 int silly_spatialite::select_geo(std::vector<geo_collection>& gc, const std::string& sql)
 {
 	int affect_rows = 0;
-#if SILLY_SPATIALITE_ENABLE
 	if (!m_is_init)
 	{
 #ifdef _DEBUG
-		std::cout << "ERROR: SpatiaLite environment not initialized " << std::endl;
+		std::cout << "ERROR: SpatiaLite environment not initialized \nPlease execute the silly_spatialite::initialize() first  " << std::endl;
 #endif
 		return affect_rows;
 	}
@@ -658,7 +615,7 @@ int silly_spatialite::select_geo(std::vector<geo_collection>& gc, const std::str
 	int rc = sqlite3_prepare_v2(m_db, sql.c_str(), sql.size(), &stmt, NULL);
 	if (rc != SQLITE_OK)
 	{
-		std::cout << "Select SQL error: " << sqlite3_errmsg(m_db) << std::endl;
+		printf("err_%s_line%d: %s", __FILE__, __LINE__, sqlite3_errmsg(m_db));
 		return affect_rows;
 	}
 	// 执行查询
@@ -679,12 +636,12 @@ int silly_spatialite::select_geo(std::vector<geo_collection>& gc, const std::str
 		geo_collection temp_gc;
 		if (!geo_spatialite_to_silly(geomColl, temp_gc))
 		{
+			std::cout << "Unable to convert gaiaGeomCollPtr data to geo_collection type " << std::endl;
 			gaiaFreeGeomColl(geomColl);
 			continue;
 		}
 		gc.push_back(temp_gc);
 		gaiaFreeGeomColl(geomColl);
-		int a = sqlite3_changes(m_db);
 		affect_rows++;
 	}
 	if (SQLITE_DONE == rc)
@@ -698,28 +655,24 @@ int silly_spatialite::select_geo(std::vector<geo_collection>& gc, const std::str
 		sqlite3_finalize(stmt);
 		return affect_rows;
 	}
-#endif
-	return affect_rows;
 }
 
 
 int silly_spatialite::remove_geo(const std::string& sql)
 {
 	int affect_rows = 0;
-#if SILLY_SPATIALITE_ENABLE
 	if (!m_is_init)
 	{
 #ifdef _DEBUG
-		std::cout << "ERROR: SpatiaLite environment not initialized " << std::endl;
+		std::cout << "ERROR: SpatiaLite environment not initialized \nPlease execute the silly_spatialite::initialize() first  " << std::endl;
 #endif
 		return affect_rows;
 	}
-
 	sqlite3_stmt* stmt;
 	int rc = sqlite3_prepare_v2(m_db, sql.c_str(), sql.size(), &stmt, NULL);
 	if (rc != SQLITE_OK)
 	{
-		std::cout << "ERROR:" << __FILE__ << " line: " << __LINE__ << " : " << sqlite3_errmsg(m_db) << std::endl;
+		printf("err_%s_line%d: %s", __FILE__, __LINE__, sqlite3_errmsg(m_db));
 		sqlite3_close(m_db);
 		return affect_rows;
 	}
@@ -731,27 +684,23 @@ int silly_spatialite::remove_geo(const std::string& sql)
 	}
 	else
 	{
-		std::cout << "sqlite3_step() error: " << sqlite3_errmsg(m_db) << std::endl;
+		printf("err_%s_line%d: %s", __FILE__, __LINE__, sqlite3_errmsg(m_db));
 		sqlite3_finalize(stmt);
 		return affect_rows;
 	}
-#endif
-	return affect_rows;
 
 }
 
-int silly_spatialite::modify_geo(const geo_collection& gc, const std::string& sql)
+int silly_spatialite::modify_geo(const geo_collection& gc, const std::string& sql, int bind_index)
 {
 	int affect_rows = 0;
-#if SILLY_SPATIALITE_ENABLE
 	if (!m_is_init)
 	{
 #ifdef _DEBUG
-		std::cout << "ERROR: SpatiaLite environment not initialized " << std::endl;
+		std::cout << "ERROR: SpatiaLite environment not initialized \nPlease execute the silly_spatialite::initialize() first  " << std::endl;
 #endif
 		return affect_rows;
 	}
-
 	sqlite3_stmt* stmt;
 	int rc = sqlite3_prepare_v2(m_db, sql.c_str(), sql.size(), &stmt, NULL);
 	if (rc != SQLITE_OK)
@@ -773,15 +722,14 @@ int silly_spatialite::modify_geo(const geo_collection& gc, const std::string& sq
 	}
 	gaiaToSpatiaLiteBlobWkb(tmp_ggcp, &blob, &blob_size);
 	gaiaFreeGeomColl(tmp_ggcp);
-
 	sqlite3_reset(stmt);
 	sqlite3_clear_bindings(stmt);
-	rc = sqlite3_bind_blob(stmt, 1, blob, blob_size, free);
+	rc = sqlite3_bind_blob(stmt, bind_index, blob, blob_size, free);
 	if (rc != SQLITE_OK)
 	{
 		std::cout << "WARN:" << __FILE__ << " line: " << __LINE__ << ": " << sqlite3_errmsg(m_db) << std::endl;
 	}
-	if(SQLITE_DONE == sqlite3_step(stmt))
+	if (SQLITE_DONE == sqlite3_step(stmt))
 	{
 		affect_rows += sqlite3_changes(m_db);
 		sqlite3_finalize(stmt);
@@ -793,8 +741,6 @@ int silly_spatialite::modify_geo(const geo_collection& gc, const std::string& sq
 		sqlite3_finalize(stmt);
 		return affect_rows;
 	}
-#endif
-	return affect_rows;
 }
 
 

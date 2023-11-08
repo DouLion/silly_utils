@@ -84,12 +84,38 @@ target_link_libraries(${PROJECT_NAME} PUBLIC ${SPATIALITE_LIB})
 find_package(unofficial-sqlite3 CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC unofficial::sqlite3::sqlite3)
 
-find_package(GEOS CONFIG REQUIRED)
-target_link_libraries(${PROJECT_NAME} PUBLIC GEOS::geos_c)
 
 if(IS_LINUX)
 
     find_package(unofficial-libuuid CONFIG REQUIRED)
     target_link_libraries(${PROJECT_NAME} PUBLIC unofficial::UUID::uuid)
+
+    find_package(GEOS CONFIG REQUIRED)
+    target_link_libraries(${PROJECT_NAME} PUBLIC GEOS::geos_c)
+
+    find_package(GEOS CONFIG REQUIRED)
+    target_link_libraries(${PROJECT_NAME} PUBLIC  GEOS::geos)
+
+    find_library(FREEXL_LIB NAMES "freexl")
+    target_link_libraries(${PROJECT_NAME} PUBLIC ${FREEXL_LIB})
+
+    find_library(PROJ_LIB NAMES "proj")
+    target_link_libraries(${PROJECT_NAME} PUBLIC ${PROJ_LIB})
+
+    find_package(CURL CONFIG REQUIRED)
+    target_link_libraries(${PROJECT_NAME} PUBLIC CURL::libcurl)
+
+    find_library(TIFF_LIB NAMES "tiff")
+    target_link_libraries(${PROJECT_NAME} PUBLIC ${TIFF_LIB})
+
+    find_package(JPEG REQUIRED)
+    target_link_libraries(${PROJECT_NAME} PUBLIC ${JPEG_LIBRARIES})
+    target_include_directories(${PROJECT_NAME} PUBLIC ${JPEG_INCLUDE_DIR})
+
+    find_package(LibXml2 REQUIRED)
+    target_link_libraries(${PROJECT_NAME} PUBLIC  LibXml2::LibXml2)
+
+    find_library(RTTOPO_LIB NAMES "rttopo")
+    target_link_libraries(${PROJECT_NAME} PUBLIC ${RTTOPO_LIB})
 
 endif()
