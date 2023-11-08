@@ -108,10 +108,6 @@ if(IS_LINUX)
     find_library(TIFF_LIB NAMES "tiff")
     target_link_libraries(${PROJECT_NAME} PUBLIC ${TIFF_LIB})
 
-    find_package(JPEG REQUIRED)
-    target_link_libraries(${PROJECT_NAME} PUBLIC ${JPEG_LIBRARIES})
-    target_include_directories(${PROJECT_NAME} PUBLIC ${JPEG_INCLUDE_DIR})
-
     find_package(LibXml2 REQUIRED)
     target_link_libraries(${PROJECT_NAME} PUBLIC  LibXml2::LibXml2)
 
