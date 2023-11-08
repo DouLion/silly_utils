@@ -21,9 +21,9 @@ bool netcdf_utils::read_netcdf(const std::string& path, const std::string& group
 	{
 		return ret_status;
 	}
-
+	NcFile nc_file;
 	try {
-		NcFile nc_file;
+		
 		nc_file.open(path, NcFile::read);
 		NcGroup nc_group = nc_file.getGroup("/", NcGroup::GroupLocation::AllGrps);
 
@@ -141,6 +141,7 @@ bool netcdf_utils::read_netcdf(const std::string& path, const std::string& group
 	catch (NcException &e) {
 		std::cout << "NetCDF ERROR: [" << path << "]" << e.what() << std::endl;
 	}
+	nc_file.close();
 	if (nc_val_data) {
 		free(nc_val_data);
 		nc_val_data = nullptr;
@@ -255,6 +256,7 @@ bool netcdf_utils::write_netcdf(const std::string& path, const nc_info& info, co
 
 		//cout << "*** SUCCESS writing example file " << FILE_NAME << "!" << endl;
 		status = true;
+		sfc.close();
 	}
 	catch (NcException& e)
 	{
@@ -262,6 +264,7 @@ bool netcdf_utils::write_netcdf(const std::string& path, const nc_info& info, co
 		std::cout << e.what() << std::endl;
 		// return NC_ERR;
 	}
+	
 	return status;
 }
 
@@ -342,7 +345,7 @@ bool netcdf_utils::write_netcdf(const std::string& path, const nc_info& info, co
 		free(lons);
 		free(rains);
 		//tempVar.putVar(tempOut);
-
+		sfc.close();
 		status = true;
 	}
 	catch (NcException& e)
