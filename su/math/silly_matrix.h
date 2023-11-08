@@ -70,7 +70,8 @@ namespace silly_math
 				data[r] = (T*)malloc(col_size);
 				if (data[r])
 				{
-					memcpy(data[r], data[r], col_size);
+					// memcpy(data[r], data[r], col_size);
+					memset(data[r], 0, col_size);
 				}
 			}
 
