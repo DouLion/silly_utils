@@ -22,7 +22,7 @@
 //	Poly.AddVertex(vVextex);
 //
 //	std::string strID = "Test001";
-//	std::string strName = "Èý½ÇÐÎ";
+//	std::string strName = "ä¸‰è§’å½¢";
 //
 //	double GridSize = 0.5;
 //	dataSet.WriteObjInfo(strID.c_str(), strName.c_str(), &Poly, GridSize);
@@ -42,10 +42,10 @@
 //		if (dataSet.GetObjInfo(iter.first.c_str(), data)) {
 //			double X, BegY, EndY;
 //			for (int i = 0; i < data.vBegAndEndCols.size(); i++) {
-//				X = data.BegY + i * data.CellSize;  //Î³¶È
+//				X = data.BegY + i * data.CellSize;  //çº¬åº¦
 //				for (int j = 0; j < data.vBegAndEndCols[i].size()/2; j++) {
-//					BegY = data.BegX + data.vBegAndEndCols[i].at(j * 2) * data.CellSize; // ¿ªÊ¼¾­¶È
-//					EndY = data.BegX + data.vBegAndEndCols[i].at(j * 2+1) * data.CellSize; // ½áÊø¾­¶È
+//					BegY = data.BegX + data.vBegAndEndCols[i].at(j * 2) * data.CellSize; // å¼€å§‹ç»åº¦
+//					EndY = data.BegX + data.vBegAndEndCols[i].at(j * 2+1) * data.CellSize; // ç»“æŸç»åº¦
 //				}
 //			}
 //			std::cout << "Todo " << iter.first << std::endl;

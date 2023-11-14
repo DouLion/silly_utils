@@ -31,15 +31,16 @@
 
 
 enum ZIP_ERROR {
-    SILLY_ZIP_OK = 0,                 // 操作成功
-    SILLY_ZIP_ERROR_OPEN = 1,         // 打开ZIP文件失败
-    SILLY_ZIP_ERROR_EMPTY = 2,        // ZIP文件为空
-    SILLY_ZIP_ERROR_GET_INFO = 3,     // 获取文件信息失败
-    SILLY_ZIP_ERROR_CREATE_DIR = 4,   // 创建目录失败
-    SILLY_ZIP_ERROR_CREATE_FILE = 5,  // 创建文件失败
-    SILLY_ZIP_ERROR_WRITE_FILE = 6,   // 写入文件失败
-    SILLY_ZIP_ERROR_WRITE_ZIP = 7,    // 写入ZIP文件失败
-    SILLY_ZIP_ERROR_WRITE_NEWZIP = 8     // 打开新写入的ZIP失败
+    SILLY_ZIP_ok = 0,                     // 操作成功
+    SILLY_ZIP_err_open = 1,               // 打开ZIP文件失败
+    SILLY_ZIP_err_empty = 2,              // ZIP文件为空
+    SILLY_ZIP_err_get_info = 3,           // 获取文件信息失败
+    SILLY_ZIP_err_create_dir = 4,         // 创建目录失败
+    SILLY_ZIP_err_create_file = 5,        // 创建文件失败
+    SILLY_ZIP_err_write_file = 6,         // 写入文件失败
+    SILLY_ZIP_err_write_zip = 7,          // 写入ZIP文件失败
+    SILLY_ZIP_err_write_newzip = 8,       // 打开新写入的ZIP失败
+    SILLY_ZIP_err_open_file = 9           // 打开读取文件失败
 
 };
 

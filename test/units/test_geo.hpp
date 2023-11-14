@@ -27,6 +27,8 @@
 #include <spatialite/gaiageo.h>
 #include "geo/silly_spatialite.h"
 
+#include <variant>
+
  /// <summary>
  /// 仅作为测试查看使用
  /// 读取一个shp文件,将多个坐标点绘制在读取的shp文件中的位置,并生成一个新的shp文件
@@ -222,58 +224,173 @@ void createFakeData(std::vector<geo_collection>& data)
 
 }
 
+class GeoJSONAttributeStorage
+{
+public:
+	std::unordered_map<std::string, std::variant<std::string, int, double>> attributes;
+
+	// 添加属性
+	void AddAttribute(const std::string& name, const std::variant<std::string, int, double>& value)
+	{
+		attributes[name] = value;
+	}
+
+	// 获取属性值
+	std::variant<std::string, int, double> GetAttributeValue(const std::string& name)
+	{
+		if (attributes.find(name) != attributes.end()) {
+			return attributes[name];
+		}
+		return std::variant<std::string, int, double>();
+	}
+};
+
+int test(std::string filename, GeoJSONAttributeStorage& attributeStorage)
+{
+	// 初始化GDAL
+	GDALAllRegister();
+
+	// 打开GeoJSON文件
+	//const char* filename = "path_to_your_geojson_file.geojson";
+	GDALDataset* dataset = (GDALDataset*)GDALOpenEx(filename.c_str(), GDAL_OF_VECTOR, NULL, NULL, NULL);
+
+	if (dataset != NULL)
+	{
+		// 获取第一个图层（layer）
+		OGRLayer* layer = dataset->GetLayer(0);
+		if (layer != NULL)
+		{
+			// 创建存储对象
+			//GeoJSONAttributeStorage attributeStorage;
+
+			// 遍历所有要素（feature）
+			layer->ResetReading();
+			OGRFeature* feature;
+			while ((feature = layer->GetNextFeature()) != NULL)
+			{
+				int fieldCount = feature->GetFieldCount();
+				for (int i = 0; i < fieldCount; i++)
+				{
+					// 获取属性名和属性值
+					OGRFieldDefn* fieldDef = feature->GetFieldDefnRef(i);
+					std::string attributeName = fieldDef->GetNameRef();
+					OGRFieldType fieldType = fieldDef->GetType();
+
+					if (fieldType == OFTString)
+					{
+						const char* attributeValue = feature->GetFieldAsString(i);
+						attributeStorage.AddAttribute(attributeName, attributeValue);
+					}
+					else if (fieldType == OFTInteger)
+					{
+						int attributeValue = feature->GetFieldAsInteger(i);
+						attributeStorage.AddAttribute(attributeName, attributeValue);
+					}
+					else if (fieldType == OFTReal)
+					{
+						double attributeValue = feature->GetFieldAsDouble(i);
+						attributeStorage.AddAttribute(attributeName, attributeValue);
+					}
+					// 处理其他属性类型...
+				}
+
+				OGRFeature::DestroyFeature(feature);
+			}
+
+			// 使用存储对象中的属性信息
+			std::variant<std::string, int, double> attributeValue = attributeStorage.GetAttributeValue("name_of_attribute");
+			if (std::holds_alternative<std::string>(attributeValue)) {
+				std::string stringValue = std::get<std::string>(attributeValue);
+				// 处理字符串属性值
+			}
+			else if (std::holds_alternative<int>(attributeValue)) {
+				int intValue = std::get<int>(attributeValue);
+				// 处理整型属性值
+			}
+			else if (std::holds_alternative<double>(attributeValue)) {
+				double doubleValue = std::get<double>(attributeValue);
+				// 处理浮点型属性值
+			}
+		}
+
+		GDALClose(dataset);
+	}
+	else
+	{
+		printf("Failed to open GeoJSON file\n");
+	}
+
+	return 0;
+}
 BOOST_AUTO_TEST_SUITE(TestGeo)
 
-
-BOOST_AUTO_TEST_CASE(SPATIALITE_DB)
+BOOST_AUTO_TEST_CASE(ATTRIBUTE_STORAGE)
 {
-	std::cout << "\r\n\r\n****************" << "SPATIALITE" << "****************" << std::endl;
+	std::cout << "\r\n\r\n****************" << "ATTRIBUTE_STORAGE" << "****************" << std::endl;
 
-	std::filesystem::path geo_db(DEFAULT_DATA_DIR);
-	geo_db += "/geo_db/example6.db";
+	// 读取geojson的线
+	std::filesystem::path geo_line(DEFAULT_DATA_DIR);
+	geo_line += "/geojson/river_line.geojson";
+	
+	GeoJSONAttributeStorage attributeStorage;
 
-	// // 假数据
-	std::vector<geo_collection> insert_data;
-	createFakeData(insert_data);
-
-		silly_spatialite ss;
-		ss.initialize(geo_db.string());
-
-		// 测试创建一个新表
-		std::string creatt = "CREATE TABLE IF NOT EXISTS test_date (id INTEGER PRIMARY KEY, geom BLOB);";
-		ss.create_table(creatt);
-		std::string selsql = "SELECT geom FROM test_date;";
-		std::vector<geo_collection> sel_geo0;
-		int selNum0 = ss.select_geo(sel_geo0, selsql);
-		std::cout << "插前: " << selNum0 << std::endl;
-
-		std::string inssql = "INSERT INTO test_date (geom) VALUES (?);";
-		int insNum = ss.insert_geo(insert_data, inssql);
-		std::cout << "插入:" << insNum << std::endl;
-
-		std::vector<geo_collection> sel_geo;
-		int selNum = ss.select_geo(sel_geo, selsql);
-		std::cout << "插后: " << selNum << std::endl;
-
-		std::string modifysql = "UPDATE test_date SET geom = ? WHERE id = 9 OR id = 10 OR id = 11";
-		int modNum = ss.modify_geo(insert_data[0], modifysql);
-		std::cout << "修改: " << modNum << std::endl;
-		std::vector<geo_collection> sel_geo2;
-		int selNum2 = ss.select_geo(sel_geo2, selsql);
-		std::cout << "改后: " << selNum2 << std::endl;
+	int res = test(geo_line.string(), attributeStorage);
+		
+	int a = 0;
 
 
-		std::string remsql = "DELETE FROM test_date WHERE id = 14 OR id = 16;";
-		int remNum = ss.remove_geo(remsql);
-		std::cout << "删除: " << remNum << std::endl;
-		std::vector<geo_collection> sel_geo3;
-		int selNum3 = ss.select_geo(sel_geo3, selsql);
-		std::cout << "删后: " << selNum3 << std::endl;
-
-
-	int amm = 0;
 
 };
+
+//BOOST_AUTO_TEST_CASE(SPATIALITE_DB)
+//{
+//	std::cout << "\r\n\r\n****************" << "SPATIALITE" << "****************" << std::endl;
+//
+//	std::filesystem::path geo_db(DEFAULT_DATA_DIR);
+//	geo_db += "/geo_db/example6.db";
+//
+//	// // 假数据
+//	std::vector<geo_collection> insert_data;
+//	createFakeData(insert_data);
+//
+//		silly_spatialite ss;
+//		ss.initialize(geo_db.string());
+//
+//		// 测试创建一个新表
+//		std::string creatt = "CREATE TABLE IF NOT EXISTS test_date (id INTEGER PRIMARY KEY, geom BLOB);";
+//		ss.create_table(creatt);
+//		std::string selsql = "SELECT geom FROM test_date;";
+//		std::vector<geo_collection> sel_geo0;
+//		int selNum0 = ss.select_geo(sel_geo0, selsql);
+//		std::cout << "插前: " << selNum0 << std::endl;
+//
+//		std::string inssql = "INSERT INTO test_date (geom) VALUES (?);";
+//		int insNum = ss.insert_geo(insert_data, inssql);
+//		std::cout << "插入:" << insNum << std::endl;
+//
+//		std::vector<geo_collection> sel_geo;
+//		int selNum = ss.select_geo(sel_geo, selsql);
+//		std::cout << "插后: " << selNum << std::endl;
+//
+//		std::string modifysql = "UPDATE test_date SET geom = ? WHERE id = 9 OR id = 10 OR id = 11";
+//		int modNum = ss.modify_geo(insert_data[0], modifysql);
+//		std::cout << "修改: " << modNum << std::endl;
+//		std::vector<geo_collection> sel_geo2;
+//		int selNum2 = ss.select_geo(sel_geo2, selsql);
+//		std::cout << "改后: " << selNum2 << std::endl;
+//
+//
+//		std::string remsql = "DELETE FROM test_date WHERE id = 14 OR id = 16;";
+//		int remNum = ss.remove_geo(remsql);
+//		std::cout << "删除: " << remNum << std::endl;
+//		std::vector<geo_collection> sel_geo3;
+//		int selNum3 = ss.select_geo(sel_geo3, selsql);
+//		std::cout << "删后: " << selNum3 << std::endl;
+//
+//
+//	int amm = 0;
+//
+//};
 
 
 BOOST_AUTO_TEST_CASE(READ_VECTOR_POINT_LINE)
@@ -291,34 +408,38 @@ BOOST_AUTO_TEST_CASE(READ_VECTOR_POINT_LINE)
 	std::filesystem::path geo_point(DEFAULT_DATA_DIR);
 	geo_point += "/geojson/xian_point.geojson";
 
-	std::vector<silly_line> geo_lines_v = geo_utils::read_vector_lines(geo_line.string().c_str());
-
-
-	std::vector<silly_multi_poly> geojson_r_2 = geo_utils::read_vector_polys(geo_rings.string().c_str());
-
-	std::vector<silly_poly> geojson_rings;
 	enum_geometry_types type;
 	std::map<std::string, std::string> properties;
-	geo_utils::check_shp_info(geo_point.string().c_str(), type, properties);
+	//geo_utils::check_shp_info(geo_point.string().c_str(), type, properties);
 
 
 	int a = 0;
-	std::vector<silly_point> geo_points_v = geo_utils::read_vector_points(geo_point.string().c_str());
+
+	//std::vector<silly_line> geo_lines_v = geo_utils::read_vector_lines(geo_line.string().c_str());
 
 
-	enum_geometry_types type2;
-	std::map<std::string, std::string> properties2;
-	//geo_utils::check_shp_info(geo_line.string().c_str(), type2, properties2);
+	//std::vector<silly_multi_poly> geojson_r_2 = geo_utils::read_vector_polys(geo_rings.string().c_str());
 
-	std::vector<silly_point> geojson_out_point;
-
-	std::filesystem::path geojson_1013_1(DEFAULT_DATA_DIR);
-	geojson_1013_1 += "/shp/1013_geojson_1.shp";
-	//points_to_shp(geojson_out_point, geo_line.string().c_str(), geojson_1013_1.string().c_str());
+	//std::vector<silly_poly> geojson_rings;
 
 
-	std::filesystem::path shp_1(DEFAULT_DATA_DIR);
-	shp_1 += "/shp/risk2.shp";
+	//int a = 0;
+	//std::vector<silly_point> geo_points_v = geo_utils::read_vector_points(geo_point.string().c_str());
+
+
+	//enum_geometry_types type2;
+	//std::map<std::string, std::string> properties2;
+	////geo_utils::check_shp_info(geo_line.string().c_str(), type2, properties2);
+
+	//std::vector<silly_point> geojson_out_point;
+
+	//std::filesystem::path geojson_1013_1(DEFAULT_DATA_DIR);
+	//geojson_1013_1 += "/shp/1013_geojson_1.shp";
+	////points_to_shp(geojson_out_point, geo_line.string().c_str(), geojson_1013_1.string().c_str());
+
+
+	//std::filesystem::path shp_1(DEFAULT_DATA_DIR);
+	//shp_1 += "/shp/risk2.shp";
 	geo_utils::destory_gdal_env();
 };
 

@@ -24,10 +24,10 @@ BOOST_AUTO_TEST_SUITE(TestCompress)
 BOOST_AUTO_TEST_CASE(MINIZIP_DECOMPRESS_DIR)      // minizip压缩文件夹
 {
 	std::cout << "\r\n\r\n****************" << "MINIZIP_DECOMPRESS_DIR" << "****************" << std::endl;
-	std::filesystem::path src_file(DEFAULT_DATA_DIR);
-	src_file += "/compress/456";   //123.txt
 	std::filesystem::path des_file(DEFAULT_DATA_DIR);
-	des_file += "/compress/123.zip";
+	des_file += "/compress/压缩2.zip";
+	std::filesystem::path src_file(DEFAULT_DATA_DIR);
+	src_file += "/compress/789";   //123.txt
 	int result = silly_minizip::decompressZip(des_file.string(), src_file.string());
 	if (result == 0)
 	{
@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE(MINIZIP_COMPRESS_DIR)      // minizip压缩文件夹
 	std::filesystem::path des_file(DEFAULT_DATA_DIR);
 	des_file += "/compress/123.zip";
 	int result =0;
-	//result = silly_minizip::compressZip(src_file.string().c_str(), des_file.string().c_str());
+	result = silly_minizip::compressZip(src_file.string().c_str(), des_file.string().c_str());
 	if (result == 0) 
 	{
 		std::cout << "Compression completed successfully." << std::endl;

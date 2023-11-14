@@ -5,7 +5,6 @@
 #include "silly_minizip.h"
 
 
-
 int silly_minizip::compressZip(std::string src, std::string dst)
 {
 
@@ -21,26 +20,22 @@ int silly_minizip::compressZip(std::string src, std::string dst)
         zipFile zFile = zipOpen(dst.c_str(), APPEND_STATUS_CREATE);
         if (zFile == NULL)
         {
-            std::cout << "openfile failed" << std::endl;
-            return SILLY_ZIP_ERROR_OPEN;
+            return SILLY_ZIP_err_write_newzip;  //打开要写入的zip失败
         }
         zip_fileinfo zFileInfo = { 0 };
         int ret = zipOpenNewFileInZip(zFile, srcFireName.c_str(), &zFileInfo, NULL, 0, NULL, 0, NULL, 0, Z_DEFAULT_COMPRESSION);
         if (ret != ZIP_OK)
         {
-            std::cout << "isreg openfile in zip failed" << std::endl;
             zipClose(zFile, NULL);
-            return SILLY_ZIP_ERROR_OPEN;
+            return SILLY_ZIP_err_open_file;  // 打开读取文件失败
         }
         ret = writeInZipFile(zFile, src);
         if (ret != ZIP_OK)
         {
-            std::cout << "isreg write in zip failed" << std::endl;
             zipClose(zFile, NULL);
-            return SILLY_ZIP_ERROR_WRITE_NEWZIP;
+            return SILLY_ZIP_err_write_newzip;  // 打开新写入的ZIP失败
         }
         zipClose(zFile, NULL);
-        std::cout << "zip file ok" << std::endl;
     }
     else if (S_ISDIR(fileInfo.st_mode))  // 目录
     {
@@ -50,8 +45,7 @@ int silly_minizip::compressZip(std::string src, std::string dst)
         zipFile zFile = zipOpen(dst.c_str(), APPEND_STATUS_CREATE);
         if (zFile == NULL)
         {
-            std::cout << "openfile failed" << std::endl;
-            return SILLY_ZIP_ERROR_OPEN;
+            return SILLY_ZIP_err_write_newzip;  //打开要写入的zip失败
         }
         std::vector<std::string> vFiles;
         EnumDirFiles(dirPrefix, dirName, vFiles);
@@ -62,35 +56,31 @@ int silly_minizip::compressZip(std::string src, std::string dst)
             int ret = zipOpenNewFileInZip(zFile, itF->c_str(), &zFileInfo, NULL, 0, NULL, 0, NULL, 0, Z_DEFAULT_COMPRESSION);
             if (ret != ZIP_OK)
             {
-                std::cout << "isdir openfile in zip failed" << std::endl;
                 zipClose(zFile, NULL);
-                return SILLY_ZIP_ERROR_WRITE_NEWZIP;
+                return SILLY_ZIP_err_open_file;  // 打开读取文件失败
             }
             std::string doc_file = (dirPrefix + "/" + *itF);
             if (std::filesystem::is_regular_file(doc_file))   // 判断是否为文件
             {
                 ret = writeInZipFile(zFile, doc_file);
             }
-            //ret = writeInZipFile(zFile, *itF);
             if (ret != ZIP_OK)
             {
-                std::cout << "isdir write in zip failed" << std::endl;
                 zipClose(zFile, NULL);
-                return SILLY_ZIP_ERROR_WRITE_NEWZIP;
+                return SILLY_ZIP_err_write_newzip;  // 打开新写入的ZIP失败
             }
         }
 
         zipClose(zFile, NULL);
-        std::cout << "zip dir ok" << std::endl;
     }
-    return SILLY_ZIP_OK;
+    return SILLY_ZIP_ok;
 }
 
 
 
 int silly_minizip::decompressZip(const std::string& zipFileName, const std::string& outputFireDir)
 {
-    int status = SILLY_ZIP_OK;
+    int status = SILLY_ZIP_ok;
     std::string outputDirectory = outputFireDir;
     if (outputDirectory.empty())// 如果解压路径为空,默认为压缩包所在目录
     {
@@ -101,8 +91,7 @@ int silly_minizip::decompressZip(const std::string& zipFileName, const std::stri
     unzFile zipFile = unzOpen(zipFileName.c_str());
     if (zipFile == nullptr)
     {
-        //std::cout << "Failed to open ZIP file: " << zipFileName << std::endl;
-        return SILLY_ZIP_ERROR_OPEN;
+        return SILLY_ZIP_err_open;   // 打开ZIP文件失败
     }
     // 创建输出目录
     std::filesystem::path outputDir(outputDirectory);
@@ -110,17 +99,15 @@ int silly_minizip::decompressZip(const std::string& zipFileName, const std::stri
     {
         if (!std::filesystem::create_directory(outputDir))
         {
-            //std::cout << "Failed to create directory: " << outputDirectory << std::endl;
             unzClose(zipFile);
-            return SILLY_ZIP_ERROR_CREATE_DIR;
+            return SILLY_ZIP_err_create_dir;        // 创建目录失败
         }
     }
     // 进入ZIP文件中的第一个文件
     if (unzGoToFirstFile(zipFile) != UNZ_OK)
     {
-        std::cout << "ZIP file is empty: " << zipFileName << std::endl;
         unzClose(zipFile);
-        return SILLY_ZIP_ERROR_EMPTY;
+        return SILLY_ZIP_err_empty; // ZIP文件为空
     }
     // 循环解压缩所有文件
     do
@@ -130,8 +117,7 @@ int silly_minizip::decompressZip(const std::string& zipFileName, const std::stri
         // 获取当前文件信息
         if (unzGetCurrentFileInfo(zipFile, &file_info, filename, sizeof(filename), nullptr, 0, nullptr, 0) != UNZ_OK)
         {
-            //std::cout << "Failed to get current file info in ZIP: " << zipFileName << std::endl;
-            status = SILLY_ZIP_ERROR_GET_INFO;
+            status = SILLY_ZIP_err_get_info;    // 获取文件信息失败
             break;
         }
 
@@ -149,8 +135,7 @@ int silly_minizip::decompressZip(const std::string& zipFileName, const std::stri
             std::ofstream outFile(filePath, std::ios::binary);
             if (!outFile.is_open())
             {
-                //std::cout << "Failed to create file: " << filePath << std::endl;
-                status = SILLY_ZIP_ERROR_CREATE_FILE;
+                status = SILLY_ZIP_err_create_file; // 创建文件失败
                 break;
             }
             else
@@ -171,106 +156,9 @@ int silly_minizip::decompressZip(const std::string& zipFileName, const std::stri
 
     unzClose(zipFile);
 
-#ifndef NDEBUG
-    if (status == SILLY_ZIP_OK)
-    {
-        std::cout << "Decompression successful: " << zipFileName << std::endl;
-    }
-    else
-    {
-        std::cout << "Decompression :faile " << zipFileName << std::endl << "ERROR:" << status << std::endl;
-
-    }
-#endif
     return status;
 }
 
-
-
-
-
-
-
-
-//bool silly_minizip::decompressZip(const std::string& zipFileName, const std::string& outputFireDir)
-//{
-//    bool status = false;
-//    std::string outputDirectory = outputFireDir;
-//    if (outputDirectory.empty())  // 如果解压路径为空,默认为压缩包所在目录
-//    {
-//        std::filesystem::path defOutputDir = std::filesystem::path(zipFileName).parent_path();
-//        outputDirectory = defOutputDir.string();
-//    }
-//    // 打开ZIP文件
-//    unzFile zipFile = unzOpen(zipFileName.c_str());
-//    if (zipFile == nullptr)
-//    {
-//        std::cout << "Failed to open ZIP file: " << zipFileName << std::endl;
-//        return status;
-//    }
-//    // 创建输出目录
-//    std::filesystem::path outputDir(outputDirectory);
-//    if (!std::filesystem::exists(outputDir)) 
-//    {
-//        std::filesystem::create_directory(outputDir);
-//    }
-//    // 进入ZIP文件中的第一个文件
-//    if (unzGoToFirstFile(zipFile) != UNZ_OK)
-//    {
-//        std::cout << "ZIP file is empty : " << zipFileName << std::endl;
-//        unzClose(zipFile);
-//        return false;
-//    }
-//    // 循环解压缩所有文件
-//    do
-//    {
-//        char filename[512];
-//        unz_file_info file_info;
-//
-//        // 获取当前文件信息
-//        if (unzGetCurrentFileInfo(zipFile, &file_info, filename, sizeof(filename), nullptr, 0, nullptr, 0) != UNZ_OK)
-//        {
-//            std::cout << "Failed to get current file info in ZIP: " << zipFileName << std::endl;
-//            break;
-//        }
-//        std::string filePath = outputDirectory + "/" + filename;
-//        // TODO: 这里检测一下有没有其他写法, 创建目录或文件
-//        if (filename[file_info.size_filename - 1] == '/')  // 目录
-//        {
-//            std::filesystem::create_directories(filePath);
-//        }
-//        else   // 文件
-//        {
-//            // 创建父目录
-//            std::filesystem::create_directories(std::filesystem::path(filePath).parent_path());
-//            // 写入文件
-//            std::ofstream outFile(filePath, std::ios::binary); 
-//            if (!outFile.is_open())
-//            {
-//                std::cout << "Failed to create file: " << filePath << std::endl;
-//                unzClose(zipFile);
-//                return false;
-//            }
-//            char buffer[10000];
-//            int readSize;
-//            unzOpenCurrentFile(zipFile);
-//            while ((readSize = unzReadCurrentFile(zipFile, buffer, sizeof(buffer))) > 0)
-//            {
-//                outFile.write(buffer, readSize); // 逐行写入
-//            }
-//            outFile.close();
-//        }
-//
-//    } while (unzGoToNextFile(zipFile) == UNZ_OK);
-//
-//    // 关闭ZIP
-//    unzClose(zipFile);
-//    return false;
-//#ifndef NDEBUG
-//    std::cout << "Decompression successful: " << zipFileName << std::endl;
-//#endif
-//    return true;
-//}
 
 
 

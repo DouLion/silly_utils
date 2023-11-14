@@ -13,8 +13,8 @@
 namespace CVectorToRaster {
 
 	inline char toupper(char c) {
-		if (c >= 'a' && c <= 'z')//ÊÇĞ¡Ğ´×ÖÄ¸£¬Ö´ĞĞ×ª»»¡£
-			c -= 'a' - 'A';//×ª³É´óĞ´¡£
+		if (c >= 'a' && c <= 'z')//æ˜¯å°å†™å­—æ¯ï¼Œæ‰§è¡Œè½¬æ¢ã€‚
+			c -= 'a' - 'A';//è½¬æˆå¤§å†™ã€‚
 		return c;
 	}
 
@@ -44,7 +44,7 @@ namespace CVectorToRaster {
 		return y;
 	}
 	template<typename T1, typename T2>
-	//µãÔÚÃæÄÚ
+	//ç‚¹åœ¨é¢å†…
 	static int PointRgn(T1 x, T1 y, int Numble, T2* PointList)
 	{
 		int i, j;
@@ -133,7 +133,7 @@ namespace CVectorToRaster {
 
 	};
 
-	//µã
+	//ç‚¹
 	class Point {
 	public:
 		Point() {
@@ -165,9 +165,9 @@ namespace CVectorToRaster {
 
 	};
 
-	typedef Point Vector;//VectorÀà£¬ÏòÁ¿ 
+	typedef Point Vector;//Vectorç±»ï¼Œå‘é‡ 
 
-	//Ïß¶Î
+	//çº¿æ®µ
 	class LineSegment {
 	public:
 		LineSegment() {
@@ -181,14 +181,14 @@ namespace CVectorToRaster {
 		Point BegP;
 		Point EndP;
 
-		static double dot(Vector a, Vector b) {//ÄÚ»ı 
+		static double dot(Vector a, Vector b) {//å†…ç§¯ 
 			return a.x * b.x + a.y * b.y;
 		}
-		static double cross(Vector a, Vector b) {//Íâ»ı 
+		static double cross(Vector a, Vector b) {//å¤–ç§¯ 
 			return a.x * b.y - a.y * b.x;
 		}
 
-		//¼ÆËã½»µã
+		//è®¡ç®—äº¤ç‚¹
 		static bool getCrossPoint(LineSegment& s1, LineSegment& s2, Point& crossPoint) {
 			Vector base = s2.EndP - s2.BegP;
 			double d1 = abs(cross(base, s1.BegP - s2.BegP));
@@ -234,18 +234,18 @@ namespace CVectorToRaster {
 		~Polygon() {
 		};
 
-		//Íâ±ß½ç x, y, x, y.....
+		//å¤–è¾¹ç•Œ x, y, x, y.....
 		std::vector<double> vVertex;
-		//¶´ x, y, x, y.....
+		//æ´ x, y, x, y.....
 		std::vector < std::vector<double>> vHoles;
-		//Íâ°üÎ§¿ò
+		//å¤–åŒ…å›´æ¡†
 		Range Bound;
 
 		Range GetBound() {
 			return Bound;
 		}
 
-		//»ñÈ¡Íâ±ß½ç
+		//è·å–å¤–è¾¹ç•Œ
 		std::vector<double>* GetVertex() {
 			return &vVertex;
 		}
@@ -254,7 +254,7 @@ namespace CVectorToRaster {
 			return vHoles.size();
 		}
 
-		//»ñÈ¡µÚk¸ö¶´
+		//è·å–ç¬¬kä¸ªæ´
 		std::vector<double>* GetHole(int k) {
 
 			if (k < vHoles.size() && k >= 0) {
@@ -269,7 +269,7 @@ namespace CVectorToRaster {
 			Bound.Clear();
 		}
 
-		//±ÕºÏÃæ
+		//é—­åˆé¢
 		template<typename T>
 		void CloseRing(std::vector<T>& vVertex) {
 			if (vVertex.size() < 4) {
@@ -284,7 +284,7 @@ namespace CVectorToRaster {
 			}
 		}
 
-		//ÅĞ¶ÏµãÔÚÃæÄÚ
+		//åˆ¤æ–­ç‚¹åœ¨é¢å†…
 		bool InRegion(double x, double y) {
 			for (auto hole : vHoles) {
 				if (PointInRgn(x, y, hole)) {
@@ -294,7 +294,7 @@ namespace CVectorToRaster {
 			return PointInRgn(x, y, vVertex);
 		}
 
-		//Ìí¼Ó¶à±ßĞÎ
+		//æ·»åŠ å¤šè¾¹å½¢
 		template<typename T>
 		void AddVertex(std::vector<T>& vRingVertex) {
 			vVertex.clear();
@@ -303,7 +303,7 @@ namespace CVectorToRaster {
 			Bound.UpdateRange(vVertex);
 		}
 
-		//Ìí¼Ó¶à±ßĞÎ
+		//æ·»åŠ å¤šè¾¹å½¢
 		template<typename T>
 		void AddVertex(T* pData, int Num) {
 			if (nullptr == pData || Num <= 0) {
@@ -318,7 +318,7 @@ namespace CVectorToRaster {
 			Bound.UpdateRange(vVertex);
 		}
 
-		//Ìí¼Ó¶´
+		//æ·»åŠ æ´
 		template<typename T>
 		void AddHole(std::vector<T>& vHoleVertex) {
 			std::vector<double> vData;
@@ -327,7 +327,7 @@ namespace CVectorToRaster {
 			vHoles.push_back(vData);
 		}
 
-		//Ìí¼Ó¶´
+		//æ·»åŠ æ´
 		template<typename T>
 		void AddHole(T* pData, int Num) {
 			if (nullptr == pData || Num <= 0) {
@@ -456,7 +456,7 @@ namespace CVectorToRaster {
 		};
 
 		std::vector<Polygon> vMPoly;
-		//Íâ°üÎ§¿ò
+		//å¤–åŒ…å›´æ¡†
 		Range Bound;
 
 		void Clear() {
@@ -469,7 +469,7 @@ namespace CVectorToRaster {
 			Bound.UpdateRange(poly.Bound);
 		}
 
-		//»ñÈ¡µÚk¸ö¶à±ßĞÎ
+		//è·å–ç¬¬kä¸ªå¤šè¾¹å½¢
 		Polygon* GetPolygon(int k) {
 			if (k >= 0 && k < vMPoly.size()) {
 				return &(vMPoly[k]);
@@ -477,7 +477,7 @@ namespace CVectorToRaster {
 			return nullptr;
 		}
 
-		//ÅĞ¶ÏµãÔÚÃæÄÚ
+		//åˆ¤æ–­ç‚¹åœ¨é¢å†…
 		bool InRegion(double x, double y) {
 			for (auto poly : vMPoly) {
 				if (poly.InRegion(x, y)) {
