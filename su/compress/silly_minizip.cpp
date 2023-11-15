@@ -11,8 +11,13 @@ int silly_minizip::compressZip(std::string src, std::string dst)
     if (src.find_last_of("/") == src.length() - 1)  //去掉最后的/
         src = src.substr(0, src.length() - 1);
 
-    struct stat fileInfo;
-    stat(src.c_str(), &fileInfo);
+#ifdef __linux__
+    struct stat64 fileInfo;
+    stat64(src.c_str(), &fileInfo);
+#else
+    struct _stat64 fileInfo;
+    _stat64(src.c_str(), &fileInfo);
+#endif
     if (S_ISREG(fileInfo.st_mode))  // 文件
     {
         size_t pos = src.find_last_of("/");
@@ -23,7 +28,7 @@ int silly_minizip::compressZip(std::string src, std::string dst)
             return SILLY_ZIP_err_write_newzip;  //打开要写入的zip失败
         }
         zip_fileinfo zFileInfo = { 0 };
-        int ret = zipOpenNewFileInZip(zFile, srcFireName.c_str(), &zFileInfo, NULL, 0, NULL, 0, NULL, Z_DEFLATED, Z_BEST_COMPRESSION);
+        int ret = zipOpenNewFileInZip(zFile, srcFireName.c_str(), &zFileInfo, NULL, 0, NULL, 0, NULL, Z_DEFLATED, Z_DEFAULT_COMPRESSION);
         if (ret != ZIP_OK)
         {
             zipClose(zFile, NULL);
@@ -53,7 +58,7 @@ int silly_minizip::compressZip(std::string src, std::string dst)
         for (; itF != vFiles.end(); ++itF)
         {
             zip_fileinfo zFileInfo = { 0 };
-            int ret = zipOpenNewFileInZip(zFile, itF->c_str(), &zFileInfo, NULL, 0, NULL, 0, NULL, 0, Z_DEFAULT_COMPRESSION);
+            int ret = zipOpenNewFileInZip(zFile, itF->c_str(), &zFileInfo, NULL, 0, NULL, 0, NULL, Z_DEFLATED, Z_DEFAULT_COMPRESSION);
             if (ret != ZIP_OK)
             {
                 zipClose(zFile, NULL);
@@ -170,7 +175,7 @@ int silly_minizip::writeInZipFile(zipFile zFile, const std::string& file)
         std::cout << "Failed to open file: " << file << std::endl;
     }
     f.seekg(0, std::ios::end);
-    long size = f.tellg();  //获取文件大小
+    size_t size = f.tellg();  //获取文件大小
     f.seekg(0, std::ios::beg);
     if (size <= 0)
     {

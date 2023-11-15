@@ -17,6 +17,7 @@
 #include "compress/silly_minizip.h"
 #include "encode/convert.hpp"
 #include <boost/test/unit_test.hpp>
+#include <boost/timer.hpp> // 计时函数
 
 BOOST_AUTO_TEST_SUITE(TestCompress)
 
@@ -25,12 +26,17 @@ BOOST_AUTO_TEST_CASE(MINIZIP_COMPRESS_DIR)      // minizip压缩文件夹
 {
 	std::cout << "\r\n\r\n****************" << "MINIZIP_COMPRESS_DIR" << "****************" << std::endl;
 	std::filesystem::path src_file(DEFAULT_DATA_DIR);
-	src_file += "/compress/123.txt";   //123.txt
+	src_file += "/compress/big4g.txt";   //123.txt
 	std::filesystem::path des_file(DEFAULT_DATA_DIR);
-	des_file += "/compress/ncf2.zip";
+	des_file += "/compress/big4.zip";
 	std::string tes = "D:/1_wangyingjie/1_文档文件/ncf_20230826_200902.nc";
 	int result =0;
-	result = silly_minizip::compressZip(tes.c_str(), des_file.string().c_str());
+
+	boost::timer tm1; // 定义后计时开始
+	tm1.restart();  // 从新从这里开始计时
+	result = silly_minizip::compressZip(src_file.string().c_str(), des_file.string().c_str());
+	std::cout << tm1.elapsed() << std::endl;  // 单位是秒
+
 	if (result == 0) 
 	{
 		std::cout << "Compression completed successfully." << std::endl;
@@ -40,7 +46,7 @@ BOOST_AUTO_TEST_CASE(MINIZIP_COMPRESS_DIR)      // minizip压缩文件夹
 		std::cout << "Compression failed." << std::endl;
 	}
 
-
+	int a = 0;
 	//silly_minizip::compressu(silly_conv::UTF82GBK(R"(E:/dly/workspace/文档)"), silly_conv::UTF82GBK(R"(E:/dly/workspace/文档.zip)"));
 };
 
@@ -54,11 +60,11 @@ BOOST_AUTO_TEST_CASE(MINIZIP_DECOMPRESS_DIR)      // minizip解压缩文件夹
 	int result = silly_minizip::decompressZip(des_file.string(), src_file.string());
 	if (result == 0)
 	{
-		std::cout << "Compression completed successfully." << std::endl;
+		std::cout << "decompression completed successfully." << std::endl;
 	}
 	else
 	{
-		std::cout << "Compression failed." << std::endl;
+		std::cout << "decompression failed." << std::endl;
 	}
 
 };
