@@ -21,7 +21,30 @@
 BOOST_AUTO_TEST_SUITE(TestCompress)
 
 
-BOOST_AUTO_TEST_CASE(MINIZIP_DECOMPRESS_DIR)      // minizip压缩文件夹
+BOOST_AUTO_TEST_CASE(MINIZIP_COMPRESS_DIR)      // minizip压缩文件夹
+{
+	std::cout << "\r\n\r\n****************" << "MINIZIP_COMPRESS_DIR" << "****************" << std::endl;
+	std::filesystem::path src_file(DEFAULT_DATA_DIR);
+	src_file += "/compress/123.txt";   //123.txt
+	std::filesystem::path des_file(DEFAULT_DATA_DIR);
+	des_file += "/compress/ncf2.zip";
+	std::string tes = "D:/1_wangyingjie/1_文档文件/ncf_20230826_200902.nc";
+	int result =0;
+	result = silly_minizip::compressZip(tes.c_str(), des_file.string().c_str());
+	if (result == 0) 
+	{
+		std::cout << "Compression completed successfully." << std::endl;
+	}
+	else 
+	{
+		std::cout << "Compression failed." << std::endl;
+	}
+
+
+	//silly_minizip::compressu(silly_conv::UTF82GBK(R"(E:/dly/workspace/文档)"), silly_conv::UTF82GBK(R"(E:/dly/workspace/文档.zip)"));
+};
+
+BOOST_AUTO_TEST_CASE(MINIZIP_DECOMPRESS_DIR)      // minizip解压缩文件夹
 {
 	std::cout << "\r\n\r\n****************" << "MINIZIP_DECOMPRESS_DIR" << "****************" << std::endl;
 	std::filesystem::path des_file(DEFAULT_DATA_DIR);
@@ -42,29 +65,6 @@ BOOST_AUTO_TEST_CASE(MINIZIP_DECOMPRESS_DIR)      // minizip压缩文件夹
 
 
 
-BOOST_AUTO_TEST_CASE(MINIZIP_COMPRESS_DIR)      // minizip压缩文件夹
-{
-	std::cout << "\r\n\r\n****************" << "MINIZIP_COMPRESS_DIR" << "****************" << std::endl;
-	std::filesystem::path src_file(DEFAULT_DATA_DIR);
-	src_file += "/compress/123.txt";   //123.txt
-	std::filesystem::path des_file(DEFAULT_DATA_DIR);
-	des_file += "/compress/123.zip";
-	int result =0;
-	result = silly_minizip::compressZip(src_file.string().c_str(), des_file.string().c_str());
-	if (result == 0) 
-	{
-		std::cout << "Compression completed successfully." << std::endl;
-	}
-	else 
-	{
-		std::cout << "Compression failed." << std::endl;
-	}
-
-
-
-
-	//silly_minizip::compressu(silly_conv::UTF82GBK(R"(E:/dly/workspace/文档)"), silly_conv::UTF82GBK(R"(E:/dly/workspace/文档.zip)"));
-};
 
 
 

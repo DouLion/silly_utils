@@ -23,7 +23,7 @@ int silly_minizip::compressZip(std::string src, std::string dst)
             return SILLY_ZIP_err_write_newzip;  //打开要写入的zip失败
         }
         zip_fileinfo zFileInfo = { 0 };
-        int ret = zipOpenNewFileInZip(zFile, srcFireName.c_str(), &zFileInfo, NULL, 0, NULL, 0, NULL, 0, Z_DEFAULT_COMPRESSION);
+        int ret = zipOpenNewFileInZip(zFile, srcFireName.c_str(), &zFileInfo, NULL, 0, NULL, 0, NULL, Z_DEFLATED, Z_BEST_COMPRESSION);
         if (ret != ZIP_OK)
         {
             zipClose(zFile, NULL);
