@@ -1,4 +1,5 @@
 #include "CPolygonToRaster.h"
+#include <cstring>
 
 static char toupper(char c) {
     if (c >= 'a' && c <= 'z')//是小写字母，执行转换。
