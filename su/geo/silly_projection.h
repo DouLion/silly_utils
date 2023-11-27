@@ -27,8 +27,8 @@ public:
 	/// <param name="lttd"></param>
 	/// <param name="x"></param>
 	/// <param name="y"></param>
-	template <typename T>
-	static void geo_to_mercator(const T& lgtd, const T& lttd, T& x, T& y)
+	template <typename T1, typename T2>
+	static void geo_to_mercator(const T1& lgtd, const T1& lttd, T2& x, T2& y)
 	{
 		x = lgtd * 20037508.34 / 180;
 		y = std::log(std::tan((90 + lttd) * SU_PI / 360)) / (SU_PI / 180);
@@ -42,8 +42,8 @@ public:
 	/// <param name="y"></param>
 	/// <param name="lgtd"></param>
 	/// <param name="lttd"></param>
-	template <typename T>
-	static void mercator_to_geo(const T& x, const T& y, T& lgtd, T& lttd)
+	template <typename T1, typename T2>
+	static void mercator_to_geo(const T1& x, const T1& y, T2& lgtd, T2& lttd)
 	{
 		lgtd = x / 20037508.34 * 180;
 		lttd = y / 20037508.34 * 180;
@@ -58,8 +58,8 @@ public:
 	/// <param name="lttd"></param>
 	/// <param name="x"></param>
 	/// <param name="y"></param>
-	template <typename T>
-	static void geo_to_mercator_ez(const T& lgtd, const T& lttd, const T& scale, T& x, T& y)
+	template <typename T1, typename T2>
+	static void geo_to_mercator_ez(const T1& lgtd, const T1& lttd, const T2& scale, T2& x, T2& y)
 	{
 		x = lgtd * 20037508.34 / 180;
 		y = y * scale * 20037508.34 / 180;
@@ -72,8 +72,8 @@ public:
 	/// <param name="y"></param>
 	/// <param name="lgtd"></param>
 	/// <param name="lttd"></param>
-	template <typename T>
-	static void mercator_to_geo_ez(const T& x, const T& y, const T& scale, T& lgtd, T& lttd)
+	template <typename T1, typename T2>
+	static void mercator_to_geo_ez(const T1& x, const T1& y, const T2& scale, T2& lgtd, T2& lttd)
 	{
 		lgtd = x / 20037508.34 * 180;
 		lttd = y / 20037508.34 * 180 * scale;
