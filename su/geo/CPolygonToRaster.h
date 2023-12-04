@@ -16,7 +16,7 @@
 #include <string>
 #include "math.h"
 
-#include <marco.h>
+#include <su_marco.h>
 
 #define EPS 1E-10
 

@@ -13,7 +13,7 @@
 ////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#include "marco.h"
+#include "su_marco.h"
 #ifndef TFF_INLINE_SPECIFIER
 #define TFF_INLINE_SPECIFIER inline
 #endif

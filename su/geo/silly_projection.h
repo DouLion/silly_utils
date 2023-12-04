@@ -13,7 +13,7 @@
 #ifndef SILLY_UTILS_SILLY_PROJECTION_H
 #define SILLY_UTILS_SILLY_PROJECTION_H
 
-#include "marco.h"
+#include "su_marco.h"
 #include <cmath>
 
 class silly_projection

@@ -14,7 +14,7 @@
 #define SILLY_UTILS_SCALER_HPP
 
 #include <cmath>
-#include "marco.h"
+#include "su_marco.h"
 namespace silly_utils{
 class Scaler
 {

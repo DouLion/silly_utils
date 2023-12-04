@@ -12,7 +12,7 @@
 
 #include <polyclipping/clipper.hpp>
 #include <encode/convert.hpp>
-#include "marco.h"
+#include "su_marco.h"
 using namespace ClipperLib;
 
 silly_point geo_utils::ring_to_center(silly_ring ring)

@@ -13,7 +13,7 @@
 #ifndef COORDINATE_CONVERT
 #define COORDINATE_CONVERT
 
-#include "marco.h"
+#include "su_marco.h"
 #include "geo/TFF_Geo.h"
 
 class CoordinateConvert

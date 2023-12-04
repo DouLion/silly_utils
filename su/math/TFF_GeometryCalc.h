@@ -1,7 +1,7 @@
 #pragma once
 
 #include "triangular/TFF_Delaunay.h"
-#include "marco.h"
+#include "su_marco.h"
 
 class PointN
 {

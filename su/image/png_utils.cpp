@@ -5,7 +5,7 @@
 #include <cstdlib>
 #include <cstring>
 #include "png_utils.h"
-#include "marco.h"
+#include "su_marco.h"
 using namespace silly_image;
 
 png_data png_utils::create_empty(const size_t& rows, const size_t& cols, const png_uint_32& color_type, const png_uint_32& depth)
