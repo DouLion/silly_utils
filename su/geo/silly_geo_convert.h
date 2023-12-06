@@ -66,7 +66,7 @@ bool silly_geo_convert::matrix_geo_to_mercator(silly_math::matrix_2d<T> src, con
 {
     // 防止传参数进来是src与dst是同一个对象
 	silly_math::matrix_2d<T> tmp = src.copy();
-	if (!(tmp.row() && tmp.col() && tmp.get_data()))
+	if (!(tmp.row() && tmp.col() && tmp.seek_row(0)))
 	{
 		return false;
 	}
