@@ -102,7 +102,13 @@ namespace silly_math
 
 		T* seek_row(const size_t& r)
 		{
-			return &(data[r * cols]);
+			if (data)
+			{
+				return &(data[r * cols]);
+			}
+
+			return nullptr;
+			
 		}
 
 		/// <summary>

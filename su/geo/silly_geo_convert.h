@@ -100,7 +100,7 @@ bool silly_geo_convert::matrix_geo_to_mercator(silly_math::matrix_2d<T> src, con
 			// TODO: 这一步是不是有问题,是否是必须的,防止访问溢出
 			dst_c = std::min(std::max(0, dst_c), max_c);
 			dst_r = std::min(std::max(0, dst_r), max_r);
-			dst.get_data()[j][i] = tmp.get_data()[dst_r][dst_c];
+			dst.at(j, i) = tmp.at(dst_r, dst_c);
 		}
 	}
 	tmp.destroy();
@@ -112,7 +112,7 @@ bool silly_geo_convert::matrix_geo_to_mercator_ez(silly_math::matrix_2d<T> src, 
 {
 	// 防止传参数进来是src与dst是同一个对象
 	silly_math::matrix_2d<T> tmp = src.copy();
-	if (!(tmp.row() && tmp.col() && tmp.get_data()))
+	if (!(tmp.row() && tmp.col() && tmp.seek_row(0)))
 	{
 		return false;
 	}
@@ -149,7 +149,7 @@ bool silly_geo_convert::matrix_geo_to_mercator_ez(silly_math::matrix_2d<T> src, 
 			// TODO: 这一步是不是有问题,是否是必须的,防止访问溢出
 			dst_c = std::min(std::max(0, dst_c), max_c);
 			dst_r = std::min(std::max(0, dst_r), max_r);
-			dst.get_data()[j][i] = tmp.get_data()[dst_r][dst_c];
+			dst.at(j,i) = tmp.at(dst_r,dst_c);
 		}
 	}
 	tmp.destroy();

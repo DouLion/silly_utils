@@ -105,7 +105,7 @@ public:
         int row_size = jpeg_width * jpeg_components;
         int  jmp = sizeof(unsigned char) * jpeg_components;
         int m = threshold.size() - 1;
-        T** mtrix_data = matrix.get_data();
+       
         for (int i = 0; i < jpeg_height; i++)
         {
             for (int j = 0; j < jpeg_width; j++)
@@ -113,7 +113,7 @@ public:
                 bool change = false;
                 for (int n = 0; n < threshold.size()-1; n++)
                 {
-                    if (mtrix_data[i][j] >= threshold[n] && mtrix_data[i][j] <= threshold[n + 1])
+                    if (mtrix_data.at(i,j) >= threshold[n] && mtrix_data.at(i, j) <= threshold[n + 1])
                     {
                         set_pixel(i, j, pixel_colors[n]);
                         change = true;
