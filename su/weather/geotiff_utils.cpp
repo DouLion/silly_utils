@@ -194,7 +194,7 @@ tif_data geotiff_utils::readGeoTiff(std::string filePath)
         res_tif.tif_matrix2.create(res_tif.tif_height, res_tif.tif_width);
         for (uint32_t row = 0; row < res_tif.tif_height; ++row)
         {
-            TIFFReadScanline(tiff, res_tif.tif_matrix2.get_data()[row], row);
+            TIFFReadScanline(tiff, res_tif.tif_matrix2.seek_row(row), row);
         }
         break;
     case TILE_TIF:
@@ -342,7 +342,7 @@ bool geotiff_utils::writeGeoTiff(std::string filePath, tif_data tif_matrix2)
     // 写入像素数据
     for (size_t row = 0; row < rows; row++) 
     {
-        if (TIFFWriteScanline(tiff, tif_matrix2.tif_matrix2.get_data()[row], row, 0) < 0)
+        if (TIFFWriteScanline(tiff, tif_matrix2.tif_matrix2.seek_row(row), row, 0) < 0)
         {
             std::cout << "TIFFWriteScanline error " << std::endl;
         }
@@ -391,7 +391,7 @@ bool geotiff_utils::writeFourChannelTiff(std::string filePath, tif_data tif_matr
     // 写入像素数据
     for (size_t row = 0; row < rows; row++)
     {
-        if (TIFFWriteScanline(tiff, tif_matrix2.tif_matrix2.get_data()[row], row, 0) < 0)
+        if (TIFFWriteScanline(tiff, tif_matrix2.tif_matrix2.seek_row(row), row, 0) < 0)
         {
             std::cout << "TIFFWriteScanline error " << std::endl;
             status = false;

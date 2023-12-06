@@ -123,11 +123,11 @@ bool netcdf_utils::read_netcdf(const std::string& path, const std::string& group
 					float tval = nc_val_data[lvlStart + info.geo.x_size * lat + lon];
 					if (invalid_data == tval)
 					{
-						mtx.get_data()[info.geo.y_size - lat - 1][lon] = invalid_data;
+						mtx.at(info.geo.y_size - lat - 1,lon) = invalid_data;
 					}
 					else
 					{
-						mtx.get_data()[info.geo.y_size - lat - 1][lon] = tval * scaleFactor + addOffset;
+						mtx.at(info.geo.y_size - lat - 1,lon) = tval * scaleFactor + addOffset;
 					}
 					
 				}
@@ -337,7 +337,7 @@ bool netcdf_utils::write_netcdf(const std::string& path, const nc_info& info, co
 		{
 			for (int c = 0; c < data.col(); ++c)
 			{
-				rains[r * data.col() + c] = (float)(data.get_data()[data.row() - r -1][c]);
+				rains[r * data.col() + c] = (float)(data.at(data.row() - r -1,c));
 			}
 		}
 		presVar.putVar(rains);

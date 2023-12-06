@@ -53,6 +53,8 @@ namespace silly_math
 		/// <returns></returns>
 		bool create(const size_t& row, const size_t& col, bool reset = false)
 		{
+
+            if(!row || !col) { return false;}
 			if (data && !reset)
 			{
 				return false;
@@ -63,49 +65,44 @@ namespace silly_math
 			}
 			rows = row;
 			cols = col;
-			data = (T**)malloc(rows * sizeof(T*));
-			size_t col_size = cols * sizeof(T);
-			for (size_t r = 0; r < rows; r++)
-			{
-				data[r] = (T*)malloc(col_size);
-				if (data[r])
-				{
-					// memcpy(data[r], data[r], col_size);
-					memset(data[r], 0, col_size);
-				}
-			}
+            total = rows *cols;
+
+			data = (T*)malloc(total* sizeof(T));
+            if(!data) {return false;}
+            memset(data, 0, total * sizeof(T));
+
 
 			return true;
 		}
 
-		matrix_2d<T>& operator += (const matrix_2d<T>& other)
+		void operator += (const matrix_2d<T>& other)
 		{
-			if (data && other.data() && rows == other.rows() && cols == other.cols())
+			if (data && other.data && rows == other.rows && cols == other.cols)
 			{
-				for (size_t r = 0; r < rows; r++)
-				{
-					for (size_t c = 0; c < cols; ++c)
-					{
-						data[r][c] += other.data()[r][c];
-					}
-				}
+                size_t i = 0;
+                while (i< total)
+                {
+                    data[i] += other.data[i];
+                    i++;
+                }
 			}
-			return *this;
 		}
 
-		matrix_2d<T>& operator -= (const matrix_2d<T>& other)
+        void operator -= (const matrix_2d<T>& other)
 		{
-			if (data && other.data() && rows == other.rows() && cols == other.cols())
+			if (data && other.data && rows == other.rows && cols == other.cols)
 			{
-				for (size_t r = 0; r < rows; r++)
-				{
-					for (size_t c = 0; c < cols; ++c)
-					{
-						data[r][c] -= other.data()[r][c];
-					}
-				}
+                size_t i = 0;
+                while (i< total) {
+                    data[i] -= other.data[i];
+                    i++;
+                }
 			}
-			return *this;
+		}
+
+		T* seek_row(const size_t& r)
+		{
+			return &(data[r * cols]);
 		}
 
 		/// <summary>
@@ -115,20 +112,10 @@ namespace silly_math
 		matrix_2d<T> copy()
 		{
 			matrix_2d<T> ret;
-			ret.cols = cols;
-			ret.rows = rows;
+            ret.create(rows, cols);
 			if (data)
 			{
-				ret.data = (T**)malloc(ret.rows * sizeof(T*));
-				size_t col_size = cols * sizeof(T);
-				for (size_t r = 0; r < ret.rows; r++)
-				{
-					ret.data[r] = (T*)malloc(col_size);
-					if (ret.data[r] && data[r])
-					{
-						memcpy(ret.data[r], data[r], col_size);
-					}
-				}
+                memcpy(ret.data, data, total * sizeof(T));
 			}
 
 			return ret;
@@ -138,14 +125,9 @@ namespace silly_math
 		{
 			if (data)
 			{
-				return data[r][c];
+				return data[r* cols+ c];
 			}
 			return mp;
-		}
-
-		T** get_data()
-		{
-			return data;
 		}
 
 		/// <summary>
@@ -156,15 +138,8 @@ namespace silly_math
 		{
 			if (data)
 			{
-				for (size_t r = 0; r < rows; r++)
-				{
-					for (size_t c = 0; c < cols; ++c)
-					{
-
-						data[r][c] = val;
-					}
-					
-				}
+                size_t i = 0;
+                while (i< total) {data[i++] = val;}
 			}
 		}
 
@@ -174,35 +149,29 @@ namespace silly_math
 		void destroy()
 		{
 			if (data)
-			{
-				for (size_t r = 0; r < rows; r++)
-				{
-					if (data[r])
-					{
-						free(data[r]);
-						data[r] = nullptr;
-					}
-				}
+            {
 				free(data);
 				data = nullptr;
 			}
 		}
-		size_t row()
+		const size_t row()
 		{
 			return rows;
 		}
 
-		size_t col()
+        const size_t col()
 		{
 			return cols;
 		}
 
 	private:
-		T** data{ nullptr };
+		T* data{ nullptr };
 		// 行数
 		size_t rows{ 0 };
 		// 列数
 		size_t cols{ 0 };
+        // 总数据量
+        size_t total{0};
 		T mp{ 0 };
 	};
 
