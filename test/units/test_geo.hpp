@@ -37,6 +37,13 @@
  /// <param name="outputShpFilePath">写入SHP文件地址</param>
 static bool points_to_shp(std::vector<silly_point>& points,  const char* outputShpFilePath);
 
+/// <summary>
+/// 将多条线段绘制在shp文件中
+/// </summary>
+/// <param name="lines"></param>
+/// <param name="outputShpFilePath"></param>
+/// <returns></returns>
+static bool lines_to_shp(const std::vector<silly_line>& lines, const char* outputShpFilePath);
 
 /// <summary>
 /// 在shp文件中绘制封闭图形
@@ -44,7 +51,7 @@ static bool points_to_shp(std::vector<silly_point>& points,  const char* outputS
 /// <param name="rings">多个多边形数组</param>
 /// <param name="outputShpFilePath">写入SHP文件地址</param>
 /// <returns></returns>
-bool rings_to_shp(const std::vector<std::vector<silly_point>>& rings, const char* outputShpFilePath);
+static bool rings_to_shp(const std::vector<std::vector<silly_point>>& rings, const char* outputShpFilePath);
 
 
 BOOST_AUTO_TEST_CASE(READ_VECTOR_POINT_LINE)
@@ -98,6 +105,13 @@ BOOST_AUTO_TEST_CASE(READ_VECTOR_POINT_LINE)
 	draw_rings += "/shp/draw_rings_1.shp";
 	std::filesystem::path draw_points(DEFAULT_DATA_DIR);
 	draw_points += "/shp/points_1.shp";
+	std::filesystem::path draw_lines(DEFAULT_DATA_DIR);
+	draw_lines += "/shp/lines_1.shp";
+
+	std::vector<silly_line> lines{ geojson_out_point_1, geojson_out_point_2 };
+
+	lines_to_shp(lines, draw_lines.string().c_str());
+
 
 	points_to_shp(geojson_out_point_1, draw_points.string().c_str());
 
@@ -1001,6 +1015,83 @@ bool points_to_shp(std::vector<silly_point>& points, const char* outputShpFilePa
 	return true;
 }
 
+
+bool lines_to_shp(const std::vector<silly_line>& lines, const char* outputShpFilePath)
+{
+	// 创建新的输出 shp 文件
+	GDALDriver* outDriver = GetGDALDriverManager()->GetDriverByName("ESRI Shapefile");
+	GDALDataset* outputDataset = outDriver->Create(outputShpFilePath, 0, 0, 0, GDT_Unknown, nullptr);
+	if (outputDataset == nullptr)
+	{
+		// 处理输出文件创建失败的情况
+		std::cout << "Failed to create output shapefile." << std::endl;
+		return false;
+	}
+
+	// 创建新的图层
+	OGRLayer* outputLayer = outputDataset->CreateLayer("lines", nullptr, wkbLineString, nullptr);
+	if (outputLayer == nullptr)
+	{
+		// 处理图层创建失败的情况
+		std::cout << "Failed to create output layer." << std::endl;
+		GDALClose(outputDataset);
+		return false;
+	}
+
+	// 定义并创建字段
+	OGRFieldDefn fieldSize("Size", OFTReal);
+	if (outputLayer->CreateField(&fieldSize) != OGRERR_NONE)
+	{
+		// 处理字段创建失败的情况
+		std::cout << "Failed to create size field." << std::endl;
+		GDALClose(outputDataset);
+		return false;
+	}
+
+	OGRFieldDefn fieldColor("Color", OFTString);
+	if (outputLayer->CreateField(&fieldColor) != OGRERR_NONE)
+	{
+		// 处理字段创建失败的情况
+		std::cout << "Failed to create color field." << std::endl;
+		GDALClose(outputDataset);
+		return false;
+	}
+
+	// 创建要素并进行设置
+	for (const auto& line : lines)
+	{
+		OGRFeature* feature = OGRFeature::CreateFeature(outputLayer->GetLayerDefn());
+
+		// 创建线对象
+		OGRLineString ogrLine;
+		for (const auto& point : line)
+		{
+			ogrLine.addPoint(point.lgtd, point.lttd);
+		}
+
+		// 设置线要素的几何对象
+		feature->SetGeometry(&ogrLine);
+		// 将要素添加到图层
+		if (outputLayer->CreateFeature(feature) != OGRERR_NONE)
+		{
+			// 处理要素添加失败的情况
+			std::cout << "Failed to add feature." << std::endl;
+			OGRFeature::DestroyFeature(feature);
+			GDALClose(outputDataset);
+			return false;
+		}
+
+		// 释放要素
+		OGRFeature::DestroyFeature(feature);
+	}
+
+	// 关闭数据集
+	GDALClose(outputDataset);
+
+	std::cout << "Lines added to shapefile and saved successfully." << std::endl;
+
+	return true;
+}
 
 bool rings_to_shp(const std::vector<std::vector<silly_point>>& rings, const char* outputShpFilePath)
 {
