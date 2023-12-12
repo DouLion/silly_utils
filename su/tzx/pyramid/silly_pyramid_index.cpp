@@ -16,13 +16,13 @@ silly_pyramid_index::silly_pyramid_index()
 	}
 }
 
-bool silly_pyramid_index::open(const char* file, const open_mode& mode, const bool& usemmap)
+bool silly_pyramid_index::open(const char* file, const silly_mmap::open_mode& mode, const bool& usemmap)
 {
 	if (!silly_pyramid_base::open(file, mode, usemmap))
 	{
 		return false;
 	}
-	if (mode == READ)
+	if (mode == silly_mmap::open_mode::READONLY)
 	{
 		return init_layer_info();
 	}
@@ -120,7 +120,7 @@ void silly_pyramid_index::set_layer_info(const uint32_t& layer, const layer_info
 {
 	m_layer_infos[layer] = linfo;
 	uint64_t pos = TZX_IMAGE_INDEX_DATA_BEGIN_POS;
-	// 重新构建索引
+	// 閲嶆柊鏋勫缓绱㈠紩
 	for (auto [l, info] : m_layer_infos)
 	{
 		m_layer_bpos[l] = pos;
@@ -160,7 +160,7 @@ void silly_pyramid_index::write_layer_info()
 
 bool silly_pyramid_index::close()
 {
-	if (m_mode != READ)
+	if (m_mode != silly_mmap::open_mode::READONLY)
 	{
 		write_layer_info();
 	}

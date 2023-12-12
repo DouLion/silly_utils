@@ -17,13 +17,13 @@ using namespace ClipperLib;
 
 silly_point geo_utils::ring_to_center(silly_ring ring)
 {
-
+    silly_point center_point;
     double sumX = 0;
     double sumY = 0;
     double area = 0;
 
     // 计算面积和形心横纵坐标的分子部分
-    for (size_t i = 0; i < ring.points.size(); i++)
+    for (size_t i = 0; i < ring.points.size() -1 ; i++)
     {
         silly_point currentPoint = ring.points[i];
 
@@ -44,7 +44,7 @@ silly_point geo_utils::ring_to_center(silly_ring ring)
     double center_x = sumX * denominator;
     double center_y = sumY * denominator;
 
-    silly_point center_point;
+    //silly_point center_point;
     center_point.lgtd = center_x;
     center_point.lttd = center_y;
 
@@ -57,6 +57,16 @@ double geo_utils::two_point_azimuth(silly_point from, silly_point to)
     double theta = atan2(to.lgtd - from.lgtd, to.lttd - from.lttd);
     theta = theta * 180.0 / SU_PI;
     return theta;
+}
+
+bool geo_utils::read_geo_coll(const char* file, std::vector<silly_geo_coll>& collection)
+{
+    return false;
+}
+
+bool geo_utils::write_geo_coll(const char* file, const std::vector<silly_geo_coll>& collection)
+{
+    return false;
 }
 
 
@@ -307,8 +317,6 @@ std::vector<silly_multi_poly> geo_utils::read_vector_polys(const char* File)
 }
 
 
-
-
 std::vector<silly_ring> geo_utils::intersect_area(silly_ring ring_1, silly_ring ring_2)
 {
     std::vector<silly_ring> intersecting_rings;
@@ -430,7 +438,7 @@ void geo_utils::init_gdal_env()
     CPLSetConfigOption("SHAPE_ENCODING", "");
 }
 
-void geo_utils::destory_gdal_env()
+void geo_utils::destroy_gdal_env()
 {
     OGRCleanupAll();
 }

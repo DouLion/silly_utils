@@ -23,28 +23,28 @@
 
 
 /// <summary>
-/// TzxImage ¸ñÊ½µÄÎÄ¼ş×é
+/// TzxImage æ ¼å¼çš„æ–‡ä»¶ç»„
 /// </summary>
 class silly_pyramid
 {
 public:
 	silly_pyramid(void) = default;
 
-	bool open(const std::string& root, const open_mode& mode = open_mode::READ, bool usemmap = false);
+	bool open(const std::string& root, const silly_mmap::open_mode& mode = silly_mmap::open_mode::READONLY, bool usemmap = false);
 	void close();
 
 	/// <summary>
-	/// ¶ÁÈ¡Ö¸¶¨¿éµÄÊı¾İÄÚÈİ
+	/// è¯»å–æŒ‡å®šå—çš„æ•°æ®å†…å®¹
 	/// </summary>
-	/// <param name="layer">¿éËùÔÚ²ãºÅ 0 - 24</param>
-	/// <param name="row">¿éËùÔÚĞĞºÅ 0 - 2^layer-1</param>
-	/// <param name="col">¿éËùÔÚÁĞºÅ 0 - 2^layer-1</param>
-	/// <param name="size">¿éÊı¾İ´óĞ¡</param>
-	/// <returns>Êı¾İÄÚÈİ</returns>
+	/// <param name="layer">å—æ‰€åœ¨å±‚å· 0 - 24</param>
+	/// <param name="row">å—æ‰€åœ¨è¡Œå· 0 - 2^layer-1</param>
+	/// <param name="col">å—æ‰€åœ¨åˆ—å· 0 - 2^layer-1</param>
+	/// <param name="size">å—æ•°æ®å¤§å°</param>
+	/// <returns>æ•°æ®å†…å®¹</returns>
 	char* read_data(const uint32_t& layer, const uint64_t& row, const uint64_t& col, size_t& size);
 
 	/// <summary>
-	/// ÏòÖ¸¶¨¿éĞ´ÈëÊı¾İ
+	/// å‘æŒ‡å®šå—å†™å…¥æ•°æ®
 	/// </summary>
 	/// <param name="layer"></param>
 	/// <param name="row"></param>
@@ -55,14 +55,14 @@ public:
 	bool write(const uint32_t& layer, const uint64_t& row, const uint64_t& col, const size_t& size, const char* data);
 
 	/// <summary>
-	/// ½«°æ±¾1µÄ½ğ×ÖËş×ªÎª°æ±¾2µÄ½ğ×ÖËş
+	/// å°†ç‰ˆæœ¬1çš„é‡‘å­—å¡”è½¬ä¸ºç‰ˆæœ¬2çš„é‡‘å­—å¡”
 	/// </summary>
 	/// <param name="target_root"></param>
 	/// <returns></returns>
 	bool rebuild_to_v2(const std::string& target_root);
 
 private:
-	open_mode						m_mode;
+	silly_mmap::open_mode						m_mode;
 	std::string						m_root;
 	silly_pyramid_info				m_info;
 	silly_pyramid_data				m_data;

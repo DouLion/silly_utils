@@ -18,8 +18,8 @@
 #include "tzx/pyramid/silly_pyramid_base.h"
 #include <map>
 
-#define TZX_IMAGE_DATA_POS_SIZE					8		// ¼ÇÂ¼dataÊı¾İÎ»ÖÃµÄÊı¾İ´óĞ¡
-#define TZX_IMAGE_DATA_SIZE_SIZE				4		// ¼ÇÂ¼dataÊı¾İ´óĞ¡µÄÊı¾İµÄ´óĞ¡
+#define TZX_IMAGE_DATA_POS_SIZE					8		// è®°å½•dataæ•°æ®ä½ç½®çš„æ•°æ®å¤§å°
+#define TZX_IMAGE_DATA_SIZE_SIZE				4		// è®°å½•dataæ•°æ®å¤§å°çš„æ•°æ®çš„å¤§å°
 #define TZX_IMAGE_INDEX_INFO_SIZE				8
 #define TZX_IMAGE_LAYER_SIZE					1
 #define TZX_IMAGE_COLROW_SIZE					4
@@ -58,32 +58,32 @@ public:
 	silly_pyramid_index();
 
 	/// <summary>
-	/// ³õÊ¼»¯¸÷²ãµÄ¹Ø¼üĞÅÏ¢, ¼Ó¿ìºóÃæµÄ¼ÆËã
+	/// åˆå§‹åŒ–å„å±‚çš„å…³é”®ä¿¡æ¯, åŠ å¿«åé¢çš„è®¡ç®—
 	/// </summary>
 	/// <returns></returns>
 	bool init_layer_info();
 
-	bool open(const char* file, const open_mode& mode, const bool& usemmap);
+	bool open(const char* file, const silly_mmap::open_mode& mode, const bool& usemmap);
 
 	err_code read_block_pos(uint32_t layer, uint64_t row, uint64_t col, uint32_t& datasize, uint64_t& datapos);
 	
 
 	/// <summary>
-	/// »ñÈ¡Ë÷ÒıÎÄ¼ş,¶ÔÓ¦²ãÊıµÄÆğÊ¼Î»ÖÃ
+	/// è·å–ç´¢å¼•æ–‡ä»¶,å¯¹åº”å±‚æ•°çš„èµ·å§‹ä½ç½®
 	/// </summary>
 	/// <param name="layer"></param>
 	/// <returns></returns>
 	uint64_t get_layer_start_pos(const uint32_t& layer);
 
 	/// <summary>
-	/// ÉèÖÃÃ¿²ãµÄÆğÊ¼ĞÅÏ¢
+	/// è®¾ç½®æ¯å±‚çš„èµ·å§‹ä¿¡æ¯
 	/// </summary>
 	/// <param name="linfo"></param>
 	void set_layer_info(const uint32_t& layer, const layer_info& linfo);
 
 
 	/// <summary>
-	/// Ğ´ÈëÊı¾İ¿éÖĞµÄÖ¸¶¨¿éµÄË÷ÒıÊı¾İ Ë÷ÒıÆ«ÒÆÁ¿ºÍÊı¾İ¿é´óĞ¡
+	/// å†™å…¥æ•°æ®å—ä¸­çš„æŒ‡å®šå—çš„ç´¢å¼•æ•°æ® ç´¢å¼•åç§»é‡å’Œæ•°æ®å—å¤§å°
 	/// </summary>
 	/// <param name="layer"></param>
 	/// <param name="row"></param>
@@ -99,7 +99,7 @@ public:
 
 public:
 	std::map<uint32_t, layer_info> m_layer_infos;
-	// Ë÷ÒıÎÄ¼şÖĞ,Ã¿²ã´æ´¢dataĞÅÏ¢µÄÆğÊ¼Î»ÖÃ
+	// ç´¢å¼•æ–‡ä»¶ä¸­,æ¯å±‚å­˜å‚¨dataä¿¡æ¯çš„èµ·å§‹ä½ç½®
 	std::map<uint32_t, uint64_t> m_layer_bpos;
 	
 };

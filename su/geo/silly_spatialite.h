@@ -11,30 +11,6 @@
 #include <mutex>
 
 
-struct geo_collection
-{
-	enum_geometry_types m_type{ enum_geometry_types::eInvalid };
-	silly_point m_point;
-	silly_multi_point m_m_points;
-	silly_line m_line;
-	silly_multi_silly_line m_m_lines;
-	silly_poly m_poly;
-	silly_multi_poly m_m_polys;
-
-	geo_collection& operator=(const geo_collection& other)
-	{
-		this->m_type = other.m_type;
-		this->m_point = other.m_point;
-		this->m_m_points = other.m_m_points;
-		this->m_line = other.m_line;
-		this->m_m_lines = other.m_m_lines;
-		this->m_poly = other.m_poly;
-		this->m_m_polys = other.m_m_polys;
-		return *this;
-	}
-
-};
-
 class silly_spatialite
 {
 public:
@@ -68,7 +44,7 @@ public:
 	/// <param name="sql"></param>
 	/// <param name="bind_index">gc数据绑定到sql语句中占位符的位置,默认是1</param>
 	/// <returns></returns>
-	int insert_geo(const std::vector<geo_collection>& gc, const std::string& sql, int bind_index = 1);
+	int insert_geo(const std::vector<silly_geo_coll>& gc, const std::string& sql, int bind_index = 1);
 
 	/// <summary>
 	/// 获取矢量对象
@@ -76,7 +52,7 @@ public:
 	/// <param name="gc"></param>
 	/// <param name="sql"></param>
 	/// <returns>几条数据收到影响</returns>
-	int select_geo(std::vector<geo_collection>& gc, const std::string& sql);
+	int select_geo(std::vector<silly_geo_coll>& gc, const std::string& sql);
 
 
 	/// <summary>
@@ -86,7 +62,7 @@ public:
 	/// <param name="sql"></param>
 	/// <param name="bind_index">gc数据绑定到sql语句中占位符的位置,默认是1</param>
 	/// <returns>几条数据收到影响</returns>
-	int modify_geo(const geo_collection& gc, const std::string& sql, int bind_index = 1);
+	int modify_geo(const silly_geo_coll& gc, const std::string& sql, int bind_index = 1);
 
 	/// <summary>
 	/// 移除矢量对象

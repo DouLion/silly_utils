@@ -209,22 +209,22 @@ int _mprotect(void* addr, size_t len, int prot)
 #endif
 
 
-bool silly_mmap::open_m(const std::string& file, const int mode)
+bool silly_mmap::mopen(const std::string& file, const int mode)
 {
 
 	int fd_mode = O_RDONLY;
 	int mmap_mode = PROT_READ;
 	/*switch (mode)
 	{
-	case open_mode::WRITE:
+	case mopenode::WRITE:
 		mmap_mode = PROT_WRITE;
 		fd_mode = O_WRONLY;
 		break;
-	case open_mode::RW:
+	case mopenode::RW:
 		mmap_mode = PROT_READ | PROT_WRITE;
 		fd_mode = O_RDWR;
 		break;
-	case open_mode::READ:
+	case mopenode::READ:
 	default:
 		break;
 	}*/
@@ -270,7 +270,7 @@ bool silly_mmap::write(mmap_cur* src, const size_t& size, const size_t& offset)
 	return false;
 }
 
-void silly_mmap::close_m()
+void silly_mmap::mclose()
 {
 	if (m_mmap)
 	{
@@ -285,5 +285,5 @@ silly_mmap::silly_mmap(const std::string)
 
 silly_mmap::~silly_mmap()
 {
-	close_m();
+	mclose();
 }

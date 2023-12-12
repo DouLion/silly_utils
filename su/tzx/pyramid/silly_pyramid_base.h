@@ -16,13 +16,13 @@
 #include "files/silly_mmap.h"
 #include <mutex>
 
-/// ½ğ×ÖËşÎÄ¼şÃèÊöĞÅÏ¢Æ«ÒÆÁ¿¼´ĞÅÏ¢³¤¶È
+/// é‡‘å­—å¡”æ–‡ä»¶æè¿°ä¿¡æ¯åç§»é‡å³ä¿¡æ¯é•¿åº¦
 #define PYRAMID_DESC_OFFSET		0
 #define PYRAMID_DESC_LENGTH		4
-/// ½ğ×ÖËşÎÄ¼şÖ÷°æ±¾ĞÅÏ¢Æ«ÒÆÁ¿¼´ĞÅÏ¢³¤¶È
+/// é‡‘å­—å¡”æ–‡ä»¶ä¸»ç‰ˆæœ¬ä¿¡æ¯åç§»é‡å³ä¿¡æ¯é•¿åº¦
 #define PYRAMID_MVER_OFFSET		4
 #define PYRAMID_MVER_LENGTH		4
-/// ½ğ×ÖËşÎÄ¼ş´Î°æ±¾ĞÅÏ¢Æ«ÒÆÁ¿¼´ĞÅÏ¢³¤¶È
+/// é‡‘å­—å¡”æ–‡ä»¶æ¬¡ç‰ˆæœ¬ä¿¡æ¯åç§»é‡å³ä¿¡æ¯é•¿åº¦
 #define PYRAMID_PVER_OFFSET		8
 #define PYRAMID_PVER_LENGTH		4
 
@@ -45,7 +45,7 @@ enum pyramid_version {
 class silly_pyramid_base
 {
 /// <summary>
-/// ¶ÁÈ¡Ê±Ê¹ÓÃmmap, ´´½¨ºÍĞŞ¸ÄÊ±Ê¹ÓÃÆÕÍ¨ÎÄ¼şÁ÷
+/// è¯»å–æ—¶ä½¿ç”¨mmap, åˆ›å»ºå’Œä¿®æ”¹æ—¶ä½¿ç”¨æ™®é€šæ–‡ä»¶æµ
 /// </summary>
 public:
 	silly_pyramid_base() = default;
@@ -53,20 +53,20 @@ public:
 	/// 
 	/// </summary>
 	/// <param name="filePath"></param>
-	/// <param name="mode">1 ¶Á 2 Ğ´</param>
-	/// <param name="usemmap">¶ÁÈ¡Ê±Ä¬ÈÏ Ê¹ÓÃmmap, Ğ´×ÜÊÇÊ¹ÓÃÎÄ¼şÁ÷</param>
+	/// <param name="mode">1 è¯» 2 å†™</param>
+	/// <param name="usemmap">è¯»å–æ—¶é»˜è®¤ ä½¿ç”¨mmap, å†™æ€»æ˜¯ä½¿ç”¨æ–‡ä»¶æµ</param>
 	/// <returns></returns>
-	bool open(const char* file, const open_mode& mode, const bool& usemmap);
+	bool open(const char* file, const silly_mmap::open_mode& mode, const bool& usemmap);
 
 	/// <summary>
-	/// ¹Ø±ÕÎÄ¼ş
+	/// å…³é—­æ–‡ä»¶
 	/// </summary>
 	/// <returns></returns>
 	bool close();
 
 
 	/// <summary>
-	/// ¶ÁÈ¡Ö¸¶¨´óĞ¡µÄÊı¾İ¿é
+	/// è¯»å–æŒ‡å®šå¤§å°çš„æ•°æ®å—
 	/// </summary>
 	/// <param name="data"></param>
 	/// <param name="size"></param>
@@ -75,7 +75,7 @@ public:
 	bool read(size_t seek_offset, char* data, const size_t& size, const size_t& offset = 0);
 
 	/// <summary>
-	/// Ğ´ÈëÖ¸¶¨´óĞ¡µÄÊı¾İ¿â
+	/// å†™å…¥æŒ‡å®šå¤§å°çš„æ•°æ®åº“
 	/// </summary>
 	/// <param name="data"></param>
 	/// <param name="size"></param>
@@ -94,7 +94,7 @@ public:
 protected:
 
 	/// <summary>
-	/// ÆÕÍ¨ÎÄ¼şÁ÷´ò¿ª
+	/// æ™®é€šæ–‡ä»¶æµæ‰“å¼€
 	/// </summary>
 	/// <param name="file"></param>
 	/// <param name="mode"></param>
@@ -102,14 +102,14 @@ protected:
 	bool stream_open(const char* file, const char* mode);
 
 	/// <summary>
-	/// ÄÚ´æÎÄ¼şÓ³Éä´ò¿ª
+	/// å†…å­˜æ–‡ä»¶æ˜ å°„æ‰“å¼€
 	/// </summary>
 	/// <param name="file"></param>
 	/// <returns></returns>
 	bool mmap_open(const char* file);
 
 	/// <summary>
-	/// ÎÄ¼şÁ÷¶ÁÈ¡
+	/// æ–‡ä»¶æµè¯»å–
 	/// </summary>
 	/// <param name="data"></param>
 	/// <param name="size"></param>
@@ -118,7 +118,7 @@ protected:
 	bool stream_read(size_t seek_offset, char* data, const size_t& size, const size_t& offset);
 
 	/// <summary>
-	/// ÄÚ´æÎÄ¼şÓ³Éä¶ÁÈ¡
+	/// å†…å­˜æ–‡ä»¶æ˜ å°„è¯»å–
 	/// </summary>
 	/// <param name="data"></param>
 	/// <param name="size"></param>
@@ -128,7 +128,7 @@ protected:
 
 
 	/// <summary>
-	/// ÎÄ¼şÁ÷Ğ´Èë
+	/// æ–‡ä»¶æµå†™å…¥
 	/// </summary>
 	/// <param name="data"></param>
 	/// <param name="size"></param>
@@ -137,7 +137,7 @@ protected:
 	bool stream_write(size_t seek_offset, char* data, const size_t& size, const size_t& offset);
 
 	/// <summary>
-	/// TODO: ÄÚ´æÎÄ¼şÓ³ÉäĞ´Èë, Õâ¸öÄ¿Ç°ÓĞÎÊÌâ,Ôİ²»ÊµÏÖ
+	/// TODO: å†…å­˜æ–‡ä»¶æ˜ å°„å†™å…¥, è¿™ä¸ªç›®å‰æœ‰é—®é¢˜,æš‚ä¸å®ç°
 	/// </summary>
 	/// <param name="data"></param>
 	/// <param name="size"></param>
@@ -146,13 +146,13 @@ protected:
 	bool mmap_write(size_t seek_offset, char* data, const size_t& size, const size_t& offset);
 
 	/// <summary>
-	/// ¹Ø±ÕÎÄ¼şÁ÷
+	/// å…³é—­æ–‡ä»¶æµ
 	/// </summary>
 	void stream_close();
 
 
 	/// <summary>
-	/// ¹Ø±ÕÄÚ´æÎÄ¼şÓ³Éä
+	/// å…³é—­å†…å­˜æ–‡ä»¶æ˜ å°„
 	/// </summary>
 	void mmap_close();
 	err_code read_info();
@@ -160,28 +160,28 @@ protected:
 	void write_info();
 
 protected:
-	// ÎÄ¼şÃû³Æ
+	// æ–‡ä»¶åç§°
 	std::string									m_pfile;
 
-	// ÊÇ·ñÒÑ¾­´ò¿ª
+	// æ˜¯å¦å·²ç»æ‰“å¼€
 	bool										m_opened{false};
-	// ÊÇ·ñÎªÆÕÍ¨ÎÄ¼şÁ÷
+	// æ˜¯å¦ä¸ºæ™®é€šæ–‡ä»¶æµ
 	bool										m_normal;
-	// mmapÎÄ¼ş
+	// mmapæ–‡ä»¶
 	silly_mmap								    m_mmap;
-	// ÎÄ¼şÁ÷
+	// æ–‡ä»¶æµ
 	FILE*										m_stream;
-	// Ö÷°æ±¾ºÅ	ÕâÁ½¸öÔÙÎÄ¼şÖĞ×ÜÊÇÎªĞ¡¶ËĞò ¶ÁĞ´, ÓëÎÄµµÃèÊöÖĞÓĞ³öÈë
+	// ä¸»ç‰ˆæœ¬å·	è¿™ä¸¤ä¸ªå†æ–‡ä»¶ä¸­æ€»æ˜¯ä¸ºå°ç«¯åº è¯»å†™, ä¸æ–‡æ¡£æè¿°ä¸­æœ‰å‡ºå…¥
 	unsigned int								m_major_ver{2};
-	// ´Î°æ±¾ºÅ
+	// æ¬¡ç‰ˆæœ¬å·
 	unsigned int								m_primary_ver{0};
 
-	// Í·ĞÅÏ¢
+	// å¤´ä¿¡æ¯
 	char									    m_desc[4];
-	// ¶àÏß³Ì¶ÁĞ´Ê±ÓÃµÄËø
+	// å¤šçº¿ç¨‹è¯»å†™æ—¶ç”¨çš„é”
 	std::mutex									m_mutex;
-	// ¼ÓÔØÀàĞÍ
-	open_mode									m_mode;
+	// åŠ è½½ç±»å‹
+	silly_mmap::open_mode									m_mode;
 };
 
 #endif //SILLY_UTILS_SILLY_IMAGE_BASE_H

@@ -14,14 +14,31 @@ public:
 	static silly_point ring_to_center(silly_ring ring);
 
 	/// <summary>
-	/// 求两个点的方位角,p2相对于p1的方位角(左上角右下角坐标系均可)
+	/// 求两个点的方位角,p2相对于p1的方位角(左上角右下角坐标系均可), 正北方向为0度,顺时针
 	/// </summary>
 	/// <param name="p1">参照物</param>
 	/// <param name="p2">参照方向</param>
 	/// <returns>p2相对于p1的方位角,结果为角度值,</returns>
-	static double two_point_azimuth(silly_point p1, silly_point p2);
+	static double two_point_azimuth(silly_point from, silly_point to);
+
+	/// <summary>
+	/// 读
+	/// </summary>
+	/// <param name="file"></param>
+	/// <param name="collection"></param>
+	/// <returns></returns>
+	static bool read_geo_coll(const char* file, std::vector<silly_geo_coll>& collection);
+
+	/// <summary>
+	/// 写矢量文件
+	/// </summary>
+	/// <param name="file"></param>
+	/// <param name="collection"></param>
+	/// <returns></returns>
+	static bool write_geo_coll(const char* file, const std::vector<silly_geo_coll>& collection);
 
 
+	// 后面删除这个函数
 	/// <summary>
 	/// 读取geojson和shp中的点数据,并存储多个点到std::vector<silly_point>
 	/// 可以处理 wkbPolygon和wkbPolygon25D类型两种矢量
@@ -61,7 +78,7 @@ public:
 	/// <summary>
 	/// 销毁 GDAL 环境, 一旦执行此方法,那么GDAL可能就无法使用,
 	/// </summary>
-	static void destory_gdal_env();
+	static void destroy_gdal_env();
 
 	/// <summary>
 	/// 是否为一个标准的shp文件

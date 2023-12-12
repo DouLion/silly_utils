@@ -12,7 +12,7 @@ silly_pyramid_data::silly_pyramid_data()
 	m_desc[3] = 'T';
 }
 
-bool silly_pyramid_data::open(const char* file, const open_mode& mode, const bool& usemmap)
+bool silly_pyramid_data::open(const char* file, const silly_mmap::open_mode& mode, const bool& usemmap)
 {
 	return silly_pyramid_base::open(file, mode, usemmap);
 }

@@ -361,7 +361,7 @@ static bool gaiageo_to_silly_multi_poly(gaiaGeomCollPtr ggcp, silly_multi_poly& 
 /// <param name="gc">包含silly_geo类型的结构体</param>
 /// <param name="ggcp">spatialite的矢量类型</param>
 /// <returns></returns>
-bool geo_silly_to_spatialite(const geo_collection& gc, gaiaGeomCollPtr& ggcp)
+bool geo_silly_to_spatialite(const silly_geo_coll& gc, gaiaGeomCollPtr& ggcp)
 {
 	bool status = false;
 	switch (gc.m_type)
@@ -431,7 +431,7 @@ int check_geom_type(int type)
 /// <param name="ggcp">spatialite的矢量类型</param>
 /// <param name="gc">包含silly_geo类型的结构体</param>
 /// <returns></returns>
-bool geo_spatialite_to_silly(const gaiaGeomCollPtr& ggcp, geo_collection& gc)
+bool geo_spatialite_to_silly(const gaiaGeomCollPtr& ggcp, silly_geo_coll& gc)
 {
 	bool status = false;
 	int type = check_geom_type(gaiaGeometryType(ggcp));
@@ -535,7 +535,7 @@ bool silly_spatialite::create_table(const std::string& sql)
 }
 
 
-int silly_spatialite::insert_geo(const std::vector<geo_collection>& gc, const std::string& sql, int bind_index)
+int silly_spatialite::insert_geo(const std::vector<silly_geo_coll>& gc, const std::string& sql, int bind_index)
 {
 	int affect_rows = 0;
 	if (!m_is_init)
@@ -600,7 +600,7 @@ int silly_spatialite::insert_geo(const std::vector<geo_collection>& gc, const st
 }
 
 
-int silly_spatialite::select_geo(std::vector<geo_collection>& gc, const std::string& sql)
+int silly_spatialite::select_geo(std::vector<silly_geo_coll>& gc, const std::string& sql)
 {
 	int affect_rows = 0;
 	if (!m_is_init)
@@ -632,11 +632,11 @@ int silly_spatialite::select_geo(std::vector<geo_collection>& gc, const std::str
 			std::cout << "Unable to convert Blob data to gaiaGeomCollPtr type " << std::endl;
 			continue;
 		}
-		// gaiaGeomCollPtr类型转化为geo_collection
-		geo_collection temp_gc;
+		// gaiaGeomCollPtr类型转化为silly_geo_coll
+		silly_geo_coll temp_gc;
 		if (!geo_spatialite_to_silly(geomColl, temp_gc))
 		{
-			std::cout << "Unable to convert gaiaGeomCollPtr data to geo_collection type " << std::endl;
+			std::cout << "Unable to convert gaiaGeomCollPtr data to silly_geo_coll type " << std::endl;
 			gaiaFreeGeomColl(geomColl);
 			continue;
 		}
@@ -691,7 +691,7 @@ int silly_spatialite::remove_geo(const std::string& sql)
 
 }
 
-int silly_spatialite::modify_geo(const geo_collection& gc, const std::string& sql, int bind_index)
+int silly_spatialite::modify_geo(const silly_geo_coll& gc, const std::string& sql, int bind_index)
 {
 	int affect_rows = 0;
 	if (!m_is_init)

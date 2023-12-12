@@ -38,7 +38,7 @@ public:
 	/// <param name=""></param>
 	/// <param name="mode"></param>
 	/// <returns></returns>
-	bool open(const char* file, const open_mode& mode, const bool& usemmap);
+	bool open(const char* file, const silly_mmap::open_mode& mode, const bool& usemmap);
 
 	/// <summary>
 	///  

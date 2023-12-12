@@ -15,15 +15,6 @@
 #include <iostream>
 
 
-enum open_mode
-{
-	READ = 1,	// 目前仅支持读,不支持写和改
-	// WRITE = 2,
-	APP_WRITE = 3,
-	TRUNC_WRITE = 4
-
-};
-
 
 typedef char mmap_cur;
 
@@ -36,13 +27,17 @@ typedef char mmap_cur;
 
 class silly_mmap
 {
-
+	
 public:
+	enum open_mode
+	{
+		READONLY, READWRITE, COPYONWRITE
+	};
 	silly_mmap() = default;
 	silly_mmap(const std::string);
 	~silly_mmap();
 
-	bool open_m(const std::string& file, const int mode = open_mode::READ);
+	bool mopen(const std::string& file, const int mode = open_mode::READONLY);
 
 	mmap_cur* at(const size_t& offset = 0);
 
@@ -50,7 +45,7 @@ public:
 
 	bool write(mmap_cur* src, const size_t& size, const size_t& offset = 0);
 
-	void close_m();
+	void mclose();
 
 
 private:

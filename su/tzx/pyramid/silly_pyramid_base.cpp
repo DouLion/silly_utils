@@ -5,10 +5,10 @@
 #include "silly_pyramid_base.h"
 #include <cstring>
 
-bool silly_pyramid_base::open(const char* file, const open_mode& mode, const bool& usemmap)
+bool silly_pyramid_base::open(const char* file, const silly_mmap::open_mode& mode, const bool& usemmap)
 {
 	m_mode = mode;
-	if (open_mode::READ == mode)
+	if (silly_mmap::open_mode::READONLY == mode)
 	{
 		if (usemmap)
 		{
@@ -21,11 +21,11 @@ bool silly_pyramid_base::open(const char* file, const open_mode& mode, const boo
 		
 		read_info();
 	}
-	else if (open_mode::APP_WRITE == mode)
+	else if (silly_mmap::open_mode::READWRITE == mode)
 	{
 		stream_open(file, "wb+");
 	}
-	else if (open_mode::TRUNC_WRITE == mode )
+	else if (silly_mmap::open_mode::COPYONWRITE == mode )
 	{
 		stream_open(file, "wb");
 	}
@@ -90,7 +90,7 @@ bool silly_pyramid_base::stream_open(const char* file, const char* mode)
 bool silly_pyramid_base::mmap_open(const char* file)
 {
 	m_normal = false;
-	m_opened = m_mmap.open_m(file);
+	m_opened = m_mmap.mopen(file);
 
 	return m_opened;
 }
@@ -110,7 +110,7 @@ bool silly_pyramid_base::mmap_read(size_t seek_offset, char* data, const size_t&
 {
 	if (m_opened)
 	{
-		mmap_cur* cur =  m_mmap.at(seek_offset + size);	// ×·×Ùµ½Êı¾İÎ²²¿,·ÀÖ¹·ÃÎÊÔ½½ç
+		mmap_cur* cur =  m_mmap.at(seek_offset + size);	// è¿½è¸ªåˆ°æ•°æ®å°¾éƒ¨,é˜²æ­¢è®¿é—®è¶Šç•Œ
 		if (cur)
 		{
 			memcpy(data, cur - size, size);
@@ -137,7 +137,7 @@ bool silly_pyramid_base::mmap_write(size_t seek_offset, char* data, const size_t
 
 void silly_pyramid_base::stream_close()
 {
-	if (m_mode != READ)	// Ğ´´ò¿ªÊ±ĞèÒª½«ĞÅÏ¢±£´æ»ØÈ¥
+	if (m_mode != silly_mmap::open_mode::READONLY)	// å†™æ‰“å¼€æ—¶éœ€è¦å°†ä¿¡æ¯ä¿å­˜å›å»
 	{
 		write_info(); 
 	}
@@ -152,7 +152,7 @@ void silly_pyramid_base::mmap_close()
 {
 	if (m_opened)
 	{
-		m_mmap.close_m();
+		m_mmap.mclose();
 	}
 	
 }

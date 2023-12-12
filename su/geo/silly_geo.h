@@ -16,7 +16,7 @@
 #include <iostream>
 #include <map>
 
-#define FLOAT_IGNORE_DIFF   0.000000000000001
+#define SILLY_GEO_FLOAT_IGNORE_DIFF   1e-9
 
 //geometry types
 // 点
@@ -81,12 +81,12 @@ struct silly_point    // 普通坐标点
 
 	bool operator==(const silly_point& point) const
 	{
-		return std::abs(point.lgtd - this->lgtd) <= FLOAT_IGNORE_DIFF && std::abs(point.lttd - this->lttd) <= FLOAT_IGNORE_DIFF;
+		return std::abs(point.lgtd - this->lgtd) <= SILLY_GEO_FLOAT_IGNORE_DIFF && std::abs(point.lttd - this->lttd) <= SILLY_GEO_FLOAT_IGNORE_DIFF;
 	}
 
 	bool operator!=(const silly_point& point) const
 	{
-		return std::abs(point.lgtd - this->lgtd) > FLOAT_IGNORE_DIFF || std::abs(point.lttd - this->lttd) > FLOAT_IGNORE_DIFF;
+		return std::abs(point.lgtd - this->lgtd) > SILLY_GEO_FLOAT_IGNORE_DIFF || std::abs(point.lttd - this->lttd) > SILLY_GEO_FLOAT_IGNORE_DIFF;
 	}
 };
 
@@ -111,24 +111,23 @@ struct silly_geo_rect    // 普通坐标点
 
 	bool operator==(const silly_geo_rect& rect) const
 	{
-		return std::abs(rect.left - this->left) <= FLOAT_IGNORE_DIFF && std::abs(rect.top - this->top) <= FLOAT_IGNORE_DIFF && std::abs(rect.right - this->right) <= FLOAT_IGNORE_DIFF && std::abs(rect.bottom - this->bottom) <= FLOAT_IGNORE_DIFF;
+		return std::abs(rect.left - this->left) <= SILLY_GEO_FLOAT_IGNORE_DIFF && std::abs(rect.top - this->top) <= SILLY_GEO_FLOAT_IGNORE_DIFF && std::abs(rect.right - this->right) <= SILLY_GEO_FLOAT_IGNORE_DIFF && std::abs(rect.bottom - this->bottom) <= SILLY_GEO_FLOAT_IGNORE_DIFF;
 	}
 
 	bool operator!=(const silly_geo_rect& rect) const
 	{
-		return std::abs(rect.left - this->left) > FLOAT_IGNORE_DIFF || std::abs(rect.top - this->top) > FLOAT_IGNORE_DIFF || std::abs(rect.right - this->right) > FLOAT_IGNORE_DIFF || std::abs(rect.bottom - this->bottom) > FLOAT_IGNORE_DIFF;
+		return std::abs(rect.left - this->left) > SILLY_GEO_FLOAT_IGNORE_DIFF || std::abs(rect.top - this->top) > SILLY_GEO_FLOAT_IGNORE_DIFF || std::abs(rect.right - this->right) > SILLY_GEO_FLOAT_IGNORE_DIFF || std::abs(rect.bottom - this->bottom) > SILLY_GEO_FLOAT_IGNORE_DIFF;
 	}
 };
 
 typedef std::vector<silly_point> silly_multi_point;
 
 /// 线
-
 typedef std::vector<silly_point> silly_line;
 
 typedef std::vector<silly_line>  silly_multi_silly_line;
 
-/// 面
+/// 环
 struct silly_ring
 {
 	std::vector<silly_point> points;
@@ -143,6 +142,41 @@ struct silly_poly	// 普通面
 
 typedef  std::vector<silly_poly> silly_multi_poly ;
 
+struct silly_geo_prop
+{
+	enum_geoprop_types type{ eNone };
+	size_t len{0};
+	unsigned char* data{0};
+};
+
+class silly_geo_coll
+{
+public:
+	// 类型
+	enum_geometry_types m_type{ enum_geometry_types::eInvalid };
+	// 内容
+	silly_point m_point;
+	silly_multi_point m_m_points;
+	silly_line m_line;
+	silly_multi_silly_line m_m_lines;
+	silly_poly m_poly;
+	silly_multi_poly m_m_polys;
+	// 属性列表
+	std::map<std::string, silly_geo_prop> m_props;
+
+	silly_geo_coll& operator=(const silly_geo_coll& other)
+	{
+		this->m_type = other.m_type;
+		this->m_point = other.m_point;
+		this->m_m_points = other.m_m_points;
+		this->m_line = other.m_line;
+		this->m_m_lines = other.m_m_lines;
+		this->m_poly = other.m_poly;
+		this->m_m_polys = other.m_m_polys;
+		return *this;
+	}
+
+};
 
 /// 工具类
 class silly_geo
