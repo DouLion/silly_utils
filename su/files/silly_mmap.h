@@ -31,7 +31,7 @@ class silly_mmap
 public:
 	enum open_mode
 	{
-		READONLY, READWRITE, COPYONWRITE
+		NONE = 0, READONLY = 1, READWRITE = 2
 	};
 	silly_mmap() = default;
 	silly_mmap(const std::string);

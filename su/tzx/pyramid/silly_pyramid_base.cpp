@@ -25,10 +25,7 @@ bool silly_pyramid_base::open(const char* file, const silly_mmap::open_mode& mod
 	{
 		stream_open(file, "wb+");
 	}
-	else if (silly_mmap::open_mode::COPYONWRITE == mode )
-	{
-		stream_open(file, "wb");
-	}
+	
 
 	return m_opened;
 }

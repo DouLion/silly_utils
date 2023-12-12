@@ -18,9 +18,6 @@
 #include <iostream>
 #include <stdint.h>
 
-
-
-
 #define PROT_NONE       0
 #define PROT_READ       1
 #define PROT_WRITE      2
@@ -52,9 +49,6 @@ typedef uint32_t OffsetType;
 #include <windows.h>
 #include <io.h>
 #include <process.h>
-
-
-
 
 
 static int __map_mman_error(const DWORD err, const int deferr)
@@ -102,8 +96,8 @@ static DWORD __map_mmap_prot_file(const int prot)
 
 	return desiredAccess;
 }
-
-void* mmap(void* addr, size_t len, int prot, int flags, int fildes, OffsetType off)
+//void *__addr, size_t __len, int __prot,int __flags, int __fd, __off_t __offset
+void* mmap(void* addr, size_t len, int prot, int flags, int fd, OffsetType off)
 {
 	HANDLE fm, h;
 
@@ -143,7 +137,7 @@ void* mmap(void* addr, size_t len, int prot, int flags, int fildes, OffsetType o
 	}
 
 	h = ((flags & MAP_ANONYMOUS) == 0) ?
-		(HANDLE)_get_osfhandle(fildes) : INVALID_HANDLE_VALUE;
+		(HANDLE)_get_osfhandle(fd) : INVALID_HANDLE_VALUE;
 
 	if ((flags & MAP_ANONYMOUS) == 0 && h == INVALID_HANDLE_VALUE)
 	{
@@ -180,7 +174,6 @@ void* mmap(void* addr, size_t len, int prot, int flags, int fildes, OffsetType o
 }
 
 
-
 int munmap(void* addr, size_t len)
 {
 	if (UnmapViewOfFile(addr))
@@ -214,28 +207,34 @@ bool silly_mmap::mopen(const std::string& file, const int mode)
 
 	int fd_mode = O_RDONLY;
 	int mmap_mode = PROT_READ;
-	/*switch (mode)
+	switch (mode)
 	{
-	case mopenode::WRITE:
+	case open_mode::READWRITE:
 		mmap_mode = PROT_WRITE;
-		fd_mode = O_WRONLY;
+		fd_mode = _O_CREAT | _O_RDWR;
 		break;
-	case mopenode::RW:
-		mmap_mode = PROT_READ | PROT_WRITE;
-		fd_mode = O_RDWR;
-		break;
-	case mopenode::READ:
 	default:
 		break;
-	}*/
+	}
 
 #if defined(_WIN32)
 	int fd = _open(file.c_str(), fd_mode);
+	if (fd == -1) { return false; }
 	struct _stat64 stat;
 	int ret = _fstati64(fd, &stat);
-	m_mmap = (char*)mmap(NULL, stat.st_size, mmap_mode, MAP_SHARED, fd, 0);
+	if (mmap_mode == PROT_WRITE)
+	{
+		m_mmap = (char*)mmap(NULL, stat.st_size+1024*1024*100, mmap_mode, MAP_SHARED, fd, 0);
+	}
+	else
+	{
+		m_mmap = (char*)mmap(NULL, stat.st_size, mmap_mode, MAP_SHARED, fd, 0);
+	}
+	
+	
 #else
 	int fd = open(file.c_str(), fd_mode);
+	if (fd == -1) { return false; }
 	struct stat  stat;
 	int ret = fstat(fd, &stat);
 	m_mmap = (char*)mmap(NULL, stat.st_size, mmap_mode, MAP_SHARED, fd, 0);
