@@ -31,7 +31,7 @@
 #define MAP_ANONYMOUS   0x20
 #define MAP_ANON        MAP_ANONYMOUS
 
-#define MAP_FAILED      ((void *)-1)
+#define MAP_FAILED      ((void *)0)
 
 /* Flags for msync. */
 #define MS_ASYNC        1
@@ -128,13 +128,13 @@ void* mmap(void* addr, size_t len, int prot, int flags, int fd, OffsetType off)
 
 	errno = 0;
 
-	if (len == 0
-		/* Usupported protection combinations */
-		|| prot == PROT_EXEC)
-	{
-		errno = EINVAL;
-		return MAP_FAILED;
-	}
+	//if (len == 0
+	//	/* Usupported protection combinations */
+	//	|| prot == PROT_EXEC)
+	//{
+	//	errno = EINVAL;
+	//	return MAP_FAILED;
+	//}
 
 	h = ((flags & MAP_ANONYMOUS) == 0) ?
 		(HANDLE)_get_osfhandle(fd) : INVALID_HANDLE_VALUE;
@@ -144,7 +144,6 @@ void* mmap(void* addr, size_t len, int prot, int flags, int fd, OffsetType off)
 		errno = EBADF;
 		return MAP_FAILED;
 	}
-
 	fm = CreateFileMapping(h, nullptr, protect, dwMaxSizeHigh, dwMaxSizeLow, nullptr);
 
 	if (fm == nullptr)
@@ -201,6 +200,114 @@ int _mprotect(void* addr, size_t len, int prot)
 #include <sys/stat.h>
 #endif
 
+/* 示例代码
+#include <iostream>
+#include <windows.h>
+
+int main() {
+	// 打开文件
+	HANDLE hFile = CreateFile("example.txt", GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (hFile == INVALID_HANDLE_VALUE) {
+		std::cerr << "Failed to open the file." << std::endl;
+		return 1;
+	}
+
+	// 创建文件映射
+	HANDLE hMapFile = CreateFileMapping(hFile, NULL, PAGE_READWRITE, 0, 0, NULL);
+	if (hMapFile == NULL) {
+		std::cerr << "Failed to create file mapping." << std::endl;
+		CloseHandle(hFile);
+		return 1;
+	}
+
+	// 将文件映射到内存
+	LPVOID addr = MapViewOfFile(hMapFile, FILE_MAP_ALL_ACCESS, 0, 0, 0);
+	if (addr == NULL) {
+		std::cerr << "Failed to map the file to memory." << std::endl;
+		CloseHandle(hMapFile);
+		CloseHandle(hFile);
+		return 1;
+	}
+
+	// 读取文件内容
+	std::cout << "File content: " << std::endl;
+	std::cout << static_cast<char*>(addr) << std::endl;
+
+	// 修改文件内容
+	const char* new_content = "Hello, World!";
+	CopyMemory(addr, new_content, strlen(new_content));
+
+	// 解除内存映射
+	if (!UnmapViewOfFile(addr)) {
+		std::cerr << "Failed to unmap the memory." << std::endl;
+	}
+
+	// 关闭文件映射
+	CloseHandle(hMapFile);
+
+	// 关闭文件
+	CloseHandle(hFile);
+
+	return 0;
+}
+
+
+#include <iostream>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+
+int main() {
+	// 打开文件
+	int fd = open("example.txt", O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+	if (fd == -1) {
+		std::cerr << "Failed to open the file." << std::endl;
+		return 1;
+	}
+
+	// 获取文件大小
+	struct stat sb;
+	if (fstat(fd, &sb) == -1) {
+		std::cerr << "Failed to get file size." << std::endl;
+		return 1;
+	}
+
+	// 将文件映射到内存
+	char* addr = static_cast<char*>(mmap(NULL, sb.st_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0));
+	if (addr == MAP_FAILED) {
+		std::cerr << "Failed to map the file to memory." << std::endl;
+		return 1;
+	}
+
+	// 读取文件内容
+	std::cout << "File content: " << std::endl;
+	std::cout << addr << std::endl;
+
+	// 修改文件内容
+	const char* new_content = "Hello, World!";
+	std::copy(new_content, new_content + strlen(new_content), addr);
+
+	// 将内存中的修改写回到文件
+	if (msync(addr, sb.st_size, MS_SYNC) == -1) {
+		std::cerr << "Failed to sync memory to file." << std::endl;
+		return 1;
+	}
+
+	// 解除内存映射
+	if (munmap(addr, sb.st_size) == -1) {
+		std::cerr << "Failed to unmap the memory." << std::endl;
+		return 1;
+	}
+
+	// 关闭文件
+	close(fd);
+
+	return 0;
+}
+
+*/
+
 
 bool silly_mmap::mopen(const std::string& file, const int mode)
 {
@@ -211,7 +318,7 @@ bool silly_mmap::mopen(const std::string& file, const int mode)
 	{
 	case open_mode::READWRITE:
 		mmap_mode = PROT_WRITE;
-		fd_mode = _O_CREAT | _O_RDWR;
+		fd_mode = O_CREAT;
 		break;
 	default:
 		break;
@@ -224,7 +331,7 @@ bool silly_mmap::mopen(const std::string& file, const int mode)
 	int ret = _fstati64(fd, &stat);
 	if (mmap_mode == PROT_WRITE)
 	{
-		m_mmap = (char*)mmap(NULL, stat.st_size+1024*1024*100, mmap_mode, MAP_SHARED, fd, 0);
+		m_mmap = (char*)mmap(NULL, stat.st_size, mmap_mode, MAP_PRIVATE, fd, 0);
 	}
 	else
 	{
