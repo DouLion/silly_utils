@@ -36,7 +36,7 @@ namespace silly_math
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		matrix_2d<T>& operator = (const matrix_2d<T>& other)
+		matrix_2d<T> &operator=(const matrix_2d<T> &other)
 		{
 			this->rows = other.rows;
 			this->cols = other.cols;
@@ -51,56 +51,62 @@ namespace silly_math
 		/// <param name="c"></param>
 		/// <param name="reset">true: 如果有数据就清空并且重新初始化 false: 做任何操作,并且返回false</param>
 		/// <returns></returns>
-		bool create(const size_t& row, const size_t& col, bool reset = false)
+		bool create(const size_t &row, const size_t &col, bool reset = false)
 		{
 
-            if(!row || !col) { return false;}
+			if (!row || !col)
+			{
+				return false;
+			}
 			if (data && !reset)
 			{
 				return false;
 			}
-			if (data && reset)	// 重复调用此函数, 会重置
+			if (data && reset) // 重复调用此函数, 会重置
 			{
 				destroy();
 			}
 			rows = row;
 			cols = col;
-            total = rows *cols;
+			total = rows * cols;
 
-			data = (T*)malloc(total* sizeof(T));
-            if(!data) {return false;}
-            memset(data, 0, total * sizeof(T));
-
+			data = (T *)malloc(total * sizeof(T));
+			if (!data)
+			{
+				return false;
+			}
+			memset(data, 0, total * sizeof(T));
 
 			return true;
 		}
 
-		void operator += (const matrix_2d<T>& other)
+		void operator+=(const matrix_2d<T> &other)
 		{
 			if (data && other.data && rows == other.rows && cols == other.cols)
 			{
-                size_t i = 0;
-                while (i< total)
-                {
-                    data[i] += other.data[i];
-                    i++;
-                }
+				size_t i = 0;
+				while (i < total)
+				{
+					data[i] += other.data[i];
+					i++;
+				}
 			}
 		}
 
-        void operator -= (const matrix_2d<T>& other)
+		void operator-=(const matrix_2d<T> &other)
 		{
 			if (data && other.data && rows == other.rows && cols == other.cols)
 			{
-                size_t i = 0;
-                while (i< total) {
-                    data[i] -= other.data[i];
-                    i++;
-                }
+				size_t i = 0;
+				while (i < total)
+				{
+					data[i] -= other.data[i];
+					i++;
+				}
 			}
 		}
 
-		T* seek_row(const size_t& r)
+		T *seek_row(const size_t &r)
 		{
 			if (data)
 			{
@@ -108,7 +114,6 @@ namespace silly_math
 			}
 
 			return nullptr;
-			
 		}
 
 		/// <summary>
@@ -118,20 +123,20 @@ namespace silly_math
 		matrix_2d<T> copy()
 		{
 			matrix_2d<T> ret;
-            ret.create(rows, cols);
+			ret.create(rows, cols);
 			if (data)
 			{
-                memcpy(ret.data, data, total * sizeof(T));
+				std::memcpy(ret.data, data, total * sizeof(T));
 			}
 
 			return ret;
 		}
 
-		T& at(size_t r, size_t c)
+		T &at(size_t r, size_t c)
 		{
-			if (data)
+			if (r < rows && c < cols && data)
 			{
-				return data[r* cols+ c];
+				return data[r * cols + c];
 			}
 			return mp;
 		}
@@ -144,8 +149,11 @@ namespace silly_math
 		{
 			if (data)
 			{
-                size_t i = 0;
-                while (i< total) {data[i++] = val;}
+				size_t i = 0;
+				while (i < total)
+				{
+					data[i++] = val;
+				}
 			}
 		}
 
@@ -155,7 +163,7 @@ namespace silly_math
 		void destroy()
 		{
 			if (data)
-            {
+			{
 				free(data);
 				data = nullptr;
 			}
@@ -165,20 +173,20 @@ namespace silly_math
 			return rows;
 		}
 
-        const size_t col()
+		const size_t col()
 		{
 			return cols;
 		}
 
 	private:
-		T* data{ nullptr };
+		T *data{nullptr};
 		// 行数
-		size_t rows{ 0 };
+		size_t rows{0};
 		// 列数
-		size_t cols{ 0 };
-        // 总数据量
-        size_t total{0};
-		T mp{ 0 };
+		size_t cols{0};
+		// 总数据量
+		size_t total{0};
+		T mp{0};
 	};
 
 	typedef matrix_2d<int> IMatrix;
@@ -193,7 +201,8 @@ namespace silly_math
 	typedef matrix_2d<unsigned long long> UMatrix;
 
 	/// 参照opencv
-	enum InterpolationFlags {
+	enum InterpolationFlags
+	{
 		/** nearest neighbor interpolation 最临近插值 */
 		INTER_NEAREST = 0,
 		/** bilinear interpolation 二次性插值 */
@@ -203,7 +212,6 @@ namespace silly_math
 	class matrix_tools
 	{
 	public:
-
 		/// <summary>
 		/// 两个不同类型的矩阵相互转换
 		/// </summary>
@@ -213,7 +221,7 @@ namespace silly_math
 		/// <param name="dst">目标矩阵</param>
 		/// <returns></returns>
 		template <typename T1, typename T2>
-		static bool convert_matrix(silly_math::matrix_2d<T1>& src, silly_math::matrix_2d<T2>& dst)
+		static bool convert_matrix(silly_math::matrix_2d<T1> &src, silly_math::matrix_2d<T2> &dst)
 		{
 			size_t rows = src.row();
 			size_t cols = src.col();
@@ -244,25 +252,25 @@ namespace silly_math
 		/// <param name="dst_col">目标矩阵列数</param>
 		/// <param name="flag">插值算法</param>
 		/// <returns></returns>
-		template<typename T>
-		bool resize(matrix_2d<T>& src, matrix_2d<T>& dst, const size_t& dst_row, const size_t& dst_col, const InterpolationFlags& flag = INTER_NEAREST)
+		template <typename T>
+		bool resize(matrix_2d<T> &src, matrix_2d<T> &dst, const size_t &dst_row, const size_t &dst_col, const InterpolationFlags &flag = INTER_NEAREST)
 		{
-			
-			switch(flag)
+
+			switch (flag)
 			{
 			case INTER_LINEAR:
-				return bilinear_resize(src,dst, dst_row, dst_col);
+				return bilinear_resize(src, dst, dst_row, dst_col);
 			default:
-				return inter_nearest_resize(src,dst, dst_row, dst_col);
+				return inter_nearest_resize(src, dst, dst_row, dst_col);
 			}
 		}
+
 	private:
-		template<typename T>
-		bool inter_nearest_resize(matrix_2d<T>& src, matrix_2d<T>& dst, const size_t& dst_row, const size_t& dst_col)
+		template <typename T>
+		bool inter_nearest_resize(matrix_2d<T> &src, matrix_2d<T> &dst, const size_t &dst_row, const size_t &dst_col)
 		{
 			const size_t src_row = src.row();
 			const size_t src_col = src.col();
-			
 
 			const float row_ratio = static_cast<float>(src_row) / dst_row;
 			const float col_ratio = static_cast<float>(src_col) / dst_col;
@@ -283,20 +291,20 @@ namespace silly_math
 			return true;
 		}
 
-		template<typename T>
-		bool bilinear_resize(matrix_2d<T>& src, matrix_2d<T>& dst, const size_t& dst_row, const size_t& dst_col)
+		template <typename T>
+		bool bilinear_resize(matrix_2d<T> &src, matrix_2d<T> &dst, const size_t &dst_row, const size_t &dst_col)
 		{
 			size_t src_row = src.row();
 			size_t src_col = src.col();
 
-			float row_ratio = (float)(src_row) / dst_row; // 缩放比例 扩大多少倍分之一
-			float col_ratio = (float)(src_col) / dst_col;
+			float row_ratio = static_cast<float>(src_row) / dst_row;
+			float col_ratio = static_cast<float>(src_col) / dst_col;
 
 			dst.create(dst_row, dst_col);
 
 			for (size_t i = 0; i < dst_row; ++i)
 			{
-				float src_i_float = i * row_ratio;  // 扩展后x的在原矩阵的位置
+				float src_i_float = static_cast<float>(i) * row_ratio;
 				size_t src_i_floor = static_cast<size_t>(std::floor(src_i_float));
 				size_t src_i_ceil = std::min(src_i_floor + 1, src_row - 1);
 
@@ -304,23 +312,24 @@ namespace silly_math
 
 				for (size_t j = 0; j < dst_col; ++j)
 				{
-					float src_j_float = j * col_ratio;	// 扩展后y的在原矩阵的位置
+					float src_j_float = static_cast<float>(j) * col_ratio;
 					size_t src_j_floor = static_cast<size_t>(std::floor(src_j_float));
 					size_t src_j_ceil = std::min(src_j_floor + 1, src_col - 1);
 
 					float x_diff = src_j_float - src_j_floor;
 
-					T src_top_left = src.at(src_i_floor, src_j_floor);
-					T src_top_right = src.at(src_i_floor, src_j_ceil);
-					T src_bottom_left = src.at(src_i_ceil, src_j_floor);
-					T src_bottom_right = src.at(src_i_ceil, src_j_ceil);
+					// Pre-calculate the top-left, top-right, bottom-left, bottom-right corners
+					T top_left = src.at(src_i_floor, src_j_floor);
+					T top_right = src.at(src_i_floor, src_j_ceil);
+					T bottom_left = src.at(src_i_ceil, src_j_floor);
+					T bottom_right = src.at(src_i_ceil, src_j_ceil);
 
+					// Perform bilinear interpolation
 					T interpolated_value = static_cast<T>(
-						(1 - x_diff) * (1 - y_diff) * src_top_left +
-						x_diff * (1 - y_diff) * src_top_right +
-						(1 - x_diff) * y_diff * src_bottom_left +
-						x_diff * y_diff * src_bottom_right
-						);
+						(1 - x_diff) * (1 - y_diff) * top_left +
+						x_diff * (1 - y_diff) * top_right +
+						(1 - x_diff) * y_diff * bottom_left +
+						x_diff * y_diff * bottom_right);
 
 					dst.at(i, j) = interpolated_value;
 				}
@@ -328,7 +337,6 @@ namespace silly_math
 
 			return true;
 		}
-
 	};
 
 }

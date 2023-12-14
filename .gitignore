@@ -9,3 +9,4 @@
 /third_party
 /cmake-*
 /test/test_main.cpp
+/build
