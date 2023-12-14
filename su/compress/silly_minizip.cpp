@@ -3,7 +3,20 @@
 //
 
 #include "silly_minizip.h"
+#include <filesystem>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <stdio.h>
+#include <dirent.h>
+#include <string.h>
+#include <stdlib.h>
 
+
+#include <string>
+#include <fstream>
+
+
+#include <boost/algorithm/string.hpp>
 
 int silly_minizip::compressZip(std::string src, std::string dst)
 {

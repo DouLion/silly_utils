@@ -73,7 +73,7 @@ namespace silly_image
 		/// <param name="color"></param>
 		bool from_hex_argb(const char* color)
 		{
-			size_t v = 0;
+            unsigned int v = 0;
 			if (1 != sscanf(color, "%x", &v))
 			{
 				return false;
@@ -89,7 +89,7 @@ namespace silly_image
 
 		bool from_hex_rgb(const char* color)
 		{
-			size_t v = 0;
+            unsigned int v = 0;
 			if (1 != sscanf(color, "%x", &v))
 			{
 				return false;

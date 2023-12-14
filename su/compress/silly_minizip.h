@@ -12,24 +12,16 @@
 
 #ifndef SILLY_UTILS_SILLY_MINIZIP_H
 #define SILLY_UTILS_SILLY_MINIZIP_H
-#include <filesystem>
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <stdio.h>
-#include <dirent.h>
-#include <string.h>
-#include <stdlib.h>
 
-#include <vector>
-#include <string>
 #include <iostream>
-#include <fstream>
+#include <compress/silly_compress_base.h>
 
+// TODO : 王英杰  头文件中能不暴露出来的include 文件 不要暴露出来
+#include <vector>
 #include "minizip/zip.h"
 #include "minizip/unzip.h"
-#include <boost/algorithm/string.hpp>
 
-
+// TODO : 王英杰  枚举放到silly_compress_base 的错误枚举类中, 保持格式一致
 enum ZIP_ERROR {
     SILLY_ZIP_ok = 0,                     // 操作成功
     SILLY_ZIP_err_open = 1,               // 打开ZIP文件失败
@@ -44,7 +36,7 @@ enum ZIP_ERROR {
 
 };
 
-
+// TODO : 王英杰 继承silly_compress_base  实现四个虚函数, 参照silly_bz2.h
 class silly_minizip
 {
 public:

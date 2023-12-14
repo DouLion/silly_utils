@@ -89,7 +89,7 @@ public:
             std::cout << "阈值与阈值颜色个数不匹配 " << std::endl;
             return false;
         }
-        if (nullptr == matrix.get_data())
+        if (nullptr == matrix.seek_row(0))
         {
             std::cout << "矩阵为空 " << std::endl;
             return false;
@@ -113,7 +113,7 @@ public:
                 bool change = false;
                 for (int n = 0; n < threshold.size()-1; n++)
                 {
-                    if (mtrix_data.at(i,j) >= threshold[n] && mtrix_data.at(i, j) <= threshold[n + 1])
+                    if (matrix.at(i,j) >= threshold[n] && matrix.at(i, j) <= threshold[n + 1])
                     {
                         set_pixel(i, j, pixel_colors[n]);
                         change = true;

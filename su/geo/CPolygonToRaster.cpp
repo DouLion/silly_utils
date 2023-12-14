@@ -386,6 +386,7 @@ bool CVectorToRaster::CVectorRasterData::WriteObjInfo(const char *ID, const char
     std::string strKey = Info.ID;
     strKey = to_upper(strKey);
     m_mapInfo[strKey] = Info;
+    return true;
 }
 
 bool CVectorToRaster::Polygon::GetSegments(double Y, std::vector<LineSegment> &vSegment) {

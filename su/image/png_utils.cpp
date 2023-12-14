@@ -112,7 +112,7 @@ bool png_utils::write(const char* path, const png_data& data)
 
 	if (!data.height || !data.width || !data.data)
 	{
-		SU_DEBUG_PRINT("%s_%d: invalid png data.\n", __FILENAME__, __LINE__);
+		SU_DEBUG_PRINT("invalid png data.");
 		return false;
 	}
 
@@ -122,13 +122,13 @@ bool png_utils::write(const char* path, const png_data& data)
 	png_structp png_write_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, 0, 0, 0);
 	if (nullptr == png_write_ptr)
 	{
-		SU_DEBUG_PRINT("%s_%d: png_create_write_struct failed.\n", __FILENAME__, __LINE__);
+		SU_DEBUG_PRINT("png_create_write_struct failed.");
 		return false;
 	}
 	png_infop png_w_info = png_create_info_struct(png_write_ptr);
 	if (nullptr == png_write_info)
 	{
-		SU_DEBUG_PRINT("%s_%d: png_create_info_struct failed.\n", __FILENAME__, __LINE__);
+		SU_DEBUG_PRINT("png_create_info_struct failed.");
 		return false;
 	}
 	if (setjmp(png_jmpbuf(png_write_ptr)))
@@ -259,7 +259,7 @@ void png_data::set_pixel(const size_t& r, const size_t& c, const png_pixel& sp)
 {
 	if (!(r < height && c < width))
 	{
-		SU_DEBUG_PRINT("%s_%d: invalid %d < %d and %d < %d.\n", __FILENAME__, __LINE__, r, height, c, width);
+		SU_DEBUG_PRINT("invalid %d < %d and %d < %d.", r, height, c, width);
 		return;
 	}
 	size_t col_pos = c * pixel_size;

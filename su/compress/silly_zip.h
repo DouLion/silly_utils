@@ -12,9 +12,13 @@
 
 #ifndef SILLY_UTILS_SILLY_ZIP_H
 #define SILLY_UTILS_SILLY_ZIP_H
+#include <iostream>
 
 class silly_zip
 {
+public:
+	bool compress(const std::string& src, std::string& dst) { return false; };
+	bool decompress(const std::string& src, std::string& dst) { return false; };
 
 };
 
