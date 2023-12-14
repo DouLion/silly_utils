@@ -15,7 +15,7 @@
 // /* recommended size */
 #define SILLY_BZ2_SUGGEST_COMPRESS_SIZE(in_len) ((unsigned int)(in_len * 1.1 + 600))
 
-#define SILLY_BZ2_MALLOC(dst, size) dst =  (char*)malloc(size); if(!dst) { return MemAllocErr;}
+// #define SILLY_BZ2_MALLOC(dst, size) dst =  (char*)malloc(size); if(!dst) { return MemAllocErr;}
 
 
 
@@ -32,7 +32,7 @@ int silly_bz2::compress(const std::string& s_src, const std::string& s_dst) {
 
 	// 读取待压缩数据
 	char* file_content = nullptr;
-	size_t file_len = 0;
+	size_t file_len;
 	std::ifstream fstream_src(s_src, std::ios::binary | std::ios::ate);
 	if (!fstream_src.is_open())
 	{
@@ -114,7 +114,7 @@ int silly_bz2::decompress(const std::string& s_src, const std::string& s_dst) {
 	}
 
 	char* file_content = nullptr;
-	size_t file_len = 0;
+	size_t file_len;
 	std::ifstream fstream_src(s_src, std::ios::binary | std::ios::ate);
 	if (!fstream_src.is_open())
 	{
@@ -165,7 +165,7 @@ int silly_bz2::decompress(const std::string& s_src, const std::string& s_dst) {
 	}
 	if (BZ_OK != rc)
 	{
-		SU_ERROR_PRINT("Decompress failed: %d", __FILE__, __LINE__, rc);
+		SU_ERROR_PRINT("Decompress failed: %d", rc);
 		SU_MEM_FREE(file_content);
 		SU_MEM_FREE(dst_decompress);
 		return Bz2DecompressErr;
@@ -186,7 +186,7 @@ int silly_bz2::compress(const char* c_in_val, const size_t& i_in_len, char** c_o
 		return InValidInputErr;
 	}
 	unsigned int dst_len = SILLY_BZ2_SUGGEST_COMPRESS_SIZE(i_in_len);
-	char* c_inval = (char*)c_in_val;
+	char* c_buff_src = (char*)c_in_val;
 	if (!*c_out_val)
 	{
 		*c_out_val = (char*)malloc(dst_len);
@@ -196,14 +196,13 @@ int silly_bz2::compress(const char* c_in_val, const size_t& i_in_len, char** c_o
 		SU_ERROR_PRINT("Clean output and set null.");
 		return InValidOutputErr;
 	}
-	int rc = BZ2_bzBuffToBuffCompress(*c_out_val, &dst_len, c_inval, i_in_len, 1, 0, 30);
+	int rc = BZ2_bzBuffToBuffCompress(*c_out_val, &dst_len, c_buff_src, i_in_len, 1, 0, 30);
 	if (rc != BZ_OK)
 	{
-		SU_ERROR_PRINT("Compression failed : % d.", rc);
+		SU_ERROR_PRINT("Compression failed : %d.", rc);
 		return Bz2CompressErr;
 	}
 	i_out_len = dst_len;
-	return true;
 	return Ok;
 }
 
@@ -216,7 +215,7 @@ int silly_bz2::decompress(const char* c_in_val, const size_t& i_in_len, char** c
 	}
 	
 	i_out_len = 0;
-	char* c_inval = (char*)c_in_val;
+	char* c_buff_src = (char*)c_in_val;
 	if (*c_out_val)
 	{
 		SU_ERROR_PRINT("Clean output and set null.");
@@ -225,8 +224,8 @@ int silly_bz2::decompress(const char* c_in_val, const size_t& i_in_len, char** c
 	unsigned int dst_len = SILLY_BZ2_DECOMPRESS_DEFAULT_SIZE;
 	char* decompress = (char*)malloc(dst_len);
 	if (!decompress) { return MemAllocErr; };
-	int rc = BZ2_bzBuffToBuffDecompress(decompress, &dst_len, c_inval, i_in_len, 0, 0);
-	while (BZ_OUTBUFF_FULL == rc && decompress)	// 预设解压空间较小,需要扩大,其他情况再看如何解决
+	int rc = BZ2_bzBuffToBuffDecompress(decompress, &dst_len, c_buff_src, i_in_len, 0, 0);
+	while (BZ_OUTBUFF_FULL == rc)	// 预设解压空间较小,需要扩大,其他情况再看如何解决
 	{
 		dst_len += SILLY_BZ2_DECOMPRESS_DEFAULT_SIZE;
 		char* tmp  = (char*)realloc(decompress, dst_len);
@@ -235,7 +234,7 @@ int silly_bz2::decompress(const char* c_in_val, const size_t& i_in_len, char** c
 			SU_MEM_FREE(decompress); return MemAllocErr;
 		}
 		decompress = tmp;
-		rc = BZ2_bzBuffToBuffDecompress(decompress, &dst_len, c_inval, i_in_len, 0, 0);
+		rc = BZ2_bzBuffToBuffDecompress(decompress, &dst_len, c_buff_src, i_in_len, 0, 0);
 	}
 	
 	if (BZ_OK != rc)
