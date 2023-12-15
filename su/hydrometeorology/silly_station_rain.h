@@ -36,19 +36,19 @@ struct station_info
 };
 
 /// <summary>
-/// ²âÕ¾ÓêÁ¿¼ÆËãÏà¹Ø
+/// æµ‹ç«™é›¨é‡è®¡ç®—ç›¸å…³
 /// </summary>
 class silly_station_rain
 {
 public:
 	/// <summary>
-	/// ÉèÖÃ²âÕ¾ÓêÁ¿ĞÅÏ¢
+	/// è®¾ç½®æµ‹ç«™é›¨é‡ä¿¡æ¯
 	/// </summary>
 	/// <param name="stations"></param>
 	void set(const std::vector<station_info>& stations);
 
 	/// <summary>
-	/// »ñÈ¡Æ½¾ùÃæÓêÁ¿
+	/// è·å–å¹³å‡é¢é›¨é‡
 	/// </summary>
 	/// <param name="left"></param>
 	/// <param name="top"></param>
@@ -59,7 +59,7 @@ public:
 
 
 	/// <summary>
-	/// ²åÖµ¼ÆËãÄ³¸öµãµÄµãÓêÁ¿
+	/// æ’å€¼è®¡ç®—æŸä¸ªç‚¹çš„ç‚¹é›¨é‡
 	/// </summary>
 	/// <param name="lgtd"></param>
 	/// <param name="lttd"></param>
