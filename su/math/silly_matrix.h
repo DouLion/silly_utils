@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include <cstdlib>
 #include <cmath>
+#include <cstring>
 
 namespace silly_math
 {
@@ -126,7 +127,7 @@ namespace silly_math
 			ret.create(rows, cols);
 			if (data)
 			{
-				std::memcpy(ret.data, data, total * sizeof(T));
+				memcpy(ret.data, data, total * sizeof(T));
 			}
 
 			return ret;

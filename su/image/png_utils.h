@@ -19,16 +19,13 @@
 #include <iostream>
 #include "math/silly_matrix.h"
 
-
-
 #ifndef png_jmpbuf
 #define png_jmpbuf(png_ptr) ((png_ptr)->png_jmpbuf)
 #endif
 
-
- //#define SU_PNG_PIXEL_RGBA(p, r, g, b, a) {p.red = r;  p.green = g; p.blue = b; p.alpha = a;}
- //#define SU_PNG_PIXEL_RGB(p, r, g, b) {p.red = r;  p.green = g; p.blue = b; }
- //#define SU_PNG_PIXEL_GA(p, g, a) {p.gray = g; p.alpha = a;}
+// #define SU_PNG_PIXEL_RGBA(p, r, g, b, a) {p.red = r;  p.green = g; p.blue = b; p.alpha = a;}
+// #define SU_PNG_PIXEL_RGB(p, r, g, b) {p.red = r;  p.green = g; p.blue = b; }
+// #define SU_PNG_PIXEL_GA(p, g, a) {p.gray = g; p.alpha = a;}
 
 namespace silly_image
 {
@@ -45,35 +42,30 @@ namespace silly_image
 	{
 		png_pixel(png_byte r, png_byte g, png_byte b, png_byte a) : red(r), green(g), blue(b), alpha(a), gray(0)
 		{
-
 		}
 
 		png_pixel(png_byte r, png_byte g, png_byte b) : red(r), green(g), blue(b), alpha(0), gray(0)
 		{
-
 		}
 
 		png_pixel(png_byte g, png_byte a) : red(0), green(0), blue(0), alpha(a), gray(g)
 		{
-
 		}
 
 		png_pixel(png_byte g) : red(0), green(0), blue(0), alpha(0), gray(g)
 		{
-
 		}
-		png_pixel() :red(0), green(0), blue(0), alpha(0), gray(0)
+		png_pixel() : red(0), green(0), blue(0), alpha(0), gray(0)
 		{
-
 		}
 
 		/// <summary>
 		/// 从字符串加载  如 ABE0457B
 		/// </summary>
 		/// <param name="color"></param>
-		bool from_hex_argb(const char* color)
+		bool from_hex_argb(const char *color)
 		{
-            unsigned int v = 0;
+			unsigned int v = 0;
 			if (1 != sscanf(color, "%x", &v))
 			{
 				return false;
@@ -87,9 +79,9 @@ namespace silly_image
 			return true;
 		}
 
-		bool from_hex_rgb(const char* color)
+		bool from_hex_rgb(const char *color)
 		{
-            unsigned int v = 0;
+			unsigned int v = 0;
 			if (1 != sscanf(color, "%x", &v))
 			{
 				return false;
@@ -100,11 +92,11 @@ namespace silly_image
 			return true;
 		}
 
-		png_byte gray{ 0 };
-		png_byte red{ 0 };
-		png_byte green{ 0 };
-		png_byte blue{ 0 };
-		png_byte alpha{ 0 };
+		png_byte gray{0};
+		png_byte red{0};
+		png_byte green{0};
+		png_byte blue{0};
+		png_byte alpha{0};
 	};
 
 	class png_data
@@ -120,15 +112,14 @@ namespace silly_image
 		/// <param name="r"></param>
 		/// <param name="c"></param>
 		/// <param name="sp"></param>
-		void set_pixel(const size_t& r, const size_t& c, const png_pixel& sp);
-		png_data  operator=(const png_data& other);
-		png_bytep* data{ nullptr };
-		png_uint_32 width{ 0 };
-		png_uint_32 height{ 0 };
-		png_uint_32 bit_depth{ 8 };
-		png_uint_32 color_type{ PNG_COLOR_TYPE_RGB_ALPHA };
-		png_uint_32 pixel_size{ 0 };
-
+		void set_pixel(const size_t &r, const size_t &c, const png_pixel &sp);
+		png_data operator=(const png_data &other);
+		png_bytep *data{nullptr};
+		png_uint_32 width{0};
+		png_uint_32 height{0};
+		png_uint_32 bit_depth{8};
+		png_uint_32 color_type{PNG_COLOR_TYPE_RGB_ALPHA};
+		png_uint_32 pixel_size{0};
 	};
 
 	class png_utils
@@ -142,14 +133,14 @@ namespace silly_image
 		/// <param name="color_type">RGB,RGBA,GRAY,GRAY ALPHA</param>
 		/// <param name="depth">这个参数暂时没用</param>
 		/// <returns></returns>
-		static png_data create_empty(const size_t& rows, const size_t& cols, const png_uint_32& color_type = PNG_COLOR_TYPE_RGB_ALPHA, const png_uint_32& depth = 8);
+		static png_data create_empty(const size_t &rows, const size_t &cols, const png_uint_32 &color_type = PNG_COLOR_TYPE_RGB_ALPHA, const png_uint_32 &depth = 8);
 
 		/// <summary>
 		/// 从png中读取一个数据块
 		/// </summary>
 		/// <param name="path"></param>
 		/// <returns></returns>
-		static png_data read(const char* path);
+		static png_data read(const char *path);
 
 		/// <summary>
 		/// 将png数据块写回文件, TODO: 这个函数在Centos上保存图片时,图片会有截断,导致保存内容有缺失,检查问题,优先使用encode_to_memory转为二进制流然后写入文件
@@ -157,7 +148,7 @@ namespace silly_image
 		/// <param name="path"></param>
 		/// <param name="data"></param>
 		/// <returns></returns>
-		static bool write(const char* path, const png_data& data);
+		static bool write(const char *path, const png_data &data);
 
 		/// <summary>
 		/// 将png_data转编码为内存png数据
@@ -166,10 +157,9 @@ namespace silly_image
 		/// <param name="buf"></param>
 		/// <param name="len"></param>
 		/// <returns></returns>
-		static bool encode_to_memory(const png_data& data, char** buf, size_t& len);
+		static bool encode_to_memory(const png_data &data, char **buf, size_t &len);
 
-		static std::string encode_to_memory(const png_data& data);
-
+		static std::string encode_to_memory(const png_data &data);
 
 		/// <summary>
 		/// 将两个矩阵转为png,一个矩阵存储RGB,一个矩阵存阴影值
@@ -180,7 +170,7 @@ namespace silly_image
 		/// <param name="threshold">阈值</param>
 		/// <param name="pixel_colors">颜色</param>
 		/// <returns></returns>
-		template<typename T>
+		template <typename T>
 		static png_data evel_share_to_png(silly_math::matrix_2d<T> evel, silly_math::matrix_2d<T> share, std::vector<T> threshold, std::vector<png_pixel> pixel_colors)
 		{
 			int height = evel.row();
@@ -209,12 +199,10 @@ namespace silly_image
 					block_image.data[r][col_pos + 1] = pixel_colors[n].green;
 					block_image.data[r][col_pos + 2] = pixel_colors[n].blue;
 					block_image.data[r][col_pos + 3] = share.at(r, c);
-				
 				}
 			}
 			return block_image;
 		}
-
 	};
 }
-#endif //SILLY_UTILS_PNG_UTILS_H
+#endif // SILLY_UTILS_PNG_UTILS_H

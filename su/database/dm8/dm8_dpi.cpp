@@ -6,11 +6,11 @@
 
 #if DM8_ENABLED
 
-bool dm8_dpi::login(const char* server, const char* user, const char* pwd)
+bool dm8_dpi::login(const char *server, const char *user, const char *pwd)
 {
 	rt = dpi_alloc_env(&h_env);
 	rt = dpi_alloc_con(h_env, &h_con);
-	rt = dpi_login(h_con, (sdbyte*)server, (sdbyte*)user, (sdbyte*)pwd);
+	rt = dpi_login(h_con, (sdbyte *)server, (sdbyte *)user, (sdbyte *)pwd);
 	if (!DSQL_SUCCEEDED(rt))
 	{
 		dpi_err_msg_print(DSQL_HANDLE_DBC, h_con);

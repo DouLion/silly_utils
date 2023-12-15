@@ -5,8 +5,8 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include "otl_tools.h"
 
-
-OtlConnOption otl_tools::conn_opt_from_json(const Json::Value &root) {
+OtlConnOption otl_tools::conn_opt_from_json(const Json::Value &root)
+{
     OtlConnOption retOpt;
     if (root.isMember(OTL_OPT_JSON_TYPE))
     {
@@ -21,22 +21,22 @@ OtlConnOption otl_tools::conn_opt_from_json(const Json::Value &root) {
     {
         retOpt.ip = root[OTL_OPT_JSON_IP].asString();
     }
-   
+
     if (root.isMember(OTL_OPT_JSON_PORT))
     {
         retOpt.port = root[OTL_OPT_JSON_PORT].asInt();
     }
-   
+
     if (root.isMember(OTL_OPT_JSON_DRIVER))
     {
         retOpt.driver = root[OTL_OPT_JSON_DRIVER].asString();
     }
-    
+
     if (root.isMember(OTL_OPT_JSON_SCHEMA))
     {
         retOpt.schema = root[OTL_OPT_JSON_SCHEMA].asString();
     }
-    
+
     if (root.isMember(OTL_OPT_JSON_USER))
     {
         retOpt.user = root[OTL_OPT_JSON_USER].asString();
@@ -62,7 +62,8 @@ OtlConnOption otl_tools::conn_opt_from_json(const Json::Value &root) {
     return retOpt;
 }
 
-otl_datetime otl_tools::otl_time_from_string(const std::string &str) {
+otl_datetime otl_tools::otl_time_from_string(const std::string &str)
+{
     otl_datetime odt;
     auto datetime = boost::posix_time::time_from_string(str);
     auto date = datetime.date();
@@ -77,21 +78,22 @@ otl_datetime otl_tools::otl_time_from_string(const std::string &str) {
     return odt;
 }
 
-std::string otl_tools::otl_time_to_string(const otl_datetime &tm) {
+std::string otl_tools::otl_time_to_string(const otl_datetime &tm)
+{
     char datetime_buff[32] = {};
     sprintf(datetime_buff, "%04d-%02d-%02d %02d:%02d:%02d", tm.year, tm.month, tm.day, tm.hour, tm.minute, tm.second);
 
     return datetime_buff;
 }
 
-OtlConnOption otl_tools::conn_opt_from_json(const std::string& json_str)
+OtlConnOption otl_tools::conn_opt_from_json(const std::string &json_str)
 {
-	OtlConnOption ret_opt;
-	Json::Reader reader;
-	Json::Value root;
-	if (reader.parse(json_str, root))
-	{
-		ret_opt = otl_tools::conn_opt_from_json(root);
-	}
-	return ret_opt;
+    OtlConnOption ret_opt;
+    Json::Reader reader;
+    Json::Value root;
+    if (reader.parse(json_str, root))
+    {
+        ret_opt = otl_tools::conn_opt_from_json(root);
+    }
+    return ret_opt;
 }

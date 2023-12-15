@@ -4,7 +4,7 @@
 
 #include "silly_soil_water_r.h"
 #include "su_marco.h"
-
+#include <cstring>
 //unsigned int pid{ 0 };
 //std::string tm;
 //float sw{ 0 };
@@ -48,5 +48,13 @@ bool silly_soil_water::serialize(unsigned char** c_in, size_t& len)
 
 bool silly_soil_water::unserialize(const unsigned char* c_in, const size_t& len)
 {
+	if (len != SILLY_SOIL_WATER_LENGTH)
+	{
+		return false;
+	}
+
+	
+
+
 	return false;
 }

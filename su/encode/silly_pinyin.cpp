@@ -4,7 +4,8 @@
 
 #include "silly_pinyin.h"
 
-std::string silly_pinyin::chinese_to_pinyin(const std::string &dest_chinese) {
+std::string silly_pinyin::chinese_to_pinyin(const std::string &dest_chinese)
+{
     std::string s_result;
     const int spell_value[] = {-20319, -20317, -20304, -20295, -20292, -20283, -20265, -20257, -20242, -20230, -20051,
                                -20036, -20032, -20026,
@@ -149,13 +150,15 @@ std::string silly_pinyin::chinese_to_pinyin(const std::string &dest_chinese) {
                                     "Zhuan", "Zhuang", "Zhui", "Zhun", "Zhuo",
                                     "Zi", "Zong", "Zou", "Zu", "Zuan", "Zui", "Zun", "Zuo"};
 
-
-    try {
+    try
+    {
         // 循环处理字节数组
         const int length = dest_chinese.length();
-        for (int j = 0, chrasc = 0; j < length;) {
+        for (int j = 0, chrasc = 0; j < length;)
+        {
             // 非汉字处理
-            if (dest_chinese.at(j) >= 0 && dest_chinese.at(j) < 128) {
+            if (dest_chinese.at(j) >= 0 && dest_chinese.at(j) < 128)
+            {
                 s_result += dest_chinese.at(j);
                 // 偏移下标
                 j++;
@@ -164,16 +167,21 @@ std::string silly_pinyin::chinese_to_pinyin(const std::string &dest_chinese) {
 
             // 汉字处理
             chrasc = dest_chinese.at(j) * 256 + dest_chinese.at(j + 1) + 256;
-            if (chrasc > 0 && chrasc < 160) {
+            if (chrasc > 0 && chrasc < 160)
+            {
                 // 非汉字
                 s_result += dest_chinese.at(j);
                 // 偏移下标
                 j++;
-            } else {
+            }
+            else
+            {
                 // 汉字
-                for (int i = (sizeof(spell_value) / sizeof(spell_value[0]) - 1); i >= 0; --i) {
+                for (int i = (sizeof(spell_value) / sizeof(spell_value[0]) - 1); i >= 0; --i)
+                {
                     // 查找字典
-                    if (spell_value[i] <= chrasc) {
+                    if (spell_value[i] <= chrasc)
+                    {
                         s_result += SpellDict[i];
                         break;
                     }
@@ -183,7 +191,8 @@ std::string silly_pinyin::chinese_to_pinyin(const std::string &dest_chinese) {
             }
         } // for end
     }
-    catch (std::exception &e) {
+    catch (std::exception &e)
+    {
         printf("%s_%d : %s", __FILE__, __LINE__, e.what());
     }
     return s_result;

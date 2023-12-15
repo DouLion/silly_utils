@@ -30,38 +30,37 @@
 #define BOOL int
 #endif
 
-
-typedef enum                        /* Set operation type                */
+typedef enum /* Set operation type                */
 {
-	GPC_DIFF,                         /* Difference                        */
-	GPC_INT,                          /* Intersection                      */
-	GPC_XOR,                          /* Exclusive or                      */
-	GPC_UNION                         /* Union                             */
+	GPC_DIFF, /* Difference                        */
+	GPC_INT,  /* Intersection                      */
+	GPC_XOR,  /* Exclusive or                      */
+	GPC_UNION /* Union                             */
 } gpc_op;
 
-typedef struct                      /* Polygon vertex structure          */
+typedef struct /* Polygon vertex structure          */
 {
-	double x;            /* Vertex x component                */
-	double y;            /* vertex y component                */
+	double x; /* Vertex x component                */
+	double y; /* vertex y component                */
 } gpc_vertex;
 
-typedef struct                      /* Vertex list structure             */
+typedef struct /* Vertex list structure             */
 {
-	int num_vertices; /* Number of vertices in list        */
-	gpc_vertex* vertex;       /* Vertex array pointer              */
+	int num_vertices;	/* Number of vertices in list        */
+	gpc_vertex *vertex; /* Vertex array pointer              */
 } gpc_vertex_list;
 
-typedef struct                      /* Polygon set structure             */
+typedef struct /* Polygon set structure             */
 {
-	int num_contours; /* Number of contours in polygon     */
-	int* hole;         /* Hole / external contour flags     */
-	gpc_vertex_list* contour;      /* Contour array pointer             */
+	int num_contours;		  /* Number of contours in polygon     */
+	int *hole;				  /* Hole / external contour flags     */
+	gpc_vertex_list *contour; /* Contour array pointer             */
 } gpc_polygon;
 
-typedef struct                      /* Tristrip set structure            */
+typedef struct /* Tristrip set structure            */
 {
-	int num_strips;   /* Number of tristrips               */
-	gpc_vertex_list* strip;        /* Tristrip array pointer            */
+	int num_strips;			/* Number of tristrips               */
+	gpc_vertex_list *strip; /* Tristrip array pointer            */
 } gpc_tristrip;
 
 #if defined(IS_LINUX) || defined(IS_APPLE)
@@ -71,250 +70,385 @@ typedef int BOOL;
 #endif
 
 #ifndef TRUE
-#define FALSE              0
-#define TRUE               1
+#define FALSE 0
+#define TRUE 1
 #endif
 
-#define LEFT               0
-#define RIGHT              1
+#define LEFT 0
+#define RIGHT 1
 
-#define ABOVE              0
-#define BELOW              1
+#define ABOVE 0
+#define BELOW 1
 
-#define CLIP               0
-#define SUBJ               1
+#define CLIP 0
+#define SUBJ 1
 
-#define INVERT_TRISTRIPS   FALSE
-
-
-/*
-===========================================================================
-                                 Macros 
-===========================================================================
-*/
-
-#define EQ(a, b)           (fabs((a) - (b)) <= GPC_EPSILON)
-
-#define PREV_INDEX(i, n)   ((i - 1 + n) % n)
-#define NEXT_INDEX(i, n)   ((i + 1    ) % n)
-
-#define OPTIMAL(v, i, n)   ((v[PREV_INDEX(i, n)].y != v[i].y) || \
-                            (v[NEXT_INDEX(i, n)].y != v[i].y))
-
-#define FWD_MIN(v, i, n)   ((v[PREV_INDEX(i, n)].vertex.y >= v[i].vertex.y) \
-                         && (v[NEXT_INDEX(i, n)].vertex.y > v[i].vertex.y))
-
-#define NOT_FMAX(v, i, n)   (v[NEXT_INDEX(i, n)].vertex.y > v[i].vertex.y)
-
-#define REV_MIN(v, i, n)   ((v[PREV_INDEX(i, n)].vertex.y > v[i].vertex.y) \
-                         && (v[NEXT_INDEX(i, n)].vertex.y >= v[i].vertex.y))
-
-#define NOT_RMAX(v, i, n)   (v[PREV_INDEX(i, n)].vertex.y > v[i].vertex.y)
-
-#define VERTEX(e, p, s, x, y)  {add_vertex(&((e)->outp[(p)]->v[(s)]), x, y); \
-                            (e)->outp[(p)]->active++;}
-
-#define P_EDGE(d, e, p, i, j)  {(d)= (e); \
-                            do {(d)= (d)->prev;} while (!(d)->outp[(p)]); \
-                            (i)= (d)->bot.x + (d)->dx * ((j)-(d)->bot.y);}
-
-#define N_EDGE(d, e, p, i, j)  {(d)= (e); \
-                            do {(d)= (d)->next;} while (!(d)->outp[(p)]); \
-                            (i)= (d)->bot.x + (d)->dx * ((j)-(d)->bot.y);}
-
-#define MALLOCINT(p, b, s)    {if ((b) > 0) { \
-                            p= (int *)malloc(b); if (!(p)) { \
-                            fprintf(stderr, "gpc malloc failure: %s\n", s); \
-                    exit(0);}} else p= nullptr;}
-
-#define MALLOCGPC(p, b, s)    {if ((b) > 0) { \
-                            p= (gpc_vertex_list *)malloc(b); if (!(p)) { \
-                            fprintf(stderr, "gpc malloc failure: %s\n", s); \
-                    exit(0);}} else p= nullptr;}
-
-#define MALLOCGPCV(p, b, s)    {if ((b) > 0) { \
-                            p= (gpc_vertex *)malloc(b); if (!(p)) { \
-                            fprintf(stderr, "gpc malloc failure: %s\n", s); \
-                    exit(0);}} else p= nullptr;}
-
-#define MALLOCDOU(p, b, s)    {if ((b) > 0) { \
-                            p= (double *)malloc(b); if (!(p)) { \
-                            fprintf(stderr, "gpc malloc failure: %s\n", s); \
-                    exit(0);}} else p= nullptr;}
-
-#define MALLOC(p, b, s)    {if ((b) > 0) { \
-                            p= (lmt_node *)malloc(b); if (!(p)) { \
-                            fprintf(stderr, "gpc malloc failure: %s\n", s); \
-                    exit(0);}} else p= nullptr;}
-
-#define MALLOCSBT(p, b, s)    {if ((b) > 0) { \
-                            p= (sb_tree *)malloc(b); if (!(p)) { \
-                            fprintf(stderr, "gpc malloc failure: %s\n", s); \
-                    exit(0);}} else p= nullptr;}
-
-#define MALLOCEDG(p, b, s)    {if ((b) > 0) { \
-                            p= (edge_node *)malloc(b); if (!(p)) { \
-                            fprintf(stderr, "gpc malloc failure: %s\n", s); \
-                    exit(0);}} else p= nullptr;}
-
-#define MALLOCIT(p, b, s)    {if ((b) > 0) { \
-                            p= (it_node *)malloc(b); if (!(p)) { \
-                            fprintf(stderr, "gpc malloc failure: %s\n", s); \
-                    exit(0);}} else p= nullptr;}
-
-#define MALLOCST(p, b, s)    {if ((b) > 0) { \
-                            p= (st_node *)malloc(b); if (!(p)) { \
-                            fprintf(stderr, "gpc malloc failure: %s\n", s); \
-                    exit(0);}} else p= nullptr;}
-#define MALLOCBBOX(p, b, s)    {if ((b) > 0) { \
-                            p= (bbox *)malloc(b); if (!(p)) { \
-                            fprintf(stderr, "gpc malloc failure: %s\n", s); \
-                    exit(0);}} else p= nullptr;}
-#define MALLOCPOL(p, b, s)    {if ((b) > 0) { \
-                            p= (polygon_node *)malloc(b); if (!(p)) { \
-                            fprintf(stderr, "gpc malloc failure: %s\n", s); \
-                    exit(0);}} else p= nullptr;}
-#define MALLOCVER(p, b, s)    {if ((b) > 0) { \
-                            p= (vertex_node *)malloc(b); if (!(p)) { \
-                            fprintf(stderr, "gpc malloc failure: %s\n", s); \
-                    exit(0);}} else p= nullptr;}
-
-
-#define FREE(p)            {if (p) {free(p); (p)= nullptr;}}
-
+#define INVERT_TRISTRIPS FALSE
 
 /*
 ===========================================================================
-                            Private Data Types
+								 Macros
 ===========================================================================
 */
 
-typedef enum                        /* Edge intersection classes         */
+#define EQ(a, b) (fabs((a) - (b)) <= GPC_EPSILON)
+
+#define PREV_INDEX(i, n) ((i - 1 + n) % n)
+#define NEXT_INDEX(i, n) ((i + 1) % n)
+
+#define OPTIMAL(v, i, n) ((v[PREV_INDEX(i, n)].y != v[i].y) || \
+						  (v[NEXT_INDEX(i, n)].y != v[i].y))
+
+#define FWD_MIN(v, i, n) ((v[PREV_INDEX(i, n)].vertex.y >= v[i].vertex.y) && (v[NEXT_INDEX(i, n)].vertex.y > v[i].vertex.y))
+
+#define NOT_FMAX(v, i, n) (v[NEXT_INDEX(i, n)].vertex.y > v[i].vertex.y)
+
+#define REV_MIN(v, i, n) ((v[PREV_INDEX(i, n)].vertex.y > v[i].vertex.y) && (v[NEXT_INDEX(i, n)].vertex.y >= v[i].vertex.y))
+
+#define NOT_RMAX(v, i, n) (v[PREV_INDEX(i, n)].vertex.y > v[i].vertex.y)
+
+#define VERTEX(e, p, s, x, y)                        \
+	{                                                \
+		add_vertex(&((e)->outp[(p)]->v[(s)]), x, y); \
+		(e)->outp[(p)]->active++;                    \
+	}
+
+#define P_EDGE(d, e, p, i, j)                            \
+	{                                                    \
+		(d) = (e);                                       \
+		do                                               \
+		{                                                \
+			(d) = (d)->prev;                             \
+		} while (!(d)->outp[(p)]);                       \
+		(i) = (d)->bot.x + (d)->dx * ((j) - (d)->bot.y); \
+	}
+
+#define N_EDGE(d, e, p, i, j)                            \
+	{                                                    \
+		(d) = (e);                                       \
+		do                                               \
+		{                                                \
+			(d) = (d)->next;                             \
+		} while (!(d)->outp[(p)]);                       \
+		(i) = (d)->bot.x + (d)->dx * ((j) - (d)->bot.y); \
+	}
+
+#define MALLOCINT(p, b, s)                                      \
+	{                                                           \
+		if ((b) > 0)                                            \
+		{                                                       \
+			p = (int *)malloc(b);                               \
+			if (!(p))                                           \
+			{                                                   \
+				fprintf(stderr, "gpc malloc failure: %s\n", s); \
+				exit(0);                                        \
+			}                                                   \
+		}                                                       \
+		else                                                    \
+			p = nullptr;                                        \
+	}
+
+#define MALLOCGPC(p, b, s)                                      \
+	{                                                           \
+		if ((b) > 0)                                            \
+		{                                                       \
+			p = (gpc_vertex_list *)malloc(b);                   \
+			if (!(p))                                           \
+			{                                                   \
+				fprintf(stderr, "gpc malloc failure: %s\n", s); \
+				exit(0);                                        \
+			}                                                   \
+		}                                                       \
+		else                                                    \
+			p = nullptr;                                        \
+	}
+
+#define MALLOCGPCV(p, b, s)                                     \
+	{                                                           \
+		if ((b) > 0)                                            \
+		{                                                       \
+			p = (gpc_vertex *)malloc(b);                        \
+			if (!(p))                                           \
+			{                                                   \
+				fprintf(stderr, "gpc malloc failure: %s\n", s); \
+				exit(0);                                        \
+			}                                                   \
+		}                                                       \
+		else                                                    \
+			p = nullptr;                                        \
+	}
+
+#define MALLOCDOU(p, b, s)                                      \
+	{                                                           \
+		if ((b) > 0)                                            \
+		{                                                       \
+			p = (double *)malloc(b);                            \
+			if (!(p))                                           \
+			{                                                   \
+				fprintf(stderr, "gpc malloc failure: %s\n", s); \
+				exit(0);                                        \
+			}                                                   \
+		}                                                       \
+		else                                                    \
+			p = nullptr;                                        \
+	}
+
+#define MALLOC(p, b, s)                                         \
+	{                                                           \
+		if ((b) > 0)                                            \
+		{                                                       \
+			p = (lmt_node *)malloc(b);                          \
+			if (!(p))                                           \
+			{                                                   \
+				fprintf(stderr, "gpc malloc failure: %s\n", s); \
+				exit(0);                                        \
+			}                                                   \
+		}                                                       \
+		else                                                    \
+			p = nullptr;                                        \
+	}
+
+#define MALLOCSBT(p, b, s)                                      \
+	{                                                           \
+		if ((b) > 0)                                            \
+		{                                                       \
+			p = (sb_tree *)malloc(b);                           \
+			if (!(p))                                           \
+			{                                                   \
+				fprintf(stderr, "gpc malloc failure: %s\n", s); \
+				exit(0);                                        \
+			}                                                   \
+		}                                                       \
+		else                                                    \
+			p = nullptr;                                        \
+	}
+
+#define MALLOCEDG(p, b, s)                                      \
+	{                                                           \
+		if ((b) > 0)                                            \
+		{                                                       \
+			p = (edge_node *)malloc(b);                         \
+			if (!(p))                                           \
+			{                                                   \
+				fprintf(stderr, "gpc malloc failure: %s\n", s); \
+				exit(0);                                        \
+			}                                                   \
+		}                                                       \
+		else                                                    \
+			p = nullptr;                                        \
+	}
+
+#define MALLOCIT(p, b, s)                                       \
+	{                                                           \
+		if ((b) > 0)                                            \
+		{                                                       \
+			p = (it_node *)malloc(b);                           \
+			if (!(p))                                           \
+			{                                                   \
+				fprintf(stderr, "gpc malloc failure: %s\n", s); \
+				exit(0);                                        \
+			}                                                   \
+		}                                                       \
+		else                                                    \
+			p = nullptr;                                        \
+	}
+
+#define MALLOCST(p, b, s)                                       \
+	{                                                           \
+		if ((b) > 0)                                            \
+		{                                                       \
+			p = (st_node *)malloc(b);                           \
+			if (!(p))                                           \
+			{                                                   \
+				fprintf(stderr, "gpc malloc failure: %s\n", s); \
+				exit(0);                                        \
+			}                                                   \
+		}                                                       \
+		else                                                    \
+			p = nullptr;                                        \
+	}
+#define MALLOCBBOX(p, b, s)                                     \
+	{                                                           \
+		if ((b) > 0)                                            \
+		{                                                       \
+			p = (bbox *)malloc(b);                              \
+			if (!(p))                                           \
+			{                                                   \
+				fprintf(stderr, "gpc malloc failure: %s\n", s); \
+				exit(0);                                        \
+			}                                                   \
+		}                                                       \
+		else                                                    \
+			p = nullptr;                                        \
+	}
+#define MALLOCPOL(p, b, s)                                      \
+	{                                                           \
+		if ((b) > 0)                                            \
+		{                                                       \
+			p = (polygon_node *)malloc(b);                      \
+			if (!(p))                                           \
+			{                                                   \
+				fprintf(stderr, "gpc malloc failure: %s\n", s); \
+				exit(0);                                        \
+			}                                                   \
+		}                                                       \
+		else                                                    \
+			p = nullptr;                                        \
+	}
+#define MALLOCVER(p, b, s)                                      \
+	{                                                           \
+		if ((b) > 0)                                            \
+		{                                                       \
+			p = (vertex_node *)malloc(b);                       \
+			if (!(p))                                           \
+			{                                                   \
+				fprintf(stderr, "gpc malloc failure: %s\n", s); \
+				exit(0);                                        \
+			}                                                   \
+		}                                                       \
+		else                                                    \
+			p = nullptr;                                        \
+	}
+
+#define FREE(p)            \
+	{                      \
+		if (p)             \
+		{                  \
+			free(p);       \
+			(p) = nullptr; \
+		}                  \
+	}
+
+/*
+===========================================================================
+							Private Data Types
+===========================================================================
+*/
+
+typedef enum /* Edge intersection classes         */
 {
-	NUL,                              /* Empty non-intersection            */
-	EMX,                              /* External maximum                  */
-	ELI,                              /* External left intermediate        */
-	TED,                              /* Top edge                          */
-	ERI,                              /* External right intermediate       */
-	RED,                              /* Right edge                        */
-	IMM,                              /* Internal maximum and minimum      */
-	IMN,                              /* Internal minimum                  */
-	EMN,                              /* External minimum                  */
-	EMM,                              /* External maximum and minimum      */
-	LED,                              /* Left edge                         */
-	ILI,                              /* Internal left intermediate        */
-	BED,                              /* Bottom edge                       */
-	IRI,                              /* Internal right intermediate       */
-	IMX,                              /* Internal maximum                  */
-	FUL                               /* Full non-intersection             */
+	NUL, /* Empty non-intersection            */
+	EMX, /* External maximum                  */
+	ELI, /* External left intermediate        */
+	TED, /* Top edge                          */
+	ERI, /* External right intermediate       */
+	RED, /* Right edge                        */
+	IMM, /* Internal maximum and minimum      */
+	IMN, /* Internal minimum                  */
+	EMN, /* External minimum                  */
+	EMM, /* External maximum and minimum      */
+	LED, /* Left edge                         */
+	ILI, /* Internal left intermediate        */
+	BED, /* Bottom edge                       */
+	IRI, /* Internal right intermediate       */
+	IMX, /* Internal maximum                  */
+	FUL	 /* Full non-intersection             */
 } vertex_type;
 
-typedef enum                        /* Horizontal edge states            */
+typedef enum /* Horizontal edge states            */
 {
-	NH,                               /* No horizontal edge                */
-	BH,                               /* Bottom horizontal edge            */
-	TH                                /* Top horizontal edge               */
+	NH, /* No horizontal edge                */
+	BH, /* Bottom horizontal edge            */
+	TH	/* Top horizontal edge               */
 } h_state;
 
-typedef enum                        /* Edge bundle state                 */
+typedef enum /* Edge bundle state                 */
 {
-	UNBUNDLED,                        /* Isolated edge not within a bundle */
-	BUNDLE_HEAD,                      /* Bundle head node                  */
-	BUNDLE_TAIL                       /* Passive bundle tail node          */
+	UNBUNDLED,	 /* Isolated edge not within a bundle */
+	BUNDLE_HEAD, /* Bundle head node                  */
+	BUNDLE_TAIL	 /* Passive bundle tail node          */
 } bundle_state;
 
-typedef struct v_shape              /* Internal vertex list datatype     */
+typedef struct v_shape /* Internal vertex list datatype     */
 {
-	double x;            /* X coordinate component            */
-	double y;            /* Y coordinate component            */
-	struct v_shape* next;         /* Pointer to next vertex in list    */
+	double x;			  /* X coordinate component            */
+	double y;			  /* Y coordinate component            */
+	struct v_shape *next; /* Pointer to next vertex in list    */
 } vertex_node;
 
-typedef struct p_shape              /* Internal contour / tristrip type  */
+typedef struct p_shape /* Internal contour / tristrip type  */
 {
-	int active;       /* Active flag / vertex count        */
-	int hole;         /* Hole / external contour flag      */
-	vertex_node* v[2];         /* Left and right vertex list ptrs   */
-	struct p_shape* next;         /* Pointer to next polygon contour   */
-	struct p_shape* proxy;        /* Pointer to actual structure used  */
+	int active;			   /* Active flag / vertex count        */
+	int hole;			   /* Hole / external contour flag      */
+	vertex_node *v[2];	   /* Left and right vertex list ptrs   */
+	struct p_shape *next;  /* Pointer to next polygon contour   */
+	struct p_shape *proxy; /* Pointer to actual structure used  */
 } polygon_node;
 
 typedef struct edge_shape
 {
-	gpc_vertex vertex;       /* Piggy-backed contour vertex data  */
-	gpc_vertex bot;          /* Edge lower (x, y) coordinate      */
-	gpc_vertex top;          /* Edge upper (x, y) coordinate      */
-	double xb;           /* Scanbeam bottom x coordinate      */
-	double xt;           /* Scanbeam top x coordinate         */
-	double dx;           /* Change in x for a unit y increase */
-	int type;         /* Clip / subject edge flag          */
-	int bundle[2][2]; /* Bundle edge flags                 */
-	int bside[2];     /* Bundle left / right indicators    */
-	bundle_state bstate[2];    /* Edge bundle state                 */
-	polygon_node* outp[2];      /* Output polygon / tristrip pointer */
-	struct edge_shape* prev;         /* Previous edge in the AET          */
-	struct edge_shape* next;         /* Next edge in the AET              */
-	struct edge_shape* pred;         /* Edge connected at the lower end   */
-	struct edge_shape* succ;         /* Edge connected at the upper end   */
-	struct edge_shape* next_bound;   /* Pointer to next bound in LMT      */
+	gpc_vertex vertex;			   /* Piggy-backed contour vertex data  */
+	gpc_vertex bot;				   /* Edge lower (x, y) coordinate      */
+	gpc_vertex top;				   /* Edge upper (x, y) coordinate      */
+	double xb;					   /* Scanbeam bottom x coordinate      */
+	double xt;					   /* Scanbeam top x coordinate         */
+	double dx;					   /* Change in x for a unit y increase */
+	int type;					   /* Clip / subject edge flag          */
+	int bundle[2][2];			   /* Bundle edge flags                 */
+	int bside[2];				   /* Bundle left / right indicators    */
+	bundle_state bstate[2];		   /* Edge bundle state                 */
+	polygon_node *outp[2];		   /* Output polygon / tristrip pointer */
+	struct edge_shape *prev;	   /* Previous edge in the AET          */
+	struct edge_shape *next;	   /* Next edge in the AET              */
+	struct edge_shape *pred;	   /* Edge connected at the lower end   */
+	struct edge_shape *succ;	   /* Edge connected at the upper end   */
+	struct edge_shape *next_bound; /* Pointer to next bound in LMT      */
 } edge_node;
 
-typedef struct lmt_shape            /* Local minima table                */
+typedef struct lmt_shape /* Local minima table                */
 {
-	double y;            /* Y coordinate at local minimum     */
-	edge_node* first_bound;  /* Pointer to bound list             */
-	struct lmt_shape* next;         /* Pointer to next local minimum     */
+	double y;				/* Y coordinate at local minimum     */
+	edge_node *first_bound; /* Pointer to bound list             */
+	struct lmt_shape *next; /* Pointer to next local minimum     */
 } lmt_node;
 
-typedef struct sbt_t_shape          /* Scanbeam tree                     */
+typedef struct sbt_t_shape /* Scanbeam tree                     */
 {
-	double y;            /* Scanbeam node y value             */
-	struct sbt_t_shape* less;         /* Pointer to nodes with lower y     */
-	struct sbt_t_shape* more;         /* Pointer to nodes with higher y    */
+	double y;				  /* Scanbeam node y value             */
+	struct sbt_t_shape *less; /* Pointer to nodes with lower y     */
+	struct sbt_t_shape *more; /* Pointer to nodes with higher y    */
 } sb_tree;
 
-typedef struct it_shape             /* Intersection table                */
+typedef struct it_shape /* Intersection table                */
 {
-	edge_node* ie[2];        /* Intersecting edge (bundle) pair   */
-	gpc_vertex point;        /* Point of intersection             */
-	struct it_shape* next;         /* The next intersection table node  */
+	edge_node *ie[2];	   /* Intersecting edge (bundle) pair   */
+	gpc_vertex point;	   /* Point of intersection             */
+	struct it_shape *next; /* The next intersection table node  */
 } it_node;
 
-typedef struct st_shape             /* Sorted edge table                 */
+typedef struct st_shape /* Sorted edge table                 */
 {
-	edge_node* edge;         /* Pointer to AET edge               */
-	double xb;           /* Scanbeam bottom x coordinate      */
-	double xt;           /* Scanbeam top x coordinate         */
-	double dx;           /* Change in x for a unit y increase */
-	struct st_shape* prev;         /* Previous edge in sorted list      */
+	edge_node *edge;	   /* Pointer to AET edge               */
+	double xb;			   /* Scanbeam bottom x coordinate      */
+	double xt;			   /* Scanbeam top x coordinate         */
+	double dx;			   /* Change in x for a unit y increase */
+	struct st_shape *prev; /* Previous edge in sorted list      */
 } st_node;
 
-typedef struct bbox_shape           /* Contour axis-aligned bounding box */
+typedef struct bbox_shape /* Contour axis-aligned bounding box */
 {
-	double xmin;          /* Minimum x coordinate              */
-	double ymin;          /* Minimum y coordinate              */
-	double xmax;          /* Maximum x coordinate              */
-	double ymax;          /* Maximum y coordinate              */
+	double xmin; /* Minimum x coordinate              */
+	double ymin; /* Minimum y coordinate              */
+	double xmax; /* Maximum x coordinate              */
+	double ymax; /* Maximum y coordinate              */
 } bbox;
 
 /*
 ===========================================================================
-                               Global Data
+							   Global Data
 ===========================================================================
 */
 
 /* Horizontal edge state transitions within scanbeam boundary */
 const h_state next_h_state[3][6] =
-		{
-				/*        ABOVE     BELOW     CROSS */
-				/*        L   R     L   R     L   R */
-				/* NH */ { BH, TH, TH, BH, NH, NH },
-				/* BH */
-						 { NH, NH, NH, NH, TH, TH },
-				/* TH */
-						 { NH, NH, NH, NH, BH, BH }
-		};
-
+	{
+		/*        ABOVE     BELOW     CROSS */
+		/*        L   R     L   R     L   R */
+		/* NH */ {BH, TH, TH, BH, NH, NH},
+		/* BH */
+		{NH, NH, NH, NH, TH, TH},
+		/* TH */
+		{NH, NH, NH, NH, BH, BH}};
 
 class gpc
 {
@@ -323,60 +457,60 @@ public:
 
 	virtual ~gpc();
 
-	void gpc_read_polygon(FILE* infile_ptr,
-			int read_hole_flags,
-			gpc_polygon* polygon);
+	void gpc_read_polygon(FILE *infile_ptr,
+						  int read_hole_flags,
+						  gpc_polygon *polygon);
 
-	void gpc_write_polygon(FILE* outfile_ptr,
-			int write_hole_flags,
-			gpc_polygon* polygon);
+	void gpc_write_polygon(FILE *outfile_ptr,
+						   int write_hole_flags,
+						   gpc_polygon *polygon);
 
-	void gpc_add_contour(gpc_polygon* polygon,
-			gpc_vertex_list* contour,
-			int hole);
+	void gpc_add_contour(gpc_polygon *polygon,
+						 gpc_vertex_list *contour,
+						 int hole);
 
 	void gpc_polygon_clip(gpc_op set_operation,
-			gpc_polygon* subject_polygon,
-			gpc_polygon* clip_polygon,
-			gpc_polygon* result_polygon);
+						  gpc_polygon *subject_polygon,
+						  gpc_polygon *clip_polygon,
+						  gpc_polygon *result_polygon);
 
 	void gpc_tristrip_clip(gpc_op set_operation,
-			gpc_polygon* subject_polygon,
-			gpc_polygon* clip_polygon,
-			gpc_tristrip* result_tristrip);
+						   gpc_polygon *subject_polygon,
+						   gpc_polygon *clip_polygon,
+						   gpc_tristrip *result_tristrip);
 
-	void gpc_polygon_to_tristrip(gpc_polygon* polygon,
-			gpc_tristrip* tristrip);
+	void gpc_polygon_to_tristrip(gpc_polygon *polygon,
+								 gpc_tristrip *tristrip);
 
-	void gpc_free_polygon(gpc_polygon* polygon);
+	void gpc_free_polygon(gpc_polygon *polygon);
 
-	void gpc_free_tristrip(gpc_tristrip* tristrip);
+	void gpc_free_tristrip(gpc_tristrip *tristrip);
 
-	void gpc_input_polygon(int read_hole_flags, gpc_polygon* p, double* input);
+	void gpc_input_polygon(int read_hole_flags, gpc_polygon *p, double *input);
 
-	void gpc_polyline_clip(gpc_op op, gpc_polygon* subj, gpc_polygon* clip,
-			gpc_polygon* result);
+	void gpc_polyline_clip(gpc_op op, gpc_polygon *subj, gpc_polygon *clip,
+						   gpc_polygon *result);
 
 	BOOL calc_intersection(double xa, double ya, double xb, double yb,
-			double xc, double yc, double xd, double yd,
-			double* x, double* y);
+						   double xc, double yc, double xd, double yd,
+						   double *x, double *y);
 
 	BOOL inBox(double x, double y, double xc, double yc, double xd, double yd);
 
-	BOOL inPolygon(double x, double y, gpc_polygon* clip);
+	BOOL inPolygon(double x, double y, gpc_polygon *clip);
 
-	int PointRgn(double x, double y, int Numble, double* PointList);
+	int PointRgn(double x, double y, int Numble, double *PointList);
 
-	void swap(double* a, double* b)
+	void swap(double *a, double *b)
 	{
 		*a = *a - *b;
 		*b = *a;
 		*a = *b - *a;
 	}
 
-	void reset_it(it_node** it)
+	void reset_it(it_node **it)
 	{
-		it_node* itn;
+		it_node *itn;
 
 		while (*it)
 		{
@@ -386,10 +520,9 @@ public:
 		}
 	}
 
-
-	void reset_lmt(lmt_node** lmt)
+	void reset_lmt(lmt_node **lmt)
 	{
-		lmt_node* lmtn;
+		lmt_node *lmtn;
 
 		while (*lmt)
 		{
@@ -399,10 +532,9 @@ public:
 		}
 	}
 
-
-	void insert_bound(edge_node** b, edge_node* e)
+	void insert_bound(edge_node **b, edge_node *e)
 	{
-		edge_node* existing_bound;
+		edge_node *existing_bound;
 
 		if (!*b)
 		{
@@ -446,10 +578,9 @@ public:
 		}
 	}
 
-
-	edge_node** bound_list(lmt_node** lmt, double y)
+	edge_node **bound_list(lmt_node **lmt, double y)
 	{
-		lmt_node* existing_node;
+		lmt_node *existing_node;
 
 		if (!*lmt)
 		{
@@ -478,8 +609,7 @@ public:
 			return &((*lmt)->first_bound);
 	}
 
-
-	void add_to_sbtree(int* entries, sb_tree** sbtree, double y)
+	void add_to_sbtree(int *entries, sb_tree **sbtree, double y)
 	{
 		if (!*sbtree)
 		{
@@ -508,8 +638,7 @@ public:
 		}
 	}
 
-
-	void build_sbt(int* entries, double* sbt, sb_tree* sbtree)
+	void build_sbt(int *entries, double *sbt, sb_tree *sbtree)
 	{
 		if (sbtree->less)
 			build_sbt(entries, sbt, sbtree->less);
@@ -519,8 +648,7 @@ public:
 			build_sbt(entries, sbt, sbtree->more);
 	}
 
-
-	void free_sbtree(sb_tree** sbtree)
+	void free_sbtree(sb_tree **sbtree)
 	{
 		if (*sbtree)
 		{
@@ -529,7 +657,6 @@ public:
 			FREE(*sbtree);
 		}
 	}
-
 
 	int count_optimal_vertices(gpc_vertex_list c)
 	{
@@ -546,21 +673,20 @@ public:
 		return result;
 	}
 
-
-	edge_node* build_lmt(lmt_node** lmt, sb_tree** sbtree,
-			int* sbt_entries, gpc_polygon* p, int type,
-			gpc_op op)
+	edge_node *build_lmt(lmt_node **lmt, sb_tree **sbtree,
+						 int *sbt_entries, gpc_polygon *p, int type,
+						 gpc_op op)
 	{
 		int c, i, min, max, num_edges, v, num_vertices;
 		int total_vertices = 0, e_index = 0;
-		edge_node* e, * edge_table;
+		edge_node *e, *edge_table;
 
 		for (c = 0; c < p->num_contours; c++)
 			total_vertices += count_optimal_vertices(p->contour[c]);
 
 		/* Create the entire input polygon edge table in one go */
 		MALLOCEDG(edge_table, total_vertices * sizeof(edge_node),
-				"edge table creation");
+				  "edge table creation");
 
 		for (c = 0; c < p->num_contours; c++)
 		{
@@ -581,7 +707,7 @@ public:
 
 						/* Record vertex in the scanbeam table */
 						add_to_sbtree(sbt_entries, sbtree,
-								edge_table[num_vertices].vertex.y);
+									  edge_table[num_vertices].vertex.y);
 
 						num_vertices++;
 					}
@@ -625,8 +751,7 @@ public:
 							e[i].outp[BELOW] = nullptr;
 							e[i].next = nullptr;
 							e[i].prev = nullptr;
-							e[i].succ = ((num_edges > 1) && (i < (num_edges - 1))) ?
-										&(e[i + 1]) : nullptr;
+							e[i].succ = ((num_edges > 1) && (i < (num_edges - 1))) ? &(e[i + 1]) : nullptr;
 							e[i].pred = ((num_edges > 1) && (i > 0)) ? &(e[i - 1]) : nullptr;
 							e[i].next_bound = nullptr;
 							e[i].bside[CLIP] = (op == GPC_DIFF) ? RIGHT : LEFT;
@@ -675,8 +800,7 @@ public:
 							e[i].outp[BELOW] = nullptr;
 							e[i].next = nullptr;
 							e[i].prev = nullptr;
-							e[i].succ = ((num_edges > 1) && (i < (num_edges - 1))) ?
-										&(e[i + 1]) : nullptr;
+							e[i].succ = ((num_edges > 1) && (i < (num_edges - 1))) ? &(e[i + 1]) : nullptr;
 							e[i].pred = ((num_edges > 1) && (i > 0)) ? &(e[i - 1]) : nullptr;
 							e[i].next_bound = nullptr;
 							e[i].bside[CLIP] = (op == GPC_DIFF) ? RIGHT : LEFT;
@@ -690,8 +814,7 @@ public:
 		return edge_table;
 	}
 
-
-	void add_edge_to_aet(edge_node** aet, edge_node* edge, edge_node* prev)
+	void add_edge_to_aet(edge_node **aet, edge_node *edge, edge_node *prev)
 	{
 		if (!*aet)
 		{
@@ -739,11 +862,10 @@ public:
 		}
 	}
 
-
-	void add_intersection(it_node** it, edge_node* edge0, edge_node* edge1,
-			double x, double y)
+	void add_intersection(it_node **it, edge_node *edge0, edge_node *edge1,
+						  double x, double y)
 	{
-		it_node* existing_node;
+		it_node *existing_node;
 
 		if (!*it)
 		{
@@ -774,11 +896,10 @@ public:
 		}
 	}
 
-
-	void add_st_edge(st_node** st, it_node** it, edge_node* edge,
-			double dy)
+	void add_st_edge(st_node **st, it_node **it, edge_node *edge,
+					 double dy)
 	{
-		st_node* existing_node;
+		st_node *existing_node;
 		double den, r, x, y;
 
 		if (!*st)
@@ -824,11 +945,10 @@ public:
 		}
 	}
 
-
-	void build_intersection_table(it_node** it, edge_node* aet, double dy)
+	void build_intersection_table(it_node **it, edge_node *aet, double dy)
 	{
-		st_node* st, * stp;
-		edge_node* edge;
+		st_node *st, *stp;
+		edge_node *edge;
 
 		/* Build intersection table for the current scanbeam */
 		reset_it(it);
@@ -851,10 +971,10 @@ public:
 		}
 	}
 
-	int count_contours(polygon_node* polygon)
+	int count_contours(polygon_node *polygon)
 	{
 		int nc, nv;
-		vertex_node* v, * nextv;
+		vertex_node *v, *nextv;
 
 		for (nc = 0; polygon; polygon = polygon->next)
 			if (polygon->active)
@@ -884,10 +1004,9 @@ public:
 		return nc;
 	}
 
-
-	void add_left(polygon_node* p, double x, double y)
+	void add_left(polygon_node *p, double x, double y)
 	{
-		vertex_node* nv;
+		vertex_node *nv;
 
 		/* Create a new vertex node and set its fields */
 		MALLOCVER(nv, sizeof(vertex_node), "vertex node creation");
@@ -901,10 +1020,9 @@ public:
 		p->proxy->v[LEFT] = nv;
 	}
 
-
-	void merge_left(polygon_node* p, polygon_node* q, polygon_node* list)
+	void merge_left(polygon_node *p, polygon_node *q, polygon_node *list)
 	{
-		polygon_node* target;
+		polygon_node *target;
 
 		/* Label contour as a hole */
 		q->proxy->hole = TRUE;
@@ -928,10 +1046,9 @@ public:
 		}
 	}
 
-
-	void add_right(polygon_node* p, double x, double y)
+	void add_right(polygon_node *p, double x, double y)
 	{
-		vertex_node* nv;
+		vertex_node *nv;
 
 		/* Create a new vertex node and set its fields */
 		MALLOCVER(nv, sizeof(vertex_node), "vertex node creation");
@@ -946,10 +1063,9 @@ public:
 		p->proxy->v[RIGHT] = nv;
 	}
 
-
-	void merge_right(polygon_node* p, polygon_node* q, polygon_node* list)
+	void merge_right(polygon_node *p, polygon_node *q, polygon_node *list)
 	{
-		polygon_node* target;
+		polygon_node *target;
 
 		/* Label contour as external */
 		q->proxy->hole = FALSE;
@@ -972,12 +1088,11 @@ public:
 		}
 	}
 
-
-	void add_local_min(polygon_node** p, edge_node* edge,
-			double x, double y)
+	void add_local_min(polygon_node **p, edge_node *edge,
+					   double x, double y)
 	{
-		polygon_node* existing_min;
-		vertex_node* nv;
+		polygon_node *existing_min;
+		vertex_node *nv;
 
 		existing_min = *p;
 
@@ -1002,8 +1117,7 @@ public:
 		edge->outp[ABOVE] = *p;
 	}
 
-
-	int count_tristrips(polygon_node* tn)
+	int count_tristrips(polygon_node *tn)
 	{
 		int total;
 
@@ -1013,8 +1127,7 @@ public:
 		return total;
 	}
 
-
-	void add_vertex(vertex_node** t, double x, double y)
+	void add_vertex(vertex_node **t, double x, double y)
 	{
 		if (!(*t))
 		{
@@ -1028,9 +1141,8 @@ public:
 			add_vertex(&((*t)->next), x, y);
 	}
 
-
-	void new_tristrip(polygon_node** tn, edge_node* edge,
-			double x, double y)
+	void new_tristrip(polygon_node **tn, edge_node *edge,
+					  double x, double y)
 	{
 		if (!(*tn))
 		{
@@ -1047,10 +1159,9 @@ public:
 			new_tristrip(&((*tn)->next), edge, x, y);
 	}
 
-
-	bbox* create_contour_bboxes(gpc_polygon* p)
+	bbox *create_contour_bboxes(gpc_polygon *p)
 	{
-		bbox* box;
+		bbox *box;
 		int c, v;
 
 		MALLOCBBOX(box, p->num_contours * sizeof(bbox), "Bounding box creation");
@@ -1080,26 +1191,25 @@ public:
 		return box;
 	}
 
-
-	void minimax_test(gpc_polygon* subj, gpc_polygon* clip, gpc_op op)
+	void minimax_test(gpc_polygon *subj, gpc_polygon *clip, gpc_op op)
 	{
-		bbox* s_bbox, * c_bbox;
-		int s, c, * o_table, overlap;
+		bbox *s_bbox, *c_bbox;
+		int s, c, *o_table, overlap;
 
 		s_bbox = create_contour_bboxes(subj);
 		c_bbox = create_contour_bboxes(clip);
 
 		MALLOCINT(o_table, subj->num_contours * clip->num_contours * sizeof(int),
-				"overlap table creation");
+				  "overlap table creation");
 
 		/* Check all subject contour bounding boxes against clip boxes */
 		for (s = 0; s < subj->num_contours; s++)
 			for (c = 0; c < clip->num_contours; c++)
 				o_table[c * subj->num_contours + s] =
-						(!((s_bbox[s].xmax < c_bbox[c].xmin) ||
-						   (s_bbox[s].xmin > c_bbox[c].xmax))) &&
-						(!((s_bbox[s].ymax < c_bbox[c].ymin) ||
-						   (s_bbox[s].ymin > c_bbox[c].ymax)));
+					(!((s_bbox[s].xmax < c_bbox[c].xmin) ||
+					   (s_bbox[s].xmin > c_bbox[c].xmax))) &&
+					(!((s_bbox[s].ymax < c_bbox[c].ymin) ||
+					   (s_bbox[s].ymin > c_bbox[c].ymax)));
 
 		/* For each clip contour, search for any subject contour overlaps */
 		for (c = 0; c < clip->num_contours; c++)
@@ -1132,9 +1242,6 @@ public:
 		FREE(c_bbox);
 		FREE(o_table);
 	}
-
 };
-
-
 
 // #endif // !defined(AFX_GPC_H__2C829BED_085C_416D_8656_D55F43663D5D__INCLUDED_)

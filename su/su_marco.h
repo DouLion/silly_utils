@@ -10,6 +10,8 @@
  */
 // 获取变量名称的宏
 #include <stdio.h>
+#include <iostream>
+#include <cstring>
 #define SU_VAR_NAME(var) #var
 
 #define SU_PRINTF_COLOR_NONE "\033[m"
@@ -51,11 +53,13 @@
 #define SU_TINY TINY
 
 // #define		EPS 与opencv的冲突
-#define SU_EPS .1e-12
+#ifndef SU_EPS
+#define SU_EPS (.1e-12f)
+#endif
 
 /** earth radius */
 #ifndef EARTH_RADIUS
-#define EARTH_RADIUS 6378.137
+#define EARTH_RADIUS (6378.137f)
 #endif
 #define SU_EARTH_RADIUS EARTH_RADIUS
 
@@ -96,12 +100,21 @@
 
 #endif
 
-// 打印调试信息
+
+#ifndef SU_FILE_NAME
+// 获取当前文件名称 
+#if IS_WIN32
+#define SU_FILE_NAME (strrchr(__FILE__, '\\') ? (strrchr(__FILE__, '\\') + 1):__FILE__)
+#else
+#define SU_FILE_NAME (strrchr(__FILE__, '/') ? (strrchr(__FILE__, '/') + 1):__FILE__)
+#endif
+#endif
 
 #ifndef SU_DEBUG_PRINT
+// 打印调试信息
 #ifndef NDEBUG
 #define SU_DEBUG_PRINT(s, ...)                                                                                                                                                                  \
-    printf(SU_PRINTF_COLOR_BROWN "\n[DEBUG] FILE:" SU_PRINTF_COLOR_RED " %s " SU_PRINTF_COLOR_BROWN "LINE: " SU_PRINTF_COLOR_RED "%I32d \n " SU_PRINTF_COLOR_BROWN "... ", __FILE__, __LINE__); \
+    printf(SU_PRINTF_COLOR_BROWN "\n[DEBUG] FILE:" SU_PRINTF_COLOR_RED " %s " SU_PRINTF_COLOR_BROWN "LINE: " SU_PRINTF_COLOR_RED "%I32d \n " SU_PRINTF_COLOR_BROWN "... ", SU_FILE_NAME, __LINE__); \
     printf(SU_PRINTF_COLOR_LIGHT_GREEN s SU_PRINTF_COLOR_NONE "\n", ##__VA_ARGS__);
 
 #else
@@ -110,22 +123,30 @@
 #endif
 #endif
 
+#ifndef SU_PRINTF
+// 打印信息 未封装
+#define SU_PRINTF(s, ...) 
+#endif
+
 #ifndef SU_INFO_PRINT
+// 打印提示信息
 #define SU_INFO_PRINT(s, ...)                                                                                                                                                                           \
-    printf(SU_PRINTF_COLOR_CYAN "\n[INFO] FILE:" SU_PRINTF_COLOR_DARK_GRAY " %s " SU_PRINTF_COLOR_CYAN "LINE: " SU_PRINTF_COLOR_DARK_GRAY "%I32d \n " SU_PRINTF_COLOR_CYAN "... ", __FILE__, __LINE__); \
+    printf(SU_PRINTF_COLOR_CYAN "\n[INFO] FILE:" SU_PRINTF_COLOR_DARK_GRAY " %s " SU_PRINTF_COLOR_CYAN "LINE: " SU_PRINTF_COLOR_DARK_GRAY "%I32d \n " SU_PRINTF_COLOR_CYAN "... ", SU_FILE_NAME, __LINE__); \
     printf(SU_PRINTF_COLOR_DARK_GRAY s SU_PRINTF_COLOR_NONE "\n", ##__VA_ARGS__);
 #endif
 
 #ifndef SU_ERROR_PRINT
+// 打印错误信息
 #define SU_ERROR_PRINT(s, ...)                                                                                                                                                                            \
-    printf(SU_PRINTF_COLOR_RED "\n[ERROR] FILE:" SU_PRINTF_COLOR_LIGHT_GREEN " %s " SU_PRINTF_COLOR_RED "LINE: " SU_PRINTF_COLOR_LIGHT_GREEN "%I32d \n " SU_PRINTF_COLOR_RED "... ", __FILE__, __LINE__); \
+    printf(SU_PRINTF_COLOR_RED "\n[ERROR] FILE:" SU_PRINTF_COLOR_LIGHT_GREEN " %s " SU_PRINTF_COLOR_RED "LINE: " SU_PRINTF_COLOR_LIGHT_GREEN "%I32d \n " SU_PRINTF_COLOR_RED "... ", SU_FILE_NAME, __LINE__); \
     printf(SU_PRINTF_COLOR_LIGHT_GREEN s SU_PRINTF_COLOR_NONE "\n", ##__VA_ARGS__);
 #endif
 
-// 标记一行
 
-#ifndef SU_MARL_LINE
-#define SU_MARL_LINE printf(SU_PRINTF_COLOR_LIGHT_CYAN "\n[MARK] FILE:" SU_PRINTF_COLOR_LIGHT_RED " %s " SU_PRINTF_COLOR_LIGHT_CYAN "LINE: " SU_PRINTF_COLOR_LIGHT_RED "%I32d \n" SU_PRINTF_COLOR_NONE, __FILE__, __LINE__);
+
+#ifndef SU_MARK_LINE
+// 标记一行
+#define SU_MARK_LINE printf(SU_PRINTF_COLOR_LIGHT_CYAN "\n[MARK] FILE:" SU_PRINTF_COLOR_LIGHT_RED " %s " SU_PRINTF_COLOR_LIGHT_CYAN "LINE: " SU_PRINTF_COLOR_LIGHT_RED "%I32d \n" SU_PRINTF_COLOR_NONE, SU_FILE_NAME, __LINE__);
 
 #endif
 

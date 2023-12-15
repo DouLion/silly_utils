@@ -19,13 +19,14 @@
 class otl_tools
 {
 public:
-	static otl_datetime otl_time_from_string(const std::string& str);
 
-	static std::string otl_time_to_string(const otl_datetime& tm);
+	static otl_datetime otl_time_from_string(const std::string &str);
 
-    static OtlConnOption conn_opt_from_json(const Json::Value& root);
+	static std::string otl_time_to_string(const otl_datetime &tm);
 
-	static OtlConnOption conn_opt_from_json(const std::string& json_str);
+	static OtlConnOption conn_opt_from_json(const Json::Value &root);
+
+	static OtlConnOption conn_opt_from_json(const std::string &json_str);
 };
 
-#endif //OTL_TOOLS_H
+#endif // OTL_TOOLS_H

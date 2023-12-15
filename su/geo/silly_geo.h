@@ -15,6 +15,7 @@
 #include <vector>
 #include <iostream>
 #include <map>
+#include <cstring>
 
 #define SILLY_GEO_FLOAT_IGNORE_DIFF   1e-9
 
@@ -163,7 +164,7 @@ public:
 			}
 			// 分配新的内存并复制数据
 			this->data = new unsigned char[len];
-			std::memcpy(this->data, other.data, len);
+			memcpy(this->data, other.data, len);
 		}
 		return *this;
 	}
@@ -180,7 +181,7 @@ public:
 			delete[] this->data;
 		}
 		this->data = new unsigned char[other.len];
-		std::memcpy(this->data, other.data, other.len);
+		memcpy(this->data, other.data, other.len);
 	}
 
 
