@@ -54,6 +54,111 @@ static bool lines_to_shp(const std::vector<silly_line>& lines, const char* outpu
 static bool rings_to_shp(const std::vector<std::vector<silly_point>>& rings, const char* outputShpFilePath);
 
 
+
+class AA
+{
+public:
+	AA() = default;
+	AA(const AA& other)
+	{
+		SU_DEBUG_PRINT("Construct");
+		a = other.a;
+		b = other.b;
+	}
+
+	AA& operator=(const AA& other)
+	{
+		SU_DEBUG_PRINT("operator=");
+		this->a = other.a;
+		this->b = other.b;
+		return *this;
+	}
+public:
+	int  a;
+	int  b;
+};
+
+//int main() {
+//	AA a;
+//	SU_INFO_PRINT("Construct");
+//	AA b = a;
+//	SU_INFO_PRINT("=");
+//	b = a;
+//
+//
+//	return 0;
+//
+//}
+
+
+
+
+
+
+
+
+BOOST_AUTO_TEST_CASE(READ_WRITE_SHP_SILLY_GEO_COLL)
+{
+	std::cout << "\r\n\r\n****************" << "READ_WRITE_SHP_SILLY_GEO_COLL" << "****************" << std::endl;
+	geo_utils::init_gdal_env();
+
+
+
+	//AA a;
+	//SU_INFO_PRINT("Construct");
+	//AA b = a;
+	//SU_INFO_PRINT("=");
+	//b = a;
+
+
+
+	//silly_geo_prop ttt;
+	//ttt.data=new  unsigned char[10];
+
+	
+	// 读取点  //测试完成
+	std::filesystem::path point(DEFAULT_DATA_DIR);
+	point += "/shp/Point.shp";
+	// 写入点
+	std::filesystem::path outpoint(DEFAULT_DATA_DIR);
+	outpoint += "/shp/Point_out.shp";
+	// 读取多面
+	std::filesystem::path MultiPolygons(DEFAULT_DATA_DIR);
+	MultiPolygons += "/shp/risk2.shp";
+	std::filesystem::path Mult(DEFAULT_DATA_DIR);
+	Mult += "/shp/multi.shp";
+
+	// // 读线
+	std::filesystem::path lines(DEFAULT_DATA_DIR);
+	lines += "/shp/lines_1.shp";
+	std::filesystem::path pLine(DEFAULT_DATA_DIR);
+	pLine += "/shp/plines.shp";
+
+
+	// 写面  已处理
+	// 读取单面(包含单面和多面)  已处理可以完成
+	std::filesystem::path Polygon(DEFAULT_DATA_DIR);
+	Polygon += "/shp/xian_poly.shp";
+
+	std::filesystem::path writ_coll_Polygon(DEFAULT_DATA_DIR);
+	writ_coll_Polygon += "/shp/Polygons.shp";
+
+
+	std::vector<silly_geo_coll> collection_xian;
+	geo_utils::read_geo_coll(Polygon.string().c_str(), collection_xian);
+
+	geo_utils::write_geo_coll(writ_coll_Polygon.string().c_str(), collection_xian);
+
+
+
+	geo_utils::destroy_gdal_env();
+
+	int e = 0;
+	int f = 9;
+	int g = 8;
+
+};
+
 BOOST_AUTO_TEST_CASE(READ_VECTOR_POINT_LINE)
 {
 	std::cout << "\r\n\r\n****************" << "READ_VECTOR_POINT_LINE" << "****************" << std::endl;
@@ -110,17 +215,17 @@ BOOST_AUTO_TEST_CASE(READ_VECTOR_POINT_LINE)
 
 	std::vector<silly_line> lines{ geojson_out_point_1, geojson_out_point_2 };
 
-	lines_to_shp(lines, draw_lines.string().c_str());
+	//lines_to_shp(lines, draw_lines.string().c_str());
 
 
-	points_to_shp(geojson_out_point_1, draw_points.string().c_str());
+	//points_to_shp(geojson_out_point_1, draw_points.string().c_str());
 
-	rings_to_shp(rings, draw_rings.string().c_str());
+	//rings_to_shp(rings, draw_rings.string().c_str());
 
 
 	//std::filesystem::path shp_1(DEFAULT_DATA_DIR);
 	//shp_1 += "/shp/risk2.shp";
-	geo_utils::destory_gdal_env();
+	geo_utils::destroy_gdal_env();
 
 
 	int a = 0;
@@ -227,92 +332,92 @@ static void geometry_printout(gaiaGeomCollPtr geom)
 /// std::vector<geo_collection>假数据
 /// </summary>
 /// <param name="data"></param>
-void createFakeData(std::vector<geo_collection>& data)
-{
-	// 创建多点数据
-	geo_collection multiPointData;
-	multiPointData.m_type = enum_geometry_types::eMultiPoint;
-	multiPointData.m_m_points.push_back(silly_point(1.0, 1.0));
-	multiPointData.m_m_points.push_back(silly_point(2.0, 2.0));
-	multiPointData.m_m_points.push_back(silly_point(3.0, 3.0));
-	multiPointData.m_m_points.push_back(silly_point(4.0, 4.0));
-	data.push_back(multiPointData);
-
-	// 创建单线数据
-	geo_collection singleLineData;
-	singleLineData.m_type = enum_geometry_types::eLineString;
-	singleLineData.m_line.push_back(silly_point(1.0, 1.0));
-	singleLineData.m_line.push_back(silly_point(2.0, 2.0));
-	singleLineData.m_line.push_back(silly_point(3.0, 3.0));
-	singleLineData.m_line.push_back(silly_point(4.0, 4.0));
-	data.push_back(singleLineData);
-
-	// 创建多线数据
-	geo_collection multiLineData;
-	multiLineData.m_type = enum_geometry_types::eMultiLineString;
-	silly_line line1;
-	line1.push_back(silly_point(1.0, 1.0));
-	line1.push_back(silly_point(2.0, 2.0));
-	line1.push_back(silly_point(3.0, 3.0));
-	silly_line line2;
-	line2.push_back(silly_point(4.0, 4.0));
-	line2.push_back(silly_point(5.0, 5.0));
-	line2.push_back(silly_point(6.0, 6.0));
-	multiLineData.m_m_lines.push_back(line1);
-	multiLineData.m_m_lines.push_back(line2);
-	data.push_back(multiLineData);
-
-	// 创建单面数据
-	geo_collection singlePolygonData;
-	singlePolygonData.m_type = enum_geometry_types::ePolygon;
-	singlePolygonData.m_poly.outer_ring.points.push_back(silly_point(1.0, 1.0));
-	singlePolygonData.m_poly.outer_ring.points.push_back(silly_point(2.0, 2.0));
-	singlePolygonData.m_poly.outer_ring.points.push_back(silly_point(3.0, 3.0));
-	singlePolygonData.m_poly.inner_rings.push_back(silly_ring());
-	singlePolygonData.m_poly.inner_rings[0].points.push_back(silly_point(4.0, 4.0));
-	singlePolygonData.m_poly.inner_rings[0].points.push_back(silly_point(5.0, 5.0));
-	singlePolygonData.m_poly.inner_rings[0].points.push_back(silly_point(6.0, 6.0));
-	data.push_back(singlePolygonData);
-
-	// 创建多面数据
-	geo_collection multiPolygonData;
-	multiPolygonData.m_type = enum_geometry_types::eMultiPolygon;
-
-	// 第一个面
-	silly_poly poly1;
-	poly1.outer_ring.points.push_back(silly_point(1.0, 1.0));
-	poly1.outer_ring.points.push_back(silly_point(2.0, 2.0));
-	poly1.outer_ring.points.push_back(silly_point(3.0, 3.0));
-	poly1.inner_rings.push_back(silly_ring());  // 第一个内环
-	poly1.inner_rings[0].points.push_back(silly_point(4.0, 4.0));
-	poly1.inner_rings[0].points.push_back(silly_point(5.0, 5.0));
-	poly1.inner_rings[0].points.push_back(silly_point(6.0, 6.0));
-	poly1.inner_rings.push_back(silly_ring());  // 第二个内环
-	poly1.inner_rings[1].points.push_back(silly_point(7.0, 7.0));
-	poly1.inner_rings[1].points.push_back(silly_point(8.0, 8.0));
-	poly1.inner_rings[1].points.push_back(silly_point(9.0, 9.0));
-
-	// 第二个面
-	silly_poly poly2;
-	poly2.outer_ring.points.push_back(silly_point(10.0, 10.0));
-	poly2.outer_ring.points.push_back(silly_point(11.0, 11.0));
-	poly2.outer_ring.points.push_back(silly_point(12.0, 12.0));
-	poly2.inner_rings.push_back(silly_ring());  // 第一个内环
-	poly2.inner_rings[0].points.push_back(silly_point(13.0, 13.0));
-	poly2.inner_rings[0].points.push_back(silly_point(14.0, 14.0));
-	poly2.inner_rings[0].points.push_back(silly_point(15.0, 15.0));
-	poly2.inner_rings.push_back(silly_ring());  // 第二个内环
-	poly2.inner_rings[1].points.push_back(silly_point(16.0, 16.0));
-	poly2.inner_rings[1].points.push_back(silly_point(17.0, 17.0));
-	poly2.inner_rings[1].points.push_back(silly_point(18.0, 18.0));
-
-	// 添加到多面数据中
-	multiPolygonData.m_m_polys.push_back(poly1);
-	multiPolygonData.m_m_polys.push_back(poly2);
-
-	data.push_back(multiPolygonData);
-
-}
+//void createFakeData(std::vector<geo_collection>& data)
+//{
+//	// 创建多点数据
+//	geo_collection multiPointData;
+//	multiPointData.m_type = enum_geometry_types::eMultiPoint;
+//	multiPointData.m_m_points.push_back(silly_point(1.0, 1.0));
+//	multiPointData.m_m_points.push_back(silly_point(2.0, 2.0));
+//	multiPointData.m_m_points.push_back(silly_point(3.0, 3.0));
+//	multiPointData.m_m_points.push_back(silly_point(4.0, 4.0));
+//	data.push_back(multiPointData);
+//
+//	// 创建单线数据
+//	geo_collection singleLineData;
+//	singleLineData.m_type = enum_geometry_types::eLineString;
+//	singleLineData.m_line.push_back(silly_point(1.0, 1.0));
+//	singleLineData.m_line.push_back(silly_point(2.0, 2.0));
+//	singleLineData.m_line.push_back(silly_point(3.0, 3.0));
+//	singleLineData.m_line.push_back(silly_point(4.0, 4.0));
+//	data.push_back(singleLineData);
+//
+//	// 创建多线数据
+//	geo_collection multiLineData;
+//	multiLineData.m_type = enum_geometry_types::eMultiLineString;
+//	silly_line line1;
+//	line1.push_back(silly_point(1.0, 1.0));
+//	line1.push_back(silly_point(2.0, 2.0));
+//	line1.push_back(silly_point(3.0, 3.0));
+//	silly_line line2;
+//	line2.push_back(silly_point(4.0, 4.0));
+//	line2.push_back(silly_point(5.0, 5.0));
+//	line2.push_back(silly_point(6.0, 6.0));
+//	multiLineData.m_m_lines.push_back(line1);
+//	multiLineData.m_m_lines.push_back(line2);
+//	data.push_back(multiLineData);
+//
+//	// 创建单面数据
+//	geo_collection singlePolygonData;
+//	singlePolygonData.m_type = enum_geometry_types::ePolygon;
+//	singlePolygonData.m_poly.outer_ring.points.push_back(silly_point(1.0, 1.0));
+//	singlePolygonData.m_poly.outer_ring.points.push_back(silly_point(2.0, 2.0));
+//	singlePolygonData.m_poly.outer_ring.points.push_back(silly_point(3.0, 3.0));
+//	singlePolygonData.m_poly.inner_rings.push_back(silly_ring());
+//	singlePolygonData.m_poly.inner_rings[0].points.push_back(silly_point(4.0, 4.0));
+//	singlePolygonData.m_poly.inner_rings[0].points.push_back(silly_point(5.0, 5.0));
+//	singlePolygonData.m_poly.inner_rings[0].points.push_back(silly_point(6.0, 6.0));
+//	data.push_back(singlePolygonData);
+//
+//	// 创建多面数据
+//	geo_collection multiPolygonData;
+//	multiPolygonData.m_type = enum_geometry_types::eMultiPolygon;
+//
+//	// 第一个面
+//	silly_poly poly1;
+//	poly1.outer_ring.points.push_back(silly_point(1.0, 1.0));
+//	poly1.outer_ring.points.push_back(silly_point(2.0, 2.0));
+//	poly1.outer_ring.points.push_back(silly_point(3.0, 3.0));
+//	poly1.inner_rings.push_back(silly_ring());  // 第一个内环
+//	poly1.inner_rings[0].points.push_back(silly_point(4.0, 4.0));
+//	poly1.inner_rings[0].points.push_back(silly_point(5.0, 5.0));
+//	poly1.inner_rings[0].points.push_back(silly_point(6.0, 6.0));
+//	poly1.inner_rings.push_back(silly_ring());  // 第二个内环
+//	poly1.inner_rings[1].points.push_back(silly_point(7.0, 7.0));
+//	poly1.inner_rings[1].points.push_back(silly_point(8.0, 8.0));
+//	poly1.inner_rings[1].points.push_back(silly_point(9.0, 9.0));
+//
+//	// 第二个面
+//	silly_poly poly2;
+//	poly2.outer_ring.points.push_back(silly_point(10.0, 10.0));
+//	poly2.outer_ring.points.push_back(silly_point(11.0, 11.0));
+//	poly2.outer_ring.points.push_back(silly_point(12.0, 12.0));
+//	poly2.inner_rings.push_back(silly_ring());  // 第一个内环
+//	poly2.inner_rings[0].points.push_back(silly_point(13.0, 13.0));
+//	poly2.inner_rings[0].points.push_back(silly_point(14.0, 14.0));
+//	poly2.inner_rings[0].points.push_back(silly_point(15.0, 15.0));
+//	poly2.inner_rings.push_back(silly_ring());  // 第二个内环
+//	poly2.inner_rings[1].points.push_back(silly_point(16.0, 16.0));
+//	poly2.inner_rings[1].points.push_back(silly_point(17.0, 17.0));
+//	poly2.inner_rings[1].points.push_back(silly_point(18.0, 18.0));
+//
+//	// 添加到多面数据中
+//	multiPolygonData.m_m_polys.push_back(poly1);
+//	multiPolygonData.m_m_polys.push_back(poly2);
+//
+//	data.push_back(multiPolygonData);
+//
+//}
 
 class GeoJSONAttributeStorage
 {
@@ -422,9 +527,9 @@ BOOST_AUTO_TEST_CASE(ATTRIBUTE_STORAGE)
 	std::filesystem::path geo_line(DEFAULT_DATA_DIR);
 	geo_line += "/geojson/river_line.geojson";
 	
-	GeoJSONAttributeStorage attributeStorage;
+	//GeoJSONAttributeStorage attributeStorage;
 
-	int res = test(geo_line.string(), attributeStorage);
+	//int res = test(geo_line.string(), attributeStorage);
 		
 	int a = 0;
 
@@ -908,11 +1013,11 @@ BOOST_AUTO_TEST_CASE(GEO_SHP_GEOJSON)
 	std::string shp_1 = "D:/1_wangyingjie/code/project_data/geojson_shp/100KM.shp";
 	std::filesystem::path shp_save(shp_1);
 	
-	bool gts = silly_geo_convert::geojson_to_shp(geojson_save.string().c_str(), shp_save.string().c_str());
+	//bool gts = silly_geo_convert::geojson_to_shp(geojson_save.string().c_str(), shp_save.string().c_str());
 
-	std::string geojson_2 = "D:/1_wangyingjie/code/project_data/geojson_shp/res2.geojson";
-	std::filesystem::path geojson_2_save(geojson_2);
-	bool gts2 = silly_geo_convert::shp_to_geojson(shp_save.string().c_str() , geojson_2_save.string().c_str());
+	//std::string geojson_2 = "D:/1_wangyingjie/code/project_data/geojson_shp/res2.geojson";
+	//std::filesystem::path geojson_2_save(geojson_2);
+	//bool gts2 = silly_geo_convert::shp_to_geojson(shp_save.string().c_str() , geojson_2_save.string().c_str());
 
 
 	int a = 0;
