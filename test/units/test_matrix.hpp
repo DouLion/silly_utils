@@ -63,14 +63,14 @@ BOOST_AUTO_TEST_SUITE(Test)
 BOOST_AUTO_TEST_CASE(convert_matrix)
 {
     std::cout << "\r\n\r\n****************" << "矩阵类型转换" << "****************" << std::endl;
-    std::filesystem::path data_root(DEFAULT_DATA_DIR);
+    std::filesystem::path data_root(DEFAULT_SU_DATA_DIR);
     data_root += "/jpeg/short_to_float_1.jpeg";
     matrix_2d<short> ma_2d_short = convertToMatrix(data_root.string());
     matrix_2d<float> ma_2d_float;
 
     matrix_tools::convert_matrix(ma_2d_short, ma_2d_float);
 
-    std::filesystem::path data_root_2(DEFAULT_DATA_DIR);
+    std::filesystem::path data_root_2(DEFAULT_SU_DATA_DIR);
     data_root_2 += "/jpeg/short_to_float_2.jpeg";
     saveMatrixAsImage(ma_2d_float, data_root_2.string());
     ma_2d_short.destroy();
@@ -81,8 +81,8 @@ BOOST_AUTO_TEST_CASE(convert_matrix)
 //BOOST_AUTO_TEST_CASE(inter_nearest_resize)
 //{
 //	std::cout << "\r\n\r\n****************" << "最临近插值" << "****************" << std::endl;
-//    std::filesystem::path data_root(DEFAULT_DATA_DIR);
-//    std::filesystem::path data_root_2(DEFAULT_DATA_DIR);
+//    std::filesystem::path data_root(DEFAULT_SU_DATA_DIR);
+//    std::filesystem::path data_root_2(DEFAULT_SU_DATA_DIR);
 //    data_root += "/jpeg/color_1.jpeg";
 //
 //    //matrix_2d<short> ma_2d_short = convertToMatrix(data_root.string());
@@ -132,8 +132,8 @@ BOOST_AUTO_TEST_CASE(convert_matrix)
 //BOOST_AUTO_TEST_CASE(bilinear_resize)
 //{
 //	std::cout << "\r\n\r\n****************" << "二次性插值" << "****************" << std::endl;
-//    std::filesystem::path data_root(DEFAULT_DATA_DIR);
-//    std::filesystem::path data_root_2(DEFAULT_DATA_DIR);
+//    std::filesystem::path data_root(DEFAULT_SU_DATA_DIR);
+//    std::filesystem::path data_root_2(DEFAULT_SU_DATA_DIR);
 //
 //    data_root += "/jpeg/color_1.jpeg";
 //

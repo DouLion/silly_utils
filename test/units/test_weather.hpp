@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_SUITE(Test)
 //        std::cout << std::endl;
 //    }
 //   
-//    std::filesystem::path tif_data_w(DEFAULT_DATA_DIR);
+//    std::filesystem::path tif_data_w(DEFAULT_SU_DATA_DIR);
 //    tif_data_w += "/tif/word_3.tif";
 //    //geotiff_utils::writeGeoTiff(tif_data_w.string().c_str(), res_tif);
 //    geotiff_utils::writeFourChannelTiff(tif_data_w.string().c_str(), res_tif);
@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_SUITE(Test)
 //BOOST_AUTO_TEST_CASE(readGeoTiff)
 //{
 //    std::cout << "\r\n\r\n****************" << "读取tif" << "****************" << std::endl;
-//    std::filesystem::path tif_data_path(DEFAULT_DATA_DIR);
+//    std::filesystem::path tif_data_path(DEFAULT_SU_DATA_DIR);
 //    tif_data_path += "/tif/write2.tif";
 //    std::string t = "D:/1_wangyingjie/code/2_hill_shading/世界/地图/ETOPO_2022_v1_60s_N90W180_bed.tif";
 //    //std::string t = "D:/1_wangyingjie/code/2_hill_shading/HillShading/dem_data/ETOPO_2022_v1_15s_N60W030_bed.tif";
@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_SUITE(Test)
 BOOST_AUTO_TEST_CASE(READ_GRID_DATA)
 {
     std::cout << "\r\n\r\n****************" << "READ_GRID_DATA" << "****************" << std::endl;
-    std::filesystem::path grib_data_path(DEFAULT_DATA_DIR);
+    std::filesystem::path grib_data_path(DEFAULT_SU_DATA_DIR);
     grib_data_path.append("Z_NWGD_C_BCWH_20230912103553_P_RFFC_SPCC-ER01_202309120800_02401.GRB2");
     
     int type = 0;
