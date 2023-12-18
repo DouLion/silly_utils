@@ -15,7 +15,7 @@ endforeach()
 find_path(OTL_INCLUDE_DIRS "otl/otlv4.h")
 include_directories(${OTL_INCLUDE_DIRS})
 
-add_library(${PROJECT_NAME} STATIC ${SU_SRC_FILES} geo/silly_spatialite.cpp geo/silly_spatialite.h)
+add_library(${PROJECT_NAME} STATIC ${SU_SRC_FILES})
 
 set(Boost_LIB_PREFIX "")
 set(CMAKE_VERBOSE_MAKEFILE ON)

@@ -3,7 +3,7 @@
 //
 
 #include "silly_soil_water_r.h"
-#include "su_marco.h"
+#include "hydrometeorology/silly_record_tools.h"
 #include <cstring>
 //unsigned int pid{ 0 };
 //std::string tm;
@@ -21,13 +21,11 @@ bool silly_soil_water::serialize(unsigned char** c_in, size_t& len)
 	// GRID
 	memcpy(buff + 1, &pid, sizeof(pid));
 	// TM
-	int year = 0, month = 0, day = 0, hour = 0, minute = 0, second = 0;
-	if (EOF == sscanf(tm.c_str(), SU_STD_TIME_FORMAT1, &year, &month, &day, &hour, &minute, &second))
+	unsigned int ymd = 0, hms = 0;
+	if (!silly_record_tools::compress_time_format(tm, ymd, hms))
 	{
 		return false;
 	}
-	unsigned int ymd = ((((0x00 | year) << 8) | month) << 8) | day;
-	unsigned int hms = ((((0x00 | hour) << 8) | minute) << 8) | second;
 	memcpy(buff + 1 + sizeof(unsigned int), &ymd, sizeof(ymd));
 	memcpy(buff + 1 + sizeof(unsigned int) * 2, &hms, sizeof(hms));
 	//
