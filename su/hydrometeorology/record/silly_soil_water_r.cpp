@@ -5,14 +5,7 @@
 #include "silly_soil_water_r.h"
 #include "hydrometeorology/silly_record_tools.h"
 #include <cstring>
-//unsigned int pid{ 0 };
-//std::string tm;
-//float sw{ 0 };
-//float percent{ 0 };
-//float drp{ 0 };
-#define SILLY_SOIL_WATER_BEG_CHAR   '_'
 
-#define SILLY_SOIL_WATER_LENGTH  sizeof(char*) + sizeof(unsigned int) * 3 + sizeof(short) * 3
 
 bool silly_soil_water::serialize(unsigned char** c_in, size_t& len)
 {

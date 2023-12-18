@@ -11,11 +11,33 @@
 #define SILLY_UTILS_SILLY_PPTN_R_H
 #include <iostream>
 
- // 无效的降雨值, 用于替换数据库中记录的NULL
+// 无效的降雨值, 用于替换数据库中记录的NULL
 #define SILLY_PPTN_INVALID_DRP_R      9999
-#define SILLY_PPTN_STCD_SPLITER       '\0'
-#define SILLY_PPTN_RECORD_BEG         'P'
-#define SILLY_PPTN_RECORD_BEG         'N'
+
+#define SIILY_STCD_LENGHT  10
+#define SILLY_PPTN_R_LENGHT sizeof(char)+SIILY_STCD_LENGHT + sizeof(unsigned int) * 2 + sizeof(float)
+
+#define SILLY_PPTN_R_BEG_CHAR   '*'
+
+/// 用法:
+/*
+int example() {
+	std::string time = "2023-01-01 12:00:00";
+	silly_pptn sp;
+	sp.drp = 12.3;
+	sp.stcd = "611H3000";
+	sp.tm = "2023-08-26 12:10:06";
+
+	unsigned char* buff = nullptr;
+	size_t len = 0;
+	sp.serialize(&buff, len);
+
+	silly_pptn sp2;
+	sp2.unserialize(buff, len);
+	SU_MEM_FREE(buff);
+	return 0;
+}
+*/
 
 class silly_pptn
 {
@@ -26,6 +48,7 @@ public:
 	std::string tm;
 	// short 2个字节
 	float drp{ 0 };
+	// 这里往下都不要了
 	// 这个一般都可以忽略, 不要了
 	float intv{ 0 };
 	// 次要内容
@@ -49,30 +72,5 @@ public:
 	bool unserialize(const unsigned char* c_in, const size_t& len);
 
 };
-
-/*
-Usage:
-
-
-int main() {
-
-	std::string time = "2023-01-01 12:00:00";
-	silly_pptn sp;
-	sp.drp = 12.3;
-	sp.stcd = "611H3000";
-	sp.tm = "2023-08-26 12:10:06";
-
-	unsigned char* buff = nullptr;
-	size_t len = 0;
-	sp.serialize(&buff, len);
-
-	silly_pptn sp2;
-	sp2.unserialize(buff, len);
-	SU_MEM_FREE(buff);
-
-	return 0;
-}
-
-*/
 
 #endif //SILLY_UTILS_SILLY_PPTN_R_H
