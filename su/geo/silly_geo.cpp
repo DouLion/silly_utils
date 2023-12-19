@@ -214,12 +214,6 @@ bool read_point(const Json::Value& root, silly_geo_coll& coll)
 		double lat = coordinates[1].asDouble();
 		coll.m_point.lgtd = lon;
 		coll.m_point.lttd = lat;
-		//for (const auto& point : coordinates)
-		//{
-		//	double lon = point[0].asDouble();
-		//	double lat = point[1].asDouble();
-		//	int a = 0;
-		//}
 		status = true;
 	}
 	return status;
@@ -380,6 +374,35 @@ bool read_multi_polygon(const Json::Value& root, silly_geo_coll& coll)
 	return status;
 }
 
+enum_geometry_types enum_type(std::string type)
+{
+	if (type == "") {
+		return eInvalid;
+	}
+	else if (type == GEOJSON_GEOMETRY_POINT) {								// 单点
+		return  ePoint;
+	}
+	else if (type == GEOJSON_GEOMETRY_LINE_STRING) {						// 单线
+		return  eLineString;
+	}
+	else if (type == GEOJSON_GEOMETRY_POLYGON) {							// 单面
+		return  ePolygon;
+	}
+	else if (type == GEOJSON_GEOMETRY_MULTI_POINT) {						// 多点
+		return  eMultiPoint;
+	}
+	else if (type == GEOJSON_GEOMETRY_MULTI_LINE_STRING) {					// 多线
+		return  eMultiLineString;
+	}
+	else if (type == GEOJSON_GEOMETRY_MULTI_POLYGON) {						// 多面
+		return  eMultiPolygon;
+	}
+	else if (type == GEOJSON_GEOMETRY_COLLECTION){							// 复合
+		return eCompositeType;
+	}
+}
+
+
 /// <summary>
 /// 读取所有类型的数据
 /// </summary>
@@ -393,43 +416,38 @@ bool read_all_type_data(std::string type, const Json::Value& root, silly_geo_col
 	if (type == "") {
 		coll.m_type = eInvalid;
 	}
-	else if (type == "Point") {								// 单点
+	else if (type == GEOJSON_GEOMETRY_POINT) {								// 单点
 		coll.m_type = ePoint;
-		coll.comp_type.push_back(ePoint);
 		status = read_point(root, coll);
 	}
-	else if (type == "LineString") {						// 单线
+	else if (type == GEOJSON_GEOMETRY_LINE_STRING) {						// 单线
 		coll.m_type = eLineString;
-		coll.comp_type.push_back(eLineString);
 		status = read_line(root, coll.m_line);
 	}
-	else if (type == "Polygon") {							// 单面
+	else if (type == GEOJSON_GEOMETRY_POLYGON) {							// 单面
 		coll.m_type = ePolygon;
-		coll.comp_type.push_back(ePolygon);
 		status = read_polygon(root, coll);
 	}
-	else if (type == "MultiPoint") {						// 多点
+	else if (type == GEOJSON_GEOMETRY_MULTI_POINT) {						// 多点
 		coll.m_type = eMultiPoint;
-		coll.comp_type.push_back(eMultiPoint);
 		status = read_multi_point(root, coll);
 	}
-	else if (type == "MultiLineString") {					// 多线
+	else if (type == GEOJSON_GEOMETRY_MULTI_LINE_STRING) {					// 多线
 		coll.m_type = eMultiLineString;
-		coll.comp_type.push_back(eMultiLineString);
 		status = read_multi_line(root, coll);
 	}
-	else if (type == "MultiPolygon") {						// 多面
+	else if (type == GEOJSON_GEOMETRY_MULTI_POLYGON) {						// 多面
 		coll.m_type = eMultiPolygon;
-		coll.comp_type.push_back(eMultiPolygon);
 		status = read_multi_polygon(root, coll);
 	}
-	else if (type == "GeometryCollection") {						// 复合数据类型
+	else if (type == GEOJSON_GEOMETRY_COLLECTION) {						// 复合数据类型
 		if (root.isMember(GEOJSON_KEY_GEOMETRIES))
 		{
 			Json::Value geometries = root[GEOJSON_KEY_GEOMETRIES];
 			for (const auto& geometry : geometries)
 			{
 				std::string temp_type = geometry[GEOJSON_KEY_TYPE].asString();
+				coll.comp_type.push_back(enum_type(temp_type));
 				read_all_type_data(temp_type, geometry, coll);   // 递归
 
 			}
@@ -568,47 +586,47 @@ bool write_all_type_data(enum_geometry_types type, Json::Value& root, const sill
 
 	}
 	break;
-	case ePoint:
+	case ePoint:																	// 单点
 	{
-		root[GEOJSON_KEY_TYPE] = "Point";
+		root[GEOJSON_KEY_TYPE] = GEOJSON_GEOMETRY_POINT;
 		status = write_point(coll, root[GEOJSON_KEY_COORDINATES]);
 	}
 	break;
-	case eLineString:
+	case eLineString:																// 单线
 	{
-		root[GEOJSON_KEY_TYPE] = "LineString";
+		root[GEOJSON_KEY_TYPE] = GEOJSON_GEOMETRY_LINE_STRING;
 		status = write_line(coll.m_line, root[GEOJSON_KEY_COORDINATES]);
 
 	}
 	break;
-	case ePolygon:
+	case ePolygon:																	// 单面
 	{
-		root[GEOJSON_KEY_TYPE] = "Polygon";
+		root[GEOJSON_KEY_TYPE] = GEOJSON_GEOMETRY_POLYGON;
 		status = write_polygon(coll.m_poly, root[GEOJSON_KEY_COORDINATES]);
 	}
 	break;
-	case eMultiPoint:
+	case eMultiPoint:																// 多点
 	{
-		root[GEOJSON_KEY_TYPE] = "MultiPoint";
+		root[GEOJSON_KEY_TYPE] = GEOJSON_GEOMETRY_MULTI_POINT;
 		status = write_multi_point(coll, root[GEOJSON_KEY_COORDINATES]);
 	}
 	break;
-	case eMultiLineString:
+	case eMultiLineString:															// 多线
 	{
-		root[GEOJSON_KEY_TYPE] = "MultiLineString";
+		root[GEOJSON_KEY_TYPE] = GEOJSON_GEOMETRY_MULTI_LINE_STRING;
 		status = write_multi_line(coll, root[GEOJSON_KEY_COORDINATES]);
 	}
 	break;
-	case eMultiPolygon:
+	case eMultiPolygon:																// 多面
 	{
-		root[GEOJSON_KEY_TYPE] = "MultiPolygon";
+		root[GEOJSON_KEY_TYPE] = GEOJSON_GEOMETRY_MULTI_POLYGON;
 		status = write_multi_polygon(coll, root[GEOJSON_KEY_COORDINATES]);
 
 	}
 	break;
-	case eCompositeType:
+	case eCompositeType:															// 复合
 	{
-		root[GEOJSON_KEY_TYPE] = "GeometryCollection";
+		root[GEOJSON_KEY_TYPE] = GEOJSON_GEOMETRY_COLLECTION;
 		for (const auto& type : coll.comp_type)
 		{
 			Json::Value branch;
@@ -636,13 +654,9 @@ std::string silly_geo::dump_geo_coll(const silly_geo_coll& geo_coll)
 	// 写入数据
 	write_all_type_data(coll_type, root, geo_coll);
 
-
 	// 将 Json::Value 转换为字符串
 	Json::StreamWriterBuilder writerBuilder;
 	result = Json::writeString(writerBuilder, root);
-
-	// 临时查看
-	//std::cout << result << std::endl;
 
 	return result;
 }

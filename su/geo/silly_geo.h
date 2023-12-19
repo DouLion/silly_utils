@@ -32,6 +32,8 @@
 #define GEOJSON_GEOMETRY_MULTI_LINE_STRING	"MultiLineString"
 // 多面
 #define GEOJSON_GEOMETRY_MULTI_POLYGON		"MultiPolygon"
+// 复合类型
+#define GEOJSON_GEOMETRY_COLLECTION			"GeometryCollection"
 
 // 参照GDAL
 
