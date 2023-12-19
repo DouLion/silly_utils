@@ -13,7 +13,6 @@
 #define GEOJSON_KEY_COORDINATES  "coordinates"
 #define GEOJSON_KEY_PROPERTIES  "properties"
 #define GEOJSON_KEY_GEOMETRIES  "geometries"
-// --------
 #define GEOJSON_VAL_FEATURE_COLLECTION "FeatureCollection"
 #define GEOJSON_VAL_FEATURE  "Feature"
 

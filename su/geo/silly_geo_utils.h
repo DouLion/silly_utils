@@ -74,6 +74,7 @@ public:
 	/// <returns></returns>
 	static bool check_shp_info(const std::string& shp_file, enum_geometry_types& type, std::map<std::string, enum_geoprop_types>& properties);
 
+	static bool check_shp_info(const std::string& shp_file, enum_geometry_types& type, std::map<std::string, std::string>& properties);
 
 };
 
