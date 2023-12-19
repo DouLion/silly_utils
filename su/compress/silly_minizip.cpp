@@ -215,7 +215,7 @@ int silly_minizip::decompress(const std::string& s_src, const std::string& s_dst
             std::ofstream outFile(filePath, std::ios::binary);
             if (!outFile.is_open())
             {
-                return SILLY_ZIP_err_create_file; // 创建文件失败
+                return MiniZCreatDirErr; // 创建文件失败
             }
             else
             {

@@ -21,19 +21,7 @@
 
 
 // TODO : 王英杰  枚举放到silly_compress_base 的错误枚举类中, 保持格式一致
-enum ZIP_ERROR {
-    SILLY_ZIP_ok = 0,                     // 操作成功
-    SILLY_ZIP_err_open = 1,               // 打开ZIP文件失败
-    SILLY_ZIP_err_empty = 2,              // ZIP文件为空
-    SILLY_ZIP_err_get_info = 3,           // 获取文件信息失败
-    SILLY_ZIP_err_create_dir = 4,         // 创建目录失败
-    SILLY_ZIP_err_create_file = 5,        // 创建文件失败
-    SILLY_ZIP_err_write_file = 6,         // 写入文件失败
-    SILLY_ZIP_err_write_zip = 7,          // 写入ZIP文件失败
-    SILLY_ZIP_err_write_newzip = 8,       // 打开新写入的ZIP失败
-    SILLY_ZIP_err_open_file = 9           // 打开读取文件失败
 
-};
 
 // TODO : 王英杰 继承silly_compress_base  实现四个虚函数, 参照silly_bz2.h
 class silly_minizip : public silly_compress_base
