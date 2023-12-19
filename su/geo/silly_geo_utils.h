@@ -22,7 +22,7 @@ public:
 	static double two_point_azimuth(silly_point from, silly_point to);
 
 	/// <summary>
-	/// 读取shp文件中的数据存储到silly_geo_coll数据结构中
+	/// 读取shp文件中的数据存储到silly_geo_coll数据结构中  
 	/// </summary>
 	/// <param name="file"></param>
 	/// <param name="collection"></param>

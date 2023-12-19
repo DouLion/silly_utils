@@ -897,7 +897,7 @@ bool GetDriverName(const char* file, std::string& driverName)
 
 
 //根据enum_geoprop_types 找gdal中属性的类型
-OGRFieldType convertToOGRFieldType(enum_geoprop_types geopropType)
+OGRFieldType convertToOGRFieldType(enum_geoprop_types geopropType)  
 {
     switch (geopropType)
     {
@@ -1148,7 +1148,7 @@ bool wire_all_types_data(const enum_geometry_types coll_type, OGRLayer* outputLa
 
 
 
-bool geo_utils::write_geo_coll(const char* file, const std::vector<silly_geo_coll>& collections)
+bool geo_utils::write_geo_coll(const char* file, const std::vector<silly_geo_coll>& collections) 
 {
     bool status = false;
     // 根据拓展名得到存储格式

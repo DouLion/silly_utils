@@ -28,7 +28,7 @@
 #include "geo/silly_spatialite.h"
 
 #include <variant>
-
+#include <fstream>
  /// <summary>
  /// 仅作为测试查看使用
  /// 读取一个shp文件,将多个坐标点绘制在读取的shp文件中的位置,并生成一个新的shp文件
@@ -91,7 +91,84 @@ public:
 //}
 
 
+BOOST_AUTO_TEST_CASE(READ_WIRTE_JSON_GEO_COLL)
+{
+	std::cout << "\r\n\r\n****************" << "READ_WIRTE_JSON_GEO_COLL" << "****************" << std::endl;
+	geo_utils::init_gdal_env();
+	//std::vector<tem> temp;
+	//otl_connect db; // 创建 otl_connect 对象，并连接到数据库
+	//try
+	//{
+	//	db.rlogon("driver=sql server;server=192.168.0.151;port=1433;uid=sa;pwd=3edc9ijn~;database=TZX_RADAR");
+	//	// 查询 WarningObject 表数据
+	//	otl_stream warningObjectStream;
+	//	warningObjectStream.open(512, "SELECT top 5 code, name, geojson FROM TZX_ANALYSE_VECTOR_R", db);
+	//	for (auto& warn : warningObjectStream)
+	//	{
+	//		otl_value<std::string> code;
+	//		otl_value<std::string> name;
+	//		otl_value<otl_long_string> geojson;
+	//		otl_read_row(warn, code, name, geojson);
+	//		auto length = geojson.v.len();
+	//		//std::string text(geojson., geojson.len());
+	//		//std::cout << "Long Text: " << text << std::endl;
+	//		tem ttt;
+	//		ttt.code = code.v;
+	//		ttt.name = name.v;
+	//		//ttt.geojson = geojson.v;
+	//		if (!ttt.geojson.empty())
+	//		{
+	//			//std::cout << "geojson: " << geojson.v << std::endl;
+	//			temp.push_back(ttt);
+	//		}
+	//	}
+	//	warningObjectStream.close(); // 关闭查询流
+	//	db.logoff();
+	//}
+	//catch (otl_exception& e)
+	//{
+	//	std::cout << "select error" << std::endl;
+	//}
+	//catch (const std::exception& p)
+	//{
+	//	db.logoff();
+	//}
+	//db.logoff();
 
+	// point  nulti_point   line  mulit_line  polygon muliti_polygon collection
+		// 文件路径
+	std::filesystem::path filePath(DEFAULT_SU_DATA_DIR);
+	filePath += "/txt/collection.txt";
+	// 打开文件
+	std::ifstream inputFile(filePath);
+	// 检查文件是否成功打开
+	if (!inputFile.is_open()) {
+		std::cout << "无法打开文件：" << filePath << std::endl;
+	}
+	// 从文件中读取数据并存储到std::string中
+	std::string fileContent((std::istreambuf_iterator<char>(inputFile)), std::istreambuf_iterator<char>());
+	// 关闭文件
+	inputFile.close();
+
+	// 输出读取到的数据
+	//std::cout << "文件内容：" << std::endl;
+	//std::cout << fileContent << std::endl;
+
+	std::string geo;
+
+	silly_geo_coll temp_coll;
+	temp_coll = silly_geo::load_geo_coll(fileContent);
+
+	std::string result = silly_geo::dump_geo_coll(temp_coll);
+
+
+	geo_utils::destroy_gdal_env();
+
+	int e = 0;
+	int f = 9;
+	int g = 8;
+
+};
 
 
 

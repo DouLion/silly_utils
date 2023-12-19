@@ -557,6 +557,7 @@ bool write_multi_polygon(const silly_geo_coll& coll, Json::Value& coordinates)
 	return true;
 }
 
+// 处理所有类型的silly_geo_coll数据写入json
 bool write_all_type_data(enum_geometry_types type, Json::Value& root, const silly_geo_coll& coll)
 {
 	bool status = false;
@@ -564,7 +565,7 @@ bool write_all_type_data(enum_geometry_types type, Json::Value& root, const sill
 	{
 	case eInvalid:
 	{
-		root[GEOJSON_KEY_TYPE] = "";
+		root[GEOJSON_KEY_TYPE] = "";  
 
 	}
 	break;
@@ -615,8 +616,6 @@ bool write_all_type_data(enum_geometry_types type, Json::Value& root, const sill
 			write_all_type_data(type, branch, coll);
 			root[GEOJSON_KEY_GEOMETRIES].append(branch);
 		}
-		//root[GEOJSON_KEY_COORDINATES] = Json::arrayValue;
-
 	}
 	break;
 	default:
@@ -633,62 +632,10 @@ std::string silly_geo::dump_geo_coll(const silly_geo_coll& geo_coll)
 	std::string result;
 
 	Json::Value root;
-
+	// 查看silly_geo_coll的数据类型
 	enum_geometry_types coll_type = geo_coll.m_type;
+	// 写入数据
 	write_all_type_data(coll_type, root, geo_coll);
-
-	//switch (coll_type)
-	//{
-	//case eInvalid:
-	//{
-	//	root[GEOJSON_KEY_TYPE] = "";
-	//}
-	//	break;
-	//case ePoint:
-	//{
-	//	root[GEOJSON_KEY_TYPE] = "Point";
-	//	write_point(geo_coll, root[GEOJSON_KEY_COORDINATES]);
-	//}
-	//	break;
-	//case eLineString:
-	//{
-	//	root[GEOJSON_KEY_TYPE] = "LineString";
-	//	write_line(geo_coll.m_line, root[GEOJSON_KEY_COORDINATES]);
-	//}
-	//	break;
-	//case ePolygon:
-	//{
-	//	root[GEOJSON_KEY_TYPE] = "Polygon";
-	//	write_polygon(geo_coll.m_poly, root[GEOJSON_KEY_COORDINATES]);
-	//}
-	//	break;
-	//case eMultiPoint:
-	//{
-	//	root[GEOJSON_KEY_TYPE] = "MultiPoint";
-	//	write_multi_point(geo_coll, root[GEOJSON_KEY_COORDINATES]);
-	//}
-	//	break;
-	//case eMultiLineString:
-	//{
-	//	root[GEOJSON_KEY_TYPE] = "MultiLineString";
-	//	write_multi_line(geo_coll, root[GEOJSON_KEY_COORDINATES]);
-	//}
-	//	break;
-	//case eMultiPolygon:
-	//{
-	//	root[GEOJSON_KEY_TYPE] = "MultiPolygon";
-	//	write_multi_polygon(geo_coll, root[GEOJSON_KEY_COORDINATES]);
-	//}
-	//	break;
-	//case eCompositeType:
-	//{
-	//	root[GEOJSON_KEY_TYPE] = "CompositeType";
-	//	//root[GEOJSON_KEY_COORDINATES] = Json::arrayValue;
-	//}
-	//	break;
-	//default:
-	//	break;
-	//}
 
 
 	// 将 Json::Value 转换为字符串
@@ -696,8 +643,7 @@ std::string silly_geo::dump_geo_coll(const silly_geo_coll& geo_coll)
 	result = Json::writeString(writerBuilder, root);
 
 	// 临时查看
-	std::cout << result << std::endl;
-
+	//std::cout << result << std::endl;
 
 	return result;
 }
@@ -709,100 +655,6 @@ std::string silly_geo::dump_geo_coll(const silly_geo_coll& geo_coll)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-//bool read_polygon(const Json::Value& root, silly_geo_coll& coll)
-//{
-//	bool status = false;
-//	if (root.isMember(GEOJSON_KEY_COORDINATES))
-//	{
-//		Json::Value coordinates = root[GEOJSON_KEY_COORDINATES];
-//		size_t numRing = coordinates.size();
-//		Json::ValueIterator it = coordinates.begin();
-//		if (numRing > 0) // 外环
-//		{
-//			for (const auto& coord : (*it))
-//			{
-//				double lon = coord[0].asDouble();
-//				double lat = coord[1].asDouble();					
-//				coll.m_poly.outer_ring.points.push_back(silly_point(lon, lat));
-//			}
-//		}
-//		for (size_t num = 1; (num < numRing) && (it != coordinates.end()); num++)  //内环
-//		{
-//			it++;
-//			silly_ring temp_ring;
-//			for (const auto& coord : (*it))
-//			{
-//				double lon = coord[0].asDouble();
-//				double lat = coord[1].asDouble();
-//				temp_ring.points.push_back(silly_point(lon, lat));
-//			}
-//			coll.m_poly.inner_rings.push_back(temp_ring);
-//		}
-//		status = true;
-//	}
-//	return status;
-//}
-
-
-
-//bool read_multi_polygon(const Json::Value& root, silly_geo_coll& coll)
-//{
-//	bool status = false;
-//	if (root.isMember(GEOJSON_KEY_COORDINATES))
-//	{
-//		Json::Value coordinates = root[GEOJSON_KEY_COORDINATES];
-//		size_t numPoly = coordinates.size();
-//		Json::ValueIterator it = coordinates.begin();
-//		for (size_t num = 0; (num < numPoly) && (it != coordinates.end()); num++)  // 多边形个数
-//		{
-//			Json::Value poly_coords = *it;
-//			size_t numRing = poly_coords.size();  // 每个多边形环数
-//			Json::ValueIterator ring_it = poly_coords.begin();
-//			silly_poly poly;
-//			if (numRing > 0)
-//			{
-//				for (const auto& coord : (*ring_it))
-//				{
-//					double lon = coord[0].asDouble();
-//					double lat = coord[1].asDouble();
-//					poly.outer_ring.points.push_back(silly_point(lon, lat));
-//				}
-//			}
-//			for (size_t ring_num = 1; (ring_num < numRing) && (ring_it != poly_coords.end()); ring_num++)
-//			{
-//				ring_it++;
-//				silly_ring temp_ring;
-//				for (const auto& coord : (*ring_it))
-//				{
-//					double lon = coord[0].asDouble();
-//					double lat = coord[1].asDouble();
-//					temp_ring.points.push_back(silly_point(lon, lat));
-//				}
-//				poly.inner_rings.push_back(temp_ring);
-//			}
-//
-//			coll.m_m_polys.push_back(poly);
-//
-//			it++;
-//		}
-//
-//		status = true;
-//	}
-//
-//	return status;
-//}
 
 
 

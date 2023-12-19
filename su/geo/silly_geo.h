@@ -269,7 +269,7 @@ public:
 	/// </summary>
 	/// <param name="sgc"></param>
 	/// <returns></returns>
-	static std::string dump_geo_coll(const silly_geo_coll& geo_coll);
+	static std::string dump_geo_coll(const silly_geo_coll& geo_coll); 
 
 	/// <summary>
 	/// 从字符串加载silly_geo_coll
