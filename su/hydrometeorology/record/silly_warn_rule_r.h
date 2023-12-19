@@ -9,5 +9,28 @@
  */
 #ifndef SILLY_UTILS_SILLY_WARN_RULE_R_H
 #define SILLY_UTILS_SILLY_WARN_RULE_R_H
+#include <iostream>
+
+class sliiy_warn_rule_record
+{
+public:
+	// 网格点ID
+	unsigned int pid;
+	// 分析时间
+	std::string atm;
+	// intv
+	float intv;
+	// 等级
+	int grade;
+	// 土壤含水率
+	float swc;
+	// 雨量阈值
+	float drrp;
+	// 备注和时间戳不记录
+
+
+
+
+};
 
 #endif //SILLY_UTILS_SILLY_WARN_RULE_R_H

@@ -11,6 +11,9 @@
 #define SILLY_UTILS_SILLY_SOIL_WATER_R_H
 #include <iostream>
 
+#define SILLY_SOIL_WATER_LENGTH  sizeof(char) + sizeof(unsigned int) * 3 + sizeof(short) * 3
+#define SILLY_SOIL_WATER_BEG_CHAR   '_'
+
 class silly_soil_water
 {
 public:

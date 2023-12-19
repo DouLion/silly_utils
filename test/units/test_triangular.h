@@ -67,7 +67,7 @@ std::vector<delaunay::d_point> get_points(const std::string& data)
 BOOST_AUTO_TEST_CASE(LAWSON_TRI)      // Delaunay 劳森算法
 {
 	std::string content;
-	std::filesystem::path data_root(DEFAULT_DATA_DIR);
+	std::filesystem::path data_root(DEFAULT_SU_DATA_DIR);
 	auto hebei_drp_data_path = data_root;
 	hebei_drp_data_path.append("hebei_station.txt");
 	FileUtils::ReadAll(hebei_drp_data_path.string(), content);

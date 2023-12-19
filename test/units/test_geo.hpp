@@ -117,30 +117,30 @@ BOOST_AUTO_TEST_CASE(READ_WRITE_SHP_SILLY_GEO_COLL)
 
 	
 	// 读取点  //测试完成
-	std::filesystem::path point(DEFAULT_DATA_DIR);
+	std::filesystem::path point(DEFAULT_SU_DATA_DIR);
 	point += "/shp/Point.shp";
 	// 写入点
-	std::filesystem::path outpoint(DEFAULT_DATA_DIR);
+	std::filesystem::path outpoint(DEFAULT_SU_DATA_DIR);
 	outpoint += "/shp/Point_out.shp";
 	// 读取多面
-	std::filesystem::path MultiPolygons(DEFAULT_DATA_DIR);
+	std::filesystem::path MultiPolygons(DEFAULT_SU_DATA_DIR);
 	MultiPolygons += "/shp/risk2.shp";
-	std::filesystem::path Mult(DEFAULT_DATA_DIR);
+	std::filesystem::path Mult(DEFAULT_SU_DATA_DIR);
 	Mult += "/shp/multi.shp";
 
 	// // 读线
-	std::filesystem::path lines(DEFAULT_DATA_DIR);
+	std::filesystem::path lines(DEFAULT_SU_DATA_DIR);
 	lines += "/shp/lines_1.shp";
-	std::filesystem::path pLine(DEFAULT_DATA_DIR);
+	std::filesystem::path pLine(DEFAULT_SU_DATA_DIR);
 	pLine += "/shp/plines.shp";
 
 
 	// 写面  已处理
 	// 读取单面(包含单面和多面)  已处理可以完成
-	std::filesystem::path Polygon(DEFAULT_DATA_DIR);
+	std::filesystem::path Polygon(DEFAULT_SU_DATA_DIR);
 	Polygon += "/shp/xian_poly.shp";
 
-	std::filesystem::path writ_coll_Polygon(DEFAULT_DATA_DIR);
+	std::filesystem::path writ_coll_Polygon(DEFAULT_SU_DATA_DIR);
 	writ_coll_Polygon += "/shp/Polygons.shp";
 
 
@@ -165,13 +165,13 @@ BOOST_AUTO_TEST_CASE(READ_VECTOR_POINT_LINE)
 	geo_utils::init_gdal_env();
 
 	// 读取geojson的面
-	std::filesystem::path geo_rings(DEFAULT_DATA_DIR);
+	std::filesystem::path geo_rings(DEFAULT_SU_DATA_DIR);
 	geo_rings += "/geojson/xian_poly.shp";
 	// 读取geojson的线
-	std::filesystem::path geo_line(DEFAULT_DATA_DIR);
+	std::filesystem::path geo_line(DEFAULT_SU_DATA_DIR);
 	geo_line += "/geojson/river_line.geojson";
 	// 读取geojson的点
-	std::filesystem::path geo_point(DEFAULT_DATA_DIR);
+	std::filesystem::path geo_point(DEFAULT_SU_DATA_DIR);
 	geo_point += "/geojson/xian_point.geojson";
 
 	enum_geometry_types type;
@@ -204,13 +204,13 @@ BOOST_AUTO_TEST_CASE(READ_VECTOR_POINT_LINE)
 	silly_point point8(113.352719886000003, 26.569850828900002);
 	std::vector<silly_point> geojson_out_point_2{ point5 ,point6 ,point7 ,point8 };
 	std::vector<std::vector<silly_point>> rings{ geojson_out_point_1, geojson_out_point_2 };
-	std::filesystem::path geojson_1013_1(DEFAULT_DATA_DIR);
+	std::filesystem::path geojson_1013_1(DEFAULT_SU_DATA_DIR);
 	geojson_1013_1 += "/shp/draw_line_1.shp";
-	std::filesystem::path draw_rings(DEFAULT_DATA_DIR);
+	std::filesystem::path draw_rings(DEFAULT_SU_DATA_DIR);
 	draw_rings += "/shp/draw_rings_1.shp";
-	std::filesystem::path draw_points(DEFAULT_DATA_DIR);
+	std::filesystem::path draw_points(DEFAULT_SU_DATA_DIR);
 	draw_points += "/shp/points_1.shp";
-	std::filesystem::path draw_lines(DEFAULT_DATA_DIR);
+	std::filesystem::path draw_lines(DEFAULT_SU_DATA_DIR);
 	draw_lines += "/shp/lines_1.shp";
 
 	std::vector<silly_line> lines{ geojson_out_point_1, geojson_out_point_2 };
@@ -223,7 +223,7 @@ BOOST_AUTO_TEST_CASE(READ_VECTOR_POINT_LINE)
 	//rings_to_shp(rings, draw_rings.string().c_str());
 
 
-	//std::filesystem::path shp_1(DEFAULT_DATA_DIR);
+	//std::filesystem::path shp_1(DEFAULT_SU_DATA_DIR);
 	//shp_1 += "/shp/risk2.shp";
 	geo_utils::destroy_gdal_env();
 
@@ -524,7 +524,7 @@ BOOST_AUTO_TEST_CASE(ATTRIBUTE_STORAGE)
 	std::cout << "\r\n\r\n****************" << "ATTRIBUTE_STORAGE" << "****************" << std::endl;
 
 	// 读取geojson的线
-	std::filesystem::path geo_line(DEFAULT_DATA_DIR);
+	std::filesystem::path geo_line(DEFAULT_SU_DATA_DIR);
 	geo_line += "/geojson/river_line.geojson";
 	
 	//GeoJSONAttributeStorage attributeStorage;
@@ -541,7 +541,7 @@ BOOST_AUTO_TEST_CASE(ATTRIBUTE_STORAGE)
 //{
 //	std::cout << "\r\n\r\n****************" << "SPATIALITE" << "****************" << std::endl;
 //
-//	std::filesystem::path geo_db(DEFAULT_DATA_DIR);
+//	std::filesystem::path geo_db(DEFAULT_SU_DATA_DIR);
 //	geo_db += "/geo_db/example6.db";
 //
 //	// // 假数据
@@ -716,7 +716,7 @@ BOOST_AUTO_TEST_CASE(SILLY_TO_SPATIALITE)
 	//more_GeomColl.push_back(gaia_multi_line);
 	//more_GeomColl.push_back(gaia_multi_polygons);
 
-	//std::filesystem::path geo_db(DEFAULT_DATA_DIR);
+	//std::filesystem::path geo_db(DEFAULT_SU_DATA_DIR);
 	//geo_db += "/geo_db/example6.db";
 	////silly_spatialite::insertSpatialData(geo_db.string().c_str(), more_GeomColl);
 
@@ -755,12 +755,12 @@ BOOST_AUTO_TEST_CASE(READ_GEOJSON_RINGS)
 	std::cout << "\r\n\r\n****************" << "READ_GEOJSON_RINGS" << "****************" << std::endl;
 	//geo_utils::init_gdal_env();
 	//// 读取geojson的环
- //	std::filesystem::path geofile_1(DEFAULT_DATA_DIR);
+ //	std::filesystem::path geofile_1(DEFAULT_SU_DATA_DIR);
 	//geofile_1 += "/geojson/risk2.geojson";
 	//std::vector<silly_poly> geojson_rings; // = geo_utils::read_vector_rings(geofile_1.string().c_str());
 
 	//// 读取湖南市区的环
-	//std::filesystem::path huanan(DEFAULT_DATA_DIR);
+	//std::filesystem::path huanan(DEFAULT_SU_DATA_DIR);
 	//huanan += "/shp/hunan_shi_boundary.shp";
 
 	//std::vector<silly_point> geojson_out_point;
@@ -780,12 +780,12 @@ BOOST_AUTO_TEST_CASE(READ_GEOJSON_RINGS)
 	//	}
 	//}
 
-	//std::filesystem::path geojson_1013_1(DEFAULT_DATA_DIR);
+	//std::filesystem::path geojson_1013_1(DEFAULT_SU_DATA_DIR);
 	//geojson_1013_1 += "/shp/1013_geojson_1.shp";
 	////points_to_shp(geojson_out_point, huanan.string().c_str(), geojson_1013_1.string().c_str());
 
 
-	//std::filesystem::path shp_1(DEFAULT_DATA_DIR);
+	//std::filesystem::path shp_1(DEFAULT_SU_DATA_DIR);
 	//shp_1 += "/shp/risk2.shp";
 	//std::vector<silly_poly> shp_rings;// = geo_utils::read_vector_rings(shp_1.string().c_str());
 	//std::vector<silly_point> shp_out_point;
@@ -804,7 +804,7 @@ BOOST_AUTO_TEST_CASE(READ_GEOJSON_RINGS)
 	//		}
 	//	}
 	//}
-	//std::filesystem::path shp_1013_1(DEFAULT_DATA_DIR);
+	//std::filesystem::path shp_1013_1(DEFAULT_SU_DATA_DIR);
 	//shp_1013_1 += "/shp/1013_shp_1.shp";
 	////points_to_shp(shp_out_point, huanan.string().c_str(), shp_1013_1.string().c_str());
 
@@ -822,7 +822,7 @@ BOOST_AUTO_TEST_CASE(READ_GEOJSON_RINGS)
 //	std::cout << "\r\n\r\n****************" << "GEO_INTERSECTION_CENTROID" << "****************" << std::endl;
 //
 //	// 读取湖南市区的环
-//	std::filesystem::path huanan(DEFAULT_DATA_DIR);
+//	std::filesystem::path huanan(DEFAULT_SU_DATA_DIR);
 //	huanan += "/read_shp/hunan_shi_boundary.shp";
 //	std::vector<silly_ring> shp_rings = geo_operation::read_shp_ring(huanan.string().c_str());
 //	if (shp_rings.empty())
@@ -831,7 +831,7 @@ BOOST_AUTO_TEST_CASE(READ_GEOJSON_RINGS)
 //	}
 //
 //	// 计算预警区域外环
-//	std::filesystem::path risk2(DEFAULT_DATA_DIR);
+//	std::filesystem::path risk2(DEFAULT_SU_DATA_DIR);
 //	risk2 += "/read_shp/risk2.shp";
 //	std::vector<silly_ring> risk_rings = geo_operation::read_shp_ring(risk2.string().c_str());
 //	if (risk_rings.empty())
@@ -862,14 +862,14 @@ BOOST_AUTO_TEST_CASE(READ_GEOJSON_RINGS)
 //
 //					// 测试画出相交区域和形心点(待删)
 //					{
-//						std::filesystem::path intersect(DEFAULT_DATA_DIR);
+//						std::filesystem::path intersect(DEFAULT_SU_DATA_DIR);
 //						char buff[256] = { 0 };
 //						sprintf(buff, "/read_shp/intersect_%d.shp", b);
 //						intersect += buff;
 //						// 画边界
 //						points_to_shp(temp[m].points, huanan.string().c_str(), intersect.string().c_str());
 //
-//						std::filesystem::path intersect_center_path(DEFAULT_DATA_DIR);
+//						std::filesystem::path intersect_center_path(DEFAULT_SU_DATA_DIR);
 //						char buff2[256] = { 0 };
 //						sprintf(buff2, "/read_shp/intersect_center_%d.shp", b);
 //						b++;

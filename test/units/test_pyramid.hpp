@@ -23,7 +23,7 @@ BOOST_AUTO_TEST_SUITE(TestPyramid)
 BOOST_AUTO_TEST_CASE(PYRAMID_WRITE)
 {
 	std::cout << "\r\n\r\n****************" << "PYRAMID_CREATE" << "****************" << std::endl;
-	std::filesystem::path pyramid_dir(DEFAULT_DATA_DIR);
+	std::filesystem::path pyramid_dir(DEFAULT_SU_DATA_DIR);
 	pyramid_dir.append("000VM_1");
 	silly_pyramid sp;
 	sp.open("//192.168.0.80/MapRoot/public/union_bitmap_pyramid/basemap/00_P", open_mode::READ, true);

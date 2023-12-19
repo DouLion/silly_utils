@@ -25,9 +25,9 @@ BOOST_AUTO_TEST_SUITE(TestCompress)
 BOOST_AUTO_TEST_CASE(MINIZIP_COMPRESS_DIR)      // minizip压缩文件夹
 {
 	std::cout << "\r\n\r\n****************" << "MINIZIP_COMPRESS_DIR" << "****************" << std::endl;
-	std::filesystem::path src_file(DEFAULT_DATA_DIR);
+	std::filesystem::path src_file(DEFAULT_SU_DATA_DIR);
 	src_file += "/compress/big4g.txt";   //123.txt
-	std::filesystem::path des_file(DEFAULT_DATA_DIR);
+	std::filesystem::path des_file(DEFAULT_SU_DATA_DIR);
 	des_file += "/compress/big4.zip";
 	std::string tes = "D:/1_wangyingjie/1_文档文件/ncf_20230826_200902.nc";
 	int result =0;
@@ -53,9 +53,9 @@ BOOST_AUTO_TEST_CASE(MINIZIP_COMPRESS_DIR)      // minizip压缩文件夹
 BOOST_AUTO_TEST_CASE(MINIZIP_DECOMPRESS_DIR)      // minizip解压缩文件夹
 {
 	std::cout << "\r\n\r\n****************" << "MINIZIP_DECOMPRESS_DIR" << "****************" << std::endl;
-	std::filesystem::path des_file(DEFAULT_DATA_DIR);
+	std::filesystem::path des_file(DEFAULT_SU_DATA_DIR);
 	des_file += "/compress/压缩2.zip";
-	std::filesystem::path src_file(DEFAULT_DATA_DIR);
+	std::filesystem::path src_file(DEFAULT_SU_DATA_DIR);
 	src_file += "/compress/789";   //123.txt
 	int result = silly_minizip::decompressZip(des_file.string(), src_file.string());
 	if (result == 0)
@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE(MINIZIP_DECOMPRESS_DIR)      // minizip解压缩文件夹
 BOOST_AUTO_TEST_CASE(BZ2_COMPRESS_FILE)      // BZ2压缩文件
 {
 	std::cout << "\r\n\r\n****************" << "BZ2_COMPRESS_FILE" << "****************" << std::endl;
-	std::filesystem::path to_compress_file(DEFAULT_DATA_DIR);
+	std::filesystem::path to_compress_file(DEFAULT_SU_DATA_DIR);
 	to_compress_file.append("hebei_station.txt");
 	//std::string dst = silly_bz2::compress(to_compress_file.string());
 	//BOOST_CHECK(!dst.empty());
@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE(BZ2_COMPRESS_FILE)      // BZ2压缩文件
 BOOST_AUTO_TEST_CASE(BZ2_COMPRESS_DATA)      // BZ2压缩数据
 {
 	std::cout << "\r\n\r\n****************" << "BZ2_COMPRESS_DATA" << "****************" << std::endl;
-	std::filesystem::path to_compress_file(DEFAULT_DATA_DIR);
+	std::filesystem::path to_compress_file(DEFAULT_SU_DATA_DIR);
 	to_compress_file.append("hebei_station.txt");
 	//char* data = nullptr;
 	//int len = 0;
@@ -112,7 +112,7 @@ BOOST_AUTO_TEST_CASE(BZ2_COMPRESS_DATA)      // BZ2压缩数据
 BOOST_AUTO_TEST_CASE(BZ2_DECOMPRESS_FILE)      // BZ2解压缩文件
 {
 	std::cout << "\r\n\r\n****************" << "BZ2_DECOMPRESS_FILE" << "****************" << std::endl;
-	std::filesystem::path upoad_file(DEFAULT_DATA_DIR);
+	std::filesystem::path upoad_file(DEFAULT_SU_DATA_DIR);
 	//upoad_file.append("compress").append("R_RADR_I_S2400_20230721115441_O_DOR_YLD4-D_CAP_FMT.bin.bz2");
 
 	

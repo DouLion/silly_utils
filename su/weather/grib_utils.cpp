@@ -3,7 +3,7 @@
 //
 
 #include "grib_utils.h"
-#if GRIB_ENABLED
+#if SU_GRIB_ENABLED
 #include "grib_api.h"
 #endif
 using namespace grib_data;
@@ -18,7 +18,7 @@ bool grib_utils::read(const std::string& grib_file, std::vector<DMatrix>& matrix
 #endif
 	if (!strlen(grib_def_path))
 	{
-		perror("cannot find Enviroment: <GRIB_DEFINITION_PATH> or <ECCODES_DEFINITION_PATH>.");
+		perror("cannot find Environment: <GRIB_DEFINITION_PATH> or <ECCODES_DEFINITION_PATH>.");
 		return false;
 	}
 

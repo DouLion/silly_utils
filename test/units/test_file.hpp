@@ -23,7 +23,7 @@ BOOST_AUTO_TEST_SUITE(TestFiles)
 BOOST_AUTO_TEST_CASE(MMAP_READ)		// mmap文件读取
 {
 	std::cout << "\r\n\r\n****************" << "MMAP_READ" << "****************" << std::endl;
-	std::filesystem::path p(DEFAULT_DATA_DIR);
+	std::filesystem::path p(DEFAULT_SU_DATA_DIR);
 	p.append("compress").append("R_RADR_I_S2400_20230721115441_O_DOR_YLD4-D_CAP_FMT.bin.bz2");
 
 	std::string rar = "D:/1_wangyingjie/readfile/split/HN2.rar";
