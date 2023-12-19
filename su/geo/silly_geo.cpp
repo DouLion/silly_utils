@@ -376,10 +376,7 @@ bool read_multi_polygon(const Json::Value& root, silly_geo_coll& coll)
 
 enum_geometry_types enum_type(std::string type)
 {
-	if (type == "") {
-		return eInvalid;
-	}
-	else if (type == GEOJSON_GEOMETRY_POINT) {								// 单点
+	if (type == GEOJSON_GEOMETRY_POINT) {								// 单点
 		return  ePoint;
 	}
 	else if (type == GEOJSON_GEOMETRY_LINE_STRING) {						// 单线
@@ -400,6 +397,8 @@ enum_geometry_types enum_type(std::string type)
 	else if (type == GEOJSON_GEOMETRY_COLLECTION){							// 复合
 		return eCompositeType;
 	}
+
+	return eInvalid;
 }
 
 

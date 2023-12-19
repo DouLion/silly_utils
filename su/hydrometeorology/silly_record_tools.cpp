@@ -1,5 +1,6 @@
 #include "silly_record_tools.h"
 #include "su_marco.h"
+#include <math.h>
 bool silly_record_tools::compress_time_format(const std::string& time, unsigned int& ymd, unsigned int& hms)
 {
 	int year = 0, month = 0, day = 0, hour = 0, minute = 0, second = 0;
