@@ -138,7 +138,7 @@ BOOST_AUTO_TEST_CASE(READ_WIRTE_JSON_GEO_COLL)
 	// point  nulti_point   line  mulit_line  polygon muliti_polygon collection
 		// 文件路径
 	std::filesystem::path filePath(DEFAULT_SU_DATA_DIR);
-	filePath += "/txt/collection.txt";
+	filePath += "/txt/mulit_line.txt";
 	// 打开文件
 	std::ifstream inputFile(filePath);
 	// 检查文件是否成功打开
@@ -160,7 +160,8 @@ BOOST_AUTO_TEST_CASE(READ_WIRTE_JSON_GEO_COLL)
 	temp_coll = silly_geo::load_geo_coll(fileContent);
 
 	std::string result = silly_geo::dump_geo_coll(temp_coll);
-
+	// 临时查看
+	std::cout << result << std::endl;
 
 	geo_utils::destroy_gdal_env();
 
