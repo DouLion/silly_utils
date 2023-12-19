@@ -21,7 +21,7 @@ public:
         EmptyInputErr = 1,
         MallocErr = 2,
         FileNotExistErr = 3,
-        MemAllocErr  = 4,
+        MemAllocErr = 4,
         InValidInputErr = 5,
         InValidOutputErr = 6,
         // bz2的错误
@@ -32,7 +32,14 @@ public:
 
         // minizip的错误
         MiniZDecompressErr = 201,
+        MiniZCreatZipErr = 202,
+        MiniZOpenFileErr = 203,
+        MiniZCreatDirErr = 204,
+        MiniZFileEmptyErr = 205,
+        MiniZGetInforErr = 206,
 
+        MiniZCompressStrErr = 207,
+        MiniZUncompressStrErr = 208,
         // gzip的错误
 
         GZipDecompressErr = 301,

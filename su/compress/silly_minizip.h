@@ -17,9 +17,8 @@
 #include <compress/silly_compress_base.h>
 
 // TODO : 王英杰  头文件中能不暴露出来的include 文件 不要暴露出来
-#include <vector>
-#include "minizip/zip.h"
-#include "minizip/unzip.h"
+
+
 
 // TODO : 王英杰  枚举放到silly_compress_base 的错误枚举类中, 保持格式一致
 enum ZIP_ERROR {
@@ -37,45 +36,49 @@ enum ZIP_ERROR {
 };
 
 // TODO : 王英杰 继承silly_compress_base  实现四个虚函数, 参照silly_bz2.h
-class silly_minizip
+class silly_minizip : public silly_compress_base
 {
 public:
 
-    
     /// <summary>
     /// 将文件或目录压缩为ZIP文件
     /// </summary>
-    /// <param name="src">被压缩文件的地址</param>
-    /// <param name="dst">生成压缩包地址</param>
+    /// <param name="s_src">被压缩文件或目录地址</param>
+    /// <param name="s_dst">生成解压文件路径</param>
     /// <returns></returns>
-    static int compressZip(std::string src, std::string dst);
+    int compress(const std::string& s_src, const std::string& s_dst) override;
 
 
     /// <summary>
-    /// 解压zip文件,解压单独文件和国际目录文件
+    /// 解压zip文件,解压单独文件和目录文件
     /// </summary>
-    /// <param name="zipFileName">zip文件路径</param>
-    /// <param name="outputDirectory">生成解压文件路径</param>
+    /// <param name="s_src">待解压文件路径</param>
+    /// <param name="s_dst">解压输出路径</param>
     /// <returns></returns>
-    static int decompressZip(const std::string& zipFileName, const std::string& outputDir = "");
-
-private:
+    int decompress(const std::string& s_src, const std::string& s_dst) override;
 
     /// <summary>
-    /// 将一个文件内容写入到一个 ZIP 文件中
+    /// 压缩内存数据
     /// </summary>
-    /// <param name="zFile"></param>
-    /// <param name="file">需要读取的文件</param>
+    /// <param name="c_in_val">待压缩内存数据</param>
+    /// <param name="i_in_len">待压缩内存数据大小</param>
+    /// <param name="c_out_val">压缩数据输出</param>
+    /// <param name="i_out_len">压缩数据输出大小</param>
     /// <returns></returns>
-    static int writeInZipFile(zipFile zFile, const std::string& file);
+    /// 注: 计算传入的c_in_val长度i_in_len时,直接使用strlen(c_in_val)计算即可,strlen()不会考虑字符串
+    /// 最后的'/0',在代码对字符串结尾的'\0'做处理了,传入i_in_len = strlen(c_in_val) 无需 + 1
+    int compress(const char* c_in_val, const size_t& i_in_len, char** c_out_val, size_t& i_out_len) override;
 
     /// <summary>
-    /// 列举指定目录及其子目录中的所有文件和子目录
+    /// 解压内存数据
     /// </summary>
-    /// <param name="dirPrefix">需压缩目录所在目录的绝对路径</param>
-    /// <param name="dirName">需压缩目录名(例如:dirName=comp)</param>
-    /// <param name="vFiles">dirName目录下所有的文件和子目录相对路径(相对需要所目录的路径:comp/file2/1.txt")</param>
-    static void EnumDirFiles(const std::string& dirPrefix, const std::string& dirName, std::vector<std::string>& vFiles);
+    /// <param name="c_in_val">待解压内存数据</param>
+    /// <param name="i_in_len">待解压内存数据大小</param>
+    /// <param name="c_out_val">解压数据输出</param>
+    /// <param name="i_out_len">解压数据输出大小</param>
+    /// <returns></returns>
+    int decompress(const char* c_in_val, const size_t& i_in_len, char** c_out_val, size_t& i_out_len) override;
+
 
 
 };
