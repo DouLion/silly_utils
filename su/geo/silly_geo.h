@@ -264,6 +264,20 @@ public:
 	static std::string dump_geojson(const std::vector<silly_poly> polys);
 	static std::vector<silly_poly> load_geojson(const std::string& geojson);
 
+	/// <summary>
+	/// 将silly_geo_coll回写为geojson中的表示方式
+	/// </summary>
+	/// <param name="sgc"></param>
+	/// <returns></returns>
+	static std::string dump_geo_coll(const silly_geo_coll& geo_coll);
+
+	/// <summary>
+	/// 从字符串加载silly_geo_coll
+	/// </summary>
+	/// <param name="content"></param>
+	/// <returns></returns>
+	static silly_geo_coll load_geo_coll(const std::string& content);
+
 };
 
 #endif //SILLY_UTILS_SILLY_GEO_H

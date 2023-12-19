@@ -658,7 +658,6 @@ bool read_property(const OGRFeature* feature, const std::map<std::string, enum_g
     for (const auto& entry : properties)
     {
         std::string key = entry.first;
-        unsigned char* temp_data{ nullptr };
         size_t temp_size = 0;
         enum_geoprop_types th_type = entry.second;
         switch (th_type)
@@ -687,6 +686,10 @@ bool read_property(const OGRFeature* feature, const std::map<std::string, enum_g
         case eString:
         {
             std::string value = feature->GetFieldAsString(entry.first.c_str());
+            //if (silly_code::Encode::eeUTF8 != silly_code::IsUTF8((uint8_t*)value.c_str(), value.size()))
+            //{
+            //    value = silly_conv::GBK2UTF8(value);
+            //}
             temp_size = value.size() + 1;
             props[key].data = new unsigned char[temp_size];
             std::memcpy(props[key].data, value.c_str(), temp_size);

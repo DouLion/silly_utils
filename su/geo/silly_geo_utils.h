@@ -22,7 +22,7 @@ public:
 	static double two_point_azimuth(silly_point from, silly_point to);
 
 	/// <summary>
-	/// 读取shp文件中的数据存储早
+	/// 读取shp文件中的数据存储到silly_geo_coll数据结构中
 	/// </summary>
 	/// <param name="file"></param>
 	/// <param name="collection"></param>
@@ -30,7 +30,7 @@ public:
 	static bool read_geo_coll(const char* file, std::vector<silly_geo_coll>& collections);
 
 	/// <summary>
-	/// 写矢量文件
+	/// 将silly_geo_coll数据结构写入矢量文件(如shp文件)
 	/// </summary>
 	/// <param name="file"></param>
 	/// <param name="collection"></param>
