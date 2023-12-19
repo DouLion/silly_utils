@@ -29,7 +29,7 @@ IF (CMAKE_HOST_SYSTEM_NAME MATCHES "Linux")
     # SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17  -lodbc -lpthread -fPIC -Wl,-Bstatic")
 
 
-    SET(dm_include_path /opt/dmdbms/INCLUDE)
+    SET(dm_include_path /opt/dmdbms/include)
     SET(dm_lib_path /opt/dmdbms/bin)
     ADD_DEFINITIONS("-DDM8_ENABLED")
     LINK_DIRECTORIES("/opt/dmdbms/bin")
