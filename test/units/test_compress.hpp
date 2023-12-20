@@ -29,7 +29,7 @@ BOOST_AUTO_TEST_CASE(MINIZIP_INHERIT)      // 修改继承
 
 	// 解压字符串
 	const char* input_data = "This is a test char";
-	size_t input_length = strlen(input_data) + 1;
+	size_t input_length = strlen(input_data) + 10;
 
 	std::string input = "This is a test char";
 	size_t len = input.length() + 1;

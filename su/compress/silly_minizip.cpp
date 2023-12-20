@@ -77,16 +77,15 @@ void EnumDirFiles(const std::string& dirPrefix, const std::string& dirName, std:
 		{
 			if (std::filesystem::is_empty(fiter.path()))  // 检测目录是否为空
 			{
-				std::string target = std::filesystem::relative(fiter.path(), rel).string();
-				boost::replace_all(target, "\\", "/");
-				vFiles.push_back(target + "/");  // 添加尾部斜线以表示ZIP中的空目录
+				std::filesystem::path relative_path = std::filesystem::relative(fiter.path(), rel);
+				relative_path.append(""); // 是结尾有一个'/',表示relative_path是一个目录
+				vFiles.push_back(relative_path.string());  // 添加尾部斜线以表示ZIP中的空目录
 			}
 		}
 		else  // 文件
 		{
-			std::string target = std::filesystem::relative(fiter.path(), rel).string();
-			boost::replace_all(target, "\\", "/");
-			vFiles.push_back(target);
+			std::filesystem::path relative_path = std::filesystem::relative(fiter.path(), rel);
+			vFiles.push_back(relative_path.string());  // 添加尾部斜线以表示ZIP中的空目录
 		}
 	}
 }
@@ -303,8 +302,7 @@ int silly_minizip::compress(const char* c_in_val, const size_t& i_in_len, char**
 		SU_ERROR_PRINT("Empty input data.");
 		return InValidInputErr;
 	}
-	// 这里对i_in_len + 1是要考虑字符串结尾的'\0',在strlen(char*)计算char*的长度是不会计算结尾的'\0',在这里要+1
-	// MARK 如果不是字符串????
+
 	uLong dest_len = compressBound(i_in_len);    // 解压后的数据大小
 	if (!*c_out_val)
 	{
