@@ -72,7 +72,7 @@ bool xscan_line_raster::rasterization(const silly_multi_poly& m_polys)
 			
 		for (const auto& point : poly.outer_ring.points)
 		{
-			tmp_vertices.push_back(SV2RPoint(std::round((point.lgtd - left) / cell_size), std::round((point.lttd - bottom) / cell_size)));
+			tmp_vertices.push_back(SV2RPoint(std::round((point.lgtd - left) / cell_size), std::round((top - point.lttd) / cell_size)));
 		}
 		vertices_arr.push_back(tmp_vertices);
 	}
@@ -98,11 +98,12 @@ bool xscan_line_raster::rasterization(const std::vector<std::vector<SV2RPoint>> 
 	nrows = maxY - minY + 1;
 	ncols = maxX - minX + 1;
 
-	std::vector<size_t> edges;
+	
 	// 对每一条扫描线进行处理
-	for (size_t scanY = minY; scanY <= maxY; ++scanY)
+	for (int scanY = minY; scanY <= maxY; ++scanY)
 	{
 		// 构建边缘列表
+		std::vector<size_t> edges;
 		for (size_t part = 0; part < vertices_arr.size(); ++part)
 		{
 			auto vertices = vertices_arr[part];
@@ -115,16 +116,27 @@ bool xscan_line_raster::rasterization(const std::vector<std::vector<SV2RPoint>> 
 				{
 					float slope = (v2.x - v1.x) / (v2.y - v1.y); 
 					float x = (scanY - v1.y) * slope + v1.x; 
+
+					std::cout << x << std::endl;
+					if (x < 0)
+					{
+						int a = 0;
+					}
 					edges.push_back(std::round(x)); 
 				}
 			}
 			
 
 		}
-
+	
 		// 根据X值对边缘进行排序
 		std::sort(edges.begin(), edges.end());
-
+	/*	std::cout << scanY << " : ";
+		for (auto e : edges)
+		{
+			std::cout << e << ", ";
+		}
+		std::cout << std::endl;*/
 		// 填充位于两条边之间的像素
 		size_t old = 0;
 		for (size_t i = 0; i < edges.size(); i += 2)

@@ -12,7 +12,6 @@
 #ifndef SILLY_UTILS_SILLY_RECORD_TOOLS_H
 #define SILLY_UTILS_SILLY_RECORD_TOOLS_H
 
-
 class silly_record_tools
 {
 public:
@@ -25,6 +24,8 @@ public:
 	/// <param name="hms"></param>
 	/// <returns></returns>
 	static bool compress_time_format(const std::string& time, unsigned int& ymd, unsigned int& hms);
+
+	static bool compress_time_format(const std::string& time, unsigned int& ymdhm);
 	
 
 	/// <summary>

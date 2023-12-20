@@ -75,6 +75,7 @@
 #define SU_RGBA(r, g, b, a) SU_ARGB(a, r, g, b)
 #define SU_XRGB(r, g, b) SU_ARGB(0xff, r, g, b)
 
+
 // #ifndef __FILENAME__
 // #define __FILENAME__ (strrchr("/" __FILE__, '/') + 1)
 // #endif
@@ -171,6 +172,14 @@
 #define SU_CONVERT_LITTLE_ENDIAN_INT(src_ptr) (src_ptr[3] << 24 | (src_ptr[2] << 16) | src_ptr[1] << 8 | src_ptr[0])
 // 转化小端序的short值
 #define SU_CONVERT_LITTLE_ENDIAN_SHORT(src_ptr) (src_ptr[1] << 8) + src_ptr[0]
+
+#ifndef SU_MEMCPY
+#define SU_MEMCPY(p, off, v)  memcpy(p + off, &v, sizeof(v));
+#endif
+
+#ifndef SU_MEMCPY_AUTO_INC
+#define SU_MEMCPY_AUTO_INC(p, off, v)  memcpy(p + off, &v, sizeof(v)); off+=sizeof(v);
+#endif
 
 #ifndef SU_MEM_FREE
 // 内存释放 free

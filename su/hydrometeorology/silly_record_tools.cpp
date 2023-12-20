@@ -14,6 +14,21 @@ bool silly_record_tools::compress_time_format(const std::string& time, unsigned 
 	return true;
 }
 
+bool silly_record_tools::compress_time_format(const std::string& time, unsigned int& ymdhm)
+{
+	// 8
+	int year = 0, month = 0, day = 0, hour = 0, minute = 0, second = 0;
+	if (EOF == sscanf(time.c_str(), SU_STD_TIME_FORMAT1, &year, &month, &day, &hour, &minute, &second))
+	{
+		SU_ERROR_PRINT("INVALID TIME FORMAT: %s", time.c_str());
+		return false;
+	}
+	char c_after_2000 = year / 2000;
+
+
+	return false;
+}
+
 bool silly_record_tools::decompress_time_format(unsigned int& ymd, unsigned int& hms, std::string& time)
 {
 	int year = (ymd) >> 16;
