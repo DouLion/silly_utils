@@ -46,8 +46,7 @@ public:
     /// <param name="c_out_val">压缩数据输出</param>
     /// <param name="i_out_len">压缩数据输出大小</param>
     /// <returns></returns>
-    /// 注: 计算传入的c_in_val长度i_in_len时,直接使用strlen(c_in_val)计算即可,strlen()不会考虑字符串
-    /// 最后的'/0',在代码对字符串结尾的'\0'做处理了,传入i_in_len = strlen(c_in_val) 无需 + 1
+    /// 注: 如果c_in_val是一个字符串类型的数据要考虑字符串结尾的'\0',需对字符串类型的c_in_val进行strlen(c_in_val) + 1
     int compress(const char* c_in_val, const size_t& i_in_len, char** c_out_val, size_t& i_out_len) override;
 
     /// <summary>
