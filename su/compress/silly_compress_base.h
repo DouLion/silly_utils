@@ -12,6 +12,8 @@
 
 #include <iostream>
 
+// 4G 字节数
+#define SILLY_UTILS_4G_BYTE 4294967296
 
 class silly_compress_base {
 public:

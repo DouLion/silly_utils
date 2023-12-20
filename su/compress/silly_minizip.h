@@ -16,14 +16,7 @@
 #include <iostream>
 #include <compress/silly_compress_base.h>
 
-// TODO : 王英杰  头文件中能不暴露出来的include 文件 不要暴露出来
 
-
-
-// TODO : 王英杰  枚举放到silly_compress_base 的错误枚举类中, 保持格式一致
-
-
-// TODO : 王英杰 继承silly_compress_base  实现四个虚函数, 参照silly_bz2.h
 class silly_minizip : public silly_compress_base
 {
 public:

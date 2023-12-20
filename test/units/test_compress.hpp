@@ -21,27 +21,32 @@
 
 BOOST_AUTO_TEST_SUITE(TestCompress)
 
+
 BOOST_AUTO_TEST_CASE(MINIZIP_INHERIT)      // 修改继承
 {
 	std::cout << "\r\n\r\n****************" << "MINIZIP_INHERIT" << "****************" << std::endl;
 
+
+	// 解压字符串
 	const char* input_data = "This is a test char";
-	size_t input_length = strlen(input_data);
+	size_t input_length = strlen(input_data) + 1;
 
 	std::string input = "This is a test char";
-	size_t len = input.length();
+	size_t len = input.length() + 1;
 
-	char* compressed_data;
+	char* compressed_data = nullptr;
 	size_t compressed_length;
 
 	silly_minizip mzip;
 	int com = mzip.compress(input_data, input_length, &compressed_data, compressed_length);
 
-	char* decompressed_data;
+	char* decompressed_data = nullptr;
 	size_t decompressed_length;
 
 	int decom = mzip.decompress(compressed_data, compressed_length, &decompressed_data, decompressed_length);
 	//-------------------------------------------------
+
+	// 解压文件
 	std::filesystem::path src_file(DEFAULT_SU_DATA_DIR);
 	src_file += "/compress/123.txt";   //压缩文件
 	std::filesystem::path des_file(DEFAULT_SU_DATA_DIR);
@@ -58,18 +63,19 @@ BOOST_AUTO_TEST_CASE(MINIZIP_INHERIT)      // 修改继承
 	//std::cout << tm1.elapsed() << std::endl;  // 单位是秒
 
 	//silly_minizip mzip;
-	//int result = mzip.compress(src_dir.string().c_str(), des_dir.string().c_str());   // 压缩
-	//if (result == 0)
-	//{
-	//	std::cout << "Compression completed successfully." << std::endl;
-	//}
-	//else
-	//{
-	//	std::cout << "Compression failed." << std::endl;
-	//}
+	int result = mzip.compress(src_file.string().c_str(), des_file.string().c_str());   // 压缩
+	if (result == 0)
+	{
+		std::cout << "Compression completed successfully." << std::endl;
+	}
+	else
+	{
+		std::cout << "Compression failed." << std::endl;
+	}
 	std::filesystem::path un_dir(DEFAULT_SU_DATA_DIR);
 	un_dir += "/compress/un";
-	int de = mzip.decompress(des_file.string(), un_dir.string());
+	std::string dir = "";
+	int de = mzip.decompress(des_dir.string(), un_dir.string());
 
 	int r = 0;
 	int e = 0;
@@ -78,20 +84,48 @@ BOOST_AUTO_TEST_CASE(MINIZIP_INHERIT)      // 修改继承
 };
 
 
-
-
-BOOST_AUTO_TEST_CASE(MINIZIP_COMPRESS_DIR)      // minizip压缩文件夹
+BOOST_AUTO_TEST_CASE(BIG_FILE)      // 大文件解压缩
 {
-	std::cout << "\r\n\r\n****************" << "MINIZIP_COMPRESS_DIR" << "****************" << std::endl;
+	std::cout << "\r\n\r\n****************" << "BIG_FILE" << "****************" << std::endl;
+
 	std::filesystem::path src_file(DEFAULT_SU_DATA_DIR);
-	src_file += "/compress/big4g.txt";   //123.txt
+	src_file += "/compress/123.txt";   //压缩文件
 	std::filesystem::path des_file(DEFAULT_SU_DATA_DIR);
-	des_file += "/compress/big4.zip";
-	std::string tes = "D:/1_wangyingjie/1_文档文件/ncf_20230826_200902.nc";
+	des_file += "/compress/123_file.zip";
+
+	std::filesystem::path src_dir(DEFAULT_SU_DATA_DIR);
+	src_dir += "/compress/compress_dir";   //压缩文件夹
+	std::filesystem::path des_dir(DEFAULT_SU_DATA_DIR);
+	des_dir += "/compress/copm_dir.zip";
 
 
+	std::string g4_5 = "D:/1_wangyingjie/readfile/compress/big4g.txt";
+	std::string g4_5_out = "D:/1_wangyingjie/readfile/compress/big4g.zip";
 
+	silly_minizip mzip;
+	int result = mzip.compress(src_dir.string(), des_dir.string());   // 压缩
+	if (result == 0)
+	{
+		std::cout << "Compression completed successfully." << std::endl;
+	}
+	else
+	{
+		std::cout << "Compression failed." << std::endl;
+	}
+
+
+	int r = 0;
+	int e = 0;
+	int f = 0;
 };
+
+
+
+
+
+
+
+
 
 BOOST_AUTO_TEST_CASE(MINIZIP_DECOMPRESS_DIR)      // minizip解压缩文件夹
 {

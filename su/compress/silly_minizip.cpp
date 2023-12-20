@@ -20,6 +20,7 @@
 
 #include "minizip/zip.h"
 #include "minizip/unzip.h"
+#include "su_marco.h"
 
 /// <summary>
 /// 将一个文件内容写入到一个 ZIP 文件中
@@ -29,6 +30,7 @@
 /// <returns></returns>
 int writeInZipFile(zipFile zFile, const std::string& file)
 {
+	int ret = -1;
 	std::fstream f(file.c_str(), std::ios::binary | std::ios::in);
 	if (!f.is_open())
 	{
@@ -39,12 +41,22 @@ int writeInZipFile(zipFile zFile, const std::string& file)
 	f.seekg(0, std::ios::beg);
 	if (size <= 0)
 	{
-		return zipWriteInFileInZip(zFile, NULL, 0);
+		ret = zipWriteInFileInZip(zFile, NULL, 0);
 	}
-	char* buf = new char[size];
-	f.read(buf, size);
-	int ret = zipWriteInFileInZip(zFile, buf, size);
-	delete[] buf;
+	else if (size > 0 && size < SILLY_UTILS_4G_BYTE)  // (0 ~ 4G) 左右都不包含
+	{
+		char* buf = (char*)malloc(size);
+		f.read(buf, size);
+		ret = zipWriteInFileInZip(zFile, buf, size);
+		SU_MEM_FREE(buf);
+
+	}
+	else if (size >= SILLY_UTILS_4G_BYTE)  // 文件大于等于4g,需要另外考虑
+	{
+		// TODO:大文件拆分压缩
+		SU_ERROR_PRINT("The file is larger than or equal to 4g and cannot be compressed ");
+
+	}
 	return ret;
 }
 
@@ -79,17 +91,57 @@ void EnumDirFiles(const std::string& dirPrefix, const std::string& dirName, std:
 	}
 }
 
-// TODO: 王英杰, 压缩文件和压缩目录分开 
-// 解压同样, 解压考虑解压到当前目录 和 解压到指定目录应该是什么样子的
-// 错误信息命名方式参考Z_OK附近的定义
 
-// *c_out_val = new char[dest_len]; 统一使用malloc
-// *c_out_val 初始化前判断释放为空
+// 压缩文件
+int minizip_compress_file(zipFile zFile, const std::string& src)
+{
+	std::string srcFileName = std::filesystem::path(src).filename().string();
+	zip_fileinfo zFileInfo = { 0 };
+	int ret = zipOpenNewFileInZip(zFile, srcFileName.c_str(), &zFileInfo, NULL, 0, NULL, 0, NULL, Z_DEFLATED, Z_DEFAULT_COMPRESSION);
+	if (ret != ZIP_OK)
+	{
+		SU_ERROR_PRINT("Failed to open file in zip: %s", src);
+		return ret;
+	}
+	ret = writeInZipFile(zFile, src);   
+	if (ret != ZIP_OK)
+	{
+		SU_ERROR_PRINT("ailed to write file to zip: %s", src);
+	}
+	return ret;
+}
 
-int minizip_compress_file();
-int minizip_compress_dir();
-
-
+// 压缩文件夹
+int minizip_compress_dir(zipFile zFile, const std::string& dirPath)
+{
+	std::filesystem::path dir(dirPath);
+	std::string dirName = dir.filename().string();
+	std::string dirParent = dir.parent_path().string();
+	std::vector<std::string> vecFiles;
+	EnumDirFiles(dirParent, dirName, vecFiles);  // 列举指定目录及其子目录中的所有文件和子目录
+	for (const auto& filePath : vecFiles)  // 处理所有的文件
+	{
+		zip_fileinfo zFileInfo = { 0 };
+		int ret = zipOpenNewFileInZip(zFile, filePath.c_str(), &zFileInfo, NULL, 0, NULL, 0, NULL, Z_DEFLATED, Z_DEFAULT_COMPRESSION);
+		if (ret != ZIP_OK)
+		{
+			std::cout << "Failed to open file in zip: " << filePath << std::endl;
+			return ret;
+		}
+		std::filesystem::path dirPrefix = dir.parent_path();
+		dirPrefix.append(filePath);   // 需压缩文件的绝对目录
+		if (std::filesystem::is_regular_file(dirPrefix.string()))	// 判断是否为文件
+		{
+			ret = writeInZipFile(zFile, dirPrefix.string());
+		}
+		if (ret != ZIP_OK)
+		{
+			std::cout << "Failed to write file to zip: " << dirPrefix.string() << std::endl;
+			return ret;
+		}
+	}
+	return ZIP_OK;
+}
 
 
 /// 将文件或目录压缩为ZIP文件
@@ -100,12 +152,6 @@ int silly_minizip::compress(const std::string& s_src, const std::string& s_dst)
 		return FileNotExistErr;
 	}
 	std::string src = s_src;
-	
-	// MARK 替换为 '/' == src[src.length() - 1]
-	if (src.find_last_of("/") == src.length() - 1)  //如果是目录去掉目录最后的/
-	{
-		src = src.substr(0, src.length() - 1);
-	}
 	// MARK : __linux__ 是否在linux下定义
 #ifdef __linux__
 	struct stat64 fileInfo;
@@ -117,60 +163,33 @@ int silly_minizip::compress(const std::string& s_src, const std::string& s_dst)
 
 	if (S_ISREG(fileInfo.st_mode))  // 压缩文件
 	{
-		size_t pos = src.find_last_of("/");
-		std::string srcFireName = src.substr(pos + 1); // 目录名(需要压缩的目录)
 		zipFile zFile = zipOpen(s_dst.c_str(), APPEND_STATUS_CREATE);
 		if (zFile == NULL)
 		{
-			return MiniZCreatZipErr;  //创建写入的zip失败
+			zipClose(zFile, NULL);
+			return MiniZCreatZipErr;  // 创建写入的zip失败
 		}
-		zip_fileinfo zFileInfo = { 0 };
-		int ret = zipOpenNewFileInZip(zFile, srcFireName.c_str(), &zFileInfo, NULL, 0, NULL, 0, NULL, Z_DEFLATED, Z_DEFAULT_COMPRESSION);
+		int ret = minizip_compress_file(zFile, src);  //压缩文件
 		if (ret != ZIP_OK)
 		{
 			zipClose(zFile, NULL);
-			return MiniZOpenFileErr;  // 打开待压缩文件失败
-		}
-		ret = writeInZipFile(zFile, src);
-		if (ret != ZIP_OK)
-		{
-			zipClose(zFile, NULL);
-			return MiniZCreatZipErr;  // 打开新写入的ZIP失败
+			return MiniZOpenFileErr;
 		}
 		zipClose(zFile, NULL);
 	}
-	else if (S_ISDIR(fileInfo.st_mode))  // 压缩目录
+	else if (S_ISDIR(fileInfo.st_mode))  // 压缩文件夹
 	{
-		size_t pos = src.find_last_of("/");
-		std::string dirName = src.substr(pos + 1);      // 目录名(需要压缩的目录)
-		std::string dirPrefix = src.substr(0, pos);     // 需要压缩目录所在目录的绝对路径
+
 		zipFile zFile = zipOpen(s_dst.c_str(), APPEND_STATUS_CREATE);
 		if (zFile == NULL)
 		{
-			return MiniZCreatZipErr;  //打开要写入的zip失败
+			return MiniZCreatZipErr;  //  创建写入的zip失败
 		}
-		std::vector<std::string> vecFiles;
-		EnumDirFiles(dirPrefix, dirName, vecFiles);  // 列举指定目录及其子目录中的所有文件和子目录
-		std::vector<std::string>::iterator itF = vecFiles.begin();
-		for (; itF != vecFiles.end(); ++itF)
+		int ret = minizip_compress_dir(zFile, src);  // 压缩文件夹
+		if (ret != ZIP_OK)
 		{
-			zip_fileinfo zFileInfo = { 0 };
-			int ret = zipOpenNewFileInZip(zFile, itF->c_str(), &zFileInfo, NULL, 0, NULL, 0, NULL, Z_DEFLATED, Z_DEFAULT_COMPRESSION);
-			if (ret != ZIP_OK)
-			{
-				zipClose(zFile, NULL);
-				return MiniZOpenFileErr;  // 打开待压缩文件失败
-			}
-			std::string doc_file = (dirPrefix + "/" + *itF);
-			if (std::filesystem::is_regular_file(doc_file))   // 判断是否为文件
-			{
-				ret = writeInZipFile(zFile, doc_file);
-			}
-			if (ret != ZIP_OK)
-			{
-				zipClose(zFile, NULL);
-				return MiniZCreatZipErr;  // 打开新写入的ZIP失败
-			}
+			zipClose(zFile, NULL);
+			return ret; 
 		}
 		zipClose(zFile, NULL);
 	}
@@ -185,16 +204,12 @@ int silly_minizip::decompress(const std::string& s_src, const std::string& s_dst
 		return FileNotExistErr;
 	}
 	std::string outputDirectory = s_dst;
-	if (outputDirectory.empty())         // 如果解压路径为空,创建默认解压目录,默认为待解压文件所在目录
+	if (outputDirectory.empty())         // 如果解压路径为空,创建一个和压缩包名称相同的目录,解压到该目录下
 	{
-		std::filesystem::path defOutputDir = std::filesystem::path(s_src).parent_path();
+		std::filesystem::path srcPath(s_src);
+		std::string srcOnlyName = srcPath.filename().stem().string();
+		std::filesystem::path defOutputDir = srcPath.parent_path().append(srcOnlyName);
 		outputDirectory = defOutputDir.string();
-	}
-	// 打开ZIP文件
-	unzFile zipFile = unzOpen(s_src.c_str());
-	if (zipFile == nullptr)
-	{
-		return MiniZOpenFileErr;   // 打开ZIP文件失败
 	}
 	// 如果数据目录为空,创建输出目录
 	std::filesystem::path outputDir(outputDirectory);
@@ -202,9 +217,13 @@ int silly_minizip::decompress(const std::string& s_src, const std::string& s_dst
 	{
 		if (!std::filesystem::create_directory(outputDir))
 		{
-			unzClose(zipFile);
 			return MiniZCreatDirErr;        // 创建目录失败
 		}
+	}
+	unzFile zipFile = unzOpen(s_src.c_str());   	// 打开ZIP文件
+	if (zipFile == nullptr)
+	{
+		return MiniZOpenFileErr;   // 打开ZIP文件失败
 	}
 	// 进入ZIP文件中的第一个文件
 	if (unzGoToFirstFile(zipFile) != UNZ_OK)
@@ -214,42 +233,62 @@ int silly_minizip::decompress(const std::string& s_src, const std::string& s_dst
 	}
 	do    // 循环解压缩所有文件
 	{
-		char filename[512];
-		unz_file_info file_info;
 		// 获取当前文件信息
-		if (unzGetCurrentFileInfo(zipFile, &file_info, filename, sizeof(filename), nullptr, 0, nullptr, 0) != UNZ_OK)
+		// 获取文件名大小和文件大小
+		size_t nameLen = 0;  // 该压缩分支文件名长度
+		size_t uncompressed_size = 0;  // 该压缩分支占字节数
+		unz_file_info file_info;
+		if (unzGetCurrentFileInfo(zipFile, &file_info, nullptr, 0, nullptr, 0, nullptr, 0) == UNZ_OK)
 		{
+			nameLen = file_info.size_filename;
+			uncompressed_size = file_info.uncompressed_size;
+		}
+		char* filename = (char*)malloc(nameLen + 1);
+		if (unzGetCurrentFileInfo(zipFile, &file_info, filename, nameLen + 1, nullptr, 0, nullptr, 0) != UNZ_OK)
+		{
+			SU_MEM_FREE(filename);
 			return MiniZGetInforErr;    // 获取文件信息失败
 		}
-		std::string filePath = outputDirectory + "/" + filename;
-		// TODO: 这里检测一下有没有其他写法, 创建目录或文件
-		if (filename[file_info.size_filename - 1] == '/')    // 目录
+		std::filesystem::path one_file = outputDir;
+		one_file.append(filename);
+
+		if (std::filesystem::is_directory(one_file))   // 压缩分支为目录
 		{
-			std::filesystem::create_directories(filePath);
+			if (!std::filesystem::exists(one_file))
+			{
+				if (!std::filesystem::create_directories(one_file.string()))
+				{
+					SU_MEM_FREE(filename);
+					return MiniZCreatDirErr;        // 创建目录失败
+				}
+			}
 		}
-		else       // 文件
+		else       // 压缩分支为文件
 		{
 			// 创建父目录
-			std::filesystem::create_directories(std::filesystem::path(filePath).parent_path());
+			std::filesystem::create_directories(std::filesystem::path(one_file).parent_path());
 			// 写入文件
-			std::ofstream outFile(filePath, std::ios::binary);
+			std::ofstream outFile(one_file, std::ios::binary);
 			if (!outFile.is_open())
 			{
+				SU_MEM_FREE(filename);
 				return MiniZCreatDirErr; // 创建文件失败
 			}
 			else
 			{
-				char buffer[10000];
+				char* buffer = (char*)malloc(uncompressed_size);
 				int readSize;
 				unzOpenCurrentFile(zipFile);
 
-				while ((readSize = unzReadCurrentFile(zipFile, buffer, sizeof(buffer))) > 0)
+				while ((readSize = unzReadCurrentFile(zipFile, buffer, uncompressed_size)) > 0)
 				{
 					outFile.write(buffer, readSize);
 				}
 				outFile.close();
+				SU_MEM_FREE(buffer);
 			}
 		}
+		SU_MEM_FREE(filename);
 
 	} while (unzGoToNextFile(zipFile) == UNZ_OK);
 	unzClose(zipFile);
@@ -261,20 +300,27 @@ int silly_minizip::compress(const char* c_in_val, const size_t& i_in_len, char**
 {
 	if (c_in_val == nullptr || i_in_len == 0)
 	{
+		SU_ERROR_PRINT("Empty input data.");
 		return InValidInputErr;
 	}
 	// 这里对i_in_len + 1是要考虑字符串结尾的'\0',在strlen(char*)计算char*的长度是不会计算结尾的'\0',在这里要+1
 	// MARK 如果不是字符串????
-	size_t len = i_in_len + 1;
-
-	uLong dest_len = compressBound(len);    // 解压后的数据大小
-	*c_out_val = new char[dest_len];
+	uLong dest_len = compressBound(i_in_len);    // 解压后的数据大小
+	if (!*c_out_val)
+	{
+		*c_out_val = (char*)malloc(dest_len);
+	}
+	else
+	{
+		SU_ERROR_PRINT("Clean output and set null.");
+		return InValidOutputErr;
+	}
+	i_out_len = 0;
 	// 压缩
-	//int err = compress2(reinterpret_cast<Bytef*>(*c_out_val), &dest_len, reinterpret_cast<const Bytef*>(c_in_val), uLong(len), Z_DEFAULT_COMPRESSION);
-	int err = compress2((Bytef*)*c_out_val, &dest_len, (Bytef*)c_in_val, uLong(len), Z_DEFAULT_COMPRESSION);
+	int err = compress2((Bytef*)*c_out_val, &dest_len, (Bytef*)c_in_val, uLong(i_in_len), Z_DEFAULT_COMPRESSION);
 	if (err != Z_OK)
 	{
-		delete[] * c_out_val;
+		SU_MEM_FREE(*c_out_val);
 		return MiniZCompressStrErr;
 	}
 
@@ -287,25 +333,29 @@ int silly_minizip::decompress(const char* c_in_val, const size_t& i_in_len, char
 	// 检查输入参数
 	if (c_in_val == nullptr || i_in_len == 0)
 	{
+		SU_ERROR_PRINT("Empty input data.");
 		return InValidInputErr;
 	}
-
-	*c_out_val = nullptr;
-	i_out_len = 0;
+	if (*c_out_val)
+	{
+		SU_ERROR_PRINT("Clean output and set null.");
+		return InValidOutputErr;
+	}
 
 	uLongf dest_len = compressBound(i_in_len);      // 解压后的数据大小
-	*c_out_val = new char[dest_len];
+	*c_out_val = (char*)malloc(dest_len);
+
+	i_out_len = 0;
 	uLong in_len = uLong(i_in_len);
 	// 解压
-	//int err = uncompress2(reinterpret_cast<Bytef*>(*c_out_val), &dest_len, reinterpret_cast<const Bytef*>(c_in_val), &in_len);
 	int err = uncompress2((Bytef*)*c_out_val, &dest_len, (const Bytef*)c_in_val, &in_len);
 	if (err != Z_OK)
 	{
-		delete[] * c_out_val;
+		SU_MEM_FREE(*c_out_val);
 		return MiniZUncompressStrErr;
 	}
-
 	i_out_len = dest_len;       // 解压后的数据大小
+
 	return Ok;
 }
 
