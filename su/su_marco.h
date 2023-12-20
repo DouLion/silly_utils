@@ -57,6 +57,16 @@
 #define SU_EPS (.1e-12f)
 #endif
 
+#ifndef SU_TIME
+#define SU_TIME
+#define SEC_IN_MIN 60
+#define MIN_IN_HOUR 60
+#define HOUR_IN_DAY 24
+#define SEC_IN_HOUR (60 * 60)
+#define MIN_IN_DAY (60*24)
+#define SEC_IN_DAY (60*60*24)
+#endif
+
 /** earth radius */
 #ifndef EARTH_RADIUS
 #define EARTH_RADIUS (6378.137f)

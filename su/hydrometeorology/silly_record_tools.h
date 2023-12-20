@@ -16,10 +16,10 @@ class silly_record_tools
 {
 public:
 	/// <summary>
-	/// ½«Ê±¼äÄÚÈİÑ¹ËõµÄ·½Ê½, ÄêÔÂÈÕ Ñ¹ËõÎªÒ»¸öunsigned int±íÊ¾, Ê±·ÖÃëÑ¹ËõÎª1¸öunsigned int±íÊ¾
-	/// ÄêÓÃÒ»¸öushort±íÊ¾È¡Öµ·¶Î§ 0 ~ 65535µ½65535Äê, ÔÂÈÕ¶¼ÓÃÒ»¸öunsigned char ±íÊ¾, Æ´½ÓÎªÒ»¸öunsigned int, ÒÔ´ËÀàÍÆÊ±·ÖÃë
+	/// å°†æ—¶é—´å†…å®¹å‹ç¼©çš„æ–¹å¼, å¹´æœˆæ—¥ å‹ç¼©ä¸ºä¸€ä¸ªunsigned intè¡¨ç¤º, æ—¶åˆ†ç§’å‹ç¼©ä¸º1ä¸ªunsigned intè¡¨ç¤º
+	/// å¹´ç”¨ä¸€ä¸ªushortè¡¨ç¤ºå–å€¼èŒƒå›´ 0 ~ 65535åˆ°65535å¹´, æœˆæ—¥éƒ½ç”¨ä¸€ä¸ªunsigned char è¡¨ç¤º, æ‹¼æ¥ä¸ºä¸€ä¸ªunsigned int, ä»¥æ­¤ç±»æ¨æ—¶åˆ†ç§’
 	/// </summary>
-	/// <param name="time">Ê±¼äÄÚÈİ, ¸ñÊ½Îª Äê-ÔÂ-ÈÕ Ê±:·Ö:Ãë</param>
+	/// <param name="time">æ—¶é—´å†…å®¹, æ ¼å¼ä¸º å¹´-æœˆ-æ—¥ æ—¶:åˆ†:ç§’</param>
 	/// <param name="ymd"></param>
 	/// <param name="hms"></param>
 	/// <returns></returns>
@@ -29,7 +29,7 @@ public:
 	
 
 	/// <summary>
-	/// ½âÑ¹Ê±¼äÄÚÈİÑ¹Ëõ·½Ê½, Óë compress_time_format »¥Äæ
+	/// è§£å‹æ—¶é—´å†…å®¹å‹ç¼©æ–¹å¼, ä¸ compress_time_format äº’é€†
 	/// </summary>
 	/// <param name="ymd"></param>
 	/// <param name="hms"></param>
@@ -38,8 +38,8 @@ public:
 	static bool decompress_time_format(unsigned int& ymd, unsigned int& hms, std::string& time);
 
 	/// <summary>
-	/// ³£¼ûµÄË®ÎÄÊı¾İ¶¼ÓĞÒ»¸öºÏÊÊµÄÈ¡Öµ·¶Î§
-	/// 1111 1111 1111 1 [111]Áô3Î»±íÊ±Ğ¡ÊıÎ» ±£´æ2Î»Ğ¡Êı, ÕûÊıÖµ²»³¬¹ı4096
+	/// å¸¸è§çš„æ°´æ–‡æ•°æ®éƒ½æœ‰ä¸€ä¸ªåˆé€‚çš„å–å€¼èŒƒå›´
+	/// 1111 1111 1111 1 [111]ç•™3ä½è¡¨æ—¶å°æ•°ä½ ä¿å­˜2ä½å°æ•°, æ•´æ•°å€¼ä¸è¶…è¿‡4096
 	/// </summary>
 	/// <param name="src"></param>
 	/// <param name="dst"></param>
@@ -47,7 +47,7 @@ public:
 	static bool compress_float_format(const float& src, short& dst);
 
 	/// <summary>
-	/// Óëcompress_float_format »¥Äæ
+	/// ä¸compress_float_format äº’é€†
 	/// </summary>
 	/// <param name="src"></param>
 	/// <param name="dst"></param>

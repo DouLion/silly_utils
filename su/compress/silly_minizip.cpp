@@ -99,13 +99,13 @@ int minizip_compress_file(zipFile zFile, const std::string& src)
 	int ret = zipOpenNewFileInZip(zFile, srcFileName.c_str(), &zFileInfo, NULL, 0, NULL, 0, NULL, Z_DEFLATED, Z_DEFAULT_COMPRESSION);
 	if (ret != ZIP_OK)
 	{
-		SU_ERROR_PRINT("Failed to open file in zip: %s", src);
+		SU_ERROR_PRINT("Failed to open file in zip: %s", src.c_str());
 		return ret;
 	}
 	ret = writeInZipFile(zFile, src);   
 	if (ret != ZIP_OK)
 	{
-		SU_ERROR_PRINT("ailed to write file to zip: %s", src);
+		SU_ERROR_PRINT("ailed to write file to zip: %s", src.c_str());
 	}
 	return ret;
 }
