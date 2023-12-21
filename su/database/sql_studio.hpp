@@ -1,5 +1,5 @@
 #pragma once
-#include "json/json.h"
+#include <json/json.h>
 #include <fstream>
 #include <map>
 
@@ -66,7 +66,7 @@ public:
 				m_pOTHER.insert({ key , sql });
 			}
 		}
-		if (m_pMYSQL.empty() && m_pMSSQL.empty() && m_pORACLE.empty() && m_pDM8.empty() && m_pPG.empty() && m_pOTHER.empty()) // È«²¿Îª¿Õ
+		if (m_pMYSQL.empty() && m_pMSSQL.empty() && m_pORACLE.empty() && m_pDM8.empty() && m_pPG.empty() && m_pOTHER.empty()) // å…¨éƒ¨ä¸ºç©º
 		{
 			return false;
 		}
@@ -75,9 +75,9 @@ public:
 	}
 
 	/// <summary>
-	/// »ñÈ¡Ö¸¶¨ÀàĞÍºÍ¹¦ÄÜµÄSQL
+	/// è·å–æŒ‡å®šç±»å‹å’ŒåŠŸèƒ½çš„SQL
 	/// </summary>
-	/// <param name="type">Êı¾İ¿â ÀàĞÍ ²ÎÕÕ  otl_header.hpp EDBType</param>
+	/// <param name="type">æ•°æ®åº“ ç±»å‹ å‚ç…§  otl_header.hpp EDBType</param>
 	/// <param name="key"></param>
 	/// <returns></returns>
 	std::string Get(const int& type, const std::string& key)
