@@ -27,18 +27,6 @@ ELSE ()
 ENDIF ()
 
 
-SET(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS TRUE)
-SET(CMAKE_VERBOSE_MAKEFILE ON)
-SET(CMAKE_INCLUDE_CURRENT_DIR ON)
-
-
-# 指定 c++ 最高版本
-check_include_file_cxx(any HAS_ANY)
-check_include_file_cxx(string_view HAS_STRING_VIEW)
-check_include_file_cxx(coroutine HAS_COROUTINE)
-SET(CMAKE_CXX_STANDARD 17)
-SET(CMAKE_CXX_STANDARD_REQUIRED ON)
-SET(CMAKE_CXX_EXTENSIONS OFF)
 
 # c++ 17 已经包含一些类型定义了,可能会导致重复定义
 ADD_DEFINITIONS("-D_HAS_STD_BYTE=0")
