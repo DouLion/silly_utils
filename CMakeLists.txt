@@ -2,14 +2,6 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.15)
 PROJECT(silly_utils)
 INCLUDE(CheckIncludeFileCXX)
 
-message("---------------------")
-
-MESSAGE(STATUS "源码根目录 ${CMAKE_SOURCE_DIR}")
-MESSAGE(STATUS "SU根目录 ${CMAKE_CURRENT_SOURCE_DIR}")
-
-message("---------------------")
-
-
 SET(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS TRUE)
 SET(CMAKE_VERBOSE_MAKEFILE ON)
 SET(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -44,24 +36,24 @@ IF (SU_AS_PROJECT)
     ADD_DEFINITIONS("-DDEFAULT_SU_ROOT_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}\"")
 
     ADD_DEFINITIONS("-DDEFAULT_SU_DATA_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/data\"")
-    SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
-    INCLUDE(env_check)
-    INCLUDE(dm8_check)
-    INCLUDE(grib_api_check)
-    
-
 ELSEIF()
     MESSAGE(STATUS "作为嵌入库编译")
-    
+   
 ENDIF ()
+
+SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
+INCLUDE(env_check)
+INCLUDE(dm8_check)
+INCLUDE(grib_api_check)
 
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/su)
 
 ##########################################
 # Add sub dirs.
 ##########################################
-ADD_SUBDIRECTORY(su)
+
 IF (SU_AS_PROJECT)
+    ADD_SUBDIRECTORY(su)
     ADD_SUBDIRECTORY(test)
     ADD_SUBDIRECTORY(tools)
 ENDIF ()
