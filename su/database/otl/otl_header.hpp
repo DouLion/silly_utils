@@ -57,17 +57,6 @@ enum class EDBType
 };
 
 // longtext varchar(max) 等数据转字符串， 限定长度的 text 和 varchar 用 std::string 直接获取
-#define OLT_LOB_STREAM_TO_STRING(lob, str)     \
-	while (!lob.eof())                         \
-	{                                          \
-		std::string tmp;                       \
-		otl_long_string _sols;                 \
-		lob >> _sols;                          \
-		tmp.resize(_sols.len());               \
-		memcpy(&tmp[0], _sols.v, _sols.len()); \
-		str += tmp;                            \
-	}                                          \
-	lob.close();
 
 #define OTL_DB_TYPE_STR_MSSQL "sqlserver"
 #define OTL_DB_TYPE_STR_MYSQL "mysql"

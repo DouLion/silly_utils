@@ -8,7 +8,7 @@
  * @software: silly_utils
  * @description:
  */
-// 获取变量名称的宏
+ // 获取变量名称的宏
 #include <stdio.h>
 #include <iostream>
 #include <cstring>
@@ -134,9 +134,8 @@
 #ifndef SU_DEBUG_PRINT
 // 打印调试信息
 #ifndef NDEBUG
-#define SU_DEBUG_PRINT(s, ...)                                                                                                                                                                  \
-    printf(SU_PRINTF_COLOR_BROWN "\n[DEBUG] FILE:" SU_PRINTF_COLOR_RED " %s " SU_PRINTF_COLOR_BROWN "LINE: " SU_PRINTF_COLOR_RED "%I32d \n " SU_PRINTF_COLOR_BROWN "... ", SU_FILE_NAME, __LINE__); \
-    printf(SU_PRINTF_COLOR_LIGHT_GREEN s SU_PRINTF_COLOR_NONE "\n", ##__VA_ARGS__);
+#define SU_DEBUG_PRINT(s, ...)                           \
+    printf(SU_PRINTF_COLOR_BROWN "\n[DEBUG] %s:%I32d \n ... " s SU_PRINTF_COLOR_NONE " \n", SU_FILE_NAME, __LINE__, ##__VA_ARGS__);
 
 #else
 #define SU_DEBUG_PRINT(s, ...)
@@ -152,22 +151,20 @@
 #ifndef SU_INFO_PRINT
 // 打印提示信息
 #define SU_INFO_PRINT(s, ...)                                                                                                                                                                           \
-    printf(SU_PRINTF_COLOR_CYAN "\n[INFO] FILE:" SU_PRINTF_COLOR_DARK_GRAY " %s " SU_PRINTF_COLOR_CYAN "LINE: " SU_PRINTF_COLOR_DARK_GRAY "%I32d \n " SU_PRINTF_COLOR_CYAN "... ", SU_FILE_NAME, __LINE__); \
-    printf(SU_PRINTF_COLOR_DARK_GRAY s SU_PRINTF_COLOR_NONE "\n", ##__VA_ARGS__);
+    printf(SU_PRINTF_COLOR_CYAN "\n[INFO] %s:%I32d \n " s SU_PRINTF_COLOR_NONE" \n", SU_FILE_NAME, __LINE__,  ##__VA_ARGS__);
 #endif
 
 #ifndef SU_ERROR_PRINT
 // 打印错误信息
 #define SU_ERROR_PRINT(s, ...)                                                                                                                                                                            \
-    printf(SU_PRINTF_COLOR_RED "\n[ERROR] FILE:" SU_PRINTF_COLOR_LIGHT_GREEN " %s " SU_PRINTF_COLOR_RED "LINE: " SU_PRINTF_COLOR_LIGHT_GREEN "%I32d \n " SU_PRINTF_COLOR_RED "... ", SU_FILE_NAME, __LINE__); \
-    printf(SU_PRINTF_COLOR_LIGHT_GREEN s SU_PRINTF_COLOR_NONE "\n", ##__VA_ARGS__);
+    printf(SU_PRINTF_COLOR_RED "\n[ERROR] %s:%I32d \n ... " s SU_PRINTF_COLOR_NONE, SU_FILE_NAME, __LINE__, ##__VA_ARGS__); 
 #endif
 
 
 
 #ifndef SU_MARK_LINE
 // 标记一行
-#define SU_MARK_LINE printf(SU_PRINTF_COLOR_LIGHT_CYAN "\n[MARK] FILE:" SU_PRINTF_COLOR_LIGHT_RED " %s " SU_PRINTF_COLOR_LIGHT_CYAN "LINE: " SU_PRINTF_COLOR_LIGHT_RED "%I32d \n" SU_PRINTF_COLOR_NONE, SU_FILE_NAME, __LINE__);
+#define SU_MARK_LINE printf(SU_PRINTF_COLOR_LIGHT_CYAN "\n[MARK] %s:%I32d \n" SU_PRINTF_COLOR_NONE, SU_FILE_NAME, __LINE__);
 
 #endif
 
