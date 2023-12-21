@@ -5,7 +5,7 @@
  * @author: dou li yang
  * @date: 2023/12/18 12:00
  * @version: 1.0.1
- * @description: iniÎÄ¼ş½âÎö »ùÀà
+ * @description: iniæ–‡ä»¶è§£æ åŸºç±»
  */
 #ifndef SILLY_UTILS_SILLY_INI_PARSER_BASE_H
 #define SILLY_UTILS_SILLY_INI_PARSER_BASE_H
@@ -16,30 +16,30 @@ class silly_ini_parser
 {
 public:
 	/// <summary>
-	/// ´ÓÎÄ¼ş¼ÓÔØ½âÎö¶ÔÏó,ËùÓĞÄÚÈİ¶¼Çø·Ö´óĞ¡Ğ´
+	/// ä»æ–‡ä»¶åŠ è½½è§£æå¯¹è±¡,æ‰€æœ‰å†…å®¹éƒ½åŒºåˆ†å¤§å°å†™
 	/// </summary>
 	/// <param name="path"></param>
 	/// <returns></returns>
 	virtual bool load(const std::string& path) = 0;
 	
 	/// <summary>
-	/// ĞŞ¸ÄºóÊÖ¶¯½øĞĞ±£´æ
+	/// ä¿®æ”¹åæ‰‹åŠ¨è¿›è¡Œä¿å­˜
 	/// </summary>
 	/// <returns></returns>
 	virtual bool save() = 0;
 
 	/// <summary>
-	/// Ğ´ÈëÒ»¸öÅäÖÃÄÚÈİ,¿ÉÒÔĞÂÔö¼Ó,Ò²¿ÉÒÔ¸²¸ÇĞ´
+	/// å†™å…¥ä¸€ä¸ªé…ç½®å†…å®¹,å¯ä»¥æ–°å¢åŠ ,ä¹Ÿå¯ä»¥è¦†ç›–å†™
 	/// </summary>
 	/// <param name="section"></param>
 	/// <param name="property"></param>
 	/// <param name="value"></param>
-	/// <param name="comment">×¢ÊÍÄÚÈİ</param>
+	/// <param name="comment">æ³¨é‡Šå†…å®¹</param>
 	/// <returns></returns>
 	virtual bool write(const std::string& section, const std::string& property, const std::string& value, const std::string& comment = "") = 0;
 
 	/// <summary>
-	/// ¶ÁÈ¡int
+	/// è¯»å–int
 	/// </summary>
 	/// <param name="section"></param>
 	/// <param name="property"></param>
@@ -47,7 +47,7 @@ public:
 	virtual int read_int(const std::string& section, const std::string& property) = 0;
 
 	/// <summary>
-	/// ¶ÁÈ¡bool ÖµÀàĞÍ, ÈÎºÎtrue , 1 µÈ  ²»Çø·Ö´óĞ¡Ğ´ ¶¼ÈÏÎªÊÇtrue
+	/// è¯»å–bool å€¼ç±»å‹, ä»»ä½•true , 1 ç­‰  ä¸åŒºåˆ†å¤§å°å†™ éƒ½è®¤ä¸ºæ˜¯true
 	/// </summary>
 	/// <param name="section"></param>
 	/// <param name="property"></param>
@@ -55,7 +55,7 @@ public:
 	virtual bool read_bool(const std::string& section, const std::string& property) = 0;
 
 	/// <summary>
-	/// ¶ÁÈ¡floatÀàĞÍ
+	/// è¯»å–floatç±»å‹
 	/// </summary>
 	/// <param name="section"></param>
 	/// <param name="property"></param>
@@ -63,7 +63,7 @@ public:
 	virtual float read_float(const std::string& section, const std::string& property) = 0;
 
 	/// <summary>
-	/// ¶ÁÈ¡doubleÀàĞÍ
+	/// è¯»å–doubleç±»å‹
 	/// </summary>
 	/// <param name="section"></param>
 	/// <param name="property"></param>
@@ -71,7 +71,7 @@ public:
 	virtual double read_double(const std::string& section, const std::string& property) = 0;
 
 	/// <summary>
-	/// ¶ÁÈ¡Ò»¸ö³¤ÕûĞÍ
+	/// è¯»å–ä¸€ä¸ªé•¿æ•´å‹
 	/// </summary>
 	/// <param name="section"></param>
 	/// <param name="property"></param>
@@ -79,7 +79,7 @@ public:
 	virtual long read_long(const std::string& section, const std::string& property) = 0;
 
 	/// <summary>
-	/// Ä¬ÈÏ¶ÁÈ¡Ò»¸ö×Ö·û´®
+	/// é»˜è®¤è¯»å–ä¸€ä¸ªå­—ç¬¦ä¸²
 	/// </summary>
 	/// <param name="section"></param>
 	/// <param name="property"></param>

@@ -85,7 +85,17 @@
 #define SU_RGBA(r, g, b, a) SU_ARGB(a, r, g, b)
 #define SU_XRGB(r, g, b) SU_ARGB(0xff, r, g, b)
 
+#ifndef SU_CONSOLE_DEFAULT_ENCODE
+#if IS_WIN32
+#define SU_CONSOLE_DEFAULT_ENCODE "chcp 65001"
+#else
+#define SU_CONSOLE_DEFAULT_ENCODE "export LANG=zh_CN.UTF-8"
+#endif
+#endif
 
+#ifndef SU_SWITCH_CONSOLE_ENCODE
+#define SU_SWITCH_CONSOLE_ENCODE(p) if(p){system(p);}else{ system(SU_CONSOLE_DEFAULT_ENCODE);}
+#endif
 // #ifndef __FILENAME__
 // #define __FILENAME__ (strrchr("/" __FILE__, '/') + 1)
 // #endif

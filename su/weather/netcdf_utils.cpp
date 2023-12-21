@@ -12,7 +12,7 @@ using namespace netCDF::exceptions;
 
 bool netcdf_utils::read_netcdf(const std::string& path, const std::string& group, std::map<int, DMatrix>& data, nc_info& info)
 {
-	// TODO: 这里不应该假定数据的类型
+	// TODO: 杩欓噷涓嶅簲璇ュ亣瀹氭暟鎹殑绫诲瀷
 	float *nc_val_data = nullptr;
 	float *nc_lon_data = nullptr;
 	float *nc_lat_data = nullptr;

@@ -26,7 +26,7 @@ bool xscan_line_raster::rasterization(const silly_multi_poly& m_polys)
 {
 	std::vector<std::vector<SV2RPoint>> vertices_arr;
 	double left = 180., right = -180., top = -180.0, bottom = 180.;
-	// 找出上下左右
+	// 鎵惧嚭涓婁笅宸﹀彸
 	for (const auto& poly : m_polys)
 	{
 		for (const auto& ring : poly.inner_rings)
@@ -99,10 +99,10 @@ bool xscan_line_raster::rasterization(const std::vector<std::vector<SV2RPoint>> 
 	ncols = maxX - minX + 1;
 
 	
-	// 对每一条扫描线进行处理
+	// 瀵规瘡涓�鏉℃壂鎻忕嚎杩涜澶勭悊
 	for (int scanY = minY; scanY <= maxY; ++scanY)
 	{
-		// 构建边缘列表
+		// 鏋勫缓杈圭紭鍒楄〃
 		std::vector<size_t> edges;
 		for (size_t part = 0; part < vertices_arr.size(); ++part)
 		{
@@ -129,7 +129,7 @@ bool xscan_line_raster::rasterization(const std::vector<std::vector<SV2RPoint>> 
 
 		}
 	
-		// 根据X值对边缘进行排序
+		// 鏍规嵁X鍊煎杈圭紭杩涜鎺掑簭
 		std::sort(edges.begin(), edges.end());
 	/*	std::cout << scanY << " : ";
 		for (auto e : edges)
@@ -137,7 +137,7 @@ bool xscan_line_raster::rasterization(const std::vector<std::vector<SV2RPoint>> 
 			std::cout << e << ", ";
 		}
 		std::cout << std::endl;*/
-		// 填充位于两条边之间的像素
+		// 濉厖浣嶄簬涓ゆ潯杈逛箣闂寸殑鍍忕礌
 		size_t old = 0;
 		for (size_t i = 0; i < edges.size(); i += 2)
 		{

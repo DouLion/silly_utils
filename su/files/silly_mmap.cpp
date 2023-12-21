@@ -200,19 +200,19 @@ int _mprotect(void* addr, size_t len, int prot)
 #include <sys/stat.h>
 #endif
 
-/* 示例代码
+/* 绀轰緥浠ｇ爜
 #include <iostream>
 #include <windows.h>
 
 int main() {
-	// 打开文件
+	// 鎵撳紑鏂囦欢
 	HANDLE hFile = CreateFile("example.txt", GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hFile == INVALID_HANDLE_VALUE) {
 		std::cerr << "Failed to open the file." << std::endl;
 		return 1;
 	}
 
-	// 创建文件映射
+	// 鍒涘缓鏂囦欢鏄犲皠
 	HANDLE hMapFile = CreateFileMapping(hFile, NULL, PAGE_READWRITE, 0, 0, NULL);
 	if (hMapFile == NULL) {
 		std::cerr << "Failed to create file mapping." << std::endl;
@@ -220,7 +220,7 @@ int main() {
 		return 1;
 	}
 
-	// 将文件映射到内存
+	// 灏嗘枃浠舵槧灏勫埌鍐呭瓨
 	LPVOID addr = MapViewOfFile(hMapFile, FILE_MAP_ALL_ACCESS, 0, 0, 0);
 	if (addr == NULL) {
 		std::cerr << "Failed to map the file to memory." << std::endl;
@@ -229,23 +229,23 @@ int main() {
 		return 1;
 	}
 
-	// 读取文件内容
+	// 璇诲彇鏂囦欢鍐呭
 	std::cout << "File content: " << std::endl;
 	std::cout << static_cast<char*>(addr) << std::endl;
 
-	// 修改文件内容
+	// 淇敼鏂囦欢鍐呭
 	const char* new_content = "Hello, World!";
 	CopyMemory(addr, new_content, strlen(new_content));
 
-	// 解除内存映射
+	// 瑙ｉ櫎鍐呭瓨鏄犲皠
 	if (!UnmapViewOfFile(addr)) {
 		std::cerr << "Failed to unmap the memory." << std::endl;
 	}
 
-	// 关闭文件映射
+	// 鍏抽棴鏂囦欢鏄犲皠
 	CloseHandle(hMapFile);
 
-	// 关闭文件
+	// 鍏抽棴鏂囦欢
 	CloseHandle(hFile);
 
 	return 0;
@@ -259,48 +259,48 @@ int main() {
 #include <unistd.h>
 
 int main() {
-	// 打开文件
+	// 鎵撳紑鏂囦欢
 	int fd = open("example.txt", O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
 	if (fd == -1) {
 		std::cerr << "Failed to open the file." << std::endl;
 		return 1;
 	}
 
-	// 获取文件大小
+	// 鑾峰彇鏂囦欢澶у皬
 	struct stat sb;
 	if (fstat(fd, &sb) == -1) {
 		std::cerr << "Failed to get file size." << std::endl;
 		return 1;
 	}
 
-	// 将文件映射到内存
+	// 灏嗘枃浠舵槧灏勫埌鍐呭瓨
 	char* addr = static_cast<char*>(mmap(NULL, sb.st_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0));
 	if (addr == MAP_FAILED) {
 		std::cerr << "Failed to map the file to memory." << std::endl;
 		return 1;
 	}
 
-	// 读取文件内容
+	// 璇诲彇鏂囦欢鍐呭
 	std::cout << "File content: " << std::endl;
 	std::cout << addr << std::endl;
 
-	// 修改文件内容
+	// 淇敼鏂囦欢鍐呭
 	const char* new_content = "Hello, World!";
 	std::copy(new_content, new_content + strlen(new_content), addr);
 
-	// 将内存中的修改写回到文件
+	// 灏嗗唴瀛樹腑鐨勪慨鏀瑰啓鍥炲埌鏂囦欢
 	if (msync(addr, sb.st_size, MS_SYNC) == -1) {
 		std::cerr << "Failed to sync memory to file." << std::endl;
 		return 1;
 	}
 
-	// 解除内存映射
+	// 瑙ｉ櫎鍐呭瓨鏄犲皠
 	if (munmap(addr, sb.st_size) == -1) {
 		std::cerr << "Failed to unmap the memory." << std::endl;
 		return 1;
 	}
 
-	// 关闭文件
+	// 鍏抽棴鏂囦欢
 	close(fd);
 
 	return 0;

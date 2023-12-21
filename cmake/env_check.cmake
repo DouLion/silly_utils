@@ -1,3 +1,32 @@
+cmake_minimum_required(VERSION 3.10.0)
+# 系统信息
+message(${CMAKE_HOST_SYSTEM_NAME})
+message(${CMAKE_HOST_SYSTEM_PROCESSOR})
+ 
+if(CMAKE_HOST_SYSTEM_NAME MATCHES "Linux")
+    message(STATUS "This is Linux")
+elseif(CMAKE_HOST_SYSTEM_NAME MATCHES "Android")
+	message(STATUS "This is Android")
+ELSEIF (CMAKE_HOST_SYSTEM_NAME MATCHES "Windows")
+    message(STATUS "This is Windows")
+endif()
+
+if(CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "aarch64")
+    message(STATUS "this is aarch64 cpu")
+elseif(CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "x86_64")
+	message(STATUS "this is x86_64 cpu")
+endif()
+
+# 检查系统位数
+IF (CMAKE_SIZEOF_VOID_P EQUAL 8)
+    SET(ARCH_NAME "x64")
+    MESSAGE(STATUS "Target is 64 bits")
+ELSE ()
+    SET(ARCH_NAME "x32")
+    MESSAGE(STATUS "Target is 32 bits")
+ENDIF ()
+
+
 SET(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS TRUE)
 SET(CMAKE_VERBOSE_MAKEFILE ON)
 SET(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -25,9 +54,6 @@ IF (CMAKE_HOST_SYSTEM_NAME MATCHES "Linux")
     SET(CMAKE_USE_WIN32_THREADS_INIT 0)
     SET(CMAKE_USE_PTHREADS_INIT 1)
     SET(THREADS_PREFER_PTHREAD_FLAG ON)
-    # SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17  -lodbc -lpthread -fPIC -L. /usr/local/ssl/lib64/libssl.a /usr/local/ssl/lib64/libcrypto.a")
-    # SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17  -lodbc -lpthread -fPIC -Wl,-Bstatic")
-
 
     SET(dm_include_path /opt/dmdbms/include)
     SET(dm_lib_path /opt/dmdbms/bin)
@@ -43,7 +69,7 @@ ELSEIF (CMAKE_HOST_SYSTEM_NAME MATCHES "Windows")
     ADD_DEFINITIONS("-DTFF_INLINE_SPECIFIER=inline")
     ADD_DEFINITIONS("-DIS_WIN32")
     ADD_DEFINITIONS("-DWIN32_LEAN_AND_MEAN")
-    add_compile_options(/wd4819 /wd4005 /wd4834)
+    add_compile_options(/wd4819 /wd4005 /wd4834 /utf-8)
     SET(STATIC_LIB_SUFFIX "lib")
     SET(DYNAMIC_LIB_SUFFIX "dll")
 
@@ -64,14 +90,6 @@ ELSEIF (CMAKE_HOST_SYSTEM_NAME MATCHES "Windows")
 
 ENDIF ()
 
-# 检查系统位数
-IF (CMAKE_SIZEOF_VOID_P EQUAL 8)
-    SET(ARCH_NAME "x64")
-    MESSAGE(STATUS "Target is 64 bits")
-ELSE ()
-    SET(ARCH_NAME "x32")
-    MESSAGE(STATUS "Target is 32 bits")
-ENDIF ()
 
 ##########################################
 # 设置全局的可执行程序和链接库的生成路径.

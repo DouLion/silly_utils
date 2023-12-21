@@ -37,8 +37,8 @@ public:
 	uint32_t tif_width;
 	uint32_t tif_height;
 
-	uint16_t tif_bitsPerSample; // Ã¿¸öÊı¾İÕ¼¼¸Î»(8Î»Ò»¸öbyte)
-	uint16_t tif_samplesPerPixel;  // »ñÈ¡Ã¿¸öÏñËØµÄÑù±¾Êı:Í¨µÀÊı
+	uint16_t tif_bitsPerSample; // æ¯ä¸ªæ•°æ®å å‡ ä½(8ä½ä¸€ä¸ªbyte)
+	uint16_t tif_samplesPerPixel;  // è·å–æ¯ä¸ªåƒç´ çš„æ ·æœ¬æ•°:é€šé“æ•°
 
 	uint32_t tif_tileWidth;
 	uint32_t tif_tileHeight;
@@ -48,21 +48,21 @@ public:
 	uint64_t tif_lineSize;
 	uint16_t tif_numChannels;
 
-	uint16_t tif_orientation = 1;	// Í¼ÏñµÄ·½Ïò±êÇ©
-	uint16_t tif_planarConfig = 1;	// Í¼ÏñµÄÆ½ÃæÅäÖÃ±êÇ©
-	uint16_t tif_photometric = 1;	// Í¼ÏñµÄ¹â¶È±êÇ©
+	uint16_t tif_orientation = 1;	// å›¾åƒçš„æ–¹å‘æ ‡ç­¾
+	uint16_t tif_planarConfig = 1;	// å›¾åƒçš„å¹³é¢é…ç½®æ ‡ç­¾
+	uint16_t tif_photometric = 1;	// å›¾åƒçš„å…‰åº¦æ ‡ç­¾
 
 	// SAMPLEFORMAT_UINT:1 uint 
 	// SAMPLEFORMAT_INT:2 int 
 	// SAMPLEFORMAT_IEEEFP float
-	unsigned short tif_sampleFormat;  // Êı¾İµÄÀàĞÍ(uint  int  float ÎŞ·¨È·¶¨)
+	unsigned short tif_sampleFormat;  // æ•°æ®çš„ç±»å‹(uint  int  float æ— æ³•ç¡®å®š)
 
-	double tif_letf = 0.0;  // ×óÉÏ½Ç¾­Î³
-	double tif_top = 0.0;   //×óÉÏ½ÇÎ³¶È
-	double pixelSizeX;  // ºáÏò·Ö±æÂÊ
-	double pixelSizeY;  // ×İÏò·Ö±æÂÊ
+	double tif_letf = 0.0;  // å·¦ä¸Šè§’ç»çº¬
+	double tif_top = 0.0;   //å·¦ä¸Šè§’çº¬åº¦
+	double pixelSizeX;  // æ¨ªå‘åˆ†è¾¨ç‡
+	double pixelSizeY;  // çºµå‘åˆ†è¾¨ç‡
 
-	// ÒÔ×Ö½ÚÎª½«tif¾ØÕó´æÈë
+	// ä»¥å­—èŠ‚ä¸ºå°†tifçŸ©é˜µå­˜å…¥
 	matrix_2d<float> tif_matrix2;
 	//matrix_2d<unsigned char> tif_matrix2;
 
@@ -77,7 +77,7 @@ class geotiff_utils
 public:
 
 	/// <summary>
-	/// ¶ÁÈ¡tifµ½tif_data½á¹¹Ìå
+	/// è¯»å–tifåˆ°tif_dataç»“æ„ä½“
 	/// </summary>
 	/// <param name="filePath"></param>
 	/// <param name="tif_matrix"></param>
@@ -88,7 +88,7 @@ public:
 
 
 	/// <summary>
-	/// tif_data½á¹¹ÌåĞ´ÈëtifÎÄ¼ş
+	/// tif_dataç»“æ„ä½“å†™å…¥tifæ–‡ä»¶
 	/// </summary>
 	/// <param name="filePath"></param>
 	/// <param name="tif_matrix"></param>

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright(c)2003-2017 北京天智祥信息科技有限公司(http://www.tianzhixiang.net)
+//  Copyright(c)2003-2017 鍖椾含澶╂櫤绁ヤ俊鎭鎶�鏈夐檺鍏徃(http://www.tianzhixiang.net)
 //  All rights reserved.
 //
 //	@file       TFF_MathUtils.cpp
