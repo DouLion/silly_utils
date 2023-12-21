@@ -38,7 +38,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 
-#include <otl/otlv4.h>
+#include <database/otl/otlv4.h>
 
 #ifdef IS_WIN32
 #pragma comment(lib, "odbc32.lib")

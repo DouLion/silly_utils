@@ -12,9 +12,6 @@ foreach(dirname ${CMAKE_CURRENT_SOURCE_DIR})
 
 endforeach()
 
-find_path(OTL_INCLUDE_DIRS "otl/otlv4.h")
-include_directories(${OTL_INCLUDE_DIRS})
-
 add_library(${PROJECT_NAME} STATIC ${SU_SRC_FILES})
 
 set(Boost_LIB_PREFIX "")
