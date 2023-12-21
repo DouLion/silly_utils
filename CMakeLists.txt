@@ -2,6 +2,13 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.15)
 PROJECT(silly_utils)
 INCLUDE(CheckIncludeFileCXX)
 
+message("---------------------")
+
+MESSAGE(STATUS "源码根目录 ${CMAKE_SOURCE_DIR}")
+MESSAGE(STATUS "SU根目录 ${CMAKE_CURRENT_SOURCE_DIR}")
+
+message("---------------------")
+
 # 判断当前目录是否为 cmake的根目录,如果不是,则是被其他项目引用的,不需要编译测试,工具模块
 IF ("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_SOURCE_DIR}")
     SET(SU_AS_PROJECT TRUE)
