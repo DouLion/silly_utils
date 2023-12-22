@@ -35,20 +35,42 @@ struct SV2RPair
 	size_t beg;
 	size_t end;
 };
-/// X扫描线算法
+/// X扫描线算法 
+/*
+	TODO:	1. 对于经纬度或者墨卡托坐标系这一类来说, 如果x和y的cell_size不一致
+			2. 自定义左上右下
+*/
 class xscan_line_raster
 {
 public:
 	bool init();
 
-	// 光栅化  输入 一个矢量面(线? 点?) 输出一组 坐标
+	/// <summary>
+	/// 光栅化一个面矢量
+	/// </summary>
+	/// <param name="m_polys"></param>
+	/// <returns></returns>
 	bool rasterization(const silly_multi_poly& m_polys);
 
+	/// <summary>
+	/// TODO: 光栅化任意一个矢量(点? 线? 面)
+	/// </summary>
+	/// <param name="geo_coll"></param>
+	/// <returns></returns>
+	bool rasterization(const silly_geo_coll& geo_coll);
+
+	/// <summary>
+	/// 光栅化的基本算法, int运算效率高
+	/// </summary>
+	/// <param name="vertices_arr"></param>
+	/// <returns></returns>
 	bool rasterization(const std::vector<std::vector<SV2RPoint>> vertices_arr);
 
-	bool rasterization(const silly_multi_silly_line& m_lines);
-
-	void print();
+	/// <summary>
+	/// 将光栅化结果绘制到灰度图上
+	/// </summary>
+	/// <param name="path"></param>
+	void image(const std::string& path);
 public:
 	/* 参照dem文件的表达方式
 	ncols         9478
@@ -58,11 +80,11 @@ public:
 	cellsize      9.8080330000000
 	NODATA_value  -9999
 	*/
-	// 数据记录以经纬度左下角为原点, 向东为列的正方形,向上为行的正方向
-	size_t ncols;
-	size_t nrows;
-	float xllcorner;
-	float yllcorner;
+	// 数据记录以经纬度左下角为原点, 向东为col的正方向,向下为row的正方向
+	size_t ncols{ 0 };
+	size_t nrows{ 0 };
+	float xllcorner{ 0. };
+	float yllcorner{ 0. };
 	// 经纬度小数点后6位能精确到1米,更加精确意义不大
 	float cell_size{ 0.000001 };
 	// 记录每一行在矢量内的多对起始列号
