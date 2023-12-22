@@ -14,6 +14,10 @@
 
 // 4G 字节数
 #define SILLY_UTILS_4G_BYTE 4294967296
+#define SILLY_UTILS_1G_BYTE 1073741824
+//#define SILLY_UTILS_1G_BYTE 3221225472
+
+
 
 class silly_compress_base {
 public:

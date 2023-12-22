@@ -22,6 +22,55 @@
 BOOST_AUTO_TEST_SUITE(TestCompress)
 
 
+
+BOOST_AUTO_TEST_CASE(BIG_FILE)      // 大文件解压缩
+{
+	std::cout << "\r\n\r\n****************" << "BIG_FILE" << "****************" << std::endl;
+
+	std::filesystem::path src_file(DEFAULT_SU_DATA_DIR);
+	src_file += "/compress/123.txt";   //压缩文件
+	std::filesystem::path des_file(DEFAULT_SU_DATA_DIR);
+	des_file += "/compress/123_file.zip";
+
+	std::filesystem::path src_dir(DEFAULT_SU_DATA_DIR);
+	src_dir += "/compress/compress_dir";   //压缩文件夹
+	std::filesystem::path des_dir(DEFAULT_SU_DATA_DIR);
+	des_dir += "/compress/copm_dir.zip";
+
+	//"D:/1_wangyingjie/readfile/compress/big4_5g.txt"
+	//"D:/1_wangyingjie/readfile/compress/big4_5g.zip"
+	//std::string g4_5 = "D:/1_wangyingjie/readfile/compress/big4_5g.txt";
+	//std::string g4_5_out = "D:/1_wangyingjie/readfile/compress/big4_5g.zip";
+
+	std::string g4_5 = "D:/1_wangyingjie/readfile/Radar_LOCAL/HN4";
+	std::string g4_5_out = "D:/1_wangyingjie/readfile/Radar_LOCAL/HN4.zip";
+
+	//std::string g4_5 = "D:/1_wangyingjie/software/iso/ubuntu-22.04.3-live-server-arm64.iso";
+	//std::string g4_5_out = "D:/1_wangyingjie/software/iso/ub2.zip";
+
+	//std::string g4_5 = "D:/1_wangyingjie/software/iso/4.1";
+	//std::string g4_5_out = "D:/1_wangyingjie/software/iso/4_1.zip";
+
+	silly_minizip mzip;
+	int result = mzip.compress(g4_5, g4_5_out);   // 压缩
+	//int result = mzip.compress(src_file.string().c_str(), des_file.string().c_str());   // 压缩
+	if (result == 0)
+	{
+		std::cout << "Compression completed successfully." << std::endl;
+	}
+	else
+	{
+		std::cout << "Compression failed." << std::endl;
+	}
+
+
+	int r = 0;
+	int e = 0;
+	int f = 0;
+
+};
+
+
 BOOST_AUTO_TEST_CASE(MINIZIP_INHERIT)      // 修改继承
 {
 	std::cout << "\r\n\r\n****************" << "MINIZIP_INHERIT" << "****************" << std::endl;
@@ -84,40 +133,7 @@ BOOST_AUTO_TEST_CASE(MINIZIP_INHERIT)      // 修改继承
 };
 
 
-BOOST_AUTO_TEST_CASE(BIG_FILE)      // 大文件解压缩
-{
-	std::cout << "\r\n\r\n****************" << "BIG_FILE" << "****************" << std::endl;
 
-	std::filesystem::path src_file(DEFAULT_SU_DATA_DIR);
-	src_file += "/compress/123.txt";   //压缩文件
-	std::filesystem::path des_file(DEFAULT_SU_DATA_DIR);
-	des_file += "/compress/123_file.zip";
-
-	std::filesystem::path src_dir(DEFAULT_SU_DATA_DIR);
-	src_dir += "/compress/compress_dir";   //压缩文件夹
-	std::filesystem::path des_dir(DEFAULT_SU_DATA_DIR);
-	des_dir += "/compress/copm_dir.zip";
-
-
-	std::string g4_5 = "D:/1_wangyingjie/readfile/compress/big4g.txt";
-	std::string g4_5_out = "D:/1_wangyingjie/readfile/compress/big4g.zip";
-
-	silly_minizip mzip;
-	int result = mzip.compress(src_dir.string(), des_dir.string());   // 压缩
-	if (result == 0)
-	{
-		std::cout << "Compression completed successfully." << std::endl;
-	}
-	else
-	{
-		std::cout << "Compression failed." << std::endl;
-	}
-
-
-	int r = 0;
-	int e = 0;
-	int f = 0;
-};
 
 
 
