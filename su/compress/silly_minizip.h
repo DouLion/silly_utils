@@ -27,7 +27,7 @@ public:
     /// <param name="s_src">被压缩文件或目录地址</param>
     /// <param name="s_dst">生成解压文件路径</param>
     /// <returns></returns>
-    /// 注: 测试解压3.5G以上ios文件有问题
+    /// 注: 测试压缩3G以上ios文件有问题
     int compress(const std::string& s_src, const std::string& s_dst) override;
 
 

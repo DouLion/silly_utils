@@ -43,7 +43,7 @@ BOOST_AUTO_TEST_CASE(BIG_FILE)      // 大文件解压缩
 	//std::string g4_5_out = "D:/1_wangyingjie/readfile/compress/big4_5g.zip";
 
 	std::string g4_5 = "D:/1_wangyingjie/readfile/Radar_LOCAL/HN4";
-	std::string g4_5_out = "D:/1_wangyingjie/readfile/Radar_LOCAL/HN4.zip";
+	std::string g4_5_out = "D:/1_wangyingjie/readfile/Radar_LOCAL/HN4_1.zip";
 
 	//std::string g4_5 = "D:/1_wangyingjie/software/iso/ubuntu-22.04.3-live-server-arm64.iso";
 	//std::string g4_5_out = "D:/1_wangyingjie/software/iso/ub2.zip";
@@ -52,16 +52,29 @@ BOOST_AUTO_TEST_CASE(BIG_FILE)      // 大文件解压缩
 	//std::string g4_5_out = "D:/1_wangyingjie/software/iso/4_1.zip";
 
 	silly_minizip mzip;
-	int result = mzip.compress(g4_5, g4_5_out);   // 压缩
-	//int result = mzip.compress(src_file.string().c_str(), des_file.string().c_str());   // 压缩
+	std::filesystem::path un_dir(DEFAULT_SU_DATA_DIR);
+	un_dir += "/compress/un";
+
+	int result = mzip.decompress(g4_5_out, un_dir.string());
 	if (result == 0)
 	{
-		std::cout << "Compression completed successfully." << std::endl;
+		std::cout << "Deompression completed successfully." << std::endl;
 	}
 	else
 	{
-		std::cout << "Compression failed." << std::endl;
+		std::cout << "Deompression failed." << std::endl;
 	}
+
+	//int result = mzip.compress(g4_5, g4_5_out);   // 压缩
+	//int result = mzip.compress(src_dir.string().c_str(), des_dir.string().c_str());   // 压缩
+	//if (result == 0)
+	//{
+	//	std::cout << "Compression completed successfully." << std::endl;
+	//}
+	//else
+	//{
+	//	std::cout << "Compression failed." << std::endl;
+	//}
 
 
 	int r = 0;

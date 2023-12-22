@@ -237,7 +237,7 @@ int silly_minizip::decompress(const std::string& s_src, const std::string& s_dst
 			return MiniZCreatDirErr;        // 创建目录失败
 		}
 	}
-	unzFile zipFile = unzOpen(s_src.c_str());   	// 打开ZIP文件
+	unzFile zipFile = unzOpen64(s_src.c_str());   	// 打开ZIP文件
 	if (zipFile == nullptr)
 	{
 		return MiniZOpenFileErr;   // 打开ZIP文件失败
@@ -250,33 +250,31 @@ int silly_minizip::decompress(const std::string& s_src, const std::string& s_dst
 	}
 	do    // 循环解压缩所有文件
 	{
-		// 获取当前文件信息
-		// 获取文件名大小和文件大小
-		size_t nameLen = 0;  // 该压缩分支文件名长度
-		size_t uncompressed_size = 0;  // 该压缩分支占字节数
-		unz_file_info file_info;
-		if (unzGetCurrentFileInfo(zipFile, &file_info, nullptr, 0, nullptr, 0, nullptr, 0) == UNZ_OK)
+		size_t nameLen = 0;					// 该压缩分支文件名长度
+		size_t uncompressed_size = 0;		// 该压缩分支占字节数
+		unz_file_info64 file_info;			// 获取当前文件信息
+		if (unzGetCurrentFileInfo64(zipFile, &file_info, nullptr, 0, nullptr, 0, nullptr, 0) == UNZ_OK)
 		{
 			nameLen = file_info.size_filename;
 			uncompressed_size = file_info.uncompressed_size;
 		}
 		char* filename = (char*)malloc(nameLen + 1);
-		if (unzGetCurrentFileInfo(zipFile, &file_info, filename, nameLen + 1, nullptr, 0, nullptr, 0) != UNZ_OK)
+		if (unzGetCurrentFileInfo64(zipFile, &file_info, filename, nameLen + 1, nullptr, 0, nullptr, 0) != UNZ_OK)
 		{
 			SU_MEM_FREE(filename);
-			return MiniZGetInforErr;    // 获取文件信息失败
+			return MiniZGetInforErr;					// 获取文件信息失败
 		}
 		std::filesystem::path one_file = outputDir;
 		one_file.append(filename);
 
-		if (std::filesystem::is_directory(one_file))   // 压缩分支为目录
+		if (std::filesystem::is_directory(one_file))	// 压缩分支为目录
 		{
 			if (!std::filesystem::exists(one_file))
 			{
 				if (!std::filesystem::create_directories(one_file.string()))
 				{
 					SU_MEM_FREE(filename);
-					return MiniZCreatDirErr;        // 创建目录失败
+					return MiniZCreatDirErr;			// 创建目录失败
 				}
 			}
 		}
