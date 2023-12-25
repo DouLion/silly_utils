@@ -116,7 +116,7 @@ BOOST_AUTO_TEST_CASE(READ_WRITE_SHP_SILLY_GEO_COLL)
 	geo_pLine += "/geojson/plines.geojson";
 
 
-	// // 读点
+	// // 读面
 	std::filesystem::path geo_polys(DEFAULT_SU_DATA_DIR);
 	geo_polys += "/geojson/xian_poly.geojson";
 	std::filesystem::path geo_ppolys(DEFAULT_SU_DATA_DIR);

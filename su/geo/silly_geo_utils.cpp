@@ -77,7 +77,6 @@ OGRPolygon* geo_utils::SillyRingToPolygon(const silly_ring& ring)
     return polygon;
 }
 
-
 // 环OGRLinearRing对象，将其转换为silly_ring对象  (环)
 silly_ring geo_utils::ORGRingToSillyRing(OGRLinearRing* ring)
 {
@@ -95,13 +94,13 @@ silly_ring geo_utils::ORGRingToSillyRing(OGRLinearRing* ring)
 
 
 // 将 OGRPoint(单点) 转换为 silly_point(单点) 类型
-bool geo_utils::OGRPointToSillyPoint(OGRPoint* ogrPoint, silly_point& Point)
+silly_point geo_utils::OGRPointToSillyPoint(OGRPoint* ogrPoint)
 {
+    silly_point Point;
     Point.lgtd = ogrPoint->getX();
     Point.lttd = ogrPoint->getY();
-    return true;
+    return Point;
 }
-
 
 // 将 silly_point(单点) 转换为 OGRPoint(单点) 类型
 OGRPoint* geo_utils::SillyPointToOGRPoint(const silly_point& point)
@@ -111,20 +110,20 @@ OGRPoint* geo_utils::SillyPointToOGRPoint(const silly_point& point)
 }
 
 // 将 OGRMultiPoint(多点) 转换为 silly_multi_point(多点) 类型
-bool geo_utils::OGRMulPointToSillyMulPoint(OGRMultiPoint* ogrMultiPoint, silly_multi_point& mulitPoint)
+silly_multi_point geo_utils::OGRMulPointToSillyMulPoint(OGRMultiPoint* ogrMultiPoint)
 {
+    silly_multi_point mulitPoint;
     int pointCount = ogrMultiPoint->getNumGeometries();
     for (int i = 0; i < pointCount; i++)
     {
         OGRPoint* point = dynamic_cast<OGRPoint*>(ogrMultiPoint->getGeometryRef(i));
         if (point != nullptr)
         {
-            silly_point sillyPoint;
-            OGRPointToSillyPoint(point, sillyPoint);
+            silly_point sillyPoint = OGRPointToSillyPoint(point);
             mulitPoint.push_back(sillyPoint);
         }
     }
-    return true;
+    return mulitPoint;
 }
 
 // 将 silly_multi_point(多点) 转换为 OGRMultiPoint(多点) 类型
@@ -140,8 +139,9 @@ OGRMultiPoint* geo_utils::SillyMulPointToOGRMulPoint(const silly_multi_point& mu
 }
 
 // OGRLineString(线)类型转为silly_line(线)类型
-bool geo_utils::OGRLineToSillyLine(OGRLineString* lineString, silly_line& line)
+silly_line geo_utils::OGRLineToSillyLine(OGRLineString* lineString)
 {
+    silly_line line;
     int num_points = lineString->getNumPoints();
     for (int j = 0; j < num_points; j++)
     {
@@ -150,7 +150,7 @@ bool geo_utils::OGRLineToSillyLine(OGRLineString* lineString, silly_line& line)
         silly_point point(x, y);
         line.push_back(point);
     }
-    return true;
+    return line;
 }
 
 
@@ -167,20 +167,20 @@ OGRLineString* geo_utils::SillyLineToOGRLine(const silly_line& line)
 
 
 // OGRMultiLineString(多线)类型转为 silly_multiline(多线)类型
-bool geo_utils::OGRMulLineToSillyMulLine(OGRMultiLineString* multiLineString, silly_multi_silly_line& multiLine)
+silly_multi_silly_line geo_utils::OGRMulLineToSillyMulLine(OGRMultiLineString* multiLineString)
 {
+    silly_multi_silly_line multiLine;
     int numLines = multiLineString->getNumGeometries();
     for (int i = 0; i < numLines; i++)
     {
         OGRLineString* lineString = dynamic_cast<OGRLineString*>(multiLineString->getGeometryRef(i));
         if (lineString != nullptr)
         {
-            silly_line line;
-            OGRLineToSillyLine(lineString, line);
+            silly_line line = OGRLineToSillyLine(lineString);
             multiLine.push_back(line);
         }
     }
-    return true;
+    return multiLine;
 }
 
 // 将 silly_multiline(多线) 转换为 OGRMultiLineString(多线)类型
@@ -199,8 +199,9 @@ OGRMultiLineString* geo_utils::SillyMulLineToOGRMulLine(const silly_multi_silly_
 
 
 // OGRPolygon对象转换为silly_poly(多环:外环+内环)对象  (单面)
-bool geo_utils::OGRPolyToSillyPoly(OGRPolygon* polygon, silly_poly& poly)
+silly_poly geo_utils::OGRPolyToSillyPoly(OGRPolygon* polygon)
 {
+    silly_poly poly;
     // 处理OGRPolygon外环
     OGRLinearRing* outerRing = polygon->getExteriorRing();
     poly.outer_ring = ORGRingToSillyRing(outerRing);
@@ -212,7 +213,7 @@ bool geo_utils::OGRPolyToSillyPoly(OGRPolygon* polygon, silly_poly& poly)
         silly_ring innerRing = ORGRingToSillyRing(ring);
         poly.inner_rings.push_back(innerRing);
     }
-    return true;
+    return poly;
 }
 
 
@@ -240,17 +241,18 @@ OGRPolygon* geo_utils::SillyPolyToOGRPoly(const silly_poly& poly)
 
 
 //多面的OGRMultiPolygon对象转换为silly_multi_poly(多面)
-bool geo_utils::ORGMulPolyToSillyMulPoly(OGRMultiPolygon* multiPolygon, silly_multi_poly& poly)
+silly_multi_poly geo_utils::ORGMulPolyToSillyMulPoly(OGRMultiPolygon* multiPolygon)
 {
+    silly_multi_poly multi_poly;
     int polygonCount = multiPolygon->getNumGeometries();
     for (int i = 0; i < polygonCount; i++)
     {
         silly_poly  tmp_poly;
         OGRPolygon* polygon = dynamic_cast<OGRPolygon*>(multiPolygon->getGeometryRef(i));
-        OGRPolyToSillyPoly(polygon, tmp_poly);
-        poly.push_back(tmp_poly);
+        tmp_poly = OGRPolyToSillyPoly(polygon);
+        multi_poly.push_back(tmp_poly);
     }
-    return true;
+    return multi_poly;
 }
 
 
@@ -726,37 +728,43 @@ bool read_all_types_data(const enum_geometry_types feature_type, OGRGeometry* ge
     {
         auto geo_type = geometry->getGeometryType();
         OGRPoint* point = dynamic_cast<OGRPoint*>(geometry);
-        status = geo_utils::OGRPointToSillyPoint(point, geo_coll.m_point);
+        geo_coll.m_point = geo_utils::OGRPointToSillyPoint(point);
+        status = true;
     }
     break;
     case eLineString:           // 单线        
     {
         OGRLineString* lineString = dynamic_cast<OGRLineString*>(geometry);
-        status = geo_utils::OGRLineToSillyLine(lineString, geo_coll.m_line);
+        geo_coll.m_line = geo_utils::OGRLineToSillyLine(lineString);
+        status = true;
     }
     break;
     case ePolygon:              // 单面
     {
         OGRPolygon* polygon = dynamic_cast<OGRPolygon*>(geometry);
-        status = geo_utils::OGRPolyToSillyPoly(polygon, geo_coll.m_poly);
+        geo_coll.m_poly = geo_utils::OGRPolyToSillyPoly(polygon);
+        status = true;
     }
     break;
     case eMultiPoint:           // 多点
     {
         OGRMultiPoint* multiPoint = dynamic_cast<OGRMultiPoint*>(geometry);
-        status = geo_utils::OGRMulPointToSillyMulPoint(multiPoint, geo_coll.m_m_points);
+        geo_coll.m_m_points = geo_utils::OGRMulPointToSillyMulPoint(multiPoint);
+        status = true;
     }
     break;
     case eMultiLineString:      // 多线
     {
         OGRMultiLineString* multiLineString = dynamic_cast<OGRMultiLineString*>(geometry);
-        status = geo_utils::OGRMulLineToSillyMulLine(multiLineString, geo_coll.m_m_lines);
+        geo_coll.m_m_lines = geo_utils::OGRMulLineToSillyMulLine(multiLineString);
+        status = true;
     }
     break;
     case eMultiPolygon:         // 多面
     {
         OGRMultiPolygon* multiPolygon = dynamic_cast<OGRMultiPolygon*>(geometry);
-        status = geo_utils::ORGMulPolyToSillyMulPoly(multiPolygon, geo_coll.m_m_polys);
+        geo_coll.m_m_polys = geo_utils::ORGMulPolyToSillyMulPoly(multiPolygon);
+        status = true;
     }
     break;
     case eCompositeType:        // 复合数据类型  
@@ -850,7 +858,6 @@ bool geo_utils::read_geo_coll(const char* file, std::vector<silly_geo_coll>& col
 
 
 // 根据文件拓展得到对应的存储格式
-//bool GetDriverName(const char* file, std::string& driverName)
 bool geo_utils::get_driver_name(const char* file, std::string& driverName)
 {
     bool status = false;
