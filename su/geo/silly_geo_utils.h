@@ -100,70 +100,59 @@ public:
 	static bool check_shp_info(const std::string& shp_file, enum_geometry_types& type, std::map<std::string, std::string>& properties);
 
 	/// <summary>
-	/// 获取输入文件数据类型中
+	/// 根据文件类型得到对应的 gdal 中的存储格式
+	/// 支持的文件格式对应的存储类型: shp tab geojson sqlite csv kml gml xlsx
 	/// </summary>
-	/// <param name="file"></param>
-	/// <param name="driverName"></param>
+	/// <param name="file">文件名</param>
+	/// <param name="driverName">存储类型</param>
 	/// <returns></returns>
 	static bool get_driver_name(const char* file, std::string& driverName);
 
 
-	// ============ gdal中矢量与silly utils中矢量互转 ============
+	// ================ gdal中矢量与silly utils中矢量互转 ================
 
-	// ============ 环 ============
+	// ================ 单环 ================
 	// 将 silly_ring 转换为 OGRPolygon
 	static OGRPolygon* SillyRingToPolygon(const silly_ring& ring);
 	// 环OGRLinearRing对象，将其转换为silly_ring对象  (环)
 	static silly_ring ORGRingToSillyRing(OGRLinearRing* ring);
 
-	// ============ 单点 ============
+	// ================ 单点 ================
 	// 将 OGRPoint(单点) 转换为 silly_point(单点) 类型
-	static bool OGRPointToSillyPoint(OGRPoint* ogrPoint, silly_point& Point);
+	static silly_point OGRPointToSillyPoint(OGRPoint* ogrPoint);
 	// 将 silly_point(单点) 转换为 OGRPoint(单点) 类型
 	static OGRPoint* SillyPointToOGRPoint(const silly_point& point);
 
 
-	// ============ 多点 ============
+	// ================ 多点 ================
 	// 将 OGRMultiPoint(多点) 转换为 silly_multi_point(多点) 类型
-	static bool OGRMulPointToSillyMulPoint(OGRMultiPoint* ogrMultiPoint, silly_multi_point& mulitPoint);
+	static silly_multi_point OGRMulPointToSillyMulPoint(OGRMultiPoint* ogrMultiPoint);
 	// 将 silly_multi_point(多点) 转换为 OGRMultiPoint(多点) 类型
 	static OGRMultiPoint* SillyMulPointToOGRMulPoint(const silly_multi_point& mulitPoint);
 
-	// ============ 线 ============
+	// ================ 单线 ================
 	// OGRLineString(线)类型转为silly_line(线)类型
-	static bool OGRLineToSillyLine(OGRLineString* lineString, silly_line& line);
+	static silly_line OGRLineToSillyLine(OGRLineString* lineString);
 	// 将 silly_line(线) 转换为 OGRLineString(线)类型
 	static OGRLineString* SillyLineToOGRLine(const silly_line& line);
 
-	// ============ 多线 ============
+	// ================ 多线 ================
 	// OGRMultiLineString(多线)类型转为 silly_multiline(多线)类型
-	static bool OGRMulLineToSillyMulLine(OGRMultiLineString* multiLineString, silly_multi_silly_line& multiLine);
+	static silly_multi_silly_line OGRMulLineToSillyMulLine(OGRMultiLineString* multiLineString);
 	// 将 silly_multiline(多线) 转换为 OGRMultiLineString(多线)类型
 	static OGRMultiLineString* SillyMulLineToOGRMulLine(const silly_multi_silly_line& multiLine);
 
-	// ============ 单面 ============
+	// ================ 单面 ================
 	// OGRPolygon 对象转换为 silly_poly (多环:外环+内环)对象  (单面)
-	static bool OGRPolyToSillyPoly(OGRPolygon* polygon, silly_poly& poly);
+	static silly_poly OGRPolyToSillyPoly(OGRPolygon* polygon);
 	// 将 silly_poly 转换为 OGRPolygon(单面)
 	static OGRPolygon* SillyPolyToOGRPoly(const silly_poly& poly);
 
-	// ============ 多面 ============
+	// ================ 多面 ================
 	// 多面的OGRMultiPolygon对象转换为silly_multi_poly(多面)
-	static bool ORGMulPolyToSillyMulPoly(OGRMultiPolygon* multiPolygon, silly_multi_poly& poly);
+	static silly_multi_poly ORGMulPolyToSillyMulPoly(OGRMultiPolygon* multiPolygon);
 	// 将silly_multi_poly对象转换为OGRMultiPolygon对象(多面)
 	static OGRMultiPolygon* SillyMulPolyToORGMulPoly(const silly_multi_poly& multiPoly);
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
