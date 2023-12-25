@@ -15,13 +15,6 @@
 #include <json/json.h>
 #include <database/otl/silly_otl.h>
 
-#define SILLY_SQL_STUDIO_MYSQL			"MYSQL"
-#define SILLY_SQL_STUDIO_MSSQL			"MSSQL"
-#define SILLY_SQL_STUDIO_ORACLE		    "ORACLE"
-#define SILLY_SQL_STUDIO_DM8			"DM8"
-#define SILLY_SQL_STUDIO_POSTGRESQL		"PG"
-#define SILLY_SQL_STUDIO_KING_B			"KB8"
-
 class silly_sql_studio
 {
     bool init(const std::string cfg_path);

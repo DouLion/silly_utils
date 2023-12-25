@@ -24,36 +24,36 @@ bool silly_sql_studio::init(const Json::Value &jv_root) {
     for (auto iter = mem.begin(); iter != mem.end(); iter++)
     {
         std::string key = (*iter);
-        if (jv_root[key].isMember(SILLY_SQL_STUDIO_MYSQL))
+        if (jv_root[key].isMember(SILLY_DB_TYPE_MYSQL_STR))
         {
-            std::string sql = jv_root[key][SILLY_SQL_STUDIO_MYSQL].asString();
+            std::string sql = jv_root[key][SILLY_DB_TYPE_MYSQL_STR].asString();
             m_pMYSQL.insert({ key , sql });
         }
 
-        if (jv_root[key].isMember(SILLY_SQL_STUDIO_MSSQL))
+        if (jv_root[key].isMember(SILLY_DB_TYPE_MSSQL_STR))
         {
-            std::string sql = jv_root[key][SILLY_SQL_STUDIO_MSSQL].asString();
+            std::string sql = jv_root[key][SILLY_DB_TYPE_MSSQL_STR].asString();
             m_pMSSQL.insert({ key , sql });
         }
 
-        if (jv_root[key].isMember(SILLY_SQL_STUDIO_ORACLE))
+        if (jv_root[key].isMember(SILLY_DB_TYPE_ORACLE_STR))
         {
-            std::string sql = jv_root[key][SILLY_SQL_STUDIO_ORACLE].asString();
+            std::string sql = jv_root[key][SILLY_DB_TYPE_ORACLE_STR].asString();
             m_pORACLE.insert({ key , sql });
         }
-        if (jv_root[key].isMember(SILLY_SQL_STUDIO_DM8))
+        if (jv_root[key].isMember(SILLY_DB_TYPE_DM8_STR))
         {
-            std::string sql = jv_root[key][SILLY_SQL_STUDIO_DM8].asString();
+            std::string sql = jv_root[key][SILLY_DB_TYPE_DM8_STR].asString();
             m_pDM8.insert({ key , sql });
         }
-        if (jv_root[key].isMember(SILLY_SQL_STUDIO_POSTGRESQL))
+        if (jv_root[key].isMember(SILLY_DB_TYPE_POSTGRESQL_STR))
         {
-            std::string sql = jv_root[key][SILLY_SQL_STUDIO_POSTGRESQL].asString();
+            std::string sql = jv_root[key][SILLY_DB_TYPE_POSTGRESQL_STR].asString();
             m_pDM8.insert({ key , sql });
         }
-        if (jv_root[key].isMember(SILLY_SQL_STUDIO_KING_B))
+        if (jv_root[key].isMember(SILLY_DB_TYPE_KINGB8_STR))
         {
-            std::string sql = jv_root[key][SILLY_SQL_STUDIO_KING_B].asString();
+            std::string sql = jv_root[key][SILLY_DB_TYPE_KINGB8_STR].asString();
             m_pKB8.insert({ key , sql });
         }
     }
@@ -70,18 +70,25 @@ std::string silly_sql_studio::get(const int &type, const std::string &key) {
     {
         case enum_database_type::dbSQLSERVER: // sql server
             s_result = m_pMSSQL[key];
+            break;
         case enum_database_type::dbMYSQL: // mysql
             s_result = m_pMYSQL[key];
+            break;
         case enum_database_type::dbORACLE:
             s_result = m_pORACLE[key];
+            break;
         case enum_database_type::dbDM8:
             s_result = m_pDM8[key];
+            break;
         case enum_database_type::dbPG:
             s_result = m_pPG[key];
+            break;
         case enum_database_type::dbKingB8:
             s_result = m_pKB8[key];
+            break;
         default:
             s_result = m_pOTHER[key];
+            break;
     }
     return s_result;
 }

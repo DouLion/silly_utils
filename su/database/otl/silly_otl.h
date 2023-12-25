@@ -53,6 +53,72 @@ enum enum_database_type
     dbKingB8 = 6     // 人大金仓
 };
 
+const static char* SILLY_DB_TYPE_MSSQL_STR = "sqlserver";
+const static char* SILLY_DB_TYPE_MYSQL_STR = "mysql";
+const static char* SILLY_DB_TYPE_ORACLE_STR = "oracle";
+const static char* SILLY_DB_TYPE_DM8_STR = "dm8";
+const static char* SILLY_DB_TYPE_POSTGRESQL_STR = "postgresql";
+const static char* SILLY_DB_TYPE_KINGB8_STR = "kb8";
+
+
+static enum_database_type str_to_db_type(const std::string& desc)
+{
+    if (SILLY_DB_TYPE_MSSQL_STR == desc)
+    {
+        return enum_database_type::dbSQLSERVER;
+    }
+    else if (SILLY_DB_TYPE_MYSQL_STR == desc)
+    {
+        return enum_database_type::dbMYSQL;
+    }
+    else if (SILLY_DB_TYPE_ORACLE_STR == desc)
+    {
+        return enum_database_type::dbORACLE;
+    }
+    else if (SILLY_DB_TYPE_DM8_STR == desc)
+    {
+        return enum_database_type::dbDM8;
+    }
+    else if (SILLY_DB_TYPE_POSTGRESQL_STR == desc)
+    {
+        return enum_database_type::dbPG;
+    }
+    else if (SILLY_DB_TYPE_KINGB8_STR == desc)
+    {
+        return enum_database_type::dbKingB8;
+    }
+    return enum_database_type::dbINVALID;
+}
+
+static std::string db_type_to_str(const enum_database_type& type)
+{
+    std::string s_ret;
+    switch (type) {
+    case dbSQLSERVER:
+        s_ret = SILLY_DB_TYPE_MSSQL_STR;
+        break;
+    case dbMYSQL:
+        s_ret = SILLY_DB_TYPE_MYSQL_STR;
+        break;
+    case dbORACLE:
+        s_ret = SILLY_DB_TYPE_ORACLE_STR;
+        break;
+    case dbDM8:
+        s_ret = SILLY_DB_TYPE_DM8_STR;
+        break;
+    case dbPG:
+        s_ret = SILLY_DB_TYPE_POSTGRESQL_STR;
+        break;
+    case dbKingB8:
+        s_ret = SILLY_DB_TYPE_KINGB8_STR;
+        break;
+    default:
+        s_ret = "";
+        break;
+    }
+    return s_ret;
+}
+
 #define SILLY_OTL_OPT_S_IP              "ip"
 #define SILLY_OTL_OPT_S_PORT            "port"
 #define SILLY_OTL_OPT_S_TYPE            "type"
@@ -81,7 +147,7 @@ class otl_conn_opt
 public:
     bool load(const std::string& s_opt);
 
-    std::string dump_odbc();
+    std::string dump_odbc(const bool& rebuild = false);
     void help();
 public:
     std::string ip;

@@ -5,61 +5,61 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include "otl_tools.h"
 
-OtlConnOption otl_tools::conn_opt_from_json(const Json::Value &root)
+otl_conn_opt otl_tools::conn_opt_from_json(const Json::Value &root)
 {
-    OtlConnOption retOpt;
-    if (root.isMember(OTL_OPT_JSON_TYPE))
+    otl_conn_opt oco_ret_opt;
+    if (root.isMember(SILLY_OTL_OPT_S_TYPE))
     {
-        retOpt.type = GetType(root[OTL_OPT_JSON_TYPE].asString());
+        oco_ret_opt.type = str_to_db_type(root[SILLY_OTL_OPT_S_TYPE].asString());
     }
     else
     {
-        return retOpt;
+        return oco_ret_opt;
     }
 
-    if (root.isMember(OTL_OPT_JSON_IP))
+    if (root.isMember(SILLY_OTL_OPT_S_IP))
     {
-        retOpt.ip = root[OTL_OPT_JSON_IP].asString();
+        oco_ret_opt.ip = root[SILLY_OTL_OPT_S_IP].asString();
     }
 
-    if (root.isMember(OTL_OPT_JSON_PORT))
+    if (root.isMember(SILLY_OTL_OPT_S_PORT))
     {
-        retOpt.port = root[OTL_OPT_JSON_PORT].asInt();
+        oco_ret_opt.port = root[SILLY_OTL_OPT_S_PORT].asInt();
     }
 
-    if (root.isMember(OTL_OPT_JSON_DRIVER))
+    if (root.isMember(SILLY_OTL_OPT_S_DRIVER))
     {
-        retOpt.driver = root[OTL_OPT_JSON_DRIVER].asString();
+        oco_ret_opt.driver = root[SILLY_OTL_OPT_S_DRIVER].asString();
     }
 
-    if (root.isMember(OTL_OPT_JSON_SCHEMA))
+    if (root.isMember(SILLY_OTL_OPT_S_SCHEMA))
     {
-        retOpt.schema = root[OTL_OPT_JSON_SCHEMA].asString();
+        oco_ret_opt.schema = root[SILLY_OTL_OPT_S_SCHEMA].asString();
     }
 
-    if (root.isMember(OTL_OPT_JSON_USER))
+    if (root.isMember(SILLY_OTL_OPT_S_USER))
     {
-        retOpt.user = root[OTL_OPT_JSON_USER].asString();
+        oco_ret_opt.user = root[SILLY_OTL_OPT_S_USER].asString();
     }
     else
     {
-        return retOpt;
+        return oco_ret_opt;
     }
-    if (root.isMember(OTL_OPT_JSON_PASSWORD))
+    if (root.isMember(SILLY_OTL_OPT_S_PASSWORD))
     {
-        retOpt.password = root[OTL_OPT_JSON_PASSWORD].asString();
+        oco_ret_opt.password = root[SILLY_OTL_OPT_S_PASSWORD].asString();
     }
     else
     {
-        return retOpt;
+        return oco_ret_opt;
     }
 
-    if (root.isMember(OTL_OPT_JSON_DSN))
+    if (root.isMember(SILLY_OTL_OPT_S_DSN))
     {
-        retOpt.dsn = root[OTL_OPT_JSON_DSN].asString();
+        oco_ret_opt.dsn = root[SILLY_OTL_OPT_S_DSN].asString();
     }
 
-    return retOpt;
+    return oco_ret_opt;
 }
 
 otl_datetime otl_tools::otl_time_from_string(const std::string &str)
@@ -86,9 +86,9 @@ std::string otl_tools::otl_time_to_string(const otl_datetime &tm)
     return datetime_buff;
 }
 
-OtlConnOption otl_tools::conn_opt_from_json(const std::string &json_str)
+otl_conn_opt otl_tools::conn_opt_from_json(const std::string &json_str)
 {
-    OtlConnOption ret_opt;
+    otl_conn_opt ret_opt;
     Json::Reader reader;
     Json::Value root;
     if (reader.parse(json_str, root))

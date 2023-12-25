@@ -11,8 +11,8 @@ bool otl_conn_opt::load(const std::string &s_opt) {
     return true;
 }
 
-std::string otl_conn_opt::dump_odbc() {
-    if (conn.empty())
+std::string otl_conn_opt::dump_odbc(const bool& rebuild) {
+    if (conn.empty() || rebuild)
     {
         if (!dsn.empty()) // 如果ODBC连接串不好使,设置DSN,并且优先使用DSN链接方式
         {

@@ -13,7 +13,7 @@
 #ifndef OTL_TOOLS_H
 #define OTL_TOOLS_H
 
-#include "database/otl/otl_header.hpp"
+#include "database/otl/silly_otl.h"
 #include <json/json.h>
 
 class otl_tools
@@ -24,9 +24,9 @@ public:
 
 	static std::string otl_time_to_string(const otl_datetime &tm);
 
-	static OtlConnOption conn_opt_from_json(const Json::Value &root);
+	static otl_conn_opt conn_opt_from_json(const Json::Value &root);
 
-	static OtlConnOption conn_opt_from_json(const std::string &json_str);
+	static otl_conn_opt conn_opt_from_json(const std::string &json_str);
 
 	static std::vector<std::string> get_local_odbc_drivers();
 
