@@ -863,29 +863,29 @@ bool GetDriverName(const char* file, std::string& driverName)
     std::string lowerExtension = std::filesystem::path(file).extension().string();
     // 将文件扩展名转换为小写
     std::transform(lowerExtension.begin(), lowerExtension.end(), lowerExtension.begin(), ::tolower);
-    if (lowerExtension == ".shp") {
-        driverName = "ESRI Shapefile";
+    if (lowerExtension == SILLY_SHP_SUFFIX) {               // shp
+        driverName = SILLY_SHP_DRIVER_NAME;
     }
-    else if (lowerExtension == ".tab") {
-        driverName = "Mapinfo File";
+    else if (lowerExtension == SILLY_TAB_SUFFIX) {          // tab
+        driverName = SILLY_TAB_DRIVER_NAME;
     }
-    else if (lowerExtension == ".geojson") {
-        driverName = "GeoJSON";
+    else if (lowerExtension == SILLY_GEOJSON_SUFFIX) {      // geojson
+        driverName = SILLY_GEOJSON_DRIVER_NAME;
     }
-    else if (lowerExtension == ".sqlite") {
-        driverName = "SQLite";
+    else if (lowerExtension == SILLY_SQLITE_SUFFIX) {       // sqlite
+        driverName = SILLY_SQLITE_DRIVER_NAME;
     }
-    else if (lowerExtension == ".csv") {
-        driverName = "CSV";
+    else if (lowerExtension == SILLY_CSV_SUFFIX) {          // csv
+        driverName = SILLY_CSV_DRIVER_NAME;
     }
-    else if (lowerExtension == ".kml") {
-        driverName = "KML";
+    else if (lowerExtension == SILLY_KML_SUFFIX) {          // kml
+        driverName = SILLY_KML_DRIVER_NAME;
     }
-    else if (lowerExtension == ".gml") {
-        driverName = "GML";
+    else if (lowerExtension == SILLY_GML_SUFFIX) {          // gml
+        driverName = SILLY_GML_DRIVER_NAME;
     }
-    else if (lowerExtension == ".xlsx") {
-        driverName = "XLSX";
+    else if (lowerExtension == SILLY_XLSX_SUFFIX) {         // xlsx
+        driverName = SILLY_XLSX_DRIVER_NAME;
     }
     else {
         driverName = "none";
@@ -1107,6 +1107,11 @@ bool wire_all_types_data(const enum_geometry_types coll_type, OGRLayer* outputLa
     {
         OGRMultiLineString* multiLineString = dynamic_cast<OGRMultiLineString*>(geometry);
         multiLineString = convertMultiLineStringFromSillyMultiLine(geo_coll.m_m_lines);
+        feature->SetGeometry(multiLineString);
+        if (outputLayer->CreateFeature(feature) != OGRERR_NONE)            // 在图层中创建要素
+        {
+            SU_ERROR_PRINT("Failed to create feature in shapefile.");
+        }
         status = true;
     }
     break;

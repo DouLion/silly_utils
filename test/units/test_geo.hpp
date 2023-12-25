@@ -55,6 +55,90 @@ static bool rings_to_shp(const std::vector<std::vector<silly_point>>& rings, con
 
 
 
+
+BOOST_AUTO_TEST_CASE(READ_WRITE_SHP_SILLY_GEO_COLL)
+{
+	std::cout << "\r\n\r\n****************" << "READ_WRITE_SHP_SILLY_GEO_COLL" << "****************" << std::endl;
+	geo_utils::init_gdal_env();
+
+
+
+	//AA a;
+	//SU_INFO_PRINT("Construct");
+	//AA b = a;
+	//SU_INFO_PRINT("=");
+	//b = a;
+
+
+
+	//silly_geo_prop ttt;
+	//ttt.data=new  unsigned char[10];
+
+
+	// 读取点  //测试完成
+	std::filesystem::path point(DEFAULT_SU_DATA_DIR);
+	point += "/shp/Point.shp";
+	// 写入点
+	std::filesystem::path outpoint(DEFAULT_SU_DATA_DIR);
+	outpoint += "/shp/Point_out.shp";
+	// 读取多面
+	std::filesystem::path MultiPolygons(DEFAULT_SU_DATA_DIR);
+	MultiPolygons += "/shp/risk2.shp";
+	std::filesystem::path Mult(DEFAULT_SU_DATA_DIR);
+	Mult += "/shp/multi.shp";
+
+	// // 读线
+	std::filesystem::path lines(DEFAULT_SU_DATA_DIR);
+	lines += "/shp/lines_1.shp";
+	std::filesystem::path pLine(DEFAULT_SU_DATA_DIR);
+	pLine += "/shp/plines.shp";
+
+
+	// 写面  已处理
+	// 读取单面(包含单面和多面)  已处理可以完成
+	std::filesystem::path Polygon(DEFAULT_SU_DATA_DIR);
+	Polygon += "/shp/xian_poly.shp";
+
+	std::filesystem::path writ_coll_Polygon(DEFAULT_SU_DATA_DIR);
+	writ_coll_Polygon += "/shp/Polygons.shp";
+
+
+	// // 读点
+	std::filesystem::path geo_points(DEFAULT_SU_DATA_DIR);
+	geo_points += "/geojson/xian_point.geojson";
+	std::filesystem::path geo_pPoint(DEFAULT_SU_DATA_DIR);
+	geo_pPoint += "/geojson/ppoint.geojson";
+
+	// // 读线
+	std::filesystem::path geo_lines(DEFAULT_SU_DATA_DIR);
+	geo_lines += "/geojson/river_line.geojson";
+	std::filesystem::path geo_pLine(DEFAULT_SU_DATA_DIR);
+	geo_pLine += "/geojson/plines.geojson";
+
+
+	// // 读点
+	std::filesystem::path geo_polys(DEFAULT_SU_DATA_DIR);
+	geo_polys += "/geojson/xian_poly.geojson";
+	std::filesystem::path geo_ppolys(DEFAULT_SU_DATA_DIR);
+	geo_ppolys += "/geojson/ppoly.geojson";
+
+	std::vector<silly_geo_coll> collection_xian;
+	geo_utils::read_geo_coll(geo_polys.string().c_str(), collection_xian);
+
+	geo_utils::write_geo_coll(geo_ppolys.string().c_str(), collection_xian);
+
+
+
+	geo_utils::destroy_gdal_env();
+
+	int e = 0;
+	int f = 9;
+	int g = 8;
+
+};
+
+
+
 class AA
 {
 public:
@@ -157,11 +241,11 @@ BOOST_AUTO_TEST_CASE(READ_WIRTE_JSON_GEO_COLL)
 	std::string geo;
 
 	silly_geo_coll temp_coll;
-	temp_coll = silly_geo::load_geo_coll(fileContent);
+	//temp_coll = silly_geo::load_geo_coll(fileContent);
 
-	std::string result = silly_geo::dump_geo_coll(temp_coll);
+	//std::string result = silly_geo::dump_geo_coll(temp_coll);
 	// 临时查看
-	std::cout << result << std::endl;
+	//std::cout << result << std::endl;
 
 	geo_utils::destroy_gdal_env();
 
@@ -175,67 +259,7 @@ BOOST_AUTO_TEST_CASE(READ_WIRTE_JSON_GEO_COLL)
 
 
 
-BOOST_AUTO_TEST_CASE(READ_WRITE_SHP_SILLY_GEO_COLL)
-{
-	std::cout << "\r\n\r\n****************" << "READ_WRITE_SHP_SILLY_GEO_COLL" << "****************" << std::endl;
-	geo_utils::init_gdal_env();
 
-
-
-	//AA a;
-	//SU_INFO_PRINT("Construct");
-	//AA b = a;
-	//SU_INFO_PRINT("=");
-	//b = a;
-
-
-
-	//silly_geo_prop ttt;
-	//ttt.data=new  unsigned char[10];
-
-	
-	// 读取点  //测试完成
-	std::filesystem::path point(DEFAULT_SU_DATA_DIR);
-	point += "/shp/Point.shp";
-	// 写入点
-	std::filesystem::path outpoint(DEFAULT_SU_DATA_DIR);
-	outpoint += "/shp/Point_out.shp";
-	// 读取多面
-	std::filesystem::path MultiPolygons(DEFAULT_SU_DATA_DIR);
-	MultiPolygons += "/shp/risk2.shp";
-	std::filesystem::path Mult(DEFAULT_SU_DATA_DIR);
-	Mult += "/shp/multi.shp";
-
-	// // 读线
-	std::filesystem::path lines(DEFAULT_SU_DATA_DIR);
-	lines += "/shp/lines_1.shp";
-	std::filesystem::path pLine(DEFAULT_SU_DATA_DIR);
-	pLine += "/shp/plines.shp";
-
-
-	// 写面  已处理
-	// 读取单面(包含单面和多面)  已处理可以完成
-	std::filesystem::path Polygon(DEFAULT_SU_DATA_DIR);
-	Polygon += "/shp/xian_poly.shp";
-
-	std::filesystem::path writ_coll_Polygon(DEFAULT_SU_DATA_DIR);
-	writ_coll_Polygon += "/shp/Polygons.shp";
-
-
-	std::vector<silly_geo_coll> collection_xian;
-	geo_utils::read_geo_coll(Polygon.string().c_str(), collection_xian);
-
-	geo_utils::write_geo_coll(writ_coll_Polygon.string().c_str(), collection_xian);
-
-
-
-	geo_utils::destroy_gdal_env();
-
-	int e = 0;
-	int f = 9;
-	int g = 8;
-
-};
 
 BOOST_AUTO_TEST_CASE(READ_VECTOR_POINT_LINE)
 {

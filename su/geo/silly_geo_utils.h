@@ -5,6 +5,26 @@
 
 #include "silly_geo.h"
 
+// 矢量文件后缀名
+#define SILLY_SHP_SUFFIX			".shp"
+#define SILLY_TAB_SUFFIX			".tab"
+#define SILLY_GEOJSON_SUFFIX		".geojson"
+#define SILLY_SQLITE_SUFFIX			".sqlite"
+#define SILLY_CSV_SUFFIX			".csv"
+#define SILLY_KML_SUFFIX			".kml"
+#define SILLY_GML_SUFFIX			".gml"
+#define SILLY_XLSX_SUFFIX			".xlsx"
+
+// 矢量文件存储格式
+#define SILLY_SHP_DRIVER_NAME			"ESRI Shapefile"
+#define SILLY_TAB_DRIVER_NAME			"Mapinfo File"
+#define SILLY_GEOJSON_DRIVER_NAME		"GeoJSON"
+#define SILLY_SQLITE_DRIVER_NAME		"SQLite"
+#define SILLY_CSV_DRIVER_NAME			"CSV"
+#define SILLY_KML_DRIVER_NAME			"KML"
+#define SILLY_GML_DRIVER_NAME			"GML"
+#define SILLY_XLSX_DRIVER_NAME			"XLSX"
+
 
 class geo_utils
 {
@@ -22,11 +42,12 @@ public:
 	static double two_point_azimuth(silly_point from, silly_point to);
 
 	/// <summary>
-	/// 读取shp文件中的数据存储到silly_geo_coll数据结构中  
+	/// 读取矢量文件中的数据存储到silly_geo_coll数据结构中  
 	/// </summary>
 	/// <param name="file"></param>
 	/// <param name="collection"></param>
 	/// <returns></returns>
+	/// 注:读取 shp , geojson 类型文件中可以实现
 	static bool read_geo_coll(const char* file, std::vector<silly_geo_coll>& collections);
 
 	/// <summary>
@@ -35,6 +56,7 @@ public:
 	/// <param name="file"></param>
 	/// <param name="collection"></param>
 	/// <returns></returns>
+	/// 注:写入 shp , geojson 类型文件中经测试可以实现
 	static bool write_geo_coll(const char* file, const std::vector<silly_geo_coll>& collections);
 
 
