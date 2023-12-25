@@ -27,6 +27,9 @@ public:
 	static OtlConnOption conn_opt_from_json(const Json::Value &root);
 
 	static OtlConnOption conn_opt_from_json(const std::string &json_str);
+
+	static std::vector<std::string> get_local_odbc_drivers();
+
 };
 
 #endif // OTL_TOOLS_H

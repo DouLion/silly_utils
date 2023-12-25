@@ -97,3 +97,52 @@ OtlConnOption otl_tools::conn_opt_from_json(const std::string &json_str)
     }
     return ret_opt;
 }
+
+#ifdef IS_WIN32
+#include <odbcinst.h>
+#include <tchar.h>
+#include <cstring>
+#include "encode/convert.hpp"
+#define  SILLY_OTL_TOOLS_DRIVER_BUFF_LEN   10240
+#pragma  comment(lib, "odbccp32.lib")
+#pragma  comment(lib, "legacy_stdio_definitions.lib")
+
+#endif
+
+std::vector<std::string> otl_tools::get_local_odbc_drivers()
+{
+    {
+        std::vector<std::string> vs_drivers;
+#ifdef IS_WIN32
+        WCHAR* szBuf = new WCHAR[SILLY_OTL_TOOLS_DRIVER_BUFF_LEN];
+        memset(szBuf, 0, SILLY_OTL_TOOLS_DRIVER_BUFF_LEN * sizeof(WCHAR));
+        WORD cbBufMax = SILLY_OTL_TOOLS_DRIVER_BUFF_LEN - 1;
+        WORD cbBufOut;
+        WCHAR* pszBuf = szBuf;
+        if (SQLGetInstalledDrivers(szBuf, cbBufMax, &cbBufOut))
+        {
+            do
+            {
+                pszBuf = wcschr(pszBuf, '\0') + 1;
+                vs_drivers.push_back(silly_conv::Cxx11PlusWS2S(pszBuf));
+            } while(pszBuf[1] != '\0');
+        }
+        delete[] szBuf;
+#else
+        FILE* fp;
+        char buffer[4096];
+        fp = popen("odbcinst -q -d", "r");
+        while (nullptr != fgets(buffer, 4096, fp))
+        {
+            // printf("%s", buffer);
+            std::string tmp_odbc_driver(buffer);
+            tmp_odbc_driver = tmp_odbc_driver.substr(1, tmp_odbc_driver.size() - 3); // 每一行的结果 [MySQL ODBC 8.0 Unicode Driver]\r    最后有个换行符,所以是 -3 
+            vs_drivers.push_back(tmp_odbc_driver);
+            memset(buffer, 0, 4096);
+        }
+
+        pclose(fp);
+#endif
+        return vs_drivers;
+    }
+}
