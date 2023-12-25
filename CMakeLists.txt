@@ -51,9 +51,10 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/su)
 ##########################################
 # Add sub dirs.
 ##########################################
+ADD_SUBDIRECTORY(su)
 
 IF (SU_AS_PROJECT)
-    ADD_SUBDIRECTORY(su)
     ADD_SUBDIRECTORY(test)
     ADD_SUBDIRECTORY(tools)
+    ADD_SUBDIRECTORY(examples)
 ENDIF ()

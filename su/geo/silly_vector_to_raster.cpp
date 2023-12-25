@@ -22,6 +22,16 @@ bool xscan_line_raster::init() {
 	return false;
 }
 
+void xscan_line_raster::reset()
+{
+	ncols = 0;
+	nrows = 0;
+	xllcorner = 0;
+	yllcorner = 0.;
+	cell_size = 0.000001;
+	row_pairs.clear();;
+}
+
 #define SILLY_XSCAN_LINE_CHECK_POINT(point) \
 	int tmp_x = std::round((point.lgtd - left) / cell_size);\
 	int tmp_y = std::round((top - point.lttd) / cell_size);\
@@ -80,12 +90,12 @@ bool xscan_line_raster::rasterization(const silly_multi_poly& m_polys)
 			for (const auto& point : ring.points)
 			{
 				SILLY_XSCAN_LINE_CHECK_POINT(point);
-				
+
 			}
 			vertices_arr.push_back(tmp_vertices);
 		}
 		std::vector<SV2RPoint> tmp_vertices;
-			
+
 		for (const auto& point : poly.outer_ring.points)
 		{
 			SILLY_XSCAN_LINE_CHECK_POINT(point);
@@ -117,33 +127,33 @@ bool xscan_line_raster::rasterization(const std::vector<std::vector<SV2RPoint>> 
 		ncols = maxX - minX + 1;
 
 	}
-	
+
 	// 对每一条扫描线进行处理
 	for (int scanY = minY; scanY <= maxY; ++scanY)
 	{
 		// 构建边缘列表
-		std::vector<size_t> edges;
-		for (size_t part = 0; part < vertices_arr.size(); ++part)
+		std::vector<int> edges;
+		for (int part = 0; part < vertices_arr.size(); ++part)
 		{
 			auto vertices = vertices_arr[part];
-			size_t numVertices = vertices.size();
-			for (size_t i = 0; i < numVertices; ++i)
+			int numVertices = vertices.size();
+			for (int i = 0; i < numVertices; ++i)
 			{
-				SV2RPoint v1 = vertices[i]; 
-				SV2RPoint v2 = vertices[(i+1)% numVertices];
+				SV2RPoint v1 = vertices[i];
+				SV2RPoint v2 = vertices[(i + 1) % numVertices];
 				if ((scanY >= v1.y && scanY < v2.y) || (scanY >= v2.y && scanY < v1.y))
 				{
-					float slope = (v2.x - v1.x) / (v2.y - v1.y); 
-					float x = (scanY - v1.y) * slope + v1.x; 
-					edges.push_back(SU_MAX(0, static_cast<size_t>(x)));
+					float slope = (v2.x - v1.x) / (v2.y - v1.y);
+					float x = (scanY - v1.y) * slope + v1.x;
+					edges.push_back(SU_MAX(0, static_cast<int>(x)));
 				}
 			}
 
 		}
 		// 根据X值对边缘进行排序
 		std::sort(edges.begin(), edges.end());
-		size_t old = 0;
-		for (size_t i = 0; i < edges.size(); i += 2)
+		int old = 0;
+		for (int i = 0; i < edges.size(); i += 2)
 		{
 			SV2RPair tmp_pair;
 			tmp_pair.beg = edges[i];
@@ -160,22 +170,25 @@ bool xscan_line_raster::rasterization(const silly_geo_coll& geo_coll)
 }
 
 
-
+#ifndef NDEBUG
 #include <image/png_utils.h>
 using namespace silly_image;
+#endif
 
 void xscan_line_raster::image(const std::string& path)
 {
+
+#ifndef NDEBUG
 	png_data png = png_utils::create_empty(nrows, ncols, PNG_COLOR_TYPE_GRAY);
 
-	for (size_t r = 0; r < nrows; ++r)
+	for (int r = 0; r < nrows; ++r)
 	{
-	
-		size_t old = 0;
+
+		int old = 0;
 		for (auto p : row_pairs[r])
 		{
-			
-			for (size_t i = p.beg; i < p.end; ++i)
+
+			for (int i = p.beg; i < p.end; ++i)
 			{
 				png.set_pixel(r, i, png_pixel(240));
 			}
@@ -184,4 +197,6 @@ void xscan_line_raster::image(const std::string& path)
 	}
 
 	png_utils::write(path.c_str(), png);
+#endif
+
 }

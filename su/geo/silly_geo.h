@@ -226,9 +226,9 @@ public:
 		this->m_m_polys = other.m_m_polys;
 		this->comp_type = other.comp_type;
 		this->m_props.clear();  // 清空当前的 m_props
-		for (const auto& entry : other.m_props)
+		for (const auto& [key, prop] : other.m_props)
 		{
-			this->m_props[entry.first] = entry.second;
+			this->m_props[key] = prop;
 		}
 		return *this;
 	}

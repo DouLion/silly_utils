@@ -32,8 +32,8 @@ struct SV2REdge
 
 struct SV2RPair
 {
-	size_t beg;
-	size_t end;
+	int beg;
+	int end;
 };
 /// X扫描线算法 
 /*
@@ -44,6 +44,8 @@ class xscan_line_raster
 {
 public:
 	bool init();
+
+	void reset();
 
 	/// <summary>
 	/// 光栅化一个面矢量
@@ -81,14 +83,14 @@ public:
 	NODATA_value  -9999
 	*/
 	// 数据记录以经纬度左下角为原点, 向东为col的正方向,向下为row的正方向
-	size_t ncols{ 0 };
-	size_t nrows{ 0 };
+	int ncols{ 0 };
+	int nrows{ 0 };
 	float xllcorner{ 0. };
 	float yllcorner{ 0. };
 	// 经纬度小数点后6位能精确到1米,更加精确意义不大
 	float cell_size{ 0.000001 };
 	// 记录每一行在矢量内的多对起始列号
-	std::map<size_t, std::vector<SV2RPair>> row_pairs;
+	std::map<int, std::vector<SV2RPair>> row_pairs;
 };
 
 #endif //SILLY_UTILS_SILLY_VECTOR_TO_RASTER_H
