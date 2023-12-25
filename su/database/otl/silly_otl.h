@@ -92,7 +92,7 @@ public:
     std::string user;
     std::string password;
     std::string dsn;
-private:
+protected:
     std::string conn;
 };
 
