@@ -251,3 +251,29 @@ void silly_encode::from_hex(const char *str, unsigned char *Hstr)
 
     Hstr[Len] = 0;
 }
+
+#include <codecvt>
+#include <string>
+#include <cstring>
+std::wstring silly_encode::cxx11_string_wstring(const std::string &str) {
+#if IS_WIN32
+    using convert_typeX = std::codecvt_utf8<wchar_t>;
+    std::wstring_convert<convert_typeX, wchar_t> converterX;
+
+    return converterX.from_bytes(str);
+#else
+    std::wstring aa;
+    return aa;
+#endif
+}
+
+std::string silly_encode::cxx11_wstring_string(const std::wstring &wstr) {
+#if IS_WIN32
+    using convert_typeX = std::codecvt_utf8<wchar_t>;
+    std::wstring_convert<convert_typeX, wchar_t> converterX;
+
+    return converterX.to_bytes(wstr);
+#else
+    return "";
+#endif
+}

@@ -97,6 +97,11 @@ public:
 
     static std::string to_hex(const unsigned char *s_byte, const size_t &len);
     static void from_hex(const char *str, unsigned char *Hstr);
+
+    static std::wstring cxx11_string_wstring(const std::string& str);
+
+
+    static std::string cxx11_wstring_string(const std::wstring& wstr);
 };
 
 #endif // SILLY_UTILS_SILLY_ENCODE_H

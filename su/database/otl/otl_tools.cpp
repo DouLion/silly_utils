@@ -102,7 +102,7 @@ otl_conn_opt otl_tools::conn_opt_from_json(const std::string &json_str)
 #include <odbcinst.h>
 #include <tchar.h>
 #include <cstring>
-#include "encode/convert.hpp"
+#include "encode/silly_encode.h"
 #define  SILLY_OTL_TOOLS_DRIVER_BUFF_LEN   10240
 #pragma  comment(lib, "odbccp32.lib")
 #pragma  comment(lib, "legacy_stdio_definitions.lib")
@@ -124,7 +124,7 @@ std::vector<std::string> otl_tools::get_local_odbc_drivers()
             do
             {
                 pszBuf = wcschr(pszBuf, '\0') + 1;
-                vs_drivers.push_back(silly_conv::Cxx11PlusWS2S(pszBuf));
+                vs_drivers.push_back(silly_encode::cxx11_wstring_string(pszBuf));
             } while(pszBuf[1] != '\0');
         }
         delete[] szBuf;

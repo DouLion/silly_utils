@@ -16,7 +16,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/xpressive/xpressive_dynamic.hpp>
 #include <boost/filesystem/operations.hpp>
-#include "encode/convert.hpp"
+#include "encode/silly_encode.h"
 #include "TFF_FileUtils.h"
 
 
@@ -104,7 +104,7 @@ bool FileUtils::IsDirectory(const char* dirPath)
 	try 
 	{
 #ifdef UNICODE
-		std::wstring dirPathWStr = silly_conv::Cxx11PlusS2WS(dirPath);
+		std::wstring dirPathWStr = silly_encode::cxx11_string_wstring(dirPath);
 		bool bRet = std::filesystem::is_directory(std::filesystem::path(dirPathWStr));
 		return bRet;
 #else
@@ -133,7 +133,7 @@ bool FileUtils::IsRegularFile(const char* filePath)
 	try 
 	{
 #ifdef UNICODE
-	std::wstring filePathWStr = silly_conv::Cxx11PlusS2WS(filePath);
+	std::wstring filePathWStr = silly_encode::cxx11_string_wstring(filePath);
 	bool bRet = std::filesystem::is_regular_file(std::filesystem::path(filePathWStr));
 	return bRet;
 #else
@@ -160,7 +160,7 @@ bool FileUtils::IsSymlinkFile(const char* filePath)
 	try 
 	{
 #ifdef UNICODE
-	std::wstring filePathWStr = silly_conv::Cxx11PlusS2WS(filePath);
+	std::wstring filePathWStr = silly_encode::cxx11_string_wstring(filePath);
 	bool bRet = std::filesystem::is_symlink(std::filesystem::path(filePathWStr));
 	return bRet;
 #else
@@ -214,7 +214,7 @@ void FileUtils::GetLastWriteTime(const char* filePath, std::filesystem::file_tim
 //	try
 //	{
 //#ifdef UNICODE
-//	std::wstring filePathWStr = silly_conv::Cxx11PlusS2WS(filePath);
+//	std::wstring filePathWStr = silly_encode::cxx11_string_wstring(filePath);
 //	time = std::filesystem::last_write_time(std::filesystem::path(filePathWStr));
 //#else
 //	time = std::filesystem::last_write_time(std::filesystem::path(filePath));
@@ -237,7 +237,7 @@ bool FileUtils::ModifyLastWriteTime(const char* dstPath, const std::filesystem::
 	try 
 	{
 #ifdef UNICODE
-	std::wstring dstPathWStr = silly_conv::Cxx11PlusS2WS(dstPath);
+	std::wstring dstPathWStr = silly_encode::cxx11_string_wstring(dstPath);
 	std::filesystem::last_write_time(std::filesystem::path(dstPathWStr), time);
 #else
 	std::filesystem::last_write_time(std::filesystem::path(dstPath), time);
@@ -265,7 +265,7 @@ std::filesystem::space_info FileUtils::GetSpaceInfo(const char* dstPath)
 	try 
 	{
 #ifdef UNICODE
-	std::wstring dstPathWStr = silly_conv::Cxx11PlusS2WS(dstPath);
+	std::wstring dstPathWStr = silly_encode::cxx11_string_wstring(dstPath);
 	si = std::filesystem::space(std::filesystem::path(dstPathWStr), _Ec);
 #else
 	si = std::filesystem::space(std::filesystem::path(dstPath));
@@ -291,7 +291,7 @@ bool FileUtils::IsExists(const char* path, const bool bDir)
 	{
 		std::filesystem::path pathFile;
 #ifdef UNICODE
-	std::wstring pathWStr = silly_conv::Cxx11PlusS2WS(path);
+	std::wstring pathWStr = silly_encode::cxx11_string_wstring(path);
 	pathFile = pathWStr;
 #else
 	pathFile = path;
@@ -352,7 +352,7 @@ int FileUtils::GetFileSize(const char* filePath)
 	try 
 	{
 #ifdef UNICODE
-	std::wstring filePathWStr = silly_conv::Cxx11PlusS2WS(filePath);
+	std::wstring filePathWStr = silly_encode::cxx11_string_wstring(filePath);
 	std::filesystem::path path(filePathWStr);
 	return (int)std::filesystem::file_size(path);
 #else
@@ -378,7 +378,7 @@ std::string FileUtils::GetParentDirectory(const char* currentPath)
 	try 
 	{
 #ifdef UNICODE
-	std::wstring currentPathWStr = silly_conv::Cxx11PlusS2WS(currentPath);
+	std::wstring currentPathWStr = silly_encode::cxx11_string_wstring(currentPath);
 	std::filesystem::path path(currentPathWStr);
 	return path.parent_path().string();
 #else
@@ -409,7 +409,7 @@ bool FileUtils::Mkdir(const char* dirPath)
 		if (!IsExists(dirPath))
 		{
 		#ifdef UNICODE
-			std::wstring dirPathWStr = silly_conv::Cxx11PlusS2WS(dirPath);
+			std::wstring dirPathWStr = silly_encode::cxx11_string_wstring(dirPath);
 			bRet = std::filesystem::create_directories(std::filesystem::path(dirPathWStr));
 		#else
 			bRet = std::filesystem::create_directories(std::filesystem::path(dirPath));
@@ -469,7 +469,7 @@ std::string FileUtils::ExtractDirectory(const std::string& filePath)
 std::string FileUtils::GetLeaf(const char* dstPath)
 {
 #ifdef UNICODE
-	std::wstring dstPathWStr = silly_conv::Cxx11PlusS2WS(dstPath);
+	std::wstring dstPathWStr = silly_encode::cxx11_string_wstring(dstPath);
 	std::filesystem::path p(dstPathWStr);
 	return p.filename().string();
 #else
@@ -494,9 +494,9 @@ void FileUtils::ListFilesRecursive(const char* currentPath, const std::string& f
 //		std::filesystem::path filterPath;
 //
 //#ifdef UNICODE
-//		std::wstring currentPathWStr = silly_conv::Cxx11PlusS2WS(currentPath);
+//		std::wstring currentPathWStr = silly_encode::cxx11_string_wstring(currentPath);
 //		currPath = currentPathWStr;
-//		std::wstring filterWStr = silly_conv::Cxx11PlusS2WS(filter);
+//		std::wstring filterWStr = silly_encode::cxx11_string_wstring(filter);
 //		filterPath = currPath / filterWStr;
 //#else
 //		currPath = currentPath;
@@ -545,7 +545,7 @@ void FileUtils::ListDirsRecursive(const char* currentPath, std::vector<std::stri
 //		std::filesystem::path currPath;
 //
 //		#ifdef UNICODE
-//			std::wstring currentPathWStr = silly_conv::Cxx11PlusS2WS(currentPath);
+//			std::wstring currentPathWStr = silly_encode::cxx11_string_wstring(currentPath);
 //			currPath = currentPathWStr;
 //		#else
 //			currPath = currentPath;
@@ -585,9 +585,9 @@ void FileUtils::ListFiles(const char* currentPath, const std::string& filter, st
 		std::filesystem::path filterPath;
 
 #ifdef UNICODE
-		std::wstring currentPathWStr = silly_conv::Cxx11PlusS2WS(currentPath);
+		std::wstring currentPathWStr = silly_encode::cxx11_string_wstring(currentPath);
 		currPath = currentPathWStr;
-		std::wstring filterWStr = silly_conv::Cxx11PlusS2WS(filter);
+		std::wstring filterWStr = silly_encode::cxx11_string_wstring(filter);
 		filterPath = currPath / filterWStr;
 #else
 		currPath = currentPath;
@@ -600,12 +600,12 @@ void FileUtils::ListFiles(const char* currentPath, const std::string& filter, st
 		std::string str = boost::replace_all_copy(boost::replace_all_copy(filename, ".", "\\."), "*", ".*");
 
 #ifdef UNICODE
-		wsregex reg = wsregex::compile(silly_conv::Cxx11PlusS2WS(str));
+		wsregex reg = wsregex::compile(silly_encode::cxx11_string_wstring(str));
 		std::copy(directory_iterator(currPath), directory_iterator(), back_inserter(paths));
 		size_t pathLen = paths.size();
 		for (unsigned int i = 0; i < pathLen; ++i)
 		{
-			std::wstring tmpFileNameWStr = silly_conv::Cxx11PlusS2WS(paths[i].filename().string());
+			std::wstring tmpFileNameWStr = silly_encode::cxx11_string_wstring(paths[i].filename().string());
 
 			if (is_regular_file(paths[i]) && regex_match(tmpFileNameWStr, reg))
 			{
@@ -653,9 +653,9 @@ void FileUtils::ListFiles(const std::string& currentPath, const std::string& giv
 		std::filesystem::path filterPath;
 
 #ifdef UNICODE
-		std::wstring currentPathWStr = silly_conv::Cxx11PlusS2WS(currentPath);
+		std::wstring currentPathWStr = silly_encode::cxx11_string_wstring(currentPath);
 		currPath = currentPathWStr;
-		std::wstring filterWStr = silly_conv::Cxx11PlusS2WS(filter);
+		std::wstring filterWStr = silly_encode::cxx11_string_wstring(filter);
 		filterPath = currPath / filterWStr;
 #else
 		currPath = currentPath;
@@ -700,7 +700,7 @@ void FileUtils::ListDirs(const char* currentPath, std::vector<std::string>& dirP
 		std::vector<std::filesystem::path> paths;
 		std::filesystem::path p;
 #ifdef UNICODE
-		std::wstring currentPathWStr = silly_conv::Cxx11PlusS2WS(currentPath);
+		std::wstring currentPathWStr = silly_encode::cxx11_string_wstring(currentPath);
 		p = currentPathWStr;
 #else
 		p = currentPath;
@@ -745,9 +745,9 @@ bool FileUtils::CopyFile(const char* srcFilePath, const char* dstFilePath, const
 		}
 
 #ifdef UNICODE
-		std::wstring srcFilePathWStr = silly_conv::Cxx11PlusS2WS(srcFilePath);
+		std::wstring srcFilePathWStr = silly_encode::cxx11_string_wstring(srcFilePath);
 		std::filesystem::path srcPath(srcFilePathWStr);
-		std::wstring dstFilePathWStr = silly_conv::Cxx11PlusS2WS(dstFilePath);
+		std::wstring dstFilePathWStr = silly_encode::cxx11_string_wstring(dstFilePath);
 		std::filesystem::path dstPath(dstFilePathWStr);
 		std::filesystem::copy_file(srcPath, dstPath);
 #else
@@ -791,7 +791,7 @@ bool FileUtils::CopyDirectory(const char* srcDirPath, const char* dstDirPath, co
 
 		std::filesystem::path srcPath;
 #ifdef UNICODE
-		std::wstring srcDirPathWStr = silly_conv::Cxx11PlusS2WS(srcDirPath);
+		std::wstring srcDirPathWStr = silly_encode::cxx11_string_wstring(srcDirPath);
 		srcPath = srcDirPathWStr;
 #else
 		srcPath = srcDirPath;
@@ -807,7 +807,7 @@ bool FileUtils::CopyDirectory(const char* srcDirPath, const char* dstDirPath, co
 		std::string srcDirName = GetLeaf(srcDirPath);
 		std::filesystem::path dstPath(dstDirPath);
 #ifdef UNICODE
-		std::wstring dstDirPathWStr = silly_conv::Cxx11PlusS2WS(dstDirPath);
+		std::wstring dstDirPathWStr = silly_encode::cxx11_string_wstring(dstDirPath);
 		dstPath = dstDirPathWStr;
 #else
 		dstPath = dstDirPath;
@@ -820,9 +820,9 @@ bool FileUtils::CopyDirectory(const char* srcDirPath, const char* dstDirPath, co
 		BOOST_FOREACH(std::string& filePath, filePathVec)
 		{
 #ifdef UNICODE
-			std::wstring filePathWStr = silly_conv::Cxx11PlusS2WS(filePath);
+			std::wstring filePathWStr = silly_encode::cxx11_string_wstring(filePath);
 			p = filePathWStr;
-			std::wstring nameWStr = silly_conv::Cxx11PlusS2WS(p.string().substr(srcPath.string().length()));
+			std::wstring nameWStr = silly_encode::cxx11_string_wstring(p.string().substr(srcPath.string().length()));
 			tmp = dstPath / nameWStr; 
 #else
 			p = filePath;
@@ -860,7 +860,7 @@ bool FileUtils::MoveDirectory(const char* srcDirPath, const char* dstDirPath, co
 
 		std::filesystem::path srcPath;
 #ifdef UNICODE
-		std::wstring srcDirPathWStr = silly_conv::Cxx11PlusS2WS(srcDirPath);
+		std::wstring srcDirPathWStr = silly_encode::cxx11_string_wstring(srcDirPath);
 		srcPath = srcDirPathWStr;
 #else
 		srcPath = srcDirPath;
@@ -876,7 +876,7 @@ bool FileUtils::MoveDirectory(const char* srcDirPath, const char* dstDirPath, co
 		std::string srcDirName = GetLeaf(srcDirPath);
 		std::filesystem::path dstPath(dstDirPath);
 #ifdef UNICODE
-		std::wstring dstDirPathWStr = silly_conv::Cxx11PlusS2WS(dstDirPath);
+		std::wstring dstDirPathWStr = silly_encode::cxx11_string_wstring(dstDirPath);
 		dstPath = dstDirPathWStr;
 #else
 		dstPath = dstDirPath;
@@ -889,9 +889,9 @@ bool FileUtils::MoveDirectory(const char* srcDirPath, const char* dstDirPath, co
 		BOOST_FOREACH(std::string& filePath, filePathVec)
 		{
 #ifdef UNICODE
-			std::wstring filePathWStr = silly_conv::Cxx11PlusS2WS(filePath);
+			std::wstring filePathWStr = silly_encode::cxx11_string_wstring(filePath);
 			p = filePathWStr;
-			std::wstring nameWStr = silly_conv::Cxx11PlusS2WS(p.string().substr(srcPath.string().length()));
+			std::wstring nameWStr = silly_encode::cxx11_string_wstring(p.string().substr(srcPath.string().length()));
 			tmp = dstPath / nameWStr; 
 #else
 			p = filePath;
@@ -925,7 +925,7 @@ bool FileUtils::DeleteDirectory(const char* dirPath)
 		std::filesystem::path path;
 
 #ifdef UNICODE
-		std::wstring dirPathWStr = silly_conv::Cxx11PlusS2WS(dirPath);
+		std::wstring dirPathWStr = silly_encode::cxx11_string_wstring(dirPath);
 		path = dirPathWStr;
 #else
 		path = dirPath;
@@ -953,7 +953,7 @@ bool FileUtils::DelFile(const char* filePath)
 		std::filesystem::path path;
 
 #ifdef UNICODE
-		std::wstring filePathWStr = silly_conv::Cxx11PlusS2WS(filePath);
+		std::wstring filePathWStr = silly_encode::cxx11_string_wstring(filePath);
 		path = filePathWStr;
 #else
 		path = filePath;
@@ -1004,9 +1004,9 @@ bool FileUtils::Rename(const char* srcPath, const char* dstPath)
 	try 
 	{
 #ifdef UNICODE
-		std::wstring srcPathWStr = silly_conv::Cxx11PlusS2WS(srcPath);
+		std::wstring srcPathWStr = silly_encode::cxx11_string_wstring(srcPath);
 		std::filesystem::path src(srcPathWStr);
-		std::wstring dstPathWStr = silly_conv::Cxx11PlusS2WS(dstPath);
+		std::wstring dstPathWStr = silly_encode::cxx11_string_wstring(dstPath);
 		std::filesystem::path dst(dstPathWStr);
 		std::filesystem::rename(src, dst);
 #else

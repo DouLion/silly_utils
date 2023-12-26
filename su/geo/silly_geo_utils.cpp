@@ -12,7 +12,7 @@
 #include "ogr_api.h"
 
 #include <polyclipping/clipper.hpp>
-#include <encode/convert.hpp>
+#include <encode/silly_encode.h>
 #include "su_marco.h"
 
 
@@ -473,9 +473,9 @@ bool geo_utils::check_shp_info(const std::string& shp_file, enum_geometry_types&
         OGRFieldDefn* def = pFeature_r->GetFieldDefnRef(i);
         OGRFieldType type = def->GetType();
         std::string field_name = def->GetNameRef();
-        if (!silly_code::IsUTF8((uint8_t*)field_name.c_str(), field_name.size()))
+        if (!silly_encode::is_utf8(field_name.c_str(), field_name.size()))
         {
-            field_name = silly_conv::GBK2UTF8(field_name);
+            field_name = silly_encode::gbk_utf8(field_name);
         }
 
         std::string field_type = "";
@@ -585,9 +585,9 @@ bool geo_utils::check_shp_info(const std::string& shp_file, enum_geometry_types&
         OGRFieldDefn* def = pFeature_r->GetFieldDefnRef(i);
         OGRFieldType type = def->GetType();
         std::string field_name = def->GetNameRef();
-        if (!silly_code::IsUTF8((uint8_t*)field_name.c_str(), field_name.size()))
+        if (!silly_encode::is_utf8(field_name.c_str(), field_name.size()))
         {
-            field_name = silly_conv::GBK2UTF8(field_name);
+            field_name = silly_encode::gbk_utf8(field_name);
         }
         enum_geoprop_types field_type{ eNone };
         switch (type)
