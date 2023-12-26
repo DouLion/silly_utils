@@ -12,12 +12,6 @@
 
 #include <iostream>
 
-// 4G 字节数
-#define SILLY_UTILS_4G_BYTE 4294967296
-// 1G 字节数
-#define SILLY_UTILS_1G_BYTE 1073741824
-
-#define SILLY_ZIP_SUFFIX ".zip"
 
 
 class silly_compress_base {

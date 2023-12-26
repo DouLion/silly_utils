@@ -22,6 +22,12 @@
 #include "minizip/unzip.h"
 #include "su_marco.h"
 
+// 4G 字节数
+#define SILLY_UTILS_4G_BYTE 4294967296
+// 1G 字节数
+#define SILLY_UTILS_1G_BYTE 1073741824
+
+#define SILLY_ZIP_SUFFIX ".zip"
 
 /// <summary>
 /// 将一个文件内容写入到一个 ZIP 文件中
@@ -180,11 +186,13 @@ int silly_minizip::compress(const std::string& s_src, const std::string& s_dst)
 	std::string outDst = s_dst;
 	if (outDst.empty())		// 压缩路径为空
 	{
-		std::filesystem::path srcFilePath = std::filesystem::path(src).parent_path();
-		std::string onlyFileName = std::filesystem::path(src).filename().stem().string();  //不包括后缀
-		onlyFileName.append(SILLY_ZIP_SUFFIX);
-		srcFilePath.append(onlyFileName);
-		outDst = srcFilePath.string();
+		SU_ERROR_PRINT("Compress path is empty, please enter the compress path ");
+		return InValidInputErr;
+		//std::filesystem::path srcFilePath = std::filesystem::path(src).parent_path();
+		//std::string onlyFileName = std::filesystem::path(src).filename().stem().string();  //不包括后缀
+		//onlyFileName.append(SILLY_ZIP_SUFFIX);
+		//srcFilePath.append(onlyFileName);
+		//outDst = srcFilePath.string();
 	}
 	if (S_ISREG(fileInfo.st_mode))  // 压缩文件
 	{
@@ -192,6 +200,7 @@ int silly_minizip::compress(const std::string& s_src, const std::string& s_dst)
 		if (zFile == NULL)
 		{
 			zipClose(zFile, NULL);
+
 			return MiniZCreatZipErr;  // 创建写入的zip失败
 		}
 		int ret = minizip_compress_file(zFile, src);  //压缩文件
@@ -231,10 +240,13 @@ int silly_minizip::decompress(const std::string& s_src, const std::string& s_dst
 	std::string outputDirectory = s_dst;
 	if (outputDirectory.empty())         // 如果解压路径为空,创建一个和压缩包名称相同的目录,解压到该目录下
 	{
-		std::filesystem::path srcPath(s_src);
-		std::string srcOnlyName = srcPath.filename().stem().string();
-		std::filesystem::path defOutputDir = srcPath.parent_path().append(srcOnlyName);
-		outputDirectory = defOutputDir.string();
+		SU_ERROR_PRINT("Decompress path is empty,please enter the decompress path ");
+		return InValidInputErr;
+
+		//std::filesystem::path srcPath(s_src);
+		//std::string srcOnlyName = srcPath.filename().stem().string();
+		//std::filesystem::path defOutputDir = srcPath.parent_path().append(srcOnlyName);
+		//outputDirectory = defOutputDir.string();
 	}
 	// 如果数据目录为空,创建输出目录
 	std::filesystem::path outputDir(outputDirectory);
