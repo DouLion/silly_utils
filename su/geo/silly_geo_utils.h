@@ -123,7 +123,6 @@ public:
 	// 将 silly_point(单点) 转换为 OGRPoint(单点) 类型
 	static OGRPoint* SillyPointToOGRPoint(const silly_point& point);
 
-
 	// ================ 多点 ================
 	// 将 OGRMultiPoint(多点) 转换为 silly_multi_point(多点) 类型
 	static silly_multi_point OGRMulPointToSillyMulPoint(OGRMultiPoint* ogrMultiPoint);
@@ -153,7 +152,6 @@ public:
 	static silly_multi_poly ORGMulPolyToSillyMulPoly(OGRMultiPolygon* multiPolygon);
 	// 将silly_multi_poly对象转换为OGRMultiPolygon对象(多面)
 	static OGRMultiPolygon* SillyMulPolyToORGMulPoly(const silly_multi_poly& multiPoly);
-
 
 
 };

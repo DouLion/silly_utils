@@ -294,8 +294,8 @@ std::vector<silly_ring> geo_utils::intersect_area(silly_ring ring_1, silly_ring 
     std::vector<silly_ring> intersecting_rings;
 
     // 创建 OGRPolygon 对象
-    OGRPolygon* poly1 = SillyRingToPolygon(ring_1);
-    OGRPolygon* poly2 = SillyRingToPolygon(ring_2);
+    OGRPolygon* poly1 = geo_utils::SillyRingToPolygon(ring_1);
+    OGRPolygon* poly2 = geo_utils::SillyRingToPolygon(ring_2);
 
     // 判断两个 OGRPolygon 是否相交
     if (!poly1->Intersects(poly2))
@@ -850,7 +850,6 @@ bool geo_utils::read_geo_coll(const char* file, std::vector<silly_geo_coll>& col
             collections.push_back(temp_geo_coll);
         }
 
-
     }  // 一个图层结束
 
     return status;
@@ -909,7 +908,7 @@ OGRFieldType convertToOGRFieldType(enum_geoprop_types geopropType)
     switch (geopropType)
     {
     case eNone:
-        return OFTInteger;
+        return OFTString;
     case eInt:
         return OFTInteger;
     case eNumeric:
@@ -927,7 +926,7 @@ OGRFieldType convertToOGRFieldType(enum_geoprop_types geopropType)
     case eLong:
         return OFTInteger64;
     default:
-        return OFTInteger;
+        return OFTString;
     }
 }
 
