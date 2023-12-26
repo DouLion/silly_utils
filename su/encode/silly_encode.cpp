@@ -67,22 +67,67 @@ std::string silly_encode::url_decode(const std::string &src)
 
 std::string silly_encode::encode_convert(const char *from, const char *to, const char *text)
 {
-    char *tmp = (char *)text;
-    size_t lenSrc = strlen(tmp);
-    size_t lenDst = lenSrc * 5;
-    char *out = (char *)malloc(lenDst);
-    memset(out, 0, lenDst);
-    char *pFreeOut = out;
-    iconv_t cd = iconv_open(from, to);
-    size_t ret = iconv(cd, &tmp, &lenSrc, &out, &lenDst);
-    if (ret == -1)
-    {
+    iconv_t cd = iconv_open(to, from);
+    if (cd == (iconv_t)(-1)) {
+        SU_ERROR_PRINT("Not support encode convert from %s to %s", from, to);
         return "";
     }
-    std::string retStr(pFreeOut);
+    char *tmp_src = (char *)text;
+    size_t src_len = strlen(tmp_src);
+    size_t dst_len = src_len * 5;
+    char *out = (char *)malloc(dst_len);
+    if (!out)
+    {
+        SU_ERROR_PRINT("malloc failed.")
+        return "";
+    }
+    memset(out, 0, dst_len);
+    char *p_out_free = out;
+    
+    size_t ret = iconv(cd, &tmp_src, &src_len, &out, &dst_len);
+    if (!(ret == (size_t)(-1) && errno == EINVAL))
+    {
+        SU_MEM_FREE(p_out_free)
+        return "";
+    }
+    
+    std::string retStr(p_out_free);
+    SU_MEM_FREE(p_out_free)
     iconv_close(cd);
-    free(pFreeOut);
+    
     return retStr;
+}
+
+std::wstring silly_encode::utf8_wchar(const std::string& text)
+{
+    std::wstring ret;
+    iconv_t cd = iconv_open("wchar_t", "UTF-8");
+    if (cd == (iconv_t)(-1)) {
+        return ret;
+    }
+    else {
+       
+        wchar_t* outbuf = new wchar_t[text.size() * 3+ 1];
+        if (!outbuf) { return ret; }
+        memset(outbuf, 0, sizeof(outbuf));
+
+        char* inptr = (char*)text.c_str();
+        size_t inbytesleft = 1;
+        char* outptr = (char*)outbuf;
+        size_t outbytesleft = sizeof(outbuf);
+        size_t r = iconv(cd, (&inptr), &inbytesleft, &outptr, &outbytesleft);
+
+        if (!(r == (size_t)(-1) && errno == EINVAL))
+        {
+            SUM_MEM_DEL_ARR(outbuf);
+            return ret;
+        }
+        ret = std::wstring(outbuf);
+        SUM_MEM_DEL_ARR(outbuf);
+        return ret;
+    }
+
+    return ret;
 }
 
 silly_encode::enum_encode silly_encode::is_utf8(const char *data, size_t size)

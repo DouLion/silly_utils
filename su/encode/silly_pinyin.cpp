@@ -216,31 +216,31 @@ const static char SillyPinyinSpellDict[396][7] = {"A", "Ai", "An", "Ang", "Ao", 
                                                   "Zhuan", "Zhuang", "Zhui", "Zhun", "Zhuo",
                                                   "Zi", "Zong", "Zou", "Zu", "Zuan", "Zui", "Zun", "Zuo"};
 
-std::string silly_pinyin::chinese_to_pinyin(const std::string &dest_chinese)
+std::string silly_pinyin::chinese_to_pinyin(const std::string &gbk_chinese)
 {
     std::string s_result;
 
     try
     {
         // 循环处理字节数组
-        const int length = dest_chinese.length();
+        const int length = gbk_chinese.length();
         for (int j = 0, chrasc = 0; j < length;)
         {
             // 非汉字处理
-            if (dest_chinese.at(j) >= 0 && dest_chinese.at(j) < 128)
+            if (gbk_chinese.at(j) >= 0 && gbk_chinese.at(j) < 128)
             {
-                s_result += dest_chinese.at(j);
+                s_result += gbk_chinese.at(j);
                 // 偏移下标
                 j++;
                 continue;
             }
 
             // 汉字处理
-            chrasc = dest_chinese.at(j) * 256 + dest_chinese.at(j + 1) + 256;
+            chrasc = gbk_chinese.at(j) * 256 + gbk_chinese.at(j + 1) + 256;
             if (chrasc > 0 && chrasc < 160)
             {
                 // 非汉字
-                s_result += dest_chinese.at(j);
+                s_result += gbk_chinese.at(j);
                 // 偏移下标
                 j++;
             }

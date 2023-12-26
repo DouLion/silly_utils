@@ -14,7 +14,12 @@
 class silly_pinyin
 {
 public:
-    static std::string chinese_to_pinyin(const std::string &dest_chinese);
+    /// <summary>
+    /// 将输入的gbk编码的中文字符转为对应的拼音, 如输入"中AA,BBCC，文" 输出为 ZhongAA,BBCCWen
+    /// </summary>
+    /// <param name="gbk_chinese"></param>
+    /// <returns></returns>
+    static std::string chinese_to_pinyin(const std::string &gbk_chinese);
 };
 
 #endif // SILLY_UTILS_SILLY_PINYIN_H
