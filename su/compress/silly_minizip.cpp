@@ -177,10 +177,18 @@ int silly_minizip::compress(const std::string& s_src, const std::string& s_dst)
 	struct _stat64 fileInfo;
 	_stat64(src.c_str(), &fileInfo);
 #endif
-
+	std::string outDst = s_dst;
+	if (outDst.empty())		// 压缩路径为空
+	{
+		std::filesystem::path srcFilePath = std::filesystem::path(src).parent_path();
+		std::string onlyFileName = std::filesystem::path(src).filename().stem().string();  //不包括后缀
+		onlyFileName.append(SILLY_ZIP_SUFFIX);
+		srcFilePath.append(onlyFileName);
+		outDst = srcFilePath.string();
+	}
 	if (S_ISREG(fileInfo.st_mode))  // 压缩文件
 	{
-		zipFile zFile = zipOpen64(s_dst.c_str(), APPEND_STATUS_CREATE);
+		zipFile zFile = zipOpen64(outDst.c_str(), APPEND_STATUS_CREATE);
 		if (zFile == NULL)
 		{
 			zipClose(zFile, NULL);
@@ -197,7 +205,7 @@ int silly_minizip::compress(const std::string& s_src, const std::string& s_dst)
 	else if (S_ISDIR(fileInfo.st_mode))  // 压缩文件夹
 	{
 
-		zipFile zFile = zipOpen64(s_dst.c_str(), APPEND_STATUS_CREATE);
+		zipFile zFile = zipOpen64(outDst.c_str(), APPEND_STATUS_CREATE);
 		if (zFile == NULL)
 		{
 			return MiniZCreatZipErr;  //  创建写入的zip失败

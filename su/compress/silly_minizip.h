@@ -16,7 +16,6 @@
 #include <iostream>
 #include <compress/silly_compress_base.h>
 
-
 class silly_minizip : public silly_compress_base
 {
 public:
