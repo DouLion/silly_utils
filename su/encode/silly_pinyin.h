@@ -9,13 +9,12 @@
  */
 #ifndef SILLY_UTILS_SILLY_PINYIN_H
 #define SILLY_UTILS_SILLY_PINYIN_H
-#include <iostream>
+#include <su_marco.h>
 
 class silly_pinyin
 {
 public:
-    std::string chinese_to_pinyin(const std::string& dest_chinese);
-
+    static std::string chinese_to_pinyin(const std::string &dest_chinese);
 };
 
-#endif //SILLY_UTILS_SILLY_PINYIN_H
+#endif // SILLY_UTILS_SILLY_PINYIN_H
