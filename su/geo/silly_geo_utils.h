@@ -115,14 +115,13 @@ public:
 	// 将 silly_ring 转换为 OGRPolygon
 	static OGRPolygon* SillyRingToPolygon(const silly_ring& ring);
 	// 环OGRLinearRing对象，将其转换为silly_ring对象  (环)
-	static silly_ring ORGRingToSillyRing(OGRLinearRing* ring);
+	static silly_ring OGRRingToSillyRing(OGRLinearRing* ring);
 
 	// ================ 单点 ================
 	// 将 OGRPoint(单点) 转换为 silly_point(单点) 类型
 	static silly_point OGRPointToSillyPoint(OGRPoint* ogrPoint);
 	// 将 silly_point(单点) 转换为 OGRPoint(单点) 类型
 	static OGRPoint* SillyPointToOGRPoint(const silly_point& point);
-
 
 	// ================ 多点 ================
 	// 将 OGRMultiPoint(多点) 转换为 silly_multi_point(多点) 类型
@@ -150,10 +149,9 @@ public:
 
 	// ================ 多面 ================
 	// 多面的OGRMultiPolygon对象转换为silly_multi_poly(多面)
-	static silly_multi_poly ORGMulPolyToSillyMulPoly(OGRMultiPolygon* multiPolygon);
+	static silly_multi_poly OGRMulPolyToSillyMulPoly(OGRMultiPolygon* multiPolygon);
 	// 将silly_multi_poly对象转换为OGRMultiPolygon对象(多面)
-	static OGRMultiPolygon* SillyMulPolyToORGMulPoly(const silly_multi_poly& multiPoly);
-
+	static OGRMultiPolygon* SillyMulPolyToOGRMulPoly(const silly_multi_poly& multiPoly);
 
 
 };

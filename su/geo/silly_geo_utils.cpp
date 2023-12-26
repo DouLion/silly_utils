@@ -78,7 +78,7 @@ OGRPolygon* geo_utils::SillyRingToPolygon(const silly_ring& ring)
 }
 
 // 环OGRLinearRing对象，将其转换为silly_ring对象  (环)
-silly_ring geo_utils::ORGRingToSillyRing(OGRLinearRing* ring)
+silly_ring geo_utils::OGRRingToSillyRing(OGRLinearRing* ring)
 {
     silly_ring result;
     int pointCount = ring->getNumPoints();
@@ -204,13 +204,13 @@ silly_poly geo_utils::OGRPolyToSillyPoly(OGRPolygon* polygon)
     silly_poly poly;
     // 处理OGRPolygon外环
     OGRLinearRing* outerRing = polygon->getExteriorRing();
-    poly.outer_ring = ORGRingToSillyRing(outerRing);
+    poly.outer_ring = OGRRingToSillyRing(outerRing);
     // 处理OGRPolygon内环
     int innerRingCount = polygon->getNumInteriorRings();
     for (int k = 0; k < innerRingCount; k++)
     {
         OGRLinearRing* ring = polygon->getInteriorRing(k);
-        silly_ring innerRing = ORGRingToSillyRing(ring);
+        silly_ring innerRing = OGRRingToSillyRing(ring);
         poly.inner_rings.push_back(innerRing);
     }
     return poly;
@@ -241,7 +241,7 @@ OGRPolygon* geo_utils::SillyPolyToOGRPoly(const silly_poly& poly)
 
 
 //多面的OGRMultiPolygon对象转换为silly_multi_poly(多面)
-silly_multi_poly geo_utils::ORGMulPolyToSillyMulPoly(OGRMultiPolygon* multiPolygon)
+silly_multi_poly geo_utils::OGRMulPolyToSillyMulPoly(OGRMultiPolygon* multiPolygon)
 {
     silly_multi_poly multi_poly;
     int polygonCount = multiPolygon->getNumGeometries();
@@ -257,7 +257,7 @@ silly_multi_poly geo_utils::ORGMulPolyToSillyMulPoly(OGRMultiPolygon* multiPolyg
 
 
 // 将silly_multi_poly对象转换为OGRMultiPolygon对象(多面)
-OGRMultiPolygon* geo_utils::SillyMulPolyToORGMulPoly(const silly_multi_poly& multiPoly)
+OGRMultiPolygon* geo_utils::SillyMulPolyToOGRMulPoly(const silly_multi_poly& multiPoly)
 {
     OGRMultiPolygon* ogrMultiPolygon = new OGRMultiPolygon;
     for (const silly_poly& poly : multiPoly) 
@@ -294,8 +294,8 @@ std::vector<silly_ring> geo_utils::intersect_area(silly_ring ring_1, silly_ring 
     std::vector<silly_ring> intersecting_rings;
 
     // 创建 OGRPolygon 对象
-    OGRPolygon* poly1 = SillyRingToPolygon(ring_1);
-    OGRPolygon* poly2 = SillyRingToPolygon(ring_2);
+    OGRPolygon* poly1 = geo_utils::SillyRingToPolygon(ring_1);
+    OGRPolygon* poly2 = geo_utils::SillyRingToPolygon(ring_2);
 
     // 判断两个 OGRPolygon 是否相交
     if (!poly1->Intersects(poly2))
@@ -763,7 +763,7 @@ bool read_all_types_data(const enum_geometry_types feature_type, OGRGeometry* ge
     case eMultiPolygon:         // 多面
     {
         OGRMultiPolygon* multiPolygon = dynamic_cast<OGRMultiPolygon*>(geometry);
-        geo_coll.m_m_polys = geo_utils::ORGMulPolyToSillyMulPoly(multiPolygon);
+        geo_coll.m_m_polys = geo_utils::OGRMulPolyToSillyMulPoly(multiPolygon);
         status = true;
     }
     break;
@@ -850,7 +850,6 @@ bool geo_utils::read_geo_coll(const char* file, std::vector<silly_geo_coll>& col
             collections.push_back(temp_geo_coll);
         }
 
-
     }  // 一个图层结束
 
     return status;
@@ -909,7 +908,7 @@ OGRFieldType convertToOGRFieldType(enum_geoprop_types geopropType)
     switch (geopropType)
     {
     case eNone:
-        return OFTInteger;
+        return OFTString;
     case eInt:
         return OFTInteger;
     case eNumeric:
@@ -927,7 +926,7 @@ OGRFieldType convertToOGRFieldType(enum_geoprop_types geopropType)
     case eLong:
         return OFTInteger64;
     default:
-        return OFTInteger;
+        return OFTString;
     }
 }
 
@@ -1038,7 +1037,7 @@ bool process_composite_data(const enum_geometry_types coll_type, OGRGeometry* ge
     case eMultiPolygon:
     {
         OGRMultiPolygon* multiPolygon = dynamic_cast<OGRMultiPolygon*>(geometry);
-        multiPolygon = geo_utils::SillyMulPolyToORGMulPoly(geo_coll.m_m_polys);
+        multiPolygon = geo_utils::SillyMulPolyToOGRMulPoly(geo_coll.m_m_polys);
         geomCollection->addGeometry(multiPolygon);
         status = true;
     }
@@ -1121,7 +1120,7 @@ bool wire_all_types_data(const enum_geometry_types coll_type, OGRLayer* outputLa
     case eMultiPolygon:
     {
         OGRMultiPolygon* multiPolygon = dynamic_cast<OGRMultiPolygon*>(geometry);
-        multiPolygon = geo_utils::SillyMulPolyToORGMulPoly(geo_coll.m_m_polys);
+        multiPolygon = geo_utils::SillyMulPolyToOGRMulPoly(geo_coll.m_m_polys);
         feature->SetGeometry(multiPolygon);
         if (outputLayer->CreateFeature(feature) != OGRERR_NONE)             // 在图层中创建要素
         {
