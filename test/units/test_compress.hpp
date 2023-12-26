@@ -50,12 +50,12 @@ BOOST_AUTO_TEST_CASE(BIG_FILE)      // 大文件解压缩
 
 	//std::string g4_5 = "D:/1_wangyingjie/software/iso/4.1";
 	//std::string g4_5_out = "D:/1_wangyingjie/software/iso/4_1.zip";
-
-	silly_minizip mzip;
+	std::string temp = "D:/1_wangyingjie/code/4_silly_utils/silly_utils/data/compress/1234.txt.bz2";
+	silly_bz2 mzip;
 	std::filesystem::path un_dir(DEFAULT_SU_DATA_DIR);
 	un_dir += "/compress/un";
 
-	int result = mzip.decompress(g4_5_out, un_dir.string());
+	int result = mzip.decompress(temp, "");
 	if (result == 0)
 	{
 		std::cout << "Deompression completed successfully." << std::endl;

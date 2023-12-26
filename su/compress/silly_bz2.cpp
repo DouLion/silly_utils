@@ -31,7 +31,12 @@ int silly_bz2::compress(const std::string &s_src, const std::string &s_dst)
 	{
 		return Bz2NotSupportDirErr;
 	}
-
+	std::string dst_file = s_dst;
+	if (dst_file.empty())		// 压缩目的为空
+	{
+		std::filesystem::path src_path(s_src);
+		dst_file = src_path.string().append(SILLY_BZ2_SUFFIX);
+	}
 	// 读取待压缩数据
 	std::ifstream fstream_src(s_src, std::ios::binary | std::ios::ate);
 	if (!fstream_src.is_open())
@@ -66,10 +71,10 @@ int silly_bz2::compress(const std::string &s_src, const std::string &s_dst)
 	}
 
 	// 构建输出文件
-	std::ofstream fstream_dst(s_dst, std::ios::binary);
+	std::ofstream fstream_dst(dst_file, std::ios::binary);
 	if (!fstream_dst.is_open())
 	{
-		SU_DEBUG_PRINT("Open file: %s", s_dst.c_str());
+		SU_DEBUG_PRINT("Open file: %s", dst_file.c_str());
 		return Bz2OpenFileErr;
 	}
 
@@ -107,7 +112,13 @@ int silly_bz2::decompress(const std::string &s_src, const std::string &s_dst)
 	{
 		return Bz2NotSupportDirErr;
 	}
-
+	std::string dst_file = s_dst;
+	if (dst_file.empty())		// 解压目的为空
+	{
+		std::filesystem::path src_path(s_src);
+		std::string onlyFileName = src_path.filename().stem().string();  // 去掉.bz后的名字
+		dst_file = src_path.parent_path().append(onlyFileName).string();
+	}
 	char *file_content = nullptr;
 	size_t file_len;
 	std::ifstream fstream_src(s_src, std::ios::binary | std::ios::ate);
@@ -118,10 +129,10 @@ int silly_bz2::decompress(const std::string &s_src, const std::string &s_dst)
 		return Bz2OpenFileErr;
 	}
 	// 构建输出文件
-	std::ofstream fstream_dst(s_dst, std::ios::binary);
+	std::ofstream fstream_dst(dst_file, std::ios::binary);
 	if (!fstream_dst.is_open())
 	{
-		SU_DEBUG_PRINT("Open file: %s", s_dst.c_str());
+		SU_DEBUG_PRINT("Open file: %s", dst_file.c_str());
 		return Bz2OpenFileErr;
 	}
 

@@ -123,9 +123,9 @@ BOOST_AUTO_TEST_CASE(READ_WRITE_SHP_SILLY_GEO_COLL)
 	geo_ppolys += "/geojson/ppoly.geojson";
 
 	std::vector<silly_geo_coll> collection_xian;
-	geo_utils::read_geo_coll(geo_polys.string().c_str(), collection_xian);
+	geo_utils::read_geo_coll(Polygon.string().c_str(), collection_xian);
 
-	geo_utils::write_geo_coll(geo_ppolys.string().c_str(), collection_xian);
+	geo_utils::write_geo_coll(writ_coll_Polygon.string().c_str(), collection_xian);
 
 
 
