@@ -14,9 +14,19 @@
 #define SILLY_UTILS_SILLY_FILE_H
 #include <filesystem>
 #include <files/TFF_FileUtils.h>
+#include <su_marco.h>
 class silly_file
 {
-
+public:
+	/// <summary>
+	/// 读取文件内容
+	/// </summary>
+	/// <param name="path"></param>
+	/// <param name="content"></param>
+	/// <param name="offset"></param>
+	/// <param name="len"></param>
+	/// <returns></returns>
+	static bool read(const std::string& path, std::string& content, const size_t& offset = 0, const size_t& len = SIZE_MAX);
 };
 
 #endif //SILLY_UTILS_SILLY_FILE_H
