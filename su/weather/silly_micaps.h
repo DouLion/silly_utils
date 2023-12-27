@@ -71,7 +71,6 @@ class silly_diamond_4
 public:
 	/// <summary>
 	/// 普通文件读取diamond 4格式的数据
-	/// 陕西数据 401 * 361 Release 测试结果 100次1.72s, 10000次132.5s
 	/// </summary>
 	/// <param name="path"></param>
 	/// <param name="md4"></param>
