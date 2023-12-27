@@ -8,6 +8,7 @@
 size_t silly_file::read(const std::string &path, std::string &content, const size_t &offset, const size_t &len)
 {
 	size_t ret_read_size = 0;
+	content.clear();
 	std::fstream input;
 	input.open(path, std::ios::binary | std::ios::in);
 	if (!input.is_open())
@@ -31,4 +32,28 @@ size_t silly_file::read(const std::string &path, std::string &content, const siz
 	input.read(&content[0], ret_read_size);
 	input.close();
 	return ret_read_size;
+}
+
+size_t silly_file::read(const std::string &path, unsigned char **content, const size_t &offset, const size_t &len)
+{
+	size_t read_size = 0;
+	if ((*content)) // content 不能有内容
+	{
+		return read_size;
+	} 
+	std::string s_cont;
+	read_size = silly_file::read(path, s_cont, offset, len);
+	if (read_size)
+	{
+		*content = (unsigned char *)malloc(read_size);
+		if ((*content))
+		{
+			memcpy((*content), &s_cont[0], read_size);
+		}
+		else
+		{
+			read_size = 0;
+		}
+	}
+	return read_size;
 }
