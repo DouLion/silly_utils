@@ -15,18 +15,19 @@
 #include <filesystem>
 #include <files/TFF_FileUtils.h>
 #include <su_marco.h>
+
 class silly_file
 {
 public:
 	/// <summary>
 	/// 读取文件内容
 	/// </summary>
-	/// <param name="path"></param>
-	/// <param name="content"></param>
-	/// <param name="offset"></param>
-	/// <param name="len"></param>
-	/// <returns></returns>
-	static bool read(const std::string& path, std::string& content, const size_t& offset = 0, const size_t& len = SIZE_MAX);
+	/// <param name="path">文件路径</param>
+	/// <param name="content">内容接受对象</param>
+	/// <param name="offset">偏移位置</param>
+	/// <param name="len">预定读取大小</param>
+	/// <returns>实际读取大小</returns>
+	static size_t read(const std::string &path, std::string &content, const size_t &offset = 0, const size_t &len = SIZE_MAX);
 };
 
-#endif //SILLY_UTILS_SILLY_FILE_H
+#endif // SILLY_UTILS_SILLY_FILE_H
