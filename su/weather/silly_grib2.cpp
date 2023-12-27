@@ -30,7 +30,7 @@ bool silly_grib2_utils::read(const std::string& path, silly_grib2_frame& grb, co
     {
         if(fidx==i++)
         {
-            if(silly_grib2_utils::load_grib2_frame(file_h, grb2_c,&grb2_h, grb, false))
+            if(silly_grib2_utils::load_grib2_frame(file_h, &grb2_c,&grb2_h, grb, false))
             {
                 status = true;
             }
@@ -38,7 +38,7 @@ bool silly_grib2_utils::read(const std::string& path, silly_grib2_frame& grb, co
         }
         else
         {
-            if(!silly_grib2_utils::load_grib2_frame(file_h, grb2_c,&grb2_h, grb, true))
+            if(!silly_grib2_utils::load_grib2_frame(file_h, &grb2_c,&grb2_h, grb, true))
             {
 
             }
@@ -61,7 +61,7 @@ bool silly_grib2_utils::read(const std::string& path,  std::map<size_t, silly_gr
     while(grb2_h)
     {
         silly_grib2_frame grb_tmp;
-        silly_grib2_utils::load_grib2_frame(file_h, grb2_c,&grb2_h, grb_tmp, true);
+        silly_grib2_utils::load_grib2_frame(file_h, &grb2_c,&grb2_h, grb_tmp, true);
         msgf_grb[i] =grb_tmp;
         i++;
     }
@@ -102,7 +102,7 @@ bool silly_grib2_utils::open_grib2_handle(const std::string& path, void** file_h
     return status;
 }
 
-bool silly_grib2_utils::load_grib2_frame(void* file_h, void* grb2_c, void** grb2_h, silly_grib2_frame &grb, const bool& skip) {
+bool silly_grib2_utils::load_grib2_frame(void* file_h, void** grb2_c, void** grb2_h, silly_grib2_frame &grb, const bool& skip) {
     bool status = skip;
 #if SU_GRIB_ENABLED
     while(!skip) {
@@ -185,7 +185,7 @@ bool silly_grib2_utils::load_grib2_frame(void* file_h, void* grb2_c, void** grb2
 
     grib_handle_delete((grib_handle*)*grb2_h);
     int err_code;
-    *grb2_h = grib_handle_new_from_file((grib_context*)grb2_c, (FILE*)file_h, &err_code);
+    *grb2_h = grib_handle_new_from_file((grib_context*)*grb2_c, (FILE*)file_h, &err_code);
 
 #endif
     return status;
