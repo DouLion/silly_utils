@@ -75,6 +75,10 @@ public:
 	/// </summary>
 	void mclose();
 
+    size_t size()
+    {
+        return m_size;
+    }
 
 private:
 	std::string m_file;
