@@ -7,8 +7,8 @@
  * @version: 1.0.1
  * @description: 中国气象局Micaps系统的数据
  */
-#ifndef SILLY_UTILS_SILLY_DIAMOND_4_H
-#define SILLY_UTILS_SILLY_DIAMOND_4_H
+#ifndef SILLY_UTILS_SILLY_MICAPS_H
+#define SILLY_UTILS_SILLY_MICAPS_H
 #include <su_marco.h>
 #include <vector>
 
@@ -66,7 +66,7 @@ public:
 	std::vector<float> data;
 };
 
-class silly_diamond_4
+class silly_micaps_utils
 {
 public:
 	/// <summary>
@@ -96,4 +96,4 @@ public:
 private:
 };
 
-#endif // SILLY_UTILS_SILLY_DIAMOND_4_H
+#endif // SILLY_UTILS_SILLY_MICAPS_H

@@ -102,7 +102,7 @@ bool silly_micaps_diamond_4::reset()
     return false;
 }
 
-bool silly_diamond_4::read(const std::string &path, silly_micaps_diamond_4 &md4)
+bool silly_micaps_utils::read(const std::string &path, silly_micaps_diamond_4 &md4)
 {
     bool status = false;
     std::string content;
@@ -144,12 +144,12 @@ bool silly_diamond_4::read(const std::string &path, silly_micaps_diamond_4 &md4)
     return status;
 }
 
-bool silly_diamond_4::mmap_read(const std::string &path, silly_micaps_diamond_4 &md4)
+bool silly_micaps_utils::mmap_read(const std::string &path, silly_micaps_diamond_4 &md4)
 {
     return false;
 }
 
-bool silly_diamond_4::write(const std::string &path, const silly_micaps_diamond_4 &md4)
+bool silly_micaps_utils::write(const std::string &path, const silly_micaps_diamond_4 &md4)
 {
     return false;
 }
