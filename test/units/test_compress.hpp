@@ -15,7 +15,6 @@
 #include "files/TFF_FileUtils.h"
 #include "compress/silly_bz2.h"
 #include "compress/silly_minizip.h"
-#include "encode/convert.hpp"
 #include <boost/test/unit_test.hpp>
 #include <boost/timer.hpp> // 计时函数
 
