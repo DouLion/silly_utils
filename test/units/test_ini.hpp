@@ -67,8 +67,11 @@ BOOST_AUTO_TEST_CASE(BOOST_INI)		// mmap文件读取
 	std::string s_v = su_boot_ini.read(section_1, property_str);
 	std::string s_v_2 = su_boot_ini.read(section_2, property_str_2);
 
-	//su_boot_ini.write(section_2, property_str_2, "asdfgh");
-	//su_boot_ini.save();
+	std::string section_4 = "abc.123";
+	std::string property_s_4 = "def";
+
+	su_boot_ini.write(section_4, property_s_4, "abcd");
+	su_boot_ini.save();
 
 
 	int e = 0;

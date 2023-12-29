@@ -41,9 +41,36 @@ bool silly_boost_ini_parser::write(const std::string& section, const std::string
 {
 	try
 	{
-		auto pu = pt_tree.put(section + "." + property, value);
+		auto sectionIt = pt_tree.find(section);
+		if (sectionIt != pt_tree.not_found())
+		{
+			auto& sectionNode = sectionIt->second;
+			auto propertyIt = sectionNode.find(property);
+			if (propertyIt != sectionNode.not_found())
+			{
+				// 修改属性
+				propertyIt->second.data() = value;
+			}
+			else
+			{
+				// 添加属性
+				sectionNode.put(property, value);
+			}
+		}
+		else
+		{
+			// 添加节点
+			// TODO:新建
+		}
 
-		return true;
+		//for (const auto& section : pt_tree)
+		//{
+		//	std::cout << "[" << section.first << "]\n";
+		//	for (const auto& key : section.second)
+		//	{
+		//		std::cout << key.first << " = " << key.second.get_value<std::string>() << "\n";
+		//	}
+		//}
 	}
 	catch (const boost::property_tree::ini_parser_error& e)
 	{
