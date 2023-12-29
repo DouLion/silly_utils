@@ -5,7 +5,7 @@
 #include "silly_boost_ini_parser.h"
 #include "boost/property_tree/ini_parser.hpp"
 #include "su_marco.h"
-
+#include <boost/algorithm/string.hpp>
 
 
 bool silly_boost_ini_parser::load(const std::string& path)
@@ -18,8 +18,6 @@ bool silly_boost_ini_parser::load(const std::string& path)
 	}
 	catch (const boost::property_tree::ini_parser_error& e) 
 	{
-
-		SU_ERROR_PRINT("Error:%s \n ", e.message().c_str());
 		SU_ERROR_PRINT("Error:%s \n ", e.what());
 		return false;
 	}
@@ -34,7 +32,6 @@ bool silly_boost_ini_parser::save()
 	}
 	catch (const boost::property_tree::ini_parser_error& e) 
 	{
-		SU_ERROR_PRINT("Error:%s \n ", e.message().c_str());
 		SU_ERROR_PRINT("Error:%s \n ", e.what());
 		return false;
 	}
@@ -50,7 +47,6 @@ bool silly_boost_ini_parser::write(const std::string& section, const std::string
 	}
 	catch (const boost::property_tree::ini_parser_error& e)
 	{
-		SU_ERROR_PRINT("Error:%s \n ", e.message().c_str());
 		SU_ERROR_PRINT("Error:%s \n ", e.what());
 		return false;
 	}
@@ -58,56 +54,193 @@ bool silly_boost_ini_parser::write(const std::string& section, const std::string
 
 int silly_boost_ini_parser::read_int(const std::string& section, const std::string& property)
 {
-	int value = pt_tree.get<int>(section + "." + property, 0);
-	return value;
+	try
+	{
+		boost::optional<int> value;
+		auto sectionIt = pt_tree.find(section);
+		if (sectionIt != pt_tree.not_found())
+		{
+			auto& sectionNode = sectionIt->second;
+			auto propertyIt = sectionNode.find(property);
+			if (propertyIt != sectionNode.not_found())
+			{
+				value = propertyIt->second.get_value_optional<int>();
+			}
+		}
+
+		if (value)
+		{
+			return value.value();
+		}
+		else
+		{
+			return 0; // 返回默认值
+		}
+	}
+	catch (const boost::property_tree::ptree_bad_path& e)
+	{
+		SU_ERROR_PRINT("Error: %s\n", e.what());
+		return 0; // 返回默认值
+	}
 }
 
 bool silly_boost_ini_parser::read_bool(const std::string& section, const std::string& property)
 {
-	bool value = pt_tree.get<bool>(section + "." + property, false);
-	return value;
+	try
+	{
+		boost::optional<bool> value;
+		auto sectionIt = pt_tree.find(section);
+		if (sectionIt != pt_tree.not_found())
+		{
+			auto& sectionNode = sectionIt->second;
+			auto propertyIt = sectionNode.find(property);
+			if (propertyIt != sectionNode.not_found())
+			{
+				value = propertyIt->second.get_value_optional<bool>();
+			}
+		}
+
+		if (value)
+		{
+			return value.value();
+		}
+		else
+		{
+			return false; // 返回默认值
+		}
+	}
+	catch (const boost::property_tree::ptree_bad_path& e)
+	{
+		SU_ERROR_PRINT("Error: %s\n", e.what());
+		return false; // 返回默认值
+	}
 }
 
 float silly_boost_ini_parser::read_float(const std::string& section, const std::string& property)
 {
-	float value = pt_tree.get<float>(section + "." + property, 0.0f);
-	return value;
+	try
+	{
+		boost::optional<float> value;
+		auto sectionIt = pt_tree.find(section);
+		if (sectionIt != pt_tree.not_found())
+		{
+			auto& sectionNode = sectionIt->second;
+			auto propertyIt = sectionNode.find(property);
+			if (propertyIt != sectionNode.not_found())
+			{
+				value = propertyIt->second.get_value_optional<float>();
+			}
+		}
+
+		if (value)
+		{
+			return value.value();
+		}
+		else
+		{
+			return 0.0f; // 返回默认值
+		}
+	}
+	catch (const boost::property_tree::ptree_bad_path& e)
+	{
+		SU_ERROR_PRINT("Error: %s\n", e.what());
+		return 0.0f; // 返回默认值
+	}
 }
 
 double silly_boost_ini_parser::read_double(const std::string& section, const std::string& property)
 {
-	double value = pt_tree.get<double>(section + "." + property, 0.0);
-	return value;
+	try
+	{
+		boost::optional<double> value;
+		auto sectionIt = pt_tree.find(section);
+		if (sectionIt != pt_tree.not_found())
+		{
+			auto& sectionNode = sectionIt->second;
+			auto propertyIt = sectionNode.find(property);
+			if (propertyIt != sectionNode.not_found())
+			{
+				value = propertyIt->second.get_value_optional<double>();
+			}
+		}
+
+		if (value)
+		{
+			return value.value();
+		}
+		else
+		{
+			return 0.0; // 返回默认值
+		}
+	}
+	catch (const boost::property_tree::ptree_bad_path& e)
+	{
+		SU_ERROR_PRINT("Error: %s\n", e.what());
+		return 0.0; // 返回默认值
+	}
 }
 
 long silly_boost_ini_parser::read_long(const std::string& section, const std::string& property)
 {
-	long value = pt_tree.get<long>(section + "." + property, 0);
-	return value;
+	try
+	{
+		boost::optional<long> value;
+		auto sectionIt = pt_tree.find(section);
+		if (sectionIt != pt_tree.not_found())
+		{
+			auto& sectionNode = sectionIt->second;
+			auto propertyIt = sectionNode.find(property);
+			if (propertyIt != sectionNode.not_found())
+			{
+				value = propertyIt->second.get_value_optional<long>();
+			}
+		}
+
+		if (value)
+		{
+			return value.value();
+		}
+		else
+		{
+			return 0L; // 返回默认值
+		}
+	}
+	catch (const boost::property_tree::ptree_bad_path& e)
+	{
+		SU_ERROR_PRINT("Error: %s\n", e.what());
+		return 0L; // 返回默认值
+	}
 }
 
 std::string silly_boost_ini_parser::read(const std::string& section, const std::string& property)
 {
+	try
+	{
+		boost::optional<std::string> value;
+		auto sectionIt = pt_tree.find(section);
+		if (sectionIt != pt_tree.not_found())
+		{
+			auto& sectionNode = sectionIt->second;
+			auto propertyIt = sectionNode.find(property);
+			if (propertyIt != sectionNode.not_found())
+			{
+				value = propertyIt->second.get_value_optional<std::string>();
+			}
+		}
 
-	//boost::optional<boost::property_tree::ptree&> node = pt_tree.get_child_optional(section);
-	//if (node) 
-	//{
-	//	boost::optional<std::string> value = node->get_optional<std::string>(property);
-	//	if (value) 
-	//	{
-	//		std::cout << "Value: " << *value << std::endl;
-	//	}
-	//	else {
-	//		std::cout << "Key not found: " << property << std::endl;
-	//	}
+		if (value)
+		{
+			return value.value();
+		}
+		else
+		{
+			return "";
+		}
+	}
+	catch (const boost::property_tree::ptree_bad_path& e)
+	{
+		SU_ERROR_PRINT("Error: %s\n", e.what());
+		return "";
+	}
 
-	//}
-	//else 
-	//{
-	//	std::cout << "Section not found: " << section << std::endl;
-	//}
-
-	std::string seletc = section + "." + property ;
-	std::string value = pt_tree.get<std::string>(seletc, "");
-	return value;
 }
