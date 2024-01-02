@@ -32,7 +32,6 @@ bool silly_simple_ini_parser::write(const std::string& section, const std::strin
 		// 添加注释尽在从新创建是可添加,如果有注释就先删除然后再新建
 		const char* value = ini.GetValue(section.c_str(), property.c_str());
 		int is_del = ini.DeleteValue(section.c_str(), property.c_str(), value);
-		int a = 0;
 	}
 	int is_set;
 	if (comment.empty())
