@@ -17,14 +17,17 @@
 #include <map>
 #include <string>
 
-
+/// <summary>
+/// boost库读取ini文件文件中不能存在重复的section(节)名称,如果有重复节名称会报错,无法处理
+/// 暂不支持添加注释,且保存时不会保存源文件中的注释
+/// </summary>
 class silly_boost_ini_parser : public silly_ini_parser
 {
 public:
 	/// <summary>
 	/// 从文件加载解析对象,所有内容都区分大小写
 	/// </summary>
-	/// <param name="path"></param>
+	/// <param name="path">文件路径</param>
 	/// <returns></returns>
 	bool load(const std::string& path) override;
 

@@ -6,45 +6,71 @@
 
 bool silly_simple_ini_parser::load(const std::string& path)
 {
+	if (ini.LoadFile(path.c_str()) == SI_OK)
+	{
+		faile_path = path;
+		return true;
+	}
 	return false;
 }
 
 bool silly_simple_ini_parser::save()
 {
-	return false;
+	bool status = false;
+	if (ini.SaveFile(faile_path.c_str(), false) == SI_OK)
+	{
+		status = true;
+	}
+	return status; 
 }
 
 bool silly_simple_ini_parser::write(const std::string& section, const std::string& property, const std::string& value, const std::string& comment)
 {
-	return false;
+	bool status = false;
+	int is_set = ini.SetValue(section.c_str(), property.c_str(), value.c_str(), comment.c_str());
+	if (is_set == SI_UPDATED || is_set == SI_INSERTED) // 更新成或插入成功
+	{
+		status = true;
+	}
+	return status;
 }
 
 int silly_simple_ini_parser::read_int(const std::string& section, const std::string& property)
 {
-	return 0;
+	int value = static_cast<int>(ini.GetLongValue(section.c_str(), property.c_str()));
+	return value;
 }
 
 bool silly_simple_ini_parser::read_bool(const std::string& section, const std::string& property)
 {
-	return false;
+	bool value = ini.GetBoolValue(section.c_str(), property.c_str());
+	return value;
 }
 
 float silly_simple_ini_parser::read_float(const std::string& section, const std::string& property)
 {
-	return 0.0f;
+	float value = static_cast<float>(ini.GetDoubleValue(section.c_str(), property.c_str()));
+	return value;
 }
 
 double silly_simple_ini_parser::read_double(const std::string& section, const std::string& property)
 {
-	return 0.0;
+	double value = ini.GetDoubleValue(section.c_str(), property.c_str());
+	return value;
 }
 
 long silly_simple_ini_parser::read_long(const std::string& section, const std::string& property)
 {
-	return 0;
+	long value = ini.GetLongValue(section.c_str(), property.c_str());
+	return value;
 }
 
 std::string silly_simple_ini_parser::read(const std::string& section, const std::string& property)
 {
-	return std::string();
+	const char* value = ini.GetValue(section.c_str(), property.c_str());
+	if (value)
+	{
+		return value;
+	}
+	return "";
 }
