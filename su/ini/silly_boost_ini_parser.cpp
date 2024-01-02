@@ -10,37 +10,42 @@
 
 bool silly_boost_ini_parser::load(const std::string& path)
 {
+	bool status = false;
 	try
 	{
 		std::unique_lock<std::mutex> lock(m_write_mtx);
 		m_path = path;
 		boost::property_tree::ini_parser::read_ini(m_path, m_tree);
-		return true;
+		status = true;
 	}
 	catch (const boost::property_tree::ini_parser_error& e) 
 	{
 		SU_ERROR_PRINT("Error:%s \n ", e.what());
-		return false;
+		status = false;
 	}
+	return status;
 }
 
 bool silly_boost_ini_parser::save()
 {
+	bool status = false;
 	try
 	{
 		std::unique_lock<std::mutex> lock(m_write_mtx);
 		boost::property_tree::ini_parser::write_ini(m_path, m_tree);
-		return true;
+		status = true;
 	}
 	catch (const boost::property_tree::ini_parser_error& e) 
 	{
 		SU_ERROR_PRINT("Error:%s \n ", e.what());
-		return false;
+		status = false;
 	}
+	return status;
 }
 
 bool silly_boost_ini_parser::write(const std::string& section, const std::string& property, const std::string& value, const std::string& comment)
 {
+	bool status = false;
 	try
 	{
 		std::unique_lock<std::mutex> lock(m_write_mtx);
@@ -71,17 +76,19 @@ bool silly_boost_ini_parser::write(const std::string& section, const std::string
 			m_tree.push_back(newPair);
 
 		}
-
+		status = true;
 	}
 	catch (const boost::property_tree::ini_parser_error& e)
 	{
 		SU_ERROR_PRINT("Error:%s \n ", e.what());
-		return false;
+		status = false;
 	}
+	return status;
 }
 
 int silly_boost_ini_parser::read_int(const std::string& section, const std::string& property)
 {
+	int res = 0;
 	try
 	{
 		std::unique_lock<std::mutex> lock(m_write_mtx);
@@ -96,25 +103,21 @@ int silly_boost_ini_parser::read_int(const std::string& section, const std::stri
 				value = propertyIt->second.get_value_optional<int>();
 			}
 		}
-
 		if (value)
 		{
-			return value.value();
-		}
-		else
-		{
-			return 0; // 返回默认值
+			res = value.value();
 		}
 	}
 	catch (const boost::property_tree::ptree_bad_path& e)
 	{
 		SU_ERROR_PRINT("Error: %s\n", e.what());
-		return 0; // 返回默认值
 	}
+	return res; // 返回默认值
 }
 
 bool silly_boost_ini_parser::read_bool(const std::string& section, const std::string& property)
 {
+	bool res = false;
 	try
 	{
 		std::unique_lock<std::mutex> lock(m_write_mtx);
@@ -129,25 +132,21 @@ bool silly_boost_ini_parser::read_bool(const std::string& section, const std::st
 				value = propertyIt->second.get_value_optional<bool>();
 			}
 		}
-
 		if (value)
 		{
-			return value.value();
-		}
-		else
-		{
-			return false; // 返回默认值
+			res = value.value();
 		}
 	}
 	catch (const boost::property_tree::ptree_bad_path& e)
 	{
 		SU_ERROR_PRINT("Error: %s\n", e.what());
-		return false; // 返回默认值
 	}
+	return res; // 返回默认值
 }
 
 float silly_boost_ini_parser::read_float(const std::string& section, const std::string& property)
 {
+	float res = 0.0;
 	try
 	{
 		std::unique_lock<std::mutex> lock(m_write_mtx);
@@ -162,25 +161,21 @@ float silly_boost_ini_parser::read_float(const std::string& section, const std::
 				value = propertyIt->second.get_value_optional<float>();
 			}
 		}
-
 		if (value)
 		{
-			return value.value();
-		}
-		else
-		{
-			return 0.0f; // 返回默认值
+			res = value.value();
 		}
 	}
 	catch (const boost::property_tree::ptree_bad_path& e)
 	{
 		SU_ERROR_PRINT("Error: %s\n", e.what());
-		return 0.0f; // 返回默认值
 	}
+	return res; 
 }
 
 double silly_boost_ini_parser::read_double(const std::string& section, const std::string& property)
 {
+	double res = 0.0;
 	try
 	{
 		std::unique_lock<std::mutex> lock(m_write_mtx);
@@ -195,25 +190,21 @@ double silly_boost_ini_parser::read_double(const std::string& section, const std
 				value = propertyIt->second.get_value_optional<double>();
 			}
 		}
-
 		if (value)
 		{
-			return value.value();
-		}
-		else
-		{
-			return 0.0; // 返回默认值
+			res = value.value();
 		}
 	}
 	catch (const boost::property_tree::ptree_bad_path& e)
 	{
 		SU_ERROR_PRINT("Error: %s\n", e.what());
-		return 0.0; // 返回默认值
 	}
+	return res;
 }
 
 long silly_boost_ini_parser::read_long(const std::string& section, const std::string& property)
 {
+	long res = 0;
 	try
 	{
 		std::unique_lock<std::mutex> lock(m_write_mtx);
@@ -228,25 +219,21 @@ long silly_boost_ini_parser::read_long(const std::string& section, const std::st
 				value = propertyIt->second.get_value_optional<long>();
 			}
 		}
-
 		if (value)
 		{
-			return value.value();
-		}
-		else
-		{
-			return 0L; // 返回默认值
+			res = value.value();
 		}
 	}
 	catch (const boost::property_tree::ptree_bad_path& e)
 	{
 		SU_ERROR_PRINT("Error: %s\n", e.what());
-		return 0L; // 返回默认值
 	}
+	return res;
 }
 
 std::string silly_boost_ini_parser::read(const std::string& section, const std::string& property)
 {
+	std::string res = "";
 	try
 	{
 		std::unique_lock<std::mutex> lock(m_write_mtx);
@@ -264,17 +251,13 @@ std::string silly_boost_ini_parser::read(const std::string& section, const std::
 
 		if (value)
 		{
-			return value.value();
-		}
-		else
-		{
-			return "";
+			res = value.value();
 		}
 	}
 	catch (const boost::property_tree::ptree_bad_path& e)
 	{
 		SU_ERROR_PRINT("Error: %s\n", e.what());
-		return "";
 	}
+	return res;
 
 }

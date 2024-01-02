@@ -6,13 +6,14 @@
 
 bool silly_simple_ini_parser::load(const std::string& path)
 {
+	bool status = false;
 	std::unique_lock<std::mutex> lock(m_write_mtx);
 	if (m_simple_ini.LoadFile(path.c_str()) == SI_OK)
 	{
 		m_path = path;
-		return true;
+		status = true;
 	}
-	return false;
+	return status;
 }
 
 bool silly_simple_ini_parser::save()
@@ -91,10 +92,11 @@ long silly_simple_ini_parser::read_long(const std::string& section, const std::s
 std::string silly_simple_ini_parser::read(const std::string& section, const std::string& property)
 {
 	std::unique_lock<std::mutex> lock(m_write_mtx);
+	std::string res;
 	const char* value = m_simple_ini.GetValue(section.c_str(), property.c_str());
 	if (value)
 	{
-		return value;
+		res = value;
 	}
-	return "";
+	return res;
 }
