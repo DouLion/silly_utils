@@ -59,18 +59,16 @@ bool silly_boost_ini_parser::write(const std::string& section, const std::string
 		}
 		else
 		{
-			// 添加节点
-			// TODO:新建
+			// 添加节点,并添加节点,支持节点名称中有.
+			boost::property_tree::ptree newNode;
+			std::pair<std::string, boost::property_tree::ptree> newPair;
+			newPair.first = section;
+			newNode.put(property, value);
+			newPair.second = newNode;
+			pt_tree.push_back(newPair);
+
 		}
 
-		//for (const auto& section : pt_tree)
-		//{
-		//	std::cout << "[" << section.first << "]\n";
-		//	for (const auto& key : section.second)
-		//	{
-		//		std::cout << key.first << " = " << key.second.get_value<std::string>() << "\n";
-		//	}
-		//}
 	}
 	catch (const boost::property_tree::ini_parser_error& e)
 	{
