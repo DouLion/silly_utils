@@ -27,7 +27,23 @@ bool silly_simple_ini_parser::save()
 bool silly_simple_ini_parser::write(const std::string& section, const std::string& property, const std::string& value, const std::string& comment)
 {
 	bool status = false;
-	int is_set = ini.SetValue(section.c_str(), property.c_str(), value.c_str(), comment.c_str());
+	if (!comment.empty())
+	{
+		// 添加注释尽在从新创建是可添加,如果有注释就先删除然后再新建
+		const char* value = ini.GetValue(section.c_str(), property.c_str());
+		int is_del = ini.DeleteValue(section.c_str(), property.c_str(), value);
+		int a = 0;
+	}
+	int is_set;
+	if (comment.empty())
+	{
+		is_set = ini.SetValue(section.c_str(), property.c_str(), value.c_str());
+	}
+	else
+	{
+		is_set = ini.SetValue(section.c_str(), property.c_str(), value.c_str(), comment.c_str());
+	}
+
 	if (is_set == SI_UPDATED || is_set == SI_INSERTED) // 更新成或插入成功
 	{
 		status = true;
