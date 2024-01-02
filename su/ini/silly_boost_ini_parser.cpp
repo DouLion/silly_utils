@@ -10,8 +10,9 @@
 
 bool silly_boost_ini_parser::load(const std::string& path)
 {
-	try 
+	try
 	{
+		std::unique_lock<std::mutex> lock(m_write_mtx);
 		m_path = path;
 		boost::property_tree::ini_parser::read_ini(m_path, m_tree);
 		return true;
@@ -25,8 +26,9 @@ bool silly_boost_ini_parser::load(const std::string& path)
 
 bool silly_boost_ini_parser::save()
 {
-	try 
+	try
 	{
+		std::unique_lock<std::mutex> lock(m_write_mtx);
 		boost::property_tree::ini_parser::write_ini(m_path, m_tree);
 		return true;
 	}
@@ -41,6 +43,7 @@ bool silly_boost_ini_parser::write(const std::string& section, const std::string
 {
 	try
 	{
+		std::unique_lock<std::mutex> lock(m_write_mtx);
 		auto sectionIt = m_tree.find(section);
 		if (sectionIt != m_tree.not_found())
 		{
@@ -81,6 +84,7 @@ int silly_boost_ini_parser::read_int(const std::string& section, const std::stri
 {
 	try
 	{
+		std::unique_lock<std::mutex> lock(m_write_mtx);
 		boost::optional<int> value;
 		auto sectionIt = m_tree.find(section);
 		if (sectionIt != m_tree.not_found())
@@ -113,6 +117,7 @@ bool silly_boost_ini_parser::read_bool(const std::string& section, const std::st
 {
 	try
 	{
+		std::unique_lock<std::mutex> lock(m_write_mtx);
 		boost::optional<bool> value;
 		auto sectionIt = m_tree.find(section);
 		if (sectionIt != m_tree.not_found())
@@ -145,6 +150,7 @@ float silly_boost_ini_parser::read_float(const std::string& section, const std::
 {
 	try
 	{
+		std::unique_lock<std::mutex> lock(m_write_mtx);
 		boost::optional<float> value;
 		auto sectionIt = m_tree.find(section);
 		if (sectionIt != m_tree.not_found())
@@ -177,6 +183,7 @@ double silly_boost_ini_parser::read_double(const std::string& section, const std
 {
 	try
 	{
+		std::unique_lock<std::mutex> lock(m_write_mtx);
 		boost::optional<double> value;
 		auto sectionIt = m_tree.find(section);
 		if (sectionIt != m_tree.not_found())
@@ -209,6 +216,7 @@ long silly_boost_ini_parser::read_long(const std::string& section, const std::st
 {
 	try
 	{
+		std::unique_lock<std::mutex> lock(m_write_mtx);
 		boost::optional<long> value;
 		auto sectionIt = m_tree.find(section);
 		if (sectionIt != m_tree.not_found())
@@ -241,6 +249,7 @@ std::string silly_boost_ini_parser::read(const std::string& section, const std::
 {
 	try
 	{
+		std::unique_lock<std::mutex> lock(m_write_mtx);
 		boost::optional<std::string> value;
 		auto sectionIt = m_tree.find(section);
 		if (sectionIt != m_tree.not_found())
