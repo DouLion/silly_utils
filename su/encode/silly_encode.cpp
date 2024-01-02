@@ -68,7 +68,8 @@ std::string silly_encode::url_decode(const std::string &src)
 std::string silly_encode::encode_convert(const char *from, const char *to, const char *text)
 {
     iconv_t cd = iconv_open(to, from);
-    if (cd == (iconv_t)(-1)) {
+    if (cd == (iconv_t)(-1))
+    {
         SU_ERROR_PRINT("Not support encode convert from %s to %s", from, to);
         return "";
     }
@@ -83,37 +84,42 @@ std::string silly_encode::encode_convert(const char *from, const char *to, const
     }
     memset(out, 0, dst_len);
     char *p_out_free = out;
-    
+
     size_t ret = iconv(cd, &tmp_src, &src_len, &out, &dst_len);
     if (!(ret == (size_t)(-1) && errno == EINVAL))
     {
         SU_MEM_FREE(p_out_free)
         return "";
     }
-    
+
     std::string retStr(p_out_free);
     SU_MEM_FREE(p_out_free)
     iconv_close(cd);
-    
+
     return retStr;
 }
 
-std::wstring silly_encode::utf8_wchar(const std::string& text)
+std::wstring silly_encode::utf8_wchar(const std::string &text)
 {
     std::wstring ret;
-    iconv_t cd = iconv_open("wchar_t", "UTF-8");
-    if (cd == (iconv_t)(-1)) {
+    iconv_t cd = iconv_open("wchar_t", "char");
+    if (cd == (iconv_t)(-1))
+    {
         return ret;
     }
-    else {
-       
-        wchar_t* outbuf = new wchar_t[text.size() * 3+ 1];
-        if (!outbuf) { return ret; }
+    else
+    {
+
+        wchar_t *outbuf = new wchar_t[text.size() * 3 + 1];
+        if (!outbuf)
+        {
+            return ret;
+        }
         memset(outbuf, 0, sizeof(outbuf));
 
-        char* inptr = (char*)text.c_str();
+        char *inptr = (char *)text.c_str();
         size_t inbytesleft = 1;
-        char* outptr = (char*)outbuf;
+        char *outptr = (char *)outbuf;
         size_t outbytesleft = sizeof(outbuf);
         size_t r = iconv(cd, (&inptr), &inbytesleft, &outptr, &outbytesleft);
 
@@ -211,15 +217,16 @@ silly_encode::enum_encode silly_encode::detect_encode(const char *data, size_t s
 
 bool silly_encode::check_text_utf8(const char *str, int length)
 {
+    bool is_utf8;
     int i;
     int nBytes = 0; // UFT8可用1-6个字节编码,ASCII用一个字节
     unsigned char chr;
-    bool bAllAscii = true; // 如果全部都是ASCII, 说明不是UTF-8
+    // bool bAllAscii = true; // 如果全部都是ASCII, 说明不是UTF-8
     for (i = 0; i < length; i++)
     {
         chr = *(str + i);
-        if ((chr & 0x80) != 0 && bAllAscii) // 判断是否ASCII编码,如果不是,说明有可能是UTF-8,ASCII用7位编码,但用一个字节存,最高位标记为0,o0xxxxxxx
-            bAllAscii = false;
+        // if ((chr & 0x80) != 0 && bAllAscii) // 判断是否ASCII编码,如果不是,说明有可能是UTF-8,ASCII用7位编码,但用一个字节存,最高位标记为0,o0xxxxxxx
+        //     bAllAscii = false;
         if (nBytes == 0) // 如果不是ASCII码,应该是多字节符,计算字节数
         {
             if (chr >= 0x80)
@@ -250,7 +257,7 @@ bool silly_encode::check_text_utf8(const char *str, int length)
         }
     }
 
-    if (nBytes > 0 || bAllAscii) // 违返规则 或者 全部都是ASCII, 说明不是UTF-8
+    if (nBytes > 0 /*|| bAllAscii*/) // 违返规则 或者 全部都是ASCII, 说明不是UTF-8
     {
         return false;
     }
@@ -300,25 +307,40 @@ void silly_encode::from_hex(const char *str, unsigned char *Hstr)
 #include <codecvt>
 #include <string>
 #include <cstring>
-std::wstring silly_encode::cxx11_string_wstring(const std::string &str) {
-#if IS_WIN32
-    using convert_typeX = std::codecvt_utf8<wchar_t>;
-    std::wstring_convert<convert_typeX, wchar_t> converterX;
+#include <locale>
+// c++17 已经将wstring_convert废弃了,但是目前还能用
+std::wstring silly_encode::cxx11_string_wstring(const std::string &str)
+{
+    std::wstring ws_result;
+    try
+    {
+        using convert_typeX = std::codecvt_utf8<wchar_t>;
+        std::wstring_convert<convert_typeX, wchar_t> converterX;
 
-    return converterX.from_bytes(str);
-#else
-    std::wstring aa;
-    return aa;
-#endif
-}
+        ws_result = converterX.from_bytes(str);
+    }
+    catch (std::exception& e)
+    {
+        SU_ERROR_PRINT("%s", e.what());
+        ws_result.clear();
+    }
+    return ws_result;
+   }
 
-std::string silly_encode::cxx11_wstring_string(const std::wstring &wstr) {
-#if IS_WIN32
-    using convert_typeX = std::codecvt_utf8<wchar_t>;
-    std::wstring_convert<convert_typeX, wchar_t> converterX;
+std::string silly_encode::cxx11_wstring_string(const std::wstring &wstr)
+{
+    std::string s_result;
+    try
+    {
+        using convert_typeX = std::codecvt_utf8<wchar_t>;
+        std::wstring_convert<convert_typeX, wchar_t> converterX;
 
-    return converterX.to_bytes(wstr);
-#else
-    return "";
-#endif
+        s_result = converterX.to_bytes(wstr);
+    }
+    catch (std::exception& e)
+    {
+        SU_ERROR_PRINT("%s", e.what());
+        s_result.clear();
+    }
+    return s_result;
 }
