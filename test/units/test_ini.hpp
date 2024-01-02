@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE(SIMPLE_INI)		// mmap文件读取
 	std::string section_4 = "abc.4567";
 	std::string property_s_4 = "def";
 
-	su_simple_ini.write(section_4, property_s_4, "4096","#不为空");
+	su_simple_ini.write(section_4, property_s_4, "1024","#不为空");
 	su_simple_ini.save();
 
 
