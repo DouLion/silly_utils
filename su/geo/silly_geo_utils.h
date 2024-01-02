@@ -112,45 +112,115 @@ public:
 	// ================ gdal中矢量与silly utils中矢量互转 ================
 
 	// ================ 单环 ================
-	// 将 silly_ring 转换为 OGRPolygon
+
+	/// <summary>
+	/// 将 silly_ring 转换为 OGRPolygon
+	/// </summary>
+	/// <param name="ring"></param>
+	/// <returns></returns>
 	static OGRPolygon* SillyRingToPolygon(const silly_ring& ring);
-	// 环OGRLinearRing对象，将其转换为silly_ring对象  (环)
+
+	/// <summary>
+	/// 环OGRLinearRing对象，将其转换为silly_ring对象  (环)
+	/// </summary>
+	/// <param name="ring"></param>
+	/// <returns></returns>
 	static silly_ring OGRRingToSillyRing(OGRLinearRing* ring);
 
 	// ================ 单点 ================
-	// 将 OGRPoint(单点) 转换为 silly_point(单点) 类型
+
+	/// <summary>
+	/// 将 OGRPoint(单点) 转换为 silly_point(单点) 类型
+	/// </summary>
+	/// <param name="ogrPoint"></param>
+	/// <returns></returns>
 	static silly_point OGRPointToSillyPoint(OGRPoint* ogrPoint);
-	// 将 silly_point(单点) 转换为 OGRPoint(单点) 类型
+
+	/// <summary>
+	/// 将 silly_point(单点) 转换为 OGRPoint(单点) 类型
+	/// </summary>
+	/// <param name="point"></param>
+	/// <returns></returns>
 	static OGRPoint* SillyPointToOGRPoint(const silly_point& point);
 
 	// ================ 多点 ================
-	// 将 OGRMultiPoint(多点) 转换为 silly_multi_point(多点) 类型
+	
+	/// <summary>
+	/// 将 OGRMultiPoint(多点) 转换为 silly_multi_point(多点) 类型
+	/// </summary>
+	/// <param name="ogrMultiPoint"></param>
+	/// <returns></returns>
 	static silly_multi_point OGRMulPointToSillyMulPoint(OGRMultiPoint* ogrMultiPoint);
-	// 将 silly_multi_point(多点) 转换为 OGRMultiPoint(多点) 类型
+	
+	/// <summary>
+	/// 将 silly_multi_point(多点) 转换为 OGRMultiPoint(多点) 类型
+	/// </summary>
+	/// <param name="mulitPoint"></param>
+	/// <returns></returns>
 	static OGRMultiPoint* SillyMulPointToOGRMulPoint(const silly_multi_point& mulitPoint);
 
 	// ================ 单线 ================
-	// OGRLineString(线)类型转为silly_line(线)类型
+	
+	/// <summary>
+	/// OGRLineString(线)类型转为silly_line(线)类型
+	/// </summary>
+	/// <param name="lineString"></param>
+	/// <returns></returns>
 	static silly_line OGRLineToSillyLine(OGRLineString* lineString);
-	// 将 silly_line(线) 转换为 OGRLineString(线)类型
+	
+	/// <summary>
+	/// 将 silly_line(线) 转换为 OGRLineString(线)类型
+	/// </summary>
+	/// <param name="line"></param>
+	/// <returns></returns>
 	static OGRLineString* SillyLineToOGRLine(const silly_line& line);
 
 	// ================ 多线 ================
-	// OGRMultiLineString(多线)类型转为 silly_multiline(多线)类型
+	
+	/// <summary>
+	/// OGRMultiLineString(多线)类型转为 silly_multiline(多线)类型
+	/// </summary>
+	/// <param name="multiLineString"></param>
+	/// <returns></returns>
 	static silly_multi_silly_line OGRMulLineToSillyMulLine(OGRMultiLineString* multiLineString);
-	// 将 silly_multiline(多线) 转换为 OGRMultiLineString(多线)类型
+	
+	/// <summary>
+	/// 将 silly_multiline(多线) 转换为 OGRMultiLineString(多线)类型
+	/// </summary>
+	/// <param name="multiLine"></param>
+	/// <returns></returns>
 	static OGRMultiLineString* SillyMulLineToOGRMulLine(const silly_multi_silly_line& multiLine);
 
 	// ================ 单面 ================
-	// OGRPolygon 对象转换为 silly_poly (多环:外环+内环)对象  (单面)
+	
+	/// <summary>
+	/// OGRPolygon 对象转换为 silly_poly (多环:外环+内环)对象  (单面)
+	/// </summary>
+	/// <param name="polygon"></param>
+	/// <returns></returns>
 	static silly_poly OGRPolyToSillyPoly(OGRPolygon* polygon);
-	// 将 silly_poly 转换为 OGRPolygon(单面)
+	
+	/// <summary>
+	/// 将 silly_poly 转换为 OGRPolygon(单面)
+	/// </summary>
+	/// <param name="poly"></param>
+	/// <returns></returns>
 	static OGRPolygon* SillyPolyToOGRPoly(const silly_poly& poly);
 
 	// ================ 多面 ================
-	// 多面的OGRMultiPolygon对象转换为silly_multi_poly(多面)
+	
+	/// <summary>
+	/// 多面的OGRMultiPolygon对象转换为silly_multi_poly(多面)
+	/// </summary>
+	/// <param name="multiPolygon"></param>
+	/// <returns></returns>
 	static silly_multi_poly OGRMulPolyToSillyMulPoly(OGRMultiPolygon* multiPolygon);
-	// 将silly_multi_poly对象转换为OGRMultiPolygon对象(多面)
+	
+	/// <summary>
+	/// 将silly_multi_poly对象转换为OGRMultiPolygon对象(多面)
+	/// </summary>
+	/// <param name="multiPoly"></param>
+	/// <returns></returns>
 	static OGRMultiPolygon* SillyMulPolyToOGRMulPoly(const silly_multi_poly& multiPoly);
 
 

@@ -18,7 +18,7 @@
 /// SimpleIni库读取ini文件文件中如果有重复的section(节)名称不会报错,
 /// 但是重复的字节名称中相同property(属性值)后面一个会覆盖前面那个值,
 /// 最终保存仅保存一个section(节)对象
-/// 支持创建属性是添加注释,会保存源文件中的注释
+/// 支持创建属性时添加注释,修改时不可以添加注释,会保存源文件中的注释
 /// </summary>
 class silly_simple_ini_parser : public silly_ini_parser
 {
