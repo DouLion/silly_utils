@@ -97,8 +97,7 @@ public:
 	std::string read(const std::string& section, const std::string& property) override;
 
 private:
-	CSimpleIniA ini;
-	std::string faile_path;
+	CSimpleIniA m_simple_ini;
 };
 
 #endif //SILLY_UTILS_SILLY_SIMPLE_INI_PARSER_H

@@ -96,8 +96,8 @@ public:
 	std::string read(const std::string& section, const std::string& property) override;
 
 private:
-	boost::property_tree::ptree pt_tree;
-	std::string file_path; 
+	boost::property_tree::ptree m_tree;
+	
 };
 
 #endif //SILLY_UTILS_SILLY_BOOST_INI_PARSER_H

@@ -85,6 +85,8 @@ public:
 	/// <param name="property"></param>
 	/// <returns></returns>
 	virtual std::string read(const std::string& section, const std::string& property) = 0;
+protected:
+	std::string m_path;
 };
 
 #endif //SILLY_UTILS_SILLY_INI_PARSER_BASE_H

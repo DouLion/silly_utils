@@ -6,9 +6,9 @@
 
 bool silly_simple_ini_parser::load(const std::string& path)
 {
-	if (ini.LoadFile(path.c_str()) == SI_OK)
+	if (m_simple_ini.LoadFile(path.c_str()) == SI_OK)
 	{
-		faile_path = path;
+		m_path = path;
 		return true;
 	}
 	return false;
@@ -17,7 +17,7 @@ bool silly_simple_ini_parser::load(const std::string& path)
 bool silly_simple_ini_parser::save()
 {
 	bool status = false;
-	if (ini.SaveFile(faile_path.c_str(), false) == SI_OK)
+	if (m_simple_ini.SaveFile(m_path.c_str(), false) == SI_OK)
 	{
 		status = true;
 	}
@@ -30,17 +30,17 @@ bool silly_simple_ini_parser::write(const std::string& section, const std::strin
 	if (!comment.empty())
 	{
 		// 添加注释尽在从新创建是可添加,如果有注释就先删除然后再新建
-		const char* value = ini.GetValue(section.c_str(), property.c_str());
-		int is_del = ini.DeleteValue(section.c_str(), property.c_str(), value);
+		const char* value = m_simple_ini.GetValue(section.c_str(), property.c_str());
+		int is_del = m_simple_ini.DeleteValue(section.c_str(), property.c_str(), value);
 	}
 	int is_set;
 	if (comment.empty())
 	{
-		is_set = ini.SetValue(section.c_str(), property.c_str(), value.c_str());
+		is_set = m_simple_ini.SetValue(section.c_str(), property.c_str(), value.c_str());
 	}
 	else
 	{
-		is_set = ini.SetValue(section.c_str(), property.c_str(), value.c_str(), comment.c_str());
+		is_set = m_simple_ini.SetValue(section.c_str(), property.c_str(), value.c_str(), comment.c_str());
 	}
 
 	if (is_set == SI_UPDATED || is_set == SI_INSERTED) // 更新成或插入成功
@@ -52,37 +52,37 @@ bool silly_simple_ini_parser::write(const std::string& section, const std::strin
 
 int silly_simple_ini_parser::read_int(const std::string& section, const std::string& property)
 {
-	int value = static_cast<int>(ini.GetLongValue(section.c_str(), property.c_str()));
+	int value = static_cast<int>(m_simple_ini.GetLongValue(section.c_str(), property.c_str()));
 	return value;
 }
 
 bool silly_simple_ini_parser::read_bool(const std::string& section, const std::string& property)
 {
-	bool value = ini.GetBoolValue(section.c_str(), property.c_str());
+	bool value = m_simple_ini.GetBoolValue(section.c_str(), property.c_str());
 	return value;
 }
 
 float silly_simple_ini_parser::read_float(const std::string& section, const std::string& property)
 {
-	float value = static_cast<float>(ini.GetDoubleValue(section.c_str(), property.c_str()));
+	float value = static_cast<float>(m_simple_ini.GetDoubleValue(section.c_str(), property.c_str()));
 	return value;
 }
 
 double silly_simple_ini_parser::read_double(const std::string& section, const std::string& property)
 {
-	double value = ini.GetDoubleValue(section.c_str(), property.c_str());
+	double value = m_simple_ini.GetDoubleValue(section.c_str(), property.c_str());
 	return value;
 }
 
 long silly_simple_ini_parser::read_long(const std::string& section, const std::string& property)
 {
-	long value = ini.GetLongValue(section.c_str(), property.c_str());
+	long value = m_simple_ini.GetLongValue(section.c_str(), property.c_str());
 	return value;
 }
 
 std::string silly_simple_ini_parser::read(const std::string& section, const std::string& property)
 {
-	const char* value = ini.GetValue(section.c_str(), property.c_str());
+	const char* value = m_simple_ini.GetValue(section.c_str(), property.c_str());
 	if (value)
 	{
 		return value;

@@ -12,8 +12,8 @@ bool silly_boost_ini_parser::load(const std::string& path)
 {
 	try 
 	{
-		file_path = path;
-		boost::property_tree::ini_parser::read_ini(file_path, pt_tree);
+		m_path = path;
+		boost::property_tree::ini_parser::read_ini(m_path, m_tree);
 		return true;
 	}
 	catch (const boost::property_tree::ini_parser_error& e) 
@@ -27,7 +27,7 @@ bool silly_boost_ini_parser::save()
 {
 	try 
 	{
-		boost::property_tree::ini_parser::write_ini(file_path, pt_tree);
+		boost::property_tree::ini_parser::write_ini(m_path, m_tree);
 		return true;
 	}
 	catch (const boost::property_tree::ini_parser_error& e) 
@@ -41,8 +41,8 @@ bool silly_boost_ini_parser::write(const std::string& section, const std::string
 {
 	try
 	{
-		auto sectionIt = pt_tree.find(section);
-		if (sectionIt != pt_tree.not_found())
+		auto sectionIt = m_tree.find(section);
+		if (sectionIt != m_tree.not_found())
 		{
 			auto& sectionNode = sectionIt->second;
 			auto propertyIt = sectionNode.find(property);
@@ -65,7 +65,7 @@ bool silly_boost_ini_parser::write(const std::string& section, const std::string
 			newPair.first = section;
 			newNode.put(property, value);
 			newPair.second = newNode;
-			pt_tree.push_back(newPair);
+			m_tree.push_back(newPair);
 
 		}
 
@@ -82,8 +82,8 @@ int silly_boost_ini_parser::read_int(const std::string& section, const std::stri
 	try
 	{
 		boost::optional<int> value;
-		auto sectionIt = pt_tree.find(section);
-		if (sectionIt != pt_tree.not_found())
+		auto sectionIt = m_tree.find(section);
+		if (sectionIt != m_tree.not_found())
 		{
 			auto& sectionNode = sectionIt->second;
 			auto propertyIt = sectionNode.find(property);
@@ -114,8 +114,8 @@ bool silly_boost_ini_parser::read_bool(const std::string& section, const std::st
 	try
 	{
 		boost::optional<bool> value;
-		auto sectionIt = pt_tree.find(section);
-		if (sectionIt != pt_tree.not_found())
+		auto sectionIt = m_tree.find(section);
+		if (sectionIt != m_tree.not_found())
 		{
 			auto& sectionNode = sectionIt->second;
 			auto propertyIt = sectionNode.find(property);
@@ -146,8 +146,8 @@ float silly_boost_ini_parser::read_float(const std::string& section, const std::
 	try
 	{
 		boost::optional<float> value;
-		auto sectionIt = pt_tree.find(section);
-		if (sectionIt != pt_tree.not_found())
+		auto sectionIt = m_tree.find(section);
+		if (sectionIt != m_tree.not_found())
 		{
 			auto& sectionNode = sectionIt->second;
 			auto propertyIt = sectionNode.find(property);
@@ -178,8 +178,8 @@ double silly_boost_ini_parser::read_double(const std::string& section, const std
 	try
 	{
 		boost::optional<double> value;
-		auto sectionIt = pt_tree.find(section);
-		if (sectionIt != pt_tree.not_found())
+		auto sectionIt = m_tree.find(section);
+		if (sectionIt != m_tree.not_found())
 		{
 			auto& sectionNode = sectionIt->second;
 			auto propertyIt = sectionNode.find(property);
@@ -210,8 +210,8 @@ long silly_boost_ini_parser::read_long(const std::string& section, const std::st
 	try
 	{
 		boost::optional<long> value;
-		auto sectionIt = pt_tree.find(section);
-		if (sectionIt != pt_tree.not_found())
+		auto sectionIt = m_tree.find(section);
+		if (sectionIt != m_tree.not_found())
 		{
 			auto& sectionNode = sectionIt->second;
 			auto propertyIt = sectionNode.find(property);
@@ -242,8 +242,8 @@ std::string silly_boost_ini_parser::read(const std::string& section, const std::
 	try
 	{
 		boost::optional<std::string> value;
-		auto sectionIt = pt_tree.find(section);
-		if (sectionIt != pt_tree.not_found())
+		auto sectionIt = m_tree.find(section);
+		if (sectionIt != m_tree.not_found())
 		{
 			auto& sectionNode = sectionIt->second;
 			auto propertyIt = sectionNode.find(property);
