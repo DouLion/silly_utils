@@ -11,6 +11,7 @@
 #define SILLY_UTILS_SILLY_INI_PARSER_BASE_H
 
 #include <iostream>
+#include <mutex>
 
 class silly_ini_parser
 {
@@ -87,6 +88,8 @@ public:
 	virtual std::string read(const std::string& section, const std::string& property) = 0;
 protected:
 	std::string m_path;
+	// 写入锁
+	std::mutex m_write_mtx;
 };
 
 #endif //SILLY_UTILS_SILLY_INI_PARSER_BASE_H
