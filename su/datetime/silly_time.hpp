@@ -11,11 +11,10 @@
 #define SILLY_UTILS_SILLY_TIME_HPP
 
 #include <datetime/simple_time.h>
-
 using namespace simple_time;
-
 #include <su_marco.h>
-
+#include <ctime>
+#include <time.h>
 
 
 class silly_time {
@@ -141,6 +140,55 @@ public:
         time = buff;
         return true;
 
+    }
+
+    /// <summary>
+    /// 返回一个时间戳,表示从1970年1月1日0时0分0秒）到当前时间的秒数
+    /// </summary>
+    /// <returns></returns>
+    static time_t now_stamp()
+    {
+        time_t t;
+        time(&t);
+        return t;
+    }
+
+    static struct tm now_tm(const bool& local = true)
+    {
+        time_t timep;
+        struct tm* p;
+
+        time(&timep);
+        if (local)
+        {
+            p = localtime(&timep);
+        }
+        else
+        {
+            p = gmtime(&timep);
+        }
+        return *p;
+    }
+
+    static std::string stringify_stamp(const struct tm& t, const std::string& format = "%Y-%m-%d %H:%M:%S")
+    {
+        char buff[256] = {0};
+        strftime(buff, 256, format.c_str(), &t);
+        return buff;
+    }
+
+    static std::string  stringify_time_t(const time_t& t, const bool& local=true, const std::string& format = "%Y-%m-%d %H:%M:%S")
+    {
+        struct tm* p;
+        if (local)
+        {
+            p = localtime(&t);
+        }
+        else
+        {
+            p = gmtime(&t);
+        }
+        return stringify_stamp(*p);
     }
 };
 
