@@ -29,6 +29,13 @@ public:
     /// <returns></returns>
     static Json::Value loads(const std::string& content);
 
+    /// <summary>
+    /// jsonpp转字符串,处理了中文变为unicode编码的问题
+    /// </summary>
+    /// <param name="root"></param>
+    /// <returns></returns>
+    static std::string to_string(const Json::Value root);
+
 };
 
 

@@ -39,3 +39,20 @@ Json::Value silly_jsonpp::loads(const std::string& content)
 	}
 	return Json::nullValue;
 }
+
+std::string silly_jsonpp::to_string(const Json::Value root)
+{
+	static Json::Value jv_def = []() {
+		Json::Value jv_def;
+		Json::StreamWriterBuilder::setDefaults(&jv_def);
+		jv_def["emitUTF8"] = true;
+		return jv_def;
+	}();
+
+	std::ostringstream stream;
+	Json::StreamWriterBuilder stream_builder;
+	stream_builder.settings_ = jv_def;//Config emitUTF8
+	std::unique_ptr<Json::StreamWriter> writer(stream_builder.newStreamWriter());
+	writer->write(root, &stream);
+	return stream.str();
+}
