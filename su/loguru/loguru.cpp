@@ -627,14 +627,15 @@ namespace loguru
 
 	void write_date_time(char* buff, size_t buff_size)
 	{
+		// DLY
 		auto now = system_clock::now();
 		long long ms_since_epoch = duration_cast<milliseconds>(now.time_since_epoch()).count();
 		time_t sec_since_epoch = time_t(ms_since_epoch / 1000);
 		tm time_info;
 		localtime_r(&sec_since_epoch, &time_info);
-		snprintf(buff, buff_size, "%04d%02d%02d_%02d%02d%02d.%03lld",
+		snprintf(buff, buff_size, "%04d%02d%02d_%02d%02d%02d",
 			1900 + time_info.tm_year, 1 + time_info.tm_mon, time_info.tm_mday,
-			time_info.tm_hour, time_info.tm_min, time_info.tm_sec, ms_since_epoch % 1000);
+			time_info.tm_hour, time_info.tm_min, time_info.tm_sec);
 	}
 
 	const char* argv0_filename()
@@ -1164,13 +1165,15 @@ namespace loguru
 		if (out_buff_size == 0) { return; }
 		out_buff[0] = '\0';
 		if (!g_preamble) { return; }
-		long long ms_since_epoch = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
-		time_t sec_since_epoch = time_t(ms_since_epoch / 1000);
+		/*long long ms_since_epoch = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+		time_t sec_since_epoch = time_t(ms_since_epoch / 1000);*/
+		time_t sec_since_epoch;
+		sec_since_epoch = time(nullptr);
 		tm time_info;
 		localtime_r(&sec_since_epoch, &time_info);
 
-		auto uptime_ms = duration_cast<milliseconds>(steady_clock::now() - s_start_time).count();
-		auto uptime_sec = uptime_ms / 1000.0;
+	/*	auto uptime_ms = duration_cast<milliseconds>(steady_clock::now() - s_start_time).count();
+		auto uptime_sec = uptime_ms / 1000.0;*/
 
 		char thread_name[LOGURU_THREADNAME_WIDTH + 1] = {0};
 		get_thread_name(thread_name, LOGURU_THREADNAME_WIDTH + 1, true);
@@ -1188,28 +1191,29 @@ namespace loguru
 		}
 
 		long pos = 0;
-
+		// DLY
 		if (g_preamble_date && pos < out_buff_size) {
-			pos += snprintf(out_buff + pos, out_buff_size - pos, "%04d-%02d-%02d ",
+			pos += snprintf(out_buff + pos, out_buff_size - pos, "%02d-%02d-%02d ",
 				             1900 + time_info.tm_year, 1 + time_info.tm_mon, time_info.tm_mday);
 		}
 		if (g_preamble_time && pos < out_buff_size) {
-			pos += snprintf(out_buff + pos, out_buff_size - pos, "%02d:%02d:%02d.%03lld ",
-			               time_info.tm_hour, time_info.tm_min, time_info.tm_sec, ms_since_epoch % 1000);
+			pos += snprintf(out_buff + pos, out_buff_size - pos, "%02d:%02d:%02d||",
+			               time_info.tm_hour, time_info.tm_min, time_info.tm_sec);
 		}
-		if (g_preamble_uptime && pos < out_buff_size) {
-			pos += snprintf(out_buff + pos, out_buff_size - pos, "(%8.3fs) ",
+		/*if (g_preamble_uptime && pos < out_buff_size) {
+			pos += snprintf(out_buff + pos, out_buff_size - pos, "(%.3fs)",
 			               uptime_sec);
-		}
-		if (g_preamble_thread && pos < out_buff_size) {
-			pos += snprintf(out_buff + pos, out_buff_size - pos, "[%-*s]",
-			               LOGURU_THREADNAME_WIDTH, thread_name);
-		}
+		}*/
+		//if (g_preamble_thread && pos < out_buff_size) {
+		//	pos += snprintf(out_buff + pos, out_buff_size - pos, "[%-*s]",
+		//	               8, thread_name);
+		//}
 		if (g_preamble_file && pos < out_buff_size) {
-			char shortened_filename[LOGURU_FILENAME_WIDTH + 1];
-			snprintf(shortened_filename, LOGURU_FILENAME_WIDTH + 1, "%s", file);
-			pos += snprintf(out_buff + pos, out_buff_size - pos, "%*s:%-5u ",
-			               LOGURU_FILENAME_WIDTH, shortened_filename, line);
+			char nfile_line[128];
+			sprintf(nfile_line, "%s:%d\t", file, line);
+			/*char shortened_filename[LOGURU_FILENAME_WIDTH + 1];
+			snprintf(shortened_filename, LOGURU_FILENAME_WIDTH + 1, "%s", file);*/
+			pos += snprintf(out_buff + pos, out_buff_size - pos, "%*s", strlen(nfile_line), nfile_line);
 		}
 		if (g_preamble_verbose && pos < out_buff_size) {
 			pos += snprintf(out_buff + pos, out_buff_size - pos, "%4s",
