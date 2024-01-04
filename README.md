@@ -44,6 +44,7 @@
       FILE(MAKE_DIRECTORY "${CMAKE_SOURCE_DIR}/su_cmake")
   ENDIF()
   execute_process(COMMAND ${CMAKE_COMMAND} -E  copy "${SILLY_UTILS_FETCH_ROOT}/silly_utils/cmake/env_check.cmake" "${CMAKE_SOURCE_DIR}/su_cmake/env_check.cmake")
+  execute_process(COMMAND ${CMAKE_COMMAND} -E  copy "${SILLY_UTILS_FETCH_ROOT}/silly_utils/.clang-format" "${CMAKE_SOURCE_DIR}/.clang-format")
   # 下面这两行需要确认一下是否可以删除
   execute_process(COMMAND ${CMAKE_COMMAND} -E  copy "${SILLY_UTILS_FETCH_ROOT}/silly_utils/cmake/dm8_check.cmake" "${CMAKE_SOURCE_DIR}/su_cmake/dm8_check.cmake")
   execute_process(COMMAND ${CMAKE_COMMAND} -E  copy "${SILLY_UTILS_FETCH_ROOT}/silly_utils/cmake/grib_api_check.cmake" "${CMAKE_SOURCE_DIR}/su_cmake/grib_api_check.cmake")
