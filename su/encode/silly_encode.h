@@ -77,7 +77,7 @@
 
 class silly_encode
 {
-public:
+  public:
     enum enum_encode
     {
         eeANSI = 1,
@@ -160,7 +160,7 @@ public:
     /// </summary>
     /// <param name="text"></param>
     /// <returns></returns>
-    static std::wstring utf8_wchar(const std::string& text);
+    static std::wstring utf8_wchar(const std::string &text);
 
     static enum_encode is_utf8(const char *data, size_t size);
 
@@ -171,10 +171,9 @@ public:
     static std::string to_hex(const unsigned char *s_byte, const size_t &len);
     static void from_hex(const char *str, unsigned char *Hstr);
 
-    static std::wstring cxx11_string_wstring(const std::string& str);
+    static std::wstring cxx11_string_wstring(const std::string &str);
 
-
-    static std::string cxx11_wstring_string(const std::wstring& wstr);
+    static std::string cxx11_wstring_string(const std::wstring &wstr);
 };
 
-#endif // SILLY_UTILS_SILLY_ENCODE_H
+#endif  // SILLY_UTILS_SILLY_ENCODE_H

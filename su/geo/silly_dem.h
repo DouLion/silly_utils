@@ -21,7 +21,7 @@ NODATA_value  -9999
 
 class silly_dem_frame
 {
-public:
+  public:
     size_t ncols;
     size_t nrows;
     float xllcorner;
@@ -31,12 +31,11 @@ public:
     std::vector<float> data;
 };
 
-
 class silly_dem_utils
 {
-public:
+  public:
     static bool read(const std::string& path, silly_dem_frame& dem_frm);
     static bool mmap_read(const std::string& path, silly_dem_frame& dem_frm);
 };
 
-#endif //SILLY_UTILS_SILLY_DEM_H
+#endif  // SILLY_UTILS_SILLY_DEM_H

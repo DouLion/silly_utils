@@ -14,7 +14,7 @@
 
 class silly_jsonpp
 {
-public:
+  public:
     /// <summary>
     /// 从文件加载json内容
     /// </summary>
@@ -35,8 +35,6 @@ public:
     /// <param name="root"></param>
     /// <returns></returns>
     static std::string to_string(const Json::Value root);
-
 };
 
-
-#endif //SILLY_UTILS_SILLY_JSONPP_H
+#endif  // SILLY_UTILS_SILLY_JSONPP_H

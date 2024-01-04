@@ -10,72 +10,68 @@
 
 #pragma once
 
-
 #include <list>
 #include <mutex>
 
 /** @class ThreadSafeList
-	@brief The class of thread safe list.
-	@remark
-*/  
-template<typename V>
-class  ThreadSafeList
+        @brief The class of thread safe list.
+        @remark
+*/
+template <typename V>
+class ThreadSafeList
 {
-	typedef std::list<V>   ListType;
-public:
-	/// Default constructor.
-	ThreadSafeList(void){};
-	/// Destructor.
-	virtual ~ThreadSafeList(void){};
+    typedef std::list<V> ListType;
 
-	/// Add item.
-	bool AddItem(const V& value)
-	{
-		std::scoped_lock  lock(m_recMutex);
-		m_list.push_back(value);
+  public:
+    /// Default constructor.
+    ThreadSafeList(void){};
+    /// Destructor.
+    virtual ~ThreadSafeList(void){};
 
-		return true;
-	}
+    /// Add item.
+    bool AddItem(const V& value)
+    {
+        std::scoped_lock lock(m_recMutex);
+        m_list.push_back(value);
 
-	/// Remove item.
-	bool RemoveItem(const V& value)
-	{
-		std::scoped_lock  lock(m_recMutex);
-		m_list.remove(value);
+        return true;
+    }
 
-		return true;
-	}
+    /// Remove item.
+    bool RemoveItem(const V& value)
+    {
+        std::scoped_lock lock(m_recMutex);
+        m_list.remove(value);
 
-	/// Get list size.
-	int GetSize()
-	{
-		int size = m_list.size();
-		return size;
-	}
+        return true;
+    }
 
-	/// Whether is empty.
-	bool IsEmpty()
-	{
-		bool bEmpty = m_list.empty();
-		return bEmpty;
-	}
+    /// Get list size.
+    int GetSize()
+    {
+        int size = m_list.size();
+        return size;
+    }
 
-	/// Clear list.
-	bool Clear()
-	{
-		std::scoped_lock lock(m_recMutex);
-		m_list.clear();
+    /// Whether is empty.
+    bool IsEmpty()
+    {
+        bool bEmpty = m_list.empty();
+        return bEmpty;
+    }
 
-		return true;
-	}
+    /// Clear list.
+    bool Clear()
+    {
+        std::scoped_lock lock(m_recMutex);
+        m_list.clear();
 
-protected:
-	/// Boost recursive mutex.
-	std::mutex									m_recMutex;
-	/// List structure.
-	ListType									m_list;
+        return true;
+    }
 
+  protected:
+    /// Boost recursive mutex.
+    std::mutex m_recMutex;
+    /// List structure.
+    ListType m_list;
 };
-
-
-

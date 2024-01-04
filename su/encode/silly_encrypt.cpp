@@ -44,8 +44,7 @@ std::string silly_encrypt::md5_file_encode(const std::string &file_path)
     return digest;
 }
 
-std::string
-silly_encrypt::aes_text_encode_pretty(const std::string &text, const std::string &key, const std::string iv)
+std::string silly_encrypt::aes_text_encode_pretty(const std::string &text, const std::string &key, const std::string iv)
 {
     std::string cipher;
     std::string _key = key;
@@ -59,10 +58,11 @@ silly_encrypt::aes_text_encode_pretty(const std::string &text, const std::string
         CryptoPP::CBC_Mode<CryptoPP::AES>::Encryption e;
         e.SetKeyWithIV((unsigned char *)_key.c_str(), _key.size(), (unsigned char *)_iv.c_str());
 
-        CryptoPP::StringSource s(text, true,
+        CryptoPP::StringSource s(text,
+                                 true,
                                  new CryptoPP::StreamTransformationFilter(e,
-                                                                          new CryptoPP::StringSink(cipher)) // StreamTransformationFilter
-        );                                                                                                  // StringSource
+                                                                          new CryptoPP::StringSink(cipher))  // StreamTransformationFilter
+        );                                                                                                   // StringSource
     }
     catch (const CryptoPP::Exception &e)
     {
@@ -71,14 +71,14 @@ silly_encrypt::aes_text_encode_pretty(const std::string &text, const std::string
 
     // Pretty print
     std::string encoded;
-    CryptoPP::StringSource(cipher, true,
-                           new CryptoPP::Base64Encoder(new CryptoPP::StringSink(encoded)) // HexEncoder
-    );                                                                                    // StringSource
+    CryptoPP::StringSource(cipher,
+                           true,
+                           new CryptoPP::Base64Encoder(new CryptoPP::StringSink(encoded))  // HexEncoder
+    );                                                                                     // StringSource
     return encoded;
 }
 
-std::string
-silly_encrypt::aes_text_decode_pretty(const std::string &text, const std::string &key, const std::string iv)
+std::string silly_encrypt::aes_text_decode_pretty(const std::string &text, const std::string &key, const std::string iv)
 {
     std::string _key = key;
     _key.append(SILLY_ENCRYPT_AES_16_BYTE);
@@ -97,10 +97,7 @@ silly_encrypt::aes_text_decode_pretty(const std::string &text, const std::string
 
         // The StreamTransformationFilter removes
         //  padding as required.
-        CryptoPP::StringSource s(encodeByte, true,
-                                 new CryptoPP::StreamTransformationFilter(d,
-                                                                          new CryptoPP::StringSink(recovered)) // StreamTransformationFilter
-        );                                                                                                     // StringSource
+        CryptoPP::StringSource s(encodeByte, true, new CryptoPP::StreamTransformationFilter(d, new CryptoPP::StringSink(recovered)));
     }
     catch (const CryptoPP::Exception &e)
     {

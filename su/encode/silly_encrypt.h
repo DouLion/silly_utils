@@ -28,7 +28,7 @@
 
 class silly_encrypt
 {
-public:
+  public:
     /// <summary>
     /// 对字符串内容做MD5编码
     /// </summary>
@@ -77,4 +77,4 @@ public:
     static std::string base64_text_decode(const std::string &text);
 };
 
-#endif // SILLY_UTILS_SILLY_ENCRYPT_H
+#endif  // SILLY_UTILS_SILLY_ENCRYPT_H

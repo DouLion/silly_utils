@@ -18,18 +18,16 @@
 
 class otl_tools
 {
-public:
+  public:
+    static otl_datetime otl_time_from_string(const std::string &str);
 
-	static otl_datetime otl_time_from_string(const std::string &str);
+    static std::string otl_time_to_string(const otl_datetime &tm);
 
-	static std::string otl_time_to_string(const otl_datetime &tm);
+    static otl_conn_opt conn_opt_from_json(const Json::Value &root);
 
-	static otl_conn_opt conn_opt_from_json(const Json::Value &root);
+    static otl_conn_opt conn_opt_from_json(const std::string &json_str);
 
-	static otl_conn_opt conn_opt_from_json(const std::string &json_str);
-
-	static std::vector<std::string> get_local_odbc_drivers();
-
+    static std::vector<std::string> get_local_odbc_drivers();
 };
 
-#endif // OTL_TOOLS_H
+#endif  // OTL_TOOLS_H

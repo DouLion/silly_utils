@@ -21,8 +21,7 @@ class silly_sql_studio
     bool init(const Json::Value& jv_root);
     std::string get(const int& type, const std::string& key);
 
-private:
-
+  private:
     std::map<std::string, std::string> m_pMYSQL;
     std::map<std::string, std::string> m_pMSSQL;
     std::map<std::string, std::string> m_pORACLE;
@@ -32,4 +31,4 @@ private:
     std::map<std::string, std::string> m_pOTHER;
 };
 
-#endif //SILLY_UTILS_SILLY_SQL_STUDIO_H
+#endif  // SILLY_UTILS_SILLY_SQL_STUDIO_H

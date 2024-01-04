@@ -24,7 +24,7 @@
 
 class silly_bz2 : public silly_compress_base
 {
-public:
+  public:
     /// <summary>
     /// 压缩文件,不支持文件夹,bz2不具有归档能力
     /// </summary>
@@ -49,7 +49,7 @@ public:
     /// <param name="c_out_val">压缩数据输出</param>
     /// <param name="i_out_len">压缩数据输出大小</param>
     /// <returns></returns>
-    int compress(const char *c_in_val, const size_t &i_in_len, char **c_out_val, size_t& i_out_len) override;
+    int compress(const char *c_in_val, const size_t &i_in_len, char **c_out_val, size_t &i_out_len) override;
 
     /// <summary>
     /// FIXIT: 解压内存数据, 字符串解压有问题,末尾数据不对
@@ -59,7 +59,7 @@ public:
     /// <param name="c_out_val">解压数据输出</param>
     /// <param name="i_out_len">解压数据输出大小</param>
     /// <returns></returns>
-    int decompress(const char *c_in_val, const size_t &i_in_len, char **c_out_val, size_t& i_out_len) override;
+    int decompress(const char *c_in_val, const size_t &i_in_len, char **c_out_val, size_t &i_out_len) override;
 };
 
-#endif //SILLY_UTILS_SILLY_BZ2_H
+#endif  // SILLY_UTILS_SILLY_BZ2_H

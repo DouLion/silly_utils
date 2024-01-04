@@ -10,86 +10,83 @@
 
 #pragma once
 
-
 #include <mutex>
 #include <deque>
 
 /** @class ThreadSafeDeque
-	@brief The class of thread safe deque.
-	@remark
-*/  
-template<typename V>
-class  ThreadSafeDeque
+        @brief The class of thread safe deque.
+        @remark
+*/
+template <typename V>
+class ThreadSafeDeque
 {
-	typedef std::deque<V>   DequeType;
-public:
-	/// Default Constructor.
-	ThreadSafeDeque(void){};
-	/// Destructor.
-	virtual ~ThreadSafeDeque(void){};
+    typedef std::deque<V> DequeType;
 
-	/// Push item to deque tail.
-	bool PushItem(const V& value)
-	{
-		std::scoped_lock  lock(m_recMutex);
-		m_deque.push_back(value);
+  public:
+    /// Default Constructor.
+    ThreadSafeDeque(void){};
+    /// Destructor.
+    virtual ~ThreadSafeDeque(void){};
 
-		return true;
-	}
+    /// Push item to deque tail.
+    bool PushItem(const V& value)
+    {
+        std::scoped_lock lock(m_recMutex);
+        m_deque.push_back(value);
 
-	/// Push item to deque head.
-	bool PushItemToFront(const V& value)
-	{
-		std::scoped_lock  lock(m_recMutex);
-		m_deque.push_front(value);
+        return true;
+    }
 
-		return true;
-	}
+    /// Push item to deque head.
+    bool PushItemToFront(const V& value)
+    {
+        std::scoped_lock lock(m_recMutex);
+        m_deque.push_front(value);
 
-	/// Pop item from deque.
-	bool PopItem(V& value)
-	{
-		std::scoped_lock  lock(m_recMutex);
-		if (!m_deque.empty())
-		{
-			value = m_deque.front();
-			m_deque.pop_front();
+        return true;
+    }
 
-			return true;
-		}
+    /// Pop item from deque.
+    bool PopItem(V& value)
+    {
+        std::scoped_lock lock(m_recMutex);
+        if (!m_deque.empty())
+        {
+            value = m_deque.front();
+            m_deque.pop_front();
 
-		return true;
-	}
+            return true;
+        }
 
-	/// Get deque size.
-	int GetSize()
-	{
-		int size = m_deque.size();
-		return size;
-	}
+        return true;
+    }
 
-	/// Whether the deque is empty.
-	bool IsEmpty()
-	{
-		bool bEmpty = m_deque.empty();
-		return bEmpty;
-	}
+    /// Get deque size.
+    int GetSize()
+    {
+        int size = m_deque.size();
+        return size;
+    }
 
-	/// Clear deque.
-	bool Clear()
-	{
-		std::scoped_lock  lock(m_recMutex);
-		m_deque.clear();
+    /// Whether the deque is empty.
+    bool IsEmpty()
+    {
+        bool bEmpty = m_deque.empty();
+        return bEmpty;
+    }
 
-		return true;
-	}
+    /// Clear deque.
+    bool Clear()
+    {
+        std::scoped_lock lock(m_recMutex);
+        m_deque.clear();
 
-protected:
-	/// Boost recursive mutex.
-	std::mutex										m_recMutex;
-	/// Deque structure.
-	DequeType										m_deque;
+        return true;
+    }
 
+  protected:
+    /// Boost recursive mutex.
+    std::mutex m_recMutex;
+    /// Deque structure.
+    DequeType m_deque;
 };
-
-

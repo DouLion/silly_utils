@@ -109,7 +109,6 @@ std::wstring silly_encode::utf8_wchar(const std::string &text)
     }
     else
     {
-
         wchar_t *outbuf = new wchar_t[text.size() * 3 + 1];
         if (!outbuf)
         {
@@ -219,7 +218,7 @@ bool silly_encode::check_text_utf8(const char *str, int length)
 {
     bool is_utf8;
     int i;
-    int nBytes = 0; // UFT8可用1-6个字节编码,ASCII用一个字节
+    int nBytes = 0;  // UFT8可用1-6个字节编码,ASCII用一个字节
     unsigned char chr;
     // bool bAllAscii = true; // 如果全部都是ASCII, 说明不是UTF-8
     for (i = 0; i < length; i++)
@@ -227,27 +226,27 @@ bool silly_encode::check_text_utf8(const char *str, int length)
         chr = *(str + i);
         // if ((chr & 0x80) != 0 && bAllAscii) // 判断是否ASCII编码,如果不是,说明有可能是UTF-8,ASCII用7位编码,但用一个字节存,最高位标记为0,o0xxxxxxx
         //     bAllAscii = false;
-        if (nBytes == 0) // 如果不是ASCII码,应该是多字节符,计算字节数
+        if (nBytes == 0)  // 如果不是ASCII码,应该是多字节符,计算字节数
         {
             if (chr >= 0x80)
             {
                 if (chr > 0xFD)
                     return false;
-                else if (chr >= 0xFC && chr <= 0xFD) // 6字节 1111110x 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
+                else if (chr >= 0xFC && chr <= 0xFD)  // 6字节 1111110x 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
                     nBytes = 6;
-                else if (chr >= 0xF8) // 5字节 111110xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
+                else if (chr >= 0xF8)  // 5字节 111110xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
                     nBytes = 5;
-                else if (chr >= 0xF0) // 4字节 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+                else if (chr >= 0xF0)  // 4字节 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
                     nBytes = 4;
-                else if (chr >= 0xE0) // 3字节 1110xxxx 10xxxxxx 10xxxxxx
+                else if (chr >= 0xE0)  // 3字节 1110xxxx 10xxxxxx 10xxxxxx
                     nBytes = 3;
-                else // if(chr >= 0xC0)  2字节 110xxxxx 10xxxxxx gbk编码
+                else  // if(chr >= 0xC0)  2字节 110xxxxx 10xxxxxx gbk编码
                     return false;
 
                 nBytes--;
             }
         }
-        else // 多字节符的非首字节,应为 10xxxxxx
+        else  // 多字节符的非首字节,应为 10xxxxxx
         {
             if ((chr & 0xC0) != 0x80)
             {
@@ -257,7 +256,7 @@ bool silly_encode::check_text_utf8(const char *str, int length)
         }
     }
 
-    if (nBytes > 0 /*|| bAllAscii*/) // 违返规则 或者 全部都是ASCII, 说明不是UTF-8
+    if (nBytes > 0 /*|| bAllAscii*/)  // 违返规则 或者 全部都是ASCII, 说明不是UTF-8
     {
         return false;
     }
@@ -319,13 +318,13 @@ std::wstring silly_encode::cxx11_string_wstring(const std::string &str)
 
         ws_result = converterX.from_bytes(str);
     }
-    catch (std::exception& e)
+    catch (std::exception &e)
     {
         SU_ERROR_PRINT("%s", e.what());
         ws_result.clear();
     }
     return ws_result;
-   }
+}
 
 std::string silly_encode::cxx11_wstring_string(const std::wstring &wstr)
 {
@@ -337,7 +336,7 @@ std::string silly_encode::cxx11_wstring_string(const std::wstring &wstr)
 
         s_result = converterX.to_bytes(wstr);
     }
-    catch (std::exception& e)
+    catch (std::exception &e)
     {
         SU_ERROR_PRINT("%s", e.what());
         s_result.clear();
