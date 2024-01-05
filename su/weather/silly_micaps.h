@@ -23,77 +23,77 @@
 /// </summary>
 class silly_micaps_diamond_4
 {
-public:
-	/// <summary>
-	/// 根据内容处理请求头
-	/// </summary>
-	/// <param name="content"></param>
-	/// <param name="offset"></param>
-	/// <returns></returns>
-	bool check_head(const std::string &content, size_t &offset);
+  public:
+    /// <summary>
+    /// 根据内容处理请求头
+    /// </summary>
+    /// <param name="content"></param>
+    /// <param name="offset"></param>
+    /// <returns></returns>
+    bool check_head(const std::string &content, size_t &offset);
 
-	/// <summary>
-	/// 判断已接受数据是否完整并且一致
-	/// </summary>
-	/// <returns></returns>
-	bool is_valid();
+    /// <summary>
+    /// 判断已接受数据是否完整并且一致
+    /// </summary>
+    /// <returns></returns>
+    bool is_valid();
 
-	/// <summary>
-	/// 重置对象
-	/// </summary>
-	/// <returns></returns>
-	bool reset();
+    /// <summary>
+    /// 重置对象
+    /// </summary>
+    /// <returns></returns>
+    bool reset();
 
-public:
-	std::string format;
-	std::string desc;
-	std::string base_tm;
-	size_t aging{1};
-	size_t layer{0};
-	float lng_step{0.};
-	float lat_step{0.};
-	float left{0.};
-	float right{0.};
-	float bottom{0.};
-	float top{0.};
-	size_t lat_size{0};
-	size_t lng_size{0};
-	float iso_step{0.};
-	float iso_bv{0.};
-	float iso_ev{0.};
-	float smooth{0.};
-	float bold{0.};
-	std::vector<float> data;
+  public:
+    std::string format;
+    std::string desc;
+    std::string base_tm;
+    size_t aging{1};
+    size_t layer{0};
+    float lng_step{0.};
+    float lat_step{0.};
+    float left{0.};
+    float right{0.};
+    float bottom{0.};
+    float top{0.};
+    size_t lat_size{0};
+    size_t lng_size{0};
+    float iso_step{0.};
+    float iso_bv{0.};
+    float iso_ev{0.};
+    float smooth{0.};
+    float bold{0.};
+    std::vector<float> data;
 };
 
 class silly_micaps_utils
 {
-public:
-	/// <summary>
-	/// 普通文件读取diamond 4格式的数据
-	/// </summary>
-	/// <param name="path"></param>
-	/// <param name="md4"></param>
-	/// <returns></returns>
-	static bool read(const std::string &path, silly_micaps_diamond_4 &md4);
+  public:
+    /// <summary>
+    /// 普通文件读取diamond 4格式的数据
+    /// </summary>
+    /// <param name="path"></param>
+    /// <param name="md4"></param>
+    /// <returns></returns>
+    static bool read(const std::string &path, silly_micaps_diamond_4 &md4);
 
-	/// <summary>
-	/// 以mmap读取diamond 4格式的数据, 普通读取方式性能已经满足要求,这个暂时不实现
-	/// </summary>
-	/// <param name="path"></param>
-	/// <param name="md4"></param>
-	/// <returns></returns>
-	static bool mmap_read(const std::string &path, silly_micaps_diamond_4 &md4);
+    /// <summary>
+    /// 以mmap读取diamond 4格式的数据, 普通读取方式性能已经满足要求,这个暂时不实现
+    /// </summary>
+    /// <param name="path"></param>
+    /// <param name="md4"></param>
+    /// <returns></returns>
+    static bool mmap_read(const std::string &path, silly_micaps_diamond_4 &md4);
 
-	/// <summary>
-	/// 写diamond 4格式的数据
-	/// </summary>
-	/// <param name="path"></param>
-	/// <param name="md4"></param>
-	/// <returns></returns>
-	static bool write(const std::string &path, const silly_micaps_diamond_4 &md4);
+    /// <summary>
+    /// 写diamond 4格式的数据
+    /// </summary>
+    /// <param name="path"></param>
+    /// <param name="md4"></param>
+    /// <returns></returns>
+    static bool write(const std::string &path, const silly_micaps_diamond_4 &md4);
 
-private:
+  private:
 };
 
-#endif // SILLY_UTILS_SILLY_MICAPS_H
+#endif  // SILLY_UTILS_SILLY_MICAPS_H

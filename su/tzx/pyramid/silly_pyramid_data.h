@@ -15,54 +15,53 @@
 
 #include "tzx/pyramid/silly_pyramid_index.h"
 
-#define TZX_IMAGE_DATA_DATA_NAME		"TzxImage.data"
+#define TZX_IMAGE_DATA_DATA_NAME "TzxImage.data"
 
 struct block_data
 {
-	block_data() {
-
-	}
-	uint64_t offset{0};
-	uint32_t size{0};
-	char* data{nullptr};
+    block_data()
+    {
+    }
+    uint64_t offset{0};
+    uint32_t size{0};
+    char* data{nullptr};
 };
 
 class silly_pyramid_data : public silly_pyramid_base
 {
+  public:
+    silly_pyramid_data();
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name=""></param>
+    /// <param name="mode"></param>
+    /// <returns></returns>
+    bool open(const char* file, const silly_mmap::open_mode& mode, const bool& usemmap);
 
-public:
-	silly_pyramid_data();
-	/// <summary>
-	/// 
-	/// </summary>
-	/// <param name=""></param>
-	/// <param name="mode"></param>
-	/// <returns></returns>
-	bool open(const char* file, const silly_mmap::open_mode& mode, const bool& usemmap);
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="layer"></param>
+    /// <param name="row"></param>
+    /// <param name="col"></param>
+    /// <returns></returns>
+    std::string read_block(const uint32_t& layer, const uint64_t& row, const uint64_t& col);
 
-	/// <summary>
-	///  
-	/// </summary>
-	/// <param name="layer"></param>
-	/// <param name="row"></param>
-	/// <param name="col"></param>
-	/// <returns></returns>
-	std::string read_block(const uint32_t& layer, const uint64_t& row, const uint64_t& col);
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="layer"></param>
+    /// <param name="row"></param>
+    /// <param name="col"></param>
+    /// <param name="datasize"></param>
+    /// <returns></returns>
+    char* read_block(const uint32_t& layer, const uint64_t& row, const uint64_t& col, uint32_t& datasize);
 
-	/// <summary>
-	/// 
-	/// </summary>
-	/// <param name="layer"></param>
-	/// <param name="row"></param>
-	/// <param name="col"></param>
-	/// <param name="datasize"></param>
-	/// <returns></returns>
-	char* read_block(const uint32_t& layer, const uint64_t& row, const uint64_t& col, uint32_t& datasize);
+    bool write_block(const uint32_t& layer, const uint64_t& row, const uint64_t& col, const block_data& bdata);
 
-	bool write_block(const uint32_t& layer, const uint64_t& row, const uint64_t& col, const block_data& bdata);
-
-public:
-	silly_pyramid_index			m_index;
+  public:
+    silly_pyramid_index m_index;
 };
 
-#endif //SILLY_UTILS_SILLY_IMAGE_DATA_H
+#endif  // SILLY_UTILS_SILLY_IMAGE_DATA_H

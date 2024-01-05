@@ -10,80 +10,77 @@
 
 #pragma once
 
-
 #include <stack>
 #include <mutex>
 
 /** @class ThreadSafeStack
-	@brief The class of thread safe stack.
-	@remark
-*/  
-template<typename V>
-class  ThreadSafeStack
+        @brief The class of thread safe stack.
+        @remark
+*/
+template <typename V>
+class ThreadSafeStack
 {
-	typedef std::stack<V>   StackType;
-public:
-	/// Default Constructor.
-	ThreadSafeStack(void){};
-	/// Destructor.
-	virtual ~ThreadSafeStack(void){};
+    typedef std::stack<V> StackType;
 
-	/// Push stack.
-	bool Push(const V& value)
-	{
-		std::scoped_lock  lock(m_recMutex);
-		m_stack.push(value);
+  public:
+    /// Default Constructor.
+    ThreadSafeStack(void){};
+    /// Destructor.
+    virtual ~ThreadSafeStack(void){};
 
-		return true;
-	}
+    /// Push stack.
+    bool Push(const V& value)
+    {
+        std::scoped_lock lock(m_recMutex);
+        m_stack.push(value);
 
-	/// Pop stack.
-	bool Pop(V& value)
-	{
-		std::scoped_lock  lock(m_recMutex);
-		if (!m_stack.empty())
-		{
-			value = m_stack.top();
-			m_stack.pop();
+        return true;
+    }
 
-			return true;
-		}
+    /// Pop stack.
+    bool Pop(V& value)
+    {
+        std::scoped_lock lock(m_recMutex);
+        if (!m_stack.empty())
+        {
+            value = m_stack.top();
+            m_stack.pop();
 
-		return true;
-	}
+            return true;
+        }
 
-	/// Get stack size.
-	int GetSize()
-	{
-		int size = m_stack.size();
-		return size;
-	}
+        return true;
+    }
 
-	/// Whether is empty.
-	bool IsEmpty()
-	{
-		bool bEmpty = m_stack.empty();
-		return bEmpty;
-	}
+    /// Get stack size.
+    int GetSize()
+    {
+        int size = m_stack.size();
+        return size;
+    }
 
-	/// Clear stack.
-	bool Clear()
-	{
-		std::scoped_lock  lock(m_recMutex);
-		while (!m_stack.empty())
-		{
-			V& value = m_stack.top();
-			m_stack.pop();
-		}
-		return true;
-	}
+    /// Whether is empty.
+    bool IsEmpty()
+    {
+        bool bEmpty = m_stack.empty();
+        return bEmpty;
+    }
 
-protected:
-	/// Boost recursive mutex.
-	std::mutex										m_recMutex;
-	/// Stack structure.
-	StackType										m_stack;
+    /// Clear stack.
+    bool Clear()
+    {
+        std::scoped_lock lock(m_recMutex);
+        while (!m_stack.empty())
+        {
+            V& value = m_stack.top();
+            m_stack.pop();
+        }
+        return true;
+    }
 
+  protected:
+    /// Boost recursive mutex.
+    std::mutex m_recMutex;
+    /// Stack structure.
+    StackType m_stack;
 };
-
-

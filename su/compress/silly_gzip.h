@@ -18,11 +18,11 @@
 class silly_gzip
 {
     /// <summary>
-   /// 压缩文件
-   /// </summary>
-   /// <param name="s_src"></param>
-   /// <param name="s_dst"></param>
-   /// <returns></returns>
+    /// 压缩文件
+    /// </summary>
+    /// <param name="s_src"></param>
+    /// <param name="s_dst"></param>
+    /// <returns></returns>
     int compress(const std::string& s_src, std::string& s_dst);
 
     /// <summary>
@@ -54,4 +54,4 @@ class silly_gzip
     int decompress(const char* c_in_val, const unsigned int& i_in_len, char** c_out_val, unsigned int* i_out_len);
 };
 
-#endif //SILLY_UTILS_SILLY_GZIP_H
+#endif  // SILLY_UTILS_SILLY_GZIP_H

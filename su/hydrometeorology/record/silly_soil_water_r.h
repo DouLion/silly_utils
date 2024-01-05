@@ -11,20 +11,20 @@
 #define SILLY_UTILS_SILLY_SOIL_WATER_R_H
 #include <iostream>
 
-#define SILLY_SOIL_WATER_LENGTH  sizeof(char) + sizeof(unsigned int) * 3 + sizeof(short) * 3
-#define SILLY_SOIL_WATER_BEG_CHAR   '_'
+#define SILLY_SOIL_WATER_LENGTH sizeof(char) + sizeof(unsigned int) * 3 + sizeof(short) * 3
+#define SILLY_SOIL_WATER_BEG_CHAR '_'
 
 class silly_soil_water
 {
-public:
+  public:
     unsigned int pid{0};
-	std::string tm;
+    std::string tm;
     float sw{0};
     float percent{0};
     float drp{0};
 
     /// <summary>
-    /// 将对象序列化位二进制数据  
+    /// 将对象序列化位二进制数据
     /// </summary>
     /// <param name="c_in">序列化后的二进制数据</param>
     /// <param name="len">序列化后的二进制数据长度</param>
@@ -38,7 +38,6 @@ public:
     /// <param name="len"></param>
     /// <returns></returns>
     bool unserialize(const unsigned char* c_in, const size_t& len);
-
 };
 
-#endif //SILLY_UTILS_SILLY_SOIL_WATER_R_H
+#endif  // SILLY_UTILS_SILLY_SOIL_WATER_R_H

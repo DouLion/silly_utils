@@ -3,8 +3,8 @@
 
 static char toupper(char c)
 {
-    if (c >= 'a' && c <= 'z')  //是小写字母，执行转换。
-        c -= 'a' - 'A';        //转成大写。
+    if (c >= 'a' && c <= 'z')  // 是小写字母，执行转换。
+        c -= 'a' - 'A';        // 转成大写。
     return c;
 }
 
@@ -21,10 +21,10 @@ static std::string to_upper(std::string &input)
 
 ///  DEMO
 
-//#include <iostream>
+// #include <iostream>
 //
 //
-// void TestWrite() {
+//  void TestWrite() {
 //	CVectorToRaster::CVectorRasterData dataSet;
 //	if (!dataSet.Open(".", "test", "wb")) {
 //		std::cout << "Failed to Open File\n";
@@ -50,9 +50,9 @@ static std::string to_upper(std::string &input)
 //	dataSet.WriteObjInfo(strID.c_str(), strName.c_str(), &Poly, GridSize);
 //
 //	dataSet.Close();
-//}
+// }
 //
-// void TestRead() {
+//  void TestRead() {
 //	CVectorToRaster::CVectorRasterData dataSet;
 //	if (!dataSet.Open(".", "test", "rb")) {
 //		std::cout << "Failed to Open File\n";
@@ -75,7 +75,7 @@ static std::string to_upper(std::string &input)
 //	}
 //
 //	dataSet.Close();
-//}
+// }
 //
 
 long CVectorToRaster::ZipRasterData::GetBufferSize()

@@ -12,10 +12,9 @@
 
 #include <iostream>
 
-
-
-class silly_compress_base {
-public:
+class silly_compress_base
+{
+  public:
     enum silly_compress_err
     {
         Ok = 0,
@@ -49,7 +48,8 @@ public:
         Z7zDecompressErr = 401
 
     };
-public:
+
+  public:
     /// <summary>
     /// 压缩文件或者文件夹,基于不同压缩算法的能力
     /// </summary>
@@ -74,7 +74,7 @@ public:
     /// <param name="c_out_val"></param>
     /// <param name="i_out_len"></param>
     /// <returns></returns>
-    virtual int compress(const char *c_in_val, const size_t &i_in_len, char **c_out_val, size_t& i_out_len) = 0;
+    virtual int compress(const char *c_in_val, const size_t &i_in_len, char **c_out_val, size_t &i_out_len) = 0;
 
     /// <summary>
     /// 解压内存数据,基于不同压缩算法的能力
@@ -84,7 +84,7 @@ public:
     /// <param name="c_out_val"></param>
     /// <param name="i_out_len"></param>
     /// <returns></returns>
-    virtual int decompress(const char *c_in_val, const size_t &i_in_len, char **c_out_val, size_t& i_out_len) = 0;
+    virtual int decompress(const char *c_in_val, const size_t &i_in_len, char **c_out_val, size_t &i_out_len) = 0;
 };
 
-#endif //SILLY_UTILS_SILLY_COMPRESS_BASE_H
+#endif  // SILLY_UTILS_SILLY_COMPRESS_BASE_H

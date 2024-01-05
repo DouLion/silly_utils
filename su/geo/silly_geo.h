@@ -215,7 +215,7 @@ class silly_geo_coll
     silly_multi_silly_line m_m_lines;            // 多线
     silly_poly m_poly;                           // 单面(内环+外环)
     silly_multi_poly m_m_polys;                  // 多面(多个 单面)
-    std::vector<enum_geometry_types> comp_type;  //用于存储复合数据类型变量中的类型变量
+    std::vector<enum_geometry_types> comp_type;  // 用于存储复合数据类型变量中的类型变量
     // 属性列表
     std::map<std::string, silly_geo_prop> m_props;
 

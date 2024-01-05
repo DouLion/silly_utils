@@ -15,7 +15,6 @@
 
 class dm8_pro_c
 {
-
 };
 
-#endif //SILLY_UTILS_DM8_PRO_C_H
+#endif  // SILLY_UTILS_DM8_PRO_C_H

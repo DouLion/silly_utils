@@ -10,9 +10,9 @@
 
 #ifndef SILL_GRIB2_ENV_DEFINITION_PATH
 #if IS_WIN32
-#define SILL_GRIB2_ENV_DEFINITION_PATH  "GRIB_DEFINITION_PATH"
+#define SILL_GRIB2_ENV_DEFINITION_PATH "GRIB_DEFINITION_PATH"
 #else
-#define SILL_GRIB2_ENV_DEFINITION_PATH  "ECCODES_DEFINITION_PATH"
+#define SILL_GRIB2_ENV_DEFINITION_PATH "ECCODES_DEFINITION_PATH"
 #endif
 #endif
 
@@ -20,17 +20,19 @@ bool silly_grib2_utils::read(const std::string& path, silly_grib2_frame& grb, co
 {
     bool status = false;
     int i = 0;
-    void* file_h = nullptr; void* grb2_c  = nullptr; void* grb2_h  = nullptr;
-    if(!silly_grib2_utils::open_grib2_handle(path, &file_h, &grb2_c,&grb2_h))
+    void* file_h = nullptr;
+    void* grb2_c = nullptr;
+    void* grb2_h = nullptr;
+    if (!silly_grib2_utils::open_grib2_handle(path, &file_h, &grb2_c, &grb2_h))
     {
         SU_ERROR_PRINT("Open GRB2 handle failed: %s", path.c_str());
         return status;
     }
-    while(grb2_h)
+    while (grb2_h)
     {
-        if(fidx==i++)
+        if (fidx == i++)
         {
-            if(silly_grib2_utils::load_grib2_frame(file_h, &grb2_c,&grb2_h, grb, false))
+            if (silly_grib2_utils::load_grib2_frame(file_h, &grb2_c, &grb2_h, grb, false))
             {
                 status = true;
             }
@@ -38,9 +40,8 @@ bool silly_grib2_utils::read(const std::string& path, silly_grib2_frame& grb, co
         }
         else
         {
-            if(!silly_grib2_utils::load_grib2_frame(file_h, &grb2_c,&grb2_h, grb, true))
+            if (!silly_grib2_utils::load_grib2_frame(file_h, &grb2_c, &grb2_h, grb, true))
             {
-
             }
         }
     }
@@ -48,28 +49,31 @@ bool silly_grib2_utils::read(const std::string& path, silly_grib2_frame& grb, co
     return status;
 }
 
-bool silly_grib2_utils::read(const std::string& path,  std::map<size_t, silly_grib2_frame>& msgf_grb)
+bool silly_grib2_utils::read(const std::string& path, std::map<size_t, silly_grib2_frame>& msgf_grb)
 {
     bool status = false;
     int i = 0;
-    void* file_h = nullptr; void* grb2_c  = nullptr; void* grb2_h  = nullptr;
-    if(!silly_grib2_utils::open_grib2_handle(path, &file_h, &grb2_c,&grb2_h))
+    void* file_h = nullptr;
+    void* grb2_c = nullptr;
+    void* grb2_h = nullptr;
+    if (!silly_grib2_utils::open_grib2_handle(path, &file_h, &grb2_c, &grb2_h))
     {
         SU_ERROR_PRINT("Open GRB2 handle failed: %s", path.c_str());
         return status;
     }
-    while(grb2_h)
+    while (grb2_h)
     {
         silly_grib2_frame grb_tmp;
-        silly_grib2_utils::load_grib2_frame(file_h, &grb2_c,&grb2_h, grb_tmp, true);
-        msgf_grb[i] =grb_tmp;
+        silly_grib2_utils::load_grib2_frame(file_h, &grb2_c, &grb2_h, grb_tmp, true);
+        msgf_grb[i] = grb_tmp;
         i++;
     }
     silly_grib2_utils::close_grib2_handle(file_h, grb2_c, grb2_h);
     return status;
 }
 
-bool silly_grib2_utils::open_grib2_handle(const std::string& path, void** file_h, void** grb2_c, void** grb2_h) {
+bool silly_grib2_utils::open_grib2_handle(const std::string& path, void** file_h, void** grb2_c, void** grb2_h)
+{
     bool status = false;
     char* grib_def_path = getenv(SILL_GRIB2_ENV_DEFINITION_PATH);
     if (!strlen(grib_def_path))
@@ -81,9 +85,9 @@ bool silly_grib2_utils::open_grib2_handle(const std::string& path, void** file_h
     // TODO: 检查这个grib_context是否可以为null
     *grb2_c = grib_context_get_default();
 
-    grib_multi_support_on(nullptr); // 多波段读取支持
+    grib_multi_support_on(nullptr);  // 多波段读取支持
     int err_code = 0;
-    FILE *file  = fopen(path.c_str(), "rb");
+    FILE* file = fopen(path.c_str(), "rb");
     if (nullptr == file)
     {
         SU_ERROR_PRINT("Open GRB2 file failed: %s", path.c_str())
@@ -92,7 +96,7 @@ bool silly_grib2_utils::open_grib2_handle(const std::string& path, void** file_h
     }
 
     *grb2_h = grib_handle_new_from_file((grib_context*)*grb2_c, file, &err_code);
-    if(grb2_h && file)
+    if (grb2_h && file)
     {
         *file_h = file;
         *grb2_h = (grib_handle*)grb2_h;
@@ -102,19 +106,21 @@ bool silly_grib2_utils::open_grib2_handle(const std::string& path, void** file_h
     return status;
 }
 
-bool silly_grib2_utils::load_grib2_frame(void* file_h, void** grb2_c, void** grb2_h, silly_grib2_frame &grb, const bool& skip) {
+bool silly_grib2_utils::load_grib2_frame(void* file_h, void** grb2_c, void** grb2_h, silly_grib2_frame& grb, const bool& skip)
+{
     bool status = skip;
 #if SU_GRIB_ENABLED
-    while(!skip) {
+    while (!skip)
+    {
         status = false;
-        grib_keys_iterator *gk_iter = grib_keys_iterator_new((grib_handle*)*grb2_h, 0, nullptr);
+        grib_keys_iterator* gk_iter = grib_keys_iterator_new((grib_handle*)*grb2_h, 0, nullptr);
         if (nullptr == gk_iter)
         {
             break;
         }
         while (grib_keys_iterator_next(gk_iter))
         {
-            const char *name = grib_keys_iterator_get_name(gk_iter);
+            const char* name = grib_keys_iterator_get_name(gk_iter);
             int type = 0;
             grib_get_native_type((grib_handle*)grb2_h, name, &type);
             if (strcmp(name, "codedValues") == 0 || strcmp(name, "values") == 0)
@@ -180,7 +186,6 @@ bool silly_grib2_utils::load_grib2_frame(void* file_h, void** grb2_c, void** grb
         // TODO: 检查这一行是干什么的 grib_get_size((grib_handle*)grb2_h, "values", &aa);
         grib_get_double_array((grib_handle*)grb2_h, "values", &grb.data[0], &cell_num);
         status = true;
-
     }
 
     grib_handle_delete((grib_handle*)*grb2_h);
@@ -191,11 +196,12 @@ bool silly_grib2_utils::load_grib2_frame(void* file_h, void** grb2_c, void** grb
     return status;
 }
 
-bool silly_grib2_utils::close_grib2_handle(void *file_h, void *grb2_c, void *grb2_h) {
+bool silly_grib2_utils::close_grib2_handle(void* file_h, void* grb2_c, void* grb2_h)
+{
     bool status = false;
 #if SU_GRIB_ENABLED
     fclose((FILE*)file_h);
-    if(grb2_c)
+    if (grb2_c)
     {
         grib_handle_delete((grib_handle*)grb2_h);
     }

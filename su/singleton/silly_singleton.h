@@ -10,22 +10,21 @@
  */
 #pragma once
 
-
-template<typename T>
+template <typename T>
 class silly_singleton
 {
-public:
-	static T& instance()
-	{
-		static T instance;
-		return instance;
-	}
+  public:
+    static T& instance()
+    {
+        static T instance;
+        return instance;
+    }
 
-	silly_singleton(T&&) = delete;
-	silly_singleton(const T&) = delete;
-	void operator= (const T&) = delete;
+    silly_singleton(T&&) = delete;
+    silly_singleton(const T&) = delete;
+    void operator=(const T&) = delete;
 
-protected:
-	silly_singleton() = default;
-	virtual ~silly_singleton() = default;
+  protected:
+    silly_singleton() = default;
+    virtual ~silly_singleton() = default;
 };

@@ -7,7 +7,6 @@
 #include "gdal_priv.h"
 #include "ogrsf_frmts.h"
 
-
 bool silly_geo_convert::shp_to_geojson(const char* shpFile, const char* geojsonFile)
 {
     GDALDataset* shpDataset = (GDALDataset*)GDALOpenEx(shpFile, GDAL_OF_VECTOR, NULL, NULL, NULL);
@@ -37,7 +36,6 @@ bool silly_geo_convert::shp_to_geojson(const char* shpFile, const char* geojsonF
     GDALClose(shpDataset);
     std::cout << "SHP file successfully converted to GeoJSON file  " << std::endl;
     return true;
-
 }
 
 bool silly_geo_convert::geojson_to_shp(const char* geojsonFile, const char* shpFile)
