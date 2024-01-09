@@ -18,8 +18,7 @@
 
 class silly_minizip : public silly_compress_base
 {
-public:
-
+  public:
     /// <summary>
     /// 将文件或目录压缩为ZIP文件
     /// </summary>
@@ -28,7 +27,6 @@ public:
     /// <returns></returns>
     /// 注: 测试压缩3G以上ios文件有问题
     int compress(const std::string& s_src, const std::string& s_dst) override;
-
 
     /// <summary>
     /// 解压zip文件,解压单独文件和目录文件
@@ -58,9 +56,6 @@ public:
     /// <param name="i_out_len">解压数据输出大小</param>
     /// <returns></returns>
     int decompress(const char* c_in_val, const size_t& i_in_len, char** c_out_val, size_t& i_out_len) override;
-
-
-
 };
 
-#endif //SILLY_UTILS_SILLY_MINIZIP_H
+#endif  // SILLY_UTILS_SILLY_MINIZIP_H

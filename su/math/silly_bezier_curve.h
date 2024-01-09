@@ -16,11 +16,9 @@
 /// 参照 https://blog.csdn.net/sangxiaonian/article/details/51984013
 /// </summary>
 
-
 class silly_bezier_curve
 {
-public:
-
+  public:
     /// <summary>
     /// 二阶贝塞尔曲线计算公式
     /// </summary>
@@ -29,16 +27,15 @@ public:
     /// <param name="control "></param>
     /// <param name="end"></param>
     /// <returns></returns>
-    static double quadratic_bezier(double step, double start, double control , double end)
+    static double quadratic_bezier(double step, double start, double control, double end)
     {
-        double c1 = (control  - start) * step + start;
-        double c2 = (end - control ) * step + control ;
+        double c1 = (control - start) * step + start;
+        double c2 = (end - control) * step + control;
         // double c3 = (c2 - c1) * step + c1;
         // return c3;
         return (c2 - c1) * step + c1;
     }
 
-    
     /// <summary>
     /// 三阶贝塞尔曲线计算公式
     /// </summary>
@@ -67,4 +64,4 @@ public:
     }
 };
 
-#endif //SILLY_UTILS_SILLY_BEZIER_CURVE_H
+#endif  // SILLY_UTILS_SILLY_BEZIER_CURVE_H

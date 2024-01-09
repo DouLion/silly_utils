@@ -10,7 +10,7 @@
 
 #include <cmath>
 
-#include<functional>
+#include <functional>
 
 using std::vector;
 
@@ -21,73 +21,57 @@ using std::deque;
 class vertex;
 
 class PointAndAngle
-{//内部类，用于临时过程的处理（用于计算简单多边形）
+{  // 内部类，用于临时过程的处理（用于计算简单多边形）
 
-public:
+  public:
+    vertex point;
 
-	vertex point;
+    double angle;
 
-	double angle;
+    bool operator<(const PointAndAngle& p1) const
+    {  // 小于运算符重载，用于排序
 
-	bool operator<(const PointAndAngle& p1) const
-	{//小于运算符重载，用于排序
+        return angle < p1.angle;
+    }
 
-		return angle < p1.angle;
-
-	}
-
-	double len;
-
+    double len;
 };
 
 class covexHull
 {
+  public:
+    covexHull(void);
 
-public:
+    ~covexHull(void);
 
-	covexHull(void);
+    void compute();  // 凸多边形计算的入口
 
-	~covexHull(void);
+    // void draw(CClientDC & dc );//绘制凸多边形
 
+    void addPoint(const vertex& point);  // 添加计算的节点
 
-	void compute();//凸多边形计算的入口
+    deque<vertex> getHull()
+    {
+        return m_stack;
+    }
 
-	//void draw(CClientDC & dc );//绘制凸多边形
+  private:
+    double GetDistance(vertex& A, vertex& B);
 
-	void addPoint(const vertex& point);//添加计算的节点
+    void GetBoundary();
 
-	deque<vertex> getHull()
-	{
-		return m_stack;
-	}
+    std::vector<vertex>::iterator findLeftPoint();  // 找到最左边的点
 
+    double computeS(const vertex& p1, const vertex& p2, const vertex& p3) const;  // 计算S
 
-private:
+    void computeSimplePolygon();  // 计算简单多边形
 
+    void computeCovexHull();  // 计算凸多边形
 
-	double GetDistance(vertex& A, vertex& B);
+  private:
+    vector<vertex> m_points;  // 点集合（无序）
 
-	void GetBoundary();
+    deque<PointAndAngle> m_pointAndAngle;  // 简单多边形排序后点集合（有序）
 
-	std::vector<vertex>::iterator findLeftPoint();//找到最左边的点
-
-	double computeS(const vertex& p1, const vertex& p2, const vertex& p3) const;//计算S
-
-	void computeSimplePolygon();//计算简单多边形
-
-	void computeCovexHull();//计算凸多边形
-
-private:
-
-
-	vector<vertex> m_points;//点集合（无序）
-
-	deque<PointAndAngle> m_pointAndAngle;//简单多边形排序后点集合（有序）
-
-	deque<vertex> m_stack;//凸多边形点集合（有序）
-
-
-
+    deque<vertex> m_stack;  // 凸多边形点集合（有序）
 };
-
-

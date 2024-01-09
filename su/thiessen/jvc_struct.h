@@ -40,7 +40,7 @@
 #endif
 
 #ifndef JCV_SQRT
-#define JCV_SQRT(_X_)       sqrtf(_X_)
+#define JCV_SQRT(_X_) sqrtf(_X_)
 #endif
 
 #ifndef JCV_PI
@@ -52,7 +52,7 @@
 #endif
 
 #ifndef JCV_EDGE_INTERSECT_THRESHOLD
- // Fix for Issue #40
+// Fix for Issue #40
 #define JCV_EDGE_INTERSECT_THRESHOLD 1.0e-10F
 #endif
 
@@ -87,76 +87,74 @@ typedef void (*jcv_clip_fillgap_fn)(const jcv_clipper* clipper, jcv_context_inte
 
 struct jcv_point_
 {
-	jcv_real x;
-	jcv_real y;
+    jcv_real x;
+    jcv_real y;
 };
 
 struct jcv_graphedge_
 {
-	struct jcv_graphedge_* next;
-	struct jcv_edge_* edge;
-	struct jcv_site_* neighbor;
-	jcv_point pos[2];
-	jcv_real angle;
+    struct jcv_graphedge_* next;
+    struct jcv_edge_* edge;
+    struct jcv_site_* neighbor;
+    jcv_point pos[2];
+    jcv_real angle;
 };
 
 struct jcv_site_
 {
-	jcv_point p;
-	int index;  // Index into the original list of points
-	jcv_graphedge* edges;  // The half edges owned by the cell
+    jcv_point p;
+    int index;             // Index into the original list of points
+    jcv_graphedge* edges;  // The half edges owned by the cell
 };
 
 // The coefficients a, b and c are from the general line equation: ax * by + c = 0
 struct jcv_edge_
 {
-	struct jcv_edge_* next;
-	jcv_site* sites[2];
-	jcv_point pos[2];
-	jcv_real a;
-	jcv_real b;
-	jcv_real c;
+    struct jcv_edge_* next;
+    jcv_site* sites[2];
+    jcv_point pos[2];
+    jcv_real a;
+    jcv_real b;
+    jcv_real c;
 };
 
 struct jcv_delauney_iter_
 {
-	const jcv_edge* sentinel;
-	const jcv_edge* current;
+    const jcv_edge* sentinel;
+    const jcv_edge* current;
 };
 
 struct jcv_delauney_edge_
 {
-	const jcv_edge* edge;
-	const jcv_site* sites[2];
-	jcv_point pos[2];
+    const jcv_edge* edge;
+    const jcv_site* sites[2];
+    jcv_point pos[2];
 };
 
 struct jcv_rect_
 {
-	jcv_point min;
-	jcv_point max;
+    jcv_point min;
+    jcv_point max;
 };
 
 struct jcv_clipper_
 {
-	jcv_clip_test_point_fn test_fn;
-	jcv_clip_edge_fn clip_fn;
-	jcv_clip_fillgap_fn fill_fn;
-	jcv_point min;        // The bounding rect min
-	jcv_point max;        // The bounding rect max
-	void* ctx;        // User defined context
+    jcv_clip_test_point_fn test_fn;
+    jcv_clip_edge_fn clip_fn;
+    jcv_clip_fillgap_fn fill_fn;
+    jcv_point min;  // The bounding rect min
+    jcv_point max;  // The bounding rect max
+    void* ctx;      // User defined context
 };
 
 struct jcv_diagram_
 {
-	jcv_context_internal* internal;
-	int numsites;
-	jcv_point min;
-	jcv_point max;
+    jcv_context_internal* internal;
+    int numsites;
+    jcv_point min;
+    jcv_point max;
 };
 
 #pragma pack(pop)
 
-
-
-#endif //SILLY_UTILS_JVC_STRUCT_H
+#endif  // SILLY_UTILS_JVC_STRUCT_H

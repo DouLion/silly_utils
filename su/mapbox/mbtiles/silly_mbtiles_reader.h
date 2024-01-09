@@ -15,7 +15,6 @@
 
 class silly_mbtiles_reader
 {
-
 };
 
-#endif //SILLY_UTILS_SILLY_MBTILES_READER_H
+#endif  // SILLY_UTILS_SILLY_MBTILES_READER_H

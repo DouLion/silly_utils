@@ -92,7 +92,7 @@ class silly_time
         }
         y_seconds = 0x00000000;
         char c_after_2000 = year / 2000;  // 是否在2000年之后
-        char c_sub_year = year % 100;     //年份的后两位
+        char c_sub_year = year % 100;     // 年份的后两位
         if (c_after_2000)
             y_seconds = 0x01;
         y_seconds = (y_seconds << 7) | c_sub_year;

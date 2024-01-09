@@ -40,7 +40,7 @@ SU_FUNC_ADDR silly_dll::func(SU_HANDLER handler, const std::string& name)
 #if IS_WIN32
         func_ret = (void*)GetProcAddress(handler, name.c_str());
 #else
-        func_ret =  dlsym(handler, name.c_str());
+        func_ret = dlsym(handler, name.c_str());
 #endif
     }
     return func_ret;

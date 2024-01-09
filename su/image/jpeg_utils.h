@@ -17,7 +17,6 @@
 #include <string>
 #include <vector>
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -30,50 +29,46 @@
 #include "math/silly_matrix.h"
 using namespace silly_math;
 
- // 像素颜色结构体 pixel_color
+// 像素颜色结构体 pixel_color
 struct jpeg_pixel
 {
-	jpeg_pixel() : red(0), green(0), blue(0), gray(0)
-	{
-
-	}
-	jpeg_pixel(JSAMPLE r, JSAMPLE g, JSAMPLE b) : red(r), green(g), blue(b), gray(0)
-	{
-
-	}
-	jpeg_pixel(JSAMPLE g) : red(0), green(0), blue(0), gray(g)
-	{
-
-	}
-	JSAMPLE  red{ 0 };     // 红色分量
-	JSAMPLE  green{ 0 };   // 绿色分量
-	JSAMPLE  blue{ 0 };    // 蓝色分量
-	JSAMPLE  gray{ 0 };    // 灰色分量
-	// unsigned char = JSAMPLE
+    jpeg_pixel() : red(0), green(0), blue(0), gray(0)
+    {
+    }
+    jpeg_pixel(JSAMPLE r, JSAMPLE g, JSAMPLE b) : red(r), green(g), blue(b), gray(0)
+    {
+    }
+    jpeg_pixel(JSAMPLE g) : red(0), green(0), blue(0), gray(g)
+    {
+    }
+    JSAMPLE red{0};    // 红色分量
+    JSAMPLE green{0};  // 绿色分量
+    JSAMPLE blue{0};   // 蓝色分量
+    JSAMPLE gray{0};   // 灰色分量
+                       // unsigned char = JSAMPLE
 };
 
-//template<typename T>
-//struct matrix_2d
+// template<typename T>
+// struct matrix_2d
 //{
 //	T** data;
 //	size_t rows;
 //	size_t cols;
-//};
+// };
 
 class jpeg_data
 {
-public: 
+  public:
+    jpeg_data() = default;
 
-	jpeg_data() = default;
-
-	bool release();
+    bool release();
 
     // row : 第几行   col :第几列
-	bool set_pixel(const size_t& row, const size_t& col, const jpeg_pixel& pixel);
+    bool set_pixel(const size_t& row, const size_t& col, const jpeg_pixel& pixel);
 
-	template<typename T>
-	bool matrix2d_to_rgb_jpeg(matrix_2d<T> matrix, std::vector<T> threshold, std::vector<jpeg_pixel> pixel_colors)
-	{
+    template <typename T>
+    bool matrix2d_to_rgb_jpeg(matrix_2d<T> matrix, std::vector<T> threshold, std::vector<jpeg_pixel> pixel_colors)
+    {
         if (threshold.empty())
         {
             std::cout << "阈值为空 " << std::endl;
@@ -103,17 +98,17 @@ public:
         this->image_data = (unsigned char*)malloc(sizeof(unsigned char*) * jpeg_width * jpeg_height * jpeg_components);
         memset((void*)this->image_data, 255, sizeof(unsigned char*) * jpeg_width * jpeg_height * jpeg_components);
         int row_size = jpeg_width * jpeg_components;
-        int  jmp = sizeof(unsigned char) * jpeg_components;
+        int jmp = sizeof(unsigned char) * jpeg_components;
         int m = threshold.size() - 1;
-       
+
         for (int i = 0; i < jpeg_height; i++)
         {
             for (int j = 0; j < jpeg_width; j++)
             {
                 bool change = false;
-                for (int n = 0; n < threshold.size()-1; n++)
+                for (int n = 0; n < threshold.size() - 1; n++)
                 {
-                    if (matrix.at(i,j) >= threshold[n] && matrix.at(i, j) <= threshold[n + 1])
+                    if (matrix.at(i, j) >= threshold[n] && matrix.at(i, j) <= threshold[n + 1])
                     {
                         set_pixel(i, j, pixel_colors[n]);
                         change = true;
@@ -127,45 +122,38 @@ public:
             }
         }
         return true;
-	}
+    }
 
+    jpeg_data operator=(const jpeg_data& other);
+    // 参数-----------------
+    JDIMENSION jpeg_width{0};
+    JDIMENSION jpeg_height{0};
+    int jpeg_components{3};     // 色带通道数 1 ro 3
+    J_COLOR_SPACE color_space;  // 色彩空间必须为枚举常量之一，通常为JCS_RGB或JCS_GRAYSCALE
+    int quality{75};
+    int data_precision{8}; /* 输入图像的数据精度 一般为8*/
+    long fileSize;         // 该jpeg栈多少字节
+    unsigned char* image_data{nullptr};
 
-	jpeg_data  operator=(const jpeg_data& other);
-	// 参数-----------------
-	JDIMENSION jpeg_width{ 0 };
-	JDIMENSION jpeg_height{ 0 };
-	int jpeg_components{ 3 };		// 色带通道数 1 ro 3
-	J_COLOR_SPACE color_space;		// 色彩空间必须为枚举常量之一，通常为JCS_RGB或JCS_GRAYSCALE
-	int quality{ 75 };
-	int data_precision{ 8 };				/* 输入图像的数据精度 一般为8*/
-    long fileSize;  // 该jpeg栈多少字节
-	unsigned char* image_data{ nullptr };
-
-private:
-
+  private:
 };
-
 
 class jpeg_utils
 {
-public:
+  public:
+    static jpeg_data creat_empty_jpeg(const size_t& width, const size_t& height, const size_t& components, const J_COLOR_SPACE& color_space, const size_t& quality = 75, const size_t& data_precision = 8);
 
-	static jpeg_data creat_empty_jpeg(const size_t& width, const size_t& height, const size_t& components, const J_COLOR_SPACE& color_space, const size_t& quality = 75, const size_t& data_precision = 8);
+    bool write_jpeg_data(const char* path, const jpeg_data& jpeg_data);
 
+    jpeg_data read_jpeg(const char* path);
 
-	bool write_jpeg_data(const char* path, const jpeg_data& jpeg_data);
-
-	jpeg_data read_jpeg(const char* path);
-
-    //将jpeg_data数据转编码为内存jpeg数据
+    // 将jpeg_data数据转编码为内存jpeg数据
     static bool encode_to_memory(const jpeg_data& jpeg_data, char** buf, size_t& len);
 
+    jpeg_utils() = default;
+    ~jpeg_utils() = default;
 
-	jpeg_utils() = default;
-	~jpeg_utils() = default;
-
-private:
-
+  private:
 };
 
-#endif //SILLY_UTILS_JPEG_UTILS_H
+#endif  // SILLY_UTILS_JPEG_UTILS_H

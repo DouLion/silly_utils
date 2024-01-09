@@ -15,7 +15,6 @@
 
 class kb_odbc
 {
-
 };
 
-#endif //SILLY_UTILS_KB_ODBC_H
+#endif  // SILLY_UTILS_KB_ODBC_H

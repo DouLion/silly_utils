@@ -295,7 +295,7 @@ bool read_polygon(const Json::Value& root, silly_geo_coll& coll)
         Json::ValueIterator it = coordinates.begin();
         if (numRing > 0)
         {
-            status = read_rings(*it, coll.m_poly.outer_ring);  //外环
+            status = read_rings(*it, coll.m_poly.outer_ring);  // 外环
         }
         for (size_t num = 1; (num < numRing) && (it != coordinates.end()); num++)  // 内环
         {
@@ -330,7 +330,7 @@ bool read_multi_polygon(const Json::Value& root, silly_geo_coll& coll)
             size_t numRing = poly_coords.size();
             Json::ValueIterator ring_it = poly_coords.begin();
             silly_poly poly;
-            if (numRing > 0)  //外环
+            if (numRing > 0)  // 外环
             {
                 status = read_rings(*ring_it, poly.outer_ring);
             }

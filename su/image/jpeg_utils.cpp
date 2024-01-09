@@ -7,18 +7,17 @@
 #include <string.h>
 struct my_error_mgr
 {
-    struct jpeg_error_mgr pub;    /* "public" fields */
-    jmp_buf setjmp_buffer;        /* for return to caller */
+    struct jpeg_error_mgr pub; /* "public" fields */
+    jmp_buf setjmp_buffer;     /* for return to caller */
 };
 typedef struct my_error_mgr* my_error_ptr;
 void my_error_exit(j_common_ptr cinfo)
 {
     my_error_ptr myerr = (my_error_ptr)cinfo->err;
 
-    (*cinfo->err->output_message) (cinfo);
+    (*cinfo->err->output_message)(cinfo);
     longjmp(myerr->setjmp_buffer, 1);
 }
-
 
 bool jpeg_data::release()
 {
@@ -34,7 +33,6 @@ bool jpeg_data::release()
     return true;
 }
 
-
 jpeg_data jpeg_utils::creat_empty_jpeg(const size_t& width, const size_t& height, const size_t& components, const J_COLOR_SPACE& color_space, const size_t& quality, const size_t& data_precision)
 {
     jpeg_data res_jpeg;
@@ -49,14 +47,13 @@ jpeg_data jpeg_utils::creat_empty_jpeg(const size_t& width, const size_t& height
     res_jpeg.data_precision = data_precision;
 
     row_stride = width * components;
-    //image_buffer = (*cinfo.mem->alloc_sarray)((j_common_ptr)&cinfo, JPOOL_IMAGE, row_stride, height);
+    // image_buffer = (*cinfo.mem->alloc_sarray)((j_common_ptr)&cinfo, JPOOL_IMAGE, row_stride, height);
 
     res_jpeg.image_data = (unsigned char*)malloc(sizeof(unsigned char*) * width * height * components);
     memset(res_jpeg.image_data, 255, sizeof(unsigned char*) * width * height * components);
 
     return res_jpeg;
 }
-
 
 bool jpeg_utils::write_jpeg_data(const char* path, const jpeg_data& jpeg_data)
 {
@@ -75,22 +72,22 @@ bool jpeg_utils::write_jpeg_data(const char* path, const jpeg_data& jpeg_data)
     FILE* outfile;
     if ((outfile = fopen(path, "wb")) == NULL)
     {
-        //ERREXIT(&cinfo, JERR_FILE_WRITE);
+        // ERREXIT(&cinfo, JERR_FILE_WRITE);
         std::cout << "文件打开失败" << std::endl;
         return false;
     }
     jpeg_stdio_dest(&cinfo, outfile);
 
-    cinfo.image_width = jpeg_data.jpeg_width;            // 宽度
-    cinfo.image_height = jpeg_data.jpeg_height;          // 高度
-    cinfo.input_components = jpeg_data.jpeg_components;    /* # 每个像素的颜色分量 3或1 */
+    cinfo.image_width = jpeg_data.jpeg_width;           // 宽度
+    cinfo.image_height = jpeg_data.jpeg_height;         // 高度
+    cinfo.input_components = jpeg_data.jpeg_components; /* # 每个像素的颜色分量 3或1 */
     cinfo.in_color_space = jpeg_data.color_space;       /* 输入图像的色彩空间必须为J_COLOR_SPACE枚举常量之一，通常为JCS_RGB或JCS_GRAYSCALE*/
-    cinfo.data_precision = jpeg_data.data_precision; /* 输入图像的数据精度 一般为8*/
+    cinfo.data_precision = jpeg_data.data_precision;    /* 输入图像的数据精度 一般为8*/
 
     jpeg_set_defaults(&cinfo);
 
     jpeg_set_quality(&cinfo, jpeg_data.quality, TRUE);
-    //使用4 : 4 : 4子采样（默认为4 : 2 : 0）
+    // 使用4 : 4 : 4子采样（默认为4 : 2 : 0）
     cinfo.comp_info[0].h_samp_factor = cinfo.comp_info[0].v_samp_factor = 1;
     jpeg_start_compress(&cinfo, TRUE);
 
@@ -109,10 +106,9 @@ bool jpeg_utils::write_jpeg_data(const char* path, const jpeg_data& jpeg_data)
     jpeg_destroy_compress(&cinfo);
 
     return true;
-
 }
 
-bool jpeg_utils::encode_to_memory(const jpeg_data& jpeg_data, char** buf, size_t& len) 
+bool jpeg_utils::encode_to_memory(const jpeg_data& jpeg_data, char** buf, size_t& len)
 {
     jpeg_compress_struct cinfo;
     jpeg_error_mgr jerr;
@@ -122,7 +118,7 @@ bool jpeg_utils::encode_to_memory(const jpeg_data& jpeg_data, char** buf, size_t
     cinfo.err = jpeg_std_error(&jerr);
     jpeg_create_compress(&cinfo);
 
-     //分配内存缓冲区
+    // 分配内存缓冲区
     unsigned long mem_size = 0;
     jpeg_mem_dest(&cinfo, (unsigned char**)(buf), &mem_size);
     len = jpeg_data.fileSize;
@@ -146,13 +142,12 @@ bool jpeg_utils::encode_to_memory(const jpeg_data& jpeg_data, char** buf, size_t
         row_pointer[0] = &jpeg_data.image_data[cinfo.next_scanline * row_stride];
         jpeg_write_scanlines(&cinfo, row_pointer, 1);
     }
-    
+
     jpeg_finish_compress(&cinfo);
     jpeg_destroy_compress(&cinfo);
 
     return true;
 }
-
 
 jpeg_data jpeg_utils::read_jpeg(const char* path)
 {
@@ -161,23 +156,24 @@ jpeg_data jpeg_utils::read_jpeg(const char* path)
     jpeg_decompress_struct cinfo;
     my_error_mgr jerr;
 
-    FILE* infile;                 /* source file */
-    JSAMPARRAY buffer = NULL;                 /* Output row buffer */
-    int row_stride;               /* physical row width in output buffer */
+    FILE* infile;             /* source file */
+    JSAMPARRAY buffer = NULL; /* Output row buffer */
+    int row_stride;           /* physical row width in output buffer */
 
-    if ((infile = fopen(path, "rb")) == NULL) {
+    if ((infile = fopen(path, "rb")) == NULL)
+    {
         fprintf(stderr, "can't open %s\n", path);
         return res_jpeg;
     }
-    fseek(infile, 0, SEEK_END); // 将文件指针定位到文件末尾
-    long size = ftell(infile); // 获取文件大小（字节数）
-    fseek(infile, 0, SEEK_SET); // 将文件指针重新定位到文件开头
+    fseek(infile, 0, SEEK_END);  // 将文件指针定位到文件末尾
+    long size = ftell(infile);   // 获取文件大小（字节数）
+    fseek(infile, 0, SEEK_SET);  // 将文件指针重新定位到文件开头
     res_jpeg.fileSize = size;
-
 
     cinfo.err = jpeg_std_error(&jerr.pub);
     jerr.pub.error_exit = my_error_exit;
-    if (setjmp(jerr.setjmp_buffer)) {
+    if (setjmp(jerr.setjmp_buffer))
+    {
         jpeg_destroy_decompress(&cinfo);
         fclose(infile);
         return res_jpeg;
@@ -205,11 +201,8 @@ jpeg_data jpeg_utils::read_jpeg(const char* path)
     res_jpeg.jpeg_components = cinfo.output_components;
     res_jpeg.color_space = cinfo.out_color_space;
     res_jpeg.data_precision = cinfo.data_precision;
-    
-
 
     buffer = (*cinfo.mem->alloc_sarray)((j_common_ptr)&cinfo, JPOOL_IMAGE, row_stride, 1);
-
 
     // 创建存储图像数据的数组
     res_jpeg.image_data = (unsigned char*)malloc(cinfo.output_width * cinfo.output_height * cinfo.output_components);
@@ -228,11 +221,9 @@ jpeg_data jpeg_utils::read_jpeg(const char* path)
     return res_jpeg;
 }
 
-
 // row : 第几行   col :第几列
 bool jpeg_data::set_pixel(const size_t& row, const size_t& col, const jpeg_pixel& pixel)
 {
-
     if (row >= jpeg_height || col >= jpeg_width)
     {
         std::cout << "Coordinates out of bounds " << std::endl;
@@ -245,7 +236,6 @@ bool jpeg_data::set_pixel(const size_t& row, const size_t& col, const jpeg_pixel
         image_data[start] = pixel.red;
         image_data[start + 1] = pixel.green;
         image_data[start + 2] = pixel.blue;
-
     }
     if (1 == jpeg_components)
     {
@@ -255,8 +245,7 @@ bool jpeg_data::set_pixel(const size_t& row, const size_t& col, const jpeg_pixel
     return true;
 }
 
-
-jpeg_data  jpeg_data::operator=(const jpeg_data& other)
+jpeg_data jpeg_data::operator=(const jpeg_data& other)
 {
     this->jpeg_width = other.jpeg_width;
     this->jpeg_height = other.jpeg_height;
@@ -267,9 +256,4 @@ jpeg_data  jpeg_data::operator=(const jpeg_data& other)
     this->image_data = other.image_data;
 
     return *this;
-
 }
-
-
-
-

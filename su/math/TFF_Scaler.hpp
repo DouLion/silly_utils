@@ -15,29 +15,30 @@
 
 #include <cmath>
 #include "su_marco.h"
-namespace silly_utils{
+namespace silly_utils
+{
 class Scaler
 {
-public:
-	static bool equal(const float& f1, const float& f2)
-	{
-		return std::abs(f1 - f2) < SU_TINY;
-	}
+  public:
+    static bool equal(const float& f1, const float& f2)
+    {
+        return std::abs(f1 - f2) < SU_TINY;
+    }
 
-	static bool equal(const double& d1, const double& d2)
-	{
-		return std::abs(d1 - d2) < SU_TINY;
-	}
+    static bool equal(const double& d1, const double& d2)
+    {
+        return std::abs(d1 - d2) < SU_TINY;
+    }
 
-	static float deg2rad(const float d)
-	{
-		return (d * SU_PI) / 180.0f;
-	}
+    static float deg2rad(const float d)
+    {
+        return (d * SU_PI) / 180.0f;
+    }
 
-	static double deg2rad(const double d)
-	{
-		return (d * SU_PI) / 180.0;
-	}
+    static double deg2rad(const double d)
+    {
+        return (d * SU_PI) / 180.0;
+    }
 };
-}
-#endif //SILLY_UTILS_SCALER_HPP
+}  // namespace silly_utils
+#endif  // SILLY_UTILS_SCALER_HPP
