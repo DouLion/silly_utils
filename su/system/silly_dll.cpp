@@ -27,7 +27,7 @@ bool silly_dll::close(SU_HANDLER& handler)
 #if IS_WIN32
     b_ret = FreeLibrary(handler);
 #else
-    ret = dlclose(handler);
+    b_ret = dlclose(handler);
 #endif
     return b_ret;
 }

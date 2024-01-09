@@ -74,6 +74,7 @@ OGRPolygon* geo_utils::SillyRingToPolygon(const silly_ring& ring)
     }
 
     polygon->addRingDirectly(ringObj);
+    polygon->closeRings();
     return polygon;
 }
 

@@ -107,6 +107,22 @@ struct silly_geo_rect  // 普通坐标点
         bottom = b;
     }
 
+    void correct()
+    {
+        if (left > right)
+        {
+            double tmp = left;
+            left = right;
+            right = tmp;
+        }
+        if (bottom > top)
+        {
+            double tmp = bottom;
+            bottom = top;
+            top = tmp;
+        }
+    }
+
     double left{0};
     double top{0};
     double right{0};
@@ -124,6 +140,22 @@ struct silly_geo_rect  // 普通坐标点
     {
         return std::abs(rect.left - this->left) > SILLY_GEO_FLOAT_IGNORE_DIFF || std::abs(rect.top - this->top) > SILLY_GEO_FLOAT_IGNORE_DIFF || std::abs(rect.right - this->right) > SILLY_GEO_FLOAT_IGNORE_DIFF ||
                std::abs(rect.bottom - this->bottom) > SILLY_GEO_FLOAT_IGNORE_DIFF;
+    }
+
+    bool intersect(const silly_geo_rect& rect)
+    {
+        int zx = std::abs(rect.left + rect.right - left - right);
+        int x = std::abs(rect.left - rect.right) + std::abs(left - right);
+        int zy = std::abs(rect.top + rect.bottom - top - bottom);
+        int y = std::abs(rect.top - rect.bottom) + std::abs(top - bottom);
+        if (zx <= x && zy <= y)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 };
 
