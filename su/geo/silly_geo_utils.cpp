@@ -17,7 +17,7 @@
 
 using namespace ClipperLib;
 
-silly_point geo_utils::ring_to_center(silly_poly poly)
+silly_point geo_utils::poly_centroid(silly_poly poly)
 {
     silly_point center_point;
     OGRPolygon* orgPloy = geo_utils::SillyPolyToOGRPoly(poly);

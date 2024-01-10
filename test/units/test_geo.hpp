@@ -252,7 +252,7 @@ BOOST_AUTO_TEST_CASE(CENTER)
         if (xian.m_poly.inner_rings.size() > 0)
         {
             std::cout << "n:" << n << "  size: " << xian.m_poly.inner_rings.size() << std::endl;
-            silly_point temp_point = geo_utils::ring_to_center(xian.m_poly);
+            silly_point temp_point = geo_utils::poly_centroid(xian.m_poly);
             OGRPolygon* onePoly = geo_utils::SillyPolyToOGRPoly(xian.m_poly);
             OGRPoint te_point;
             onePoly->Centroid(&te_point);

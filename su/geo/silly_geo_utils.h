@@ -34,7 +34,7 @@ class geo_utils
     /// </summary>
     /// <param name="poly"></param>
     /// <returns></returns>
-    static silly_point ring_to_center(silly_poly poly);
+    static silly_point poly_centroid(silly_poly poly);
 
     /// <summary>
     /// 判断两个面是否相交,如果相交求出相交区域,如果不相交,返回一个空变量
