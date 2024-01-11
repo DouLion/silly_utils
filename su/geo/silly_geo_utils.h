@@ -29,8 +29,21 @@
 class geo_utils
 {
   public:
-    // 求一个面的形心(几何中心)
-    static silly_point ring_to_center(silly_ring ring);
+    /// <summary>
+    /// 求一个面的形心(几何中心),利用ogr库算法
+    /// </summary>
+    /// <param name="poly"></param>
+    /// <returns></returns>
+    static silly_point poly_centroid(silly_poly poly);
+
+    /// <summary>
+    /// 判断两个面是否相交,如果相交求出相交区域,如果不相交,返回一个空变量
+    /// 利用ogr库算法
+    /// 可以两个面相交得到多面的情况
+    /// </summary>
+    /// <param name="poly"></param>
+    /// <returns></returns>
+    static silly_geo_coll intersection_area(silly_poly poly_main, silly_poly poly_deputy);
 
     /// <summary>
     /// 求两个点的方位角,p2相对于p1的方位角(左上角右下角坐标系均可), 正北方向为0度,顺时针
@@ -57,14 +70,6 @@ class geo_utils
     /// <returns></returns>
     /// 注:写入 shp , geojson 类型文件中经测试可以实现
     static bool write_geo_coll(const char* file, const std::vector<silly_geo_coll>& collections);
-
-    /// <summary>
-    /// 判断两个面是否相交,如果相交求出相交区域,如果不相交,返回一个空面的数组
-    /// 两个面的相交可能有多个连续的区域,每个区域要单独存储,返回多个面的数组
-    /// </summary>
-    /// <param name="ring_1">面1</param>
-    /// <param name="ring_2">面2</param>
-    static std::vector<silly_ring> intersect_area(silly_ring ring_1, silly_ring ring_2);
 
     /// <summary>
     /// 初始化 GDAL 环境,只需要初始化一次
