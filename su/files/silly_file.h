@@ -47,6 +47,8 @@ class silly_file
     /// <returns></returns>
     static size_t write(const std::string &path, const std::string &content);
 
+    static size_t write(const std::string& path, const std::vector<std::string>& lines);
+
     /// <summary>
     /// 列出(仅)当前文件夹下所有包含filter的文件
     /// TODO: windwos 下的中文路径匹配有点问题

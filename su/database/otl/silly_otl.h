@@ -41,7 +41,9 @@
 #pragma comment(lib, "odbc32.lib")
 #endif
 
-enum enum_database_type
+#define SILLY_OTL_ODBC_MAX_LEN   1024
+
+enum class enum_database_type
 {
     dbINVALID = 0,    // 无效数据源类型
     dbSQLSERVER = 1,  // SQLSERVER 数据库
@@ -52,12 +54,12 @@ enum enum_database_type
     dbKingB8 = 6      // 人大金仓
 };
 
-const static char* SILLY_DB_TYPE_MSSQL_STR = "sqlserver";
-const static char* SILLY_DB_TYPE_MYSQL_STR = "mysql";
-const static char* SILLY_DB_TYPE_ORACLE_STR = "oracle";
-const static char* SILLY_DB_TYPE_DM8_STR = "dm8";
-const static char* SILLY_DB_TYPE_POSTGRESQL_STR = "postgresql";
-const static char* SILLY_DB_TYPE_KINGB8_STR = "kb8";
+constexpr char* SILLY_DB_TYPE_MSSQL_STR = "sqlserver";
+constexpr char* SILLY_DB_TYPE_MYSQL_STR = "mysql";
+constexpr char* SILLY_DB_TYPE_ORACLE_STR = "oracle";
+constexpr char* SILLY_DB_TYPE_DM8_STR = "dm8";
+constexpr char* SILLY_DB_TYPE_POSTGRESQL_STR = "postgresql";
+constexpr char* SILLY_DB_TYPE_KINGB8_STR = "kb8";
 
 static enum_database_type str_to_db_type(const std::string& desc)
 {
@@ -93,22 +95,22 @@ static std::string db_type_to_str(const enum_database_type& type)
     std::string s_ret;
     switch (type)
     {
-        case dbSQLSERVER:
+    case enum_database_type::dbSQLSERVER:
             s_ret = SILLY_DB_TYPE_MSSQL_STR;
             break;
-        case dbMYSQL:
+        case enum_database_type::dbMYSQL:
             s_ret = SILLY_DB_TYPE_MYSQL_STR;
             break;
-        case dbORACLE:
+        case enum_database_type::dbORACLE:
             s_ret = SILLY_DB_TYPE_ORACLE_STR;
             break;
-        case dbDM8:
+        case enum_database_type::dbDM8:
             s_ret = SILLY_DB_TYPE_DM8_STR;
             break;
-        case dbPG:
+        case enum_database_type::dbPG:
             s_ret = SILLY_DB_TYPE_POSTGRESQL_STR;
             break;
-        case dbKingB8:
+        case enum_database_type::dbKingB8:
             s_ret = SILLY_DB_TYPE_KINGB8_STR;
             break;
         default:
@@ -117,6 +119,12 @@ static std::string db_type_to_str(const enum_database_type& type)
     }
     return s_ret;
 }
+
+constexpr char* SILLY_OTL_MYSQL_ODBC_FORMAT = "Driver={%s};Server=%s;Port=%d;Database=%s;User=%s;Password=%s;Option=3;charset=UTF8;";
+constexpr char* SILLY_OTL_MSSQL_ODBC_FORMAT = "Driver={%s};Server=%s;Port:%d;Database=%s;UID=%s;PWD=%s;";
+constexpr char* SILLY_OTL_ORACLE_ODBC_FORMAT = "Driver={%s};DBQ=%s:%d/%s;Uid=%s;Pwd=%s;";
+constexpr char* SILLY_OTL_POSTGRE_ODBC_FORMAT = "Driver={%s};Server=%s;Port=%d;Database=%s;Uid=%s;Pwd=%s;";
+constexpr char* SILLY_OTL_DSN_FORMAT = "UID=%s;PWD=%s;DSN=%s;";
 
 #define SILLY_OTL_OPT_S_IP "ip"
 #define SILLY_OTL_OPT_S_PORT "port"
@@ -139,25 +147,50 @@ static std::string db_type_to_str(const enum_database_type& type)
     }                                            \
     lob.close();
 
+class otl_tools;
 class otl_conn_opt
 {
+    friend class otl_tools;
   public:
+    /// <summary>
+    /// 从字符串加载otl连接属性
+    /// </summary>
+    /// <param name="s_opt"></param>
+    /// <returns></returns>
     bool load(const std::string& s_opt);
 
+    /// <summary>
+    /// 获取odbc连接串
+    /// </summary>
+    /// <param name="rebuild"></param>
+    /// <returns></returns>
     std::string dump_odbc(const bool& rebuild = false);
+
+    /// <summary>
+    /// 检查是否能够正常联通
+    /// </summary>
+    /// <returns></returns>
+    bool check();
+
+    /// <summary>
+    /// 清空所有信息
+    /// </summary>
+    void clean();
+
+    /// <summary>
+    /// 打印提示信息
+    /// </summary>
     void help();
 
-  public:
+protected:
     std::string ip;
-    int port;
-    enum_database_type type;
+    int port{0};
+    enum_database_type type{ enum_database_type::dbINVALID };
     std::string driver;
     std::string schema;
     std::string user;
     std::string password;
     std::string dsn;
-
-  protected:
     std::string conn;
 };
 

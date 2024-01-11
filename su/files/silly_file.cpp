@@ -87,6 +87,26 @@ size_t silly_file::write(const std::string &path, const std::string &content)
     return content.size();
 }
 
+size_t silly_file::write(const std::string& path, const std::vector<std::string>& lines)
+{
+    size_t write_len = 0;
+#if IS_WIN32
+    std::ofstream ofs_w(silly_encode::cxx11_string_wstring(path));
+#else
+    std::ofstream ofs_w(path);
+#endif
+    if (!ofs_w.is_open())
+    {
+        return write_len;
+    }
+    for (auto l : lines)
+    {
+        ofs_w.write(l.c_str(), l.size());
+        write_len += l.size();
+    }
+    return write_len;
+}
+
 std::vector<std::string> silly_file::list_all(const std::string &path, const std::string &filter)
 {
     std::vector<std::string> vs_ret_list;

@@ -35,6 +35,10 @@ class silly_jsonpp
     /// <param name="root"></param>
     /// <returns></returns>
     static std::string to_string(const Json::Value root);
+
+    static void find_by_key(const std::string& json, const std::string& key, const std::string& filter, std::vector<std::string>& arr);
+
+    static void find_by_key(const Json::Value& root, const std::string& key, const std::string& filter, std::vector<std::string>& arr);
 };
 
 #endif  // SILLY_UTILS_SILLY_JSONPP_H

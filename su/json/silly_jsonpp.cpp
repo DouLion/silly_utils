@@ -56,3 +56,75 @@ std::string silly_jsonpp::to_string(const Json::Value root)
     writer->write(root, &stream);
     return stream.str();
 }
+void find_object(const Json::Value jv_obj, const std::string& key, const std::string& filter, std::vector<std::string>& arr);
+void find_array(const Json::Value jv_arr, const std::string& key, const std::string& filter, std::vector<std::string>& arr);
+
+void find_array(const Json::Value jv_arr, const std::string& key, const std::string& filter, std::vector<std::string>& arr)
+{
+    for (auto jv_tmp : jv_arr)
+    {
+        if (jv_tmp.isArray())
+        {
+            find_array(jv_tmp, key, filter, arr);
+        }
+        else if (jv_tmp.isObject())
+        {
+            find_object(jv_tmp, key, filter, arr);
+        }
+    }
+}
+
+void find_object(const Json::Value jv_obj, const std::string& key, const std::string& filter, std::vector<std::string>& arr)
+{
+    for (auto name : jv_obj.getMemberNames())
+    {
+        if (name == key)
+        {
+            if (jv_obj[name].isString())
+            {
+                std::string content = jv_obj[name].asString();
+                if (filter.empty())
+                {
+                    arr.push_back(content);
+                }
+                else
+                {
+                    if (content.find(filter) < content.size())
+                    {
+                        arr.push_back(content);
+                    }
+                }
+            }
+        }
+        if (jv_obj[name].isArray())
+        {
+            find_array(jv_obj[name], key, filter, arr);
+        }
+        else if (jv_obj[name].isObject())
+        {
+            find_object(jv_obj[name], key, filter, arr);
+        }
+    }
+}
+
+void silly_jsonpp::find_by_key(const std::string& json, const std::string& key, const std::string& filter, std::vector<std::string>& arr)
+{
+    Json::Value root = loads(json);
+    find_by_key(root, key, filter, arr);
+}
+
+void silly_jsonpp::find_by_key(const Json::Value& root, const std::string& key, const std::string& filter, std::vector<std::string>& arr)
+{
+    if (root.isNull())
+    {
+        return;
+    }
+    if (root.isArray())
+    {
+        find_array(root, key, filter, arr);
+    }
+    else if (root.isObject())
+    {
+        find_object(root, key, filter, arr);
+    }
+}
