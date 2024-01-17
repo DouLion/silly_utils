@@ -69,7 +69,8 @@ bool silly_sql_studio::init(const Json::Value &jv_root)
 std::string silly_sql_studio::get(const int &type, const std::string &key)
 {
     std::string s_result;
-    switch (type)
+    enum_database_type ntype = static_cast<enum_database_type>(type);
+    switch (ntype)
     {
         case enum_database_type::dbSQLSERVER:  // sql server
             s_result = m_pMSSQL[key];

@@ -182,6 +182,8 @@ class otl_conn_opt
     /// </summary>
     void help();
 
+    std::string encode();
+
 protected:
     std::string ip;
     int port{0};

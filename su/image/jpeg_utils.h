@@ -143,17 +143,12 @@ class jpeg_utils
   public:
     static jpeg_data creat_empty_jpeg(const size_t& width, const size_t& height, const size_t& components, const J_COLOR_SPACE& color_space, const size_t& quality = 75, const size_t& data_precision = 8);
 
-    bool write_jpeg_data(const char* path, const jpeg_data& jpeg_data);
+    static bool write_jpeg_data(const char* path, const jpeg_data& jpeg_data);
 
-    jpeg_data read_jpeg(const char* path);
+    static jpeg_data read_jpeg(const char* path);
 
     // 将jpeg_data数据转编码为内存jpeg数据
     static bool encode_to_memory(const jpeg_data& jpeg_data, char** buf, size_t& len);
-
-    jpeg_utils() = default;
-    ~jpeg_utils() = default;
-
-  private:
 };
 
 #endif  // SILLY_UTILS_JPEG_UTILS_H
