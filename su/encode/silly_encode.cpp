@@ -3,7 +3,15 @@
 //
 
 #include "silly_encode.h"
+#include <fstream>
 #include <iconv.h>
+
+silly_encode::enum_encode silly_encode::check_system_encode()
+{
+    silly_encode::enum_encode code = silly_encode::enum_encode::eeInvalid;
+    std::string a = std::cout.getloc().name();
+    return code;
+}
 
 std::string silly_encode::url_encode(const std::string &src)
 {
@@ -97,6 +105,38 @@ std::string silly_encode::encode_convert(const char *from, const char *to, const
     iconv_close(cd);
 
     return retStr;
+}
+
+silly_encode::enum_encode silly_encode::check_file_encode(const std::string &path)
+{
+    silly_encode::enum_encode code = silly_encode::enum_encode::eeInvalid;
+    std::ifstream fin(path, std::ios::binary);
+    if (fin.is_open())
+    {
+        return code;
+    }
+    unsigned char s2;
+    fin.read((char *)&s2, sizeof(s2));  //读取第一个字节，然后左移8位
+    int p = s2 << 8;
+    fin.read((char *)&s2, sizeof(s2));  //读取第二个字节
+    p += s2;
+    fin.close();
+
+    switch (p)  //判断文本前两个字节
+    {
+        case 0xfffe:  // 65534
+            code = silly_encode::enum_encode::eeUnicode;
+            break;
+        case 0xfeff:  // 65279
+            code = silly_encode::enum_encode::eeUnicode_BE;
+            break;
+        case 0xe6a2:  // 59042
+            code = silly_encode::enum_encode::eeUTF8;
+            break;
+        default:
+            code = silly_encode::enum_encode::eeANSI;
+    }
+    return code;
 }
 
 std::wstring silly_encode::utf8_wchar(const std::string &text)

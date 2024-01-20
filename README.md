@@ -103,6 +103,13 @@
   target_link_libraries(${PROJECT_NAME} PUBLIC sutils)
   ```
 
+
+## OPENMP
+    https://blog.csdn.net/ab0902cd/article/details/108770396
+    https://blog.csdn.net/jjjstephen/article/details/132201248
+    https://blog.csdn.net/yongbaofeng1234/article/details/88651113
+    https://zhuanlan.zhihu.com/p/61857547
+
 ## VCPKG依赖库:
 
 + windows 下执行:

@@ -74,18 +74,24 @@
 #ifndef SILLY_UTILS_SILLY_ENCODE_H
 #define SILLY_UTILS_SILLY_ENCODE_H
 #include <su_marco.h>
+#include <boost/locale.hpp>
 
 class silly_encode
 {
   public:
-    enum enum_encode
+    enum class enum_encode
     {
+        eeInvalid = 0,
         eeANSI = 1,
-        eeUTF16_LE,
-        eeUTF16_BE,
-        eeUTF8_BOM,
-        eeUTF8
+        eeUTF16_LE = 2,
+        eeUTF16_BE = 3,
+        eeUTF8_BOM = 4,
+        eeUTF8 = 5,
+        eeUnicode = 6,
+        eeUnicode_BE = 7
     };
+
+    static enum_encode check_system_encode();
 
     /// <summary>
     /// URL编码
@@ -111,18 +117,25 @@ class silly_encode
     static std::string encode_convert(const char *from, const char *to, const char *text);
 
     /// <summary>
+    /// 检查文件编码
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    static enum_encode check_file_encode(const std::string &path);
+
+    /// <summary>
     /// 一常用的编码转化
     /// </summary>
     /// <param name="text"></param>
     /// <returns></returns>
     static std::string gbk_utf8(const char *text)
     {
-        return encode_convert("GBK", "UTF-8", text);
+        return boost::locale::conv::between(text, std::string("UTF-8"), std::string("GBK"));//encode_convert("GBK", "UTF-8", text);
     }
 
     static std::string utf8_gbk(const char *text)
     {
-        return encode_convert("UTF-8", "GBK", text);
+        return boost::locale::conv::between(text, std::string("GBK"), std::string("UTF-8"));// encode_convert("UTF-8", "GBK", text);
     }
 
     static std::string unicode_gbk(const char *text)

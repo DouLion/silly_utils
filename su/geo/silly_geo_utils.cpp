@@ -390,7 +390,7 @@ bool geo_utils::check_shp_info(const std::string& shp_file, enum_geometry_types&
         OGRFieldDefn* def = pFeature_r->GetFieldDefnRef(i);
         OGRFieldType type = def->GetType();
         std::string field_name = def->GetNameRef();
-        if (!silly_encode::is_utf8(field_name.c_str(), field_name.size()))
+        if (silly_encode::enum_encode::eeUTF8 != silly_encode::is_utf8(field_name.c_str(), field_name.size()))
         {
             field_name = silly_encode::gbk_utf8(field_name);
         }
@@ -500,7 +500,7 @@ bool geo_utils::check_shp_info(const std::string& shp_file, enum_geometry_types&
         OGRFieldDefn* def = pFeature_r->GetFieldDefnRef(i);
         OGRFieldType type = def->GetType();
         std::string field_name = def->GetNameRef();
-        if (!silly_encode::is_utf8(field_name.c_str(), field_name.size()))
+        if (silly_encode::enum_encode::eeUTF8 != silly_encode::is_utf8(field_name.c_str(), field_name.size()))
         {
             field_name = silly_encode::gbk_utf8(field_name);
         }
