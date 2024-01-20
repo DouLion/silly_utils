@@ -228,10 +228,10 @@ void png_data::release()
 {
     for (int r = 0; r < height; ++r)
     {
-        free(data[r]);
+        SU_MEM_FREE(data[r]);
         data[r] = nullptr;
     }
-    free(data);
+    SU_MEM_FREE(data);
     data = nullptr;
 }
 
