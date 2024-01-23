@@ -110,7 +110,8 @@ if(IS_LINUX)
 
     find_library(RTTOPO_LIB NAMES "rttopo")
     target_link_libraries(${PROJECT_NAME} PUBLIC ${RTTOPO_LIB})
-
-    target_link_libraries(${PROJECT_NAME} PUBLIC /usr/lib/libodbc.so)
+    
+    find_package(unixodbc REQUIRED)
+    target_link_libraries(${PROJECT_NAME} PUBLIC UNIX::odbc)
 
 endif()
