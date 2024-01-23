@@ -115,7 +115,8 @@
 + windows 下执行:
 
   ```
-  vcpkg install boost gdal zlib bzip2 libzip jsoncpp polyclipping cryptopp libiconv otl curl netcdf-cxx4 rapidjson sqlite3 libspatialite libgeotiff protozero libpng libjpeg-turbo
+  vcpkg install boost gdal zlib bzip2 libzip jsoncpp polyclipping cryptopp libiconv otl curl netcdf-cxx4 rapidjson sqlite3 libspatialite libgeotiff protozero libpng libjpeg-turbo simpleini
+
   ```
 
 
