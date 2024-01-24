@@ -111,7 +111,12 @@ if(IS_LINUX)
     find_library(RTTOPO_LIB NAMES "rttopo")
     target_link_libraries(${PROJECT_NAME} PUBLIC ${RTTOPO_LIB})
     
-    find_package(unixodbc REQUIRED)
-    target_link_libraries(${PROJECT_NAME} PUBLIC UNIX::odbc)
+    find_package(unixodbc QUIET)
+    if(unixodbc_FOUND)
+     
+    else()
+      SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lodbc ")
+    endif()
+    # target_link_libraries(${PROJECT_NAME} PUBLIC UNIX::odbc)
 
 endif()

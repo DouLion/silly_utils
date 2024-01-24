@@ -74,7 +74,7 @@ IF (CMAKE_HOST_SYSTEM_NAME MATCHES "Linux")
     SET(CMAKE_USE_PTHREADS_INIT 1)
     SET(THREADS_PREFER_PTHREAD_FLAG ON)
 
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -lpthread -fPIC -Wall -fopenmp -Wunused-function")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -lpthread -fPIC -Wall -fopenmp -Wunused-function -Wunused-variable")
     SET(STATIC_LIB_SUFFIX "a")
     SET(DYNAMIC_LIB_SUFFIX "so")
 ELSEIF (CMAKE_HOST_SYSTEM_NAME MATCHES "Windows")
