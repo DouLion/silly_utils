@@ -1,0 +1,234 @@
+/*
+ * @copyright: Beijing TianZhiXiang Information Technology Co., Ltd. All rights
+ * reserved.
+ * @website: http://www.tianzhixiang.com.cn/
+ * @author: dou li yang
+ * @date: 2024/1/24 15:29
+ * @version: 1.0.1
+ * @description:
+ */
+#ifndef SILLY_UTILS_SILLY_ISO_LINE_H
+#define SILLY_UTILS_SILLY_ISO_LINE_H
+
+#include <gpc/gpc.h>
+
+struct iso_point
+{
+    iso_point() = default;
+    iso_point(double xx, double yy)
+    {
+        x = xx;
+        y = yy;
+    }
+    double x;
+    double y;
+    iso_point operator = (const iso_point& ip)
+    {
+        this->x = ip.x;
+        this->y = ip.y;
+        return *this;
+    }
+
+    bool too_near(const iso_point& ip, double distance = 1e-5)
+    {
+        return std::abs(x - ip.x) < distance && std::abs(y - ip.y) < distance;
+    }
+
+};
+struct iso_ring        // 闭合环
+{
+    int outer{ 0 }; // 0 内环  1 外环
+    int marked{ 0 };    // 如果是内环的话,有没有找到他的外环 0表示没有
+    std::vector<iso_point> cpoint;  // 控制点
+    std::vector<iso_point> ppoint;// 填充点
+
+    iso_ring operator = (const iso_ring& ir)
+    {
+        this->outer = ir.outer;
+        this->marked = ir.marked;
+        this->cpoint = ir.cpoint;
+        this->ppoint = ir.ppoint;
+        return *this;
+    }
+
+};
+
+struct iso_polygon    // 普通面
+{
+    // int color{ 0 };
+    // double threshold{ 0 };
+    iso_ring outer;
+    std::vector<iso_ring> inners;
+};
+
+struct iso_polygon_m    // 多面
+{
+    std::vector < iso_polygon> polys;
+};
+
+struct iso_panels    //
+{
+    int num{ 0 };
+    int color[64]{ 0 };
+    iso_polygon_m mpolys[64];
+};
+
+
+struct iso_triangle
+{
+    double taz;
+    double tax;
+    double tay;
+    double tbx;
+    double tby;
+    double tcx;
+    double tcy;
+
+    int traced{ 0 };
+    int nBian[3] = { 0 };
+    iso_point dv[3];
+};
+
+class silly_iso_line
+{
+    enum class enum_iso_type
+    {
+        eitLine = 0,  //等值线
+        eitArea = 1   // 等值面
+    };
+
+  public:
+    silly_iso_line(int type);
+
+    // Attributes
+  public:
+    int m_nLineNum;
+
+    int bColor;
+    double* map_b{nullptr};
+    double XXMax, YYMax, XXMin, YYMin;  //数值点的x，y最大值
+
+    // 视口范围
+    double dMinLGTD{1e6};   //最小经度
+    double dMaxLGTD{-1e6};  //最大经度
+    double dMinLTTD{1e6};   //最小纬度
+    double dMaxLTTD{-1e6};  //最大纬度
+    int nClipType{0};
+
+    int bNum;  //三角形数量
+    int pNum;  //数据点数量
+    double* tax{nullptr};
+    double* tay{nullptr};
+    double* tbx{nullptr};
+    double* tby{nullptr};
+    double* tcx{nullptr};
+    double* tcy{nullptr};
+    double* taz{nullptr};
+    double* tbz{nullptr};
+    double* tcz{nullptr};  //三角形数据结构
+    double* ddx{nullptr};
+    double* ddy{nullptr};
+    double* ddz{nullptr};
+    double maxZ{0};
+    double minZ{0};  //数据点坐标(ddx,ddy)及取值(ddz)
+    int colorLevelNum{0};
+    int colorLevel[255] = {0};
+    // int colorTrans;
+    int isoLevel{0};
+    double isoLevelValue[255] = {0};
+
+    // SF1 showF[ARR];
+    // 0 等值线  1 等值面
+    enum_iso_type m_Type;
+
+  public:
+    int ThreadBeginLine(void* pParam);
+
+    int BeginLinePrepare(void* pParam);
+
+    // void SetBoundary(const Tag_Boundary_Info* pBoundary);
+
+    void SetPointAndValues(int PointNum, const double* pLgtd, const double* pLttd, const double* pData);
+
+    void DrawIsoline(iso_panels* iso_area, TAG_IsolineL* ptagIsoL);
+
+    void SetScope(double BeginValue, double EndValue, int level, const char* interval);
+
+    void SetColor(int clevel, const char* c, int sort, int Trans);
+
+    void SetMapBoundary(double mapx0, double mapy0, double mapx1, double mapy1);
+
+    void DeleteIsoLine();
+
+  public:
+    int guanghua(int& nxyntz, int& sfnum1, int& j, int type1, double z, int tiao, int* nnn, int* type, int* zz, int* xytSize, double** isolinex, double** isoliney);
+
+    void maketrinet();
+
+    void makeisolines(TAG_IsolineL* ptagIsoL);
+
+    void showisoline(int tiao, int* type, int* nnn, double** isolinex, double** isoliney, TAG_LineData* pTagData);
+
+    void isoline(double z, TAG_LineData* pLdata);
+
+    int trackisoline(int n, int t, int b, int* tb, int* tbb, int* tcha, double* xb, double* yb, int nElement, int& xyt, double** isolinex, double** isoliney);
+
+    int findnei(int t, int* tb, int* tbb, int* tcha, int nElement);
+
+    void makelabel(int& sfnum1, double z, int No, int type, int* nnn, double** isolinex, double** isoliney);
+
+    void computtext(double x1, double y1, double x2, double y2, int* lr, int* ori);
+
+    void showlabel(TAG_LineData* pTagData);
+
+    int PointRgn(double x, double y, int Numble, double* PointList);
+    int point_in_poly(const double& x, const double& y, const int& poly_p_num, const double* poly_x, const double* poly_y);
+    int point_in_poly(const double& x, const double& y, const std::vector<iso_point>& points);
+
+    void iso_fill(const int& curr_level, const int& curr_tri_num, std::vector<iso_triangle>& curr_tri, iso_polygon_m& result, int* flag);  // level为当前跟踪的级别
+
+    void trace_ring(int& trii, std::vector<iso_triangle>& curr_tri, iso_ring& ring);
+    // 根据控制点, 填充出平滑的等值面
+    void draw_iso_fill(iso_polygon_m* pTagData, int pPlaneNum, const int* pCtrlPointNum, double** isoFillX, double** isoFillY);  //输出等值面
+    void draw_iso_fill(iso_polygon_m& result_polys, int ring_num, std::vector<iso_ring>& all_rings);
+
+    /**
+     * @desc : 根据边界切割环
+     * @author: dou li yang
+     * @date : 2023-07-14
+     * @param_in : None
+     * @param_out : None
+     * @return : None
+     */
+    void clip_iso_ring(iso_ring* ring, gpc* gpc1, gpc_polygon* clip);
+
+    /**
+     * @desc : 三次b样条插值的一种实现
+     * @author: dou li yang
+     * @date : 2023-07-14
+     * @param :
+     * @param null:
+     * @return :
+     */
+    bool cubic_b_spline(int mode, int ni, double* poc, int* num, double* buff, const bool bMultiPoint = true);
+
+    char* gethex(char* p, char* q, int* data);
+
+    /// <summary>
+    /// 比较一个边中是否存在该边的相邻边,如果有,返回这个边的序号
+    /// </summary>
+    /// <param name="dx1"></param>
+    /// <param name="dy1"></param>
+    /// <param name="dx2"></param>
+    /// <param name="dy2"></param>
+    /// <param name="point"></param>
+    /// <param name="nBian"></param>
+    /// <returns></returns>
+    bool compare_triangle_same_edge(double dx1, double dy1, double dx2, double dy2, iso_point* point, int& nBian);
+    bool compare_triangle_same_edge(double dx1, double dy1, double dx2, double dy2, const iso_triangle& tri, int& nBian);
+
+  public:
+    virtual ~silly_iso_line();
+};
+
+#endif  // SILLY_UTILS_SILLY_ISO_LINE_H

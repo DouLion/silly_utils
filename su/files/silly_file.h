@@ -39,6 +39,8 @@ class silly_file
 
     static size_t read(const std::string &path, unsigned char **content, const size_t &offset = 0, const size_t &len = SIZE_MAX);
 
+    static bool read(const std::string& path, std::vector<std::string>& lines);
+
     /// <summary>
     /// 将内容写入文件
     /// </summary>

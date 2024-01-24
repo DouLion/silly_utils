@@ -1,0 +1,2048 @@
+//
+// Created by dell on 2024/1/24. 单纯处理算法
+//
+
+#include "silly_iso_line.h"
+#include "su_marco.h"
+#include <triangular/TFF_Delaunay.h>
+#include <boost/thread.hpp>
+#include <thiessen/thiessen_creator.h>
+#include <malloc.h>
+#include <memory>
+#include <thread>
+#include <chrono>
+#include <boost/timer.hpp>
+
+
+void rbub(int n, double p[])
+{
+    int m, k, j, i;
+    double d;
+    k = 0;
+    m = n - 1;
+    while (k < m)
+    {
+        j = m - 1;
+        m = 0;
+        for (i = k; i <= j; i++)
+        {
+            if (p[i] > p[i + 1])
+            {
+                d = p[i];
+                p[i] = p[i + 1];
+                p[i + 1] = d;
+                m = i;
+            }
+        }
+
+        j = k + 1;
+        k = 0;
+        for (i = m; i >= j; i--)
+        {
+            if (p[i - 1] > p[i])
+            {
+                d = p[i];
+                p[i] = p[i - 1];
+                p[i - 1] = d;
+                k = i;
+            }
+        }
+    }
+}
+
+struct ThreadValue
+{
+    silly_iso_line* pIso;
+    int curr_level;
+    iso_polygon_m* pAData;
+    iso_triangle* pTriVCur;
+    iso_triangle* pTriVNext;
+    int nCurNum;
+    int nNextNum;
+    bool bFinish;
+};
+
+silly_iso_line::silly_iso_line(int type)
+{
+    //////////////////////////////////////////////////////////////////////////
+    m_Type = static_cast<enum_iso_type>(type);
+    //////////////////////////////////////////////////////////////////////////
+
+}
+
+silly_iso_line::~silly_iso_line()
+{
+    if (map_b)
+    {
+        free(map_b);
+        map_b = nullptr;
+    }
+
+    DeleteIsoLine();
+}
+
+void silly_iso_line::SetPointAndValues(int PointNum, const double* pLgtd, const double* pLttd, const double* pData)
+{
+    // 得到所有样本点的经纬度范围
+    ddx = (double*)malloc(PointNum * sizeof(double));
+    ddy = (double*)malloc(PointNum * sizeof(double));
+    ddz = (double*)malloc(PointNum * sizeof(double));
+    XXMax = YYMax = 0;
+    XXMin = YYMin = 9999;
+
+    double dXValue = 0, dYValue = 0, dZValue = 0;
+    for (int i = 0; i < PointNum; ++i)
+    {
+        dXValue = pLgtd[i];
+        dYValue = pLttd[i];
+        dZValue = pData[i];
+
+        if (dXValue > XXMax)
+            XXMax = dXValue;
+        if (dXValue < XXMin)
+            XXMin = dXValue;
+
+        if (dYValue > YYMax)
+            YYMax = dYValue;
+        if (dYValue < YYMin)
+            YYMin = dYValue;
+
+        if (maxZ < dZValue)
+            maxZ = dZValue;
+        if (minZ > dZValue)
+            minZ = dZValue;
+
+        ddx[i] = dXValue;
+        ddy[i] = dYValue;
+        ddz[i] = dZValue;
+    }
+
+    maxZ = ((int)(maxZ / 10) + 1) * 10;  //取得比maxz大的整数
+    minZ = ((int)(minZ / 10)) * 10;      //取得比minz小的整数
+    //把所有数据变为正值
+    if (minZ < 0)
+    {
+        for (int i = 0; i < PointNum; i++)
+        {
+            ddz[i] -= (minZ);
+        }
+    }
+    pNum = PointNum;
+}
+
+void silly_iso_line::SetBoundary(const Tag_Boundary_Info* pBoundary)  //设置裁减边界
+{
+    map_b = (double*)malloc(pBoundary->nNum * sizeof(double));
+    memcpy(map_b, pBoundary->pdPoint, pBoundary->nNum * sizeof(double));
+
+    double x_max, y_max, x_min, y_min;
+    x_min = pBoundary->dMinX;
+    x_max = pBoundary->dMaxX;
+    y_min = pBoundary->dMinY;
+    y_max = pBoundary->dMaxY;
+
+    double dx = x_max - x_min;
+    double dy = y_max - y_min;
+    //扩充数值边界
+    x_min = x_min - dx;
+    y_min = y_min - dy;
+    x_max = x_max + dx;
+    y_max = y_max + dy;
+
+    ddx = (double*)realloc(ddx, (pNum + 6) * sizeof(double));
+    ddy = (double*)realloc(ddy, (pNum + 6) * sizeof(double));
+    ddz = (double*)realloc(ddz, (pNum + 6) * sizeof(double));
+
+    /*	ddx[pNum] = x_min;
+        ddy[pNum] = y_min;
+        ddz[pNum] = -0.0001;
+        pNum++;
+
+        ddx[pNum] = (x_max + x_min) / 2;
+        ddy[pNum] = y_min - dy / 2;
+        ddz[pNum] = -0.0004;
+        pNum++;
+
+        ddx[pNum] = x_max;
+        ddy[pNum] = y_min;
+        ddz[pNum] = -0.0004;
+        pNum++;
+
+        ddx[pNum] = x_max;
+        ddy[pNum] = y_max;
+        ddz[pNum] = -0.0003;
+        pNum++;
+
+        ddx[pNum] = (x_max + x_min) / 2;
+        ddy[pNum] = y_max + dy / 2;
+        ddz[pNum] = -0.0003;
+        pNum++;
+
+        ddx[pNum] = x_min;
+        ddy[pNum] = y_max;
+        ddz[pNum] = -0.0002;
+        pNum++;*/
+
+    maketrinet();  //生成三角形网格
+
+    for (int i = 0; i < isoLevel; i++)
+    {
+        double zv = isoLevelValue[i];
+        for (int ib = 0; ib < bNum; ib++)
+        {
+            if (zv == taz[ib])
+                taz[ib] -= 0.00001;
+            if (zv == tbz[ib])
+                tbz[ib] -= 0.00002;
+            if (zv == tcz[ib])
+                tcz[ib] -= 0.00003;
+        }
+    }
+}
+
+void silly_iso_line::SetScope(double BeginValue, double EndValue, int level, const char* interval)
+{
+    char* p;
+    char data[512];
+    if (level > 253)
+    {
+        return;
+    }
+
+    isoLevel = level;
+    strcpy(data, interval);
+
+    if (data[0] == 0)
+    {
+        //缺省分级
+        for (int j = 0; j < level; j++)
+        {
+            isoLevelValue[j] = BeginValue + ((EndValue - BeginValue) / level) * j;
+        }
+        isoLevelValue[level] = 1e6;
+        return;
+    }
+
+    p = data;
+    level = 0;
+    char seps[] = " ,\t\n";
+    char* token;
+
+    token = strtok(p, seps);
+
+    while (token != nullptr)
+    {
+        if (token[0] == 'M' || token[0] == 'm')
+        {
+            //最小值以下有数，取出M后面跟着的那个数作为最小值
+            if (token[1] == 0)
+            {
+                isoLevelValue[level++] = 0;
+            }
+            else
+            {
+                isoLevelValue[level++] = atof(&token[1]);
+            }
+        }
+        else
+        {
+            isoLevelValue[level++] = atof(token);
+        }
+        token = strtok(nullptr, seps);
+    }
+    // 对isolevelvalue进行排序
+    rbub(level, isoLevelValue);
+    isoLevel = level;
+    for (int j = 0; j < level; j++)
+    {
+        // p=getfloat(data,p,&isoLevelValue[j]);
+        if (minZ < 0)
+        {
+            isoLevelValue[j] -= (minZ);
+            if (j == 0)
+                isoLevelValue[j] = 0;
+        }
+    }
+
+    isoLevelValue[level] = 99999999;
+}
+
+void silly_iso_line::DrawIsoline(iso_panels* iso_area, TAG_IsolineL* pTagIsoL)
+{
+    int i;
+    int g_n = 0;
+    std::vector<iso_triangle> pTri[64];
+
+    int nLevelTriNum[64];
+    // memset(nLevelTriNum, 0, 32 * sizeof(int));
+    double x1, x2, x3, y1, y2, y3, z1, z2, z3;
+
+    double dZLevel = 0;
+    int nTriNum = 0;
+
+    for (int il = 0; il < isoLevel; il++)
+    {
+        dZLevel = isoLevelValue[il];
+        // pTri[il].resize(bNum);// = new iso_triangle[bNum]; //(iso_triangle*)malloc(sizeof(iso_triangle) * bNum);
+        // memset(pTri[il], 0, sizeof(iso_triangle) * bNum);
+
+        nTriNum = 0;
+        //先找出当前级别值穿过的三角形和边
+        int nBianNum = 0;
+        for (i = 0; i < bNum; i++)
+        {
+            //遍历所有三角形获得通过等值线的边数n,并记录三角形的边序号tbb[i],三角形序号tb[i]
+            x1 = tax[i];
+            x2 = tbx[i];
+            x3 = tcx[i];
+            y1 = tay[i];
+            y2 = tby[i];
+            y3 = tcy[i];
+            z1 = taz[i];
+            z2 = tbz[i];
+            z3 = tcz[i];
+            if (z1 == z2 && z2 == z3)
+            {
+                continue;
+            }
+
+            bool bTrue = false;
+            nBianNum = 0;
+            iso_triangle tmp_tri;
+            if ((dZLevel - z1) * (dZLevel - z2) < 0 && z1 != z2)
+            {
+                tmp_tri.nBian[0] = 1;  //等值线从AB边穿过
+                bTrue = true;
+            }
+            if ((dZLevel - z1) * (dZLevel - z3) < 0 && z1 != z3)
+            {
+                tmp_tri.nBian[1] = 1;  //等值线从AC边穿过
+                bTrue = true;
+            }
+            if ((dZLevel - z2) * (dZLevel - z3) < 0 && z2 != z3)
+            {
+                tmp_tri.nBian[2] = 1;  //等值线从BC边穿过
+                bTrue = true;
+            }
+
+            if (bTrue)
+            {
+                //插值公式
+                if (tmp_tri.nBian[0] == 1)
+                {
+                    tmp_tri.dv[0].x = x1 + (x2 - x1) * (dZLevel - z1) / (z2 - z1);  //线性插值
+                    tmp_tri.dv[0].y = y1 + (y2 - y1) * (dZLevel - z1) / (z2 - z1);
+                }
+                if (tmp_tri.nBian[1] == 1)
+                {
+                    tmp_tri.dv[1].x = x3 + (x1 - x3) * (dZLevel - z3) / (z1 - z3);
+                    tmp_tri.dv[1].y = y3 + (y1 - y3) * (dZLevel - z3) / (z1 - z3);
+                }
+                if (tmp_tri.nBian[2] == 1)
+                {
+                    tmp_tri.dv[2].x = x2 + (x3 - x2) * (dZLevel - z2) / (z3 - z2);
+                    tmp_tri.dv[2].y = y2 + (y3 - y2) * (dZLevel - z2) / (z3 - z2);
+                }
+
+                tmp_tri.tax = x1;
+                tmp_tri.tay = y1;
+                tmp_tri.tbx = x2;
+                tmp_tri.tby = y2;
+                tmp_tri.tcx = x3;
+                tmp_tri.tcy = y3;
+                tmp_tri.taz = z1;
+                if (x1 < 108 || x2 < 108 || x3 < 108)
+                {
+                    int acfafsd = 0;
+                }
+                pTri[il].push_back(tmp_tri);
+                nTriNum++;
+            }
+        }
+
+        nLevelTriNum[il] = nTriNum;
+    }
+
+    int flags[32] = {0};
+    if (m_Type == enum_iso_type::eitArea)
+    {
+        iso_area->num = isoLevel;
+        for (i = 0; i < isoLevel; i++)
+        {
+         
+#if 1
+            iso_fill(i, nLevelTriNum[i], pTri[i], iso_area->mpolys[i], &flags[i]);
+#else
+            std::thread t_iso_fill(&silly_iso_line::iso_fill, this, i, nLevelTriNum[i], pTri[i], nLevelTriNum[i + 1], pTri[i + 1], &iso_area->mpolys[i], &flags[i]);
+            t_iso_fill.detach();
+#endif
+        }
+        bool bTrue = false;
+        while (!bTrue)
+        {
+            bTrue = true;
+            for (i = 0; i < isoLevel; i++)
+            {
+                if (!flags[i])
+                {
+                    bTrue = false;
+                    break;
+                }
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
+    }
+    else if (enum_iso_type::eitLine == m_Type)
+    {
+        //等值线
+        makeisolines(pTagIsoL);  //生成等值线
+    }
+}
+
+void silly_iso_line::SetColor(int clevel, const char* c, int sort, int Trans)
+{
+    int r, g, b;
+    int r1, g1, b1;
+    int r2, g2, b2;
+    float i;
+
+    char *p, *data;
+    // USES_CONVERSION;
+    // data=OLE2A(c);
+    data = (char*)c;
+    // colorTrans = Trans;
+
+    int s = 0;
+    bColor = clevel;
+
+    if (data[0] == 0)
+    {  //自动计算颜色
+        colorLevelNum = isoLevel;
+        r2 = g2 = b2 = 255;
+        CColor tmpColor(bColor);
+        r1 = tmpColor.GetRed();
+        g1 = tmpColor.GetGreen();
+        b1 = tmpColor.GetBlue();
+        // r1 = GetRValue(bColor);
+        // g1 = GetGValue(bColor);
+        // b1 = GetBValue(bColor);
+        if (sort == 1)
+        {
+            for (i = 10; i <= 100; i += 90 / colorLevelNum)
+            {
+                r = r1 * (i / 100) + r2 * (1 - (i / 100));
+                g = g1 * (i / 100) + g2 * (1 - (i / 100));
+                b = b1 * (i / 100) + b2 * (1 - (i / 100));
+                colorLevel[s++] = SU_RGB(r, g, b);
+            }
+        }
+        else
+        {
+            for (i = 10; i <= 100; i += 90 / colorLevelNum)
+            {
+                r = r1 * (1 - (i / 100)) + r2 * ((i / 100));
+                g = g1 * (1 - (i / 100)) + g2 * ((i / 100));
+                b = b1 * (1 - (i / 100)) + b2 * ((i / 100));
+                colorLevel[s++] = SU_RGB(r, g, b);
+            }
+        }
+    }
+    else
+    {
+        if (clevel < 1)
+            return;
+
+        if (clevel > 254)
+            return;
+
+        colorLevelNum = clevel;
+
+        p = data;
+        for (int j = 0; j < colorLevelNum; j++)
+        {
+            p = gethex(data, p, &colorLevel[j]);
+        }
+    }
+}
+
+char* silly_iso_line::gethex(char* p, char* q, int* data)
+{
+    char d[100];
+
+    int i = 0;
+    while ((*q) != ' ' && *q != 0)
+    {
+        d[i++] = *q;
+        q++;
+    }
+    q++;
+    d[i] = '\0';
+    sscanf(d, "%x", &i);
+    *data = i;
+    return q;
+}
+
+void silly_iso_line::showisoline(int tiao, int* type, int* nnn, double** isoLineX, double** isoLineY, TAG_LineData* pTagData)
+{
+    int nn, k;
+    int j;
+    int iMal = 0;
+
+    pTagData->nNum = tiao;
+
+    for (j = 0; j < tiao; j++)
+    {
+        if (type[j])
+            nn = nnn[j];  //如果是非闭合等值线，坐标点数为nnn[j]
+        else
+            nn = nnn[j] - 2;
+
+        pTagData->pPointNum[j] = nn + 1;
+        pTagData->pPoint[j] = (FPoint*)malloc(pTagData->pPointNum[j] * sizeof(FPoint));
+
+        for (k = 0; k <= nn; k++)
+        {
+            pTagData->pPoint[j][k].dx = isoLineX[j][k];
+            pTagData->pPoint[j][k].dy = isoLineY[j][k];
+        }
+        pTagData->pType[j] = type[j];
+    }
+}
+
+void silly_iso_line::maketrinet()
+{
+    boost::timer t;
+    Delaunay DelaunayTri;
+    //// ddx, ddy, ddz  生成三角形,每个三角形 a b c 三个边, z 值为?
+    bNum = DelaunayTri.Triangulate(pNum, ddx, ddy, ddz, tax, tay, taz, tbx, tby, tbz, tcx, tcy, tcz);
+    /*	std::vector<dt::Vector2<double>> points;
+        for (int i = 0; i < pNum; ++i) {
+            points.push_back(dt::Vector2<double>{ddx[i], ddy[i], ddz[i]});
+        }*/
+    // bNum = delaunay::triangulate(pNum, ddx, ddy, ddz, tax, tay, taz, tbx, tby, tbz, tcx, tcy, tcz);
+    // dt::Delaunay<double> triangulation;
+    // const auto start = std::chrono::high_resolution_clock::now();
+    // const std::vector<dt::Triangle<double>> triangles = triangulation.triangulate(points);
+    // const auto end = std::chrono::high_resolution_clock::now();
+    // const std::chrono::duration<double> diff = end - start;
+
+    // std::cout << triangles.size() << " triangles generated in " << diff.count()
+    //	<< "s\n";
+    //// const std::vector<dt::Edge<double>> edges = triangulation.getEdges();
+    // bNum = triangles.size();
+    // tax = (double*)malloc(bNum * sizeof(double));
+    // tay = (double*)malloc(bNum * sizeof(double));
+    // taz = (double*)malloc(bNum * sizeof(double));
+    // tbx = (double*)malloc(bNum * sizeof(double));
+    // tby = (double*)malloc(bNum * sizeof(double));
+    // tbz = (double*)malloc(bNum * sizeof(double));
+    // tcx = (double*)malloc(bNum * sizeof(double));
+    // tcy = (double*)malloc(bNum * sizeof(double));
+    // tcz = (double*)malloc(bNum * sizeof(double));
+    // for (int i = 0; i < bNum; ++i)
+    //{
+    //	tax[i] = triangles[i].a->x;
+    //	tay[i] = triangles[i].a->y;
+    //	taz[i] = triangles[i].a->v;
+    //	tbx[i] = triangles[i].b->x;
+    //	tby[i] = triangles[i].b->y;
+    //	tbz[i] = triangles[i].b->v;
+    //	tcx[i] = triangles[i].c->x;
+    //	tcy[i] = triangles[i].c->y;
+    //	tcz[i] = triangles[i].c->v;
+    //}
+    std::cout << "triangulate: " << t.elapsed() << std::endl;
+    cairo_surface_t* surface;
+    cairo_t* cr;
+
+    surface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, CAIRO_WIDHT_T, CAIRO_WIDHT_T);
+    cr = cairo_create(surface);
+    cairo_set_source_rgb(cr, 1, 1, 1);
+    cairo_rectangle(cr, 0, 0, CAIRO_WIDHT_T, CAIRO_WIDHT_T);
+    cairo_stroke_preserve(cr);
+    cairo_fill(cr);
+    cairo_set_source_rgb(cr, 1, 0.2, 0.2);
+    cairo_set_line_width(cr, 1.0);
+    dMinLGTD = 110.038;
+    dMinLTTD = 42.711;  // 24.5;	// 上下 这两个是反的
+    dMaxLGTD = 120.260;
+    dMaxLTTD = 35.833;  // 30.5;
+    dMinLGTD = 107;
+    dMinLTTD = 43;  // 24.5;	// 上下 这两个是反的
+    dMaxLGTD = 120.260;
+    dMaxLTTD = 34;  // 30.5;
+
+    for (int i = 0; i < 10; ++i)
+    {
+        double x1, y1, x2, y2, x3, y3;
+        x1 = (tax[i] - dMinLGTD) / (dMaxLGTD - dMinLGTD) * CAIRO_WIDHT_T;
+        y1 = (tay[i] - dMinLTTD) / (dMaxLTTD - dMinLTTD) * CAIRO_WIDHT_T;
+        x2 = (tbx[i] - dMinLGTD) / (dMaxLGTD - dMinLGTD) * CAIRO_WIDHT_T;
+        y2 = (tby[i] - dMinLTTD) / (dMaxLTTD - dMinLTTD) * CAIRO_WIDHT_T;
+        x3 = (tcx[i] - dMinLGTD) / (dMaxLGTD - dMinLGTD) * CAIRO_WIDHT_T;
+        y3 = (tcy[i] - dMinLTTD) / (dMaxLTTD - dMinLTTD) * CAIRO_WIDHT_T;
+        cairo_move_to(cr, x1, y1);
+        cairo_line_to(cr, x2, y2);
+        cairo_line_to(cr, x3, y3);
+        cairo_line_to(cr, x1, y1);
+        cairo_close_path(cr);
+        // cairo_stroke(cr);
+        // cairo_restore(cr);
+    }
+    cairo_stroke(cr);
+    cairo_surface_write_to_png(surface, "./delaunay.png");
+    cairo_destroy(cr);
+    cairo_surface_destroy(surface);
+    //
+}
+
+int silly_iso_line::PointRgn(double x, double y, int Numble, double* PointList)
+{
+    int i, j;
+    double d;
+    int c = 0;
+    for (i = 0, j = Numble - 1; i < Numble; j = i++)
+    {
+        d = (PointList[j * 2] - PointList[i * 2]) * (y - PointList[i * 2 + 1]) / (PointList[j * 2 + 1] - PointList[i * 2 + 1]) + PointList[i * 2];
+        if (x == d)
+            return 0;
+        if ((((PointList[i * 2 + 1] <= y) && (y < PointList[j * 2 + 1]) || ((PointList[j * 2 + 1] <= y) && (y < PointList[i * 2 + 1]))) && (x < d)))
+            c = !c;
+    }
+    return c;
+}
+
+//等值线生成
+void silly_iso_line::isoline(double z, TAG_LineData* pLdata)
+{
+    int *nnn, *type, *zz, *xytSize;
+    nnn = type = zz = xytSize = nullptr;
+    int sfnum1 = 0, tiao = 0;
+    double **isoLineX, **isoLineY;  //未平滑的等值线
+
+    int nxyntz = 1;
+    isoLineX = (double**)malloc(TZX_MALLOC_SIZE * sizeof(double*));
+    isoLineY = (double**)malloc(TZX_MALLOC_SIZE * sizeof(double*));
+    xytSize = (int*)malloc(TZX_MALLOC_SIZE * sizeof(double*));
+
+    isoLineX[0] = (double*)malloc(TZX_MALLOC_SIZE * sizeof(double));
+    isoLineY[0] = (double*)malloc(TZX_MALLOC_SIZE * sizeof(double));
+
+    nnn = (int*)malloc(TZX_MALLOC_SIZE * sizeof(int));
+    type = (int*)malloc(TZX_MALLOC_SIZE * sizeof(int));
+    zz = (int*)malloc(TZX_MALLOC_SIZE * sizeof(int));
+
+    int *tcha, *tb, *tbb;
+    tcha = tb = tbb = nullptr;
+
+    double *xb, *yb;
+    xb = yb = nullptr;
+
+    double x1, x2, x3, y1, y2, y3, z1, z2, z3, ll = 80.0;
+    int i = 0, n = 0, nElement = 0;
+
+    memset(xytSize, 1, TZX_MALLOC_SIZE);
+
+    xb = (double*)malloc((TZX_MALLOC_SIZE) * sizeof(double));
+    yb = (double*)malloc((TZX_MALLOC_SIZE) * sizeof(double));
+    tb = (int*)malloc((TZX_MALLOC_SIZE) * sizeof(int));
+    tcha = (int*)malloc((TZX_MALLOC_SIZE) * sizeof(int));
+    tbb = (int*)malloc((TZX_MALLOC_SIZE) * sizeof(int));
+
+    int nSizeValue = 1;
+    for (i = 0; i < bNum; i++)
+    {
+        //遍历所有三角形获得通过等值线的边数n,并记录三角形的边序号tbb[i],三角形序号tb[i]
+        x1 = tax[i];
+        x2 = tbx[i];
+        x3 = tcx[i];
+        y1 = tay[i];
+        y2 = tby[i];
+        y3 = tcy[i];
+        z1 = taz[i];
+        z2 = tbz[i];
+        z3 = tcz[i];
+
+        if (z1 == z2 && z2 == z3)
+            continue;
+        if (z1 == z2)
+            goto e1;
+        //插值公式
+        if ((z - z1) * (z - z2) < 0)
+        {
+            xb[n] = x1 + (x2 - x1) * (z - z1) / (z2 - z1);  //线性插值
+            yb[n] = y1 + (y2 - y1) * (z - z1) / (z2 - z1);
+            tb[n] = i;
+            tcha[n] = 0;
+            tbb[n] = 1;  //等值线从AB边穿过
+            n++;
+            if (n >= TZX_MALLOC_SIZE * nSizeValue)
+            {
+                nSizeValue++;
+                xb = (double*)realloc(xb, nSizeValue * TZX_MALLOC_SIZE * sizeof(double));
+                yb = (double*)realloc(yb, nSizeValue * TZX_MALLOC_SIZE * sizeof(double));
+                tb = (int*)realloc(tb, nSizeValue * TZX_MALLOC_SIZE * sizeof(int));
+                tcha = (int*)realloc(tcha, nSizeValue * TZX_MALLOC_SIZE * sizeof(int));
+                tbb = (int*)realloc(tbb, nSizeValue * TZX_MALLOC_SIZE * sizeof(int));
+            }
+        }
+    e1:
+        if (z3 == z1)
+            goto e2;
+        if ((z - z1) * (z - z3) < 0)
+        {
+            xb[n] = x3 + (x1 - x3) * (z - z3) / (z1 - z3);
+            yb[n] = y3 + (y1 - y3) * (z - z3) / (z1 - z3);
+            tb[n] = i;
+            tcha[n] = 0;
+            tbb[n] = 3;  //从AC边穿过
+            n++;
+            if (n >= TZX_MALLOC_SIZE * nSizeValue)
+            {
+                nSizeValue++;
+                xb = (double*)realloc(xb, nSizeValue * TZX_MALLOC_SIZE * sizeof(double));
+                yb = (double*)realloc(yb, nSizeValue * TZX_MALLOC_SIZE * sizeof(double));
+                tb = (int*)realloc(tb, nSizeValue * TZX_MALLOC_SIZE * sizeof(int));
+                tcha = (int*)realloc(tcha, nSizeValue * TZX_MALLOC_SIZE * sizeof(int));
+                tbb = (int*)realloc(tbb, nSizeValue * TZX_MALLOC_SIZE * sizeof(int));
+            }
+        }
+    e2:
+        if (z2 == z3)
+            goto e3;
+        if ((z - z2) * (z - z3) < 0)
+        {
+            xb[n] = x2 + (x3 - x2) * (z - z2) / (z3 - z2);
+            yb[n] = y2 + (y3 - y2) * (z - z2) / (z3 - z2);
+            tb[n] = i;
+            tcha[n] = 0;
+            tbb[n] = 2;  //从BC边穿过
+            n++;
+            if (n >= TZX_MALLOC_SIZE * nSizeValue)
+            {
+                nSizeValue++;
+                xb = (double*)realloc(xb, nSizeValue * TZX_MALLOC_SIZE * sizeof(double));
+                yb = (double*)realloc(yb, nSizeValue * TZX_MALLOC_SIZE * sizeof(double));
+                tb = (int*)realloc(tb, nSizeValue * TZX_MALLOC_SIZE * sizeof(int));
+                tcha = (int*)realloc(tcha, nSizeValue * TZX_MALLOC_SIZE * sizeof(int));
+                tbb = (int*)realloc(tbb, nSizeValue * TZX_MALLOC_SIZE * sizeof(int));
+            }
+        }
+    e3:;
+    }
+    nElement = n;  //通过等值线的边数
+    int ccc = 0;
+
+    for (i = 0; i < nElement; i++)
+    {
+        if (tcha[i])
+            continue;               //已被跟踪过
+        isoLineX[tiao][0] = xb[i];  //一条等值线的起点为AB边
+        isoLineY[tiao][0] = yb[i];
+        tcha[i] = 0;
+        nnn[tiao] = trackisoline(tiao, i, 0, tb, tbb, tcha, xb, yb, nElement, xytSize[tiao], isoLineX, isoLineY);  //跟踪该条等值线
+        ccc = guanghua(nxyntz, sfnum1, tiao, 0, z, tiao, nnn, type, zz, xytSize, isoLineX, isoLineY);
+    }
+
+    m_nLineNum = sfnum1;
+    showisoline(tiao, type, nnn, isoLineX, isoLineY, pLdata);
+    showlabel(pLdata);
+
+    int iFree = 0;
+    for (iFree = 0; iFree < tiao + 1; ++iFree)
+    {
+        free(isoLineX[iFree]);
+        isoLineX[iFree] = nullptr;
+        free(isoLineY[iFree]);
+        isoLineY[iFree] = nullptr;
+    }
+    free(isoLineX);
+    free(isoLineY);
+    free(nnn);
+    free(type);
+    free(zz);
+    free(tcha);
+    free(tb);
+    free(tbb);
+    free(xb);
+    free(yb);
+    free(xytSize);
+}
+
+void silly_iso_line::makelabel(int& sfnum1, double z, int No, int type, int* nnn, double** isoLineX,
+                               double** isoLineY)  //显示等值线的数值
+{
+    char number[30];
+    int n = nnn[No], i;
+    double x1, x2, y1, y2;
+
+    if (nnn[No] < 1)
+        return;
+    if (z == 0)
+    {
+        return;
+    }
+
+    sprintf(number, "%.0f", z);
+    if (type == 1)
+    {  //在端点
+        x1 = isoLineX[No][0];
+        x2 = isoLineX[No][1];
+        y1 = isoLineY[No][0];
+        y2 = isoLineY[No][1];
+        computtext(x1, y1, x2, y2, &(showF[sfnum1].lr), &(showF[sfnum1].ori));
+        showF[sfnum1].x = x1;
+        showF[sfnum1].y = y1;
+        strcpy(showF[sfnum1].ch, number);
+        showF[sfnum1].z = z;
+        showF[sfnum1].No = No;
+        sfnum1++;
+
+        x1 = isoLineX[No][n];
+        x2 = isoLineX[No][n - 1];
+        y1 = isoLineY[No][n];
+        y2 = isoLineY[No][n - 1];
+        computtext(x1, y1, x2, y2, &(showF[sfnum1].lr), &(showF[sfnum1].ori));
+        strcpy(showF[sfnum1].ch, number);
+        showF[sfnum1].x = x1;
+        showF[sfnum1].y = y1;
+        strcpy(showF[sfnum1].ch, number);
+        showF[sfnum1].z = z;
+        showF[sfnum1].No = No;
+        sfnum1++;
+    }
+    else
+    {
+        //在上部
+        int min = 0x7fffffff, ff = 0;
+        double* pppp;
+        int nn, k;
+        nn = nnn[No];
+        pppp = (double*)malloc(sizeof(double) * (nn + 1) * 2);
+        for (k = 0; k <= nn; k++)
+        {
+            pppp[k * 2] = isoLineX[No][k];
+            pppp[k * 2 + 1] = isoLineY[No][k];
+        }
+
+        for (i = 0; i < nn; i++)
+            if (pppp[i * 2 + 1] < min)
+            {
+                min = pppp[i * 2 + 1];
+                ff = i;
+            }
+        x1 = pppp[ff * 2];
+        x2 = x1 + 0.1;
+        y1 = pppp[ff * 2 + 1];
+        y2 = y1;
+        computtext(x1, y1, x2, y2, &(showF[sfnum1].lr), &(showF[sfnum1].ori));
+        showF[sfnum1].lr = 2;  //居中
+        showF[sfnum1].x = (x1 + x2) / 2;
+        showF[sfnum1].y = (y1 + y2) / 2;
+        strcpy(showF[sfnum1].ch, number);
+        showF[sfnum1].z = z;
+        showF[sfnum1].No = No;
+        sfnum1++;
+        free(pppp);
+    }
+}
+
+void silly_iso_line::showlabel(TAG_LineData* pTagData)
+{
+    int i, type;
+
+    pTagData->nTNum = m_nLineNum;
+    for (i = 0; i < m_nLineNum; i++)
+    {
+        if (showF[i].lr == 1)
+            type = 4;
+        else if (showF[i].lr == 0)
+            type = 6;
+        else if (showF[i].lr == 2)
+            type = 5;  //居中
+
+        pTagData->pPointT[i].dx = showF[i].x;
+        pTagData->pPointT[i].dy = showF[i].y;
+
+        strcpy(pTagData->cValue[i], showF[i].ch);
+    }
+}
+
+void silly_iso_line::computtext(double x1, double y1, double x2, double y2, int* lr, int* ori)
+{
+    double alfa;
+    if (x1 >= x2 && y1 >= y2)
+    {
+        //第4象限
+        alfa = 2 * 3.14159265 - acos((x1 - x2) / sqrt((y1 - y2) * (y1 - y2) + (x1 - x2) * (x1 - x2)));
+        *lr = 1;
+    }
+    if (x1 >= x2 && y1 < y2)
+    {
+        //第1象限
+        alfa = acos((x1 - x2) / sqrt((y1 - y2) * (y1 - y2) + (x1 - x2) * (x1 - x2)));
+        *lr = 1;
+    }
+    if (x1 < x2 && y1 >= y2)
+    {
+        //第3象限
+        alfa = acos((x2 - x1) / sqrt((y1 - y2) * (y1 - y2) + (x1 - x2) * (x1 - x2)));
+        *lr = 0;
+    }
+    if (x1 < x2 && y1 < y2)
+    {
+        //第2象限
+        alfa = 2 * 3.14159265 - acos((x2 - x1) / sqrt((y1 - y2) * (y1 - y2) + (x1 - x2) * (x1 - x2)));
+        *lr = 0;
+    }
+    *ori = ((int)(alfa / SU_PI * 1800.) + 3600) % 3600;
+}
+
+///////////////////////////////////////////////////////////////////////////
+int silly_iso_line::guanghua(int& nxyntz, int& sfnum1, int& j, int type1, double z, int tiao, int* nnn, int* type, int* zz, int* xytSize, double** isoLineX, double** isoLineY)  //曲线光滑
+{
+    type[j] = type1;
+
+    int k = 1, s = 1, e = 0;
+    double* iiix = nullptr;
+    double* iiiy = nullptr;
+    // begin 裁剪
+
+    s = nnn[j];
+    if (s < 2)
+        return 0;
+    if (tiao == 1)
+    {
+        int sdfsd = 0;
+    }
+
+    gpc* gpc1;
+    gpc_polygon subject, clip, result;
+    gpc1 = new gpc;
+    //构造被裁的折线
+    double* map_sub;
+    map_sub = (double*)malloc((s * 30 * 2 + 3) * sizeof(double));
+    map_sub[0] = 1;
+    map_sub[1] = s;  //总点数
+    map_sub[2] = type1;
+
+    int i;
+
+    for (i = 0; i < s; i++)
+    {
+        map_sub[2 * i + 3] = isoLineX[j][i];
+        map_sub[2 * i + 4] = isoLineY[j][i];
+    }
+
+    int nnum;
+    double* ppp;
+    ppp = (double*)malloc(s * 30 * 2 * sizeof(double));
+
+    //转化为曲线
+    cubic_b_spline(type1, s, &map_sub[3], &nnum, ppp);
+    if (nnum == 0)
+    {
+        // delete gpc1;
+        free(map_sub);
+        free(ppp);
+        return j;
+    }
+
+    for (i = 0; i < nnum; i++)
+    {
+        map_sub[2 * i + 3] = ppp[i * 2];
+        map_sub[2 * i + 4] = ppp[i * 2 + 1];
+    }
+    map_sub[1] = nnum;  //总点数
+
+    free(ppp);
+
+    gpc1->gpc_input_polygon(1, &subject, &map_sub[0]);
+    // gpc_input_polygon(1, &subject, &map_sub[0]);
+    //构造裁剪等值线--曲线
+    gpc1->gpc_input_polygon(1, &clip, &map_b[0]);
+    // gpc_input_polygon(1, &clip, &map_b[0]);
+
+    //执行裁剪
+    gpc1->gpc_polyline_clip(GPC_INT, &subject, &clip, &result);
+    // gpc_polygon_clip(GPC_INT, &subject, &clip, &result);
+
+    double PDis = 20;  //屏幕上象素点
+    int numofP;        //顶点数
+
+    for (i = 0; i < result.num_contours; i++)  //循环每段裁出的结果
+    {
+        numofP = result.contour[i].num_vertices;
+        if (numofP < 2)
+        {
+            continue;
+        }
+
+        if (numofP > xytSize[j] * TZX_MALLOC_SIZE)
+        {
+            xytSize[j] = numofP / TZX_MALLOC_SIZE;
+            if (numofP % TZX_MALLOC_SIZE != 0)
+            {
+                xytSize[j]++;
+            }
+
+            isoLineX[j] = (double*)realloc(isoLineX[j], xytSize[j] * TZX_MALLOC_SIZE * sizeof(double));
+            isoLineY[j] = (double*)realloc(isoLineY[j], xytSize[j] * TZX_MALLOC_SIZE * sizeof(double));
+        }
+
+        for (k = 0; k < numofP; k++)
+        {
+            isoLineX[j][k] = result.contour[i].vertex[k].x;
+            isoLineY[j][k] = result.contour[i].vertex[k].y;
+        }
+
+        if ((result.contour[i].vertex[0].x == result.contour[i].vertex[numofP - 1].x) && (result.contour[i].vertex[0].y == result.contour[i].vertex[numofP - 1].y))
+        {
+            //闭合
+            type[tiao] = 0;
+        }
+        else
+        {
+            //不闭合
+            type[tiao] = 1;
+        }
+
+        zz[tiao] = z;
+        nnn[tiao] = numofP - type[tiao];
+
+        //////////////////////////////////////////////////////////////////////////
+        if (nnn[tiao] > 2)
+        {
+            makelabel(sfnum1, z, tiao, type[tiao], nnn, isoLineX, isoLineY);  //生成数值标签
+        }
+
+        //////////////////////////////////////////////////////////////////////////
+
+        tiao++;
+        j = tiao;
+
+        if (tiao + 1 >= nxyntz * TZX_MALLOC_SIZE)
+        {
+            nxyntz++;
+
+            nnn = (int*)realloc(nnn, nxyntz * TZX_MALLOC_SIZE * sizeof(int));
+            type = (int*)realloc(type, nxyntz * TZX_MALLOC_SIZE * sizeof(int));
+            zz = (int*)realloc(zz, nxyntz * TZX_MALLOC_SIZE * sizeof(int));
+            isoLineX = (double**)realloc(isoLineX, nxyntz * TZX_MALLOC_SIZE * sizeof(double*));
+            isoLineY = (double**)realloc(isoLineY, nxyntz * TZX_MALLOC_SIZE * sizeof(double*));
+            xytSize = (int*)realloc(zz, nxyntz * TZX_MALLOC_SIZE * sizeof(int));
+            memset(&xytSize[nxyntz - 1], 1, TZX_MALLOC_SIZE);
+        }
+
+        isoLineX[tiao] = (double*)malloc(TZX_MALLOC_SIZE * sizeof(double));
+        isoLineY[tiao] = (double*)malloc(TZX_MALLOC_SIZE * sizeof(double));
+    }
+
+    gpc1->gpc_free_polygon(&subject);
+    gpc1->gpc_free_polygon(&result);
+    gpc1->gpc_free_polygon(&clip);
+    delete gpc1;
+
+    // gpc_free_polygon(&subject);
+    // gpc_free_polygon(&result);
+    // gpc_free_polygon(&clip);
+
+    free(map_sub);
+
+    return nnn[j];  //没用了
+}
+
+int silly_iso_line::trackisoline(int n, int t, int b, int* tb, int* tbb, int* tcha, double* xb, double* yb, int nElement, int& xyt, double** isoLineX, double** isoLineY)  // n:等值线条数，t:边编号
+{
+    int i;
+    i = b;
+    if (tb[t] == tb[t + 1])
+    {
+        //下一个点是
+        t++;
+    }
+    else
+    {
+        //上一个点是
+        t--;
+    }
+
+re:  //跟踪循环
+    i++;
+
+    if (i + 1 >= xyt * TZX_MALLOC_SIZE)
+    {
+        xyt++;
+        isoLineX[n] = (double*)realloc(isoLineX[n], xyt * TZX_MALLOC_SIZE * sizeof(double));
+        isoLineY[n] = (double*)realloc(isoLineY[n], xyt * TZX_MALLOC_SIZE * sizeof(double));
+    }
+    tcha[t] = 1;
+    isoLineX[n][i] = xb[t];
+    isoLineY[n][i] = yb[t];
+
+    if ((t = findnei(t, tb, tbb, tcha, nElement)) == (-1))
+    {
+        return i;  //返回跟踪的线条数
+    }
+    else
+        goto re;
+}
+
+int silly_iso_line::findnei(int t, int* tb, int* tbb, int* tcha, int nElement)  // t:边编号
+{
+    int i, tri, bian;
+    double x1, x2, y1, y2;
+    tri = tb[t];  //三角形编号
+    bian = tbb[t];
+    double eps = 1e-10;
+
+    if (bian == 1)
+    {
+        x1 = tax[tri];
+        x2 = tbx[tri];
+        y1 = tay[tri];
+        y2 = tby[tri];
+    }
+    else if (bian == 2)
+    {
+        x1 = tbx[tri];
+        x2 = tcx[tri];
+        y1 = tby[tri];
+        y2 = tcy[tri];
+    }
+    else if (bian == 3)
+    {
+        x1 = tax[tri];
+        x2 = tcx[tri];
+        y1 = tay[tri];
+        y2 = tcy[tri];
+    }
+    else
+        return (-1);
+
+    for (i = 0; i < nElement; i++)
+    {
+        if (tcha[i])
+            continue;  //已被跟踪过
+        if (t != i && fabs(tax[tb[i]] - x1) < eps && fabs(tay[tb[i]] - y1) < eps && fabs(tbx[tb[i]] - x2) < eps && fabs(tby[tb[i]] - y2) < eps)
+        {
+            if (tbb[i] == 1)
+            {
+                tcha[i] = 1;
+                if (tb[i] == tb[i + 1])
+                    return i + 1;
+                else
+                    return i - 1;
+            }
+        }
+        if (t != i && fabs(tax[tb[i]] - x2) < eps && fabs(tay[tb[i]] - y2) < eps && fabs(tbx[tb[i]] - x1) < eps && fabs(tby[tb[i]] - y1) < eps)
+        {
+            if (tbb[i] == 1)
+            {
+                tcha[i] = 1;
+                if (tb[i] == tb[i + 1])
+                    return i + 1;
+                else
+                    return i - 1;
+            }
+        }
+        if (t != i && fabs(tax[tb[i]] - x1) < eps && fabs(tay[tb[i]] - y1) < eps && fabs(tcx[tb[i]] - x2) < eps && fabs(tcy[tb[i]] - y2) < eps)
+        {
+            if (tbb[i] == 3)
+            {
+                tcha[i] = 1;
+                if (tb[i] == tb[i + 1])
+                    return i + 1;
+                else
+                    return i - 1;
+            }
+        }
+        if (t != i && fabs(tax[tb[i]] - x2) < eps && fabs(tay[tb[i]] - y2) < eps && fabs(tcx[tb[i]] - x1) < eps && fabs(tcy[tb[i]] - y1) < eps)
+        {
+            if (tbb[i] == 3)
+            {
+                tcha[i] = 1;
+                if (tb[i] == tb[i + 1])
+                    return i + 1;
+                else
+                    return i - 1;
+            }
+        }
+        if (t != i && fabs(tbx[tb[i]] - x1) < eps && fabs(tby[tb[i]] - y1) < eps && fabs(tcx[tb[i]] - x2) < eps && fabs(tcy[tb[i]] - y2) < eps)
+        {
+            if (tbb[i] == 2)
+            {
+                tcha[i] = 1;
+                if (tb[i] == tb[i + 1])
+                    return i + 1;
+                else
+                    return i - 1;
+            }
+        }
+        if (t != i && fabs(tbx[tb[i]] - x2) < eps && fabs(tby[tb[i]] - y2) < eps && fabs(tcx[tb[i]] - x1) < eps && fabs(tcy[tb[i]] - y1) < eps)
+        {
+            if (tbb[i] == 2)
+            {
+                tcha[i] = 1;
+                if (tb[i] == tb[i + 1])
+                    return i + 1;
+                else
+                    return i - 1;
+            }
+        }
+    }
+    return (-1);
+}
+
+struct ThreadLValue
+{
+    double dValue;
+    silly_iso_line* pIso;
+    TAG_LineData* pLdata;
+    bool bFinish;
+};
+
+int silly_iso_line::ThreadBeginLine(void* pParam)
+{
+    ThreadLValue* ptv = (ThreadLValue*)pParam;
+
+    ptv->pIso->isoline(ptv->dValue, ptv->pLdata);
+
+    ptv->bFinish = true;
+
+    return 0;
+}
+
+int silly_iso_line::BeginLinePrepare(void* pParam)
+{
+    ThreadLValue* ptv = (ThreadLValue*)pParam;
+
+    ptv->pIso->isoline(ptv->dValue, ptv->pLdata);
+
+    ptv->bFinish = true;
+
+    return 0;
+}
+
+void silly_iso_line::makeisolines(TAG_IsolineL* pTagIsoL)
+{
+    ThreadLValue tv[32];
+    pTagIsoL->nNum = isoLevel;
+
+    for (int i = 0; i < isoLevel; i++)
+    {
+        tv[i].pIso = this;
+        tv[i].pLdata = &pTagIsoL->pTagLine[i];
+        tv[i].dValue = isoLevelValue[i];
+        tv[i].bFinish = false;
+
+        //这里的tv[i]起到了判断线程是否结束的作用
+        // AfxBeginThread(ThreadBeginLine, (void*)&tv[i]);
+        boost::thread(boost::bind(&silly_iso_line::ThreadBeginLine, this, (void*)&tv[i]));
+        // silly_iso_line::ThreadBeginLine((void*)&tv[i]);
+    }
+
+    bool bTrue = false;
+    while (!bTrue)
+    {
+        bTrue = true;
+        for (int i = 0; i < isoLevel; i++)
+        {
+            if (!tv[i].bFinish)
+            {
+                bTrue = false;
+                break;
+            }
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+}
+
+//等值面生成
+void silly_iso_line::iso_fill(const int& curr_level, const int& curr_tri_num, std::vector<iso_triangle>& curr_tri, iso_polygon_m& result, int* flag)
+{
+    /* 每个三角形,如果穿过边,那么一定有且仅有两个边被穿过
+            1                   1
+          -----                    /
+        0        0         1      /   0
+
+    */
+
+    // boost::timer t1;
+    int ring_num, i, j, k;
+
+    ring_num = 0;
+    std::vector<iso_ring> all_rings;
+    std::vector<int> tcha(curr_tri_num, 0);
+
+    int nbian = 0;
+    int nlastb = 0;
+    int nfirst = 0;
+    bool bTrue = true;
+    int too_near_skip = 0;
+    int trace_tri = 0;
+    for (i = 0; i < curr_tri_num; i++)
+    {
+        //搜索闭合等值线
+        if (curr_tri[i].traced)
+        {
+            continue;  //已被跟踪过
+        }
+
+        curr_tri[i].traced = 1;  // 找到一个没有被跟踪过的三角形
+
+        iso_ring tmp_ring;
+        trace_ring(i, curr_tri, tmp_ring);  // 追踪出完整环
+
+        // 判断该环 的内外环关系, TODO: 需要验证
+        if (point_in_poly(curr_tri[i].tax, curr_tri[i].tay, tmp_ring.cpoint))
+        {
+            if (curr_tri[i].taz > isoLevelValue[curr_level])
+            {
+                tmp_ring.outer = 1;
+            }
+        }
+        else
+        {
+            if (curr_tri[i].taz < isoLevelValue[curr_level])
+            {
+                tmp_ring.outer = 1;
+            }
+        }
+        all_rings.push_back(tmp_ring);
+        break;
+    }
+    // TODO: 这里原本是要搜索下一个面的控制点的,考虑一下以目前的情况来说到底是否需要
+
+    if (!all_rings.empty())
+    {
+        draw_iso_fill(result, all_rings.size(), all_rings);
+    }
+
+    *flag = 1;
+}
+
+void silly_iso_line::trace_ring(int& trii, std::vector<iso_triangle>& curr_tri, iso_ring& ring)
+{
+    // ---------
+    cairo_surface_t* surface;
+    cairo_t* cr;
+
+    surface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, CAIRO_WIDHT_T, CAIRO_WIDHT_T);
+    cr = cairo_create(surface);
+    cairo_set_source_rgb(cr, 1, 1, 1);
+    cairo_rectangle(cr, 0, 0, CAIRO_WIDHT_T, CAIRO_WIDHT_T);
+    cairo_stroke_preserve(cr);
+    cairo_fill(cr);
+    cairo_set_source_rgb(cr, 1, 0.2, 0.2);
+    cairo_set_line_width(cr, 2.0);
+    // 36.8467,113.9548  36.3445,114.3534
+    dMinLGTD = 113.9548;
+    dMinLTTD = 36.8467;  // 24.5;	// 上下 这两个是反的
+    dMaxLGTD = 114.3534;
+    dMaxLTTD = 36.3445;  // 30.5;
+
+    cairo_set_source_rgb(cr, 0, 1, 0);
+    cairo_set_line_width(cr, 1.0);
+
+    double x1, y1, x2, y2, x3, y3;
+    x1 = (curr_tri[trii].tax - dMinLGTD) / (dMaxLGTD - dMinLGTD) * CAIRO_WIDHT_T;
+    y1 = (curr_tri[trii].tay - dMinLTTD) / (dMaxLTTD - dMinLTTD) * CAIRO_WIDHT_T;
+    x2 = (curr_tri[trii].tbx - dMinLGTD) / (dMaxLGTD - dMinLGTD) * CAIRO_WIDHT_T;
+    y2 = (curr_tri[trii].tby - dMinLTTD) / (dMaxLTTD - dMinLTTD) * CAIRO_WIDHT_T;
+    x3 = (curr_tri[trii].tcx - dMinLGTD) / (dMaxLGTD - dMinLGTD) * CAIRO_WIDHT_T;
+    y3 = (curr_tri[trii].tcy - dMinLTTD) / (dMaxLTTD - dMinLTTD) * CAIRO_WIDHT_T;
+    cairo_move_to(cr, x1, y1);
+    cairo_line_to(cr, x2, y2);
+    cairo_line_to(cr, x3, y3);
+    cairo_line_to(cr, x1, y1);
+    cairo_stroke(cr);
+
+    int k, tri_edge_idx;
+    iso_point curr_tri_edges[3];
+    double dx1, dx2, dy1, dy2;  // 被穿过的边的坐标0
+    int nlastb = 0;             // 当前闭合曲线中的最新的一个相交三角形的相交边
+    int nfirst = 0;             // 当前闭合曲线中的第一个一个相交三角形的相交边
+    for (k = 0; k < 3; k++)
+    {
+        if (curr_tri[trii].nBian[k] == 1)
+        {
+            nlastb = k;
+            nfirst = k;
+            break;
+        }
+    }
+    ring.cpoint.push_back(curr_tri[trii].dv[nlastb]);
+
+    if (nlastb == 0)
+    {
+        dx1 = curr_tri[trii].tax;
+        dy1 = curr_tri[trii].tay;
+        dx2 = curr_tri[trii].tbx;
+        dy2 = curr_tri[trii].tby;
+    }
+    else if (nlastb == 1)
+    {
+        dx1 = curr_tri[trii].tax;
+        dy1 = curr_tri[trii].tay;
+        dx2 = curr_tri[trii].tcx;
+        dy2 = curr_tri[trii].tcy;
+    }
+    else
+    {
+        dx1 = curr_tri[trii].tbx;
+        dy1 = curr_tri[trii].tby;
+        dx2 = curr_tri[trii].tcx;
+        dy2 = curr_tri[trii].tcy;
+    }
+
+    bool bTrue = true;
+    int draw_cnt = 1;
+    while (bTrue)
+    {
+        bTrue = false;
+        // 遍历所有三角形,找到相邻的
+        for (auto& tri : curr_tri)
+        {
+            if (tri.traced)
+            {
+                continue;
+            }
+
+            curr_tri_edges[0].x = tri.tax;
+            curr_tri_edges[0].y = tri.tay;
+            curr_tri_edges[1].x = tri.tbx;
+            curr_tri_edges[1].y = tri.tby;
+            curr_tri_edges[2].x = tri.tcx;
+            curr_tri_edges[2].y = tri.tcy;
+
+            if (compare_triangle_same_edge(dx1, dy1, dx2, dy2, curr_tri_edges, tri_edge_idx))
+            {
+                tri.traced = 1;
+                for (k = 0; k < 3; k++)  // 找到另外一个边
+                {
+                    if (k != tri_edge_idx && tri.nBian[k])
+                    {
+                        nlastb = k;
+                        bTrue = true;  // 这个bTrue是多余的, 要么就是前面的处理有问题
+                        break;
+                    }
+                }
+                if (nlastb == 0)
+                {
+                    dx1 = tri.tax;
+                    dy1 = tri.tay;
+                    dx2 = tri.tbx;
+                    dy2 = tri.tby;
+                }
+                else if (nlastb == 1)
+                {
+                    dx1 = tri.tax;
+                    dy1 = tri.tay;
+                    dx2 = tri.tcx;
+                    dy2 = tri.tcy;
+                }
+                else
+                {
+                    dx1 = tri.tbx;
+                    dy1 = tri.tby;
+                    dx2 = tri.tcx;
+                    dy2 = tri.tcy;
+                }
+                if (draw_cnt < 4)
+                {
+                    x1 = (tri.tax - dMinLGTD) / (dMaxLGTD - dMinLGTD) * CAIRO_WIDHT_T;
+                    y1 = (tri.tay - dMinLTTD) / (dMaxLTTD - dMinLTTD) * CAIRO_WIDHT_T;
+                    x2 = (tri.tbx - dMinLGTD) / (dMaxLGTD - dMinLGTD) * CAIRO_WIDHT_T;
+                    y2 = (tri.tby - dMinLTTD) / (dMaxLTTD - dMinLTTD) * CAIRO_WIDHT_T;
+                    x3 = (tri.tcx - dMinLGTD) / (dMaxLGTD - dMinLGTD) * CAIRO_WIDHT_T;
+                    y3 = (tri.tcy - dMinLTTD) / (dMaxLTTD - dMinLTTD) * CAIRO_WIDHT_T;
+                    cairo_move_to(cr, x1, y1);
+                    cairo_line_to(cr, x2, y2);
+                    cairo_line_to(cr, x3, y3);
+                    cairo_line_to(cr, x1, y1);
+                    cairo_stroke(cr);
+                    draw_cnt++;
+                }
+
+                ring.cpoint.push_back(tri.dv[nlastb]);
+                //// 过滤距离过近的点
+                // if (!ring.cpoint.back().too_near(tri.dv[nlastb]))
+                //{
+                //
+                //}
+
+                break;
+            }
+        }
+    }
+
+    // 与第一个三角形相交AB边 并且 在这个三角形上有多个相交边
+    // for (k = 0; k < 3; k++)
+    //{
+    //	if (curr_tri[trii].nBian[k] == 1 && curr_tri[trii].nBian[k] != nfirst)
+    //	{
+    //		// if (!ring.cpoint.back().too_near(curr_tri[trii].dv[k]))
+    //		{
+    //			ring.cpoint.push_back(curr_tri[trii].dv[k]);
+    //			break;
+    //		}
+    //
+    //	}
+    //}
+
+    // 回填第一个相交点使其闭合
+    ring.cpoint.push_back(curr_tri[trii].dv[nfirst]);
+}
+
+void silly_iso_line::draw_iso_fill(iso_polygon_m& result_polys, int ring_num, std::vector<iso_ring>& all_rings)
+{
+    double *pp = nullptr, *ppp = nullptr;
+    double* pMap;
+    bool setNull = false;
+    
+
+    // 先将环组合
+    // 找到外环
+    for (auto ring : all_rings)
+    {
+        if (ring.outer)
+        {
+            iso_polygon poly;
+            poly.outer = ring;
+            result_polys.polys.emplace_back(poly);
+        }
+    }
+
+    // 找到内环
+    std::map<int, std::vector<int>> poly_inner_rings;
+    for (auto& ring : all_rings)
+    {
+        if (!ring.outer && !ring.marked)
+        {
+            for (auto& poly : result_polys.polys)
+            {
+                if (point_in_poly(ring.cpoint[0].x, ring.cpoint[0].y, poly.outer.cpoint))
+                {
+                    ring.marked = 1;
+                    poly.inners.emplace_back(ring);
+                }
+            }
+        }
+    }
+
+    for (auto& ring : all_rings)
+    {
+        if (!ring.marked)
+        {
+            iso_polygon poly;
+            poly.outer = ring;
+            result_polys.polys.emplace_back(poly);
+        }
+    }
+
+    // 开始做平滑
+
+    // Modified by gaoyang.[2018年5月17日09:53:27]
+    // 这里改为栈内存，之前的20000个点不够，内存越界.
+    // double* map_p = (double*)malloc(20000 * sizeof(double));
+    double* map_p = new double[70000];
+    memset(map_p, 0, 70000 * sizeof(double));
+
+    gpc* gpc1;
+    gpc1 = new gpc;
+    gpc_polygon clip;
+
+    // Modified by gaoyang begin.[2018年7月30日16:29:54]
+    if (1 == nClipType)  // 按视口的边框裁剪.
+    {
+        // 这里按视口范围裁剪.
+        double tmp_map_b[16];
+        tmp_map_b[0] = 1;
+        tmp_map_b[1] = 4;
+        tmp_map_b[2] = 1;
+
+        tmp_map_b[3] = dMinLGTD;
+        tmp_map_b[4] = dMinLTTD;
+
+        tmp_map_b[5] = dMinLGTD;
+        tmp_map_b[6] = dMaxLTTD;
+
+        tmp_map_b[7] = dMaxLGTD;
+        tmp_map_b[8] = dMaxLTTD;
+
+        tmp_map_b[9] = dMaxLGTD;
+        tmp_map_b[10] = dMinLTTD;
+
+        gpc1->gpc_input_polygon(1, &clip, &tmp_map_b[0]);
+    }
+    else if (0 == nClipType)  // 按边界裁剪.
+    {
+        gpc1->gpc_input_polygon(1, &clip, &map_b[0]);
+    }
+    map_p[0] = 1;
+    map_p[1] = 0;
+    map_p[2] = 0;
+    // Modified by gaoyang begin.[2018年7月30日16:29:54]
+
+    int nDrawPointNum = 0;
+
+    for (auto& poly : result_polys.polys)
+    {
+        clip_iso_ring(&poly.outer, gpc1, &clip);
+        for (auto& ring : poly.inners)
+        {
+            //该值中共有mian个等值面块
+            clip_iso_ring(&ring, gpc1, &clip);
+        }
+    }
+    // ---------
+    cairo_surface_t* surface;
+    cairo_t* cr;
+
+    surface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, CAIRO_WIDHT_T, CAIRO_WIDHT_T);
+    cr = cairo_create(surface);
+    cairo_set_source_rgb(cr, 1, 1, 1);
+    cairo_rectangle(cr, 0, 0, CAIRO_WIDHT_T, CAIRO_WIDHT_T);
+    cairo_stroke_preserve(cr);
+    cairo_fill(cr);
+    cairo_set_source_rgb(cr, 1, 0.2, 0.2);
+    cairo_set_line_width(cr, 2.0);
+    dMinLGTD = 113.038;
+    dMinLTTD = 42.711;  // 24.5;	// 上下 这两个是反的
+    dMaxLGTD = 120.260;
+    dMaxLTTD = 35.833;  // 30.5;
+
+    for (auto& poly : result_polys.polys)
+    {
+        double x1, y1, x2, y2, x3, y3;
+        if (poly.outer.ppoint.empty())
+        {
+            continue;
+        }
+        x1 = (poly.outer.ppoint[0].x - dMinLGTD) / (dMaxLGTD - dMinLGTD) * CAIRO_WIDHT_T;
+        y1 = (poly.outer.ppoint[0].y - dMinLTTD) / (dMaxLTTD - dMinLTTD) * CAIRO_WIDHT_T;
+        cairo_move_to(cr, x1, y1);
+        for (int zi = 1; zi < poly.outer.ppoint.size(); ++zi)
+        {
+            x1 = (poly.outer.ppoint[zi].x - dMinLGTD) / (dMaxLGTD - dMinLGTD) * CAIRO_WIDHT_T;
+            y1 = (poly.outer.ppoint[zi].y - dMinLTTD) / (dMaxLTTD - dMinLTTD) * CAIRO_WIDHT_T;
+            cairo_line_to(cr, x1, y1);
+        }
+
+        cairo_close_path(cr);
+    }
+    cairo_fill_preserve(cr);
+
+    cairo_set_source_rgb(cr, 0, 1, 0);
+    cairo_set_line_width(cr, 1.0);
+    for (auto& poly : result_polys.polys)
+    {
+        double x1, y1, x2, y2, x3, y3;
+        if (poly.outer.cpoint.empty())
+        {
+            continue;
+        }
+        x1 = (poly.outer.cpoint[0].x - dMinLGTD) / (dMaxLGTD - dMinLGTD) * CAIRO_WIDHT_T;
+        y1 = (poly.outer.cpoint[0].y - dMinLTTD) / (dMaxLTTD - dMinLTTD) * CAIRO_WIDHT_T;
+        cairo_move_to(cr, x1, y1);
+        for (int zi = 1; zi < poly.outer.cpoint.size(); ++zi)
+        {
+            x1 = (poly.outer.cpoint[zi].x - dMinLGTD) / (dMaxLGTD - dMinLGTD) * CAIRO_WIDHT_T;
+            y1 = (poly.outer.cpoint[zi].y - dMinLTTD) / (dMaxLTTD - dMinLTTD) * CAIRO_WIDHT_T;
+            cairo_line_to(cr, x1, y1);
+            if (zi > 10)
+            {
+                break;
+            }
+        }
+
+        cairo_stroke(cr);
+    }
+
+    cairo_surface_write_to_png(surface, "./delaunay5.png");
+    cairo_destroy(cr);
+    cairo_surface_destroy(surface);
+    gpc1->gpc_free_polygon(&clip);
+    delete (gpc1);
+    delete[] map_p;
+}
+
+void silly_iso_line::clip_iso_ring(iso_ring* ring, gpc* gpc1, gpc_polygon* clip)
+{
+    gpc_polygon subject, result;
+    double *pp = nullptr, *ppp = nullptr;
+    double* pMap;
+    int n, nn, k;
+
+    int sss = 0;
+    int p;
+    double* map_p = new double[70000];
+    memset(map_p, 0, 70000 * sizeof(double));
+    map_p[0] = 1;
+    map_p[1] = 0;
+    map_p[2] = 0;
+
+    pMap = map_p + 3;
+
+    nn = ring->cpoint.size();  //每个面由多少个顶点？
+    if (nn < 3)
+    {
+        return;  //如果顶点数小于3，处理下一个面
+    }
+
+    p = 0;
+    sss = 0;
+    pp = (double*)malloc(sizeof(double) * nn * 2);
+    memset(pp, 0, sizeof(double) * nn * 2);
+    ppp = (double*)malloc(sizeof(double) * nn * 2 * 8);
+    memset(ppp, 0, sizeof(double) * nn * 2 * 8);
+
+    for (k = 0; k < nn; k++)
+    {
+        pp[k * 2] = ring->cpoint[k].x;      //等值线X坐标
+        pp[k * 2 + 1] = ring->cpoint[k].y;  //等值线Y坐标
+    }
+
+    n = nn;
+    // ppp = pp;
+    // line to or move to 当前为曲线
+    // 这里特殊处理了一下点过多的情况，其本身就很平滑.
+    if (k >= 3000)
+    {
+        cubic_b_spline(0, k - p - 1, (&pp[p * 2]), &n, ppp, false);
+    }
+    else
+    {
+        cubic_b_spline(0, k - p - 1, (&pp[p * 2]), &n, ppp);
+    }
+
+    if (n < k - p - 1)
+    {
+        n = k - p - 1;
+        memcpy(pMap, (&pp[p * 2]), n * sizeof(double) * 2);
+    }
+    else
+    {
+        memcpy(pMap, ppp, n * sizeof(double) * 2);
+    }
+
+    pMap += n * 2;
+    sss += n;
+
+    if (sss > 2)
+    {
+        //裁剪
+        map_p[1] = sss;
+
+        gpc1->gpc_input_polygon(1, &subject, &map_p[0]);
+        subject.hole[0] = 1;
+        // TODO(gaoyang): 裁剪速度很慢，需要优化.
+        gpc1->gpc_polygon_clip(GPC_INT, &subject, clip, &result);
+
+        for (int c = 0; c < result.num_contours; c++)
+        {
+            ring->ppoint.clear();
+
+            for (int v = 0; v < result.contour[c].num_vertices; v++)
+            {
+                ring->ppoint.push_back(iso_point(result.contour[c].vertex[v].x, result.contour[c].vertex[v].y));
+            }
+        }
+
+        gpc1->gpc_free_polygon(&subject);
+        gpc1->gpc_free_polygon(&result);
+
+        sss = 0;
+        pMap = map_p + 3;
+        free(pp);
+        free(ppp);
+    }
+    delete[] map_p;
+}
+
+void silly_iso_line::SetMapBoundary(double mapx0, double mapy0, double mapx1, double mapy1)
+{
+    dMinLGTD = mapx0;
+    dMaxLTTD = mapy0;
+    dMaxLGTD = mapx1;
+    dMinLTTD = mapy1;
+}
+
+// mode  0 闭合 1 线  ni 输入点  poc 坐标  num 输出  buff 输出点  bMultiPoint 一直false
+bool silly_iso_line::cubic_b_spline(int mode, int ni, double* poc, int* num, double* buff, const bool bMultiPoint)
+{
+    double* pp;
+    double* p;
+    double* b;
+    double* c;
+    int n, n1, nn, i, j, mm, jj, jj1, jj2, jj3, kk, kk1, kk2, kk3, m1;
+    double xm, ym, w, topx, topy, botx, boty, x1, y1, x2, y2, pxt, pyt;
+    double pxb, pyb, dl, m, t, t2, t3, ae, bf, cg, dh;
+    n = ni;
+    *num = 0;
+    if (n <= 1)
+        return false;
+    while (n > 0 && poc[0] == poc[n + n - 2] && poc[1] == poc[n + n - 1])
+        n--;
+    if (n < 3)
+    {
+        *num = n;
+        for (i = 0; i < 4; i++)
+            *(buff + i) = *(poc + i);
+        return true;
+    }
+
+    // Modified by gaoyang.
+    // HANDLE hp;
+    // if (!(hp = (HANDLE)GlobalAlloc(GMEM_MOVEABLE,(DWORD)(n*100*sizeof(double))))) return false;
+    // if (!(pp = (double*)GlobalLock(hp)))
+    //{
+    //	GlobalFree(hp);
+    //	return false;
+    //}
+    pp = (double*)malloc(n * 100 * sizeof(double));
+    if (nullptr == pp)
+    {
+        return false;
+    }
+
+    p = pp + 220;
+    b = p + 200;
+    c = b + 100;
+
+    n1 = n - 1;
+
+    switch (mode)
+    {
+        case 0:
+            for (i = 0; i < 2 * n; i++)
+                pp[i] = (double)poc[i];
+
+            nn = 2 * n;
+            topx = pp[nn - 2];
+            topy = pp[nn - 1];
+            pp[nn] = pp[0];
+            pp[nn + 1] = pp[1];
+            pp[nn + 2] = pp[2];
+            pp[nn + 3] = pp[3];
+            botx = pp[2];
+            boty = pp[3];
+            n1 += 1;
+            n += 1;
+            break;
+
+        case 1:
+            for (i = 0; i < 2 * n; i++)
+                pp[i] = (double)poc[i];
+
+            nn = n * 2;
+            pp[nn] = pp[0];
+            pp[nn + 1] = pp[1];
+            x1 = pp[0];
+            y1 = pp[1];
+            x2 = pp[2];
+            y2 = pp[3];
+            topx = x1 + x1 - x2;
+            if (x2 - x1 == 0)
+                topy = y1 + y1 - y2;
+            else
+                topy = y1 + (topx - x1) * (y2 - y1) / (x2 - x1);
+            nn = 2 * n;
+            x2 = pp[nn - 4];
+            y2 = pp[nn - 3];
+            x1 = pp[nn - 2];
+            y1 = pp[nn - 1];
+            botx = x1 + x1 - x2;
+            if (x2 - x1 == 0)
+                boty = y1 + y1 - y2;
+            else
+                boty = y1 + (botx - x1) * (y2 - y1) / (x2 - x1);
+            break;
+    }
+
+    mm = 0;
+    w = 1. / 6.;
+    for (j = 0; j < n1; j++)
+    {
+        jj = 2 * j - 2;
+        jj1 = jj + 2;
+        jj2 = jj + 4;
+        jj3 = jj + 6;
+        kk = jj + 1;
+        kk1 = kk + 2;
+        kk2 = kk + 4;
+        kk3 = kk + 6;
+        if (j == 0)
+        {
+            pxt = topx;
+            pyt = topy;
+            pxb = pp[jj3];
+            pyb = pp[kk3];
+        }
+        else
+        {
+            pxt = pp[jj];
+            pyt = pp[kk];
+            if (j == n1 - 1)
+            {
+                pxb = botx;
+                pyb = boty;
+            }
+            else
+            {
+                pxb = pp[jj3];
+                pyb = pp[kk3];
+            }
+        }
+        xm = fabs((pp[jj1] + pp[jj3]) / 2. - pp[jj2]);
+        ym = fabs((pp[kk1] + pp[kk3]) / 2. - pp[kk2]);
+        dl = sqrt(xm * xm + ym * ym);
+        // if (dl < 1.) dl = 1.;
+        m = sqrt(dl / 2.0);
+        m1 = (int)(m + .5);
+        if (bMultiPoint)
+        {
+            m1 = m1 > 20 ? 20 : m1;
+            m1 = m1 < 3 ? 3 : m1;
+        }
+        else
+        {
+            m1 = m1 > 10 ? 10 : m1;
+            m1 = m1 < 2 ? 2 : m1;
+        }
+        m = m1;
+        for (i = 0; i <= m1; i++)
+        {
+            t = i;
+            t = t / m;
+            t2 = t * t;
+            t3 = t2 * t;
+            ae = t * (-t2 + 3. * t - 3.) + 1;
+            bf = 3. * t2 * (t - 2.) + 4.;
+            cg = 3. * t * (-t2 + t + 1.) + 1;
+            dh = t3;
+            *(buff + mm) = (ae * pxt + bf * pp[jj1] + cg * pp[jj2] + dh * pxb) * w;
+            *(buff + mm + 1) = (ae * pyt + bf * pp[kk1] + cg * pp[kk2] + dh * pyb) * w;
+            mm += 2;
+            if ((mm >= 4) && (buff[mm - 2] == buff[mm - 4]) && (buff[mm - 1] == buff[mm - 3]))
+                mm -= 2;
+        }
+    }
+    *num = mm / 2;
+
+    // GlobalUnlock(hp);
+    // GlobalFree(hp);
+    free(pp);
+    pp = nullptr;
+    return true;
+}
+
+void silly_iso_line::DeleteIsoLine()
+{
+    free(ddx);
+    free(ddy);
+    free(ddz);
+    free(tax);
+    free(tay);
+    free(tbx);
+    free(tby);
+    free(tcx);
+    free(tcy);
+    free(taz);
+    free(tbz);
+    free(tcz);
+    ddx = ddy = ddz = 0;
+    tax = tay = tbx = tby = tcx = tcy = taz = tbz = tcz = 0;
+
+    if (map_b)
+    {
+        free(map_b);
+        map_b = 0;
+    }
+}
+
+bool silly_iso_line::compare_triangle_same_edge(double dx1, double dy1, double dx2, double dy2, iso_point* point, int& nBian)
+{
+    for (int c = 0; c < 3; c++)
+    {
+        if (dx1 == point[c].x && dy1 == point[c].y)
+        {
+            for (int cc = 0; cc < 3; cc++)
+            {
+                if (cc == c)
+                {
+                    continue;
+                }
+                if (dx2 == point[cc].x && dy2 == point[cc].y)
+                {
+                    nBian = cc + c - 1;
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+bool silly_iso_line::compare_triangle_same_edge(double dx1, double dy1, double dx2, double dy2, const iso_triangle& tri, int& nBian)
+{
+    if (dx1 == tri.tax && dy1 == tri.tay && dx2 == tri.tbx && dy2 == tri.tby)
+    {
+        nBian = 0;
+        return true;
+    }
+
+    if (dx1 == tri.tbx && dy1 == tri.tby && dx2 == tri.tcx && dy2 == tri.tcy)
+    {
+        nBian = 1;
+        return true;
+    }
+
+    if (dx1 == tri.tcx && dy1 == tri.tcy && dx2 == tri.tax && dy2 == tri.tay)
+    {
+        nBian = 2;
+        return true;
+    }
+
+    return false;
+}
+
+int silly_iso_line::point_in_poly(const double& x, const double& y, const int& poly_p_num, const double* poly_x, const double* poly_y)
+{
+    int i, j;
+    double d;
+    int c = 0;
+    for (i = 0, j = poly_p_num - 1; i < poly_p_num; j = i++)
+    {
+        d = (poly_x[j] - poly_x[i]) * (y - poly_y[i]) / (poly_y[j] - poly_y[i]) + poly_x[i];
+        if (x == d)
+            return 0;
+        if ((((poly_y[i] <= y) && (y < poly_y[j]) || ((poly_y[j] <= y) && (y < poly_y[i]))) && (x < d)))
+        {
+            c = !c;
+        }
+    }
+    return c;
+}
+
+int silly_iso_line::point_in_poly(const double& x, const double& y, const vector<iso_point>& points)
+{
+    int i, j;
+    double d;
+    int c = 0;
+    int pnum = points.size();
+    for (i = 0, j = pnum - 1; i < pnum; j = i++)
+    {
+        d = (points[j].x - points[i].x) * (y - points[i].y) / (points[j].y - points[i].y) + points[i].x;
+        if (d != d && x == d)
+        {
+            return 0;
+        }
+        if ((((points[i].y <= y) && (y < points[j].y) || ((points[j].y <= y) && (y < points[i].y))) && (x < d)))
+        {
+            c = !c;
+        }
+    }
+    return c;
+}

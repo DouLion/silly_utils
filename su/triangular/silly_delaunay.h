@@ -119,8 +119,8 @@ struct d_triangle
     d_triangle(const d_point& _p0, const d_point& _p1, const d_point& _p2) : p0{_p0}, p1{_p1}, p2{_p2}, e0{_p0, _p1}, e1{_p1, _p2}, e2{_p0, _p2}, circle{}
     {
         /*  圆心坐标公式
-                x=((C1*B2)-(C2*B1))/((A1*B2)-(A2*B1))；
-　　				y=((A1*C2)-(A2*C1))/((A1*B2)-(A2*B1))；
+            x=((C1*B2)-(C2*B1))/((A1*B2)-(A2*B1))；
+　　			y=((A1*C2)-(A2*C1))/((A1*B2)-(A2*B1))；
         */
         const auto ax = p1.x - p0.x;
         const auto ay = p1.y - p0.y;

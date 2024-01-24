@@ -71,6 +71,30 @@ size_t silly_file::read(const std::string &path, unsigned char **content, const 
     return read_size;
 }
 
+bool silly_file::read(const std::string& path, std::vector<std::string>& lines)
+{
+    std::fstream input;
+#if IS_WIN32
+    input.open(silly_encode::cxx11_string_wstring(path), std::ios::binary | std::ios::in);
+#else
+    input.open(path, std::ios::binary | std::ios::in);
+#endif
+    if (input.is_open())
+    {
+        std::string line;
+        while (std::getline(input, line))
+        {
+            lines.push_back(line);
+        }
+    }
+    else
+    {
+        return false;
+    }
+    input.close();
+    return true;
+}
+
 size_t silly_file::write(const std::string &path, const std::string &content)
 {
     size_t write_len = 0;
