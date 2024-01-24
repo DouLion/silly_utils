@@ -113,10 +113,8 @@ if(IS_LINUX)
     
     find_package(unixodbc QUIET)
     if(unixodbc_FOUND)
-     
+        target_link_libraries(${PROJECT_NAME} PUBLIC UNIX::odbc)
     else()
-      SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lodbc ")
+        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lodbc ")
     endif()
-    # target_link_libraries(${PROJECT_NAME} PUBLIC UNIX::odbc)
-
 endif()
