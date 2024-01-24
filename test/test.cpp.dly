@@ -1,0 +1,74 @@
+// 测试
+//#include <boost/timer.hpp>
+//#include <loguru/loguru.hpp>
+//
+//#include <database/otl/otl_tools.h>
+//#include <tcp/silly_http.h>
+#include <json/silly_jsonpp.h>
+#include <files/silly_file.h>
+#include <su_marco.h>
+#include <database/otl/otl_tools.h>
+#include <datetime/silly_time.hpp>
+#include <image/jpeg_utils.h>
+#include <image/png_utils.h>
+#include <omp.h>
+#include <triangular/silly_iso_line.h>
+using namespace silly_image;
+
+void sleep(int i)
+{
+    char buff[10] = {0};
+    char buff2[10] = { 0 };
+    sprintf(buff, "S %d ", i);
+    sprintf(buff2, "T %d ", i);
+    std::cout << buff << std::endl;
+    std::this_thread::sleep_for(std::chrono::seconds(i));
+    std::cout << buff2 << std::endl;
+}
+
+int main(int argc, char** argv)
+{
+    SU_SWITCH_CONSOLE_ENCODE(nullptr)
+        std::vector<std::string>lines;
+    std::filesystem::path p(DEFAULT_SU_DATA_DIR);
+    p.append("hebei_station2.txt");
+    silly_file::read(p.string(), lines);
+    std::vector<double> x;
+    std::vector<double> y;
+    std::vector<double> z;
+    for (int i = 1; i < /*lines.size()*/10; ++i)
+    {
+        std::string nl = lines[i];
+        size_t pos = 0;
+        for (; pos < nl.size(); ++pos)
+        {
+            if (nl[pos] == ',')
+            {
+                break;
+            }
+        }
+        size_t pos2 = pos + 1;
+        for (; pos2 < nl.size(); ++pos2)
+        {
+            if (nl[pos2] == ',')
+            {
+                break;
+            }
+        }
+
+        std::string s1 = nl.substr(0, pos);
+        std::string s2 = nl.substr(pos+1, pos2-pos -1);
+        std::string s3 = nl.substr(pos2+1, nl.size() - pos2);
+        x.push_back(std::stof(s1));
+        y.push_back(std::stof(s2));
+        z.push_back(std::stof(s3));
+    }
+    silly_iso_line sil(1);
+    sil.set_data(x.size(), &x[0], &y[0], &z[0]);
+    sil.set_level({ 10, 20 });
+    sil.make_tri_net();
+    sil.make_tri_intersect();
+    sil.make_iso_area();
+    return 0;
+}
+
