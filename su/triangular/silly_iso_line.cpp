@@ -5,6 +5,7 @@
 #include "silly_iso_line.h"
 #include <su_marco.h>
 #include <triangular/TFF_Delaunay.h>
+#include <triangular/silly_delaunay_bowyer.h>
 #include <malloc.h>
 #include <memory>
 #include <thread>
@@ -33,37 +34,28 @@ void silly_iso_line::set_rect(const silly_geo_rect& rect)
 
 void silly_iso_line::set_data(const size_t& num, const double* lgtd, const double* lttd, const double* data)
 {
-    m_ddx = (double*)malloc(num * sizeof(double));
-    m_ddy = (double*)malloc(num * sizeof(double));
-    m_ddz = (double*)malloc(num * sizeof(double));
-    XXMax = YYMax = 0;
-    XXMin = YYMin = 9999;
-
-    double dXValue = 0, dYValue = 0, dZValue = 0;
+    m_data_num = num;// +4;
+    m_ddx = (double*)malloc(m_data_num * sizeof(double));
+    m_ddy = (double*)malloc(m_data_num * sizeof(double));
+    m_ddz = (double*)malloc(m_data_num * sizeof(double));
+    double right = 0,  top = 0;
+    double left = 9999,  bottom = 9999;
+    double tx, ty, tz;
     for (int i = 0; i < num; ++i)
     {
-        dXValue = lgtd[i];
-        dYValue = lttd[i];
-        dZValue = data[i];
-
-        if (dXValue > XXMax)
-            XXMax = dXValue;
-        if (dXValue < XXMin)
-            XXMin = dXValue;
-
-        if (dYValue > YYMax)
-            YYMax = dYValue;
-        if (dYValue < YYMin)
-            YYMin = dYValue;
-
-        if (m_max_dz < dZValue)
-            m_max_dz = dZValue;
-        if (m_min_dz > dZValue)
-            m_min_dz = dZValue;
-
-        m_ddx[i] = dXValue;
-        m_ddy[i] = dYValue;
-        m_ddz[i] = dZValue;
+        // TODO: 这里是不是有点问题
+        tx = lgtd[i];
+        ty = lttd[i];
+        tz = data[i];
+        right = std::max(right, tx);
+        left = std::min(left, tx);
+        top = std::max(top, ty);
+        bottom = std::min(bottom, ty);
+        m_max_dz = std::max(m_max_dz, tz);
+        m_min_dz = std::min(m_min_dz, tz);
+        m_ddx[i] = tx;
+        m_ddy[i] = ty;
+        m_ddz[i] = tz;
     }
 
     m_max_dz = ((int)(m_max_dz / 10.) + 1) * 10;  //取得比maxz大的整数
@@ -76,19 +68,66 @@ void silly_iso_line::set_data(const size_t& num, const double* lgtd, const doubl
             m_ddz[i] -= (m_min_dz);
         }
     }
-    m_data_num = num;
+
+
+   // 上下外扩一个面
+    double exleft, exright, extop, exbottom;
+    exleft  = left - (right - left) / 10.;
+    exright = right + (right - left) / 10.;
+    extop = top + (top - bottom) / 10.;
+    exbottom = bottom - (top - bottom) / 10.;
+
+    //m_ddx[num] = exleft;
+    //m_ddy[num] = extop;
+    //m_ddz[num] = 0;
+
+    //m_ddx[num] = exleft;
+    //m_ddy[num] = bottom;
+    //m_ddz[num] = 0;
+
+    //m_ddx[num] = exright;
+    //m_ddy[num] = extop;
+    //m_ddz[num] = 0;
+
+    //m_ddx[num] = exright;
+    //m_ddy[num] = bottom;
+    //m_ddz[num] = 0;
 }
 
 void silly_iso_line::set_level(const std::vector<double>& thresholds)
 {
     m_thresholds = thresholds;
 }
-
+#define S11 1
 void silly_iso_line::make_tri_net()
 {
+#if S11
     Delaunay DelaunayTri;
     //// ddx, ddy, m_ddz  生成三角形,每个三角形 a b c 三个边, z 值为?
     m_tri_num = DelaunayTri.Triangulate(m_data_num, m_ddx, m_ddy, m_ddz, m_tax, m_tay, m_taz, m_tbx, m_tby, m_tbz, m_tcx, m_tcy, m_tcz);
+#else
+   /* std::vector<delaunay::Point<double>> nps;
+    for (int i = 0; i < m_data_num; ++i)
+    {
+        nps.push_back({ m_ddx[i] , m_ddy[i] });
+    }*/
+    delaunay::Delaunay<double> result = delaunay::triangulate(m_data_num, m_ddx, m_ddy);
+    std::vector<silly_geo_coll> tri_shps;
+    for (auto ts : result.triangles)
+    {
+        silly_geo_coll sgc;
+        sgc.m_type = enum_geometry_type::egtPolygon;
+        sgc.m_poly.outer_ring.points.push_back({ m_ddx[ts.p0.i], m_ddy[ts.p0.i] });
+        sgc.m_poly.outer_ring.points.push_back({ m_ddx[ts.p1.i], m_ddy[ts.p1.i] });
+        sgc.m_poly.outer_ring.points.push_back({ m_ddx[ts.p2.i], m_ddy[ts.p2.i] });
+        sgc.m_poly.outer_ring.points.push_back({ m_ddx[ts.p0.i], m_ddy[ts.p0.i] });
+       // sgc.m_props["idx"] = silly_geo_prop(i);
+        tri_shps.push_back(sgc);
+    }
+    geo_utils::write_geo_coll("./iso_tri2.shp", tri_shps);
+
+
+#endif
 }
 
 void silly_iso_line::make_tri_intersect()
@@ -179,9 +218,9 @@ void silly_iso_line::make_tri_intersect(const size_t& level, const bool& greater
 void silly_iso_line::make_iso_area()
 {
     int i;
-#if _OPENMP
-#pragma omp parallel for private(i)
-#endif
+    //#if _OPENMP
+    //#pragma omp parallel for private(i)
+    //#endif
     for (i = 0; i < m_thresholds.size(); ++i)
     {
         m_level_polys[i] = {};
@@ -283,6 +322,7 @@ void silly_iso_line::tri_edge(size_t i, size_t bi, double& dx1, double& dx2, dou
 
 void silly_iso_line::trace_ring(const size_t& tri_idx, std::vector<iso_triangle>& tri_list, iso_ring& result)
 {
+    std::cout << tri_idx << std::endl;
     size_t k, tri_edge_idx;
     double dx1, dx2, dy1, dy2;  // 被穿过的边的坐标0
     size_t nlastb = -1;         // 当前闭合曲线中的最新的一个相交三角形的相交边
@@ -319,6 +359,7 @@ void silly_iso_line::trace_ring(const size_t& tri_idx, std::vector<iso_triangle>
             // 有相同的边
             if (compare_triangle_same_edge(dx1, dy1, dx2, dy2, tri.i, tri_edge_idx))
             {
+                std::cout << "\t" << tri.i << std::endl;
                 tri.traced = 1;
                 for (k = 0; k < 3; k++)  // 找到另外一个边
                 {
@@ -796,7 +837,7 @@ std::string silly_iso_line::geojson(const std::string& path)
         sgc.m_poly.outer_ring.points.push_back({m_tbx[i], m_tby[i]});
         sgc.m_poly.outer_ring.points.push_back({m_tcx[i], m_tcy[i]});
         sgc.m_poly.outer_ring.points.push_back({m_tax[i], m_tay[i]});
-
+        sgc.m_props["idx"] = silly_geo_prop(i);
         tri_shps.push_back(sgc);
     }
     geo_utils::write_geo_coll("./iso_tri.shp", tri_shps);
@@ -808,8 +849,8 @@ std::string silly_iso_line::geojson(const std::string& path)
         {
             silly_geo_coll sgc;
             sgc.m_type = enum_geometry_type::egtPolygon;
-            for(auto cp : p.outer.cpoint)
-            { 
+            for (auto cp : p.outer.cpoint)
+            {
                 sgc.m_poly.outer_ring.points.push_back({cp.x, cp.y});
             }
             sgc.m_props["level"] = silly_geo_prop((int)l);
@@ -817,6 +858,20 @@ std::string silly_iso_line::geojson(const std::string& path)
         }
     }
     geo_utils::write_geo_coll("./iso_area.shp", iso_shps);
+
+    std::vector<silly_geo_coll> point_shps;
+    // for (auto [l, ps] : m_level_polys)
+    {
+        for (int i = 0; i < m_data_num; ++i)
+        {
+            silly_geo_coll sgc;
+            sgc.m_type = enum_geometry_type::egtPoint;
+            sgc.m_point = {m_ddx[i], m_ddy[i]};
+            sgc.m_props["value"] = silly_geo_prop(m_ddz[i]);
+            point_shps.push_back(sgc);
+        }
+    }
+    geo_utils::write_geo_coll("./iso_point.shp", point_shps);
     return std::string();
 }
 

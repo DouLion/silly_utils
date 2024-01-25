@@ -51,12 +51,26 @@ struct iso_ring  // 闭合环
         return *this;
     }
 
+    /// <summary>
+    /// 添加一个控制点,并且过滤距离太近的
+    /// </summary>
+    /// <param name="point"></param>
+    /// <param name="dist"></param>
     void add_c(iso_point point, double& dist)
     {
         if (cpoint.back().too_near(point, dist))
         {
             return;
         }
+        cpoint.push_back(point);
+    }
+
+    /// <summary>
+    /// 添加一个控制点
+    /// </summary>
+    /// <param name="point"></param>
+    void add_c(iso_point point)
+    {
         cpoint.push_back(point);
     }
 };
@@ -107,7 +121,7 @@ class silly_iso_line
 
     // Attributes
   public:
-    double m_near{1e-4};
+    double m_near{1e-8};
 
     // 三角形追踪的中间结果
   private:
@@ -145,8 +159,8 @@ class silly_iso_line
     double* m_ddx{nullptr};
     double* m_ddy{nullptr};
     double* m_ddz{nullptr};
-    double m_max_dz{0};
-    double m_min_dz{0};  //数据点坐标(ddx,ddy)及取值(ddz)
+    double m_max_dz{-999999.};
+    double m_min_dz{999999.};  //数据点坐标(ddx,ddy)及取值(ddz)
                          // SF1 showF[ARR];
 
   public:

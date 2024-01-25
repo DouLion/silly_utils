@@ -54,7 +54,7 @@ silly_geo_prop::silly_geo_prop(const char *c, const size_t &l)
     }
 }
 
-silly_geo_prop::silly_geo_prop(const long long int &ll)
+silly_geo_prop::silly_geo_prop(const long long &ll)
 {
     type = enum_prop_type::eptLong;
     len = sizeof(ll);

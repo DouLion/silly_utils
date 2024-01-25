@@ -1038,6 +1038,10 @@ bool wire_all_types_data(const enum_geometry_type coll_type, OGRLayer* outputLay
 bool geo_utils::write_geo_coll(const char* file, const std::vector<silly_geo_coll>& collections)
 {
     bool status = false;
+    if (collections.empty())
+    {
+        return status;
+    }
     // 根据拓展名得到存储格式
     std::string driverName;
     if (!get_driver_name(file, driverName))
@@ -1067,18 +1071,16 @@ bool geo_utils::write_geo_coll(const char* file, const std::vector<silly_geo_col
         return false;
     }
     // TODO :
-    /*
-    for (const auto& sgc : oneColl->m_props)  // 添加属性
+    
+    for (auto [k, p] : collections.front().m_props)  // 添加属性
     {
-        std::string key = prop.first;
-        silly_geo_prop propValue = prop.second;
-        OGRFieldType ogrType = convertToOGRFieldType(prop.value_type());
-        OGRFieldDefn fieldDef(key.c_str(), ogrType);
+        OGRFieldType ogrType = convertToOGRFieldType(p.value_type());
+        OGRFieldDefn fieldDef(k.c_str(), ogrType);
         if (outputLayer->CreateField(&fieldDef) != OGRERR_NONE)
         {
             SU_ERROR_PRINT("Error: Failed to create color field  \n");
         }
-    }*/
+    }
     for (const auto& coll : collections)
     {
         OGRFeature* feature = OGRFeature::CreateFeature(outputLayer->GetLayerDefn());
