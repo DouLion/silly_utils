@@ -94,11 +94,11 @@ void silly_iso_line::make_tri_net()
 void silly_iso_line::make_tri_intersect()
 {
     //  TODO 这个循环可以 多线程执行, 结果不会相互影响
-    
+
     int i;
-//#if _OPENMP
-//    #pragma omp parallel for private(i)
-//#endif
+    //#if _OPENMP
+    //    #pragma omp parallel for private(i)
+    //#endif
     for (i = 0; i < m_thresholds.size(); ++i)
     {
         m_level_tris[i] = {};
@@ -164,16 +164,15 @@ void silly_iso_line::make_tri_intersect(const size_t& level, const bool& greater
             tmp_tri.dv[2].y = y2 + (y3 - y2) * (threshold - z2) / (z3 - z2);
             cont++;
         }
-        if(cont == 2)
+        if (cont == 2)
         {
-//#pragma omp atomic
+            //#pragma omp atomic
             m_level_tris[level].push_back(tmp_tri);
         }
         else
         {
             int zzz = 0;
         }
-
     }
 }
 
@@ -255,10 +254,7 @@ void silly_iso_line::iso_fill(const size_t& level, const size_t& tri_num, std::v
         0        0         1      /   0
 
     */
-
-    
 }
-   
 
 void silly_iso_line::tri_edge(size_t i, size_t bi, double& dx1, double& dx2, double& dy1, double& dy2)
 {
@@ -358,12 +354,12 @@ void silly_iso_line::draw_iso_fill(std::vector<iso_polygon>& result_polys, size_
             iso_polygon poly;
             poly.outer = ring;
             result_polys.emplace_back(poly);
-            out_c ++ ;
+            out_c++;
         }
     }
 
     // 找到内环
-   //  std::map<int, std::vector<int>> poly_inner_rings;
+    //  std::map<int, std::vector<int>> poly_inner_rings;
     int int_c = 0;
     for (auto& ring : all_rings)
     {
@@ -381,14 +377,14 @@ void silly_iso_line::draw_iso_fill(std::vector<iso_polygon>& result_polys, size_
         }
     }
 
-    int  not_c = 0;
+    int not_c = 0;
     for (auto& ring : all_rings)
     {
         if (!ring.marked && !ring.outer)
         {
-           /* iso_polygon poly;
-            poly.outer = ring;
-            result_polys.emplace_back(poly);*/
+            /* iso_polygon poly;
+             poly.outer = ring;
+             result_polys.emplace_back(poly);*/
             not_c++;
         }
     }
@@ -787,6 +783,41 @@ bool silly_iso_line::compare_triangle_same_edge(double dx1, double dy1, double d
     }
 
     return false;
+}
+
+std::string silly_iso_line::geojson(const std::string& path)
+{
+    std::vector<silly_geo_coll> tri_shps;
+    for (int i = 0; i < m_tri_num; ++i)
+    {
+        silly_geo_coll sgc;
+        sgc.m_type = enum_geometry_type::egtPolygon;
+        sgc.m_poly.outer_ring.points.push_back({m_tax[i], m_tay[i]});
+        sgc.m_poly.outer_ring.points.push_back({m_tbx[i], m_tby[i]});
+        sgc.m_poly.outer_ring.points.push_back({m_tcx[i], m_tcy[i]});
+        sgc.m_poly.outer_ring.points.push_back({m_tax[i], m_tay[i]});
+
+        tri_shps.push_back(sgc);
+    }
+    geo_utils::write_geo_coll("./iso_tri.shp", tri_shps);
+
+    std::vector<silly_geo_coll> iso_shps;
+    for (auto [l, ps] : m_level_polys)
+    {
+        for (auto p : ps)
+        {
+            silly_geo_coll sgc;
+            sgc.m_type = enum_geometry_type::egtPolygon;
+            for(auto cp : p.outer.cpoint)
+            { 
+                sgc.m_poly.outer_ring.points.push_back({cp.x, cp.y});
+            }
+            sgc.m_props["level"] = silly_geo_prop((int)l);
+            iso_shps.push_back(sgc);
+        }
+    }
+    geo_utils::write_geo_coll("./iso_area.shp", iso_shps);
+    return std::string();
 }
 
 int silly_iso_line::point_in_poly(const double& x, const double& y, const std::vector<iso_point>& points)

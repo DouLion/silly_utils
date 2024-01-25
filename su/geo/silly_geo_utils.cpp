@@ -62,7 +62,7 @@ silly_geo_coll geo_utils::intersection_area(silly_poly poly_main, silly_poly pol
         {
             OGRPolygon* intersectingPolygon = dynamic_cast<OGRPolygon*>(intersection);
             result.m_poly = geo_utils::OGRPolyToSillyPoly(intersectingPolygon);
-            result.m_type = ePolygon;
+            result.m_type = enum_geometry_type::egtPolygon;
             delete intersectingPolygon;
             break;
         }
@@ -72,7 +72,7 @@ silly_geo_coll geo_utils::intersection_area(silly_poly poly_main, silly_poly pol
         {
             OGRMultiPolygon* intersectingMultiPolygon = dynamic_cast<OGRMultiPolygon*>(intersection);
             result.m_m_polys = geo_utils::OGRMulPolyToSillyMulPoly(intersectingMultiPolygon);
-            result.m_type = eMultiPolygon;
+            result.m_type = enum_geometry_type::egtMultiPolygon;
             delete intersectingMultiPolygon;
             break;
         }
@@ -343,7 +343,7 @@ bool geo_utils::is_valid_shp(const std::string& shp_file)
     return true;
 }
 
-bool geo_utils::check_shp_info(const std::string& shp_file, enum_geometry_types& type, std::map<std::string, std::string>& properties)
+bool geo_utils::check_shp_info(const std::string& shp_file, enum_geometry_type& type, std::map<std::string, std::string>& properties)
 {
     bool status = false;
     std::map<std::string, std::string> result;
@@ -370,8 +370,9 @@ bool geo_utils::check_shp_info(const std::string& shp_file, enum_geometry_types&
 
     // 获取要素的几何形状
     OGRGeometry* poGeometry_r = pFeature_r->GetGeometryRef();
-    type = (enum_geometry_types)wkbFlatten(poGeometry_r->getGeometryType());
-    if (wkbUnknown == type)
+    auto gdal_type = wkbFlatten(poGeometry_r->getGeometryType());
+    type = static_cast<enum_geometry_type>(gdal_type);
+    if (wkbUnknown == gdal_type)
     {
         GDALClose(poDSr);
         return status;
@@ -388,7 +389,7 @@ bool geo_utils::check_shp_info(const std::string& shp_file, enum_geometry_types&
     for (int i = 0; i < fieldCnt; i++)
     {
         OGRFieldDefn* def = pFeature_r->GetFieldDefnRef(i);
-        OGRFieldType type = def->GetType();
+        OGRFieldType gp_type = def->GetType();
         std::string field_name = def->GetNameRef();
         if (silly_encode::enum_encode::eeUTF8 != silly_encode::is_utf8(field_name.c_str(), field_name.size()))
         {
@@ -396,7 +397,7 @@ bool geo_utils::check_shp_info(const std::string& shp_file, enum_geometry_types&
         }
 
         std::string field_type = "";
-        switch (type)
+        switch (gp_type)
         {
             case OFTInteger:
                 field_type = "OFTInteger";
@@ -453,7 +454,7 @@ bool geo_utils::check_shp_info(const std::string& shp_file, enum_geometry_types&
     return status;
 }
 
-bool geo_utils::check_shp_info(const std::string& shp_file, enum_geometry_types& type, std::map<std::string, enum_geoprop_types>& properties)
+bool geo_utils::check_shp_info(const std::string& shp_file, enum_geometry_type& type, std::map<std::string, silly_geo_prop::enum_prop_type>& properties)
 {
     bool status = false;
     std::map<std::string, std::string> result;
@@ -480,8 +481,9 @@ bool geo_utils::check_shp_info(const std::string& shp_file, enum_geometry_types&
 
     // 获取要素的几何形状
     OGRGeometry* poGeometry_r = pFeature_r->GetGeometryRef();
-    type = (enum_geometry_types)wkbFlatten(poGeometry_r->getGeometryType());
-    if (wkbUnknown == type)
+    auto gdal_type = wkbFlatten(poGeometry_r->getGeometryType());
+    type = static_cast<enum_geometry_type>(gdal_type);
+    if (wkbUnknown == gdal_type)
     {
         GDALClose(poDSr);
         return status;
@@ -504,21 +506,21 @@ bool geo_utils::check_shp_info(const std::string& shp_file, enum_geometry_types&
         {
             field_name = silly_encode::gbk_utf8(field_name);
         }
-        enum_geoprop_types field_type{eNone};
+        silly_geo_prop::enum_prop_type field_type{silly_geo_prop::enum_prop_type::eptNone};
         switch (type)
         {
             case OFTInteger:
-                field_type = eInt;
+                field_type = silly_geo_prop::enum_prop_type::eptInt;
                 break;
             case OFTIntegerList:
                 break;
             case OFTReal:
-                field_type = eNumeric;
+                field_type = silly_geo_prop::enum_prop_type::eptNumeric;
                 break;
             case OFTRealList:
                 break;
             case OFTString:
-                field_type = eString;
+                field_type = silly_geo_prop::enum_prop_type::eptString;
                 break;
             case OFTStringList:
                 break;
@@ -530,19 +532,19 @@ bool geo_utils::check_shp_info(const std::string& shp_file, enum_geometry_types&
                 break;
 #endif
             case OFTBinary:
-                field_type = eBinary;
+                field_type = silly_geo_prop::enum_prop_type::eptBinary;
                 break;
             case OFTTime:
-                field_type = eTime;
+                field_type = silly_geo_prop::enum_prop_type::eptTime;
                 break;
             case OFTDate:
-                field_type = eDate;
+                field_type = silly_geo_prop::enum_prop_type::eptDate;
                 break;
             case OFTDateTime:
-                field_type = eDateTime;
+                field_type = silly_geo_prop::enum_prop_type::eptDateTime;
                 break;
             case OFTInteger64:
-                field_type = eLong;
+                field_type = silly_geo_prop::enum_prop_type::eptLong;
                 break;
             case OFTInteger64List:
                 break;
@@ -562,79 +564,62 @@ bool geo_utils::check_shp_info(const std::string& shp_file, enum_geometry_types&
 /// <param name="properties"></param>
 /// <param name="props"></param>
 /// <returns></returns>
-bool read_property(const OGRFeature* feature, const std::map<std::string, enum_geoprop_types>& properties, std::map<std::string, silly_geo_prop>& props)
+bool read_property(const OGRFeature* feature, const std::map<std::string, silly_geo_prop::enum_prop_type>& properties, std::map<std::string, silly_geo_prop>& props)
 {
-    for (const auto& entry : properties)
+    for (const auto& [key, p_type] : properties)
     {
-        std::string key = entry.first;
-        size_t temp_size = 0;
-        enum_geoprop_types th_type = entry.second;
-        switch (th_type)
+        switch (p_type)
         {
-            case eNone:
+            case silly_geo_prop::enum_prop_type::eptNone:
                 break;
-            case eInt:
+            case silly_geo_prop::enum_prop_type::eptInt:
             {
-                int value = feature->GetFieldAsInteger(entry.first.c_str());
-                temp_size = sizeof(value);
-                props[key].data = new unsigned char[temp_size];
-                std::memcpy(props[key].data, &value, temp_size);
+                int value = feature->GetFieldAsInteger(key.c_str());
+                props[key] = {value};
             }
             break;
-            case eNumeric:
+            case silly_geo_prop::enum_prop_type::eptNumeric:
             {
-                double value = feature->GetFieldAsDouble(entry.first.c_str());
-                temp_size = sizeof(value);
-                props[key].data = new unsigned char[temp_size];
-                std::memcpy(props[key].data, &value, temp_size);
-                // double extractedValue;
-                // std::memcpy(&extractedValue, props[key].data, temp_size);
-                // int a = 0;
+                double value = feature->GetFieldAsDouble(key.c_str());
+                props[key] = {value};
             }
             break;
-            case eString:
+            case silly_geo_prop::enum_prop_type::eptString:
             {
-                std::string value = feature->GetFieldAsString(entry.first.c_str());
-                temp_size = value.size() + 1;
-                props[key].data = new unsigned char[temp_size];
-                std::memcpy(props[key].data, value.c_str(), temp_size);
+                std::string value = feature->GetFieldAsString(key.c_str());
+                props[key] = {value};
             }
             break;
-            case eTime:
+            case silly_geo_prop::enum_prop_type::eptTime:
                 break;
-            case eDate:
+            case silly_geo_prop::enum_prop_type::eptDate:
                 break;
-            case eDateTime:
+            case silly_geo_prop::enum_prop_type::eptDateTime:
             {
                 int year, month, day, hour, minute, second, tzFlag;
                 int result = feature->GetFieldAsDateTime(0, &year, &month, &day, &hour, &minute, &second, &tzFlag);
             }
             break;
-            case eLong:
+            case silly_geo_prop::enum_prop_type::eptLong:
             {
-                long long value = feature->GetFieldAsInteger64(entry.first.c_str());
-                temp_size = sizeof(value);
-                props[key].data = new unsigned char[temp_size];
-                std::memcpy(props[key].data, &value, temp_size);
+                long long value = feature->GetFieldAsInteger64(key.c_str());
+                props[key] = {value};
             }
             break;
             default:
                 break;
         }
-
-        props[key].type = entry.second;
-        props[key].len = temp_size;
     }
     return true;
 }
 
-bool read_all_types_data(const enum_geometry_types feature_type, OGRGeometry* geometry, silly_geo_coll& geo_coll)
+bool read_all_types_data(const enum_geometry_type& feature_type, OGRGeometry* geometry, silly_geo_coll& geo_coll)
 {
     bool status = false;
     geo_coll.comp_type.push_back(feature_type);
     switch (feature_type)
     {
-        case ePoint:  // 单点
+        case enum_geometry_type::egtPoint:  // 单点
         {
             auto geo_type = geometry->getGeometryType();
             OGRPoint* point = dynamic_cast<OGRPoint*>(geometry);
@@ -642,42 +627,42 @@ bool read_all_types_data(const enum_geometry_types feature_type, OGRGeometry* ge
             status = true;
         }
         break;
-        case eLineString:  // 单线
+        case enum_geometry_type::egtLineString:  // 单线
         {
             OGRLineString* lineString = dynamic_cast<OGRLineString*>(geometry);
             geo_coll.m_line = geo_utils::OGRLineToSillyLine(lineString);
             status = true;
         }
         break;
-        case ePolygon:  // 单面
+        case enum_geometry_type::egtPolygon:  // 单面
         {
             OGRPolygon* polygon = dynamic_cast<OGRPolygon*>(geometry);
             geo_coll.m_poly = geo_utils::OGRPolyToSillyPoly(polygon);
             status = true;
         }
         break;
-        case eMultiPoint:  // 多点
+        case enum_geometry_type::egtMultiPoint:  // 多点
         {
             OGRMultiPoint* multiPoint = dynamic_cast<OGRMultiPoint*>(geometry);
             geo_coll.m_m_points = geo_utils::OGRMulPointToSillyMulPoint(multiPoint);
             status = true;
         }
         break;
-        case eMultiLineString:  // 多线
+        case enum_geometry_type::egtMultiLineString:  // 多线
         {
             OGRMultiLineString* multiLineString = dynamic_cast<OGRMultiLineString*>(geometry);
             geo_coll.m_m_lines = geo_utils::OGRMulLineToSillyMulLine(multiLineString);
             status = true;
         }
         break;
-        case eMultiPolygon:  // 多面
+        case enum_geometry_type::egtMultiPolygon:  // 多面
         {
             OGRMultiPolygon* multiPolygon = dynamic_cast<OGRMultiPolygon*>(geometry);
             geo_coll.m_m_polys = geo_utils::OGRMulPolyToSillyMulPoly(multiPolygon);
             status = true;
         }
         break;
-        case eCompositeType:  // 复合数据类型
+        case enum_geometry_type::egtCompositeType:  // 复合数据类型
         {
             OGRGeometryCollection* geomCollection = dynamic_cast<OGRGeometryCollection*>(geometry);
             int numGeometries = geomCollection->getNumGeometries();
@@ -687,7 +672,7 @@ bool read_all_types_data(const enum_geometry_types feature_type, OGRGeometry* ge
                 OGRGeometry* collGeometry = geomCollection->getGeometryRef(j);
                 if (collGeometry != nullptr)
                 {
-                    enum_geometry_types feature_type = (enum_geometry_types)wkbFlatten(collGeometry->getGeometryType());
+                    enum_geometry_type feature_type = (enum_geometry_type)wkbFlatten(collGeometry->getGeometryType());
                     status = read_all_types_data(feature_type, collGeometry, geo_coll);
                 }
             }
@@ -695,7 +680,7 @@ bool read_all_types_data(const enum_geometry_types feature_type, OGRGeometry* ge
         break;
         default:
         {
-            SU_ERROR_PRINT("Unprocessable data types: %s \n", std::to_string(feature_type).c_str());
+            SU_ERROR_PRINT("Unprocessable data types: %d \n", feature_type);
         }
         break;
     }
@@ -711,8 +696,8 @@ bool geo_utils::read_geo_coll(const char* file, std::vector<silly_geo_coll>& col
         SU_ERROR_PRINT("Error: file does not exist %s  \n", file);
         return status;
     }
-    enum_geometry_types type;
-    std::map<std::string, enum_geoprop_types> properties;
+    enum_geometry_type type;
+    std::map<std::string, silly_geo_prop::enum_prop_type> properties;
     if (!check_shp_info(file, type, properties))
     {
         SU_ERROR_PRINT("Error check shp info  \n", file);
@@ -751,7 +736,7 @@ bool geo_utils::read_geo_coll(const char* file, std::vector<silly_geo_coll>& col
         {
             silly_geo_coll temp_geo_coll;
             OGRGeometry* geometry = feature->GetGeometryRef();  // 获取矢量数据
-            enum_geometry_types feature_type = (enum_geometry_types)wkbFlatten(geometry->getGeometryType());
+            enum_geometry_type feature_type = (enum_geometry_type)wkbFlatten(geometry->getGeometryType());
             temp_geo_coll.m_type = feature_type;                                  // 添加矢量数据类型
             read_property(feature, properties, temp_geo_coll.m_props);            // 读取属性数据
             status = read_all_types_data(feature_type, geometry, temp_geo_coll);  // 添加所有数据类型,如果是复合数据类型会递归的调用
@@ -764,7 +749,7 @@ bool geo_utils::read_geo_coll(const char* file, std::vector<silly_geo_coll>& col
     return status;
 }
 
-// 根据文件拓展得到对应的存储格式
+// 根据文件拓展得到对应的存储格式 TODO :
 bool geo_utils::get_driver_name(const char* file, std::string& driverName)
 {
     bool status = false;
@@ -818,85 +803,70 @@ bool geo_utils::get_driver_name(const char* file, std::string& driverName)
     return status;
 }
 
-// 根据enum_geoprop_types 找gdal中属性的类型
-OGRFieldType convertToOGRFieldType(enum_geoprop_types geopropType)
+// 根据silly_geo_prop::enum_prop_type 找gdal中属性的类型
+OGRFieldType convertToOGRFieldType(const silly_geo_prop::enum_prop_type& type)
 {
-    switch (geopropType)
+    OGRFieldType result = OFTString;
+    switch (type)
     {
-        case eNone:
-            return OFTString;
-        case eInt:
-            return OFTInteger;
-        case eNumeric:
-            return OFTReal;
-        case eString:
-            return OFTString;
-        case eBinary:
-            return OFTBinary;
-        case eTime:
-            return OFTTime;
-        case eDate:
-            return OFTDate;
-        case eDateTime:
-            return OFTDateTime;
-        case eLong:
-            return OFTInteger64;
+        case silly_geo_prop::enum_prop_type::eptNone:
+            result = OFTString;
+        case silly_geo_prop::enum_prop_type::eptInt:
+            result = OFTInteger;
+        case silly_geo_prop::enum_prop_type::eptNumeric:
+            result = OFTReal;
+        case silly_geo_prop::enum_prop_type::eptString:
+            result = OFTString;
+        case silly_geo_prop::enum_prop_type::eptBinary:
+            result = OFTBinary;
+        case silly_geo_prop::enum_prop_type::eptTime:
+            result = OFTTime;
+        case silly_geo_prop::enum_prop_type::eptDate:
+            result = OFTDate;
+        case silly_geo_prop::enum_prop_type::eptDateTime:
+            result = OFTDateTime;
+        case silly_geo_prop::enum_prop_type::eptLong:
+            result = OFTInteger64;
         default:
-            return OFTString;
+            result = OFTString;
     }
+    return result;
 }
 
 // 添加属性到shp中
 bool writePropertiesToGeometry(OGRFeature* feature, const std::map<std::string, silly_geo_prop>& m_props)
 {
-    bool status = false;
-    for (const auto& prop : m_props)
+    bool status = true;
+    for (auto [key, prop] : m_props)
     {
-        std::string key = prop.first;
-        silly_geo_prop propValue = prop.second;
         int fieldIndex = feature->GetFieldIndex(key.c_str());
         if (fieldIndex >= 0)
         {
-            switch (propValue.type)
+            switch (prop.value_type())
             {
-                case eInt:
-                {
-                    int value;
-                    std::memcpy(&value, prop.second.data, prop.second.len);
-                    feature->SetField(fieldIndex, value);
-                    status = true;
-                }
-                break;
-                case eNumeric:
-                {
-                    double value;
-                    std::memcpy(&value, prop.second.data, prop.second.len);
-                    feature->SetField(fieldIndex, value);
-                    status = true;
-                }
-                break;
-                case eString:
-                {
-                    std::string value(reinterpret_cast<char*>(prop.second.data), prop.second.len);
-                    feature->SetField(fieldIndex, value.c_str());
-                    status = true;
-                }
-                break;
-                case eTime:
+                case silly_geo_prop::enum_prop_type::eptInt:
+
+                    feature->SetField(fieldIndex, prop.as_int());
                     break;
-                case eDate:
+                case silly_geo_prop::enum_prop_type::eptNumeric:
+
+                    feature->SetField(fieldIndex, prop.as_double());
                     break;
-                case eDateTime:
+                case silly_geo_prop::enum_prop_type::eptString:
+                    feature->SetField(fieldIndex, prop.as_string().c_str());
                     break;
-                case eLong:
-                {
-                    long long value;
-                    std::memcpy(&value, prop.second.data, prop.second.len);
-                    feature->SetField(fieldIndex, value);
-                    status = true;
-                }
-                break;
+                case silly_geo_prop::enum_prop_type::eptTime:
+                    break;
+                case silly_geo_prop::enum_prop_type::eptDate:
+                    break;
+                case silly_geo_prop::enum_prop_type::eptDateTime:
+                    break;
+                case silly_geo_prop::enum_prop_type::eptLong:
+
+                    feature->SetField(fieldIndex, prop.as_longlong());
+                    break;
                 default:
+                    status = false;
                     break;
             }
         }
@@ -905,19 +875,19 @@ bool writePropertiesToGeometry(OGRFeature* feature, const std::map<std::string, 
 }
 
 // 处理复合数据类型的变量
-bool process_composite_data(const enum_geometry_types coll_type, OGRGeometry* geometry, OGRGeometryCollection* geomCollection, const silly_geo_coll& geo_coll)
+bool process_composite_data(const enum_geometry_type coll_type, OGRGeometry* geometry, OGRGeometryCollection* geomCollection, const silly_geo_coll& geo_coll)
 {
     bool status = false;
     switch (coll_type)
     {
-        case ePoint:
+        case enum_geometry_type::egtPoint:
         {
             OGRPoint ogrPoint(geo_coll.m_point.lgtd, geo_coll.m_point.lttd);
             geomCollection->addGeometry(&ogrPoint);
             status = true;
         }
         break;
-        case eLineString:
+        case enum_geometry_type::egtLineString:
         {
             OGRLineString* orgLine = dynamic_cast<OGRLineString*>(geometry);
             orgLine = geo_utils::SillyLineToOGRLine(geo_coll.m_line);
@@ -925,7 +895,7 @@ bool process_composite_data(const enum_geometry_types coll_type, OGRGeometry* ge
             status = true;
         }
         break;
-        case ePolygon:
+        case enum_geometry_type::egtPolygon:
         {
             OGRPolygon* polygon = dynamic_cast<OGRPolygon*>(geometry);
             polygon = geo_utils::SillyPolyToOGRPoly(geo_coll.m_poly);
@@ -933,7 +903,7 @@ bool process_composite_data(const enum_geometry_types coll_type, OGRGeometry* ge
             status = true;
         }
         break;
-        case eMultiPoint:
+        case enum_geometry_type::egtMultiPoint:
         {
             OGRMultiPoint* multiPoint = dynamic_cast<OGRMultiPoint*>(geometry);
             multiPoint = geo_utils::SillyMulPointToOGRMulPoint(geo_coll.m_m_points);
@@ -941,14 +911,14 @@ bool process_composite_data(const enum_geometry_types coll_type, OGRGeometry* ge
             status = true;
         }
         break;
-        case eMultiLineString:
+        case enum_geometry_type::egtMultiLineString:
         {
             OGRMultiLineString* multiLineString = dynamic_cast<OGRMultiLineString*>(geometry);
             geomCollection->addGeometry(multiLineString);
             status = true;
         }
         break;
-        case eMultiPolygon:
+        case enum_geometry_type::egtMultiPolygon:
         {
             OGRMultiPolygon* multiPolygon = dynamic_cast<OGRMultiPolygon*>(geometry);
             multiPolygon = geo_utils::SillyMulPolyToOGRMulPoly(geo_coll.m_m_polys);
@@ -958,7 +928,7 @@ bool process_composite_data(const enum_geometry_types coll_type, OGRGeometry* ge
         break;
         default:
         {
-            SU_ERROR_PRINT("Composite unprocessable data types: %s \n", std::to_string(coll_type).c_str());
+            SU_ERROR_PRINT("Composite unprocessable data types: %s \n", coll_type);
         }
         break;
     }
@@ -966,12 +936,12 @@ bool process_composite_data(const enum_geometry_types coll_type, OGRGeometry* ge
 }
 
 // 写入所有类型的数据
-bool wire_all_types_data(const enum_geometry_types coll_type, OGRLayer* outputLayer, OGRFeature* feature, OGRGeometry* geometry, const silly_geo_coll& geo_coll)
+bool wire_all_types_data(const enum_geometry_type coll_type, OGRLayer* outputLayer, OGRFeature* feature, OGRGeometry* geometry, const silly_geo_coll& geo_coll)
 {
     bool status = false;
     switch (coll_type)
     {
-        case ePoint:
+        case enum_geometry_type::egtPoint:
         {
             OGRPoint ogrPoint(geo_coll.m_point.lgtd, geo_coll.m_point.lttd);
             feature->SetGeometry(&ogrPoint);
@@ -982,7 +952,7 @@ bool wire_all_types_data(const enum_geometry_types coll_type, OGRLayer* outputLa
             status = true;
         }
         break;
-        case eLineString:
+        case enum_geometry_type::egtLineString:
         {
             OGRLineString* orgLine = dynamic_cast<OGRLineString*>(geometry);
             orgLine = geo_utils::SillyLineToOGRLine(geo_coll.m_line);
@@ -994,7 +964,7 @@ bool wire_all_types_data(const enum_geometry_types coll_type, OGRLayer* outputLa
             status = true;
         }
         break;
-        case ePolygon:
+        case enum_geometry_type::egtPolygon:
         {
             OGRPolygon* polygon = dynamic_cast<OGRPolygon*>(geometry);
             polygon = geo_utils::SillyPolyToOGRPoly(geo_coll.m_poly);
@@ -1006,7 +976,7 @@ bool wire_all_types_data(const enum_geometry_types coll_type, OGRLayer* outputLa
             status = true;
         }
         break;
-        case eMultiPoint:
+        case enum_geometry_type::egtMultiPoint:
         {
             OGRMultiPoint* multiPoint = dynamic_cast<OGRMultiPoint*>(geometry);
             multiPoint = geo_utils::SillyMulPointToOGRMulPoint(geo_coll.m_m_points);
@@ -1018,7 +988,7 @@ bool wire_all_types_data(const enum_geometry_types coll_type, OGRLayer* outputLa
             status = true;
         }
         break;
-        case eMultiLineString:
+        case enum_geometry_type::egtMultiLineString:
         {
             OGRMultiLineString* multiLineString = dynamic_cast<OGRMultiLineString*>(geometry);
             multiLineString = geo_utils::SillyMulLineToOGRMulLine(geo_coll.m_m_lines);
@@ -1030,7 +1000,7 @@ bool wire_all_types_data(const enum_geometry_types coll_type, OGRLayer* outputLa
             status = true;
         }
         break;
-        case eMultiPolygon:
+        case enum_geometry_type::egtMultiPolygon:
         {
             OGRMultiPolygon* multiPolygon = dynamic_cast<OGRMultiPolygon*>(geometry);
             multiPolygon = geo_utils::SillyMulPolyToOGRMulPoly(geo_coll.m_m_polys);
@@ -1042,7 +1012,7 @@ bool wire_all_types_data(const enum_geometry_types coll_type, OGRLayer* outputLa
             status = true;
         }
         break;
-        case eCompositeType:
+        case enum_geometry_type::egtCompositeType:
         {
             OGRGeometryCollection* geomCollection = dynamic_cast<OGRGeometryCollection*>(geometry);
             for (const auto& type : geo_coll.comp_type)
@@ -1058,7 +1028,7 @@ bool wire_all_types_data(const enum_geometry_types coll_type, OGRLayer* outputLa
         break;
         default:
         {
-            SU_ERROR_PRINT("Unprocessable data types: %s \n", std::to_string(coll_type).c_str());
+            SU_ERROR_PRINT("Unprocessable data types: %s \n", coll_type);
         }
         break;
     }
@@ -1096,23 +1066,24 @@ bool geo_utils::write_geo_coll(const char* file, const std::vector<silly_geo_col
         GDALClose(outputData);
         return false;
     }
-    auto oneColl = collections.begin();
-    for (const auto& prop : oneColl->m_props)  // 添加属性
+    // TODO :
+    /*
+    for (const auto& sgc : oneColl->m_props)  // 添加属性
     {
         std::string key = prop.first;
         silly_geo_prop propValue = prop.second;
-        OGRFieldType ogrType = convertToOGRFieldType(propValue.type);
+        OGRFieldType ogrType = convertToOGRFieldType(prop.value_type());
         OGRFieldDefn fieldDef(key.c_str(), ogrType);
         if (outputLayer->CreateField(&fieldDef) != OGRERR_NONE)
         {
             SU_ERROR_PRINT("Error: Failed to create color field  \n");
         }
-    }
+    }*/
     for (const auto& coll : collections)
     {
         OGRFeature* feature = OGRFeature::CreateFeature(outputLayer->GetLayerDefn());
         // 添加矢量
-        enum_geometry_types coll_type = coll.m_type;
+        enum_geometry_type coll_type = coll.m_type;
         OGRGeometry* geometry = OGRGeometryFactory::createGeometry((OGRwkbGeometryType)coll_type);
         if (!coll.m_props.empty())
         {

@@ -11,7 +11,7 @@
 #define SILLY_UTILS_SILLY_ISO_LINE_H
 
 #include <gpc/gpc.h>
-#include <geo/silly_geo.h>
+#include <geo/silly_geo_utils.h>
 
 struct iso_point
 {
@@ -206,7 +206,12 @@ class silly_iso_line
     /// 清空整个对象
     /// </summary>
     void clear();
-    std::string geojson();
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
+    std::string geojson(const std::string& path);
 
   public:
     /*   int point_in_poly(const double& x, const double& y, const size_t& num, const double* points);
@@ -225,6 +230,7 @@ class silly_iso_line
     /// <param name="dy1"></param>
     /// <param name="dy2"></param>
     void tri_edge(size_t i, size_t bi, double& dx1, double& dx2, double& dy1, double& dy2);
+
     /// <summary>
     /// 以第tri_idx个三角形为起始点,追踪出完整的环
     /// </summary>
@@ -232,27 +238,33 @@ class silly_iso_line
     /// <param name="curr_tri"></param>
     /// <param name="ring"></param>
     void trace_ring(const size_t& tri_idx, std::vector<iso_triangle>& tri_list, iso_ring& result);
-    // 根据控制点, 填充出平滑的等值面
+
+    /// <summary>
+    /// 根据控制点, 填充出平滑的等值面
+    /// </summary>
+    /// <param name="result_polys"></param>
+    /// <param name="ring_num"></param>
+    /// <param name="all_rings"></param>
     void draw_iso_fill(std::vector<iso_polygon>& result_polys, size_t ring_num, std::vector<iso_ring>& all_rings);
 
-    /**
-     * @desc : 根据边界切割环
-     * @author: dou li yang
-     * @date : 2023-07-14
-     * @param_in : None
-     * @param_out : None
-     * @return : None
-     */
+    /// <summary>
+    /// 根据边界切割环
+    /// </summary>
+    /// <param name="ring"></param>
+    /// <param name="gpc1"></param>
+    /// <param name="clip"></param>
     void clip_iso_ring(iso_ring* ring, gpc* gpc1, gpc_polygon* clip);
 
-    /**
-     * @desc : 三次b样条插值的一种实现
-     * @author: dou li yang
-     * @date : 2023-07-14
-     * @param :
-     * @param null:
-     * @return :
-     */
+    /// <summary>
+    /// 三次b样条插值的一种实现
+    /// </summary>
+    /// <param name="mode"></param>
+    /// <param name="ni"></param>
+    /// <param name="poc"></param>
+    /// <param name="num"></param>
+    /// <param name="buff"></param>
+    /// <param name="bMultiPoint"></param>
+    /// <returns></returns>
     bool cubic_b_spline(size_t mode, size_t ni, double* poc, size_t* num, double* buff, const bool bMultiPoint = true);
 
     /// <summary>

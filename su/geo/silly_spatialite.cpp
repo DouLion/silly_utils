@@ -360,22 +360,22 @@ bool geo_silly_to_spatialite(const silly_geo_coll &gc, gaiaGeomCollPtr &ggcp)
     bool status = false;
     switch (gc.m_type)
     {
-        case enum_geometry_types::ePoint:
+        case enum_geometry_type::egtPoint:
             status = silly_point_to_gaiageo(gc.m_point, ggcp);
             break;
-        case enum_geometry_types::eMultiPoint:
+        case enum_geometry_type::egtMultiPoint:
             status = silly_multi_point_to_gaiageo(gc.m_m_points, ggcp);
             break;
-        case enum_geometry_types::eLineString:
+        case enum_geometry_type::egtLineString:
             status = silly_line_to_gaiageo(gc.m_line, ggcp);
             break;
-        case enum_geometry_types::eMultiLineString:
+        case enum_geometry_type::egtMultiLineString:
             status = silly_multi_silly_line_to_gaiageo(gc.m_m_lines, ggcp);
             break;
-        case enum_geometry_types::ePolygon:
+        case enum_geometry_type::egtPolygon:
             status = silly_poly_to_gaiageo(gc.m_poly, ggcp);
             break;
-        case enum_geometry_types::eMultiPolygon:
+        case enum_geometry_type::egtMultiPolygon:
             status = silly_multi_poly_to_gaiageo(gc.m_m_polys, ggcp);
             break;
         default:
@@ -387,34 +387,34 @@ bool geo_silly_to_spatialite(const silly_geo_coll &gc, gaiaGeomCollPtr &ggcp)
 // 检测gaiaGeometryType(gaiaGeomCollPtr geom)函数检测gaiaGeomCollPtr类型
 int check_geom_type(int type)
 {
-    int result;
+    enum_geometry_type result;
     switch (type)
     {
         case GAIA_POINT:
-            result = enum_geometry_types::ePoint;
+            result = enum_geometry_type::egtPoint;
             break;
         case GAIA_LINESTRING:
-            result = enum_geometry_types::eLineString;
+            result = enum_geometry_type::egtLineString;
             break;
         case GAIA_POLYGON:
-            result = enum_geometry_types::ePolygon;
+            result = enum_geometry_type::egtPolygon;
             break;
         case GAIA_MULTIPOINT:
-            result = enum_geometry_types::eMultiPoint;
+            result = enum_geometry_type::egtMultiPoint;
             break;
         case GAIA_MULTILINESTRING:
-            result = enum_geometry_types::eMultiLineString;
+            result = enum_geometry_type::egtMultiLineString;
             break;
         case GAIA_MULTIPOLYGON:
-            result = enum_geometry_types::eMultiPolygon;
+            result = enum_geometry_type::egtMultiPolygon;
             break;
         case GAIA_GEOMETRYCOLLECTION:
-            result = enum_geometry_types::eCompositeType;
+            result = enum_geometry_type::egtCompositeType;
             break;
         default:
-            result = enum_geometry_types::eInvalid;
+            result = enum_geometry_type::egtInvalid;
     }
-    return result;
+    return static_cast<int>(result);
 }
 
 /// <summary>
@@ -426,36 +426,38 @@ int check_geom_type(int type)
 bool geo_spatialite_to_silly(const gaiaGeomCollPtr &ggcp, silly_geo_coll &gc)
 {
     bool status = false;
+    // TODO: 下面这个函数在做什么事情
     int type = check_geom_type(gaiaGeometryType(ggcp));
+    /*
     switch (type)
     {
-        case enum_geometry_types::ePoint:
+        case enum_geometry_type::egtPoint:
             status = gaiageo_to_silly_point(ggcp, gc.m_point);
-            gc.m_type = enum_geometry_types::ePoint;
+            gc.m_type = enum_geometry_type::egtPoint;
             break;
-        case enum_geometry_types::eMultiPoint:
+        case enum_geometry_type::egtMultiPoint:
             status = gaiageo_to_silly_multi_point(ggcp, gc.m_m_points);
-            gc.m_type = enum_geometry_types::eMultiPoint;
+            gc.m_type = enum_geometry_type::egtMultiPoint;
             break;
-        case enum_geometry_types::eLineString:
+        case enum_geometry_type::egtLineString:
             status = gaiageo_to_silly_line(ggcp, gc.m_line);
-            gc.m_type = enum_geometry_types::eLineString;
+            gc.m_type = enum_geometry_type::egtLineString;
             break;
-        case enum_geometry_types::eMultiLineString:
+        case enum_geometry_type::egtMultiLineString:
             status = gaiageo_to_silly_multi_line(ggcp, gc.m_m_lines);
-            gc.m_type = enum_geometry_types::eMultiLineString;
+            gc.m_type = enum_geometry_type::egtMultiLineString;
             break;
-        case enum_geometry_types::ePolygon:
+        case enum_geometry_type::egtPolygon:
             status = gaiageo_to_silly_poly(ggcp, gc.m_poly);
-            gc.m_type = enum_geometry_types::ePolygon;
+            gc.m_type = enum_geometry_type::egtPolygon;
             break;
-        case enum_geometry_types::eMultiPolygon:
+        case enum_geometry_type::egtMultiPolygon:
             status = gaiageo_to_silly_multi_poly(ggcp, gc.m_m_polys);
-            gc.m_type = enum_geometry_types::eMultiPolygon;
+            gc.m_type = enum_geometry_type::egtMultiPolygon;
             break;
         default:
             break;
-    }
+    }*/
     return status;
 }
 

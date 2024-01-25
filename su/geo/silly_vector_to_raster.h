@@ -10,7 +10,7 @@
 #ifndef SILLY_UTILS_SILLY_VECTOR_TO_RASTER_H
 #define SILLY_UTILS_SILLY_VECTOR_TO_RASTER_H
 
-#include <geo/silly_geo.h>
+#include <geo/silly_geo_coll.h>
 
 
 struct SV2RPoint

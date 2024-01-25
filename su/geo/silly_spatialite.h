@@ -6,7 +6,7 @@
 #define SILLY_UTILS_SILLY_SPATIALITE_H
 #include <iostream>
 #include <string.h>
-#include <geo/silly_geo.h>
+#include <geo/silly_geo_coll.h>
 #include <sqlite3.h>
 #include <mutex>
 

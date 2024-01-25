@@ -530,7 +530,7 @@ BOOST_AUTO_TEST_CASE(READ_VECTOR_POINT_LINE)
     std::filesystem::path geo_point(DEFAULT_SU_DATA_DIR);
     geo_point += "/geojson/xian_point.geojson";
 
-    enum_geometry_types type;
+    enum_geometry_type type;
     std::map<std::string, std::string> properties;
     // geo_utils::check_shp_info(geo_point.string().c_str(), type, properties);
 
@@ -542,7 +542,7 @@ BOOST_AUTO_TEST_CASE(READ_VECTOR_POINT_LINE)
 
     // std::vector<silly_point> geo_points_v = geo_utils::read_vector_points(geo_point.string().c_str());
 
-    enum_geometry_types type2;
+    enum_geometry_type type2;
     std::map<std::string, std::string> properties2;
     // geo_utils::check_shp_info(geo_line.string().c_str(), type2, properties2);
 
@@ -701,7 +701,7 @@ static void geometry_printout(gaiaGeomCollPtr geom)
 //{
 //	// 创建多点数据
 //	geo_collection multiPointData;
-//	multiPointData.m_type = enum_geometry_types::eMultiPoint;
+//	multiPointData.m_type = enum_geometry_type::eMultiPoint;
 //	multiPointData.m_m_points.push_back(silly_point(1.0, 1.0));
 //	multiPointData.m_m_points.push_back(silly_point(2.0, 2.0));
 //	multiPointData.m_m_points.push_back(silly_point(3.0, 3.0));
@@ -710,7 +710,7 @@ static void geometry_printout(gaiaGeomCollPtr geom)
 //
 //	// 创建单线数据
 //	geo_collection singleLineData;
-//	singleLineData.m_type = enum_geometry_types::eLineString;
+//	singleLineData.m_type = enum_geometry_type::eLineString;
 //	singleLineData.m_line.push_back(silly_point(1.0, 1.0));
 //	singleLineData.m_line.push_back(silly_point(2.0, 2.0));
 //	singleLineData.m_line.push_back(silly_point(3.0, 3.0));
@@ -719,7 +719,7 @@ static void geometry_printout(gaiaGeomCollPtr geom)
 //
 //	// 创建多线数据
 //	geo_collection multiLineData;
-//	multiLineData.m_type = enum_geometry_types::eMultiLineString;
+//	multiLineData.m_type = enum_geometry_type::eMultiLineString;
 //	silly_line line1;
 //	line1.push_back(silly_point(1.0, 1.0));
 //	line1.push_back(silly_point(2.0, 2.0));
@@ -734,7 +734,7 @@ static void geometry_printout(gaiaGeomCollPtr geom)
 //
 //	// 创建单面数据
 //	geo_collection singlePolygonData;
-//	singlePolygonData.m_type = enum_geometry_types::ePolygon;
+//	singlePolygonData.m_type = enum_geometry_type::ePolygon;
 //	singlePolygonData.m_poly.outer_ring.points.push_back(silly_point(1.0, 1.0));
 //	singlePolygonData.m_poly.outer_ring.points.push_back(silly_point(2.0, 2.0));
 //	singlePolygonData.m_poly.outer_ring.points.push_back(silly_point(3.0, 3.0));
@@ -746,7 +746,7 @@ static void geometry_printout(gaiaGeomCollPtr geom)
 //
 //	// 创建多面数据
 //	geo_collection multiPolygonData;
-//	multiPolygonData.m_type = enum_geometry_types::eMultiPolygon;
+//	multiPolygonData.m_type = enum_geometry_type::eMultiPolygon;
 //
 //	// 第一个面
 //	silly_poly poly1;

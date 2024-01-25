@@ -3,7 +3,7 @@
 #ifndef SILLY_UTILS_SILLY_GEO_OPERATION_H
 #define SILLY_UTILS_SILLY_GEO_OPERATION_H
 
-#include "silly_geo.h"
+#include <geo/silly_geo_coll.h>
 #include "gdal_priv.h"
 
 // 矢量文件后缀名
@@ -95,9 +95,9 @@ class geo_utils
     /// <param name="type"></param>
     /// <param name="properties"></param>
     /// <returns></returns>
-    static bool check_shp_info(const std::string& shp_file, enum_geometry_types& type, std::map<std::string, enum_geoprop_types>& properties);
+    static bool check_shp_info(const std::string& shp_file, enum_geometry_type& type, std::map<std::string, silly_geo_prop::enum_prop_type>& properties);
 
-    static bool check_shp_info(const std::string& shp_file, enum_geometry_types& type, std::map<std::string, std::string>& properties);
+    static bool check_shp_info(const std::string& shp_file, enum_geometry_type& type, std::map<std::string, std::string>& properties);
 
     /// <summary>
     /// 根据文件类型得到对应的 gdal 中的存储格式
