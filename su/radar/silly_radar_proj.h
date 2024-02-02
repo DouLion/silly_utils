@@ -5,7 +5,7 @@
  * @author: dou li yang
  * @date: 2024/1/25 17:13
  * @version: 1.0.1
- * @description: 雷达坐标系
+ * @description: 雷达坐标系 参照 https://zhuanlan.zhihu.com/p/640911915 代码是网上抄的
  */
 #ifndef SILLY_UTILS_SILLY_RADAR_PROJ_H
 #define SILLY_UTILS_SILLY_RADAR_PROJ_H

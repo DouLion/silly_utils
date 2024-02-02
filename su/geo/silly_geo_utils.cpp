@@ -502,7 +502,7 @@ bool geo_utils::check_shp_info(const std::string& shp_file, enum_geometry_type& 
         OGRFieldDefn* def = pFeature_r->GetFieldDefnRef(i);
         OGRFieldType type = def->GetType();
         std::string field_name = def->GetNameRef();
-        if (silly_encode::enum_encode::eeUTF8 != silly_encode::is_utf8(field_name.c_str(), field_name.size()))
+        if (!silly_encode::check_text_utf8(field_name.c_str(), field_name.size()))
         {
             field_name = silly_encode::gbk_utf8(field_name);
         }
@@ -691,20 +691,26 @@ bool read_all_types_data(const enum_geometry_type& feature_type, OGRGeometry* ge
 bool geo_utils::read_geo_coll(const char* file, std::vector<silly_geo_coll>& collections)
 {
     bool status = false;
-    if (!std::filesystem::exists(std::filesystem::path(file)))
+    
+#if IS_WIN32
+    std::string nfpath = silly_encode::utf8_gbk(file);
+#else
+    std::string nfpath = file;
+#endif
+    if (!std::filesystem::exists(std::filesystem::path(nfpath)))
     {
         SU_ERROR_PRINT("Error: file does not exist %s  \n", file);
         return status;
     }
     enum_geometry_type type;
     std::map<std::string, silly_geo_prop::enum_prop_type> properties;
-    if (!check_shp_info(file, type, properties))
+    if (!check_shp_info(nfpath, type, properties))
     {
         SU_ERROR_PRINT("Error check shp info  \n", file);
         return status;
     }
     // 打开现有 shp 文件
-    GDALDataset* dataset = static_cast<GDALDataset*>(GDALOpenEx(file, GDAL_OF_ALL | GDAL_OF_READONLY, NULL, NULL, NULL));
+    GDALDataset* dataset = static_cast<GDALDataset*>(GDALOpenEx(nfpath.c_str(), GDAL_OF_ALL | GDAL_OF_READONLY, NULL, NULL, NULL));
     if (dataset == nullptr)
     {
         // 处理文件打开失败的情况

@@ -140,7 +140,8 @@ class silly_encode
 
     static std::string unicode_gbk(const char *text)
     {
-        return encode_convert("EUC-CN", "GBK", text);
+        return  boost::locale::conv::between(text, std::string("UTF-8"), std::string("GBK"));
+         // encode_convert("EUC-CN", "GBK", text);
     }
 
     static std::string unicode_utf8(const char *text)

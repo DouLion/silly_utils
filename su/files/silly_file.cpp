@@ -99,7 +99,7 @@ size_t silly_file::write(const std::string &path, const std::string &content)
 {
     size_t write_len = 0;
 #if IS_WIN32
-    std::ofstream ofs_w(silly_encode::cxx11_string_wstring(path));
+    std::ofstream ofs_w(silly_encode::cxx11_string_wstring(path), std::ios::out | std::ios::binary);
 #else
     std::ofstream ofs_w(path);
 #endif
