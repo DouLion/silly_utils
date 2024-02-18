@@ -169,6 +169,11 @@ class otl_conn_opt
     enum_database_type get_type();
 
     std::string get_schema();
+    std::string get_ip();
+    std::string get_user();
+    std::string get_pwd();
+    std::string get_driver();
+    int get_port();
 
     /// <summary>
     /// 检查是否能够正常联通

@@ -147,6 +147,31 @@ std::string otl_conn_opt::get_schema()
     return schema;
 }
 
+std::string otl_conn_opt::get_ip()
+{
+    return ip;
+}
+
+std::string otl_conn_opt::get_user()
+{
+    return user;
+}
+
+std::string otl_conn_opt::get_pwd()
+{
+    return password;
+}
+
+std::string otl_conn_opt::get_driver()
+{
+    return driver;
+}
+
+int otl_conn_opt::get_port()
+{
+    return port;
+}
+
 bool otl_conn_opt::check()
 {
     bool status = false;
