@@ -1,4 +1,4 @@
-    /*
+/*
  * @copyright: Beijing TianZhiXiang Information Technology Co., Ltd. All rights
  * reserved.
  * @website: http://www.tianzhixiang.com.cn/
@@ -41,7 +41,7 @@
 #pragma comment(lib, "odbc32.lib")
 #endif
 
-#define SILLY_OTL_ODBC_MAX_LEN   1024
+#define SILLY_OTL_ODBC_MAX_LEN 1024
 
 enum class enum_database_type
 {
@@ -95,7 +95,7 @@ static std::string db_type_to_str(const enum_database_type& type)
     std::string s_ret;
     switch (type)
     {
-    case enum_database_type::dbSQLSERVER:
+        case enum_database_type::dbSQLSERVER:
             s_ret = SILLY_DB_TYPE_MSSQL_STR;
             break;
         case enum_database_type::dbMYSQL:
@@ -151,6 +151,7 @@ class otl_tools;
 class otl_conn_opt
 {
     friend class otl_tools;
+
   public:
     /// <summary>
     /// 从字符串加载otl连接属性
@@ -172,6 +173,8 @@ class otl_conn_opt
     std::string get_ip();
     std::string get_user();
     std::string get_pwd();
+    void set_user(const std::string& user);
+    void set_pwd(const std::string& pwd);
     std::string get_driver();
     int get_port();
 
@@ -193,15 +196,15 @@ class otl_conn_opt
 
     std::string encode();
 
-protected:
-    std::string ip;
-    int port{0};
-    enum_database_type type{ enum_database_type::dbINVALID };
-    std::string driver;
-    std::string schema;
-    std::string user;
-    std::string password;
-    std::string dsn;
+  protected:
+    std::string m_ip;
+    int m_port{0};
+    enum_database_type m_type{enum_database_type::dbINVALID};
+    std::string m_driver;
+    std::string m_schema;
+    std::string m_user;
+    std::string m_password;
+    std::string m_dsn;
     std::string conn;
 };
 

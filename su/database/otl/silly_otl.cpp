@@ -20,18 +20,18 @@ bool otl_conn_opt::load(const std::string& s_opt)
     {
         if (jv_root.isMember(SILLY_OTL_OPT_S_IP))
         {
-            ip = jv_root[SILLY_OTL_OPT_S_IP].asString();
+            m_ip = jv_root[SILLY_OTL_OPT_S_IP].asString();
         }
         if (jv_root.isMember(SILLY_OTL_OPT_S_TYPE))
         {
             std::string s_type = jv_root[SILLY_OTL_OPT_S_TYPE].asString();
-            type = str_to_db_type(s_type);
-            if (enum_database_type::dbINVALID == type)
+            m_type = str_to_db_type(s_type);
+            if (enum_database_type::dbINVALID == m_type)
             {
                 SU_ERROR_PRINT("不支持的数据库类型 (Invalid database type).")
                 return status;
             }
-            if (enum_database_type::dbDM8 == type || enum_database_type::dbKingB8 == type)
+            if (enum_database_type::dbDM8 == m_type || enum_database_type::dbKingB8 == m_type)
             {
                 SU_ERROR_PRINT("达梦和人大金仓请使用DSN方式(Please set DSN when using Dameng or Kingbase).")
                 return status;
@@ -41,28 +41,28 @@ bool otl_conn_opt::load(const std::string& s_opt)
         {
             if (jv_root[SILLY_OTL_OPT_S_PORT].isInt())
             {
-                port = jv_root[SILLY_OTL_OPT_S_PORT].asInt();
+                m_port = jv_root[SILLY_OTL_OPT_S_PORT].asInt();
             }
             else if (jv_root[SILLY_OTL_OPT_S_PORT].isString())
             {
-                port = std::stoi(jv_root[SILLY_OTL_OPT_S_PORT].asString());
+                m_port = std::stoi(jv_root[SILLY_OTL_OPT_S_PORT].asString());
             }
         }
         else
         {
-            switch (type)
+            switch (m_type)
             {
                 case enum_database_type::dbSQLSERVER:
-                    port = 1433;
+                    m_port = 1433;
                     break;
                 case enum_database_type::dbMYSQL:
-                    port = 3306;
+                    m_port = 3306;
                     break;
                 case enum_database_type::dbORACLE:
-                    port = 1521;
+                    m_port = 1521;
                     break;
                 case enum_database_type::dbPG:
-                    port = 5432;
+                    m_port = 5432;
                     break;
                 default:
                     break;
@@ -70,23 +70,23 @@ bool otl_conn_opt::load(const std::string& s_opt)
         }
         if (jv_root.isMember(SILLY_OTL_OPT_S_DRIVER) && jv_root[SILLY_OTL_OPT_S_DRIVER].isString())
         {
-            driver = jv_root[SILLY_OTL_OPT_S_DRIVER].asString();
+            m_driver = jv_root[SILLY_OTL_OPT_S_DRIVER].asString();
         }
         if (jv_root.isMember(SILLY_OTL_OPT_S_SCHEMA) && jv_root[SILLY_OTL_OPT_S_SCHEMA].isString())
         {
-            schema = jv_root[SILLY_OTL_OPT_S_SCHEMA].asString();
+            m_schema = jv_root[SILLY_OTL_OPT_S_SCHEMA].asString();
         }
         if (jv_root.isMember(SILLY_OTL_OPT_S_USER) && jv_root[SILLY_OTL_OPT_S_USER].isString())
         {
-            user = jv_root[SILLY_OTL_OPT_S_USER].asString();
+            m_user = jv_root[SILLY_OTL_OPT_S_USER].asString();
         }
         if (jv_root.isMember(SILLY_OTL_OPT_S_PASSWORD) && jv_root[SILLY_OTL_OPT_S_PASSWORD].isString())
         {
-            password = jv_root[SILLY_OTL_OPT_S_PASSWORD].asString();
+            m_password = jv_root[SILLY_OTL_OPT_S_PASSWORD].asString();
         }
         if (jv_root.isMember(SILLY_OTL_OPT_S_DSN) && jv_root[SILLY_OTL_OPT_S_DSN].isString())
         {
-            dsn = jv_root[SILLY_OTL_OPT_S_DSN].asString();
+            m_dsn = jv_root[SILLY_OTL_OPT_S_DSN].asString();
         }
         status = true;
     }
@@ -107,26 +107,26 @@ std::string otl_conn_opt::dump_odbc(const bool& rebuild)
     if (conn.empty() || rebuild)
     {
         char buff[SILLY_OTL_ODBC_MAX_LEN] = {0};
-        if (!dsn.empty())  // 如果ODBC连接串不好使,设置DSN,并且优先使用DSN链接方式
+        if (!m_dsn.empty())  // 如果ODBC连接串不好使,设置DSN,并且优先使用DSN链接方式
         {
-            sprintf(buff, SILLY_OTL_DSN_FORMAT, user.c_str(), password.c_str(), dsn.c_str());
+            sprintf(buff, SILLY_OTL_DSN_FORMAT, m_user.c_str(), m_password.c_str(), m_dsn.c_str());
             conn = buff;
         }
-        else if (!driver.empty())
+        else if (!m_driver.empty())
         {
-            switch (type)  // 使用ODBC连接串
+            switch (m_type)  // 使用ODBC连接串
             {
                 case enum_database_type::dbMYSQL:
-                    sprintf(buff, SILLY_OTL_MYSQL_ODBC_FORMAT, driver.c_str(), ip.c_str(), port, schema.c_str(), user.c_str(), password.c_str());
+                    sprintf(buff, SILLY_OTL_MYSQL_ODBC_FORMAT, m_driver.c_str(), m_ip.c_str(), m_port, m_schema.c_str(), m_user.c_str(), m_password.c_str());
                     break;
                 case enum_database_type::dbSQLSERVER:
-                    sprintf(buff, SILLY_OTL_MSSQL_ODBC_FORMAT, driver.c_str(), ip.c_str(), port, schema.c_str(), user.c_str(), password.c_str());
+                    sprintf(buff, SILLY_OTL_MSSQL_ODBC_FORMAT, m_driver.c_str(), m_ip.c_str(), m_port, m_schema.c_str(), m_user.c_str(), m_password.c_str());
                     break;
                 case enum_database_type::dbORACLE:
-                    sprintf(buff, SILLY_OTL_ORACLE_ODBC_FORMAT, driver.c_str(), ip.c_str(), port, schema.c_str(), user.c_str(), password.c_str());
+                    sprintf(buff, SILLY_OTL_ORACLE_ODBC_FORMAT, m_driver.c_str(), m_ip.c_str(), m_port, m_schema.c_str(), m_user.c_str(), m_password.c_str());
                     break;
                 case enum_database_type::dbPG:
-                    sprintf(buff, SILLY_OTL_POSTGRE_ODBC_FORMAT, driver.c_str(), ip.c_str(), port, schema.c_str(), user.c_str(), password.c_str());
+                    sprintf(buff, SILLY_OTL_POSTGRE_ODBC_FORMAT, m_driver.c_str(), m_ip.c_str(), m_port, m_schema.c_str(), m_user.c_str(), m_password.c_str());
                     break;
                 default:
                     break;
@@ -139,37 +139,47 @@ std::string otl_conn_opt::dump_odbc(const bool& rebuild)
 
 enum_database_type otl_conn_opt::get_type()
 {
-    return type;
+    return m_type;
 }
 
 std::string otl_conn_opt::get_schema()
 {
-    return schema;
+    return m_schema;
 }
 
 std::string otl_conn_opt::get_ip()
 {
-    return ip;
+    return m_ip;
 }
 
 std::string otl_conn_opt::get_user()
 {
-    return user;
+    return m_user;
 }
 
 std::string otl_conn_opt::get_pwd()
 {
-    return password;
+    return m_password;
+}
+
+void otl_conn_opt::set_user(const std::string& user)
+{
+    m_user = user;
+}
+
+void otl_conn_opt::set_pwd(const std::string& pwd)
+{
+    m_password = pwd;
 }
 
 std::string otl_conn_opt::get_driver()
 {
-    return driver;
+    return m_driver;
 }
 
 int otl_conn_opt::get_port()
 {
-    return port;
+    return m_port;
 }
 
 bool otl_conn_opt::check()
@@ -196,14 +206,14 @@ bool otl_conn_opt::check()
 
 void otl_conn_opt::clean()
 {
-    ip.clear();
-    port = 0;
-    type = enum_database_type::dbINVALID;
-    driver.clear();
-    schema.clear();
-    user.clear();
-    password.clear();
-    dsn.clear();
+    m_ip.clear();
+    m_port = 0;
+    m_type = enum_database_type::dbINVALID;
+    m_driver.clear();
+    m_schema.clear();
+    m_user.clear();
+    m_password.clear();
+    m_dsn.clear();
     conn.clear();
 }
 
@@ -216,7 +226,7 @@ void otl_conn_opt::help()
 }
 
 static char* sqlserver_code_sql = "SELECT COLLATIONPROPERTY('Chinese_PRC_Stroke_CI_AI_KS_WS', 'CodePage');";
-static std::map<std::string, std::string> sqlserver_code_map = { {"936", "GBK"}, {"950", "BIG5"}, {"437", "Eng"}, {"932", "JP"}, {"949", "KOREA"}, {"866", "RUSSIA"}, {"65001", "UFT-8"}, {"", "INVALID"}};
+static std::map<std::string, std::string> sqlserver_code_map = {{"936", "GBK"}, {"950", "BIG5"}, {"437", "Eng"}, {"932", "JP"}, {"949", "KOREA"}, {"866", "RUSSIA"}, {"65001", "UFT-8"}, {"", "INVALID"}};
 
 std::string otl_conn_opt::encode()
 {
@@ -227,7 +237,7 @@ std::string otl_conn_opt::encode()
     {
         conn = dump_odbc(true);
         db.rlogon(conn.c_str());
-        char buff[512] = { 0 };
+        char buff[512] = {0};
         sprintf(buff, "%s", sqlserver_code_sql);
         otl_stream query_stream;
         query_stream.open(1, buff, db);

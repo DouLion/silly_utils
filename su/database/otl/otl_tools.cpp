@@ -10,7 +10,7 @@ otl_conn_opt otl_tools::conn_opt_from_json(const Json::Value &root)
     otl_conn_opt oco_ret_opt;
     if (root.isMember(SILLY_OTL_OPT_S_TYPE))
     {
-        oco_ret_opt.type = str_to_db_type(root[SILLY_OTL_OPT_S_TYPE].asString());
+        oco_ret_opt.m_type = str_to_db_type(root[SILLY_OTL_OPT_S_TYPE].asString());
     }
     else
     {
@@ -19,27 +19,27 @@ otl_conn_opt otl_tools::conn_opt_from_json(const Json::Value &root)
 
     if (root.isMember(SILLY_OTL_OPT_S_IP))
     {
-        oco_ret_opt.ip = root[SILLY_OTL_OPT_S_IP].asString();
+        oco_ret_opt.m_ip = root[SILLY_OTL_OPT_S_IP].asString();
     }
 
     if (root.isMember(SILLY_OTL_OPT_S_PORT))
     {
-        oco_ret_opt.port = root[SILLY_OTL_OPT_S_PORT].asInt();
+        oco_ret_opt.m_port = root[SILLY_OTL_OPT_S_PORT].asInt();
     }
 
     if (root.isMember(SILLY_OTL_OPT_S_DRIVER))
     {
-        oco_ret_opt.driver = root[SILLY_OTL_OPT_S_DRIVER].asString();
+        oco_ret_opt.m_driver = root[SILLY_OTL_OPT_S_DRIVER].asString();
     }
 
     if (root.isMember(SILLY_OTL_OPT_S_SCHEMA))
     {
-        oco_ret_opt.schema = root[SILLY_OTL_OPT_S_SCHEMA].asString();
+        oco_ret_opt.m_schema = root[SILLY_OTL_OPT_S_SCHEMA].asString();
     }
 
     if (root.isMember(SILLY_OTL_OPT_S_USER))
     {
-        oco_ret_opt.user = root[SILLY_OTL_OPT_S_USER].asString();
+        oco_ret_opt.m_user = root[SILLY_OTL_OPT_S_USER].asString();
     }
     else
     {
@@ -47,7 +47,7 @@ otl_conn_opt otl_tools::conn_opt_from_json(const Json::Value &root)
     }
     if (root.isMember(SILLY_OTL_OPT_S_PASSWORD))
     {
-        oco_ret_opt.password = root[SILLY_OTL_OPT_S_PASSWORD].asString();
+        oco_ret_opt.m_password = root[SILLY_OTL_OPT_S_PASSWORD].asString();
     }
     else
     {
@@ -56,7 +56,7 @@ otl_conn_opt otl_tools::conn_opt_from_json(const Json::Value &root)
 
     if (root.isMember(SILLY_OTL_OPT_S_DSN))
     {
-        oco_ret_opt.dsn = root[SILLY_OTL_OPT_S_DSN].asString();
+        oco_ret_opt.m_dsn = root[SILLY_OTL_OPT_S_DSN].asString();
     }
 
     return oco_ret_opt;
