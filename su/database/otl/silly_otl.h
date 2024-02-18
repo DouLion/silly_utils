@@ -1,4 +1,4 @@
-/*
+    /*
  * @copyright: Beijing TianZhiXiang Information Technology Co., Ltd. All rights
  * reserved.
  * @website: http://www.tianzhixiang.com.cn/
@@ -165,6 +165,10 @@ class otl_conn_opt
     /// <param name="rebuild"></param>
     /// <returns></returns>
     std::string dump_odbc(const bool& rebuild = false);
+
+    enum_database_type get_type();
+
+    std::string get_schema();
 
     /// <summary>
     /// 检查是否能够正常联通

@@ -137,6 +137,16 @@ std::string otl_conn_opt::dump_odbc(const bool& rebuild)
     return conn;
 }
 
+enum_database_type otl_conn_opt::get_type()
+{
+    return type;
+}
+
+std::string otl_conn_opt::get_schema()
+{
+    return schema;
+}
+
 bool otl_conn_opt::check()
 {
     bool status = false;
