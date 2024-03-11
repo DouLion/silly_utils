@@ -81,6 +81,14 @@ target_link_libraries(${PROJECT_NAME} PUBLIC ${SPATIALITE_LIB})
 find_package(unofficial-sqlite3 CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC unofficial::sqlite3::sqlite3)
 
+# redis
+find_package(hiredis CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC hiredis::hiredis)
+
+# 硬件信息
+#find_package(infoware CONFIG REQUIRED)
+# target_link_libraries(${PROJECT_NAME} PUBLIC infoware)
+
 
 if(IS_LINUX)
 

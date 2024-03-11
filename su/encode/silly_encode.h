@@ -151,12 +151,14 @@ class silly_encode
 
     static std::string gbk_utf8(const std::string &text)
     {
-        return encode_convert("GBK", "UTF-8", text.c_str());
+        // return encode_convert("GBK", "UTF-8", text.c_str());
+        return boost::locale::conv::between(text, std::string("UTF-8"), std::string("GBK"));
     }
 
     static std::string utf8_gbk(const std::string &text)
     {
-        return encode_convert("UTF-8", "GBK", text.c_str());
+        // return encode_convert("UTF-8", "GBK", text.c_str());
+        return boost::locale::conv::between(text, std::string("GBK"), std::string("UTF-8"));
     }
 
     static std::string unicode_gbk(const std::string &text)
