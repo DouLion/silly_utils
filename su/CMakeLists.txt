@@ -12,7 +12,14 @@ foreach(dirname ${CMAKE_CURRENT_SOURCE_DIR})
 
 endforeach()
 
-add_library(${PROJECT_NAME} STATIC ${SU_SRC_FILES})
+# set(SU_STATIC_LIB 1)
+if(SU_STATIC_LIB)
+    message("构建静态库")
+    add_library(${PROJECT_NAME} STATIC ${SU_SRC_FILES})
+else()
+    message("构建动态库")
+    add_library(${PROJECT_NAME} SHARED ${SU_SRC_FILES})
+endif()
 
 set(Boost_LIB_PREFIX "")
 set(CMAKE_VERBOSE_MAKEFILE ON)

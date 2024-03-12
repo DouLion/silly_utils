@@ -58,11 +58,42 @@
 class silly_http
 {
 public:
+	/// <summary>
+	/// 简单的get请求
+	/// </summary>
+	/// <param name="url"></param>
+	/// <param name="headers"></param>
+	/// <returns></returns>
 	static std::string request_get(const std::string& url, const std::map<std::string, std::string>& headers);
+
+	/// <summary>
+	/// 简单的post请求
+	/// </summary>
+	/// <param name="url"></param>
+	/// <param name="body"></param>
+	/// <param name="headers"></param>
+	/// <returns></returns>
 	static std::string request_post(const std::string& url, const std::string& body, const std::map<std::string, std::string>& headers);
 
+	/// <summary>
+	/// 下载文件
+	/// </summary>
+	/// <param name="url"></param>
+	/// <param name="save">本地保存的路径</param>
+	/// <param name="headers"></param>
+	/// <returns></returns>
 	static bool request_download(const std::string& url, const std::string& save, const std::map<std::string, std::string>& headers);
-	static std::string request_upload(const std::string& url, const std::string& body, const std::vector<std::string> files, const std::map<std::string, std::string>& headers);
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="url"></param>
+	/// <param name="body">附加的请求信息</param>
+	/// <param name="files">本地需要上传的文件</param>
+	/// <param name="headers"></param>
+	/// <param name="resp"></param>
+	/// <returns></returns>
+	static bool request_upload(const std::string& url, const std::string& body, const std::vector<std::string> files, const std::map<std::string, std::string>& headers, std::string& resp);
 };
 
 #endif //SILLY_UTILS_SILLY_HTTP_H

@@ -5,7 +5,7 @@
  * @author: dou li yang
  * @date: 2024/3/11 11:43
  * @version: 1.0.1
- * @description: redis¿Í»§¶Ë
+ * @description: rediså®¢æˆ·ç«¯
  */
 #ifndef SILLY_UTILS_SILLY_REDIS_CLIENT_H
 #define SILLY_UTILS_SILLY_REDIS_CLIENT_H

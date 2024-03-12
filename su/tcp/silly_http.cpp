@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <filesystem>
+#include <su_marco.h>
 
 size_t req_reply(void* ptr, size_t size, size_t nmemb, void* stream)
 {
@@ -304,7 +306,76 @@ bool silly_http::request_download(const std::string& url, const std::string& sav
 	return status;
 }
 
-std::string silly_http::request_upload(const std::string& url, const std::string& body, const std::vector <std::string> files, const std::map <std::string, std::string>& headers)
+static size_t upload_write_cb(void* contents, size_t size, size_t nmemb, std::string* userp)
 {
-	return "";
+    size_t totalSize = size * nmemb;
+    userp->append((char*)contents, totalSize);
+    return totalSize;
+}
+
+bool silly_http::request_upload(const std::string& url, const std::string& body, const std::vector<std::string> files, const std::map<std::string, std::string>& headers, std::string& resp)
+{
+
+	bool status = false;
+    CURL* curl;
+    CURLcode res;
+  
+
+    struct curl_httppost* formpost = NULL;
+    struct curl_httppost* lastptr = NULL;
+    struct curl_slist* headerlist = NULL;
+    static const char buf[] = "Expect:";
+
+    curl_global_init(CURL_GLOBAL_ALL);
+
+    // 设置表单字段
+    for (auto file : files)
+    {
+        std::filesystem::path sfp_tmp(file);
+        if (!std::filesystem::exists(sfp_tmp))
+        {
+			continue;
+		}
+        SU_DEBUG_PRINT("正在上传 : %s", file)
+        std::string s_file_name = sfp_tmp.filename().string();
+        curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, s_file_name.c_str(), CURLFORM_FILE, file.c_str(), CURLFORM_END);
+	}
+   
+
+    curl = curl_easy_init();
+    headerlist = curl_slist_append(headerlist, buf);
+    if (curl)
+    {
+        // 设置目标URL
+        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+
+        // 设置HTTP POST数据
+        curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, upload_write_cb);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &resp);
+
+        // 执行请求
+        res = curl_easy_perform(curl);
+
+        // 检查错误
+        if (res != CURLE_OK)
+        {
+            std::cerr << "curl_easy_perform() failed: " << curl_easy_strerror(res) << std::endl;
+        }
+        else
+        {
+            status = true;
+		}
+           
+        // 清理
+        curl_easy_cleanup(curl);
+
+        // 清理表单
+        curl_formfree(formpost);
+        // 清理自定义头
+        curl_slist_free_all(headerlist);
+    }
+
+    curl_global_cleanup();
+    return status;
 }

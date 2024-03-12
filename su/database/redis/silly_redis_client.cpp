@@ -6,5 +6,6 @@
 
 bool silly_redis_client::init(const std::string& ip, const int& port, const std::string pwd)
 {
+    // TODO: 实现
     return false;
 }
