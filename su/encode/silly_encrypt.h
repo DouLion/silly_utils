@@ -18,6 +18,9 @@
 #define SILLY_UTILS_SILLY_ENCRYPT_H
 #include <su_marco.h>
 
+#define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
+
+
 #ifndef SILLY_ENCRYPT_AES_DEFAULT_KEY
 #define SILLY_ENCRYPT_AES_DEFAULT_KEY "tzx@aes@2023"
 #endif
