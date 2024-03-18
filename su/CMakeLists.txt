@@ -56,6 +56,12 @@ target_link_libraries(${PROJECT_NAME} PUBLIC BZip2::BZip2)
 find_package(minizip CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC minizip::minizip)
 
+find_path(GZIP_HPP_INCLUDE_DIRS "gzip/compress.hpp")
+target_include_directories(${PROJECT_NAME} PUBLIC ${GZIP_HPP_INCLUDE_DIRS})
+
+find_package(7zip CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC 7zip::7zip)
+
 find_package(RapidJSON CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC rapidjson)
 

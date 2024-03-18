@@ -106,11 +106,36 @@ class matrix_2d
         }
     }
 
+    /// <summary>
+    /// 等同seek_row
+    /// </summary>
+    /// <param name="r"></param>
+    /// <returns></returns>
+    T* operator[](size_t r)
+    {
+        if (data)
+        {
+            return data + (r * cols * sizeof(T));
+        }
+        return nullptr;
+    }
+
+    matrix_2d<T> operator*(const matrix_2d<T>& m2)
+    {
+        return matrix_2d<T>();
+    }
+
+    matrix_2d<T> operator+(const matrix_2d<T>& m2)
+    {
+        return matrix_2d<T>();
+    }
+
+
     T *seek_row(const size_t &r)
     {
         if (data)
         {
-            return &(data[r * cols]);
+            return data + (r * cols * sizeof(T));
         }
 
         return nullptr;
@@ -132,14 +157,24 @@ class matrix_2d
         return ret;
     }
 
+    /// <summary>
+    /// 等同at函数
+    /// </summary>
+    /// <param name="r"></param>
+    /// <param name="c"></param>
+    /// <returns></returns>
     T &at(size_t r, size_t c)
     {
-        if (r < rows && c < cols && data)
+        /*if (r < rows && c < cols && data)
         {
             return data[r * cols + c];
         }
-        return mp;
+        return mp;*/
+        // 这个地方应该考虑如何更优雅的实现保护
+        return data[r * cols + c];
     }
+
+
 
     /// <summary>
     /// 将矩阵设置为一个值
