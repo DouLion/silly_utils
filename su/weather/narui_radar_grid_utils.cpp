@@ -189,7 +189,7 @@ bool silly_nrd_grid_utils::read_header(const std::string& file)
     return status;
 }
 
-bool silly_nrd_grid_utils::read_grid(const std::string& file)
+bool silly_nrd_grid_utils::read_grid(const std::string& file, const double& dst_scale)
 {
     bool status = false;
     std::ifstream ifs;
@@ -225,14 +225,56 @@ bool silly_nrd_grid_utils::read_grid(const std::string& file)
     }
     char* cpptr = idx;
     cpptr += sizeof(nrd_header);
+    matrix_2d<float> tmp_grid;
+    if (!tmp_grid.create(head.rows, head.cols))
+    {
+        SUM_MEM_DEL_ARR(idx)
+        return false;
+    }
 
     short* pidx = (short*)cpptr;
-    for (int r = 0; r< head.rows; ++r)
+    if (!head.missing) // missing
     {
-        for (int c = 0; c < head.cols; ++c)
+        for (int r = 0; r < head.rows; ++r)
         {
+            for (int c = 0; c < head.cols; ++c)
+            {
+                tmp_grid[r][c] = static_cast<float>((pidx[0] - head.offset) / head.scale);
+            }
+        }
+    }
+    else
+    {
+        for (int r = 0; r < head.rows; ++r)
+        {
+            for (int c = 0; c < head.cols; ++c)
+            {
+                if (pidx[0] == head.missing)
+                {
+                    grid[r][c] = 0;
+                }
+                else
+                {
+                    tmp_grid[r][c] = (pidx[0] - head.offset) / head.scale;
+                }
+                
+            }
         }
     }
 
+    if (dst_scale == head.scale)
+    {
+        grid = tmp_grid;
+    }
+    else
+    {
+        size_t drows = tmp_grid.row() * head.dlat / dst_scale;
+        size_t dcols = tmp_grid.col() * head.dlon / dst_scale;
+        matrix_tools::resize(tmp_grid, grid, drows, dcols);
+        tmp_grid.destroy();
+    }
+    
+    status = true;
+    SUM_MEM_DEL_ARR(idx)
     return status;
 }

@@ -22,7 +22,6 @@
 
 namespace silly_math
 {
-
 template <typename T>
 class matrix_2d
 {
@@ -111,31 +110,30 @@ class matrix_2d
     /// </summary>
     /// <param name="r"></param>
     /// <returns></returns>
-    T* operator[](size_t r)
+    T *operator[](size_t r)
     {
         if (data)
         {
-            return data + (r * cols * sizeof(T));
+            return data + (r * cols);
         }
         return nullptr;
     }
 
-    matrix_2d<T> operator*(const matrix_2d<T>& m2)
+    matrix_2d<T> operator*(const matrix_2d<T> &m2)
     {
         return matrix_2d<T>();
     }
 
-    matrix_2d<T> operator+(const matrix_2d<T>& m2)
+    matrix_2d<T> operator+(const matrix_2d<T> &m2)
     {
         return matrix_2d<T>();
     }
-
 
     T *seek_row(const size_t &r)
     {
         if (data)
         {
-            return data + (r * cols * sizeof(T));
+            return data + (r * cols);
         }
 
         return nullptr;
@@ -173,8 +171,6 @@ class matrix_2d
         // 这个地方应该考虑如何更优雅的实现保护
         return data[r * cols + c];
     }
-
-
 
     /// <summary>
     /// 将矩阵设置为一个值
@@ -288,7 +284,7 @@ class matrix_tools
     /// <param name="flag">插值算法</param>
     /// <returns></returns>
     template <typename T>
-    bool resize(matrix_2d<T> &src, matrix_2d<T> &dst, const size_t &dst_row, const size_t &dst_col, const InterpolationFlags &flag = INTER_NEAREST)
+    static bool resize(matrix_2d<T> &src, matrix_2d<T> &dst, const size_t &dst_row, const size_t &dst_col, const InterpolationFlags &flag = INTER_NEAREST)
     {
         switch (flag)
         {
@@ -301,7 +297,7 @@ class matrix_tools
 
   private:
     template <typename T>
-    bool inter_nearest_resize(matrix_2d<T> &src, matrix_2d<T> &dst, const size_t &dst_row, const size_t &dst_col)
+    static bool inter_nearest_resize(matrix_2d<T> &src, matrix_2d<T> &dst, const size_t &dst_row, const size_t &dst_col)
     {
         const size_t src_row = src.row();
         const size_t src_col = src.col();
@@ -326,7 +322,7 @@ class matrix_tools
     }
 
     template <typename T>
-    bool bilinear_resize(matrix_2d<T> &src, matrix_2d<T> &dst, const size_t &dst_row, const size_t &dst_col)
+    static bool bilinear_resize(matrix_2d<T> &src, matrix_2d<T> &dst, const size_t &dst_row, const size_t &dst_col)
     {
         size_t src_row = src.row();
         size_t src_col = src.col();

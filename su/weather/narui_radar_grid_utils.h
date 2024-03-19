@@ -94,7 +94,7 @@ class silly_nrd_grid_utils
 
   private:
     bool read_header(const std::string& file);
-    bool read_grid(const std::string& file);
+    bool read_grid(const std::string& file, const double& dst_scale = 0.0025);
 };
 
 #endif  // SILLY_UTILS_NARUI_RADAR_GRID_UTILS_H
