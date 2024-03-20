@@ -13,7 +13,8 @@
 bool silly_nrd_grid_utils::read(const std::string& file)
 {
     bool status = false;
-    if( read_header(file));
+    if (read_header(file))
+        ;
     {
         status = read_grid(file);
     }
@@ -233,13 +234,14 @@ bool silly_nrd_grid_utils::read_grid(const std::string& file, const double& dst_
     }
 
     short* pidx = (short*)cpptr;
-    if (!head.missing) // missing
+    if (!head.missing)  // missing == 0
     {
         for (int r = 0; r < head.rows; ++r)
         {
             for (int c = 0; c < head.cols; ++c)
             {
                 tmp_grid[r][c] = static_cast<float>((pidx[0] - head.offset) / head.scale);
+                pidx++;
             }
         }
     }
@@ -257,11 +259,11 @@ bool silly_nrd_grid_utils::read_grid(const std::string& file, const double& dst_
                 {
                     tmp_grid[r][c] = (pidx[0] - head.offset) / head.scale;
                 }
-                
+                pidx++;
             }
         }
     }
-
+    // grid = tmp_grid;
     if (dst_scale == head.scale)
     {
         grid = tmp_grid;
@@ -273,7 +275,7 @@ bool silly_nrd_grid_utils::read_grid(const std::string& file, const double& dst_
         matrix_tools::resize(tmp_grid, grid, drows, dcols);
         tmp_grid.destroy();
     }
-    
+
     status = true;
     SUM_MEM_DEL_ARR(idx)
     return status;
