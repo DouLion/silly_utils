@@ -6,16 +6,16 @@
 
 silly_timer::silly_timer()
 {
-    m_start = std::chrono::high_resolution_clock::now();
+    m_start = std::chrono::system_clock::now();
 }
 
 void silly_timer::restart()
 {
-    m_start = std::chrono::high_resolution_clock::now();
+    m_start = std::chrono::system_clock::now();
 }
 
 double silly_timer::elapsed_ms()
 {
-    auto tmp = std::chrono::high_resolution_clock::now();
+    auto tmp = std::chrono::system_clock::now();
     return static_cast<double>(std::chrono::duration_cast<std::chrono::milliseconds>(tmp - m_start).count());
 }

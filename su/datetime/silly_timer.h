@@ -31,7 +31,7 @@ class silly_timer
     double elapsed_ms();
 
   private:
-    std::chrono::steady_clock::time_point m_start;
-    std::chrono::steady_clock::time_point m_end;
+    std::chrono::time_point<std::chrono::system_clock> m_start;
+    std::chrono::time_point<std::chrono::system_clock> m_end;
 };
 #endif  // SILLY_UTILS_SILLY_TIMER_H
