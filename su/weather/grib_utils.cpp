@@ -27,7 +27,7 @@ bool grib_utils::read(const std::string& grib_file, std::vector<DMatrix>& matrix
     {
         return false;
     }
-#if DSU_GRIB_ENABLED
+#if SU_GRIB_ENABLED
     grib_context* c = grib_context_get_default();
     // 多波段读取支持
     grib_multi_support_on(nullptr);
