@@ -78,7 +78,7 @@ png_data png_utils::read(const char *path)
     fp = fopen(path, "rb");
     if (nullptr == fp)
     {
-        fclose(fp);
+        //fclose(fp);
         return ret_data;
     }
 
