@@ -101,7 +101,15 @@ target_link_libraries(${PROJECT_NAME} PUBLIC hiredis::hiredis)
 # 硬件信息
 #find_package(infoware CONFIG REQUIRED)
 # target_link_libraries(${PROJECT_NAME} PUBLIC infoware)
+# Cairo
+find_path(CAIRO_INCLUDE_DIR cairo/cairo.h)
+set(CAIRO_NAMES ${JRTPLIB_NAMES} cairo)
+message("# ${CAIRO_NAMES}")
+find_library(CAIRO_LIBRARY NAMES ${CAIRO_NAMES})
+target_link_libraries(${PROJECT_NAME} PUBLIC ${CAIRO_LIBRARY})
 
+find_package(Freetype REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC Freetype::Freetype) # since CMake 3.10
 
 if(IS_LINUX)
 
@@ -131,6 +139,15 @@ if(IS_LINUX)
 
     find_library(RTTOPO_LIB NAMES "rttopo")
     target_link_libraries(${PROJECT_NAME} PUBLIC ${RTTOPO_LIB})
+
+    # Cairo图像
+    find_package(Fontconfig REQUIRED) # since CMake 3.14
+    target_link_libraries(${PROJECT_NAME} PUBLIC Fontconfig::Fontconfig)
+
+    find_package(PNG REQUIRED)
+    target_link_libraries(${PROJECT_NAME} PUBLIC PNG::PNG)
+    find_library(PIXMAN_LIBRARY NAMES pixman-1)
+    target_link_libraries(${PROJECT_NAME} PUBLIC ${PIXMAN_LIBRARY})
     
     find_package(unixodbc QUIET)
     if(unixodbc_FOUND)

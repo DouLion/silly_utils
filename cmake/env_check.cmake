@@ -45,22 +45,36 @@ foreach(feature ${CMAKE_CXX_COMPILE_FEATURES})
         ADD_DEFINITIONS("-DSU_SUPPORT_CXX17=1")
         set(SU_SUPPORT_CXX17 TRUE)
     endif()
+    if("${feature}" STREQUAL "cxx_std_20" )
+        # ADD_DEFINITIONS("-DSU_SUPPORT_CXX20=1")
+        # set(SU_SUPPORT_CXX20 TRUE)
+    endif()
+    
 endforeach()
 
 # c++ 支持版本
-if(SU_SUPPORT_CXX17)
+if(SU_SUPPORT_CXX20)
+    SET(CMAKE_CXX_STANDARD 20)
+    SET(CMAKE_CXX_STANDARD_REQUIRED ON)
+    SET(CMAKE_CXX_EXTENSIONS OFF)
+    # c++ 17 已经包含一些类型定义了,可能会导致重复定义
+    ADD_DEFINITIONS("-D_HAS_STD_BYTE=0")
+    MESSAGE("使用C++20标准")
+elseif(SU_SUPPORT_CXX17)
     SET(CMAKE_CXX_STANDARD 17)
     SET(CMAKE_CXX_STANDARD_REQUIRED ON)
     SET(CMAKE_CXX_EXTENSIONS OFF)
     # c++ 17 已经包含一些类型定义了,可能会导致重复定义
     ADD_DEFINITIONS("-D_HAS_STD_BYTE=0")
+    MESSAGE("使用C++17标准")
 elseif(SU_SUPPORT_CXX11)
     SET(CMAKE_CXX_STANDARD 11)
     SET(CMAKE_CXX_STANDARD_REQUIRED ON)
     SET(CMAKE_CXX_EXTENSIONS OFF)
+    MESSAGE("使用C++11标准")
 endif()
 
-
+ADD_DEFINITIONS("-DENABLE_SILLY_LOG")
 # 命令行解析库里面的std::max
 ADD_DEFINITIONS("-DNOMINMAX")
 # 指定项目编码类型 unicode 不指定默认utf8 ???

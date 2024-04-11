@@ -36,6 +36,11 @@
 #endif
 
 #include <database/otl/otlv4.h>
+#ifdef ENABLE_SILLY_LOG
+#include <loguru/loguru.hpp>
+#endif
+#include <functional>
+#include <stdexcept>  // 包含标准异常类
 
 #ifdef IS_WIN32
 #pragma comment(lib, "odbc32.lib")
@@ -207,5 +212,110 @@ class otl_conn_opt
     std::string m_dsn;
     std::string conn;
 };
+
+//
+//void otl_logon(otl_connect& db, const char* conn, const bool& autocommit)
+//{
+//    db.rlogon(conn, autocommit);
+//}
+//
+//template <typename Func, typename Obj, typename... Args>
+//auto otl_exception_wrapper1(Func&& func, Obj&& obj, std::string&& err, Args&&... args)
+//    -> decltype(std::invoke(std::forward<Func>(func), std::forward<Obj>(obj), std::forward<Args>(args)...))
+//{
+//    try
+//    {
+//        auto result = std::invoke(std::forward<Func>(func), std::forward<Obj>(obj), std::forward<Args>(args)...);
+//    }
+//    catch (otl_exception& e)
+//    {
+//#ifdef ENABLE_SILLY_LOG
+//        LOG_F(ERROR, "OTL异常, \nSQL:\n\t%s \nMSG:\n\t%s \nSTATE:\n\t%s \nCODE:\n\t%s \nINFO:\n\t%s", e.stm_text, e.msg, e.sqlstate,e.code, e.var_info);
+//#else
+//        printf("数据库执行失败, \nSQL:\n\t%s \nMSG:\n\t%s \nSTATE:\n\t%s \nCODE:\n\t%s \nINFO:\n\t%s", e.stm_text, e.msg, e.sqlstate,e.code, e.var_info);
+//#endif
+//    }
+//    catch (const std::exception& e)
+//    {
+//#ifdef ENABLE_SILLY_LOG
+//        LOG_F(ERROR, "SILLY_OTL异常:\n\t%s", e.what());
+//#else
+//        printf("SILLY_OTL异常:\n\t%s", e.what());
+//#endif
+//    }
+//    catch (...)
+//    {
+//        // 捕获所有其他类型的异常
+//        err = "未知异常";
+//    }
+//    return decltype(std::invoke(std::forward<Func>(func), std::forward<Obj>(obj), std::forward<Args>(args)...))();  // 返回默认值
+//}
+//
+//
+//template <typename Func, typename Obj, typename... Args>
+//auto otl_exception_wrapper(Func&& func, std::string&& err, Args&&... args) -> decltype(std::invoke(std::forward<Func>(func), std::forward<Args>(args)...))
+//{
+//    try
+//    {
+//        auto result = std::invoke(std::forward<Func>(func), std::forward<Args>(args)...);
+//    }
+//    catch (otl_exception& e)
+//    {
+//#ifdef ENABLE_SILLY_LOG
+//        LOG_F(ERROR, "OTL异常, \nSQL:\n\t%s \nMSG:\n\t%s \nSTATE:\n\t%s \nCODE:\n\t%s \nINFO:\n\t%s", e.stm_text, e.msg, e.sqlstate, e.code, e.var_info);
+//#else
+//        printf("数据库执行失败, \nSQL:\n\t%s \nMSG:\n\t%s \nSTATE:\n\t%s \nCODE:\n\t%s \nINFO:\n\t%s", e.stm_text, e.msg, e.sqlstate, e.code, e.var_info);
+//#endif
+//    }
+//    catch (const std::exception& e)
+//    {
+//#ifdef ENABLE_SILLY_LOG
+//        LOG_F(ERROR, "SILLY_OTL异常:\n\t%s", e.what());
+//#else
+//        printf("SILLY_OTL异常:\n\t%s", e.what());
+//#endif
+//    }
+//    catch (...)
+//    {
+//        // 捕获所有其他类型的异常
+//        err = "未知异常";
+//    }
+//    return decltype(std::invoke(std::forward<Func>(func), std::forward<Args>(args)...))();  // 返回默认值
+//}
+//
+//class i_otl_example
+//{
+//  public:
+//    void logon()
+//    {
+//
+//    }
+//
+//    void select()
+//    {
+//        otl_connect db;
+//        const char* s_conn = "数据库连接串";
+//        otl_stream query_stream;
+//        std::string query_sql;
+//        // db.rlogon(s_conn);
+//        std::string err;
+//        otl_exception_wrapper(&otl_logon, err, db, s_conn, true);
+//    }
+//
+//    void insert()
+//    {
+//
+//    }
+//
+//    void exec()
+//    {
+//
+//    }
+//
+//    void idelete()
+//    {
+//
+//    }
+//};
 
 #endif  // SILLY_UTILS_SILLY_OTL_H
