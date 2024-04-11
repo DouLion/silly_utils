@@ -37,7 +37,7 @@
 
 #include <database/otl/otlv4.h>
 #ifdef ENABLE_SILLY_LOG
-#include <loguru/loguru.hpp>
+#include <log/loguru/loguru.hpp>
 #endif
 #include <functional>
 #include <stdexcept>  // 包含标准异常类
