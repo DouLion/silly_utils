@@ -57,7 +57,7 @@ class silly_pyramid_base
     /// <param name="mode">1 读 2 写</param>
     /// <param name="usemmap">读取时默认 使用mmap, 写总是使用文件流</param>
     /// <returns></returns>
-    bool open(const char* file, const silly_mmap::open_mode& mode, const bool& usemmap);
+    bool open(const char* file, const silly_mmap::enum_mmap_open_mode& mode, const bool& usemmap);
 
     /// <summary>
     /// 关闭文件
@@ -177,7 +177,7 @@ class silly_pyramid_base
     // 多线程读写时用的锁
     std::mutex m_mutex;
     // 加载类型
-    silly_mmap::open_mode m_mode;
+    silly_mmap::enum_mmap_open_mode m_mode;
 };
 
 #endif  // SILLY_UTILS_SILLY_IMAGE_BASE_H

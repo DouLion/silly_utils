@@ -5,10 +5,10 @@
 #include "silly_pyramid_base.h"
 #include <cstring>
 
-bool silly_pyramid_base::open(const char* file, const silly_mmap::open_mode& mode, const bool& usemmap)
+bool silly_pyramid_base::open(const char* file, const silly_mmap::enum_mmap_open_mode& mode, const bool& usemmap)
 {
     m_mode = mode;
-    if (silly_mmap::open_mode::READONLY == mode)
+    if (silly_mmap::enum_mmap_open_mode::emomRead == mode)
     {
         if (usemmap)
         {
@@ -21,7 +21,7 @@ bool silly_pyramid_base::open(const char* file, const silly_mmap::open_mode& mod
 
         read_info();
     }
-    else if (silly_mmap::open_mode::READWRITE == mode)
+    else if (silly_mmap::enum_mmap_open_mode::emomWrite == mode)
     {
         stream_open(file, "wb+");
     }
@@ -86,7 +86,7 @@ bool silly_pyramid_base::stream_open(const char* file, const char* mode)
 bool silly_pyramid_base::mmap_open(const char* file)
 {
     m_normal = false;
-    m_opened = m_mmap.mopen(file);
+    m_opened = m_mmap.open_m(file);
 
     return m_opened;
 }
@@ -106,7 +106,7 @@ bool silly_pyramid_base::mmap_read(size_t seek_offset, char* data, const size_t&
 {
     if (m_opened)
     {
-        mmap_cur* cur = m_mmap.at(seek_offset + size);  // 追踪到数据尾部,防止访问越界
+        mmap_cur* cur = m_mmap.at_m(seek_offset + size);  // 追踪到数据尾部,防止访问越界
         if (cur)
         {
             memcpy(data, cur - size, size);
@@ -133,7 +133,7 @@ bool silly_pyramid_base::mmap_write(size_t seek_offset, char* data, const size_t
 
 void silly_pyramid_base::stream_close()
 {
-    if (m_mode != silly_mmap::open_mode::READONLY)  // 写打开时需要将信息保存回去
+    if (m_mode != silly_mmap::enum_mmap_open_mode::emomRead)  // 写打开时需要将信息保存回去
     {
         write_info();
     }
@@ -147,7 +147,7 @@ void silly_pyramid_base::mmap_close()
 {
     if (m_opened)
     {
-        m_mmap.mclose();
+        m_mmap.close_m();
     }
 }
 

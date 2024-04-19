@@ -13,7 +13,15 @@
 #ifndef SILLY_UTILS_SILLY_MMAP_H
 #define SILLY_UTILS_SILLY_MMAP_H
 #include <iostream>
-
+#include <mutex>
+#if IS_WIN32
+#include <windows.h>
+#else
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#endif
 typedef char mmap_cur;
 
 /// <summary>
@@ -28,14 +36,15 @@ typedef char mmap_cur;
 class silly_mmap
 {
   public:
-    enum open_mode
+    enum class enum_mmap_open_mode
     {
-        NONE = 0,
-        READONLY = 1,
-        READWRITE = 2
+        emomRead = 1,   // 只读
+        emomWrite = 2,  // 只写
+        emomRdWrt = 3   // 可读可写
+
     };
     silly_mmap() = default;
-    silly_mmap(const std::string);
+    silly_mmap(const std::string& file);
     ~silly_mmap();
 
     /// <summary>
@@ -44,14 +53,14 @@ class silly_mmap
     /// <param name="file"></param>
     /// <param name="mode"></param>
     /// <returns></returns>
-    bool mopen(const std::string& file, const int mode = open_mode::READONLY);
+    bool open_m(const std::string& file, const enum_mmap_open_mode mode = enum_mmap_open_mode::emomRead);
 
     /// <summary>
     /// 根据偏移量索引到内存位置
     /// </summary>
     /// <param name="offset"></param>
     /// <returns></returns>
-    mmap_cur* at(const size_t& offset = 0);
+    mmap_cur* at_m(const size_t& offset = 0);
 
     /// <summary>
     /// 读取内容
@@ -60,7 +69,7 @@ class silly_mmap
     /// <param name="size">读取大小</param>
     /// <param name="offset">偏移位置</param>
     /// <returns></returns>
-    bool read(mmap_cur* dst, const size_t& size, const size_t& offset = 0);
+    bool read_m(mmap_cur* dst, const size_t& size, const size_t& offset = 0);
 
     /// <summary>
     /// TODO: 写入数据到内存文件映射,并且持久化到本地文件,这个还没有完全实现
@@ -69,22 +78,43 @@ class silly_mmap
     /// <param name="size"></param>
     /// <param name="offset"></param>
     /// <returns></returns>
-    bool write(mmap_cur* src, const size_t& size, const size_t& offset = 0);
+    bool write_m(mmap_cur* src, const size_t& size, const size_t& offset = 0);
 
     /// <summary>
     /// 关闭,析构函数已经调用此函数,要注意
     /// </summary>
-    void mclose();
+    void close_m();
 
-    size_t size()
+    size_t size_m()
     {
         return m_size;
     }
 
   private:
-    std::string m_file;
-    size_t m_size{0};
-    mmap_cur* m_mmap{nullptr};
+    bool windows_open_read();
+    bool windows_open_write();
+    bool windows_remap();
+    void windows_close();
+    bool linux_open_read();
+    bool linux_open_write();
+    bool linux_remap();
+    void linux_close();
+    void increase();
+
+  private:
+    std::string m_file;         // 文件名
+    size_t m_tail{0};           // 如果是追加写,元数据末尾在哪里
+    size_t m_size{0};           // 映射大小
+    mmap_cur* m_mmap{nullptr};  // 映射头位置
+    std::mutex m_w_mutex;       // 写互斥
+    enum_mmap_open_mode m_mode{enum_mmap_open_mode::emomRead};
+
+#if IS_WIN32
+    HANDLE m_h_file;
+    HANDLE m_h_map_file;
+#else
+    int m_fd;
+#endif
 };
 
 #endif  // SILLY_UTILS_SILLY_MMAP_H

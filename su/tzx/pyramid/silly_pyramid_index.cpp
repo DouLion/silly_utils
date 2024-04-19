@@ -16,13 +16,13 @@ silly_pyramid_index::silly_pyramid_index()
     }
 }
 
-bool silly_pyramid_index::open(const char* file, const silly_mmap::open_mode& mode, const bool& usemmap)
+bool silly_pyramid_index::open(const char* file, const silly_mmap::enum_mmap_open_mode& mode, const bool& usemmap)
 {
     if (!silly_pyramid_base::open(file, mode, usemmap))
     {
         return false;
     }
-    if (mode == silly_mmap::open_mode::READONLY)
+    if (mode == silly_mmap::enum_mmap_open_mode::emomRead)
     {
         return init_layer_info();
     }
@@ -161,7 +161,7 @@ void silly_pyramid_index::write_layer_info()
 
 bool silly_pyramid_index::close()
 {
-    if (m_mode != silly_mmap::open_mode::READONLY)
+    if (m_mode != silly_mmap::enum_mmap_open_mode::emomRead)
     {
         write_layer_info();
     }

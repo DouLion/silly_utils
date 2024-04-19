@@ -98,6 +98,9 @@ target_link_libraries(${PROJECT_NAME} PUBLIC unofficial::sqlite3::sqlite3)
 find_package(hiredis CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC hiredis::hiredis)
 
+find_package(fmt CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC fmt::fmt)
+
 # 硬件信息
 #find_package(infoware CONFIG REQUIRED)
 # target_link_libraries(${PROJECT_NAME} PUBLIC infoware)

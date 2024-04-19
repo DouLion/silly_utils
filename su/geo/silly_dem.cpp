@@ -35,7 +35,7 @@ bool silly_dem_utils::read(const std::string& path, silly_dem_frame& dem_frm)
 bool silly_dem_utils::mmap_read(const std::string& path, silly_dem_frame& dem_frm)
 {
     silly_mmap dem_mmap;
-    if (!dem_mmap.mopen(path))
+    /*if (!dem_mmap.mopen(path))
     {
         return false;
     }
@@ -75,6 +75,6 @@ bool silly_dem_utils::mmap_read(const std::string& path, silly_dem_frame& dem_fr
             }
         }
         offset++;
-    }
+    }*/
     return false;
 }

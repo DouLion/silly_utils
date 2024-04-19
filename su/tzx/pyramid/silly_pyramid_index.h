@@ -62,7 +62,7 @@ class silly_pyramid_index : public silly_pyramid_base
     /// <returns></returns>
     bool init_layer_info();
 
-    bool open(const char* file, const silly_mmap::open_mode& mode, const bool& usemmap);
+    bool open(const char* file, const silly_mmap::enum_mmap_open_mode& mode, const bool& usemmap);
 
     err_code read_block_pos(uint32_t layer, uint64_t row, uint64_t col, uint32_t& datasize, uint64_t& datapos);
 

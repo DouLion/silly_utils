@@ -1,4 +1,12 @@
 /*
+ * @Author: douliyang 734546831@qq.com
+ * @Date: 2024-01-09 10:14:17
+ * @LastEditors: douliyang 734546831@qq.com
+ * @LastEditTime: 2024-04-18 14:32:33
+ * @FilePath: \pyramid\silly_pyramid_tools.h
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ */
+/*
  * @copyright: Beijing tianzhixiang Information Technology Co., Ltd. All rights
  * reserved.
  * @website: http://www.tianzhixiang.com.cn/
@@ -28,7 +36,7 @@ class silly_pyramid
   public:
     silly_pyramid(void) = default;
 
-    bool open(const std::string& root, const silly_mmap::open_mode& mode = silly_mmap::open_mode::READONLY, bool usemmap = false);
+    bool open(const std::string& root, const silly_mmap::enum_mmap_open_mode& mode = silly_mmap::enum_mmap_open_mode::emomRead, bool usemmap = false);
     void close();
 
     /// <summary>
@@ -60,7 +68,7 @@ class silly_pyramid
     bool rebuild_to_v2(const std::string& target_root);
 
   private:
-    silly_mmap::open_mode m_mode;
+    silly_mmap::enum_mmap_open_mode m_mode;
     std::string m_root;
     silly_pyramid_info m_info;
     silly_pyramid_data m_data;
