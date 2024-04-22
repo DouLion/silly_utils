@@ -191,6 +191,7 @@ bool silly_mmap::windows_open_write()
 
 bool silly_mmap::windows_remap()
 {
+    return false;
 }
 
 bool silly_mmap::linux_open_read()

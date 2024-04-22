@@ -73,35 +73,35 @@ bool grib_utils::read(const std::string& grib_file, std::vector<DMatrix>& matrix
                 grib_get_long(gh, name, &vlong);
                 if (strcmp(name, "numberOfValues") == 0)
                 {
-                    m_pGeoInfo.dnum = vlong;
+                    m_geo_info.dnum = vlong;
                 }
                 if (strcmp(name, "Ni") == 0)
                 {
-                    m_pGeoInfo.cols = vlong;
+                    m_geo_info.cols = vlong;
                 }
                 if (strcmp(name, "Nj") == 0)
                 {
-                    m_pGeoInfo.rows = vlong;
+                    m_geo_info.rows = vlong;
                 }
                 if (strcmp(name, "year") == 0)
                 {
-                    m_pTimeInfo.year = vlong;
+                    m_time_info.year = vlong;
                 }
                 if (strcmp(name, "month") == 0)
                 {
-                    m_pTimeInfo.month = vlong;
+                    m_time_info.month = vlong;
                 }
                 if (strcmp(name, "day") == 0)
                 {
-                    m_pTimeInfo.day = vlong;
+                    m_time_info.day = vlong;
                 }
                 if (strcmp(name, "hour") == 0)
                 {
-                    m_pTimeInfo.hour = vlong;
+                    m_time_info.hour = vlong;
                 }
                 if (strcmp(name, "minute") == 0)
                 {
-                    m_pTimeInfo.miniute = vlong;
+                    m_time_info.miniute = vlong;
                 }
             }
             else if (GRIB_TYPE_DOUBLE == type)
@@ -112,35 +112,35 @@ bool grib_utils::read(const std::string& grib_file, std::vector<DMatrix>& matrix
 
                 if (strcmp(name, "latitudeOfFirstGridPointInDegrees") == 0)
                 {
-                    m_pGeoInfo.bottom = vdouble;
+                    m_geo_info.bottom = vdouble;
                 }
                 if (strcmp(name, "longitudeOfFirstGridPointInDegrees") == 0)
                 {
-                    m_pGeoInfo.left = vdouble;
+                    m_geo_info.left = vdouble;
                 }
                 if (strcmp(name, "latitudeOfLastGridPointInDegrees") == 0)
                 {
-                    m_pGeoInfo.top = vdouble;
+                    m_geo_info.top = vdouble;
                 }
                 if (strcmp(name, "longitudeOfLastGridPointInDegrees") == 0)
                 {
-                    m_pGeoInfo.right = vdouble;
+                    m_geo_info.right = vdouble;
                 }
                 if (strcmp(name, "iDirectionIncrementInDegrees") == 0)
                 {
-                    m_pGeoInfo.xstep = vdouble;
+                    m_geo_info.xstep = vdouble;
                 }
                 if (strcmp(name, "jDirectionIncrementInDegrees") == 0)
                 {
-                    m_pGeoInfo.ystep = vdouble;
+                    m_geo_info.ystep = vdouble;
                 }
                 if (strcmp(name, "maximum") == 0)
                 {
-                    m_pNormalInfo.max = vdouble;
+                    m_normal_info.max = vdouble;
                 }
                 if (strcmp(name, "minimum") == 0)
                 {
-                    m_pNormalInfo.min = vdouble;
+                    m_normal_info.min = vdouble;
                 }
                 // std::cout << name << " : " << vdouble << std::endl;
             }
@@ -152,15 +152,15 @@ bool grib_utils::read(const std::string& grib_file, std::vector<DMatrix>& matrix
                 grib_get_string(gh, name, buf, &length);
                 if (strcmp(name, "name") == 0)
                 {
-                    m_pNormalInfo.name = std::string(buf);
+                    m_normal_info.name = std::string(buf);
                 }
                 if (strcmp(name, "units") == 0)
                 {
-                    m_pNormalInfo.units = std::string(buf);
+                    m_normal_info.units = std::string(buf);
                 }
                 if (strcmp(name, "shortName") == 0)
                 {
-                    m_pNormalInfo.short_name = std::string(buf);
+                    m_normal_info.short_name = std::string(buf);
                 }
                 free(buf);
                 buf = nullptr;
@@ -168,25 +168,26 @@ bool grib_utils::read(const std::string& grib_file, std::vector<DMatrix>& matrix
         }
         grib_keys_iterator_delete(kiter);
 
-        // ???????
-        if (m_pGeoInfo.rows * m_pGeoInfo.cols != m_pGeoInfo.dnum || 0 == m_pGeoInfo.rows || 0 == m_pGeoInfo.cols)
+        // 
+        if (m_geo_info.rows * m_geo_info.cols != m_geo_info.dnum || 0 == m_geo_info.rows || 0 == m_geo_info.cols)
         {
             grib_handle_delete(gh);
             continue;
         }
-        double* data = (double*)malloc(m_pGeoInfo.dnum * sizeof(double));
-        size_t tmpSize = m_pGeoInfo.dnum;
+		
+        double* data = (double*)malloc(m_geo_info.dnum * sizeof(double));
+        size_t tmp_size = m_geo_info.dnum;
         size_t aa = 0;
         grib_get_size(gh, "values", &aa);
-        grib_get_double_array(gh, "values", data, &tmpSize);
-
+        grib_get_double_array(gh, "values", data, &tmp_size);
+		
         DMatrix matrix;
-        matrix.create(m_pGeoInfo.rows, m_pGeoInfo.cols);
-        for (std::uint16_t r = 0; r < m_pGeoInfo.rows; ++r)
+        matrix.create(m_geo_info.rows, m_geo_info.cols);
+        for (std::uint16_t r = 0; r < m_geo_info.rows; ++r)
         {
-            for (std::uint16_t c = 0; c < m_pGeoInfo.cols; ++c)
+            for (std::uint16_t c = 0; c < m_geo_info.cols; ++c)
             {
-                matrix.at(r, c) = (double)data[r * m_pGeoInfo.cols + c];
+                matrix.at(r, c) = (double)data[r * m_geo_info.cols + c];
             }
         }
 

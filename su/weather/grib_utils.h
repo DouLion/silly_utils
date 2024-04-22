@@ -12,11 +12,11 @@
 
 #ifndef SILLY_UTILS_GRIB_UTILS_H
 #define SILLY_UTILS_GRIB_UTILS_H
-#include "geo/silly_geo.h"
 #include "math/silly_matrix.h"
 using namespace silly_math;
 #include <map>
 #include <iostream>
+#include <vector>
  // 气象数据相关定义
 #define DEFAULT_NOAA_DATE_TYPE											"APCP"		// 默认降雨类型 
 #define NOAA_RH															"RH"		// 湿度
@@ -100,9 +100,9 @@ namespace grib_data {
 	public:
 		bool read(const std::string& grib_file, std::vector<DMatrix>& matrixs, int& type);
 
-		time_info	m_pTimeInfo;
-		geo_info	m_pGeoInfo;
-		normal_info	m_pNormalInfo;
+		time_info	m_time_info;
+		geo_info	m_geo_info;
+		normal_info	m_normal_info;
 	};
 }
 #endif //SILLY_UTILS_GRIB_UTILS_H
