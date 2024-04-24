@@ -63,7 +63,7 @@
 #include <stddef.h>  // 定义许多常用的类型和宏
 #include <signal.h>  // 信号处理库
 
-// 
+//
 // #include <string/silly_format.h>
 
 // 一些自定义宏
@@ -149,15 +149,15 @@
 #endif
 
 #ifndef SU_SWITCH_CONSOLE_ENCODE
-#define SU_SWITCH_CONSOLE_ENCODE(p)        \
-    if (p)                                 \
-    {                                      \
-        system(p);                         \
-    }                                      \
-    else                                   \
-    {                                      \
-        system(SU_CONSOLE_DEFAULT_ENCODE); \
-    }
+#define SU_SWITCH_CONSOLE_ENCODE(p)
+//if (p)                                 \
+    //{                                      \
+    //    system(p);                         \
+    //}                                      \
+    //else                                   \
+    //{                                      \
+    //    system(SU_CONSOLE_DEFAULT_ENCODE); \
+    //}
 #endif
 // #ifndef __FILENAME__
 // #define __FILENAME__ (strrchr("/" __FILE__, '/') + 1)
