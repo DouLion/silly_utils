@@ -64,7 +64,7 @@
 #include <signal.h>  // 信号处理库
 
 //
-// #include <string/silly_format.h>
+#include <string/silly_format.h>
 
 // 一些自定义宏
 
