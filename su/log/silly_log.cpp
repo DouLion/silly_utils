@@ -5,6 +5,7 @@
 static char* SILLY_TZX_LOG_CHAR = " \n _________\n|  _   _  |               \n|_/ | | \\_|____   _   __  \n    | |   [_   ] [ \\ [  ] \n   _| |_   .' /_  > '  <  \n  |_____| [_____][__]`\\_]\n";
 bool silly_log::init(silly_log_opt opt, enum_log_type type)
 {
+    SFP_TZX
     char* log_file = "./logs/tzx.log";
     if (!opt.path.empty())
     {
@@ -20,7 +21,6 @@ bool silly_log::init(silly_log_opt opt, enum_log_type type)
         case enum_log_type::eltLoguru:
             loguru::init(argc, argv);
             loguru::add_file(argv[0], loguru::Append, loguru::Verbosity_MAX);
-            LOG_F(INFO, SILLY_TZX_LOG_CHAR);
             break;
         default:
             break;
