@@ -106,7 +106,7 @@ std::string silly_geo_prop::as_string()
     std::string result;
     if (data)
     {
-        result.resize(len+1);
+        result.resize(len);
         memcpy(&result[0], data, len);
     }
     return result;
