@@ -27,10 +27,12 @@
 // 数值库
 #include <cmath>
 #include <numeric>
+#include <random>
 // 时间库
 #include <chrono>
-// 文件和流库 
-#include <chrono>
+// 文件和流库
+#include <fstream>
+#include <filesystem>
 // 异常处理库
 #include <stdexcept>
 // 内存管理库
@@ -40,6 +42,12 @@
 #include <mutex>
 #include <future>
 #include <atomic>
+#include <functional>
+// c++ 17 新的头文件
+#include <any>          // 提供了一个类型安全的工具，可以存储单个值的任意类型。
+#include <optional>     // 提供了一个模板类，用于表示可选的（有或没有值的）对象。
+#include <string_view>  // 提供了对字符序列的非拥有、不可修改的引用。
+#include <variant>      // 类似于联合（union），但是更安全和更易用，可以保存其中列出的任何数据类型。
 
 // 标准c头文件
 #include <stdio.h>   // 标准输入输出库
@@ -54,6 +62,9 @@
 #include <locale.h>  // 本地化支持库
 #include <stddef.h>  // 定义许多常用的类型和宏
 #include <signal.h>  // 信号处理库
+
+// 
+// #include <string/silly_format.h>
 
 // 一些自定义宏
 
@@ -76,8 +87,7 @@
 #define SU_PRINTF_COLOR_LIGHT_GRAY "\033[0;37m"
 #define SU_PRINTF_COLOR_WHITE "\033[1;37m"
 
-
-#define SU_STD_TIME_FORMAT1     "%04d-%02d-%02d %02d:%02d:%02d"
+#define SU_STD_TIME_FORMAT1 "%04d-%02d-%02d %02d:%02d:%02d"
 
 #ifndef PI
 #define PI (3.1415926535897932384626433832795028841971693993751f)
@@ -108,8 +118,8 @@
 #define MIN_IN_HOUR 60
 #define HOUR_IN_DAY 24
 #define SEC_IN_HOUR (60 * 60)
-#define MIN_IN_DAY (60*24)
-#define SEC_IN_DAY (60*60*24)
+#define MIN_IN_DAY (60 * 24)
+#define SEC_IN_DAY (60 * 60 * 24)
 #endif
 
 /** earth radius */
@@ -126,7 +136,7 @@
 #define M_2PI (M_PI * 2.)
 
 #define SU_RGB(r, g, b) ((unsigned int)(((unsigned char)(r) | ((unsigned int)((unsigned char)(g)) << 8)) | (((unsigned int)(unsigned char)(b)) << 16)))
-#define SU_ARGB(a, r, g, b) (unsigned int)(((a) & 0xff) << 24 | ((r) & 0xff) << 16 | ((g) & 0xff) << 8 | (b & 0xff))
+#define SU_ARGB(a, r, g, b) (unsigned int)(((a)&0xff) << 24 | ((r)&0xff) << 16 | ((g)&0xff) << 8 | (b & 0xff))
 #define SU_RGBA(r, g, b, a) SU_ARGB(a, r, g, b)
 #define SU_XRGB(r, g, b) SU_ARGB(0xff, r, g, b)
 
@@ -139,7 +149,15 @@
 #endif
 
 #ifndef SU_SWITCH_CONSOLE_ENCODE
-#define SU_SWITCH_CONSOLE_ENCODE(p) if(p){system(p);}else{ system(SU_CONSOLE_DEFAULT_ENCODE);}
+#define SU_SWITCH_CONSOLE_ENCODE(p)        \
+    if (p)                                 \
+    {                                      \
+        system(p);                         \
+    }                                      \
+    else                                   \
+    {                                      \
+        system(SU_CONSOLE_DEFAULT_ENCODE); \
+    }
 #endif
 // #ifndef __FILENAME__
 // #define __FILENAME__ (strrchr("/" __FILE__, '/') + 1)
@@ -166,21 +184,19 @@
 
 #endif
 
-
 #ifndef SU_FILE_NAME
-// 获取当前文件名称 
+// 获取当前文件名称
 #if IS_WIN32
-#define SU_FILE_NAME (strrchr(__FILE__, '\\') ? (strrchr(__FILE__, '\\') + 1):__FILE__)
+#define SU_FILE_NAME (strrchr(__FILE__, '\\') ? (strrchr(__FILE__, '\\') + 1) : __FILE__)
 #else
-#define SU_FILE_NAME (strrchr(__FILE__, '/') ? (strrchr(__FILE__, '/') + 1):__FILE__)
+#define SU_FILE_NAME (strrchr(__FILE__, '/') ? (strrchr(__FILE__, '/') + 1) : __FILE__)
 #endif
 #endif
 
 #ifndef SU_DEBUG_PRINT
 // 打印调试信息
 #ifndef NDEBUG
-#define SU_DEBUG_PRINT(s, ...)                           \
-    printf(SU_PRINTF_COLOR_BROWN "\n[DEBUG] %s:%I32d \n ... " s SU_PRINTF_COLOR_NONE " \n", SU_FILE_NAME, __LINE__, ##__VA_ARGS__);
+#define SU_DEBUG_PRINT(s, ...) printf(SU_PRINTF_COLOR_BROWN "\n[DEBUG] %s:%I32d \n ... " s SU_PRINTF_COLOR_NONE " \n", SU_FILE_NAME, __LINE__, ##__VA_ARGS__);
 
 #else
 #define SU_DEBUG_PRINT(s, ...)
@@ -190,22 +206,18 @@
 
 #ifndef SU_PRINTF
 // 打印信息 未封装
-#define SU_PRINTF(s, ...) 
+#define SU_PRINTF(s, ...)
 #endif
 
 #ifndef SU_INFO_PRINT
 // 打印提示信息
-#define SU_INFO_PRINT(s, ...)                                                                                                                                                                           \
-    printf(SU_PRINTF_COLOR_CYAN "\n[INFO] %s:%I32d \n " s SU_PRINTF_COLOR_NONE" \n", SU_FILE_NAME, __LINE__,  ##__VA_ARGS__);
+#define SU_INFO_PRINT(s, ...) printf(SU_PRINTF_COLOR_CYAN "\n[INFO] %s:%I32d \n " s SU_PRINTF_COLOR_NONE " \n", SU_FILE_NAME, __LINE__, ##__VA_ARGS__);
 #endif
 
 #ifndef SU_ERROR_PRINT
 // 打印错误信息
-#define SU_ERROR_PRINT(s, ...)                                                                                                                                                                            \
-    printf(SU_PRINTF_COLOR_RED "\n[ERROR] %s:%I32d \n ... " s SU_PRINTF_COLOR_NONE, SU_FILE_NAME, __LINE__, ##__VA_ARGS__); 
+#define SU_ERROR_PRINT(s, ...) printf(SU_PRINTF_COLOR_RED "\n[ERROR] %s:%I32d \n ... " s SU_PRINTF_COLOR_NONE, SU_FILE_NAME, __LINE__, ##__VA_ARGS__);
 #endif
-
-
 
 #ifndef SU_MARK_LINE
 // 标记一行
@@ -236,11 +248,13 @@
 #define SU_CONVERT_LITTLE_ENDIAN_SHORT(src_ptr) (src_ptr[1] << 8) + src_ptr[0]
 
 #ifndef SU_MEMCPY
-#define SU_MEMCPY(p, off, v)  memcpy(p + off, &v, sizeof(v));
+#define SU_MEMCPY(p, off, v) memcpy(p + off, &v, sizeof(v));
 #endif
 
 #ifndef SU_MEMCPY_AUTO_INC
-#define SU_MEMCPY_AUTO_INC(p, off, v)  memcpy(p + off, &v, sizeof(v)); off+=sizeof(v);
+#define SU_MEMCPY_AUTO_INC(p, off, v) \
+    memcpy(p + off, &v, sizeof(v));   \
+    off += sizeof(v);
 #endif
 
 #ifndef SU_MEM_FREE
@@ -268,7 +282,7 @@
 #define SUM_MEM_DEL_ARR(p) \
     if ((p))               \
     {                      \
-        delete[] (p);      \
+        delete[](p);       \
         (p) = nullptr;     \
     }
 #endif

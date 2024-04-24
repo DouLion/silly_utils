@@ -14,56 +14,46 @@
 #include <fmt/ranges.h>
 #include <fmt/os.h>
 #include <fmt/color.h>
+#include <su_marco.h>
 
 namespace silly_format = fmt;
 
-/* 示例
- * */
 
-/*#include <fmt/core.h>
+#ifndef SFP_DEBUG
+#ifndef NDEBUG
+#define SFP_DEBUG(s, ...)                                                                                  \
+    fmt::print(fg(fmt::color::light_sky_blue) | fmt::emphasis::bold, "\n[DEBUG] {}:{}\n\t", SU_FILE_NAME, __LINE__); \
+    fmt::print(fg(fmt::color::light_sky_blue) | fmt::emphasis::bold, s, ##__VA_ARGS__);
 
-int main() {
-    fmt::print("Hello, world!\n");
-}
+#else
+#define SFP_DEBUG(s, ...)
+#endif
+#endif
 
-std::string s = fmt::format("The answer is {}.", 42);
-// s == "The answer is 42."
+#ifndef SFP_INFO
+#define SFP_INFO(s, ...)                                                                  \
+    fmt::print(fg(fmt::color::green_yellow), "\n[INFO] {}:{}\n\t", SU_FILE_NAME, __LINE__); \
+    fmt::print(fg(fmt::color::green_yellow), s, ##__VA_ARGS__);
 
-std::string s = fmt::format("I'd rather be {1} than {0}.", "right", "happy");
-// s == "I'd rather be happy than right."
+#endif
 
-#include <fmt/chrono.h>
+#ifndef SFP_WARN
+#define SFP_WARN(s, ...)                                                             \
+    fmt::print(fg(fmt::color::orange), "\n[WARN] {}:{}\n\t", SU_FILE_NAME, __LINE__); \
+    fmt::print(fg(fmt::color::orange), s, ##__VA_ARGS__);
 
-int main() {
-    auto now = std::chrono::system_clock::now();
-    fmt::print("Date and time: {}\n", now);
-    fmt::print("Time: {:%H:%M}\n", now);
-}
+#endif
 
-#include <vector>
-#include <fmt/ranges.h>
+#ifndef SFP_ERROR
+#define SFP_ERROR(s, ...)                                                                 \
+    fmt::print(fg(fmt::color::brown), "\n[ERROR] {}:{}\n\t", SU_FILE_NAME, __LINE__); \
+    fmt::print(fg(fmt::color::brown), s, ##__VA_ARGS__);
 
-int main() {
-    std::vector<int> v = {1, 2, 3};
-    fmt::print("{}\n", v);
-}
+#endif
 
-#include <fmt/os.h>
+#ifndef SFP_MARK
+#define SFP_MARK fmt::print(fg(fmt::color::pale_green), "\n[MARK] {}:{}\n", SU_FILE_NAME, __LINE__);
 
-int main() {
-    auto out = fmt::output_file("guide.txt");
-    out.print("Don't {}", "Panic");
-}
+#endif
 
-#include <fmt/color.h>
-
-int main() {
-    fmt::print(fg(fmt::color::crimson) | fmt::emphasis::bold,
-               "Hello, {}!\n", "world");
-    fmt::print(fg(fmt::color::floral_white) | bg(fmt::color::slate_gray) |
-                   fmt::emphasis::underline, "Olá, {}!\n", "Mundo");
-    fmt::print(fg(fmt::color::steel_blue) | fmt::emphasis::italic,
-               "你好{}！\n", "世界");
-}*/
-
-#endif //SILLY_UTILS_SILLY_FORMAT_H
+#endif  // SILLY_UTILS_SILLY_FORMAT_H
