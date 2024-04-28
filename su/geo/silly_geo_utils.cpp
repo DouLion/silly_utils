@@ -45,7 +45,7 @@ silly_geo_coll geo_utils::intersection_area(silly_poly poly_main, silly_poly pol
         // 不相交，返回空的vector
         delete org_ploy_main;
         delete org_ploy_deputy;
-        SU_INFO_PRINT("Two regions do not intersect \n");
+        SU_INFO_PRINT("Two regions do not intersect\n");
         return result;
     }
 
@@ -78,7 +78,7 @@ silly_geo_coll geo_utils::intersection_area(silly_poly poly_main, silly_poly pol
         }
         // 处理其他几何类型的情况
         default:
-            SU_ERROR_PRINT("Error: Unable to process this type \n");
+            SU_ERROR_PRINT("Error: Unable to process this type\n");
             break;
     }
 
@@ -343,117 +343,6 @@ bool geo_utils::is_valid_shp(const std::string& shp_file)
     return true;
 }
 
-bool geo_utils::check_shp_info(const std::string& shp_file, enum_geometry_type& type, std::map<std::string, std::string>& properties)
-{
-    bool status = false;
-    std::map<std::string, std::string> result;
-
-    GDALDataset* poDSr = (GDALDataset*)GDALOpenEx(shp_file.c_str(), GDAL_OF_ALL | GDAL_OF_READONLY, NULL, NULL, NULL);
-    if (NULL == poDSr)
-    {
-        return status;
-    }
-    OGRLayer* poLayer_r = poDSr->GetLayer(0);
-    if (poLayer_r == NULL)
-    {
-        GDALClose(poDSr);
-        return status;
-    }
-    OGRFeature* pFeature_r = NULL;
-    // 获取Feature特征
-    pFeature_r = poLayer_r->GetNextFeature();
-    if (NULL == pFeature_r)
-    {
-        GDALClose(poDSr);
-        return status;
-    }
-
-    // 获取要素的几何形状
-    OGRGeometry* poGeometry_r = pFeature_r->GetGeometryRef();
-    auto gdal_type = wkbFlatten(poGeometry_r->getGeometryType());
-    type = static_cast<enum_geometry_type>(gdal_type);
-    if (wkbUnknown == gdal_type)
-    {
-        GDALClose(poDSr);
-        return status;
-    }
-    // 1 wkbPoint 点
-    // 2 wkbLineString 线
-    // 3 wkbPolygon 面
-    // 4 wkbMultiPoint  多点
-    // 5 wkbMultiLineString  多线
-    // 6 wkbMultiPolygon  多面
-
-    // 循环特征域
-    int fieldCnt = pFeature_r->GetFieldCount();
-    for (int i = 0; i < fieldCnt; i++)
-    {
-        OGRFieldDefn* def = pFeature_r->GetFieldDefnRef(i);
-        OGRFieldType gp_type = def->GetType();
-        std::string field_name = def->GetNameRef();
-        if (silly_encode::enum_encode::eeUTF8 != silly_encode::is_utf8(field_name.c_str(), field_name.size()))
-        {
-            field_name = silly_encode::gbk_utf8(field_name);
-        }
-
-        std::string field_type = "";
-        switch (gp_type)
-        {
-            case OFTInteger:
-                field_type = "OFTInteger";
-                break;
-            case OFTIntegerList:
-                field_type = "OFTIntegerList";
-                break;
-            case OFTReal:
-                field_type = "OFTReal";
-                break;
-            case OFTRealList:
-                field_type = "OFTRealList";
-                break;
-            case OFTString:
-                field_type = "OFTString";
-                break;
-            case OFTStringList:
-                field_type = "OFTStringList";
-                break;
-#if _DEBUG
-                // 弃用 deprecated
-            case OFTWideString:
-                field_type = "Deprecated:OFTWideString";
-
-                break;
-            case OFTWideStringList:
-                field_type = "Deprecated:OFTWideStringList";
-                break;
-#endif
-            case OFTBinary:
-                field_type = "OFTBinary";
-                break;
-            case OFTDate:
-                field_type = "OFTDate";
-                break;
-            case OFTTime:
-                field_type = "OFTTime";
-                break;
-            case OFTDateTime:
-                field_type = "OFTDateTime";
-                break;
-            case OFTInteger64:
-                field_type = "OFTInteger64";
-                break;
-            case OFTInteger64List:
-                field_type = "OFTInteger64List";
-                break;
-        }
-        properties[field_name] = field_name;
-    }
-
-    GDALClose(poDSr);
-    status = true;
-    return status;
-}
-
 bool geo_utils::check_shp_info(const std::string& shp_file, enum_geometry_type& type, std::map<std::string, silly_geo_prop::enum_prop_type>& properties)
 {
     bool status = false;
@@ -591,13 +480,21 @@ bool read_property(const OGRFeature* feature, const std::map<std::string, silly_
             }
             break;
             case silly_geo_prop::enum_prop_type::eptTime:
-                break;
             case silly_geo_prop::enum_prop_type::eptDate:
-                break;
             case silly_geo_prop::enum_prop_type::eptDateTime:
             {
-                int year, month, day, hour, minute, second, tzFlag;
-                int result = feature->GetFieldAsDateTime(0, &year, &month, &day, &hour, &minute, &second, &tzFlag);
+                int idx = feature->GetFieldIndex(key.c_str());
+                int y=0, m=0, d=0, h=0, M=0, s=0, tzFlag;
+                if(feature->GetFieldAsDateTime(idx, &y, &m, &d, &h, &M, &s, &tzFlag))
+                {
+                    // 成功
+                    int a = 0;
+                }
+                else
+                {
+                    props[key] = {""};
+                }
+
             }
             break;
             case silly_geo_prop::enum_prop_type::eptLong:
@@ -666,7 +563,7 @@ bool read_all_types_data(const enum_geometry_type& feature_type, OGRGeometry* ge
         {
             OGRGeometryCollection* geomCollection = dynamic_cast<OGRGeometryCollection*>(geometry);
             int numGeometries = geomCollection->getNumGeometries();
-            SU_DEBUG_PRINT("Number of Geometries in Collection: %d \n", numGeometries);
+            SU_DEBUG_PRINT("Number of Geometries in Collection: %d\n", numGeometries);
             for (int j = 0; j < numGeometries; j++)
             {
                 OGRGeometry* collGeometry = geomCollection->getGeometryRef(j);
@@ -680,7 +577,7 @@ bool read_all_types_data(const enum_geometry_type& feature_type, OGRGeometry* ge
         break;
         default:
         {
-            SU_ERROR_PRINT("Unprocessable data types: %d \n", feature_type);
+            SU_ERROR_PRINT("Unprocessable data types: %d\n", feature_type);
         }
         break;
     }
@@ -688,7 +585,7 @@ bool read_all_types_data(const enum_geometry_type& feature_type, OGRGeometry* ge
     return status;
 }
 
-bool geo_utils::read_geo_coll(const char* file, std::vector<silly_geo_coll>& collections)
+bool geo_utils::read_geo_coll(const std::string& file, std::vector<silly_geo_coll>& collections)
 {
     bool status = false;
     
@@ -699,14 +596,14 @@ bool geo_utils::read_geo_coll(const char* file, std::vector<silly_geo_coll>& col
 #endif
     if (!std::filesystem::exists(std::filesystem::path(nfpath)))
     {
-        SU_ERROR_PRINT("Error: file does not exist %s  \n", file);
+        SFP_ERROR("文件[{}]不存在\n", file);
         return status;
     }
     enum_geometry_type type;
     std::map<std::string, silly_geo_prop::enum_prop_type> properties;
     if (!check_shp_info(nfpath, type, properties))
     {
-        SU_ERROR_PRINT("Error check shp info  \n", file);
+        SFP_ERROR("检查矢量[{}]信息失败\n", file);
         return status;
     }
     // 打开现有 shp 文件
@@ -714,7 +611,7 @@ bool geo_utils::read_geo_coll(const char* file, std::vector<silly_geo_coll>& col
     if (dataset == nullptr)
     {
         // 处理文件打开失败的情况
-        SU_ERROR_PRINT("Error: Failed to open shapefile  \n");
+        SU_ERROR_PRINT("Error: Failed to open shapefile\n");
         return status;
     }
     // 获得数据集中图层数
@@ -725,7 +622,7 @@ bool geo_utils::read_geo_coll(const char* file, std::vector<silly_geo_coll>& col
         if (layer == nullptr)
         {
             // 处理图层获取失败的情况
-            SU_ERROR_PRINT("Error: Failed to get layer  \n");
+            SU_ERROR_PRINT("Error: Failed to get layer\n");
             GDALClose(dataset);
             return status;
         }
@@ -934,7 +831,7 @@ bool process_composite_data(const enum_geometry_type coll_type, OGRGeometry* geo
         break;
         default:
         {
-            SU_ERROR_PRINT("Composite unprocessable data types: %s \n", coll_type);
+            SFP_ERROR("无效的数据类型: {}\n", static_cast<int>(coll_type));
         }
         break;
     }
@@ -953,7 +850,7 @@ bool wire_all_types_data(const enum_geometry_type coll_type, OGRLayer* outputLay
             feature->SetGeometry(&ogrPoint);
             if (outputLayer->CreateFeature(feature) != OGRERR_NONE)  // 在图层中创建要素
             {
-                SU_ERROR_PRINT("Failed to create feature in shapefile. \n");
+                SU_ERROR_PRINT("Failed to create feature in shapefile.\n");
             }
             status = true;
         }
@@ -965,7 +862,7 @@ bool wire_all_types_data(const enum_geometry_type coll_type, OGRLayer* outputLay
             feature->SetGeometry(orgLine);
             if (outputLayer->CreateFeature(feature) != OGRERR_NONE)  // 在图层中创建要素
             {
-                SU_ERROR_PRINT("Failed to create feature in shapefile. \n");
+                SU_ERROR_PRINT("Failed to create feature in shapefile.\n");
             }
             status = true;
         }
@@ -977,7 +874,7 @@ bool wire_all_types_data(const enum_geometry_type coll_type, OGRLayer* outputLay
             feature->SetGeometry(polygon);
             if (outputLayer->CreateFeature(feature) != OGRERR_NONE)  // 在图层中创建要素
             {
-                SU_ERROR_PRINT("Failed to create feature in shapefile. \n");
+                SU_ERROR_PRINT("Failed to create feature in shapefile.\n");
             }
             status = true;
         }
@@ -989,7 +886,7 @@ bool wire_all_types_data(const enum_geometry_type coll_type, OGRLayer* outputLay
             feature->SetGeometry(multiPoint);
             if (outputLayer->CreateFeature(feature) != OGRERR_NONE)  // 在图层中创建要素
             {
-                SU_ERROR_PRINT("Failed to create feature in shapefile. \n");
+                SU_ERROR_PRINT("Failed to create feature in shapefile.\n");
             }
             status = true;
         }
@@ -1001,7 +898,7 @@ bool wire_all_types_data(const enum_geometry_type coll_type, OGRLayer* outputLay
             feature->SetGeometry(multiLineString);
             if (outputLayer->CreateFeature(feature) != OGRERR_NONE)  // 在图层中创建要素
             {
-                SU_ERROR_PRINT("Failed to create feature in shapefile. \n");
+                SU_ERROR_PRINT("Failed to create feature in shapefile.\n");
             }
             status = true;
         }
@@ -1013,7 +910,7 @@ bool wire_all_types_data(const enum_geometry_type coll_type, OGRLayer* outputLay
             feature->SetGeometry(multiPolygon);
             if (outputLayer->CreateFeature(feature) != OGRERR_NONE)  // 在图层中创建要素
             {
-                SU_ERROR_PRINT("Failed to create feature in shapefile. \n");
+                SU_ERROR_PRINT("Failed to create feature in shapefile.\n");
             }
             status = true;
         }
@@ -1028,20 +925,20 @@ bool wire_all_types_data(const enum_geometry_type coll_type, OGRLayer* outputLay
             feature->SetGeometry(geomCollection);
             if (outputLayer->CreateFeature(feature) != OGRERR_NONE)  // 在图层中创建要素
             {
-                SU_ERROR_PRINT("Failed to create feature in shapefile. \n");
+                SU_ERROR_PRINT("Failed to create feature in shapefile.\n");
             }
         }
         break;
         default:
         {
-            SU_ERROR_PRINT("Unprocessable data types: %s \n", coll_type);
+            SFP_ERROR("无效的数据类型: {}\n", static_cast<int>(coll_type));
         }
         break;
     }
     return status;
 }
 
-bool geo_utils::write_geo_coll(const char* file, const std::vector<silly_geo_coll>& collections)
+bool geo_utils::write_geo_coll(const std::string& file, const std::vector<silly_geo_coll>& collections)
 {
     bool status = false;
     if (collections.empty())
@@ -1050,29 +947,29 @@ bool geo_utils::write_geo_coll(const char* file, const std::vector<silly_geo_col
     }
     // 根据拓展名得到存储格式
     std::string driverName;
-    if (!get_driver_name(file, driverName))
+    if (!get_driver_name(file.c_str(), driverName))
     {
-        SU_ERROR_PRINT("Error: Unable to obtain storage method for this type: %s  \n", file);
+        SFP_ERROR("Error: Unable to obtain storage method for this type: %s\n", file);
         return status;
     }
     std::string LayerName = std::filesystem::path(file).filename().stem().string();
     if (collections.empty())
     {
-        SU_ERROR_PRINT("Error: Vector data is empty  \n");
+        SU_ERROR_PRINT("Error: Vector data is empty\n");
         return status;
     }
     GDALDriver* outDriver = GetGDALDriverManager()->GetDriverByName(driverName.c_str());
-    GDALDataset* outputData = outDriver->Create(file, 0, 0, 0, GDT_Unknown, nullptr);
+    GDALDataset* outputData = outDriver->Create(file.c_str(), 0, 0, 0, GDT_Unknown, nullptr);
     if (outputData == nullptr)
     {
-        SU_ERROR_PRINT("Error: Failed to create output shapefile  \n");
+        SU_ERROR_PRINT("Error: Failed to create output shapefile\n");
         return false;
     }
     OGRLayer* outputLayer = outputData->CreateLayer(LayerName.c_str(), nullptr, wkbUnknown, nullptr);
     if (outputLayer == nullptr)
     {
         // 处理图层创建失败的情况
-        SU_ERROR_PRINT("Failed to create output layer  \n")
+        SU_ERROR_PRINT("Failed to create output layer\n")
         GDALClose(outputData);
         return false;
     }
@@ -1084,7 +981,7 @@ bool geo_utils::write_geo_coll(const char* file, const std::vector<silly_geo_col
         OGRFieldDefn fieldDef(k.c_str(), ogrType);
         if (outputLayer->CreateField(&fieldDef) != OGRERR_NONE)
         {
-            SU_ERROR_PRINT("Error: Failed to create color field  \n");
+            SU_ERROR_PRINT("Error: Failed to create color field\n");
         }
     }
     for (const auto& coll : collections)
@@ -1097,7 +994,7 @@ bool geo_utils::write_geo_coll(const char* file, const std::vector<silly_geo_col
         {
             if (!writePropertiesToGeometry(feature, coll.m_props))  // 添加属性
             {
-                SU_ERROR_PRINT("Add attribute fail  \n")
+                SU_ERROR_PRINT("Add attribute fail\n")
             }
         }
         // 添加矢量数据
@@ -1109,7 +1006,7 @@ bool geo_utils::write_geo_coll(const char* file, const std::vector<silly_geo_col
 
     // 关闭数据集
     GDALClose(outputData);
-    SU_INFO_PRINT("Vector data added to shapefile and saved successfully  \n");
+    SU_INFO_PRINT("Vector data added to shapefile and saved successfully\n");
 
     return status;
 }

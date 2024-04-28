@@ -4,7 +4,7 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/date_time/c_local_time_adjustor.hpp>
 #include <su_marco.h>
-using namespace boost::posix_time;
+
 namespace simple_time
 {
 typedef boost::posix_time::ptime PosixTime;
@@ -22,7 +22,7 @@ const static char* DATE_FORMAT_10 = "%Y%m%f%h00";
 
 static PosixTime NowPosixTime()
 {
-    return second_clock::local_time();
+    return boost::posix_time::second_clock::local_time();
 }
 static PosixTime TimeFromString(const std::string& str)
 {

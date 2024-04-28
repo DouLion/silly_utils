@@ -35,10 +35,10 @@ class silly_geo_prop
     silly_geo_prop(const double& d);
     silly_geo_prop(const char* c, const size_t& l);
     silly_geo_prop(const long long& ll);
+    silly_geo_prop(const std::vector<unsigned char>& bs);
 
     silly_geo_prop(const silly_geo_prop& other);
     void destroy();
-    silly_geo_prop& operator=(const silly_geo_prop& other);
     ~silly_geo_prop();
 
   public:
@@ -50,9 +50,10 @@ class silly_geo_prop
     long long as_longlong();
 
   private:
-    enum_prop_type type{enum_prop_type::eptNone};
-    size_t len{0};
-    unsigned char* data{nullptr};
+    enum_prop_type m_type{enum_prop_type::eptNone};
+    std::any m_data;
+    /*size_t len{0};
+    unsigned char* data{nullptr};*/
 };
 
 #endif  // SILLY_UTILS_SILLY_GEO_PROP_H
