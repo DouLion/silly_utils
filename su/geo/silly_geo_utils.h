@@ -26,9 +26,20 @@
 #define SILLY_GML_DRIVER_NAME "GML"
 #define SILLY_XLSX_DRIVER_NAME "XLSX"
 
-class geo_utils
+class silly_geo_utils
 {
   public:
+    /// <summary>
+    /// 初始化 GDAL 环境,只需要初始化一次
+    /// </summary>
+    static void init_gdal_env();
+
+    /// <summary>
+    /// 销毁 GDAL 环境, 一旦执行此方法,那么GDAL可能就无法使用,
+    /// </summary>
+    static void destroy_gdal_env();
+
+
     /// <summary>
     /// 求一个面的形心(几何中心),利用ogr库算法
     /// </summary>
@@ -60,7 +71,7 @@ class geo_utils
     /// <param name="collection"></param>
     /// <returns></returns>
     /// 注:读取 shp , geojson 类型文件中可以实现
-    static bool read_geo_coll(const char* file, std::vector<silly_geo_coll>& collections);
+    static bool read_geo_coll(const std::string& file, std::vector<silly_geo_coll>& collections);
 
     /// <summary>
     /// 将silly_geo_coll数据结构写入矢量文件(如shp文件)
@@ -69,17 +80,7 @@ class geo_utils
     /// <param name="collection"></param>
     /// <returns></returns>
     /// 注:写入 shp , geojson 类型文件中经测试可以实现
-    static bool write_geo_coll(const char* file, const std::vector<silly_geo_coll>& collections);
-
-    /// <summary>
-    /// 初始化 GDAL 环境,只需要初始化一次
-    /// </summary>
-    static void init_gdal_env();
-
-    /// <summary>
-    /// 销毁 GDAL 环境, 一旦执行此方法,那么GDAL可能就无法使用,
-    /// </summary>
-    static void destroy_gdal_env();
+    static bool write_geo_coll(const std::string& file, const std::vector<silly_geo_coll>& collections);
 
     /// <summary>
     /// 是否为一个标准的shp文件
@@ -96,8 +97,6 @@ class geo_utils
     /// <param name="properties"></param>
     /// <returns></returns>
     static bool check_shp_info(const std::string& shp_file, enum_geometry_type& type, std::map<std::string, silly_geo_prop::enum_prop_type>& properties);
-
-    static bool check_shp_info(const std::string& shp_file, enum_geometry_type& type, std::map<std::string, std::string>& properties);
 
     /// <summary>
     /// 根据文件类型得到对应的 gdal 中的存储格式
@@ -222,5 +221,7 @@ class geo_utils
     /// <returns></returns>
     static OGRMultiPolygon* SillyMulPolyToOGRMulPoly(const silly_multi_poly& multiPoly);
 };
+
+typedef silly_geo_utils geo_utils; // 兼容之前的写法
 
 #endif  // SILLY_UTILS_SILLY_GEO_OPERATION_H
