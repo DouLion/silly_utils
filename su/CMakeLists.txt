@@ -114,6 +114,9 @@ target_link_libraries(${PROJECT_NAME} PUBLIC ${CAIRO_LIBRARY})
 find_package(Freetype REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC Freetype::Freetype) # since CMake 3.10
 
+find_package(spdlog CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC spdlog::spdlog spdlog::spdlog_header_only)
+
 if(IS_LINUX)
 
     find_package(unofficial-libuuid CONFIG REQUIRED)

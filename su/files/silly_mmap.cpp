@@ -4,6 +4,7 @@
 
 #include "silly_mmap.h"
 #include <filesystem>
+#include <cstring>
 
 #if IS_WIN32
 // wstring转string
@@ -122,7 +123,9 @@ void silly_mmap::increase()
 #define SILLY_MMAP_MAX_SIZE 0xFFFF
 bool silly_mmap::windows_open_read()
 {
+
     bool status = false;
+#if IS_WIN32
     m_h_file = CreateFile(s2ws(m_file).c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     if (m_h_file == INVALID_HANDLE_VALUE)
     {
@@ -150,11 +153,13 @@ bool silly_mmap::windows_open_read()
     m_size = GetFileSize(m_h_file, NULL);
     m_tail = 0;
     status = true;
+#endif
     return status;
 }
 bool silly_mmap::windows_open_write()
 {
     bool status = false;
+#if IS_WIN32
     m_h_file = CreateFile(s2ws(m_file).c_str(), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
     if (m_h_file == INVALID_HANDLE_VALUE)
     {
@@ -186,6 +191,7 @@ bool silly_mmap::windows_open_write()
     m_size = 0;
     m_tail = m_size;
     status = true;
+#endif
     return status;
 }
 
@@ -204,6 +210,7 @@ bool silly_mmap::linux_open_write()
 }
 void silly_mmap::windows_close()
 {
+#if IS_WIN32
     SetFilePointer(m_h_file, m_size, NULL, FILE_BEGIN);
     SetEndOfFile(m_h_file);
     FlushViewOfFile(m_mmap, m_size);
@@ -211,6 +218,7 @@ void silly_mmap::windows_close()
     m_mmap = nullptr;
     CloseHandle(m_h_map_file);
     CloseHandle(m_h_file);
+#endif
 }
 void silly_mmap::linux_close()
 {
