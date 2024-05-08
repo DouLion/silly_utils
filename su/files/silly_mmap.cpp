@@ -96,7 +96,8 @@ bool silly_mmap::write_m(mmap_cur* src, const size_t& size, const size_t& offset
     if(m_mmap)
     {
         std::unique_lock lock(m_w_mutex);
-        if (!strcpy_s(m_mmap + offset, size, src))
+        // if (!strcpy_s(m_mmap + offset, size, src))
+        if (!strcpy(m_mmap + offset, src))
         {
             m_size += size;
             status = true;
