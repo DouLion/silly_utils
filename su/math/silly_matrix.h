@@ -199,12 +199,12 @@ class matrix_2d
             data = nullptr;
         }
     }
-    const size_t row()
+    const size_t row() const
     {
         return rows;
     }
 
-    const size_t col()
+    const size_t col() const
     {
         return cols;
     }
