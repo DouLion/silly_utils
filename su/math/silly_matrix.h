@@ -129,6 +129,58 @@ class matrix_2d
         return matrix_2d<T>();
     }
 
+    matrix_2d<T> operator+(const T *v)
+    {
+        if (data)
+        {
+            while (i < total)
+            {
+                data[i] += v;
+                i++;
+            }
+        }
+        return *this;
+    }
+
+    matrix_2d<T> operator-(const T *v)
+    {
+        if (data)
+        {
+            while (i < total)
+            {
+                data[i] -= v;
+                i++;
+            }
+        }
+        return *this;
+    }
+
+    matrix_2d<T> operator*(const T *v)
+    {
+        if (data)
+        {
+            while (i < total)
+            {
+                data[i] *= v;
+                i++;
+            }
+        }
+        return *this;
+    }
+
+    matrix_2d<T> operator/(const T *v)
+    {
+        if (data)
+        {
+            while (i < total)
+            {
+                data[i] /= v;
+                i++;
+            }
+        }
+        return *this;
+    }
+
     T *seek_row(const size_t &r)
     {
         if (data)
