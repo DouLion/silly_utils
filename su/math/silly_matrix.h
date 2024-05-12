@@ -41,6 +41,7 @@ class matrix_2d
         this->rows = other.rows;
         this->cols = other.cols;
         this->data = other.data;
+        this->total = other.total;
         return *this;
     }
 
