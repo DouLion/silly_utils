@@ -11,6 +11,7 @@
 #define SILLY_UTILS_SILLY_DECORATOR_H
 
 #include <functional>
+#include <string>
 
 template <typename Func, typename Obj, typename... Args>
 auto exception_decorator_member_func(Func&& func, Obj&& obj, std::string&& err, Args&&... args)
