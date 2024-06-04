@@ -13,12 +13,7 @@
 
 #ifndef SILLY_UTILS_SILLY_MATRIX_H
 #define SILLY_UTILS_SILLY_MATRIX_H
-#include <cstddef>
-#include <string.h>
-#include <stdlib.h>
-#include <cstdlib>
-#include <cmath>
-#include <cstring>
+#include <su_marco.h>
 
 namespace silly_math
 {
@@ -186,6 +181,7 @@ class matrix_2d
     {
         if (data)
         {
+            size_t i = 0;
             while (i < total)
             {
                 data[i] += v;
@@ -199,6 +195,7 @@ class matrix_2d
     {
         if (data)
         {
+            size_t i = 0;
             while (i < total)
             {
                 data[i] -= v;
@@ -212,6 +209,7 @@ class matrix_2d
     {
         if (data)
         {
+            size_t i = 0;
             while (i < total)
             {
                 data[i] *= v;
@@ -225,6 +223,7 @@ class matrix_2d
     {
         if (data)
         {
+            size_t i = 0;
             while (i < total)
             {
                 data[i] /= v;
