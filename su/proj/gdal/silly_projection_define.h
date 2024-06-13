@@ -31,6 +31,8 @@ private:
 
     static char *epsg3857Wkt;
     static char *espg4326Wkt;
+    static char *espg4490Wkt;
+    static char *espg4610Wkt;
 };
 
 #endif  // SILLY_UTILS_SILLY_PROJECTION_DEFINE_H

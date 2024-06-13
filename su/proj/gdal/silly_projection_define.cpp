@@ -49,3 +49,40 @@ char *silly_projection_define::espg4326Wkt =
     "UNIT[\"degree\",0.0174532925199433,"
     "AUTHORITY[\"EPSG\",\"9122\"]],"
     "AUTHORITY[\"EPSG\",\"4326\"]]";
+
+char *silly_projection_define::espg4490Wkt =
+    "GEOGCS[\"China Geodetic Coordinate System 2000\","
+    "DATUM[\"China_2000\","
+    "SPHEROID[\"CGCS2000\",6378137,298.257222101,"
+    "AUTHORITY[\"EPSG\",\"1024\"]],"
+    "AUTHORITY[\"EPSG\",\"1043\"]],"
+    "PRIMEM[\"Greenwich\",0,"
+    "AUTHORITY[\"EPSG\",\"8901\"]],"
+    "UNIT[\"degree\",0.0174532925199433,"
+    "AUTHORITY[\"EPSG\",\"9122\"]],"
+    "AUTHORITY[\"EPSG\",\"4490\"]]";
+
+
+char *silly_projection_define::espg4610Wkt =
+    "GEOGCS[\"Xian 1980\","
+    "DATUM[\"Xian_1980\","
+    "SPHEROID[\"IAG 1975\",6378140,298.257,"
+    "AUTHORITY[\"EPSG\",\"7049\"]],"
+    "AUTHORITY[\"EPSG\",\"6610\"]],"
+    "PRIMEM[\"Greenwich\",0,"
+    "AUTHORITY[\"EPSG\",\"8901\"]],"
+    "UNIT[\"degree\",0.0174532925199433,"
+    "AUTHORITY[\"EPSG\",\"9122\"]],"
+    "AUTHORITY[\"EPSG\",\"4610\"]]";
+
+char *silly_projection_define::espg4214Wkt =
+    "GEOGCS[\"Beijing 1954\","
+    "DATUM[\"Beijing_1954\","
+    "SPHEROID[\"Krassowsky 1940\",6378245,298.3],"
+    "TOWGS84[15.8,-154.4,-82.3,0,0,0,0]],"
+    "PRIMEM[\"Greenwich\",0,"
+    "AUTHORITY[\"EPSG\",\"8901\"]],"
+    "UNIT[\"degree\",0.0174532925199433,"
+    "AUTHORITY[\"EPSG\",\"9122\"]],"
+    "AUTHORITY[\"EPSG\",\"4214\"]]";
+
