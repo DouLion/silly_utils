@@ -35,6 +35,7 @@ bool silly_ascii_grid::read(const std::string& path)
 bool silly_ascii_grid::read_asc()
 {
     bool status = false;
+
     return status;
 }
 bool silly_ascii_grid::read_bin()
