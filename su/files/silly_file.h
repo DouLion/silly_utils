@@ -68,6 +68,13 @@ class silly_file
     /// <returns></returns>
     static std::vector<std::string> list_all_recurse(const std::string &path, const std::string &filter = SILLY_FILE_MATCH_ALL_WILDCHAR);
 
+
+    static size_t last_modify_stamp_sec(const std::string& path);
+
+    static size_t last_modify_stamp_ms(const std::string& path);
+
+
+
   private:
     static std::string file_filter_regex(const std::string &filter);
 };

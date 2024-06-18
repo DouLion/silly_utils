@@ -228,3 +228,57 @@ std::string silly_file::file_filter_regex(const std::string &filter)
     }
     return s_result;
 }
+size_t silly_file::last_modify_stamp_sec(const std::string &path)
+{
+    size_t stamp = 0;
+    try {
+        // 检查文件是否存在
+        if (std::filesystem::exists(path)) {
+            // 获取文件的最后修改时间
+            auto ftime = std::filesystem::last_write_time(path);
+
+            // 转换为系统时间点
+            auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
+                ftime - std::filesystem::file_time_type::clock::now() + std::chrono::system_clock::now()
+            );
+
+           /* // 转换为time_t类型
+            std::time_t cftime = ;*/
+            stamp = static_cast<size_t>(std::chrono::system_clock::to_time_t(sctp));
+        } else {
+            std::cerr << "文件 " << path << " 不存在。" << std::endl;
+        }
+    } catch (const std::filesystem::filesystem_error& e) {
+        std::cerr << "文件系统错误: " << e.what() << std::endl;
+    }
+
+    return stamp;
+}
+size_t silly_file::last_modify_stamp_ms(const std::string &path)
+{
+    size_t stamp = 0;
+    try {
+        // 检查文件是否存在
+        if (std::filesystem::exists(path)) {
+            // 获取文件的最后修改时间
+            auto ftime = std::filesystem::last_write_time(path);
+
+            // 转换为系统时间点
+            auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
+                ftime - std::filesystem::file_time_type::clock::now() + std::chrono::system_clock::now()
+            );
+
+            // 获取自纪元开始的时间点
+            auto duration = sctp.time_since_epoch();
+
+            // 转换为毫秒
+            stamp = static_cast<size_t>(std::chrono::duration_cast<std::chrono::milliseconds>(duration).count());
+        } else {
+            std::cerr << "文件 " << path << " 不存在。" << std::endl;
+        }
+    } catch (const std::filesystem::filesystem_error& e) {
+        std::cerr << "文件系统错误: " << e.what() << std::endl;
+    }
+
+    return stamp;
+}

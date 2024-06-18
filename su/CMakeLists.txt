@@ -18,7 +18,7 @@ if(SU_SHARE_LIB)
     add_library(${PROJECT_NAME} SHARED ${SU_SRC_FILES})
 else()
     message("构建静态库")
-    add_library(${PROJECT_NAME} STATIC ${SU_SRC_FILES})
+    add_library(${PROJECT_NAME} STATIC ${SU_SRC_FILES} render/silly_render.cpp render/silly_render.h image/silly_color.cpp image/silly_color.h)
 endif()
 
 set(Boost_LIB_PREFIX "")

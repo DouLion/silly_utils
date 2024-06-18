@@ -18,17 +18,16 @@
 #include <vector>
 #include <iostream>
 #include "math/silly_matrix.h"
+#include <image/silly_color.h>
 
 #ifndef png_jmpbuf
 #define png_jmpbuf(png_ptr) ((png_ptr)->png_jmpbuf)
 #endif
 
-// #define SU_PNG_PIXEL_RGBA(p, r, g, b, a) {p.red = r;  p.green = g; p.blue = b; p.alpha = a;}
-// #define SU_PNG_PIXEL_RGB(p, r, g, b) {p.red = r;  p.green = g; p.blue = b; }
-// #define SU_PNG_PIXEL_GA(p, g, a) {p.gray = g; p.alpha = a;}
 
 namespace silly_image
 {
+
 enum png_type
 {
     eptRGB = PNG_COLOR_TYPE_RGB,
@@ -36,67 +35,6 @@ enum png_type
     eptGRAY = PNG_COLOR_TYPE_GRAY,
     eptGRAYA = PNG_COLOR_TYPE_GRAY_ALPHA
 
-};
-
-struct png_pixel
-{
-    png_pixel(png_byte r, png_byte g, png_byte b, png_byte a) : red(r), green(g), blue(b), alpha(a), gray(0)
-    {
-    }
-
-    png_pixel(png_byte r, png_byte g, png_byte b) : red(r), green(g), blue(b), alpha(0), gray(0)
-    {
-    }
-
-    png_pixel(png_byte g, png_byte a) : red(0), green(0), blue(0), alpha(a), gray(g)
-    {
-    }
-
-    png_pixel(png_byte g) : red(0), green(0), blue(0), alpha(0), gray(g)
-    {
-    }
-    png_pixel() : red(0), green(0), blue(0), alpha(0), gray(0)
-    {
-    }
-
-    /// <summary>
-    /// 从字符串加载  如 ABE0457B
-    /// </summary>
-    /// <param name="color"></param>
-    bool from_hex_argb(const char *color)
-    {
-        unsigned int v = 0;
-        if (1 != sscanf(color, "%x", &v))
-        {
-            return false;
-        }
-        // 或者 左移然后 和 0xFF 做与
-        blue = (v << 24) >> 24;
-        green = (v << 16) >> 24;
-        red = (v << 8) >> 24;
-        alpha = v >> 24;
-
-        return true;
-    }
-
-    bool from_hex_rgb(const char *color)
-    {
-        unsigned int v = 0;
-        if (1 != sscanf(color, "%x", &v))
-        {
-            return false;
-        }
-        blue = (v << 16) >> 16;
-        green = (v << 8) >> 16;
-        red = v >> 16;
-        return true;
-    }
-
-    png_byte gray{0};
-    png_byte red{0};
-    png_byte green{0};
-    png_byte blue{0};
-    png_byte alpha{0};
 };
 
 class png_data
@@ -112,8 +50,8 @@ class png_data
     /// <param name="r"></param>
     /// <param name="c"></param>
     /// <param name="sp"></param>
-    void set_pixel(const size_t &r, const size_t &c, const png_pixel &sp);
-    png_data operator=(const png_data &other);
+    void set_pixel(const size_t &r, const size_t &c, const unsigned char &sp);
+    unsigned char* operator=(const png_data &other);
     png_bytep *data{nullptr};
     png_uint_32 width{0};
     png_uint_32 height{0};
@@ -171,7 +109,7 @@ class png_utils
     /// <param name="pixel_colors">颜色</param>
     /// <returns></returns>
     template <typename T>
-    static png_data evel_share_to_png(silly_math::matrix_2d<T> evel, silly_math::matrix_2d<T> share, std::vector<T> threshold, std::vector<png_pixel> pixel_colors)
+    static png_data evel_share_to_png(silly_math::matrix_2d<T> evel, silly_math::matrix_2d<T> share, std::vector<T> threshold, std::vector<unsigned char> pixel_colors)
     {
         int height = evel.row();
         int width = evel.col();
