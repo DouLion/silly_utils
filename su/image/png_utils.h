@@ -50,8 +50,8 @@ class png_data
     /// <param name="r"></param>
     /// <param name="c"></param>
     /// <param name="sp"></param>
-    void set_pixel(const size_t &r, const size_t &c, const unsigned char &sp);
-    unsigned char* operator=(const png_data &other);
+    void set_pixel(const size_t &r, const size_t &c, const silly_color &sp);
+    png_data operator=(const png_data &other);
     png_bytep *data{nullptr};
     png_uint_32 width{0};
     png_uint_32 height{0};

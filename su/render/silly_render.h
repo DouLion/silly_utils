@@ -15,37 +15,12 @@
 #include <image/silly_color.h>
 
 
-using namespace silly_math;
-using namespace silly_image;
 
 
-template <typename T>
-class silly_val2color
-{
-    T val;
-    silly_color color;
-};
-
-template <typename T>
-class silly_render_param
-{
-    matrix_2d<T> mtx;
-    std::vector<silly_val2color<T>> v2cs;
-    png_data pd;
-
-};
-
-
-template <typename T>
 class silly_render
 {
-    friend class matrix_2d<T>;
-    friend class png_data;
-  public:
-    static void render_greater(silly_render_param<T>& rpp )
-    {
 
-    }
+
 
 };
 

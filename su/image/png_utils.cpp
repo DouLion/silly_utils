@@ -246,7 +246,7 @@ png_data png_data::operator=(const png_data &other)
     return *this;
 }
 
-void png_data::set_pixel(const size_t &r, const size_t &c, const png_pixel &sp)
+void png_data::set_pixel(const size_t &r, const size_t &c, const silly_color &sp)
 {
     if (!(r < height && c < width))
     {
