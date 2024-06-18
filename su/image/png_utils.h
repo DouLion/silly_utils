@@ -108,6 +108,7 @@ class png_utils
     /// <param name="threshold">阈值</param>
     /// <param name="pixel_colors">颜色</param>
     /// <returns></returns>
+	/*
     template <typename T>
     static png_data evel_share_to_png(silly_math::matrix_2d<T> evel, silly_math::matrix_2d<T> share, std::vector<T> threshold, std::vector<unsigned char> pixel_colors)
     {
@@ -140,7 +141,7 @@ class png_utils
             }
         }
         return block_image;
-    }
+    }*/
 };
 }  // namespace silly_image
 #endif  // SILLY_UTILS_PNG_UTILS_H
