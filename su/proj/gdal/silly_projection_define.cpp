@@ -13,6 +13,7 @@
 
 #include "silly_projection_define.h"
 
+
 char* silly_projection_define::epsg3857Wkt =
     "PROJCS[\"WGS 84 / Pseudo-Mercator\","
     "GEOGCS[\"WGS 84\","
@@ -38,7 +39,7 @@ char* silly_projection_define::epsg3857Wkt =
     "+towgs84=0,0,0 +units=m +no_defs\"],"
     "AUTHORITY[\"EPSG\",\"3857\"]]";
 
-char *silly_projection_define::espg4326Wkt =
+char *silly_projection_define::epsg4326Wkt =
     "GEOGCS[\"WGS 84\","
     "DATUM[\"WGS_1984\","
     "SPHEROID[\"WGS 84\",6378137,298.257223563,"
@@ -50,7 +51,14 @@ char *silly_projection_define::espg4326Wkt =
     "AUTHORITY[\"EPSG\",\"9122\"]],"
     "AUTHORITY[\"EPSG\",\"4326\"]]";
 
-char *silly_projection_define::espg4490Wkt =
+
+/*
+ * 这段代码表示关于"Beijing 2000"地理坐标系统的参数设置。
+ * 它包括了关于椭球体（Spheroid）和大地基准（Datum）的信息，
+ * 以及基准经线（Prime Meridian）、单位（Unit）和
+ * EPSG（European Petroleum Survey Group）的授权信息。
+ * */
+char *silly_projection_define::epsg4490Wkt =
     "GEOGCS[\"China Geodetic Coordinate System 2000\","
     "DATUM[\"China_2000\","
     "SPHEROID[\"CGCS2000\",6378137,298.257222101,"
@@ -63,7 +71,7 @@ char *silly_projection_define::espg4490Wkt =
     "AUTHORITY[\"EPSG\",\"4490\"]]";
 
 
-char *silly_projection_define::espg4610Wkt =
+char *silly_projection_define::epsg4610Wkt =
     "GEOGCS[\"Xian 1980\","
     "DATUM[\"Xian_1980\","
     "SPHEROID[\"IAG 1975\",6378140,298.257,"
@@ -75,7 +83,7 @@ char *silly_projection_define::espg4610Wkt =
     "AUTHORITY[\"EPSG\",\"9122\"]],"
     "AUTHORITY[\"EPSG\",\"4610\"]]";
 
-char *silly_projection_define::espg4214Wkt =
+char *silly_projection_define::epsg4214Wkt =
     "GEOGCS[\"Beijing 1954\","
     "DATUM[\"Beijing_1954\","
     "SPHEROID[\"Krassowsky 1940\",6378245,298.3],"
@@ -86,3 +94,48 @@ char *silly_projection_define::espg4214Wkt =
     "AUTHORITY[\"EPSG\",\"9122\"]],"
     "AUTHORITY[\"EPSG\",\"4214\"]]";
 
+
+const char *silly_projection_define::get(const silly_proj_def_enum &def)
+{
+    switch (def)
+    {
+        case silly_proj_def_enum::GCS_WGS_1984:
+            return epsg4326Wkt;
+        case silly_proj_def_enum::PCS_WGS_1984_WEB_MERCATOR:
+            return epsg3857Wkt;
+        case silly_proj_def_enum::GCS_CHINA_2000:
+            return epsg4490Wkt;
+        case silly_proj_def_enum::GCS_XIAN_1980:
+            return epsg4610Wkt;
+        case silly_proj_def_enum::GCS_BEIJING_1954:
+            return epsg4214Wkt;
+        case silly_proj_def_enum::BaiDu09_LL:
+        case silly_proj_def_enum::GCJ02_LL:
+        case silly_proj_def_enum::Baidu09_MC:
+        case silly_proj_def_enum::GCJ02_MC:
+        default:
+            return "";
+    }
+}
+const char *silly_projection_define::get(const int &def)
+{
+    switch (def)
+    {
+        case 4326:
+            return epsg4326Wkt;
+        case 3857:
+            return epsg3857Wkt;
+        case 4490:
+            return epsg4490Wkt;
+        case 4610:
+            return epsg4610Wkt;
+        case 4214:
+            return epsg4214Wkt;
+        case 910102:
+        case 910101:
+        case 910112:
+        case 910111:
+        default:
+            return "";
+    }
+}

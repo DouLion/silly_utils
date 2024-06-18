@@ -9,14 +9,11 @@
  */
 #ifndef SILLY_UTILS_SILLY_PROJECTION_DEFINE_H
 #define SILLY_UTILS_SILLY_PROJECTION_DEFINE_H
+#include <su_marco.h>
 
 
-#include <gdal_priv.h>
-#include <gdal_alg.h>
-#include <ogr_spatialref.h>
-#include <cpl_conv.h>
 
-enum class silly_proj_enum
+enum class silly_proj_def_enum
 {
     GCS_WGS_1984 = 4326,
     PCS_WGS_1984_WEB_MERCATOR = 3857,
@@ -30,39 +27,20 @@ enum class silly_proj_enum
 
 };
 
-struct silly_proj_param
-{
-    silly_proj_enum from;
-    silly_proj_enum to;
-    double central{114.0};
-};
 
 class silly_projection_define
 {
   public:
-    /// <summary>
-    /// 根据参数构建转换
-    /// </summary>
-    /// <param name="p"></param>
-    /// <returns></returns>
-    bool begin(const silly_proj_param &p);
-
-    bool convert(const double &fromX, const double &fromY, double &toX, double &toY);
-
-    /// <summary>
-    /// 关闭转换,释放转换对象
-    /// </summary>
-    /// <returns></returns>
-    bool close();
-
-  private:
+    static const char* get(const silly_proj_def_enum& def) ;
+    static const char* get(const int& def);
+  protected:
     static char *epsg3857Wkt;
-    static char *espg4326Wkt;
-    static char *espg4490Wkt;
-    static char *espg4610Wkt;
-    static char *espg4214Wkt;
+    static char *epsg4326Wkt;
+    static char *epsg4490Wkt;
+    static char *epsg4610Wkt;
+    static char *epsg4214Wkt;
 
-    OGRCoordinateTransformation *m_poTransform;
+
 };
 
 #endif  // SILLY_UTILS_SILLY_PROJECTION_DEFINE_H
