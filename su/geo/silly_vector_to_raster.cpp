@@ -184,7 +184,7 @@ void xscan_line_raster::image(const std::string& path)
         {
             for (int i = p.beg; i < p.end; ++i)
             {
-                png.set_pixel(r, i, png_pixel(240));
+                png.set_pixel(r, i, silly_color(240));
             }
             old = p.end;
         }
