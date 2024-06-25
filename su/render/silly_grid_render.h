@@ -5,12 +5,10 @@
  * @author: dou li yang
  * @date: 2024/6/18 10:34
  * @version: 1.0.1
- * @description:
+ * @description: png 图片渲染
  */
 #ifndef SILLY_UTILS_SILLY_GRID_RENDER_H
 #define SILLY_UTILS_SILLY_GRID_RENDER_H
-
-// silly_geo_convert::matrix_geo_to_mercato
 
 #include "image/png_utils.h"
 #include <geo/silly_geo_convert.h>
@@ -43,9 +41,9 @@ class silly_render_param
     png_data pd;
     silly_geo_rect rect;
 
-    void sort()
+    void sort(bool desc = false)
     {
-
+     // TODO: 补充完成
     }
 
 };
