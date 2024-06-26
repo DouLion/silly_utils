@@ -4,7 +4,7 @@
 #include <cairo/cairo.h>
 #include <vector>
 #include <string>
-#include "encode/convert.hpp"
+//#include "encode/convert.hpp"
 #include "geo/silly_geo.h"
 #include "geo/silly_geo_convert.h"
 #include "files/TFF_FileUtils.h"
@@ -73,7 +73,7 @@ std::vector<DataValue> data_values =
 
 void draw_polygon(cairo_t* cr, std::vector<silly_poly>& g2p)
 {
-    ?
+    
 
 }
 

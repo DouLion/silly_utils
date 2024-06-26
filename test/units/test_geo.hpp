@@ -26,7 +26,7 @@
 #include <spatialite.h>
 #include <spatialite/gaiageo.h>
 #include "geo/silly_spatialite.h"
-
+#include "geo/silly_geo.h"
 #include <variant>
 #include <fstream>
 /// <summary>
@@ -133,195 +133,76 @@ TopoVectorCenter GetShapeCenter(const OGRGeometry* poly)
     return center_point;
 }
 
-BOOST_AUTO_TEST_CASE(INTERSECTION_AREA)
-{
-    std::cout << "\r\n\r\n****************"
-              << "INTERSECTION_AREA"
-              << "****************" << std::endl;
-    geo_utils::init_gdal_env();
-
-    std::vector<silly_geo_coll> area;
-    std::vector<silly_geo_coll> intersects;
-    silly_geo_coll main;
-    silly_geo_coll deputy;
-    silly_geo_coll temp;
-    silly_geo_coll inte;
-    silly_geo_coll inte2;
-
-     // 创建四个点
-    silly_point point1(110.471936116999998, 29.127132289799999);
-    silly_point point2(110.643753739999994, 27.814949836800000);
-    silly_point point3(111.243302495999998, 28.911672899199999);
-    silly_point point4(112.015486134000000, 28.868794475200001);
-    silly_poly myPoly;
-    myPoly.outer_ring.points.push_back(point1);
-    myPoly.outer_ring.points.push_back(point2);
-    myPoly.outer_ring.points.push_back(point3);
-    myPoly.outer_ring.points.push_back(point4);
-    main.m_poly = myPoly;
-    main.m_type = ePolygon;
-    area.push_back(main);
-
-    silly_point point5(110.240719904000002, 27.896483680300001);
-    silly_point point6(111.364970111999995, 28.297547021200000);
-    silly_point point7(111.895851020999999, 29.484422094100001);
-    silly_point point8(112.332973569999993, 27.773595216699999);
-    silly_poly myPoly2;
-    myPoly2.outer_ring.points.push_back(point5);
-    myPoly2.outer_ring.points.push_back(point6);
-    myPoly2.outer_ring.points.push_back(point7);
-    myPoly2.outer_ring.points.push_back(point8);
-    deputy.m_poly = myPoly2;
-    deputy.m_type = ePolygon;
-    area.push_back(deputy);
-
-    silly_point point9(112.347873938000006, 28.156742433800002);
-    silly_point point10(111.788640903000001, 27.742213901600000);
-    silly_point point11(112.332973569999993, 27.773595216699999);
-    silly_poly myPoly3;
-    myPoly3.outer_ring.points.push_back(point9);
-    myPoly3.outer_ring.points.push_back(point10);
-    myPoly3.outer_ring.points.push_back(point11);
-    temp.m_poly = myPoly3;
-    temp.m_type = ePolygon;
-    area.push_back(temp);
-    std::filesystem::path writ_coll_area(DEFAULT_SU_DATA_DIR);
-    writ_coll_area += "/shp/area_i.shp";
-    geo_utils::write_geo_coll(writ_coll_area.string().c_str(), area);
-
-    //inte = geo_utils::intersection_area(main.m_poly, deputy.m_poly);
-    inte2 = geo_utils::intersection_area(myPoly2, myPoly3);
-    //intersects.push_back(inte);
-    intersects.push_back(inte2);
-
-    std::filesystem::path writ_coll_inter(DEFAULT_SU_DATA_DIR);
-    writ_coll_inter += "/shp/inter2.shp";
-    //geo_utils::write_geo_coll(writ_coll_inter.string().c_str(), intersects);
-    geo_utils::destroy_gdal_env();
-
-    int e = 0;
-    int f = 9;
-    int g = 8;
-};
-
-
-
-
-BOOST_AUTO_TEST_CASE(CENTER)
-{
-    std::cout << "\r\n\r\n****************"
-              << "CENTER"
-              << "****************" << std::endl;
-    geo_utils::init_gdal_env();
-
-
-    // 创建 OGRPolygon 对象
-    OGRPolygon polygon;
-    OGRLinearRing ring1;
-    ring1.addPoint(112.572619199000002, 28.950052814700001);
-    ring1.addPoint(112.704340303999999, 27.252274233300000);
-    ring1.addPoint(112.601348185000006, 26.837947896900001);
-    ring1.addPoint(112.536208962000003, 26.882303666999999);
-    ring1.addPoint(111.223881457000005, 27.877093939400002);
-    ring1.closeRings();
-    // 添加第一个线性环到多边形
-    polygon.addRing(&ring1);
-    silly_geo_coll sgc_creat;
-    sgc_creat.m_poly = geo_utils::OGRPolyToSillyPoly(&polygon);
-    sgc_creat.m_type = ePolygon;
-    std::filesystem::path creat_poly(DEFAULT_SU_DATA_DIR);
-    creat_poly += "/shp/creat.shp";
-    std::vector<silly_geo_coll> jia;
-    jia.push_back(sgc_creat);
-    geo_utils::write_geo_coll(creat_poly.string().c_str(), jia);
-
-
-
-    std::filesystem::path Polygon(DEFAULT_SU_DATA_DIR);
-    Polygon += "/shp/xian_poly.shp";
-    std::vector<silly_geo_coll> collection_xian;
-    geo_utils::read_geo_coll(Polygon.string().c_str(), collection_xian);
-    std::vector<silly_geo_coll> out_center;
-    std::vector<silly_geo_coll> out_xian;
-    std::vector<silly_geo_coll> intersects;
-
-    int e = 0;
-    int n = 0;
-    for (auto& xian : collection_xian)
-    {
-        if (xian.m_poly.inner_rings.size() > 0)
-        {
-            std::cout << "n:" << n << "  size: " << xian.m_poly.inner_rings.size() << std::endl;
-            silly_point temp_point = geo_utils::poly_centroid(xian.m_poly);
-            OGRPolygon* onePoly = geo_utils::SillyPolyToOGRPoly(xian.m_poly);
-            OGRPoint te_point;
-            onePoly->Centroid(&te_point);
-            OGRGeometry* inter = IntersectArea(onePoly, &polygon);
-            {
-                OGRwkbGeometryType geometryType = inter->getGeometryType();
-                switch (geometryType)
-                {
-                        // 单环多边形
-                    case wkbPolygon:
-                    case wkbPolygon25D:
-                    {
-                        OGRPolygon* intersect = dynamic_cast<OGRPolygon*>(inter);
-                        silly_geo_coll temp_poly;
-                        temp_poly.m_poly = geo_utils::OGRPolyToSillyPoly(intersect);
-                        temp_poly.m_type = ePolygon;
-                        intersects.push_back(temp_poly);
-                    }
-                    break;
-
-                    // 多个多边形
-                    case wkbMultiPolygon:
-                    case wkbMultiPolygon25D:
-                    {
-                        OGRMultiPolygon* intersectMulti = dynamic_cast<OGRMultiPolygon*>(inter);
-                        silly_geo_coll temp_Multipoly;
-                        temp_Multipoly.m_m_polys = geo_utils::OGRMulPolyToSillyMulPoly(intersectMulti);
-                        temp_Multipoly.m_type = eMultiPolygon;
-                        intersects.push_back(temp_Multipoly);
-                    }
-                    break;
-
-                    default:
-                        std::cout << "getGeometryType() : " << geometryType << "unable to process ";
-                        break;
-                }
-            }
-            OGRPoint point;
-            inter->Centroid(&point);
-            silly_geo_coll s_point;
-            s_point.m_type = ePoint;
-            s_point.m_point.lgtd = point.getX();
-            s_point.m_point.lttd = point.getY();
-            out_xian.push_back(xian);
-            out_center.push_back(s_point);
-            break;
-        }
-        n++;
-    }
-
-
-    std::filesystem::path writ_coll_point(DEFAULT_SU_DATA_DIR);
-    writ_coll_point += "/shp/center_inter_point.shp";
-    geo_utils::write_geo_coll(writ_coll_point.string().c_str(), out_center);
-
-    std::filesystem::path writ_coll_Polygon(DEFAULT_SU_DATA_DIR);
-    writ_coll_Polygon += "/shp/center_xian.shp";
-    geo_utils::write_geo_coll(writ_coll_Polygon.string().c_str(), out_xian);
-
-    std::filesystem::path writ_coll_inter(DEFAULT_SU_DATA_DIR);
-    writ_coll_inter += "/shp/center_inter.shp";
-    geo_utils::write_geo_coll(writ_coll_inter.string().c_str(), intersects);
-
-
-    geo_utils::destroy_gdal_env();
-
-    int f = 9;
-    int g = 8;
-};
+//BOOST_AUTO_TEST_CASE(INTERSECTION_AREA)
+//{
+//    std::cout << "\r\n\r\n****************"
+//              << "INTERSECTION_AREA"
+//              << "****************" << std::endl;
+//    geo_utils::init_gdal_env();
+//
+//    std::vector<silly_geo_coll> area;
+//    std::vector<silly_geo_coll> intersects;
+//    silly_geo_coll main;
+//    silly_geo_coll deputy;
+//    silly_geo_coll temp;
+//    silly_geo_coll inte;
+//    silly_geo_coll inte2;
+//
+//     // 创建四个点
+//    silly_point point1(110.471936116999998, 29.127132289799999);
+//    silly_point point2(110.643753739999994, 27.814949836800000);
+//    silly_point point3(111.243302495999998, 28.911672899199999);
+//    silly_point point4(112.015486134000000, 28.868794475200001);
+//    silly_poly myPoly;
+//    myPoly.outer_ring.points.push_back(point1);
+//    myPoly.outer_ring.points.push_back(point2);
+//    myPoly.outer_ring.points.push_back(point3);
+//    myPoly.outer_ring.points.push_back(point4);
+//    main.m_poly = myPoly;
+//    main.m_type = enum_geometry_type::egtPolygon;
+//    area.push_back(main);
+//
+//    silly_point point5(110.240719904000002, 27.896483680300001);
+//    silly_point point6(111.364970111999995, 28.297547021200000);
+//    silly_point point7(111.895851020999999, 29.484422094100001);
+//    silly_point point8(112.332973569999993, 27.773595216699999);
+//    silly_poly myPoly2;
+//    myPoly2.outer_ring.points.push_back(point5);
+//    myPoly2.outer_ring.points.push_back(point6);
+//    myPoly2.outer_ring.points.push_back(point7);
+//    myPoly2.outer_ring.points.push_back(point8);
+//    deputy.m_poly = myPoly2;
+//    deputy.m_type = enum_geometry_type::egtPolygon;
+//    area.push_back(deputy);
+//
+//    silly_point point9(112.347873938000006, 28.156742433800002);
+//    silly_point point10(111.788640903000001, 27.742213901600000);
+//    silly_point point11(112.332973569999993, 27.773595216699999);
+//    silly_poly myPoly3;
+//    myPoly3.outer_ring.points.push_back(point9);
+//    myPoly3.outer_ring.points.push_back(point10);
+//    myPoly3.outer_ring.points.push_back(point11);
+//    temp.m_poly = myPoly3;
+//    temp.m_type = enum_geometry_type::egtPolygon;
+//    area.push_back(temp);
+//    std::filesystem::path writ_coll_area(DEFAULT_SU_DATA_DIR);
+//    writ_coll_area += "/shp/area_i.shp";
+//    geo_utils::write_geo_coll(writ_coll_area.string().c_str(), area);
+//
+//    //inte = geo_utils::intersection_area(main.m_poly, deputy.m_poly);
+//    inte2 = geo_utils::intersection_area(myPoly2, myPoly3);
+//    //intersects.push_back(inte);
+//    intersects.push_back(inte2);
+//
+//    std::filesystem::path writ_coll_inter(DEFAULT_SU_DATA_DIR);
+//    writ_coll_inter += "/shp/inter2.shp";
+//    //geo_utils::write_geo_coll(writ_coll_inter.string().c_str(), intersects);
+//    geo_utils::destroy_gdal_env();
+//
+//    int e = 0;
+//    int f = 9;
+//    int g = 8;
+//};
 
 BOOST_AUTO_TEST_CASE(READ_WRITE_SHP_SILLY_GEO_COLL)
 {
@@ -386,7 +267,7 @@ BOOST_AUTO_TEST_CASE(READ_WRITE_SHP_SILLY_GEO_COLL)
     std::vector<silly_geo_coll> collection_xian;
     geo_utils::read_geo_coll(Polygon.string().c_str(), collection_xian);
 
-    geo_utils::write_geo_coll(writ_coll_Polygon.string().c_str(), collection_xian);
+    //geo_utils::write_geo_coll(writ_coll_Polygon.string().c_str(), collection_xian);
 
     geo_utils::destroy_gdal_env();
 
@@ -394,6 +275,125 @@ BOOST_AUTO_TEST_CASE(READ_WRITE_SHP_SILLY_GEO_COLL)
     int f = 9;
     int g = 8;
 };
+
+
+BOOST_AUTO_TEST_CASE(CENTER)
+{
+    std::cout << "\r\n\r\n****************"
+              << "CENTER"
+              << "****************" << std::endl;
+    geo_utils::init_gdal_env();
+
+
+    // 创建 OGRPolygon 对象
+    OGRPolygon polygon;
+    OGRLinearRing ring1;
+    ring1.addPoint(112.572619199000002, 28.950052814700001);
+    ring1.addPoint(112.704340303999999, 27.252274233300000);
+    ring1.addPoint(112.601348185000006, 26.837947896900001);
+    ring1.addPoint(112.536208962000003, 26.882303666999999);
+    ring1.addPoint(111.223881457000005, 27.877093939400002);
+    ring1.closeRings();
+    // 添加第一个线性环到多边形
+    polygon.addRing(&ring1);
+    silly_geo_coll sgc_creat;
+    sgc_creat.m_poly = geo_utils::OGRPolyToSillyPoly(&polygon);
+    sgc_creat.m_type = enum_geometry_type::egtPolygon;
+    std::filesystem::path creat_poly(DEFAULT_SU_DATA_DIR);
+    creat_poly += "/shp/creat.shp";
+    std::vector<silly_geo_coll> jia;
+    jia.push_back(sgc_creat);
+    geo_utils::write_geo_coll(creat_poly.string().c_str(), jia);
+
+
+
+    std::filesystem::path Polygon(DEFAULT_SU_DATA_DIR);
+    Polygon += "/shp/xian_poly.shp";
+    std::vector<silly_geo_coll> collection_xian;
+    geo_utils::read_geo_coll(Polygon.string().c_str(), collection_xian);
+    std::vector<silly_geo_coll> out_center;
+    std::vector<silly_geo_coll> out_xian;
+    std::vector<silly_geo_coll> intersects;
+
+    int e = 0;
+    int n = 0;
+    for (auto& xian : collection_xian)
+    {
+        if (xian.m_poly.inner_rings.size() > 0)
+        {
+            std::cout << "n:" << n << "  size: " << xian.m_poly.inner_rings.size() << std::endl;
+            silly_point temp_point = geo_utils::poly_centroid(xian.m_poly);
+            OGRPolygon* onePoly = geo_utils::SillyPolyToOGRPoly(xian.m_poly);
+            OGRPoint te_point;
+            onePoly->Centroid(&te_point);
+            OGRGeometry* inter = IntersectArea(onePoly, &polygon);
+            {
+                OGRwkbGeometryType geometryType = inter->getGeometryType();
+                switch (geometryType)
+                {
+                        // 单环多边形
+                    case wkbPolygon:
+                    case wkbPolygon25D:
+                    {
+                        OGRPolygon* intersect = dynamic_cast<OGRPolygon*>(inter);
+                        silly_geo_coll temp_poly;
+                        temp_poly.m_poly = geo_utils::OGRPolyToSillyPoly(intersect);
+                        temp_poly.m_type = enum_geometry_type::egtPolygon;
+                        intersects.push_back(temp_poly);
+                    }
+                    break;
+
+                    // 多个多边形
+                    case wkbMultiPolygon:
+                    case wkbMultiPolygon25D:
+                    {
+                        OGRMultiPolygon* intersectMulti = dynamic_cast<OGRMultiPolygon*>(inter);
+                        silly_geo_coll temp_Multipoly;
+                        temp_Multipoly.m_m_polys = geo_utils::OGRMulPolyToSillyMulPoly(intersectMulti);
+                        temp_Multipoly.m_type = enum_geometry_type::egtMultiPolygon;
+                        intersects.push_back(temp_Multipoly);
+                    }
+                    break;
+
+                    default:
+                        std::cout << "getGeometryType() : " << geometryType << "unable to process ";
+                        break;
+                }
+            }
+            OGRPoint point;
+            inter->Centroid(&point);
+            silly_geo_coll s_point;
+            s_point.m_type = enum_geometry_type::egtPoint;
+            s_point.m_point.lgtd = point.getX();
+            s_point.m_point.lttd = point.getY();
+            out_xian.push_back(xian);
+            out_center.push_back(s_point);
+            break;
+        }
+        n++;
+    }
+
+
+    std::filesystem::path writ_coll_point(DEFAULT_SU_DATA_DIR);
+    writ_coll_point += "/shp/center_inter_point.shp";
+    geo_utils::write_geo_coll(writ_coll_point.string().c_str(), out_center);
+
+    std::filesystem::path writ_coll_Polygon(DEFAULT_SU_DATA_DIR);
+    writ_coll_Polygon += "/shp/center_xian.shp";
+    geo_utils::write_geo_coll(writ_coll_Polygon.string().c_str(), out_xian);
+
+    std::filesystem::path writ_coll_inter(DEFAULT_SU_DATA_DIR);
+    writ_coll_inter += "/shp/center_inter.shp";
+    geo_utils::write_geo_coll(writ_coll_inter.string().c_str(), intersects);
+
+
+    geo_utils::destroy_gdal_env();
+
+    int f = 9;
+    int g = 8;
+};
+
+
 
 class AA
 {

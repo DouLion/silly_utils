@@ -14,12 +14,12 @@
 #ifndef SILLY_UTILS_SILLY_MATRIX_H
 #define SILLY_UTILS_SILLY_MATRIX_H
 #include <su_marco.h>
-
 namespace silly_math
 {
 template <typename T>
 class matrix_2d
 {
+
     /// <summary>
     /// 这个目前是线程不安全的,使用时需要注意
     /// </summary>
@@ -265,7 +265,7 @@ class matrix_2d
     /// <param name="r"></param>
     /// <param name="c"></param>
     /// <returns></returns>
-    T &at(size_t r, size_t c)
+    T &at(size_t r, size_t c) const
     {
         /*if (r < rows && c < cols && data)
         {
@@ -311,6 +311,37 @@ class matrix_2d
     const size_t col() const
     {
         return cols;
+    }
+
+    /// <summary>
+    /// 将U数据类型的矩阵赋值给T数据类型的矩阵, 输入的矩阵会注销掉
+    /// </summary>
+    /// <typeparam name="U"></typeparam>
+    /// <param name="other"></param>
+    /// <returns></returns>
+    template <typename U>
+    matrix_2d<T> cast_from(matrix_2d<U> &other)
+    {
+        create(other.row(), other.col(), true);
+        if (!data)
+        {
+            throw std::bad_alloc();  // or handle allocation failure
+        }
+        for (size_t i = 0; i < total; ++i)
+        {
+            data[i] = static_cast<T>(other.at(i / cols, i % cols));
+        }
+        other.destroy(); // 注销源矩阵
+        return *this;
+    }
+
+    /// <summary>
+    /// 返回data的首地址
+    /// </summary>
+    /// <returns></returns>
+    T *get_data() const
+    {
+        return data;
     }
 
   private:
