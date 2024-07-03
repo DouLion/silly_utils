@@ -32,22 +32,22 @@ namespace silly_format = fmt;
 #ifndef SFP_INFO
 #define SFP_INFO(s, ...)                                                                    \
     fmt::print(fg(fmt::color::green_yellow), "\n[INFO] {}:{}\n\t", SU_FILE_NAME, __LINE__); \
-    fmt::print(fg(fmt::color::green_yellow), s, ##__VA_ARGS__);
-
+    fmt::print(fg(fmt::color::green_yellow), s, ##__VA_ARGS__);                             \
+    fmt::print("\n");
 #endif
 
 #ifndef SFP_WARN
 #define SFP_WARN(s, ...)                                                              \
     fmt::print(fg(fmt::color::orange), "\n[WARN] {}:{}\n\t", SU_FILE_NAME, __LINE__); \
-    fmt::print(fg(fmt::color::orange), s, ##__VA_ARGS__);
-
+    fmt::print(fg(fmt::color::orange), s, ##__VA_ARGS__);                             \
+    fmt::print("\n");
 #endif
 
 #ifndef SFP_ERROR
 #define SFP_ERROR(s, ...)                                                             \
     fmt::print(fg(fmt::color::brown), "\n[ERROR] {}:{}\n\t", SU_FILE_NAME, __LINE__); \
-    fmt::print(fg(fmt::color::brown), s, ##__VA_ARGS__);
-
+    fmt::print(fg(fmt::color::brown), s, ##__VA_ARGS__);                              \
+    fmt::print("\n");
 #endif
 
 #ifndef SFP_MARK

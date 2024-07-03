@@ -39,6 +39,13 @@ class silly_jsonpp
     static void find_by_key(const std::string& json, const std::string& key, const std::string& filter, std::vector<std::string>& arr);
 
     static void find_by_key(const Json::Value& root, const std::string& key, const std::string& filter, std::vector<std::string>& arr);
+
+    /// 检查json中指定key的数据类型,如果正确,则赋值,并且返回true,否则返回false
+    static bool check_member_string(const Json::Value& root, const std::string& key, std::string& val);
+    static bool check_member_int(const Json::Value& root, const std::string& key, int& val);
+    static bool check_member_double(const Json::Value& root, const std::string& key, double& val);
+    static bool check_member_bool(const Json::Value& root, const std::string& key, bool& val);
+    static bool check_member_array(const Json::Value& root, const std::string& key);
 };
 
 #endif  // SILLY_UTILS_SILLY_JSONPP_H

@@ -128,3 +128,93 @@ void silly_jsonpp::find_by_key(const Json::Value& root, const std::string& key, 
         find_object(root, key, filter, arr);
     }
 }
+bool silly_jsonpp::check_member_string(const Json::Value& root, const std::string& key, std::string& val)
+{
+    if(root.isMember(key))
+    {
+        if(root[key].isString())
+        {
+            val = root[key].asString();
+            return true;
+        }
+    }
+    return false;
+}
+bool silly_jsonpp::check_member_int(const Json::Value& root, const std::string& key, int& val)
+{
+    if (root.isMember(key))
+    {
+        if (root[key].isInt())
+        {
+            val = root[key].asInt();
+            return true;
+        }
+        else
+        {
+            SFP_ERROR("字段 {} 不是int类型", key)
+        }
+    }
+    else
+    {
+        SFP_ERROR("不存在字段 {}", key)
+    }
+    return false;
+}
+bool silly_jsonpp::check_member_double(const Json::Value& root, const std::string& key, double& val)
+{
+    if (root.isMember(key))
+    {
+        if (root[key].isDouble())
+        {
+            val = root[key].asDouble();
+            return true;
+        }
+        else
+        {
+            SFP_ERROR("字段 {} 不是double类型", key)
+        }
+    }
+    else
+    {
+        SFP_ERROR("不存在字段 {}", key)
+    }
+    return false;
+}
+bool silly_jsonpp::check_member_bool(const Json::Value& root, const std::string& key, bool& val)
+{
+    if (root.isMember(key))
+    {
+        if (root[key].isBool())
+        {
+            val = root[key].asBool();
+            return true;
+        }
+        {
+            SFP_ERROR("字段 {} 不是bool类型", key)
+        }
+    }
+    else
+    {
+        SFP_ERROR("不存在字段 {}", key)
+    }
+    return false;
+}
+bool silly_jsonpp::check_member_array(const Json::Value& root, const std::string& key)
+{
+    if (root.isMember(key))
+    {
+        if (root[key].isArray())
+        {
+            return true;
+        }
+        else
+        {
+            SFP_ERROR("字段 {} 不是数组类型", key)
+        }
+    }
+    else
+    {
+        SFP_ERROR("不存在字段 {}", key)
+    }
+    return false;
+}
