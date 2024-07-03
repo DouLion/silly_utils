@@ -16,10 +16,13 @@
 #include <su_marco.h>
 namespace silly_math
 {
+
+class matrix_tools;
+
 template <typename T>
 class matrix_2d
 {
-
+    friend class matrix_tools;
     /// <summary>
     /// 这个目前是线程不安全的,使用时需要注意
     /// </summary>
@@ -389,23 +392,25 @@ class matrix_tools
     template <typename T1, typename T2>
     static bool convert_matrix(silly_math::matrix_2d<T1> &src, silly_math::matrix_2d<T2> &dst)
     {
+        bool status = false;
         size_t rows = src.row();
         size_t cols = src.col();
 
-        bool is_convert = dst.create(rows, cols);
-        if (!is_convert)
+        bool is_convert = ;
+        if (!dst.create(rows, cols))
         {
-            return is_convert;
+            return status;
         }
-
-        for (size_t i = 0; i < rows; ++i)
+        size_t total = rows * cols + 1;
+        T1* srcp = src.data;
+        T2* dstp = dst.data;
+        while(total--)
         {
-            for (size_t j = 0; j < cols; ++j)
-            {
-                dst.at(i, j) = static_cast<T2>(src.at(i, j));
-            }
+            *dstp = static_cast<T2>(*srcp);
+            dstp++;
+            srcp++;
         }
-        return true;
+        return status;
     }
 
     /// <summary>
