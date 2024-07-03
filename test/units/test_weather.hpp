@@ -14,8 +14,360 @@
 #include <filesystem>
 #include "weather/geotiff_utils.h"
 #include "weather/grib_utils.h"
+#include "image/png_utils.h"
+#include "image/silly_color.h"
+#include "weather/silly_tzx_grid.h"
+#include "render/silly_grid_render.h"
+#include <boost/timer.hpp> // 计时函数
+
+//template <typename T>
+
+//silly_image::png_data generatePNGFromMatrix(matrix_2d<double>& elevation, std::map<int, silly_color, std::greater<int>> colorMap)
+//{
+//    int height = elevation.row();
+//    int width = elevation.col();
+//    if (height == 0 || width == 0 )
+//    {
+//        std::cout << "The size of the elevation matrix and shadow matrix is not equal." << std::endl;
+//        return silly_image::png_data();
+//    }
+//    // 创建空的PNG数据块
+//    silly_image::png_data blockImage = silly_image::png_utils::create_empty(height, width, PNG_COLOR_TYPE_RGB_ALPHA);
+//
+//    // 遍历矩阵，根据阈值映射颜色
+//    for (int r = 0; r < height; ++r)
+//    {
+//        for (int c = 0; c < width; ++c)
+//        {
+//            double valueInMM = elevation.at(r, c) * 1000;  // 转换为毫米
+//            silly_color pixelColor;
+//            for (const auto& [thres, pixel] :colorMap)
+//            {
+//                if (valueInMM >= thres)
+//                {
+//                    pixelColor = pixel;
+//                    blockImage.set_pixel(r, c, pixelColor);  
+//                    break;
+//                }
+//            }
+//        }
+//    }
+//    return blockImage;
+//}
+
+
+
+
+// 比较函数，用于在 colorMap 中查找大于或等于 value 的第一个阈值
+bool compareThreshold(const std::pair<int, silly_color>& entry, double value)
+{
+    return entry.first >= value;
+}
+
+silly_image::png_data generatePNGFromMatrix(matrix_2d<double>& elevation, std::map<int, silly_color, std::greater<int>> colorMap)
+{
+    int height = elevation.row();
+    int width = elevation.col();
+    if (height == 0 || width == 0)
+    {
+        std::cout << "The size of the elevation matrix and shadow matrix is not equal." << std::endl;
+        return silly_image::png_data();
+    }
+    // 创建空的PNG数据块
+    silly_image::png_data blockImage = silly_image::png_utils::create_empty(height, width, PNG_COLOR_TYPE_RGB_ALPHA);
+
+    // 遍历矩阵，根据阈值映射颜色
+    for (int r = 0; r < height; ++r)
+    {
+        for (int c = 0; c < width; ++c)
+        {
+            double valueInMM = elevation.at(r, c) *1000;  // 转换为毫米
+            silly_color pixelColor;
+            auto it = std::lower_bound(colorMap.begin(), colorMap.end(), valueInMM, compareThreshold);
+            if (it != colorMap.end())
+            {
+                pixelColor = it->second;
+                blockImage.set_pixel(r, c, pixelColor);
+            }
+        }
+    }
+    return blockImage;
+}
+
 
 BOOST_AUTO_TEST_SUITE(Test)
+
+
+BOOST_AUTO_TEST_CASE(READ_RGRIB)
+{
+     std::cout << "\r\n\r\n****************"
+               << "READ_RGRIB"
+               << "****************" << std::endl;
+    // std::filesystem::path grib_data_path(DEFAULT_SU_DATA_DIR);
+    // grib_data_path += "/grib/2024060312_240.grib2";
+
+     std::filesystem::path rgrib_data_path("/usr/local/mnt/winshare/rgrid/EDMWF/2024062020_006.rgrib");
+     std::filesystem::path grib_png("/usr/local/mnt/winshare/rgrid/EDMWF/2024062020_006.png");
+     silly_color color1;
+     color1.from_hex_argb("afa5f28f");
+     silly_color color2;
+     color2.from_hex_argb("af3da700");
+     silly_color color3;
+     color3.from_hex_argb("af61bbfd");
+     silly_color color4;
+     color4.from_hex_argb("af0001fb");
+     silly_color color5;
+     color5.from_hex_argb("affe00fe");
+     silly_color color6;
+     color6.from_hex_argb("af00006e");
+     silly_color color7;
+     color7.from_hex_argb("af9600b4");
+     silly_color color8;
+     color8.from_hex_argb("afad90f0");
+
+     std::vector<silly_val2color<float>> value_to_color_map =
+    {
+         {25.0f, color3},
+         {1.0f, color1},
+         {10.0f, color2},
+         {50.0f, color4},
+         {150.0f, color6},
+         {250.0f, color7},
+         {100.0f, color5},
+         {350.0f, color8}
+     };
+
+     silly_render_param<float> render_param;
+     render_param.v2cs = value_to_color_map;
+     render_param.sort();
+     silly_tzx_grid stg;
+     stg.read(rgrib_data_path.string());
+     render_param.mtx = stg.grid;
+     render_param.mtx *= 1000;
+    // 渲染器
+     silly_grid_render<float> renderer;
+    // 渲染
+     renderer.normal_render_greater(render_param);
+
+    // 写入PNG文件（示例路径）
+
+     silly_image::png_utils::write(grib_png.string().c_str(), render_param.pd);
+
+     if (!silly_image::png_utils::write(grib_png.string().c_str(), render_param.pd))
+    {
+          std::cout << "Failed to write PNG file." << grib_png.string() << std::endl;
+      }
+      else
+    {
+          std::cout << "PNG image generated successfully." << grib_png.string() << std::endl;
+      }
+     render_param.pd.release();
+     render_param.mtx.destroy();
+}
+
+BOOST_AUTO_TEST_CASE(GRID_TO_RGRID)
+{
+    std::cout << "\r\n\r\n****************"
+              << "GRID_TO_RGRID"
+              << "****************" << std::endl;
+    // std::filesystem::path grib_data_path(DEFAULT_SU_DATA_DIR);
+    // grib_data_path += "/grib/2024060312_240.grib2";
+    std::filesystem::path grib_data_path("/usr/local/mnt/winshare/grib2/ECMWF/APCP/2024062020/2024062020_006.grib2");
+    std::filesystem::path rgrib_data_path("/usr/local/mnt/winshare/rgrid/EDMWF/2024062020_006.rgrib");
+    int type = 0;
+    std::vector<DMatrix> lists;
+    grib_data::grib_utils gu;
+    gu.read(grib_data_path.string(), lists, type);
+     silly_tzx_grid stg;
+     for (auto& l : lists)
+    {
+        stg.grid.cast_from(l);
+         stg.row = l.row();
+         stg.col = l.col();
+
+        stg.left = gu.m_geo_info.left;
+        stg.right = gu.m_geo_info.right;
+        stg.top = gu.m_geo_info.top;
+        stg.bottom = gu.m_geo_info.bottom;
+
+        stg.xdelta = gu.m_geo_info.xstep;
+        stg.ydelta = gu.m_geo_info.ystep;
+
+        break;
+    }
+
+    //boost::timer tm1;  // 定义后计时开始
+    //tm1.restart();     // 从新从这里开始计时
+    //for (int i = 0; i < 200; i++)
+    //{
+    //    // 临时测试
+    //    std::map<int, silly_color, std::greater<int>> colorMap;
+    //    colorMap[1] = silly_color(165, 242, 143, 175);
+    //    colorMap[10] = silly_color(61, 167, 0, 175);
+    //    colorMap[25] = silly_color(97, 187, 253, 175);
+    //    colorMap[50] = silly_color(0, 1, 251, 175);
+    //    colorMap[100] = silly_color(254, 0, 254, 175);
+    //    colorMap[150] = silly_color(0, 0, 110, 175);
+    //    colorMap[250] = silly_color(150, 0, 180, 175);
+    //    colorMap[350] = silly_color(173, 144, 240, 175);
+    //    std::filesystem::path grib_png("/usr/local/mnt/winshare/rgrid/EDMWF/");
+    //    char tempname[50];
+    //    sprintf(tempname, "/%s_.png", grib_data_path.filename().stem().string().c_str());
+    //    grib_png += tempname;
+    //    for (auto& list : lists)
+    //    {
+    //        silly_image::png_data pngImage = generatePNGFromMatrix(list, colorMap);
+    //        // 写入PNG文件（示例路径）
+    //        silly_image::png_utils::write(grib_png.string().c_str(), pngImage);
+    //        pngImage.release();
+    //        break;
+    //    }
+    //}
+
+    //std::cout << tm1.elapsed() << std::endl;  // 单位是秒
+    //std::cout << "once:" << tm1.elapsed() / 200 << std::endl;
+
+     if (stg.save(rgrib_data_path.string()))
+    {
+         std::cout << "success write: " << rgrib_data_path.string() << std::endl;
+     }
+     stg.grid.destroy();
+
+    for (auto& l : lists)
+    {
+        l.destroy();
+    }
+}
+
+
+
+
+
+
+//BOOST_AUTO_TEST_CASE(GRID_TO_RGRID)
+//{
+//     std::cout << "\r\n\r\n****************"<< "GRID_TO_RGRID" << "****************" << std::endl;
+//    // std::filesystem::path grib_data_path(DEFAULT_SU_DATA_DIR);
+//    // grib_data_path += "/grib/2024060312_240.grib2";
+//     std::filesystem::path grib_data_path("/usr/local/mnt/winshare/grib2/ECMWF/APCP/2024062020/2024062020_006.grib2");
+//     std::filesystem::path rgrib_data_path("/usr/local/mnt/winshare/rgrid/EDMWF/2024062020_006.rgrib");
+//     int type = 0;
+//     std::vector<DMatrix> lists;
+//     grib_data::grib_utils gu;
+//     gu.read(grib_data_path.string(), lists, type);
+//     silly_tzx_grid stg;
+//     for (auto& l : lists)
+//    {
+//         stg.grid = l;
+//         stg.row = l.row();
+//         stg.col = l.col();
+//
+//        stg.left = gu.m_geo_info.left;
+//        stg.right = gu.m_geo_info.right;
+//        stg.top = gu.m_geo_info.top;
+//        stg.bottom = gu.m_geo_info.bottom;
+//
+//        stg.xdelta = gu.m_geo_info.xstep;
+//        stg.ydelta = gu.m_geo_info.ystep;
+//
+//        break;
+//    }
+//
+//    //// 临时测试
+//    //    std::map<int, silly_color, std::greater<int>> colorMap;
+//    //    colorMap[1] = silly_color(165, 242, 143, 175);
+//    //    colorMap[10] = silly_color(61, 167, 0, 175);
+//    //    colorMap[25] = silly_color(97, 187, 253, 175);
+//    //    colorMap[50] = silly_color(0, 1, 251, 175);
+//    //    colorMap[100] = silly_color(254, 0, 254, 175);
+//    //    colorMap[150] = silly_color(0, 0, 110, 175);
+//    //    colorMap[250] = silly_color(150, 0, 180, 175);
+//    //    colorMap[350] = silly_color(173, 144, 240, 175);
+//    //     std::filesystem::path grib_png("/usr/local/mnt/winshare/rgrid/EDMWF/");
+//    //    char tempname[50];
+//    //    sprintf(tempname, "/%s_.png", grib_data_path.filename().stem().string().c_str());
+//    //    grib_png += tempname;
+//    //    silly_image::png_data pngImage = generatePNGFromMatrix(stg.grid, colorMap);
+//    //
+//    //    // 写入PNG文件（示例路径）
+//    //    if (!silly_image::png_utils::write(grib_png.string().c_str(), pngImage))
+//    //    {
+//    //        std::cout << "Failed to write PNG file." << grib_png.string() << std::endl;
+//    //    }
+//    //    else
+//    //    {
+//    //        std::cout << "PNG image generated successfully." << grib_png.string() << std::endl;
+//    //    }
+//    //// 临时测试
+//
+//     if (stg.save(rgrib_data_path.string()))
+//     {
+//        std::cout << "success write: " << rgrib_data_path.string() << std::endl;
+//     }
+//
+//     stg.grid.destroy();
+//    
+//     for (auto& l : lists)
+//    {
+//         l.destroy();
+//     }
+//}
+
+
+
+
+
+//BOOST_AUTO_TEST_CASE(READ_GRID)
+//{
+//    std::cout << "\r\n\r\n****************"
+//              << "READ_GRID"
+//              << "****************" << std::endl;
+//    // std::filesystem::path grib_data_path(DEFAULT_SU_DATA_DIR);
+//    // grib_data_path += "/grib/2024060312_240.grib2";
+//    std::filesystem::path grib_data_path("/usr/local/mnt/winshare/grib2/NOAA/APCP/2024062020/2024062020_006.grib2");
+//    int type = 0;
+//    std::vector<DMatrix> lists;
+//    grib_data::grib_utils gu;
+//    gu.read(grib_data_path.string(), lists, type);
+//
+//    // 颜色映射初始化
+//    std::map<int, silly_color, std::greater<int>> colorMap;
+//    colorMap[1] = silly_color(165, 242, 143, 175);
+//    colorMap[10] = silly_color(61, 167, 0, 175);
+//    colorMap[25] = silly_color(97, 187, 253, 175);
+//    colorMap[50] = silly_color(0, 1, 251, 175);
+//    colorMap[100] = silly_color(254, 0, 254, 175);
+//    colorMap[150] = silly_color(0, 0, 110, 175);
+//    colorMap[250] = silly_color(150, 0, 180, 175);
+//    colorMap[350] = silly_color(173, 144, 240, 175);
+//    int i = 0;
+//    for (auto& list : lists)
+//    {
+//        std::filesystem::path grib_png("/usr/local/mnt/winshare/grib2/NOAA/APCP/2024062020/");
+//        char tempname[50];
+//        sprintf(tempname, "/%s_%02d.png", grib_data_path.filename().stem().string().c_str(), i);
+//        grib_png += tempname;
+//        i++;
+//        silly_image::png_data pngImage = generatePNGFromMatrix(list, colorMap);
+//
+//        // 写入PNG文件（示例路径）
+//        if (!silly_image::png_utils::write(grib_png.string().c_str(), pngImage))
+//        {
+//            std::cout << "Failed to write PNG file." << grib_png.string() << std::endl;
+//        }
+//        else
+//        {
+//            std::cout << "PNG image generated successfully." << grib_png.string() << std::endl;
+//        }
+//    }
+//    // 生成PNG数据
+//    for (auto l : lists)
+//    {
+//        l.destroy();
+//    }
+//
+//}
+
 
 //BOOST_AUTO_TEST_CASE(writeGeoTiff)
 //{
@@ -99,24 +451,24 @@ BOOST_AUTO_TEST_SUITE(Test)
 //
 //}
 
-BOOST_AUTO_TEST_CASE(READ_GRID_DATA)
-{
-    std::cout << "\r\n\r\n****************" << "READ_GRID_DATA" << "****************" << std::endl;
-    std::filesystem::path grib_data_path(DEFAULT_SU_DATA_DIR);
-    grib_data_path.append("Z_NWGD_C_BCWH_20230912103553_P_RFFC_SPCC-ER01_202309120800_02401.GRB2");
-    
-    int type = 0;
-    std::vector<DMatrix> list;
-    grib_data::grib_utils gu;
-    gu.read(grib_data_path.string(), list, type);
-    //tif_data ti = geotiff_utils::readGeoTiffTile(word.string().c_str());
-    for (auto l : list)
-    {
-        l.destroy();
-    }
-    
-    
-
-}
+//BOOST_AUTO_TEST_CASE(READ_GRID2_DATA)
+//{
+//    std::cout << "\r\n\r\n****************" << "READ_GRID2_DATA" << "****************" << std::endl;
+//    std::filesystem::path grib_data_path(DEFAULT_SU_DATA_DIR);
+//    grib_data_path.append("Z_NWGD_C_BCWH_20230912103553_P_RFFC_SPCC-ER01_202309120800_02401.GRB2");
+//    
+//    int type = 0;
+//    std::vector<DMatrix> list;
+//    grib_data::grib_utils gu;
+//    gu.read(grib_data_path.string(), list, type);
+//    //tif_data ti = geotiff_utils::readGeoTiffTile(word.string().c_str());
+//    for (auto l : list)
+//    {
+//        l.destroy();
+//    }
+//    
+//    
+//
+//}
 
 BOOST_AUTO_TEST_SUITE_END()

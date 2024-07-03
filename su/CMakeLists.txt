@@ -117,6 +117,10 @@ target_link_libraries(${PROJECT_NAME} PUBLIC Freetype::Freetype) # since CMake 3
 find_package(spdlog CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC spdlog::spdlog spdlog::spdlog_header_only)
 
+find_package(lz4 CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC lz4::lz4)
+
+
 if(IS_LINUX)
 
     find_package(unofficial-libuuid CONFIG REQUIRED)

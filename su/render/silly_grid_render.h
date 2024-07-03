@@ -12,6 +12,7 @@
 
 #include "image/png_utils.h"
 #include <geo/silly_geo_convert.h>
+
 using namespace silly_math;
 using namespace silly_image;
 
@@ -30,20 +31,40 @@ class silly_val2color
     T val;
     silly_color color;
 
+};
 
+// 比较函数对象，用于排序
+template <typename T>
+struct CompareSillyVal2Color
+{
+    bool operator()(const silly_val2color<T>& a, const silly_val2color<T>& b) const
+    {
+        return a.val < b.val;
+    }
 };
 
 template <typename T>
 class silly_render_param
 {
+  public:
     matrix_2d<T> mtx;
     std::vector<silly_val2color<T>> v2cs; // 需要排好序
     png_data pd;
     silly_geo_rect rect;
 
+    // 将 v2cs 按照 val 的值进行排序 默认升序排序
     void sort(bool desc = false)
     {
-     // TODO: 补充完成
+        if (desc)
+        {
+            // 降序
+            std::sort(v2cs.rbegin(), v2cs.rend(), CompareSillyVal2Color<T>());
+        }
+        else
+        {
+            // 升序
+            std::sort(v2cs.begin(), v2cs.end(), CompareSillyVal2Color<T>());
+        }
     }
 
 };
@@ -51,15 +72,16 @@ class silly_render_param
 template <typename T>
 class silly_grid_render
 {
+  public:
     friend class matrix_2d<T>;
     friend class png_data;
-  public:
+
      void normal_render_greater(silly_render_param<T>& srp)
     {
         int color_num = srp.v2cs.size();
         srp.pd = png_utils::create_empty(srp.mtx.row(), srp.mtx.col());
         // size_t max = mtx.row() * mtx.col();
-        T*  ptr  = srp.mtx.data;
+        T* ptr = srp.mtx.get_data();
         for(size_t r = 0; r < srp.mtx.row(); ++r)
         {
             for(size_t c =0; c < srp.mtx.col(); ++c)
