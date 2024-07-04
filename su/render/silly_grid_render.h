@@ -33,16 +33,6 @@ class silly_val2color
 
 };
 
-// 比较函数对象，用于排序
-template <typename T>
-struct CompareSillyVal2Color
-{
-    bool operator()(const silly_val2color<T>& a, const silly_val2color<T>& b) const
-    {
-        return a.val < b.val;
-    }
-};
-
 template <typename T>
 class silly_render_param
 {
@@ -58,12 +48,16 @@ class silly_render_param
         if (desc)
         {
             // 降序
-            std::sort(v2cs.rbegin(), v2cs.rend(), CompareSillyVal2Color<T>());
+            std::sort(v2cs.rbegin(), v2cs.rend(), [](const silly_val2color<T>& a, const silly_val2color<T>& b){
+                return a.val < b.val;
+            });
         }
         else
         {
             // 升序
-            std::sort(v2cs.begin(), v2cs.end(), CompareSillyVal2Color<T>());
+            std::sort(v2cs.begin(), v2cs.end(), [](const silly_val2color<T>& a, const silly_val2color<T>& b){
+                return a.val < b.val;
+            });
         }
     }
 
