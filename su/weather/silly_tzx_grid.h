@@ -128,10 +128,10 @@ class silly_tzx_grid
     char name[32]{0};
     char units[32]{0};
 
-    size_t row;
-    size_t col;
-    size_t cpsl;  // 网格点数据的压缩后占用大小
-    size_t srcl;  // 网格点数据的压缩前占用大小
+    size_t row{0};
+    size_t col{0};
+    size_t cpsl{0};  // 网格点数据的压缩后占用大小
+    size_t srcl{0};  // 网格点数据的压缩前占用大小
     FMatrix grid;
 
   private:

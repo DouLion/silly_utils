@@ -396,7 +396,6 @@ class matrix_tools
         size_t rows = src.row();
         size_t cols = src.col();
 
-        bool is_convert = ;
         if (!dst.create(rows, cols))
         {
             return status;
