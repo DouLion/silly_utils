@@ -30,7 +30,6 @@ class silly_val2color
   public:
     T val;
     silly_color color;
-
 };
 
 template <typename T>
@@ -38,7 +37,7 @@ class silly_render_param
 {
   public:
     matrix_2d<T> mtx;
-    std::vector<silly_val2color<T>> v2cs; // 需要排好序
+    std::vector<silly_val2color<T>> v2cs;  // 需要排好序
     png_data pd;
     silly_geo_rect rect;
 
@@ -48,19 +47,14 @@ class silly_render_param
         if (desc)
         {
             // 降序
-            std::sort(v2cs.rbegin(), v2cs.rend(), [](const silly_val2color<T>& a, const silly_val2color<T>& b){
-                return a.val < b.val;
-            });
+            std::sort(v2cs.rbegin(), v2cs.rend(), [](const silly_val2color<T>& a, const silly_val2color<T>& b) { return a.val < b.val; });
         }
         else
         {
             // 升序
-            std::sort(v2cs.begin(), v2cs.end(), [](const silly_val2color<T>& a, const silly_val2color<T>& b){
-                return a.val < b.val;
-            });
+            std::sort(v2cs.begin(), v2cs.end(), [](const silly_val2color<T>& a, const silly_val2color<T>& b) { return a.val < b.val; });
         }
     }
-
 };
 
 template <typename T>
@@ -70,25 +64,30 @@ class silly_grid_render
     friend class matrix_2d<T>;
     friend class png_data;
 
-     void normal_render_greater(silly_render_param<T>& srp)
+    void normal_render_greater(silly_render_param<T>& srp)
     {
         int color_num = srp.v2cs.size();
-        srp.pd = png_utils::create_empty(srp.mtx.row(), srp.mtx.col());
-        // size_t max = mtx.row() * mtx.col();
         T* ptr = srp.mtx.get_data();
-        for(size_t r = 0; r < srp.mtx.row(); ++r)
+        if(!ptr)
         {
-            for(size_t c =0; c < srp.mtx.col(); ++c)
+            SFP_ERROR("获取矩阵数据块失败")
+            return;
+        }
+        srp.pd = png_utils::create_empty(srp.mtx.row(), srp.mtx.col());
+        for (size_t r = 0; r < srp.mtx.row(); ++r)
+        {
+            for (size_t c = 0; c < srp.mtx.col(); ++c)
             {
-                T v = ptr[0];ptr++;
-                if(v< srp.v2cs[0].val)
+                T v = ptr[0];
+                ptr++;
+                if (v < srp.v2cs[0].val)
                 {
-                    continue ;
+                    continue;
                 }
-                int i  = 1;
-                for(;i < color_num; ++i)
+                int i = 1;
+                for (; i < color_num; ++i)
                 {
-                    if(v< srp.v2cs[i].val)
+                    if (v < srp.v2cs[i].val)
                     {
                         break;
                     }
@@ -96,25 +95,21 @@ class silly_grid_render
                 i--;
                 srp.pd.set_pixel(r, c, srp.v2cs[i].color);
             }
-
         }
     }
 
-     void geo_mc_render_greater(silly_render_param<T>& srp)
+    void geo_mc_render_greater(silly_render_param<T>& srp)
     {
-
-        matrix_2d<T> mtx;
-        if(!silly_geo_convert::matrix_geo_to_mercator(srp.mtx, srp.rect, mtx))
+        matrix_2d<T> mc_mtx;
+        if (!silly_geo_convert::matrix_geo_to_mercator(srp.mtx, srp.rect, mc_mtx))
         {
-            // TODO: 错误提示
+            SFP_ERROR("经纬坐标转换墨卡托坐标失败")
             return;
         }
-
-        silly_render_param<T> p2 = srp;
-        p2.mtx = mtx;
-
+        srp.mtx.destroy();
+        srp.mtx = mc_mtx;
+        normal_render_greater(srp);
     }
-
 };
 
 #endif  // SILLY_UTILS_SILLY_GRID_RENDER_H
