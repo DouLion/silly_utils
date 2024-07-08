@@ -45,7 +45,8 @@ class silly_jsonpp
     static bool check_member_int(const Json::Value& root, const std::string& key, int& val);
     static bool check_member_double(const Json::Value& root, const std::string& key, double& val);
     static bool check_member_bool(const Json::Value& root, const std::string& key, bool& val);
-    static bool check_member_array(const Json::Value& root, const std::string& key);
+    static bool check_member_array(const Json::Value& root, const std::string& key, Json::Value& jv_arr);
+    static bool check_member_object(const Json::Value& root, const std::string& key, Json::Value& jv_obj );
 };
 
 #endif  // SILLY_UTILS_SILLY_JSONPP_H

@@ -137,6 +137,14 @@ bool silly_jsonpp::check_member_string(const Json::Value& root, const std::strin
             val = root[key].asString();
             return true;
         }
+        else
+        {
+            SFP_ERROR("字段 {} 不是string类型", key)
+        }
+    }
+    else
+    {
+        SFP_ERROR("不存在字段 {}", key)
     }
     return false;
 }
@@ -199,12 +207,13 @@ bool silly_jsonpp::check_member_bool(const Json::Value& root, const std::string&
     }
     return false;
 }
-bool silly_jsonpp::check_member_array(const Json::Value& root, const std::string& key)
+bool silly_jsonpp::check_member_array(const Json::Value& root, const std::string& key, Json::Value& jv_arr)
 {
     if (root.isMember(key))
     {
         if (root[key].isArray())
         {
+            jv_arr = root[key];
             return true;
         }
         else
@@ -218,3 +227,24 @@ bool silly_jsonpp::check_member_array(const Json::Value& root, const std::string
     }
     return false;
 }
+bool silly_jsonpp::check_member_object(const Json::Value& root, const std::string& key, Json::Value& jv_obj)
+{
+    if (root.isMember(key))
+    {
+        if (root[key].isObject())
+        {
+            jv_obj = root[key];
+            return true;
+        }
+        else
+        {
+            SFP_ERROR("字段 {} 不是数组类型", key)
+        }
+    }
+    else
+    {
+        SFP_ERROR("不存在字段 {}", key)
+    }
+    return false;
+}
+
