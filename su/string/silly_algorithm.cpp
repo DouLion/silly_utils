@@ -77,5 +77,11 @@ std::vector<std::string> silly_string_algo::split(const std::string &str, const 
 }
 
 std::string silly_string_algo::replace(const std::string &src, const std::string &find, const std::string rep) {
-    return std::string();
+    std::string result = src;
+    size_t pos = 0;
+    while ((pos = result.find(find, pos)) != std::string::npos) {
+        result.replace(pos, find.length(), rep);
+        pos += rep.length(); // 移动到替换后的位置，避免无限循环
+    }
+    return result;
 }

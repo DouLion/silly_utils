@@ -62,7 +62,7 @@
 #include <locale.h>  // 本地化支持库
 #include <stddef.h>  // 定义许多常用的类型和宏
 #include <signal.h>  // 信号处理库
-
+#include <regex>
 //
 #include <string/silly_format.h>
 
