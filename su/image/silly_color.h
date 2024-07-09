@@ -34,14 +34,15 @@ class silly_color
     {
     }
 
+  public:
     /// <summary>
     /// 从字符串加载  如 ABE0457B
     /// </summary>
     /// <param name="color"></param>
-    bool from_hex_argb(const char *color)
+    bool from_hex_argb(const char* color)
     {
         unsigned int v = 0;
-        if (1 != sscanf(color, "%x", &v))
+        if (1 != sscanf(color, "%x", &v) || strlen(color) != 8)
         {
             return false;
         }
@@ -54,10 +55,10 @@ class silly_color
         return true;
     }
 
-    bool from_hex_rgb(const char *color)
+    bool from_hex_rgb(const char* color)
     {
         unsigned int v = 0;
-        if (1 != sscanf(color, "%x", &v))
+        if (1 != sscanf(color, "%x", &v) || strlen(color) != 6)
         {
             return false;
         }
@@ -65,6 +66,64 @@ class silly_color
         green = (v << 8) >> 16;
         red = v >> 16;
         return true;
+    }
+
+    bool from_hex_rgba(const char* color)
+    {
+        unsigned int v = 0;
+        if (1 != sscanf(color, "%x", &v) || strlen(color) != 8)
+        {
+            return false;
+        }
+        alpha = (v << 24) >> 24;
+        blue = (v << 16) >> 24;
+        green = (v << 8) >> 24;
+        red = v >> 24;
+        return true;
+    }
+
+    bool from_hex_argb(const std::string& color)
+    {
+        return from_hex_argb(color.c_str());
+    }
+
+    bool from_hex_rgb(const std::string& color)
+    {
+        return from_hex_rgb(color.c_str());
+    }
+
+    bool from_hex_rgba(const std::string& color)
+    {
+        return from_hex_rgba(color.c_str());
+    }
+
+    std::string to_hex_argb()
+    {
+        return silly_format::format("{:X}{:X}{:X}{:X}", alpha, red, green, blue);
+    }
+
+    std::string to_hex_rgb()
+    {
+        return silly_format::format("{:X}{:X}{:X}", red, green, blue);
+    }
+
+    std::string to_hex_rgba()
+    {
+        return silly_format::format("{:X}{:X}{:X}{:X}", red, green, blue, alpha);
+    }
+
+    std::string to_hex_abgr()
+    {
+        return silly_format::format("{:X}{:X}{:X}{:X}", alpha, blue, green, red);
+    }
+    std::string to_hex_bgra()
+    {
+        return silly_format::format("{:X}{:X}{:X}{:X}", blue, green, red, alpha);
+    }
+
+    std::string to_hex_bgr()
+    {
+        return silly_format::format("{:X}{:X}{:X}", blue, green, red);
     }
 
     unsigned char gray{0};
