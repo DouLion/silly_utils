@@ -31,7 +31,7 @@ class segcrossCalc
   public:
     int dblcmp(double d)
     {
-        if (fabs(d) < SU_EPS)
+        if (fabs(d) < SU_EPSILON)
         {
             return 0;
         }
@@ -66,7 +66,7 @@ class segcrossCalc
 
     bool coincident(PointN a, PointN b)
     {
-        return (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.x - b.x) < SU_EPS;
+        return (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.x - b.x) < SU_EPSILON;
     }
 
     /*

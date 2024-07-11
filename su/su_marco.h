@@ -107,9 +107,9 @@
 #endif
 #define SU_TINY TINY
 
-// #define		EPS 与opencv的冲突
-#ifndef SU_EPS
-#define SU_EPS (.1e-12f)
+// 一个极小的浮点数, 用于浮点数比较		EPS 与opencv的冲突
+#ifndef SU_EPSILON
+#define SU_EPSILON (.1e-12f)
 #endif
 
 #ifndef SU_TIME

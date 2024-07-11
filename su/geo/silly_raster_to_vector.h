@@ -102,7 +102,6 @@ struct black_white_mat
     }
 };
 
-
 /// <summary>
 /// 网格点记录
 /// </summary>
@@ -172,7 +171,6 @@ class silly_vectorizer
     /// <param name="b_w_mat"></param>
     /// <param name="threshold"></param>
     void mark_all(black_white_mat &b_w_mat, double threshold);
-    
 
     /// <summary>
     /// 追踪边界
@@ -181,10 +179,8 @@ class silly_vectorizer
     /// <param name="record"></param>
     /// <returns></returns>
     std::vector<silly_poly_2> trace_by_threshold(const double &threshold, const silly_grid_record *record);
-    
 
     static double bezier(const double &t, double x1, double x2, double x3);
-    
 
     // 坐标插值
 
@@ -196,7 +192,6 @@ class silly_vectorizer
     /// <param name="polys"></param>
     /// <returns></returns>
     std::vector<silly_poly_2> smooth_poly(const std::vector<silly_poly_2> &polys);
-    
 
     /// <summary>
     /// 判断连续的两个线段,斜率是否相似
@@ -207,7 +202,6 @@ class silly_vectorizer
     /// <param name="slope"></param>
     /// <returns></returns>
     bool is_less_than_slope(const silly_point_2 &p1, const silly_point_2 &p2, const silly_point_2 &p3, const double angle);
-   
 
     /// <summary>
     /// 根据角度差简化边界线
@@ -216,17 +210,12 @@ class silly_vectorizer
     /// <param name="diff"></param>
     /// <returns></returns>
     std::vector<silly_poly_2> simplify_poly(const std::vector<silly_poly_2> &polys, const double &angle = 5.0);
-    
 
     void trace_one_line(black_white_mat *b_w_mat, int r0l, int c0l, silly_ring_2 &ring);
-    
 
     static bool point_in_ring(const double &x, const double &y, const silly_ring_2 &r);
-    
 
     void trace_all_lines(black_white_mat *b_w_mat, std::vector<silly_ring_2> &all_path);
 };
-
-
 
 #endif  // SILLY_UTILS_SILLY_RASTER_TO_VECTOR_H

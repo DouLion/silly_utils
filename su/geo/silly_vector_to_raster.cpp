@@ -8,8 +8,8 @@
 #include <math.h>
 
 #define SILLY_SV2R_CHECK_INTERSECT_POINT(a, b)                              \
-    SV2RPoint v1 = vertices[a];                                             \
-    SV2RPoint v2 = vertices[b];                                             \
+    raster_point v1 = vertices[a];                                             \
+    raster_point v2 = vertices[b];                                             \
     if ((scanY >= v1.y && scanY < v2.y) || (scanY >= v2.y && scanY < v1.y)) \
     {                                                                       \
         float slope = (v2.x - v1.x) / (v2.y - v1.y);                        \
@@ -26,11 +26,12 @@ void xscan_line_raster::reset()
 {
     ncols = 0;
     nrows = 0;
-    xllcorner = 0;
-    yllcorner = 0.;
+    left = 0;
+    top = 0;
+    bottom = 0;
+    right = 0;
     cell_size = 0.000001;
     row_pairs.clear();
-    ;
 }
 
 #define SILLY_XSCAN_LINE_CHECK_POINT(point)                  \
@@ -38,21 +39,33 @@ void xscan_line_raster::reset()
     int tmp_y = std::round((top - point.lttd) / cell_size);  \
     if (last_x != tmp_x || last_y != tmp_y)                  \
     {                                                        \
-        tmp_vertices.push_back(SV2RPoint(tmp_x, tmp_y));     \
+        tmp_vertices.push_back(raster_point(tmp_x, tmp_y));     \
         last_x = tmp_x;                                      \
         last_y = tmp_y;                                      \
     }
 
 bool xscan_line_raster::rasterization(const silly_multi_poly& m_polys)
 {
-    std::vector<std::vector<SV2RPoint>> vertices_arr;
-    double left = 99999., right = -99999., top = -99999.0, bottom = 99999.;
-    // 找出上下左右
-    for (const auto& poly : m_polys)
+    std::vector<std::vector<raster_point>> vertices_arr;
+    if(std::abs(left) < SU_EPSILON &&
+        std::abs(top) < SU_EPSILON &&
+        std::abs(right) < SU_EPSILON &&
+        std::abs(bottom) < SU_EPSILON)
     {
-        for (const auto& ring : poly.inner_rings)
+        // 找出上下左右
+        for (const auto& poly : m_polys)
         {
-            for (const auto& point : ring.points)
+            for (const auto& ring : poly.inner_rings)
+            {
+                for (const auto& point : ring.points)
+                {
+                    left = SU_MIN(point.lgtd, left);
+                    right = SU_MAX(point.lgtd, right);
+                    top = SU_MAX(point.lttd, top);
+                    bottom = SU_MIN(point.lttd, bottom);
+                }
+            }
+            for (const auto& point : poly.outer_ring.points)
             {
                 left = SU_MIN(point.lgtd, left);
                 right = SU_MAX(point.lgtd, right);
@@ -60,22 +73,12 @@ bool xscan_line_raster::rasterization(const silly_multi_poly& m_polys)
                 bottom = SU_MIN(point.lttd, bottom);
             }
         }
-        for (const auto& point : poly.outer_ring.points)
-        {
-            left = SU_MIN(point.lgtd, left);
-            right = SU_MAX(point.lgtd, right);
-            top = SU_MAX(point.lttd, top);
-            bottom = SU_MIN(point.lttd, bottom);
-        }
+
+        left = std::floor(left / cell_size) * cell_size;
+        right = std::ceil(right / cell_size) * cell_size;
+        top = std::ceil(top / cell_size) * cell_size;
+        bottom = std::floor(bottom / cell_size) * cell_size;
     }
-
-    left = std::floor(left / cell_size) * cell_size;
-    right = std::ceil(right / cell_size) * cell_size;
-    top = std::ceil(top / cell_size) * cell_size;
-    bottom = std::floor(bottom / cell_size) * cell_size;
-
-    xllcorner = left;
-    yllcorner = bottom;
 
     nrows = std::ceil((top - bottom) / cell_size);
     ncols = std::ceil((right - left) / cell_size);
@@ -87,14 +90,14 @@ bool xscan_line_raster::rasterization(const silly_multi_poly& m_polys)
         int last_y = 0 - nrows;
         for (const auto& ring : poly.inner_rings)
         {
-            std::vector<SV2RPoint> tmp_vertices;
+            std::vector<raster_point> tmp_vertices;
             for (const auto& point : ring.points)
             {
                 SILLY_XSCAN_LINE_CHECK_POINT(point);
             }
             vertices_arr.push_back(tmp_vertices);
         }
-        std::vector<SV2RPoint> tmp_vertices;
+        std::vector<raster_point> tmp_vertices;
 
         for (const auto& point : poly.outer_ring.points)
         {
@@ -106,10 +109,10 @@ bool xscan_line_raster::rasterization(const silly_multi_poly& m_polys)
     return rasterization(vertices_arr);
 }
 
-bool xscan_line_raster::rasterization(const std::vector<std::vector<SV2RPoint>> vertices_arr)
+bool xscan_line_raster::rasterization(const std::vector<std::vector<raster_point>> vertices_arr)
 {
-    int minY = 99999, maxY = 0;
-    int minX = 99999, maxX = 0;
+    int minY = INT_MAX, maxY = 0;
+    int minX = INT_MAX, maxX = 0;
 
     for (const auto& part : vertices_arr)
     {
@@ -120,11 +123,6 @@ bool xscan_line_raster::rasterization(const std::vector<std::vector<SV2RPoint>> 
             minX = SU_MAX(0, SU_MIN(minX, point.x));
             maxX = SU_MAX(0, SU_MAX(maxX, point.x));
         }
-    }
-    if (!nrows || !ncols)
-    {
-        nrows = maxY - minY + 1;
-        ncols = maxX - minX + 1;
     }
 
     // 对每一条扫描线进行处理
@@ -138,22 +136,26 @@ bool xscan_line_raster::rasterization(const std::vector<std::vector<SV2RPoint>> 
             int numVertices = vertices.size();
             for (int i = 0; i < numVertices; ++i)
             {
-                SV2RPoint v1 = vertices[i];
-                SV2RPoint v2 = vertices[(i + 1) % numVertices];
-                if ((scanY >= v1.y && scanY < v2.y) || (scanY >= v2.y && scanY < v1.y))
+                raster_point v1 = vertices[i];
+                raster_point v2 = vertices[(i + 1) % numVertices];
+                if ((scanY >= v1.y && scanY < v2.y) || (scanY >= v2.y && scanY < v1.y)) // v1 v2 不在同一行
                 {
                     float slope = (v2.x - v1.x) / (v2.y - v1.y);
                     float x = (scanY - v1.y) * slope + v1.x;
-                    edges.push_back(SU_MAX(0, static_cast<int>(x)));
+                    edges.push_back(static_cast<int>(x));
+                }
+                else if (v1.y == v2.y && scanY == v1.y) // v1 v2 在同一行
+                {
+                    edges.push_back(v1.x);
+                    edges.push_back(v2.x);
                 }
             }
         }
         // 根据X值对边缘进行排序
         std::sort(edges.begin(), edges.end());
-        int old = 0;
         for (int i = 0; i < edges.size(); i += 2)
         {
-            SV2RPair tmp_pair;
+            cover_pair tmp_pair;
             tmp_pair.beg = edges[i];
             tmp_pair.end = edges[i + 1];
             row_pairs[scanY].push_back(tmp_pair);

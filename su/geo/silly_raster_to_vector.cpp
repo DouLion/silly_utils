@@ -4,7 +4,6 @@
 
 #include "silly_raster_to_vector.h"
 
-
 #define RECURSION_TRACE_LINE(r, c)                                     \
     if (r > -1 && c > -1 && r < b_w_mat->height && c < b_w_mat->width) \
     {                                                                  \
