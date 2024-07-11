@@ -99,31 +99,31 @@ class silly_color
 
     std::string to_hex_argb()
     {
-        return silly_format::format("{:X}{:X}{:X}{:X}", alpha, red, green, blue);
+        return silly_format::format("{:02X}{:02X}{:02X}{:02X}", alpha, red, green, blue);
     }
 
     std::string to_hex_rgb()
     {
-        return silly_format::format("{:X}{:X}{:X}", red, green, blue);
+        return silly_format::format("{:02X}{:02X}{:02X}", red, green, blue);
     }
 
     std::string to_hex_rgba()
     {
-        return silly_format::format("{:X}{:X}{:X}{:X}", red, green, blue, alpha);
+        return silly_format::format("{:02X}{:02X}{:02X}{:02X}", red, green, blue, alpha);
     }
 
     std::string to_hex_abgr()
     {
-        return silly_format::format("{:X}{:X}{:X}{:X}", alpha, blue, green, red);
+        return silly_format::format("{:02X}{:02X}{:02X}{:02X}", alpha, blue, green, red);
     }
     std::string to_hex_bgra()
     {
-        return silly_format::format("{:X}{:X}{:X}{:X}", blue, green, red, alpha);
+        return silly_format::format("{:02X}{:02X}{:02X}{:02X}", blue, green, red, alpha);
     }
 
     std::string to_hex_bgr()
     {
-        return silly_format::format("{:X}{:X}{:X}", blue, green, red);
+        return silly_format::format("{:02X}{:02X}{:02X}", blue, green, red);
     }
 
     unsigned char gray{0};
