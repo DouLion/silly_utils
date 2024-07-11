@@ -42,18 +42,16 @@ class silly_geo_prop
     ~silly_geo_prop();
 
   public:
-    enum_prop_type value_type();
-    std::string as_string();
-    int as_int();
-    double as_double();
-    unsigned char* as_binary(size_t& l);
-    long long as_longlong();
+    enum_prop_type value_type() const;
+    std::string as_string() const;
+    int as_int() const;
+    double as_double() const;
+    unsigned char* as_binary(size_t& l) const;
+    long long as_longlong() const;
 
   private:
     enum_prop_type m_type{enum_prop_type::eptNone};
     std::any m_data;
-    /*size_t len{0};
-    unsigned char* data{nullptr};*/
 };
 
 #endif  // SILLY_UTILS_SILLY_GEO_PROP_H
