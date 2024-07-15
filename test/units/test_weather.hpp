@@ -100,69 +100,89 @@ BOOST_AUTO_TEST_SUITE(Test)
 
 BOOST_AUTO_TEST_CASE(READ_RGRIB)
 {
-     std::cout << "\r\n\r\n****************"
-               << "READ_RGRIB"
-               << "****************" << std::endl;
+    std::cout << "\r\n\r\n****************"
+              << "READ_RGRIB"
+              << "****************" << std::endl;
     // std::filesystem::path grib_data_path(DEFAULT_SU_DATA_DIR);
     // grib_data_path += "/grib/2024060312_240.grib2";
 
-     std::filesystem::path rgrib_data_path("/usr/local/mnt/winshare/rgrid/EDMWF/2024062020_006.rgrib");
-     std::filesystem::path grib_png("/usr/local/mnt/winshare/rgrid/EDMWF/2024062020_006.png");
+    std::filesystem::path rgrib_data_path("/usr/local/mnt/grib_data_143/GRID/ECMWF/APCP/2024070920/2024070920_024.rgrid");
+    std::filesystem::path grib_png("/usr/local/mnt/grib_data_143/GRID/ECMWF/APCP/2024070920/2024070920_024.png");
+    
+    //// 欧洲气象局图例
+    //std::map<int, silly_color, std::greater<int>> colorMap;
+    //colorMap[1] = silly_color(84, 77, 113, 175);
+    //colorMap[5] = silly_color(87, 86, 124, 175);
+    //colorMap[10] = silly_color(48, 120, 141, 175);
+    //colorMap[20] = silly_color(22, 126, 128, 175);
+    //colorMap[40] = silly_color(101, 145, 102, 175);
+    //colorMap[100] = silly_color(249, 162, 193, 175);
+    //std::vector<silly_val2color<float>> value_to_color_map = {{1.0f, colorMap[1]}, {5.0f, colorMap[5]}, {10.0f, colorMap[10]}, {20.0f, colorMap[20]}, {40.0f, colorMap[40]}, {100.0f, colorMap[100]}};
+
+
      silly_color color1;
-     color1.from_hex_argb("afa5f28f");
+     color1.from_hex_argb("AF544D71");
      silly_color color2;
-     color2.from_hex_argb("af3da700");
+     color2.from_hex_argb("AF57567C");
      silly_color color3;
-     color3.from_hex_argb("af61bbfd");
+     color3.from_hex_argb("AF30788D");
      silly_color color4;
-     color4.from_hex_argb("af0001fb");
+     color4.from_hex_argb("AF167E80");
      silly_color color5;
-     color5.from_hex_argb("affe00fe");
+     color5.from_hex_argb("AF659166");
      silly_color color6;
-     color6.from_hex_argb("af00006e");
-     silly_color color7;
-     color7.from_hex_argb("af9600b4");
-     silly_color color8;
-     color8.from_hex_argb("afad90f0");
+     color6.from_hex_argb("AFF9A2C1");
 
-     std::vector<silly_val2color<float>> value_to_color_map =
-    {
-         {25.0f, color3},
-         {1.0f, color1},
-         {10.0f, color2},
-         {50.0f, color4},
-         {150.0f, color6},
-         {250.0f, color7},
-         {100.0f, color5},
-         {350.0f, color8}
-     };
+     std::vector<silly_val2color<float>> value_to_color_map = {{1.0f, color1}, {5.0f, color2}, {10.0f, color3}, {20.0f, color4}, {40.0f, color5}, {100.0f, color5}};
 
-     silly_render_param<float> render_param;
-     render_param.v2cs = value_to_color_map;
-     render_param.sort();
-     silly_tzx_grid stg;
-     stg.read(rgrib_data_path.string());
-     render_param.mtx = stg.grid;
-     render_param.mtx *= 1000;
+    // //  tzx 图例
+    //silly_color color1;
+    //color1.from_hex_argb("afa5f28f");
+    //silly_color color2;
+    //color2.from_hex_argb("af3da700");
+    //silly_color color3;
+    //color3.from_hex_argb("af61bbfd");
+    //silly_color color4;
+    //color4.from_hex_argb("af0001fb");
+    //silly_color color5;
+    //color5.from_hex_argb("affe00fe");
+    //silly_color color6;
+    //color6.from_hex_argb("af00006e");
+    //silly_color color7;
+    //color7.from_hex_argb("af9600b4");
+    //silly_color color8;
+    //color8.from_hex_argb("afad90f0");
+    //std::vector<silly_val2color<float>> value_to_color_map = {{25.0f, color3}, {1.0f, color1}, {10.0f, color2}, {50.0f, color4}, {150.0f, color6}, {250.0f, color7}, {100.0f, color5}, {350.0f, color8}};
+
+    silly_render_param<float> render_param;
+    render_param.v2cs = value_to_color_map;
+    render_param.sort();
+    silly_tzx_grid stg;
+    stg.read(rgrib_data_path.string());
+    render_param.mtx = stg.grid;
+    render_param.rect.left = 74.0;
+    render_param.rect.top = 54.0;
+    render_param.rect.right = 135.0;
+    render_param.rect.bottom = 18.0;
     // 渲染器
-     silly_grid_render<float> renderer;
+    silly_grid_render<float> renderer;
     // 渲染
-     renderer.normal_render_greater(render_param);
+    renderer.geo_mc_render_greater(render_param);
 
     // 写入PNG文件（示例路径）
 
-     silly_image::png_utils::write(grib_png.string().c_str(), render_param.pd);
+    silly_image::png_utils::write(grib_png.string().c_str(), render_param.pd);
 
-     if (!silly_image::png_utils::write(grib_png.string().c_str(), render_param.pd))
+    if (!silly_image::png_utils::write(grib_png.string().c_str(), render_param.pd))
     {
-          std::cout << "Failed to write PNG file." << grib_png.string() << std::endl;
-      }
-      else
+        std::cout << "Failed to write PNG file." << grib_png.string() << std::endl;
+    }
+    else
     {
-          std::cout << "PNG image generated successfully." << grib_png.string() << std::endl;
-      }
-     render_param.pd.release();
-     render_param.mtx.destroy();
+        std::cout << "PNG image generated successfully." << grib_png.string() << std::endl;
+    }
+    render_param.pd.release();
+    render_param.mtx.destroy();
 }
 
 BOOST_AUTO_TEST_CASE(GRID_TO_RGRID)
@@ -172,18 +192,18 @@ BOOST_AUTO_TEST_CASE(GRID_TO_RGRID)
               << "****************" << std::endl;
     // std::filesystem::path grib_data_path(DEFAULT_SU_DATA_DIR);
     // grib_data_path += "/grib/2024060312_240.grib2";
-    std::filesystem::path grib_data_path("/usr/local/mnt/winshare/grib2/ECMWF/APCP/2024062020/2024062020_006.grib2");
+    std::filesystem::path grib_data_path("/usr/local/mnt/grib_data_143/GRID/ECMWF/APCP/2024070420/2024070420_087.rgrid");
     std::filesystem::path rgrib_data_path("/usr/local/mnt/winshare/rgrid/EDMWF/2024062020_006.rgrib");
     int type = 0;
     std::vector<DMatrix> lists;
     grib_data::grib_utils gu;
     gu.read(grib_data_path.string(), lists, type);
-     silly_tzx_grid stg;
-     for (auto& l : lists)
+    silly_tzx_grid stg;
+    for (auto& l : lists)
     {
         stg.grid.cast_from(l);
-         stg.row = l.row();
-         stg.col = l.col();
+        stg.row = l.row();
+        stg.col = l.col();
 
         stg.left = gu.m_geo_info.left;
         stg.right = gu.m_geo_info.right;
@@ -196,48 +216,62 @@ BOOST_AUTO_TEST_CASE(GRID_TO_RGRID)
         break;
     }
 
-    //boost::timer tm1;  // 定义后计时开始
-    //tm1.restart();     // 从新从这里开始计时
-    //for (int i = 0; i < 200; i++)
-    //{
-    //    // 临时测试
-    //    std::map<int, silly_color, std::greater<int>> colorMap;
-    //    colorMap[1] = silly_color(165, 242, 143, 175);
-    //    colorMap[10] = silly_color(61, 167, 0, 175);
-    //    colorMap[25] = silly_color(97, 187, 253, 175);
-    //    colorMap[50] = silly_color(0, 1, 251, 175);
-    //    colorMap[100] = silly_color(254, 0, 254, 175);
-    //    colorMap[150] = silly_color(0, 0, 110, 175);
-    //    colorMap[250] = silly_color(150, 0, 180, 175);
-    //    colorMap[350] = silly_color(173, 144, 240, 175);
-    //    std::filesystem::path grib_png("/usr/local/mnt/winshare/rgrid/EDMWF/");
-    //    char tempname[50];
-    //    sprintf(tempname, "/%s_.png", grib_data_path.filename().stem().string().c_str());
-    //    grib_png += tempname;
-    //    for (auto& list : lists)
-    //    {
-    //        silly_image::png_data pngImage = generatePNGFromMatrix(list, colorMap);
-    //        // 写入PNG文件（示例路径）
-    //        silly_image::png_utils::write(grib_png.string().c_str(), pngImage);
-    //        pngImage.release();
-    //        break;
-    //    }
-    //}
-
-    //std::cout << tm1.elapsed() << std::endl;  // 单位是秒
-    //std::cout << "once:" << tm1.elapsed() / 200 << std::endl;
-
-     if (stg.save(rgrib_data_path.string()))
+    // boost::timer tm1;  // 定义后计时开始
+    // tm1.restart();     // 从新从这里开始计时
+     for (int i = 0; i < 200; i++)
     {
-         std::cout << "success write: " << rgrib_data_path.string() << std::endl;
+         // 临时测试
+         std::map<int, silly_color, std::greater<int>> colorMap;
+         colorMap[1] = silly_color(165, 242, 143, 175);
+         colorMap[10] = silly_color(61, 167, 0, 175);
+         colorMap[25] = silly_color(97, 187, 253, 175);
+         colorMap[50] = silly_color(0, 1, 251, 175);
+         colorMap[100] = silly_color(254, 0, 254, 175);
+         colorMap[150] = silly_color(0, 0, 110, 175);
+         colorMap[250] = silly_color(150, 0, 180, 175);
+         colorMap[350] = silly_color(173, 144, 240, 175);
+
+
+
+
+         std::filesystem::path grib_png("/usr/local/mnt/winshare/rgrid/EDMWF/");
+         char tempname[50];
+         sprintf(tempname, "/%s_.png", grib_data_path.filename().stem().string().c_str());
+         grib_png += tempname;
+         for (auto& list : lists)
+         {
+             silly_image::png_data pngImage = generatePNGFromMatrix(list, colorMap);
+             // 写入PNG文件（示例路径）
+             silly_image::png_utils::write(grib_png.string().c_str(), pngImage);
+             std::cout << "png:" << grib_png.string() << std::endl;
+             pngImage.release();
+             break;
+         }
      }
-     stg.grid.destroy();
+
+    // std::cout << tm1.elapsed() << std::endl;  // 单位是秒
+    // std::cout << "once:" << tm1.elapsed() / 200 << std::endl;
+
+    //if (stg.save(rgrib_data_path.string()))
+    //{
+    //    std::cout << "success write: " << rgrib_data_path.string() << std::endl;
+    //}
+    stg.grid.destroy();
 
     for (auto& l : lists)
     {
         l.destroy();
     }
 }
+
+
+
+
+
+
+
+
+
 
 
 
