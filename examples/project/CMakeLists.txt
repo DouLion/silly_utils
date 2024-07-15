@@ -15,6 +15,12 @@ endif ()
 
 if (SU_AS_PROJECT)
 
+    ##########################################
+    # 将当前目录的Config路径添加到宏DEFAULT_CONFIG_DIR.
+    ##########################################
+    set(DEFAULT_CONFIG_DIR "${CMAKE_CURRENT_SOURCE_DIR}/config")
+    add_definitions("-DDEFAULT_CONFIG_DIR=\"${DEFAULT_CONFIG_DIR}\"")
+
     # 设置默认程序根目录,程序中所有路径均参照此路径,方便调试和发布
     if (IS_DEBUG)
         add_definitions("-DDEFAULT_ROOT_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}\"")
@@ -31,9 +37,13 @@ if (SU_AS_PROJECT)
 
 endif ()
 
+# 添加core目录下的头文件到项目
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/core)
 
 # 添加目录
-add_subdirectory(src)
+add_subdirectory(core)  # core代码
+add_subdirectory(web)  # web项目
+add_subdirectory(svr)  # svr项目
 
 
 

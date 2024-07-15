@@ -10,7 +10,7 @@
 
 ## 获取silly_utils库
 
-1. **拷贝CMake配置文件**：将 `silly_utils` 项目中的 `cmake` 文件夹拷贝到您的项目中与项目根目录的 `CMakeLists.txt` 同级的目录。
+1. **拷贝CMake配置文件**：将 `silly_utils` 项目中的 `cmake/silly_utils.cmake文件` 文件夹拷贝到您的项目中与项目根目录的 `CMakeLists.txt` 同级的目录的`cmake`目录下。
 
 2. **配置CMakeLists.txt**：在您的项目根目录的 `CMakeLists.txt` 文件中进行如下配置：
 
@@ -31,20 +31,16 @@
     project(YourProjectName) # 替换为您的项目名称
     ```
 
-2. **包含头文件目录**：确保您的源代码可以访问 `silly_utils` 的头文件。
+2. **添加子目录**：如果您的项目有多个子目录，确保它们都被添加到CMake中。
 
     ```cmake
-    include_directories("${SILLY_UTILS_FETCH_ROOT}/silly_utils/su")
-    ```
-
-3. **添加子目录**：如果您的项目有多个子目录，确保它们都被添加到CMake中。
-
-    ```cmake
-    add_subdirectory(src)
+    add_subdirectory(core)  # core代码
+    add_subdirectory(web)  # web项目
+    add_subdirectory(svr)  # svr项目
     # ... 其他子目录
     ```
 
-4. **链接silly_utils库**：在需要使用 `silly_utils` 功能的可执行文件或库的CMake配置中链接 `sutils` 库。
+3. **链接silly_utils库**：在需要使用 `silly_utils` 功能的可执行文件或库的CMake配置中链接 `sutils` 库。
 
     ```cmake
     target_link_libraries(${PROJECT_NAME} PUBLIC sutils)
@@ -77,42 +73,59 @@ unofficial-libuuid , geos , freexl , proj , curl , libtiff , libxml2 , rttopo , 
 
 ## 项目目录结构
 
+D:\1_wangyingjie\code\4_silly_utils\silly_utils\examples\project>tree /f
 Folder PATH listing
 Volume serial number is 06F2-EA39
 D:.
 │   .clang-format
-│   .gitignore
 │   CMakeLists.txt
-│   CMakeSettings.json
-│   README.md
 │
 ├───cmake
-│       dm8_check.cmake
-│       env_check.cmake
-│       grib_api_check.cmake
 │       silly_utils.cmake
 │
 ├───config
 │       config.json
-│
-└───src
+│       core_config.json
+│       web_config.json
+├───core
+│   │   CMakeLists.txt
+│   │   project.cpp
+│   │   project.h
+│   │
+│   └───config_tool
+│           config_tool.h
+├───svr
+│       CMakeLists.txt
+│       main.cpp
+└───web
     │   CMakeLists.txt
-    │   main.cpp
+    │   main.cc
     │
-    └───example_tool
-            CMakeLists.txt
-            config.hpp
-            project.cpp
-            project.h
+    ├───controllers
+    │       check_ctrl.cc
+    │       check_ctrl.h
+    │
+    ├───filters
+    ├───models
+    │       model.json
+    │
+    ├───plugins
+    ├───test
+    │       CMakeLists.txt
+    │       test_main.cc
+    │
+    └───views
 
 
 - **根目录**：包含 `CMakeLists.txt` 和其他基础配置文件。
 - **config 目录**：包含项目配置文件，如 `config.json`。
-- **src 目录**：包含源代码和 `example_tool` 子目录，后者是一个示例模块，演示了如何在模块级别链接 `silly_utils` 库。
+- **core 目录**：核心函数和工具目录,该目录下的工具生成动态链接库`core_lib`,`core_lib`以public的方式链接 `silly_utils` 库,后续添加其它的函数直接在该目录下添加新cpp文件即可。
+- **srv 目录**：该目录下为生成exe级别的程序,链接`core_lib`库,main.cpp文件生成可执行程序`exampleSvr`
+- **web 目录**：该目录下为生成web程序,链接`drogon`库和`core_lib`库,生成可执行的web程序 `exampleWeb`
 
-在示例项目的根 `CMakeLists.txt` 中，配置了项目的基本设置并引入了 `silly_utils` 库。`src` 目录下的 `main.cpp` 文件用于生成可执行程序，并可能链接到 `example_tool` 模块。如果 `example_tool` 已经链接了 `silly_utils` 库，则 `main.cpp` 在构建时无需再次链接。可根据实际需要进行更改。
 
-通过这个示例项目，您可以快速理解如何在项目中集成 `silly_utils` 库，并开始使用它提供的工具函数。
+
+通过这个示例项目，您可以直接复制该项目就可以实现svr程序和web程序的的整体框架。
 
 
 
