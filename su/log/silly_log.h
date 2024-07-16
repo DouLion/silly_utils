@@ -4,7 +4,8 @@
 #include <spdlog/spdlog.h>
 struct silly_log_opt
 {
-    std::string path;
+    std::string path
+
 };
 
 
@@ -18,8 +19,26 @@ class silly_log
         eltSpdlog = 2,
         eltGlog = 3
     };
+
+    enum class enum_log_level
+    {
+        ellALL = 0,
+        ellDEBUG = 1,
+        ellWARNING = 2,
+        ellINFO = 3,
+        ellERROR = 4,
+        ellFATAL = 5
+    };
+    class opt
+    {
+    public:
+        std::string path;
+        enum_log_type type{2};
+        enum_log_level level{0};
+
+    };
   public:
-    static bool init(silly_log_opt opt = {}, enum_log_type type = enum_log_type::eltLoguru);
+    static bool init(const silly_log_opt& opt = {});
 
   public:
     static std::shared_ptr<spdlog::logger> m_spdlog_handler;

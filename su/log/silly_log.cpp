@@ -7,8 +7,8 @@
 #include <spdlog/sinks/daily_file_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 std::shared_ptr<spdlog::logger> silly_log::m_spdlog_handler = nullptr;
-static char* SILLY_TZX_LOG_CHAR = " \n _________\n|  _   _  |               \n|_/ | | \\_|____   _   __  \n    | |   [_   ] [ \\ [  ] \n   _| |_   .' /_  > '  <  \n  |_____| [_____][__]`\\_]\n";
-bool silly_log::init(silly_log_opt opt, enum_log_type type)
+const static char* SILLY_TZX_LOG_CHAR = " \n _________\n|  _   _  |               \n|_/ | | \\_|____   _   __  \n    | |   [_   ] [ \\ [  ] \n   _| |_   .' /_  > '  <  \n  |_____| [_____][__]`\\_]\n";
+bool silly_log::init(const silly_log_opt& opt)
 {
     bool status = false;
     char* log_file = "./logs/tzx.log";
