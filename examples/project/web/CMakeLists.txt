@@ -4,8 +4,6 @@ project(exampleWeb CXX)
 include(CheckIncludeFileCXX)
   set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
 
-#include(silly_utils)
-#include_directories(silly_utils/su)
 
 check_include_file_cxx(any HAS_ANY)
 check_include_file_cxx(string_view HAS_STRING_VIEW)
@@ -77,4 +75,3 @@ target_sources(${PROJECT_NAME}
 
 # ##############################################################################
 
-#add_subdirectory(test)

@@ -35,8 +35,8 @@
 
     ```cmake
     add_subdirectory(core)  # core代码
-    add_subdirectory(web)  # web项目
-    add_subdirectory(svr)  # svr项目
+    add_subdirectory(web)   # web项目
+    add_subdirectory(svr)   # svr项目
     # ... 其他子目录
     ```
 
@@ -61,15 +61,10 @@ boost, cryptopp, iconv, polyclipping, jsoncpp, zlib, libzip, bzip2, minizip, gzi
 unofficial-libuuid , geos , freexl , proj , curl , libtiff , libxml2 , rttopo , unixodbc or -lodbc , fontconfig , pixman 
 ```
 
-## 编译项目
-
-1. 生成配置缓存
-2. 选择需要编译的可执行程序进行编译生成
-
 
 # example 示例
 
-`silly_utils` 库的 `examples/project` 目录下提供了一个示例项目，展示了如何在实际项目中使用 `silly_utils`：
+`silly_utils` 库的 `examples/project` 目录下提供了一个示例项目，展示了如何在实际项目中使用 `silly_utils` 的一个实例项目,该实例同时包含web程序和svr程序,：
 
 ## 项目目录结构
 
@@ -118,11 +113,18 @@ D:.
 
 
 - **根目录**：包含 `CMakeLists.txt` 和其他基础配置文件。
-- **config 目录**：包含项目配置文件，如 `config.json`。
-- **core 目录**：核心函数和工具目录,该目录下的工具生成动态链接库`core_lib`,`core_lib`以public的方式链接 `silly_utils` 库,后续添加其它的函数直接在该目录下添加新cpp文件即可。
-- **srv 目录**：该目录下为生成exe级别的程序,链接`core_lib`库,main.cpp文件生成可执行程序`exampleSvr`
-- **web 目录**：该目录下为生成web程序,链接`drogon`库和`core_lib`库,生成可执行的web程序 `exampleWeb`
-
+  - 若需要添加其它项目的目录直接创建目录然后再根目录下的`CMakeLists.txt`文件中中直接添加`add_subdirectory(add)`
+  
+- **config 目录**：包含项目配置文件，如web项目配置文件`core_config.json`
+- **core 目录**：核心函数和工具目录
+  - 该目录下的工具生成动态链接库`core_lib`,`core_lib`以public的方式链接 `silly_utils` 库
+  - 后续添加其它的函数直接在该目录下添加新cpp文件即可。
+- **svr 目录**：该目录下为生成svr程序
+  - `svr/main.cpp`链接`core_lib`库,由于core_lib库已经链接`silly_utils`库,所以可以直接使用`silly_utils`库的函数,但需添加头文件
+  - 生成可执行程序名为`exampleSvr`,根据需求自行修改
+- **web 目录**：该目录下为生成web程序
+  - 链接`drogon`库和`core_lib`库
+  - 生成可执行的web程序 `exampleWeb`,根据需求自行修改
 
 
 通过这个示例项目，您可以直接复制该项目就可以实现svr程序和web程序的的整体框架。
