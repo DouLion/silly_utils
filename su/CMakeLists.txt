@@ -21,17 +21,6 @@ else()
     add_library(${PROJECT_NAME} STATIC ${SU_SRC_FILES} render/silly_render.cpp render/silly_render.h image/silly_color.cpp image/silly_color.h)
 endif()
 
-set(Boost_LIB_PREFIX "")
-set(CMAKE_VERBOSE_MAKEFILE ON)
-# set(Boost_DEBUG TRUE)
-set(Boost_USE_STATIC_LIBS ON)
-set(Boost_USE_MULTITHREADED ON)
-set(Boost_NO_WARN_NEW_VERSIONS 1)
-
-### Packages 
-find_package(Boost REQUIRED COMPONENTS system thread date_time chrono regex filesystem program_options iostreams locale serialization )
-target_link_libraries(${PROJECT_NAME} PUBLIC Boost::boost Boost::system Boost::thread Boost::date_time Boost::chrono Boost::regex Boost::filesystem Boost::program_options Boost::iostreams Boost::locale Boost::serialization) 
-
 find_package(cryptopp CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC cryptopp::cryptopp)
 

@@ -11,6 +11,7 @@
 // 标准c++头文件
 // 输入输出库
 #include <iostream>
+#include <sstream>
 // 字符串库
 #include <string>
 // 容器

@@ -53,11 +53,28 @@ namespace silly_curl
     public:
   };
 
+  class smtp_req
+  {
+
+    public:
+      std::string server;
+      std::string sender;
+      std::string user;
+      std::string pwd;
+      std::map<std::string, std::string> nick_receivers;
+      std::string subject;
+      std::string content;
+
+      bool ssl{false};
+      std::map<std::string, std::string> name_files;
+  };
 
   /// 邮件
   class smtp
   {
     public:
+
+      bool send(const smtp_req& req);
   };
 
 
