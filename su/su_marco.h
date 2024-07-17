@@ -67,6 +67,12 @@
 //
 #include <string/silly_format.h>
 
+#if WIN32
+#include <Windows.h>
+#else
+
+#endif
+
 // 一些自定义宏
 
 #define SU_VAR_NAME(var) #var
