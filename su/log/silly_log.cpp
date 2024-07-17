@@ -9,6 +9,11 @@ typedef spdlog::sinks::rotating_file_sink_mt su_rotate_log;
 
 const static char* SILLY_TZX_LOG_CHAR = " \n _________\n|  _   _  |               \n|_/ | | \\_|____   _   __  \n    | |   [_   ] [ \\ [  ] \n   _| |_   .' /_  > '  <  \n  |_____| [_____][__]`\\_]\n";
 
+const static std::string SU_SINK_NAME_DEBUG = "debug";
+const static std::string SU_SINK_NAME_INFO = "info";
+const static std::string SU_SINK_NAME_WARN = "warn";
+const static std::string SU_SINK_NAME_ERROR = "error";
+
 silly_log::silly_log()
 {
     init();
@@ -22,7 +27,11 @@ bool silly_log::init(const option& opt)
     bool status = false;
 
     register_spdlog(opt);
-    status = true;
+
+    status &= (m_spdlog_debug != nullptr);
+    status &= (m_spdlog_info != nullptr);
+    status &= (m_spdlog_warn != nullptr);
+    status &= (m_spdlog_error != nullptr);
     // const char* log_file = "./logs/tzx.log";
     // if (!opt.path.empty())
     // {
@@ -58,11 +67,35 @@ void silly_log::register_spdlog(const option& opt)
 {
     try
     {
+        {  // 清理
+            std::shared_ptr<spdlog::logger> logger = spdlog::get(SU_SINK_NAME_DEBUG);
+            if (logger)
+            {
+                logger->sinks().clear();
+            }
+            logger = spdlog::get(SU_SINK_NAME_INFO);
+            if (logger)
+            {
+                logger->sinks().clear();
+            }
+            logger = spdlog::get(SU_SINK_NAME_WARN);
+
+            if (logger)
+            {
+                logger->sinks().clear();
+            }
+            logger = spdlog::get(SU_SINK_NAME_ERROR);
+            if (logger)
+            {
+                logger->sinks().clear();
+            }
+        }
+
         const std::filesystem::path sfp_log_root(opt.path);
         std::filesystem::create_directories(sfp_log_root);
         size_t rotate_mb = opt.rotate_size * 1024 * 1024;
         size_t max_files = 10;
-        const std::string log_pattern = "%^[%m-%d %H:%M:%S.%e]: %v%$";
+        const std::string log_pattern = "%^[%Y-%m-%d %H:%M:%S.%e]: %v%$";
         auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
         console_sink->set_level(spdlog::level::debug);
         console_sink->set_pattern(log_pattern);
@@ -71,16 +104,14 @@ void silly_log::register_spdlog(const option& opt)
         auto info_file_sink = std::make_shared<su_rotate_log>(std::filesystem::path(sfp_log_root).append(opt.name + ".info.log").string(), rotate_mb, max_files);
         auto error_file_sink = std::make_shared<su_rotate_log>(std::filesystem::path(sfp_log_root).append(opt.name + ".error.log").string(), rotate_mb, max_files);
 
-
-        m_spdlog_debug = std::make_shared<spdlog::logger>("debug\t", spdlog::sinks_init_list{console_sink, debug_file_sink});
+        m_spdlog_debug = std::make_shared<spdlog::logger>(SU_SINK_NAME_DEBUG, spdlog::sinks_init_list{console_sink, debug_file_sink});
         m_spdlog_debug->set_pattern(log_pattern);
-        m_spdlog_info = std::make_shared<spdlog::logger>("info\t", spdlog::sinks_init_list{console_sink, info_file_sink});
+        m_spdlog_info = std::make_shared<spdlog::logger>(SU_SINK_NAME_INFO, spdlog::sinks_init_list{console_sink, info_file_sink});
         m_spdlog_info->set_pattern(log_pattern);
-        m_spdlog_warn = std::make_shared<spdlog::logger>("warn\t", spdlog::sinks_init_list{console_sink,  warn_file_sink});
+        m_spdlog_warn = std::make_shared<spdlog::logger>(SU_SINK_NAME_WARN, spdlog::sinks_init_list{console_sink, warn_file_sink});
         m_spdlog_warn->set_pattern(log_pattern);
-        m_spdlog_error = std::make_shared<spdlog::logger>("error\t", spdlog::sinks_init_list{console_sink, error_file_sink});
+        m_spdlog_error = std::make_shared<spdlog::logger>(SU_SINK_NAME_ERROR, spdlog::sinks_init_list{console_sink, error_file_sink});
         m_spdlog_error->set_pattern(log_pattern);
-
     }
     catch (const spdlog::spdlog_ex& ex)
     {

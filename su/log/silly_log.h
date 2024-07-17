@@ -1,5 +1,5 @@
 #pragma once
-#pragma execution_character_set( "utf-8" )
+#pragma execution_character_set("utf-8")
 #define SPDLOG_WCHAR_TO_UTF8_SUPPORT
 #include "singleton/silly_singleton.h"
 #include <su_marco.h>
@@ -34,7 +34,7 @@ class silly_log : public silly_singleton<silly_log>
         enum_log_type type{2};
         enum_log_level level{0};
         size_t rotate_size{20};
-        bool console{true}; // 是否在控制台输出
+        bool console{true};  // 是否在控制台输出
     };
 
   public:
@@ -55,12 +55,12 @@ class silly_log : public silly_singleton<silly_log>
   private:
     silly_log();
 
-private:
+  private:
     void register_loguru(const option& opt);
     void register_spdlog(const option& opt);
     void register_glog(const option& opt);
 
-  public:
+  private:
     std::shared_ptr<spdlog::logger> m_spdlog_debug;
     std::shared_ptr<spdlog::logger> m_spdlog_info;
     std::shared_ptr<spdlog::logger> m_spdlog_warn;
@@ -70,7 +70,7 @@ private:
 template <typename... Args>
 void silly_log::debug(Args&&... s)
 {
-    if(m_spdlog_debug)
+    if (m_spdlog_debug)
     {
         m_spdlog_debug->debug(std::forward<Args>(s)...);
     }
@@ -78,7 +78,7 @@ void silly_log::debug(Args&&... s)
 template <typename... Args>
 void silly_log::info(Args&&... s)
 {
-    if(m_spdlog_info)
+    if (m_spdlog_info)
     {
         m_spdlog_info->info(std::forward<Args>(s)...);
     }
@@ -86,7 +86,7 @@ void silly_log::info(Args&&... s)
 template <typename... Args>
 void silly_log::warn(Args&&... s)
 {
-    if(m_spdlog_warn)
+    if (m_spdlog_warn)
     {
         m_spdlog_warn->warn(std::forward<Args>(s)...);
     }
@@ -94,7 +94,7 @@ void silly_log::warn(Args&&... s)
 template <typename... Args>
 void silly_log::error(Args&&... s)
 {
-    if(m_spdlog_error)
+    if (m_spdlog_error)
     {
         m_spdlog_error->error(std::forward<Args>(s)...);
     }
