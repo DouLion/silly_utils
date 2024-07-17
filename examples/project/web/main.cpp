@@ -1,13 +1,14 @@
 
 
 #include <drogon/drogon.h>
-#include "config_tool/config_tool.h"
+#include "project_marco.h"
 
-int main() 
+int main(int argc, char** argv)
 {
-    ////Set HTTP listener address and port
-    //drogon::app().addListener("0.0.0.0",80);
-    //Load config file
+    // 日志默认只输出到 控制台
+    SLOG_INFO("正在启动程序 {} ", argv[0]);
+    // 将使用程序名作为输出日志文件名称
+    silly_log::instance().init(argc, argv);
 
     std::string web_cfg_name = "web_config.json";
     std::string core_cfg_name = "core_config.json";
@@ -21,16 +22,9 @@ int main()
     web_config.append(web_cfg_name);
     core_config.append(core_cfg_name);
 
-    if (!Config::instance().read_config(core_config.string()))
-    {
-        std::cout << "error read config: " << core_config.string() << std::endl;
-        return -1;
-    }
+    // 初始化 程序配置项
 
-    std::cout << Config::instance().input_txt_dir << std::endl;
-    std::cout << Config::instance().output_tif_dir << std::endl;
-
-    //Run HTTP framework,the method will block in the internal event loop
+    // 初始化web配置项
     drogon::app().loadConfigFile(web_config.string());
     drogon::app().run();
     return 0;
