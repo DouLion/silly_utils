@@ -13,17 +13,45 @@ const static std::string SU_SINK_NAME_DEBUG = "debug";
 const static std::string SU_SINK_NAME_INFO = "info";
 const static std::string SU_SINK_NAME_WARN = "warn";
 const static std::string SU_SINK_NAME_ERROR = "error";
+const static std::string log_pattern = "%^[%Y-%m-%d %H:%M:%S.%e]: %v%$";
 
 silly_log::silly_log()
-{
-    init();
-}
-
-bool silly_log::init(const option& opt)
 {
 #if WIN32
     SetConsoleOutputCP(CP_UTF8);
 #endif
+    // init();
+    try
+    {
+        auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+        m_spdlog_debug = std::make_shared<spdlog::logger>(SU_SINK_NAME_DEBUG, spdlog::sinks_init_list{console_sink});
+        m_spdlog_debug->set_pattern(log_pattern);
+        m_spdlog_info = std::make_shared<spdlog::logger>(SU_SINK_NAME_INFO, spdlog::sinks_init_list{console_sink});
+        m_spdlog_info->set_pattern(log_pattern);
+        m_spdlog_warn = std::make_shared<spdlog::logger>(SU_SINK_NAME_WARN, spdlog::sinks_init_list{console_sink});
+        m_spdlog_warn->set_pattern(log_pattern);
+        m_spdlog_error = std::make_shared<spdlog::logger>(SU_SINK_NAME_ERROR, spdlog::sinks_init_list{console_sink});
+        m_spdlog_error->set_pattern(log_pattern);
+#ifndef NDEBUG
+        m_spdlog_debug->set_level(spdlog::level::debug);
+        m_spdlog_info->set_level(spdlog::level::debug);
+        m_spdlog_warn->set_level(spdlog::level::debug);
+        m_spdlog_error->set_level(spdlog::level::debug);
+#endif
+    }
+    catch (const spdlog::spdlog_ex& ex)
+    {
+        throw std::runtime_error("SPDLOG初始化失败");
+    }
+    catch (std::exception& e)
+    {
+        throw std::runtime_error("日志初始化失败");
+    }
+}
+
+bool silly_log::init(const option& opt)
+{
+
     bool status = true;
 
     register_spdlog(opt);
@@ -32,28 +60,22 @@ bool silly_log::init(const option& opt)
     status &= (m_spdlog_info != nullptr);
     status &= (m_spdlog_warn != nullptr);
     status &= (m_spdlog_error != nullptr);
-    // const char* log_file = "./logs/tzx.log";
-    // if (!opt.path.empty())
-    // {
-    //     log_file = (char*)(opt.path.c_str());
-    // }
-    //
-    // switch (opt.type)
-    // {
-    //     case enum_log_type::eltLoguru:
-    //         // loguru::init(argc, argv);
-    //         // loguru::add_file(argv[0], loguru::Append, loguru::Verbosity_MAX);
-    //         // status = true;
-    //         break;
-    //     case enum_log_type::eltSpdlog:
-    //         register_spdlog(opt);
-    //         status = true;
-    //         break;
-    //     default:
-    //         status = false;
-    //         break;
-    // }
+    if (status)
+    {
+        m_spdlog_info->info(SILLY_TZX_LOG_CHAR);
+    }
     return status;
+}
+
+bool silly_log::init(int argc, char** argv)
+{
+    if (!argc || !argv)
+    {
+        return false;
+    }
+    option opt;
+    opt.name = argv[0];
+    return init(opt);
 }
 
 void silly_log::register_loguru(const option& opt)
@@ -95,7 +117,7 @@ void silly_log::register_spdlog(const option& opt)
         std::filesystem::create_directories(sfp_log_root);
         size_t rotate_mb = opt.rotate_size * 1024 * 1024;
         size_t max_files = 10;
-        const std::string log_pattern = "%^[%Y-%m-%d %H:%M:%S.%e]: %v%$";
+
         auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
 
         console_sink->set_pattern(log_pattern);

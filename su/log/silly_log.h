@@ -39,6 +39,7 @@ class silly_log : public silly_singleton<silly_log>
 
   public:
     bool init(const option& opt = option());
+    bool init(int argc, char** argv);
 
     template <typename... Args>
     void debug(Args&&... s);
