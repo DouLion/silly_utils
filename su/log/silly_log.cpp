@@ -24,7 +24,7 @@ bool silly_log::init(const option& opt)
 #if WIN32
     SetConsoleOutputCP(CP_UTF8);
 #endif
-    bool status = false;
+    bool status = true;
 
     register_spdlog(opt);
 
