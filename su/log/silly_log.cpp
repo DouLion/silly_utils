@@ -97,14 +97,16 @@ void silly_log::register_spdlog(const option& opt)
         size_t max_files = 10;
         const std::string log_pattern = "%^[%Y-%m-%d %H:%M:%S.%e]: %v%$";
         auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-        console_sink->set_level(spdlog::level::debug);
+
         console_sink->set_pattern(log_pattern);
-        auto debug_file_sink = std::make_shared<su_rotate_log>(std::filesystem::path(sfp_log_root).append(opt.name + ".debug.log").string(), rotate_mb, max_files);
+        // auto debug_file_sink = std::make_shared<su_rotate_log>(std::filesystem::path(sfp_log_root).append(opt.name + ".debug.log").string(), rotate_mb, max_files);
         auto warn_file_sink = std::make_shared<su_rotate_log>(std::filesystem::path(sfp_log_root).append(opt.name + ".warn.log").string(), rotate_mb, max_files);
         auto info_file_sink = std::make_shared<su_rotate_log>(std::filesystem::path(sfp_log_root).append(opt.name + ".info.log").string(), rotate_mb, max_files);
         auto error_file_sink = std::make_shared<su_rotate_log>(std::filesystem::path(sfp_log_root).append(opt.name + ".error.log").string(), rotate_mb, max_files);
 
-        m_spdlog_debug = std::make_shared<spdlog::logger>(SU_SINK_NAME_DEBUG, spdlog::sinks_init_list{console_sink, debug_file_sink});
+        // m_spdlog_debug = std::make_shared<spdlog::logger>(SU_SINK_NAME_DEBUG, spdlog::sinks_init_list{console_sink, debug_file_sink});
+        // debug 信息暂时不考虑输出到文件
+        m_spdlog_debug = std::make_shared<spdlog::logger>(SU_SINK_NAME_DEBUG, spdlog::sinks_init_list{console_sink});
         m_spdlog_debug->set_pattern(log_pattern);
         m_spdlog_info = std::make_shared<spdlog::logger>(SU_SINK_NAME_INFO, spdlog::sinks_init_list{console_sink, info_file_sink});
         m_spdlog_info->set_pattern(log_pattern);
@@ -112,6 +114,12 @@ void silly_log::register_spdlog(const option& opt)
         m_spdlog_warn->set_pattern(log_pattern);
         m_spdlog_error = std::make_shared<spdlog::logger>(SU_SINK_NAME_ERROR, spdlog::sinks_init_list{console_sink, error_file_sink});
         m_spdlog_error->set_pattern(log_pattern);
+#ifndef NDEBUG
+        m_spdlog_debug->set_level(spdlog::level::debug);
+        m_spdlog_info->set_level(spdlog::level::debug);
+        m_spdlog_warn->set_level(spdlog::level::debug);
+        m_spdlog_error->set_level(spdlog::level::debug);
+#endif
     }
     catch (const spdlog::spdlog_ex& ex)
     {
