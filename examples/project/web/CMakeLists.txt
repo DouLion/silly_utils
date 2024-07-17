@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(exampleWeb CXX)
+project(ExampleWeb CXX)
 
 include(CheckIncludeFileCXX)
 
@@ -10,7 +10,6 @@ check_include_file_cxx(coroutine HAS_COROUTINE)
 # 始终使用c++ 17标准
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_executable(${PROJECT_NAME} main.cpp)
 

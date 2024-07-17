@@ -1,26 +1,13 @@
+#pragma once
+#include <project_marco.h>
 
-
-#include "config_tool/config_tool.h"
-
-int main()
+int main(int argc, char **argv)
 {
-    std::string core_cfg_name = "core_config.json";
-#ifndef NDEBUG
-    std::filesystem::path core_config(DEFAULT_CONFIG_DIR);
-#else
-    std::filesystem::path core_config("./config");
-#endif
-    core_config.append(core_cfg_name);
-
-
-    if (!Config::instance().read_config(core_config.string()))
-    {
-        std::cout << "error read config: " << core_config.string() << std::endl;
-        return -1;
+    if(!silly_log::instance().init(argc, argv)) {
+        std::cerr << "初始化日志失败" << std::endl;
+            return -1;
     }
-
-    std::cout << Config::instance().input_txt_dir << std::endl;
-    std::cout << Config::instance().output_tif_dir << std::endl;
+    SLOG_INFO("正在启动任务A")
 
     return 0;
 }

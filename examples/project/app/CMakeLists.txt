@@ -8,12 +8,3 @@ add_executable(TaskB  "task_b_app.cpp" )
 target_link_libraries(TaskB PUBLIC core_lib)
 
 
-
-
-#target_link_libraries(${PROJECT_NAME} PUBLIC sutils)
-
-
-
-
-
-
