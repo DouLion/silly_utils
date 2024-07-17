@@ -29,17 +29,19 @@ class silly_log : public silly_singleton<silly_log>
     class option
     {
       public:
-        std::string path{"./logs"};
-        std::string name{"silly"};
-        enum_log_type type{2};
-        enum_log_level level{0};
-        size_t rotate_size{20};
-        bool console{true};  // 是否在控制台输出
+        std::string path{"./logs"}; // 日志文件路径
+        std::string name{"silly"}; // 日志文件名称
+        enum_log_type type{2}; // 日志类型
+        enum_log_level level{0}; // 日志级别
+        size_t rotate_size{20}; // 日志文件大小
+        bool console{true};  // 是否在控制台输出,服务部署时建议设置为false
     };
 
   public:
-    bool init(const option& opt = option());
     bool init(int argc, char** argv);
+    bool init(const std::string& path);
+    bool init(const option& opt = option());
+
 
     template <typename... Args>
     void debug(Args&&... s);

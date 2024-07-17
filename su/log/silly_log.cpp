@@ -7,7 +7,7 @@
 
 typedef spdlog::sinks::rotating_file_sink_mt su_rotate_log;
 
-const static char* SILLY_TZX_LOG_CHAR = " \n _________\n|  _   _  |               \n|_/ | | \\_|____   _   __  \n    | |   [_   ] [ \\ [  ] \n   _| |_   .' /_  > '  <  \n  |_____| [_____][__]`\\_]\n";
+const static char* SILLY_TZX_LOG_CHAR = " \n _________\n|  _   _  |               \n|_/ | | \\_|____   _   __  \n    | |   [_   ] [ \\ [  ] \n   _| |_   .' /_  > '  <  \n  |_____| [_____][__]`\\_]\nBeijing TianZhiXiang Information Technology Co., Ltd. All rights\n";
 
 const static std::string SU_SINK_NAME_DEBUG = "debug";
 const static std::string SU_SINK_NAME_INFO = "info";
@@ -38,6 +38,7 @@ silly_log::silly_log()
         m_spdlog_warn->set_level(spdlog::level::debug);
         m_spdlog_error->set_level(spdlog::level::debug);
 #endif
+        m_spdlog_info->info(SILLY_TZX_LOG_CHAR);
     }
     catch (const spdlog::spdlog_ex& ex)
     {
@@ -76,6 +77,12 @@ bool silly_log::init(int argc, char** argv)
     option opt;
     opt.name = argv[0];
     return init(opt);
+}
+bool silly_log::init(const std::string& path){
+    option opt;
+
+    // TODO: 从配置文件加载
+    return false;
 }
 
 void silly_log::register_loguru(const option& opt)
