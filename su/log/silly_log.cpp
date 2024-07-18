@@ -61,7 +61,7 @@ bool silly_log::init(const option& opt)
     status &= (m_spdlog_info != nullptr);
     status &= (m_spdlog_warn != nullptr);
     status &= (m_spdlog_error != nullptr);
-   
+
     return status;
 }
 
