@@ -61,10 +61,7 @@ bool silly_log::init(const option& opt)
     status &= (m_spdlog_info != nullptr);
     status &= (m_spdlog_warn != nullptr);
     status &= (m_spdlog_error != nullptr);
-    if (status)
-    {
-        m_spdlog_info->info(SILLY_TZX_LOG_CHAR);
-    }
+   
     return status;
 }
 
@@ -75,7 +72,7 @@ bool silly_log::init(int argc, char** argv)
         return false;
     }
     option opt;
-    opt.name = argv[0];
+    opt.name = std::filesystem::path(argv[0]).stem().string();
     return init(opt);
 }
 bool silly_log::init(const std::string& path){
