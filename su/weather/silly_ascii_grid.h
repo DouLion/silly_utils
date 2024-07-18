@@ -23,7 +23,7 @@ class silly_ascii_grid
     bool read(const std::string& path);
 
   private:
-    bool read_asc();
+    bool read_asc(const std::string& path);
     bool read_bin();
 
   public:
