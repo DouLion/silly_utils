@@ -19,10 +19,7 @@ set(Boost_USE_MULTITHREADED ON)
 set(Boost_NO_WARN_NEW_VERSIONS 1)
 
 find_package(Boost COMPONENTS unit_test_framework REQUIRED)		
-add_executable(${PROJECT_NAME} ${SU_TEST_SRC_FILES}
-        ../extend/ascii_grid_image/ascii_grid_image.cpp
-        ../extend/ascii_grid_image/ascii_grid_image.h)
+add_executable(${PROJECT_NAME} ${SU_TEST_SRC_FILES})
 target_link_libraries(${PROJECT_NAME} PUBLIC sutils)
-target_link_libraries(${PROJECT_NAME} PUBLIC AsciiGridImg)
 # TODO: 准备添加boost 或者 google test模块以测试所有功能
 target_link_libraries(${PROJECT_NAME} PUBLIC Boost::unit_test_framework)

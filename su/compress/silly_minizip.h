@@ -12,11 +12,11 @@
 
 #ifndef SILLY_UTILS_SILLY_MINIZIP_H
 #define SILLY_UTILS_SILLY_MINIZIP_H
-
-#include <iostream>
-#include <compress/silly_compress_base.h>
-
-class silly_minizip : public silly_compress_base
+#include <compress/silly_compress.h>
+#include <log/silly_log.h>
+namespace silly_compress
+{
+class MiniZip
 {
   public:
     /// <summary>
@@ -26,7 +26,7 @@ class silly_minizip : public silly_compress_base
     /// <param name="s_dst">生成解压文件路径</param>
     /// <returns></returns>
     /// 注: 测试压缩3G以上ios文件有问题
-    int compress(const std::string& s_src, const std::string& s_dst) override;
+    static CPS_ERR compress(const std::string& s_src, const std::string& s_dst = "", const bool& append= false);
 
     /// <summary>
     /// 解压zip文件,解压单独文件和目录文件
@@ -34,7 +34,7 @@ class silly_minizip : public silly_compress_base
     /// <param name="s_src">待解压文件路径</param>
     /// <param name="s_dst">解压输出路径</param>
     /// <returns></returns>
-    int decompress(const std::string& s_src, const std::string& s_dst) override;
+    static CPS_ERR decompress(const std::string& s_src, const std::string& s_dst);
 
     /// <summary>
     /// 压缩内存数据
@@ -45,7 +45,7 @@ class silly_minizip : public silly_compress_base
     /// <param name="i_out_len">压缩数据输出大小</param>
     /// <returns></returns>
     /// 注: 如果c_in_val是一个字符串类型的数据要考虑字符串结尾的'\0',需对字符串类型的c_in_val进行strlen(c_in_val) + 1
-    int compress(const char* c_in_val, const size_t& i_in_len, char** c_out_val, size_t& i_out_len) override;
+    static CPS_ERR compress(const char* c_in_val, const size_t& i_in_len, char** c_out_val, size_t& i_out_len);
 
     /// <summary>
     /// 解压内存数据
@@ -55,7 +55,11 @@ class silly_minizip : public silly_compress_base
     /// <param name="c_out_val">解压数据输出</param>
     /// <param name="i_out_len">解压数据输出大小</param>
     /// <returns></returns>
-    int decompress(const char* c_in_val, const size_t& i_in_len, char** c_out_val, size_t& i_out_len) override;
+    static CPS_ERR decompress(const char* c_in_val, const size_t& i_in_len, char** c_out_val, size_t& i_out_len);
 };
+
+}  // namespace silly_compress
+
+using silly_minizip = silly_compress::MiniZip;
 
 #endif  // SILLY_UTILS_SILLY_MINIZIP_H

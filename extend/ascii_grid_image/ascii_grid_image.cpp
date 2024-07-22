@@ -4,6 +4,7 @@
 
 #include "ascii_grid_image.h"
 #include "image/png_utils.h"
+#include "files/silly_file.h"
 using namespace silly_image;
 
 #include <cmath> // 引入标准数学库
@@ -123,13 +124,37 @@ void mercator_gauss(double mx, double my, double& gaussx, double& gaussy, double
 void convert_image(double ncols, double nrows, double xllcorner, double yllcorner, double cellsize, double mid, double* data, char* img_path)
 {
 #ifndef NDEBUG
-    std::cout << "ncols: " << ncols << std::endl;
-    std::cout << "nrows: " << nrows << std::endl;
-    std::cout << "xllcorner: " << xllcorner << std::endl;
-    std::cout << "yllcorner: " << yllcorner << std::endl;
-    std::cout << "cellsize: " << cellsize << std::endl;
-    std::cout << "mid: " << mid << std::endl;
+    /* std::cout << "ncols: " << ncols << std::endl;
+     std::cout << "nrows: " << nrows << std::endl;
+     std::cout << "xllcorner: " << xllcorner << std::endl;
+     std::cout << "yllcorner: " << yllcorner << std::endl;
+     std::cout << "cellsize: " << cellsize << std::endl;
+     std::cout << "mid: " << mid << std::endl;
+     std::cout << "img" << img_path << std::endl;
+     std::vector<std::string> lines;
+     lines.resize(nrows);
+
+     int i = 0, r = 0, t = 0;
+     while (i < ncols * nrows)
+     {
+         char buff[10] = {0};
+         sprintf(buff, "%0.4f ", data[i]);
+         lines[r].append(buff);
+         i++;
+         t++;
+         if (t == ncols)
+         {
+             lines[r].append("\n");
+             r++;
+             t = 0;
+         }
+     }
+     std::string wp(img_path);
+     wp.append(".asc");
+     silly_file::write(wp, lines);*/
+
 #endif
+    
 
     unsigned char alpha = 200;
     struct render
@@ -155,9 +180,9 @@ void convert_image(double ncols, double nrows, double xllcorner, double yllcorne
     double mct_x_step = (mct_right - mct_letf) / ncols;
     double mct_y_step = (mct_top - mct_bottom) / nrows;
     png_data pd = silly_image::png_utils::create_empty(nrows, ncols);
-    for (size_t r = 0; r < ncols; ++r)
+    for (size_t r = 0; r < nrows; ++r)
     {
-        for (size_t c = 0; c < nrows; ++c)
+        for (size_t c = 0; c < ncols; ++c)
         {
             double tmp_mct_x = mct_letf + c * mct_x_step;
             double tmp_mct_y = mct_top - r * mct_y_step;

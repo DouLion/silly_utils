@@ -250,7 +250,7 @@ void png_data::set_pixel(const size_t &r, const size_t &c, const silly_color &sp
 {
     if (!(r < height && c < width))
     {
-        SU_DEBUG_PRINT("invalid %zu < %u and %zu < %u.", r, height, c, width);
+        // SU_DEBUG_PRINT("invalid %zu < %u and %zu < %u.", r, height, c, width);
         return;
     }
     size_t col_pos = c * pixel_size;
