@@ -34,7 +34,7 @@ class MiniZip
     /// <param name="s_src">待解压文件路径</param>
     /// <param name="s_dst">解压输出路径</param>
     /// <returns></returns>
-    static CPS_ERR decompress(const std::string& s_src, const std::string& s_dst);
+    static CPS_ERR decompress(const std::string& s_src, const std::string& s_dst = "");
 
     /// <summary>
     /// 压缩内存数据
