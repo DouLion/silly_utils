@@ -253,7 +253,7 @@ CPS_ERR MiniZip::decompress(const std::string& s_src, const std::string& s_dst)
     do  // 循环解压缩所有文件
     {
         size_t nameLen = 0;            // 该压缩分支文件名长度
-        size_t uncompressed_size = 0;  // 该压缩分支占字节数
+        size_t uncompressed_size = 0;  // 压缩文件大小
         unz_file_info64 file_info;     // 获取当前文件信息
         if (unzGetCurrentFileInfo64(zipFile, &file_info, nullptr, 0, nullptr, 0, nullptr, 0) == UNZ_OK)
         {
@@ -304,11 +304,11 @@ CPS_ERR MiniZip::decompress(const std::string& s_src, const std::string& s_dst)
             }
             else
             {
-                char* buffer = (char*)malloc(uncompressed_size);
+                size_t block_size = 100 * 1024 * 1024;  // 每次解压100MB
+                char* buffer = (char*)malloc(block_size);
                 int readSize;
                 unzOpenCurrentFile(zipFile);
-
-                while ((readSize = unzReadCurrentFile(zipFile, buffer, uncompressed_size)) > 0)
+                while ((readSize = unzReadCurrentFile(zipFile, buffer, block_size)) > 0)
                 {
                     outFile.write(buffer, readSize);
                     currentUncompressedSize += readSize;  // 更新已解压的总大小

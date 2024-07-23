@@ -29,7 +29,7 @@ BOOST_AUTO_TEST_CASE(BIG_FILE_DECOMPRESS)  // 大文件解压缩
               << "****************" << std::endl;
 
     std::string g4_5 = "D:/1_wangyingjie/readfile/cpmpress/big4_5g.zip";
-    std::string g4_5_out = "D:/1_wangyingjie/readfile/cpmpress/txt/big4_5g_de.txt";
+    std::string g4_5_out = "D:/1_wangyingjie/readfile/cpmpress/txt/";
 
     std::string g4_5_dir = "D:/1_wangyingjie/readfile/Radar_LOCAL/HN4_cpm";
     std::string g4_5_out_dir = "D:/1_wangyingjie/readfile/Radar_LOCAL/HN4.zip";
