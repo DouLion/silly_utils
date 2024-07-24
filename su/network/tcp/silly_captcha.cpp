@@ -12,9 +12,12 @@
 #include FT_FREETYPE_H
 
 // const char SILLY_POSSIBLE_CHAR[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-const char SILLY_POSSIBLE_CHAR[] = "ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";  // 删除常见容易混淆的字母和数字
-const int SILLY_POSSIBLE_NUM[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-const char SILLY_POSSIBLE_OPERATOR[] = "+-×";
+const static char SILLY_POSSIBLE_CHAR[] = "ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";  // 删除常见容易混淆的字母和数字
+const static int SILLY_POSSIBLE_NUM[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+const static char SILLY_POSSIBLE_OPERATOR[] = "+-×";
+
+static std::map<std::string, FT_Face> m_name_font{};
+static FT_Library m_ft_library;
 
 static cairo_status_t cairo_write_func_mine(void* closure, const unsigned char* data, unsigned int length)
 {
@@ -42,7 +45,7 @@ static bool cairo_draw(std::string& result, const std::string text, const FT_Fac
     surface = cairo_image_surface_create(CAIRO_FORMAT_A8, width, height);
     cr = cairo_create(surface);
     cairo_set_source_rgba(cr, 0, 0, 0, 0);  // RGB 白色
-    cairo_paint(cr);                    //
+    cairo_paint(cr);                        //
     cairo_font_face_t* cairo_font_face = nullptr;
     if (ft_face)  //
     {
@@ -54,7 +57,7 @@ static bool cairo_draw(std::string& result, const std::string text, const FT_Fac
     cairo_set_font_size(cr, font_size);  // 设置字体大小
     cairo_text_extents_t extents;
     cairo_text_extents(cr, text.c_str(), &extents);
-    double font_size_scale = (height/ extents.height) * 0.8;
+    double font_size_scale = (height / extents.height) * 0.8;
     cairo_set_font_size(cr, font_size_scale * font_size);
     double x = (width - extents.width * font_size_scale) / 2.0;
     double y = height * 0.85;
@@ -112,7 +115,7 @@ bool silly_captcha::add_font(const std::string& name, const std::string& path)
 
 bool silly_captcha::get_letter_captcha(std::string& answer, std::string& image, const size_t& letter_len, const std::string font_name)
 {
-    answer =  generate_letter_captcha(letter_len);
+    answer = generate_letter_captcha(letter_len);
     if (m_name_font.find(font_name) != std::end(m_name_font))
     {
         return cairo_draw(image, answer, &(m_name_font[font_name]));
@@ -132,7 +135,7 @@ bool silly_captcha::get_math_calc_captcha(std::string& answer, std::string& imag
 
 #define SIILY_CAPTCHAR_TO_LOWER()
 
-bool silly_captcha::is_same(const std::string& src, const std::string& dst)
+bool silly_captcha::euqal(const std::string& src, const std::string& dst)
 {
     size_t len;
     if ((len = src.size()) != dst.size())

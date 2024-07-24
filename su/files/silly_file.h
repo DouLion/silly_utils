@@ -13,7 +13,6 @@
 #ifndef SILLY_UTILS_SILLY_FILE_H
 #define SILLY_UTILS_SILLY_FILE_H
 #include <filesystem>
-#include <files/TFF_FileUtils.h>
 #include <su_marco.h>
 
 #ifndef SILLY_FILE_MEM_FREE
@@ -69,8 +68,18 @@ class silly_file
     static std::vector<std::string> list_all_recurse(const std::string &path, const std::string &filter = SILLY_FILE_MATCH_ALL_WILDCHAR);
 
 
+    /// <summary>
+    /// 最新更新时间
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
     static size_t last_modify_stamp_sec(const std::string& path);
 
+    /// <summary>
+    /// 最新更新时间
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
     static size_t last_modify_stamp_ms(const std::string& path);
 
 

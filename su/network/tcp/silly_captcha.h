@@ -9,9 +9,7 @@
  */
 #ifndef SILLY_UTILS_SILLY_CAPTCHA_H
 #define SILLY_UTILS_SILLY_CAPTCHA_H
-#include <iostream>
-#include <map>
-#include <cairo/cairo-ft.h>
+#include <log/silly_log.h>
 #include <singleton/silly_singleton.h>
 
 class silly_captcha : public silly_singleton<silly_captcha>
@@ -51,17 +49,15 @@ class silly_captcha : public silly_singleton<silly_captcha>
     /// <param name="src"></param>
     /// <param name="dst"></param>
     /// <returns></returns>
-    bool is_same(const std::string& src, const std::string& dst);
+    bool euqal(const std::string& src, const std::string& dst);
 
   private:
     silly_captcha();
     ~silly_captcha();
-    std::string generate_letter_captcha(const size_t& letter_len = 4);
-    std::string generate_math_calc_captcha(std::string& result);
 
   private:
-    std::map<std::string, FT_Face> m_name_font;
-    FT_Library m_ft_library;
+    std::string generate_letter_captcha(const size_t& letter_len = 4);
+    std::string generate_math_calc_captcha(std::string& result);
 
 };
 

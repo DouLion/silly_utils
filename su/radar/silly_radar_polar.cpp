@@ -83,10 +83,10 @@ bool silly_radar_polar::read(const std::string& path)
     bool status = false;
     char* buff = nullptr;
     int len = 0;
-    if (FileUtils::ReadAll(path.c_str(), &buff, len))
+    /*if (FileUtils::ReadAll(path.c_str(), &buff, len))
     {
         status = unserialize(buff, len);
-    }
+    }*/
     if (buff)
     {
         free(buff);

@@ -33,13 +33,32 @@ class silly_log : public silly_singleton<silly_log>
         std::string name{"silly"}; // 日志文件名称
         enum_log_type type{2}; // 日志类型
         enum_log_level level{0}; // 日志级别
-        size_t rotate_size{20}; // 日志文件大小
+        size_t rotate_size{20}; // 日志文件大小(MB)
         bool console{true};  // 是否在控制台输出,服务部署时建议设置为false
     };
 
   public:
+    /// <summary>
+    /// 由主函数的入参初始化日志模块,存储路径在当前目录的 logs文件夹下
+    /// 日志文件名称为程序名称
+    /// </summary>
+    /// <param name="argc"></param>
+    /// <param name="argv"></param>
+    /// <returns></returns>
     bool init(int argc, char** argv);
+
+    /// <summary>
+    /// 由配置文件构建option对象,再初始化日志模块
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
     bool init(const std::string& path);
+
+    /// <summary>
+    /// 由option对象初始化日志模块
+    /// </summary>
+    /// <param name="opt"></param>
+    /// <returns></returns>
     bool init(const option& opt = option());
 
 
