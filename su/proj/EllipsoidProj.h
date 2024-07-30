@@ -40,6 +40,8 @@
 
 #define ELLIPSOID_ZONE_WIDE 6.0f
 
+#define GUASS_TO_LNG_LAT(l0, gx, gy, lng, lat, pjnm)
+
 class EllipsoidProj
 {
   public:

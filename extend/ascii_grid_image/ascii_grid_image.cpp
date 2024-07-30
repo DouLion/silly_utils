@@ -5,15 +5,16 @@
 #include "ascii_grid_image.h"
 #include "image/png_utils.h"
 #include "files/silly_file.h"
+#include "proj/gdal/silly_proj_convert.h"
 using namespace silly_image;
 
 #include <cmath>  // 引入标准数学库
 
 // 定义椭球参数
-#define a 6378137.0            // 地球长半轴
+#define a 6378136.6            // 地球长半轴
 #define f 1.0 / 298.257223563  // 扁率
 #define e2 (2 * f - f * f)     // 第一偏心率的平方
-#define M_PI 3.14159265358979323846
+// #define M_PI 3.14159265358979323846
 
 // 高斯投影坐标转经纬度坐标
 void GaussToBL(double L0, double X, double Y, double* longitude, double* latitude)
@@ -147,26 +148,36 @@ void convert_image(double ncols, double nrows, double xllcorner, double yllcorne
      silly_file::write(wp, lines);*/
 
 #endif
-    double uMax = -99999.0, uMin = 99999.0, vMax = -99999.0, vMin = 99999.0;
-    for (size_t r = 0; r < nrows; ++r)
-    {
-        for (size_t c = 0; c < ncols; ++c)
-        {
-            int pos = SU_MAX(0, SU_MIN(r * ncols + c, nrows * ncols));
-            double h = data[pos];
-            if (h < 0.00001)
-            {
-                continue;
-            }
-            double u = qx[pos] / h;
-            double v = qy[pos] / h;
 
-            uMax = SU_MAX(uMax, u);
-            uMin = SU_MIN(uMin, u);
-            vMax = SU_MAX(vMax, v);
-            vMin = SU_MIN(vMin, v);
+  /*  silly_proj_convert mct_to_gauss;
+    mct_to_gauss.begin({{silly_proj_def_enum::PCS_WGS_1984_WEB_MERCATOR, mid}, {silly_proj_def_enum::PCS_WGS_1984_WEB_MERCATOR}});
+    silly_proj_convert gauss_to_geo;
+    silly_proj_convert geo_to_mct;*/
+
+    double uMax = -99999.0, uMin = 99999.0, vMax = -99999.0, vMin = 99999.0;
+    if (data)
+    {
+        for (size_t r = 0; r < nrows; ++r)
+        {
+            for (size_t c = 0; c < ncols; ++c)
+            {
+                int pos = SU_MAX(0, SU_MIN(r * ncols + c, nrows * ncols));
+                double h = data[pos];
+                if (h < 0.00001)
+                {
+                    continue;
+                }
+                double u = qx[pos] / h;
+                double v = qy[pos] / h;
+
+                uMax = SU_MAX(uMax, u);
+                uMin = SU_MIN(uMin, u);
+                vMax = SU_MAX(vMax, v);
+                vMin = SU_MIN(vMin, v);
+            }
         }
     }
+   
 
     unsigned char alpha = 200;
     struct render
@@ -182,28 +193,56 @@ void convert_image(double ncols, double nrows, double xllcorner, double yllcorne
     renders.push_back({2., silly_color(38, 115, 242, alpha)});
     renders.push_back({3., silly_color(0, 77, 204, alpha)});
     renders.push_back({99999., silly_color(0, 77, 204, alpha)});
-
     double mct_letf = 0, mct_right = 0, mct_top = 0, mct_bottom = 0;
-    const double gauss_left = xllcorner, gauss_right = xllcorner + cellsize * ncols, gauss_top = yllcorner + cellsize * nrows, gauss_bottom = yllcorner;
-    gauss_mercator(gauss_left, gauss_bottom, mct_letf, mct_bottom, mid);
-    gauss_mercator(gauss_right, gauss_top, mct_right, mct_top, mid);
+    const double gauss_left = xllcorner, gauss_right = xllcorner + cellsize * (ncols - 2), gauss_top = yllcorner + cellsize * (nrows -2), gauss_bottom = yllcorner;
+    //std::cout << mid << std::endl;
+    {
+        double left_top_x, left_top_y;
+        GaussToBL(mid, gauss_top, gauss_left, &left_top_x, &left_top_y);
+        double right_bottom_x, right_bottom_y;
+        GaussToBL(mid, gauss_bottom, gauss_right, &right_bottom_x, &right_bottom_y);
+        double left_bottom_x, left_bottom_y;
+        GaussToBL(mid, gauss_bottom, gauss_left, &left_bottom_x, &left_bottom_y);
+        double right_top_x, right_top_y;
+        GaussToBL(mid, gauss_top, gauss_right, &right_top_x, &right_top_y);
+
+        double geo_left = left_top_x;
+
+        // 112 .34067;                   // SU_MIN(left_top_x, left_bottom_x)
+        double geo_right = right_bottom_x;
+
+        // 112 .5683;  // SU_MAX(right_top_x, right_bottom_x);
+        double geo_top = right_top_y;
+        // 26 .98808;
+        //SU_MAX(left_top_y, right_top_y);
+        double geo_bottom = left_bottom_y;  
+        // 26.86;
+        //SU_MIN(left_bottom_y, right_bottom_y);
+
+        latLonToMercator(geo_top, geo_left, &mct_letf, &mct_top);
+        latLonToMercator(geo_bottom, geo_right, &mct_right, &mct_bottom);
+       /* std::cout << geo_left << " " << geo_top << " " << geo_right << " " << geo_bottom << std::endl;
+        std::cout << mct_letf << " " << mct_top << " " << mct_right << " " << mct_bottom << std::endl;*/
+
+    }
+    
 
     double mct_x_step = (mct_right - mct_letf) / ncols;
     double mct_y_step = (mct_top - mct_bottom) / nrows;
     png_data pd = silly_image::png_utils::create_empty(nrows, ncols);
     png_data pd2 = silly_image::png_utils::create_empty(nrows, ncols, PNG_COLOR_TYPE_RGB);
-    for (size_t r = 0; r < nrows; ++r)
+    for (size_t r = 0; r < nrows - 2; ++r)
     {
-        for (size_t c = 0; c < ncols; ++c)
+        for (size_t c = 0; c < ncols -2; ++c)
         {
             double tmp_mct_x = mct_letf + c * mct_x_step;
             double tmp_mct_y = mct_top - r * mct_y_step;
             double tmp_gauss_x, tmp_gauss_y;
             mercator_gauss(tmp_mct_x, tmp_mct_y, tmp_gauss_x, tmp_gauss_y, mid);
 
-            int gcol = (tmp_gauss_x - gauss_left) / cellsize;
-            int grol = (gauss_top - tmp_gauss_y) / cellsize;
-            // if (col >= 0 && rol > 0 && col < sag1.ncols && rol < sag1.nrows)
+            int gcol = std::round((tmp_gauss_x - gauss_left) / cellsize + 1);
+            int grol = std::round((gauss_top - tmp_gauss_y) / cellsize);
+            if (gcol >= 0 && grol > 0 && gcol < ncols && grol < nrows)
             {
                 int pos = SU_MAX(0, SU_MIN(grol * ncols + gcol, nrows * ncols));
                 double v = data[pos];

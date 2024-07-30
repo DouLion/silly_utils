@@ -18,12 +18,7 @@ static OGRSpatialReference spc_build_srs(const spc_srs_param& ssp)
     bool status = false;
 
     OGRSpatialReference res_srs;
-    switch (ssp.wk_num)
-    {
-        case silly_proj_def_enum::GCS_XIAN_1980:
-            status = (res_srs.importFromWkt(silly_projection_define::get(ssp.wk_num)) == OGRERR_NONE);
-    }
-    if(status)
+    if (!(res_srs.importFromWkt(silly_projection_define::get(ssp.wk_num)) == OGRERR_NONE))
     {
         SFP_ERROR("\n地理坐标系统: {} , 参数设置错误\n", static_cast<int>(ssp.wk_num))
     }

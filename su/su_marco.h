@@ -155,6 +155,7 @@
 #endif
 #endif
 
+
 #ifndef SU_SWITCH_CONSOLE_ENCODE
 #define SU_SWITCH_CONSOLE_ENCODE(p)
 //if (p)                                 \
@@ -293,3 +294,5 @@
         (p) = nullptr;     \
     }
 #endif
+
+

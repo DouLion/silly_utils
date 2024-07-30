@@ -13,8 +13,7 @@
 
 #include "silly_projection_define.h"
 
-
-char* silly_projection_define::epsg3857Wkt =
+char *silly_projection_define::epsg3857Wkt =
     "PROJCS[\"WGS 84 / Pseudo-Mercator\","
     "GEOGCS[\"WGS 84\","
     "DATUM[\"WGS_1984\","
@@ -51,7 +50,6 @@ char *silly_projection_define::epsg4326Wkt =
     "AUTHORITY[\"EPSG\",\"9122\"]],"
     "AUTHORITY[\"EPSG\",\"4326\"]]";
 
-
 /*
  * 这段代码表示关于"Beijing 2000"地理坐标系统的参数设置。
  * 它包括了关于椭球体（Spheroid）和大地基准（Datum）的信息，
@@ -69,7 +67,6 @@ char *silly_projection_define::epsg4490Wkt =
     "UNIT[\"degree\",0.0174532925199433,"
     "AUTHORITY[\"EPSG\",\"9122\"]],"
     "AUTHORITY[\"EPSG\",\"4490\"]]";
-
 
 char *silly_projection_define::epsg4610Wkt =
     "GEOGCS[\"Xian 1980\","
@@ -94,28 +91,52 @@ char *silly_projection_define::epsg4214Wkt =
     "AUTHORITY[\"EPSG\",\"9122\"]],"
     "AUTHORITY[\"EPSG\",\"4214\"]]";
 
+char *silly_projection_define::epsgGC03Wkt =
+    "PROJCS[\"Gauss_Kruger_3_Degree_Zone_37\","
+    "GEOGCS[\"GCS_GK_3\","
+    "DATUM[\"D_GK_3\", "
+    "SPHEROID[\"GRS_1980\",6378137,298.257222101]],"
+    "PRIMEM[\"Greenwich\",0],"
+    "UNIT[\"Degree\",0.0174532925199433]],"
+    "PROJECTION[\"Transverse_Mercator\"],"
+    "PARAMETER[\"false_easting\",500000],"
+    "PARAMETER[\"false_northing\",0],"
+    "PARAMETER[\"central_meridian\",111],"
+    "PARAMETER[\"scale_factor\",1],"
+    "PARAMETER[\"latitude_of_origin\",0],"
+    "UNIT[\"Meter\",1]]";
 
 const char *silly_projection_define::get(const silly_proj_def_enum &def)
 {
+    char *result;
     switch (def)
     {
         case silly_proj_def_enum::GCS_WGS_1984:
-            return epsg4326Wkt;
+            result = epsg4326Wkt;
+            break;
         case silly_proj_def_enum::PCS_WGS_1984_WEB_MERCATOR:
-            return epsg3857Wkt;
+            result = epsg3857Wkt;
+            break;
         case silly_proj_def_enum::GCS_CHINA_2000:
-            return epsg4490Wkt;
+            result = epsg4490Wkt;
+            break;
         case silly_proj_def_enum::GCS_XIAN_1980:
-            return epsg4610Wkt;
+            result = epsg4610Wkt;
+            break;
         case silly_proj_def_enum::GCS_BEIJING_1954:
-            return epsg4214Wkt;
+            result = epsg4214Wkt;
+            break;
+        case silly_proj_def_enum::Gauss_Kruger_3:
+            result = epsgGC03Wkt;
+            break;
+        case silly_proj_def_enum::GCJ02_MC:
         case silly_proj_def_enum::BaiDu09_LL:
         case silly_proj_def_enum::GCJ02_LL:
         case silly_proj_def_enum::Baidu09_MC:
-        case silly_proj_def_enum::GCJ02_MC:
         default:
-            return "";
+            break;
     }
+    return "";
 }
 const char *silly_projection_define::get(const int &def)
 {
