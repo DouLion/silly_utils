@@ -14,7 +14,7 @@ using namespace silly_image;
 #define a 6378136.6            // 地球长半轴
 #define f 1.0 / 298.257223563  // 扁率
 #define e2 (2 * f - f * f)     // 第一偏心率的平方
-// #define M_PI 3.14159265358979323846
+// #define SU_PI 3.14159265358979323846
 
 // 高斯投影坐标转经纬度坐标
 void GaussToBL(double L0, double X, double Y, double* longitude, double* latitude)
@@ -34,22 +34,22 @@ void GaussToBL(double L0, double X, double Y, double* longitude, double* latitud
     // 经纬度计算
     double phi = phi1 - (N1 * tan(phi1) / R1) * (D * D / 2 - (5 + 3 * T1 + 10 * C1 - 4 * C1 * C1 - 9 * e1) * D * D * D * D / 24 + (61 + 90 * T1 + 298 * C1 + 45 * T1 * T1 - 252 * e1 - 3 * C1 * C1) * D * D * D * D * D * D / 720);
 
-    double lambda = L0 * M_PI / 180 + (D - (1 + 2 * T1 + C1) * D * D * D / 6 + (5 - 2 * C1 + 28 * T1 - 3 * C1 * C1 + 8 * e1 + 24 * T1 * T1) * D * D * D * D * D / 120) / cos(phi1);
+    double lambda = L0 * SU_PI / 180 + (D - (1 + 2 * T1 + C1) * D * D * D / 6 + (5 - 2 * C1 + 28 * T1 - 3 * C1 * C1 + 8 * e1 + 24 * T1 * T1) * D * D * D * D * D / 120) / cos(phi1);
 
     // 转换为度
-    *latitude = phi * 180 / M_PI;
-    *longitude = lambda * 180 / M_PI;
+    *latitude = phi * 180 / SU_PI;
+    *longitude = lambda * 180 / SU_PI;
 }
 
 // 函数：将度数转换为弧度
 double degToRad(double deg)
 {
-    return deg * M_PI / 180.0;
+    return deg * SU_PI / 180.0;
 }
 // 弧度转度函数
 double radToDeg(double rad)
 {
-    return rad * 180.0 / M_PI;
+    return rad * 180.0 / SU_PI;
 }
 // 函数：将经纬度转换为墨卡托投影坐标
 void latLonToMercator(double lat, double lon, double* x, double* y)
@@ -60,7 +60,7 @@ void latLonToMercator(double lat, double lon, double* x, double* y)
 
     // 墨卡托投影公式
     *x = a * lonRad;
-    *y = a * log(tan(M_PI / 4 + latRad / 2));
+    *y = a * log(tan(SU_PI / 4 + latRad / 2));
 }
 // 经纬度转高斯-克吕格投影坐标（3度带）
 void latLonToGauss(double L0, double lat, double lon, double* X, double* Y)
@@ -93,7 +93,7 @@ void mercatorToLatLon(double x, double y, double* lat, double* lon)
 {
     const double R = 6378137.0;
     *lon = radToDeg(x / R);
-    *lat = radToDeg(2 * atan(exp(y / R)) - M_PI / 2);
+    *lat = radToDeg(2 * atan(exp(y / R)) - SU_PI / 2);
 }
 
 void gauss_mercator(double gaussx, double gaussy, double& mx, double& my, double mid)
