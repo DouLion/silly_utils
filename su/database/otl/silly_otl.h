@@ -197,6 +197,15 @@ class otl_conn_opt
     /// </summary>
     void help();
 
+    /// <summary>
+    /// 非session执行sql的模板函数
+    /// </summary>
+    /// <typeparam name="Func"></typeparam>
+    /// <typeparam name="...Args"></typeparam>
+    /// <param name="sql"></param>
+    /// <param name="func"></param>
+    /// <param name="...args"></param>
+    /// <returns>执行是否成功</returns>
     template <typename Func, typename... Args>
     bool execute(const std::string& sql, Func&& func, Args&&... args)
     {
@@ -204,9 +213,45 @@ class otl_conn_opt
         otl_connect db;
         try
         {
-            db.rlogon(conn);
+            db.rlogon(conn, true);
             db.set_timeout(10);
             db.set_max_long_size(INT_MAX - 1);
+            otl_stream stream;
+            stream.open(1, sql.c_str(), db)
+            func(&stream, std::forward<Args>(args)...);
+            db.commit();
+            stream.close()
+            status = true;
+        }
+        catch (otl_exception& e)
+        {
+            db.rollback();
+            SLOG_ERROR("OTL_ERR \nCONN:{} \nCODE:{} \nMSG:{} \nSTATE:{}\n", conn, e.code, (char*)e.msg, (char*)e.sqlstate);
+        }
+        catch (std::exception& p)
+        {
+            db.rollback();
+            SLOG_ERROR("OTL_UNKOWN{}\n", p.what());
+        }
+        db.logoff();
+
+        return status;
+    }
+
+    template <typename Func, typename... Args>
+    bool session(const std::string& sql, Func&& func, Args&&... args)
+    {
+        bool status = false;
+        otl_connect db;
+        try
+        {
+            db.rlogon(conn, false);
+            db.auto_commit_off();
+            db.set_timeout(10);
+            db.set_max_long_size(INT_MAX - 1);
+            otl_stream stream;
+            stream.open(1, sql.c_str(), db);
+            stream.set_commit(false);
             func(&db, sql, std::forward<Args>(args)...);
             db.commit();
             status = true;
