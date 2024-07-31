@@ -198,17 +198,17 @@ class otl_conn_opt
     void help();
 
     template <typename Func, typename... Args>
-    bool execute(const char* conn, Func&& func, Args&&... args)
+    bool execute(const std::string& sql, Func&& func, Args&&... args)
     {
         bool status = false;
         otl_connect db;
         try
         {
-            db.rlogon(conn, false);
-            db.auto_commit_off();
+            db.rlogon(conn);
             db.set_timeout(10);
             db.set_max_long_size(INT_MAX - 1);
-            func(&db, std::forward<Args>(args)...);
+            func(&db, sql, std::forward<Args>(args)...);
+            db.commit();
             status = true;
         }
         catch (otl_exception& e)
