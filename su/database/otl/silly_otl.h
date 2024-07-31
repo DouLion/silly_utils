@@ -36,9 +36,7 @@
 #endif
 
 #include <database/otl/otlv4.h>
-#ifdef ENABLE_SILLY_LOG
-#include <log/loguru/loguru.hpp>
-#endif
+#include <log/silly_log.h>
 #include <functional>
 #include <stdexcept>  // 包含标准异常类
 
@@ -211,6 +209,41 @@ class otl_conn_opt
     std::string m_password;
     std::string m_dsn;
     std::string conn;
+};
+
+class silly_otl_connect
+{
+  public:
+    template <typename Func, typename... Args>
+    typename std::result_of<Func(Args...)>::type try_catch_otl(otl_conn_opt& oco, Func&& func, Args&&... args)
+    {
+        otl_connect db;
+        const char* conn = oco.dump_odbc().c_str();
+        try
+        {
+            db.rlogon(conn, false);
+            db.auto_commit_off();
+            db.set_timeout(10);
+            db.set_max_long_size(INT_MAX - 1);
+            return func(std::forward<Args>(args)...);
+        }
+        catch (otl_exception& e)
+        {
+            db.rollback();
+            //SLOG_F(ERROR, "\n{}{}\n数据库查询失败, \nCONN:{} \nCODE:{} \nMSG:{} \nSTATE:{}\n", __FILE__, __LINE__, conn, std::string(e.code), std::string(e.msg), std::string(e.sqlstate));
+            //throw;  // 如果需要，可以在这里重新抛出异常
+        }
+        catch (std::exception& p)
+        {
+            db.rollback();
+            //SLOG_F(ERROR, "\n{}{}未知异常{}\n", __FILE__, __LINE__, std::string(p.what()));
+            //throw;  // 如果需要，可以在这里重新抛出异常
+        }
+        //finally
+        {
+            db.logoff();
+        }
+    }
 };
 
 //

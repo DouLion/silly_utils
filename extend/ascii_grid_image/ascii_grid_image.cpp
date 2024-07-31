@@ -227,10 +227,10 @@ void convert_image(double ncols, double nrows, double xllcorner, double yllcorne
     }
     
 
-    double mct_x_step = (mct_right - mct_letf) / ncols;
-    double mct_y_step = (mct_top - mct_bottom) / nrows;
-    png_data pd = silly_image::png_utils::create_empty(nrows, ncols);
-    png_data pd2 = silly_image::png_utils::create_empty(nrows, ncols, PNG_COLOR_TYPE_RGB);
+    double mct_x_step = (mct_right - mct_letf) / (ncols -2);
+    double mct_y_step = (mct_top - mct_bottom) / (nrows - 2);
+    png_data pd = silly_image::png_utils::create_empty((nrows - 2), (ncols - 2));
+    png_data pd2 = silly_image::png_utils::create_empty((nrows - 2), (ncols - 2), PNG_COLOR_TYPE_RGB);
     for (size_t r = 0; r < nrows - 2; ++r)
     {
         for (size_t c = 0; c < ncols -2; ++c)
@@ -271,6 +271,13 @@ void convert_image(double ncols, double nrows, double xllcorner, double yllcorne
                     }
                 }
                 pd.set_pixel(r, c, renders[i - 1].c);
+            }
+            else
+            {
+                silly_color tmp(0, 0, 0);
+                tmp.red = 255.0 * (0 - uMin) / (uMax - uMin);
+                tmp.green = 255.0 * (0 - vMin) / (vMax - vMin);
+                pd2.set_pixel(r, c, tmp);
             }
         }
     }
