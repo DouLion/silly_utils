@@ -3,8 +3,13 @@
 //
 
 #include "silly_encode.h"
-#include <fstream>
+#include <log/silly_log.h>
 #include <iconv.h>
+//#include <unicode/ucnv.h>
+//#include <unicode/ustring.h>
+//#include <unicode/unistr.h>
+//#include <unicode/ustream.h>
+
 
 silly_encode::enum_encode silly_encode::check_system_encode()
 {
@@ -75,36 +80,130 @@ std::string silly_encode::url_decode(const std::string &src)
 
 std::string silly_encode::encode_convert(const char *from, const char *to, const char *text)
 {
-    iconv_t cd = iconv_open(to, from);
-    if (cd == (iconv_t)(-1))
+    std::string encode_str;
+    iconv_t cd;
+    cd = iconv_open(to, from);
+    if (cd == (iconv_t)-1)
     {
-        SU_ERROR_PRINT("Not support encode convert from %s to %s", from, to);
-        return "";
-    }
-    char *tmp_src = (char *)text;
-    size_t src_len = strlen(tmp_src);
-    size_t dst_len = src_len * 5;
-    char *out = (char *)malloc(dst_len);
-    if (!out)
-    {
-        SU_ERROR_PRINT("malloc failed.")
-        return "";
-    }
-    memset(out, 0, dst_len);
-    char *p_out_free = out;
-
-    size_t ret = iconv(cd, &tmp_src, &src_len, &out, &dst_len);
-    if (!(ret == (size_t)(-1) && errno == EINVAL))
-    {
-        SU_MEM_FREE(p_out_free)
-        return "";
+        SLOG_ERROR("iconv_open");
+        return encode_str;
     }
 
-    std::string retStr(p_out_free);
-    SU_MEM_FREE(p_out_free)
+    size_t src_len = strlen(text);
+    std::string buffer;
+    // 准备输出缓冲区
+    buffer.resize(src_len * 4);  // 假设每个字符最多需要 4 个字节
+
+    // 进行转换
+    size_t inBytesLeft = src_len;
+    char *in = (char *)&text[0];
+    size_t outBytesLeft = src_len * 4;
+    char *out = (char *)&buffer[0];
+
+    size_t result = iconv(cd, &in, &inBytesLeft, &out, &outBytesLeft);
+    if (result == (size_t)-1)
+    {
+        if (errno == EILSEQ)
+        {  // 非法序列
+            SLOG_ERROR("非法序列")
+        }
+        else
+        {
+            SLOG_ERROR("iconv")
+        }
+    }
+    else
+    {
+        encode_str = buffer;
+    }
+    // 关闭 iconv 描述符
     iconv_close(cd);
 
-    return retStr;
+    return encode_str;
+}
+
+bool silly_encode::encode_convert(const std::string &from, const std::string &to, const std::string &text, std::string &ret)
+{
+    bool status = false;
+    iconv_t cd;
+    cd = iconv_open(to.c_str(), from.c_str());
+    if (cd == (iconv_t)-1)
+    {
+        SLOG_ERROR("iconv_open");
+        return status;
+    }
+
+    size_t src_len = text.length();
+    // 准备输出缓冲区
+    ret.resize(src_len * 4);  // 假设每个字符最多需要 4 个字节
+
+    // 进行转换
+    size_t inBytesLeft = src_len;
+    char *in = (char *)&text[0];
+    size_t outBytesLeft = src_len * 4;
+    char *out = (char *)&ret[0];
+
+    size_t result = iconv(cd, &in, &inBytesLeft, &out, &outBytesLeft);
+    if (result == (size_t)-1)
+    {
+        if (errno == EILSEQ)
+        {  // 非法序列
+            SLOG_ERROR("非法序列")
+        }
+        else
+        {
+            SLOG_ERROR("iconv")
+        }
+    }
+    else
+    {
+        status = true;
+    }
+    // 关闭 iconv 描述符
+    iconv_close(cd);
+    return status;
+}
+
+bool silly_encode::icu_convert(const std::string &from, const std::string &to, const std::string &text, std::string &ret)
+{
+    bool status = false;
+    //icu::UnicodeString unicode_str = icu::UnicodeString::fromUTF8(text);
+
+    //// 准备转换
+    //UErrorCode errorCode = U_ZERO_ERROR;
+    //UConverter *converter = ucnv_open("GBK", &errorCode);
+    //if (U_FAILURE(errorCode))
+    //{
+    //    std::cerr << "Error opening converter: " << u_errorName(errorCode) << std::endl;
+    //    return status;
+    //}
+
+    //// 计算缓冲区大小
+    //int32_t gbk_length = ucnv_fromUChars(converter, nullptr, 0, unicode_str.getBuffer(), unicode_str.length(), &errorCode);
+    //if (errorCode != U_BUFFER_OVERFLOW_ERROR)
+    //{
+    //    std::cerr << "Error calculating buffer size: " << u_errorName(errorCode) << std::endl;
+    //    ucnv_close(converter);
+    //    return status;
+    //}
+    //errorCode = U_ZERO_ERROR;
+
+    //// 实际转换
+    //std::string gbk_str(gbk_length, '\0');  // 创建一个适当大小的字符串缓冲区
+    //ucnv_fromUChars(converter, &gbk_str[0], gbk_str.size(), unicode_str.getBuffer(), unicode_str.length(), &errorCode);
+
+    //// 检查转换错误
+    //if (U_FAILURE(errorCode))
+    //{
+    //    std::cerr << "Error during conversion: " << u_errorName(errorCode) << std::endl;
+    //    ucnv_close(converter);
+    //    return status;
+    //}
+
+    //// 清理资源
+    //ucnv_close(converter);
+    //ret = gbk_str;
+    return status;
 }
 
 silly_encode::enum_encode silly_encode::check_file_encode(const std::string &path)

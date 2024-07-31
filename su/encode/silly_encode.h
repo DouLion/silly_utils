@@ -74,7 +74,6 @@
 #ifndef SILLY_UTILS_SILLY_ENCODE_H
 #define SILLY_UTILS_SILLY_ENCODE_H
 #include <su_marco.h>
-#include <boost/locale.hpp>
 
 class silly_encode
 {
@@ -116,6 +115,10 @@ class silly_encode
     /// <returns></returns>
     static std::string encode_convert(const char *from, const char *to, const char *text);
 
+    static bool encode_convert(const std::string &from, const std::string &to, const std::string &text, std::string &ret);
+
+    static bool icu_convert(const std::string &from, const std::string &to, const std::string &text, std::string &ret);
+
     /// <summary>
     /// 检查文件编码
     /// </summary>
@@ -130,18 +133,17 @@ class silly_encode
     /// <returns></returns>
     static std::string gbk_utf8(const char *text)
     {
-        return boost::locale::conv::between(text, std::string("UTF-8"), std::string("GBK"));//encode_convert("GBK", "UTF-8", text);
+        return encode_convert("GBK", "UTF-8", text);
     }
 
     static std::string utf8_gbk(const char *text)
     {
-        return boost::locale::conv::between(text, std::string("GBK"), std::string("UTF-8"));// encode_convert("UTF-8", "GBK", text);
+        return encode_convert("UTF-8", "GBK", text);
     }
 
     static std::string unicode_gbk(const char *text)
     {
-        return  boost::locale::conv::between(text, std::string("UTF-8"), std::string("GBK"));
-         // encode_convert("EUC-CN", "GBK", text);
+        return encode_convert("EUC-CN", "GBK", text);
     }
 
     static std::string unicode_utf8(const char *text)
@@ -151,14 +153,12 @@ class silly_encode
 
     static std::string gbk_utf8(const std::string &text)
     {
-        // return encode_convert("GBK", "UTF-8", text.c_str());
-        return boost::locale::conv::between(text, std::string("UTF-8"), std::string("GBK"));
+        return encode_convert("GBK", "UTF-8", text.c_str());
     }
 
     static std::string utf8_gbk(const std::string &text)
     {
-        // return encode_convert("UTF-8", "GBK", text.c_str());
-        return boost::locale::conv::between(text, std::string("GBK"), std::string("UTF-8"));
+        return encode_convert("UTF-8", "GBK", text.c_str());
     }
 
     static std::string unicode_gbk(const std::string &text)
