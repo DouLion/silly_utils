@@ -1,7 +1,7 @@
 //
 // Created by dell on 2023/12/21.
 //
-
+#pragma once
 #include "silly_otl.h"
 #include "su_marco.h"
 #include "json/silly_jsonpp.h"
@@ -15,102 +15,116 @@ bool otl_conn_opt::load(const std::string& s_opt)
         return status;
     }
 
-    Json::Value jv_root = silly_jsonpp::loads(s_opt);
-    if (jv_root.isObject())
+    Json::Value jv_root;
+    if ((jv_root = silly_jsonpp::loads(s_opt)).isNull())
     {
-        if (jv_root.isMember(SILLY_OTL_OPT_S_IP))
+        silly_jsonpp::check_member_string(jv_root, SILLY_OTL_OPT_S_DSN, m_dsn);
+        if (m_dsn.empty())  // 非DSN方式
         {
-            m_ip = jv_root[SILLY_OTL_OPT_S_IP].asString();
-        }
-        if (jv_root.isMember(SILLY_OTL_OPT_S_TYPE))
-        {
-            std::string s_type = jv_root[SILLY_OTL_OPT_S_TYPE].asString();
-            m_type = str_to_db_type(s_type);
+            // 检查类型
+            std::string type_str;
+            if (silly_jsonpp::check_member_string(jv_root, SILLY_OTL_OPT_S_TYPE, type_str))
+            {
+                m_err = "指定链接类型";
+                return status;
+            }
+            m_type = str_to_db_type(type_str);
             if (enum_database_type::dbINVALID == m_type)
             {
-                SU_ERROR_PRINT("不支持的数据库类型 (Invalid database type).")
+                m_err = silly_format::format("不支持的数据库类型 (Unsupported database type): {}.", type_str);
                 return status;
             }
             if (enum_database_type::dbDM8 == m_type || enum_database_type::dbKingB8 == m_type)
             {
-                SU_ERROR_PRINT("达梦和人大金仓请使用DSN方式(Please set DSN when using Dameng or Kingbase).")
+                m_err = "达梦和人大金仓请使用DSN方式(Please set DSN when using Dameng or Kingbase).";
+                // SLOG_ERROR("达梦和人大金仓请使用DSN方式(Please set DSN when using Dameng or Kingbase).");
+                return status;
+            }
+
+            if (silly_jsonpp::check_member_string(jv_root, SILLY_OTL_OPT_S_IP, m_ip))
+            {
+                m_err = "未指定IP";
+                return status;
+            }
+            if (silly_jsonpp::check_member_string(jv_root, SILLY_OTL_OPT_S_DRIVER, m_driver))
+            {
+                m_err = "未指定驱动";
+                return status;
+            }
+
+            // 端口
+            if (jv_root.isMember(SILLY_OTL_OPT_S_PORT))
+            {
+                if (jv_root[SILLY_OTL_OPT_S_PORT].isInt())
+                {
+                    m_port = jv_root[SILLY_OTL_OPT_S_PORT].asInt();
+                }
+                else if (jv_root[SILLY_OTL_OPT_S_PORT].isString())
+                {
+                    m_port = std::stoi(jv_root[SILLY_OTL_OPT_S_PORT].asString());
+                }
+            }
+            else
+            {
+                switch (m_type)
+                {
+                    case enum_database_type::dbSQLSERVER:
+                        m_port = 1433;
+                        break;
+                    case enum_database_type::dbMYSQL:
+                        m_port = 3306;
+                        break;
+                    case enum_database_type::dbORACLE:
+                        m_port = 1521;
+                        break;
+                    case enum_database_type::dbPG:
+                        m_port = 5432;
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            if (silly_jsonpp::check_member_string(jv_root, SILLY_OTL_OPT_S_SCHEMA, m_schema))
+            {
+                m_err = "未指定数据库";
                 return status;
             }
         }
-        if (jv_root.isMember(SILLY_OTL_OPT_S_PORT))
+        if (silly_jsonpp::check_member_string(jv_root, SILLY_OTL_OPT_S_USER, m_user))
         {
-            if (jv_root[SILLY_OTL_OPT_S_PORT].isInt())
-            {
-                m_port = jv_root[SILLY_OTL_OPT_S_PORT].asInt();
-            }
-            else if (jv_root[SILLY_OTL_OPT_S_PORT].isString())
-            {
-                m_port = std::stoi(jv_root[SILLY_OTL_OPT_S_PORT].asString());
-            }
+            m_err = "未指定用户名";
+            return status;
         }
-        else
+        if (silly_jsonpp::check_member_string(jv_root, SILLY_OTL_OPT_S_PASSWORD, m_password))
         {
-            switch (m_type)
-            {
-                case enum_database_type::dbSQLSERVER:
-                    m_port = 1433;
-                    break;
-                case enum_database_type::dbMYSQL:
-                    m_port = 3306;
-                    break;
-                case enum_database_type::dbORACLE:
-                    m_port = 1521;
-                    break;
-                case enum_database_type::dbPG:
-                    m_port = 5432;
-                    break;
-                default:
-                    break;
-            }
+            m_err = "未指定密码";
+            return status;
         }
-        if (jv_root.isMember(SILLY_OTL_OPT_S_DRIVER) && jv_root[SILLY_OTL_OPT_S_DRIVER].isString())
-        {
-            m_driver = jv_root[SILLY_OTL_OPT_S_DRIVER].asString();
-        }
-        if (jv_root.isMember(SILLY_OTL_OPT_S_SCHEMA) && jv_root[SILLY_OTL_OPT_S_SCHEMA].isString())
-        {
-            m_schema = jv_root[SILLY_OTL_OPT_S_SCHEMA].asString();
-        }
-        if (jv_root.isMember(SILLY_OTL_OPT_S_USER) && jv_root[SILLY_OTL_OPT_S_USER].isString())
-        {
-            m_user = jv_root[SILLY_OTL_OPT_S_USER].asString();
-        }
-        if (jv_root.isMember(SILLY_OTL_OPT_S_PASSWORD) && jv_root[SILLY_OTL_OPT_S_PASSWORD].isString())
-        {
-            m_password = jv_root[SILLY_OTL_OPT_S_PASSWORD].asString();
-        }
-        if (jv_root.isMember(SILLY_OTL_OPT_S_DSN) && jv_root[SILLY_OTL_OPT_S_DSN].isString())
-        {
-            m_dsn = jv_root[SILLY_OTL_OPT_S_DSN].asString();
-        }
-        status = true;
+        m_conn = odbc(true);
     }
-    else if (jv_root.isNull())  // 纯字符串
+    else if (!s_opt.empty())  // 纯字符串
     {
-        conn = s_opt;
-        status = true;
-    }
-    else  // 其他json格式, 不支持
-    {
+        m_conn = s_opt;
     }
 
-    return status;
+    return check();
+}
+
+std::string otl_conn_opt::odbc(const bool& rebuild)
+{
+    return dump_odbc(rebuild);
 }
 
 std::string otl_conn_opt::dump_odbc(const bool& rebuild)
 {
-    if (conn.empty() || rebuild)
+    if (m_conn.empty() || rebuild)
     {
         char buff[SILLY_OTL_ODBC_MAX_LEN] = {0};
         if (!m_dsn.empty())  // 如果ODBC连接串不好使,设置DSN,并且优先使用DSN链接方式
         {
             sprintf(buff, SILLY_OTL_DSN_FORMAT, m_user.c_str(), m_password.c_str(), m_dsn.c_str());
-            conn = buff;
+            m_conn = buff;
         }
         else if (!m_driver.empty())
         {
@@ -131,55 +145,10 @@ std::string otl_conn_opt::dump_odbc(const bool& rebuild)
                 default:
                     break;
             }
-            conn = buff;
+            m_conn = buff;
         }
     }
-    return conn;
-}
-
-enum_database_type otl_conn_opt::get_type()
-{
-    return m_type;
-}
-
-std::string otl_conn_opt::get_schema()
-{
-    return m_schema;
-}
-
-std::string otl_conn_opt::get_ip()
-{
-    return m_ip;
-}
-
-std::string otl_conn_opt::get_user()
-{
-    return m_user;
-}
-
-std::string otl_conn_opt::get_pwd()
-{
-    return m_password;
-}
-
-void otl_conn_opt::set_user(const std::string& user)
-{
-    m_user = user;
-}
-
-void otl_conn_opt::set_pwd(const std::string& pwd)
-{
-    m_password = pwd;
-}
-
-std::string otl_conn_opt::get_driver()
-{
-    return m_driver;
-}
-
-int otl_conn_opt::get_port()
-{
-    return m_port;
+    return m_conn;
 }
 
 bool otl_conn_opt::check()
@@ -188,17 +157,18 @@ bool otl_conn_opt::check()
     otl_connect db;
     try
     {
-        conn = dump_odbc(true);
-        db.rlogon(conn.c_str());
+        db.rlogon(m_conn.c_str());
         status = true;
     }
     catch (otl_exception& e)
     {
-        SU_ERROR_PRINT("查询失败, \nsql:%s \nmessage:%s \n state:%s", e.stm_text, e.msg, e.sqlstate);
+        m_err = silly_format::format("打开链接失败, \nsql:%s \nmessage:%s \n state:%s", (char*)e.stm_text, (char*)e.msg, (char*)e.sqlstate);
+        // SLOG_ERROR("查询失败, \nsql:%s \nmessage:%s \n state:%s", e.stm_text, e.msg, e.sqlstate);
     }
     catch (const std::exception& p)
     {
-        SU_ERROR_PRINT("%s", p.what());
+        m_err = p.what();
+        SLOG_ERROR("%s", p.what());
     }
     db.logoff();
     return status;
@@ -214,14 +184,15 @@ void otl_conn_opt::clean()
     m_user.clear();
     m_password.clear();
     m_dsn.clear();
-    conn.clear();
+    m_conn.clear();
+    m_err.clear();
 }
 
 void otl_conn_opt::help()
 {
-    SU_INFO_PRINT(
+    SLOG_INFO(
         "OTL 连接串帮助信息:\nSQL Server:\n\tDRIVER={驱动名称};SERVER=IP;PORT=端口;UID=账号;PWD=密码;DATABASE=数据库;\nMySQL:\n\tDriver={MySQL ODBC 8.0 ANSI "
-        "Driver};Server=IP;Port=端口;Database=数据库;User=账号;Password=密码;Option=3;charset=UTF8;\nOracle:\n\tDriver={ODBC驱动名称};DBQ=IP:端口/表空间名称;UID=用户;PWD=密码;\n达梦(DM8):\n\t达梦数据库目前只能使用DSN的方式  "
+        "Driver};Server=IP;Port=端口;Database=数据库;User=账号;Password=密码;Option=3;charset=UTF8;\nOracle:\n\tDriver={ODBC驱动名称};DBQ=IP:端口/表空间名称;UID=用户;PWD=密码;Oracle需要另外设置环境变量NLS_LANG=SIMPLIFIED CHINESE_CHINA.UTF8,以支持中文编码utf8传递;\n达梦(DM8):\n\t达梦数据库目前只能使用DSN的方式  "
         "UID=用户;PWD=密码;DSN=DSN名称;\n")
 }
 
@@ -235,8 +206,8 @@ std::string otl_conn_opt::encode()
     otl_connect db;
     try
     {
-        conn = dump_odbc(true);
-        db.rlogon(conn.c_str());
+        m_conn = dump_odbc(true);
+        db.rlogon(m_conn.c_str());
         char buff[512] = {0};
         sprintf(buff, "%s", sqlserver_code_sql);
         otl_stream query_stream;
@@ -250,13 +221,93 @@ std::string otl_conn_opt::encode()
     }
     catch (otl_exception& e)
     {
-        SU_ERROR_PRINT("查询失败, \nsql:%s \nmessage:%s \n state:%s", e.stm_text, e.msg, e.sqlstate);
+        SLOG_ERROR("查询失败, \nsql:%s \nmessage:%s \n state:%s", e.stm_text, e.msg, e.sqlstate);
     }
     catch (const std::exception& p)
     {
-        SU_ERROR_PRINT("%s", p.what());
+        SLOG_ERROR("%s", p.what());
     }
     db.logoff();
     result = sqlserver_code_map[code];
     return result;
+}
+
+enum_database_type otl_conn_opt::type() const
+{
+    return m_type;
+}
+
+std::string otl_conn_opt::driver() const
+{
+    return m_driver;
+}
+
+std::string otl_conn_opt::ip() const
+{
+    return m_ip;
+}
+
+int otl_conn_opt::port() const
+{
+    return m_port;
+}
+
+std::string otl_conn_opt::schema() const
+{
+    return m_schema;
+}
+
+std::string otl_conn_opt::user() const
+{
+    return m_user;
+}
+
+std::string otl_conn_opt::pwd() const
+{
+    return m_password;
+}
+
+std::string otl_conn_opt::err() const
+{
+    return m_err;
+}
+
+void otl_conn_opt::type(enum_database_type tp)
+{
+    m_type = tp;
+}
+
+void otl_conn_opt::driver(std::string d)
+{
+    m_driver = d;
+}
+
+void otl_conn_opt::ip(std::string i)
+{
+    m_ip = i;
+}
+
+void otl_conn_opt::port(int p)
+{
+    m_port = p;
+}
+
+void otl_conn_opt::schema(std::string s)
+{
+    m_schema = s;
+}
+
+void otl_conn_opt::user(std::string u)
+{
+    m_user = u;
+}
+
+void otl_conn_opt::pwd(std::string p)
+{
+    m_password = p;
+}
+
+void otl_conn_opt::timeout(int to)
+{
+    m_timeout = to;
 }

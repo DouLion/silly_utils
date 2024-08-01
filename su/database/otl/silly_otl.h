@@ -127,7 +127,7 @@ constexpr char* SILLY_OTL_MYSQL_ODBC_FORMAT = "Driver={%s};Server=%s;Port=%d;Dat
 constexpr char* SILLY_OTL_MSSQL_ODBC_FORMAT = "Driver={%s};Server=%s;Port:%d;Database=%s;UID=%s;PWD=%s;";
 constexpr char* SILLY_OTL_ORACLE_ODBC_FORMAT = "Driver={%s};DBQ=%s:%d/%s;Uid=%s;Pwd=%s;";
 constexpr char* SILLY_OTL_POSTGRE_ODBC_FORMAT = "Driver={%s};Server=%s;Port=%d;Database=%s;Uid=%s;Pwd=%s;";
-constexpr char* SILLY_OTL_DSN_FORMAT = "UID=%s;PWD=%s;DSN=%s;";
+constexpr char* SILLY_OTL_DSN_FORMAT = "UID=%s;PWD=%s;DSN=%s;CHARSET=UTF8;";
 
 #define SILLY_OTL_OPT_S_IP "ip"
 #define SILLY_OTL_OPT_S_PORT "port"
@@ -169,17 +169,31 @@ class otl_conn_opt
     /// <param name="rebuild"></param>
     /// <returns></returns>
     std::string dump_odbc(const bool& rebuild = false);
+    std::string odbc(const bool& rebuild = false);
 
-    enum_database_type get_type();
+    ///////////////////////////////
+    /// getter
+    ///////////////////////////////
+    enum_database_type type() const;
+    std::string driver() const;
+    std::string ip() const;
+    int port() const;
+    std::string schema() const;
+    std::string user() const;
+    std::string pwd() const;
+    std::string err() const;
 
-    std::string get_schema();
-    std::string get_ip();
-    std::string get_user();
-    std::string get_pwd();
-    void set_user(const std::string& user);
-    void set_pwd(const std::string& pwd);
-    std::string get_driver();
-    int get_port();
+    ///////////////////////////////
+    /// setter
+    ///////////////////////////////
+    void type(enum_database_type tp);
+    void driver(std::string d);
+    void ip(std::string i);
+    void port(int p);
+    void schema(std::string s);
+    void user(std::string u);
+    void pwd(std::string p);
+    void timeout(int to);
 
     /// <summary>
     /// 检查是否能够正常联通
@@ -213,25 +227,65 @@ class otl_conn_opt
         otl_connect db;
         try
         {
-            db.rlogon(conn, true);
-            db.set_timeout(10);
+            db.rlogon(m_conn.c_str(), true);
+            db.set_timeout(m_timeout);
             db.set_max_long_size(INT_MAX - 1);
-            otl_stream stream;
-            stream.open(1, sql.c_str(), db)
-            func(&stream, std::forward<Args>(args)...);
+           /* otl_stream stream;
+            stream.open(1, sql.c_str(), db);*/
+            func(&db, std::forward<Args>(args)...);
             db.commit();
-            stream.close()
+            // stream.close();
+
             status = true;
         }
         catch (otl_exception& e)
         {
             db.rollback();
-            SLOG_ERROR("OTL_ERR \nCONN:{} \nCODE:{} \nMSG:{} \nSTATE:{}\n", conn, e.code, (char*)e.msg, (char*)e.sqlstate);
+            // SLOG_ERROR("OTL_ERR \nCONN:{} \nCODE:{} \nMSG:{} \nSTATE:{}\n", m_conn, e.code, (char*)e.msg, (char*)e.sqlstate);
+            m_err = silly_format::format("OTL_ERR \nCONN:{} \nCODE:{} \nMSG:{} \nSTATE:{}\n", m_conn, e.code, (char*)e.msg, (char*)e.sqlstate);
         }
         catch (std::exception& p)
         {
             db.rollback();
-            SLOG_ERROR("OTL_UNKOWN{}\n", p.what());
+            m_err = silly_format::format("OTL_UNKOWN{}\n", p.what());
+        }
+        db.logoff();
+
+        return status;
+    }
+
+    /// <summary>
+    /// 直接执行不需要参数的sql
+    /// </summary>
+    /// <param name="sql"></param>
+    /// <returns></returns>
+    bool execute(const std::vector<std::string>& sqls)
+    {
+        bool status = false;
+        otl_connect db;
+        try
+        {
+            db.rlogon(m_conn.c_str(), false);
+            db.auto_commit_off();
+            db.set_timeout(m_timeout);
+            for (auto sql : sqls)
+            {
+                db.direct_exec(sql.c_str());
+            }
+           
+            db.commit();
+            status = true;
+        }
+        catch (otl_exception& e)
+        {
+            db.rollback();
+            // SLOG_ERROR("OTL_ERR \nCONN:{} \nCODE:{} \nMSG:{} \nSTATE:{}\n", m_conn, e.code, (char*)e.msg, (char*)e.sqlstate);
+            m_err = silly_format::format("OTL_ERR \nCONN:{} \nCODE:{} \nMSG:{} \nSTATE:{}\n", m_conn, e.code, (char*)e.msg, (char*)e.sqlstate);
+        }
+        catch (std::exception& p)
+        {
+            db.rollback();
+            m_err = silly_format::format("OTL_UNKOWN{}\n", p.what());
         }
         db.logoff();
 
@@ -245,9 +299,9 @@ class otl_conn_opt
         otl_connect db;
         try
         {
-            db.rlogon(conn, false);
+            db.rlogon(m_conn.c_str(), false);
             db.auto_commit_off();
-            db.set_timeout(10);
+            db.set_timeout(m_timeout);
             db.set_max_long_size(INT_MAX - 1);
             otl_stream stream;
             stream.open(1, sql.c_str(), db);
@@ -259,18 +313,110 @@ class otl_conn_opt
         catch (otl_exception& e)
         {
             db.rollback();
-            SLOG_ERROR("OTL_ERR \nCONN:{} \nCODE:{} \nMSG:{} \nSTATE:{}\n", conn, e.code, (char*)e.msg, (char*)e.sqlstate);
+            m_err = silly_format::format("OTL_ERR \nCONN:{} \nCODE:{} \nMSG:{} \nSTATE:{}\n", m_conn, e.code, (char*)e.msg, (char*)e.sqlstate);
         }
         catch (std::exception& p)
         {
             db.rollback();
-            SLOG_ERROR("OTL_UNKOWN{}\n", p.what());
+            m_err = silly_format::format("OTL_UNKOWN{}\n", p.what());
         }
         db.logoff();
 
         return status;
     }
 
+    /// <summary>
+    /// select的模板函数
+    /// </summary>
+    /// <typeparam name="Func"></typeparam>
+    /// <typeparam name="...Args"></typeparam>
+    /// <param name="sql"></param>
+    /// <param name="func"></param>
+    /// <param name="...args"></param>
+    /// <returns>执行是否成功</returns>
+    template <typename Func, typename... Args>
+    bool select(const std::string& sql, Func&& func, Args&&... args)
+    {
+        bool status = false;
+        otl_connect db;
+        try
+        {
+            db.rlogon(m_conn.c_str());
+            db.set_timeout(m_timeout);
+            db.set_max_long_size(INT_MAX - 1);
+            otl_stream stream;
+            stream.set_lob_stream_mode(true);
+            stream.open(1, sql.c_str(), db);
+            func(&stream, std::forward<Args>(args)...);
+            stream.close();
+
+            status = true;
+        }
+        catch (otl_exception& e)
+        {
+            db.rollback();
+            // SLOG_ERROR("OTL_ERR \nCONN:{} \nCODE:{} \nMSG:{} \nSTATE:{}\n", m_conn, e.code, (char*)e.msg, (char*)e.sqlstate);
+            m_err = silly_format::format("OTL_ERR \nCONN:{} \nCODE:{} \nMSG:{} \nSTATE:{}\n", m_conn, e.code, (char*)e.msg, (char*)e.sqlstate);
+        }
+        catch (std::exception& p)
+        {
+            db.rollback();
+            m_err = silly_format::format("OTL_UNKOWN{}\n", p.what());
+        }
+        db.logoff();
+
+        return status;
+    }
+
+    /// <summary>
+    /// insert的模板函数
+    /// </summary>
+    /// <typeparam name="Func"></typeparam>
+    /// <typeparam name="...Args"></typeparam>
+    /// <param name="sql"></param>
+    /// <param name="func"></param>
+    /// <param name="...args"></param>
+    /// <returns>执行是否成功</returns>
+    template <typename Func, typename... Args>
+    bool insert(const std::string& sql, Func&& func, Args&&... args)
+    {
+        bool status = false;
+        otl_connect db;
+        try
+        {
+            db.rlogon(m_conn.c_str(), false);
+            db.auto_commit_off();
+            db.set_timeout(m_timeout);
+            db.set_max_long_size(INT_MAX - 1);
+            otl_stream stream;
+            stream.set_lob_stream_mode(true);
+            stream.open(1, sql.c_str(), db);
+            func(&stream, std::forward<Args>(args)...);
+            stream.flush();
+            stream.close();
+            db.commit();
+            status = true;
+        }
+        catch (otl_exception& e)
+        {
+            db.rollback();
+            // SLOG_ERROR("OTL_ERR \nCONN:{} \nCODE:{} \nMSG:{} \nSTATE:{}\n", m_conn, e.code, (char*)e.msg, (char*)e.sqlstate);
+            m_err = silly_format::format("OTL_ERR \nCONN:{} \nCODE:{} \nMSG:{} \nSTATE:{}\n", m_conn, e.code, (char*)e.msg, (char*)e.sqlstate);
+        }
+        catch (std::exception& p)
+        {
+            db.rollback();
+            m_err = silly_format::format("OTL_UNKOWN{}\n", p.what());
+        }
+        db.logoff();
+
+        return status;
+    }
+
+    /// <summary>
+    /// 获取数据库编码
+    /// </summary>
+    /// <returns></returns>
     std::string encode();
 
   protected:
@@ -282,7 +428,9 @@ class otl_conn_opt
     std::string m_user;
     std::string m_password;
     std::string m_dsn;
-    std::string conn;
+    int m_timeout{10};
+    std::string m_conn;
+    std::string m_err;
 };
 
 using silly_otl = otl_conn_opt;

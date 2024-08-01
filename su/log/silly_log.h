@@ -1,5 +1,6 @@
 #pragma once
-
+#ifndef SILLY_UTILS_SILLY_LOG_H
+#define SILLY_UTILS_SILLY_LOG_H
 #include "singleton/silly_singleton.h"
 #include <su_marco.h>
 #include <spdlog/spdlog.h>
@@ -125,3 +126,6 @@ void silly_log::error(Args&&... s)
 #define SLOG_INFO(s, ...) silly_log::instance().m_spdlog_debug->info(s, ##__VA_ARGS__);
 #define SLOG_WARN(s, ...) silly_log::instance().m_spdlog_debug->warn(s, ##__VA_ARGS__);
 #define SLOG_ERROR(s, ...) silly_log::instance().m_spdlog_debug->error(s, ##__VA_ARGS__);
+
+
+#endif  // SILLY_UTILS_SILLY_LOG_H
