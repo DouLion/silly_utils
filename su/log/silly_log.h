@@ -29,12 +29,12 @@ class silly_log : public silly_singleton<silly_log>
     class option
     {
       public:
-        std::string path{"./logs"}; // 日志文件路径
-        std::string name{"silly"}; // 日志文件名称
-        enum_log_type type{2}; // 日志类型
-        enum_log_level level{0}; // 日志级别
-        size_t rotate_size{20}; // 日志文件大小(MB)
-        bool console{true};  // 是否在控制台输出,服务部署时建议设置为false
+        std::string path{"./logs"};  // 日志文件路径
+        std::string name{"silly"};   // 日志文件名称
+        enum_log_type type{2};       // 日志类型
+        enum_log_level level{0};     // 日志级别
+        size_t rotate_size{20};      // 日志文件大小(MB)
+        bool console{true};          // 是否在控制台输出,服务部署时建议设置为false
     };
 
   public:
@@ -60,7 +60,6 @@ class silly_log : public silly_singleton<silly_log>
     /// <param name="opt"></param>
     /// <returns></returns>
     bool init(const option& opt);
-
 
     template <typename... Args>
     void debug(Args&&... s);
@@ -122,10 +121,24 @@ void silly_log::error(Args&&... s)
     }
 }
 
-#define SLOG_DEBUG(s, ...) silly_log::instance().m_spdlog_debug->debug(s, ##__VA_ARGS__);
-#define SLOG_INFO(s, ...) silly_log::instance().m_spdlog_debug->info(s, ##__VA_ARGS__);
-#define SLOG_WARN(s, ...) silly_log::instance().m_spdlog_debug->warn(s, ##__VA_ARGS__);
-#define SLOG_ERROR(s, ...) silly_log::instance().m_spdlog_debug->error(s, ##__VA_ARGS__);
-
+#define SLOG_DEBUG(s, ...)                    \
+    if (silly_log::instance().m_spdlog_debug) \
+    {                                         \
+        silly_log::instance().m_spdlog_debug->debug(s, ##__VA_ARGS__);)
+#define SLOG_INFO(s, ...)                                            \
+    if (silly_log::instance().m_spdlog_info)                         \
+    {                                                                \
+        silly_log::instance().m_spdlog_info->info(s, ##__VA_ARGS__); \
+    }
+#define SLOG_WARN(s, ...)                                            \
+    if (silly_log::instance().m_spdlog_warn)                         \
+    {                                                                \
+        silly_log::instance().m_spdlog_warn->warn(s, ##__VA_ARGS__); \
+    }
+#define SLOG_ERROR(s, ...)                                             \
+    if (silly_log::instance().m_spdlog_error)                          \
+    {                                                                  \
+        silly_log::instance().m_spdlog_error->error(s, ##__VA_ARGS__); \
+    }
 
 #endif  // SILLY_UTILS_SILLY_LOG_H
