@@ -121,10 +121,11 @@ void silly_log::error(Args&&... s)
     }
 }
 
-#define SLOG_DEBUG(s, ...)                    \
-    if (silly_log::instance().m_spdlog_debug) \
-    {                                         \
-        silly_log::instance().m_spdlog_debug->debug(s, ##__VA_ARGS__);)
+#define SLOG_DEBUG(s, ...)                                             \
+    if (silly_log::instance().m_spdlog_debug)                          \
+    {                                                                  \
+        silly_log::instance().m_spdlog_debug->debug(s, ##__VA_ARGS__); \
+    }
 #define SLOG_INFO(s, ...)                                            \
     if (silly_log::instance().m_spdlog_info)                         \
     {                                                                \
