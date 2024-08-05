@@ -110,6 +110,42 @@ class silly_grid_render
         srp.mtx = mc_mtx;
         normal_render_greater(srp);
     }
+
+
+    void normal_render(silly_render_param<T>& srp, std::function<silly_color(T, std::vector<silly_val2color<T>>)> func)
+    {
+        int color_num = srp.v2cs.size();
+        T* ptr = srp.mtx.get_data();
+        if (!ptr)
+        {
+            SFP_ERROR("获取矩阵数据块失败")
+            return;
+        }
+        srp.pd = png_utils::create_empty(srp.mtx.row(), srp.mtx.col());
+        for (size_t r = 0; r < srp.mtx.row(); ++r)
+        {
+            for (size_t c = 0; c < srp.mtx.col(); ++c)
+            {
+                T v = ptr[0];
+                ptr++;
+                silly_color tmp_color = func(v, srp.v2cs);
+                srp.pd.set_pixel(r, c, tmp_color);
+            }
+        }
+    }
+
+    void geo_mc_render(silly_render_param<T>& srp, std::function<silly_color(T, std::vector<silly_val2color<T>>)> func)
+    {
+        matrix_2d<T> mc_mtx;
+        if (!silly_geo_convert::matrix_geo_to_mercator(srp.mtx, srp.rect, mc_mtx))
+        {
+            SFP_ERROR("经纬坐标转换墨卡托坐标失败")
+            return;
+        }
+        srp.mtx.destroy();
+        srp.mtx = mc_mtx;
+        normal_render(srp, func);
+    }
 };
 
 #endif  // SILLY_UTILS_SILLY_GRID_RENDER_H

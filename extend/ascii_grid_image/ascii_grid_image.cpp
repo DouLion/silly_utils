@@ -149,10 +149,10 @@ void convert_image(double ncols, double nrows, double xllcorner, double yllcorne
 
 #endif
 
-  /*  silly_proj_convert mct_to_gauss;
-    mct_to_gauss.begin({{silly_proj_def_enum::PCS_WGS_1984_WEB_MERCATOR, mid}, {silly_proj_def_enum::PCS_WGS_1984_WEB_MERCATOR}});
-    silly_proj_convert gauss_to_geo;
-    silly_proj_convert geo_to_mct;*/
+    /*  silly_proj_convert mct_to_gauss;
+      mct_to_gauss.begin({{silly_proj_def_enum::PCS_WGS_1984_WEB_MERCATOR, mid}, {silly_proj_def_enum::PCS_WGS_1984_WEB_MERCATOR}});
+      silly_proj_convert gauss_to_geo;
+      silly_proj_convert geo_to_mct;*/
 
     double uMax = -99999.0, uMin = 99999.0, vMax = -99999.0, vMin = 99999.0;
     if (data)
@@ -177,7 +177,6 @@ void convert_image(double ncols, double nrows, double xllcorner, double yllcorne
             }
         }
     }
-   
 
     unsigned char alpha = 200;
     struct render
@@ -194,8 +193,8 @@ void convert_image(double ncols, double nrows, double xllcorner, double yllcorne
     renders.push_back({3., silly_color(0, 77, 204, alpha)});
     renders.push_back({99999., silly_color(0, 77, 204, alpha)});
     double mct_letf = 0, mct_right = 0, mct_top = 0, mct_bottom = 0;
-    const double gauss_left = xllcorner, gauss_right = xllcorner + cellsize * (ncols - 2), gauss_top = yllcorner + cellsize * (nrows -2), gauss_bottom = yllcorner;
-    //std::cout << mid << std::endl;
+    const double gauss_left = xllcorner, gauss_right = xllcorner + cellsize * (ncols - 2), gauss_top = yllcorner + cellsize * (nrows - 2), gauss_bottom = yllcorner;
+    // std::cout << mid << std::endl;
     {
         double left_top_x, left_top_y;
         GaussToBL(mid, gauss_top, gauss_left, &left_top_x, &left_top_y);
@@ -206,34 +205,32 @@ void convert_image(double ncols, double nrows, double xllcorner, double yllcorne
         double right_top_x, right_top_y;
         GaussToBL(mid, gauss_top, gauss_right, &right_top_x, &right_top_y);
 
-        double geo_left = left_top_x;
+        double geo_left = SU_MAX(left_top_x, left_bottom_x);
 
         // 112 .34067;                   // SU_MIN(left_top_x, left_bottom_x)
-        double geo_right = right_bottom_x;
+        double geo_right = SU_MIN(right_bottom_x, right_top_x);
 
         // 112 .5683;  // SU_MAX(right_top_x, right_bottom_x);
-        double geo_top = right_top_y;
+        double geo_top = SU_MIN(right_top_y, left_top_y);
         // 26 .98808;
-        //SU_MAX(left_top_y, right_top_y);
-        double geo_bottom = left_bottom_y;  
+        // SU_MAX(left_top_y, right_top_y);
+        double geo_bottom = SU_MAX(left_bottom_y, right_bottom_y);
         // 26.86;
-        //SU_MIN(left_bottom_y, right_bottom_y);
+        // SU_MIN(left_bottom_y, right_bottom_y);
 
         latLonToMercator(geo_top, geo_left, &mct_letf, &mct_top);
         latLonToMercator(geo_bottom, geo_right, &mct_right, &mct_bottom);
-       /* std::cout << geo_left << " " << geo_top << " " << geo_right << " " << geo_bottom << std::endl;
-        std::cout << mct_letf << " " << mct_top << " " << mct_right << " " << mct_bottom << std::endl;*/
-
+        /* std::cout << geo_left << " " << geo_top << " " << geo_right << " " << geo_bottom << std::endl;
+         std::cout << mct_letf << " " << mct_top << " " << mct_right << " " << mct_bottom << std::endl;*/
     }
-    
 
-    double mct_x_step = (mct_right - mct_letf) / (ncols -2);
+    double mct_x_step = (mct_right - mct_letf) / (ncols - 2);
     double mct_y_step = (mct_top - mct_bottom) / (nrows - 2);
     png_data pd = silly_image::png_utils::create_empty((nrows - 2), (ncols - 2));
     png_data pd2 = silly_image::png_utils::create_empty((nrows - 2), (ncols - 2), PNG_COLOR_TYPE_RGB);
     for (size_t r = 0; r < nrows - 2; ++r)
     {
-        for (size_t c = 0; c < ncols -2; ++c)
+        for (size_t c = 0; c < ncols - 2; ++c)
         {
             double tmp_mct_x = mct_letf + c * mct_x_step;
             double tmp_mct_y = mct_top - r * mct_y_step;
