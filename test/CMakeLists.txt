@@ -23,3 +23,6 @@ add_executable(${PROJECT_NAME} ${SU_TEST_SRC_FILES})
 target_link_libraries(${PROJECT_NAME} PUBLIC sutils)
 # TODO: 准备添加boost 或者 google test模块以测试所有功能
 target_link_libraries(${PROJECT_NAME} PUBLIC Boost::unit_test_framework)
+
+find_package(httplib CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC httplib::httplib)
