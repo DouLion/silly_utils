@@ -1,6 +1,13 @@
-
 /*
-* 从https://github.com/progschj/ThreadPool 抄的,只是修改了类名
+ * @copyright: Beijing TianZhiXiang Information Technology Co., Ltd. All rights
+ * reserved.
+ * @website: http://www.tianzhixiang.com.cn/
+ * @author: dou li yang
+ * @date: 2024/08/07 10:16
+ * @version: 1.0.1
+ * @description: 从https://github.com/progschj/ThreadPool 抄的,只是修改了类名
+ */
+/*
 * A simple C++11 Thread Pool implementation
 * License FreeBSD
 Copyright (c) 2012 Jakob Progsch, Václav Zeman
