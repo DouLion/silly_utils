@@ -12,6 +12,13 @@
 #include <su_marco.h>
 #include <json/json.h>
 
+class silly_jsonpp_opt
+{
+  public:
+    bool utf8{true};
+    size_t precision{0}; // 小数精度, 为0则不处理
+};
+
 class silly_jsonpp
 {
   public:
@@ -30,11 +37,13 @@ class silly_jsonpp
     static Json::Value loads(const std::string& content);
 
     /// <summary>
-    /// jsonpp转字符串,处理了中文变为unicode编码的问题
+    /// 
     /// </summary>
     /// <param name="root"></param>
+    /// <param name="utf8"></param>
+    /// <param name="precision"></param>
     /// <returns></returns>
-    static std::string to_string(const Json::Value root);
+    static std::string to_string(const Json::Value root, const silly_jsonpp_opt& opt = {true, 0});
 
     static void find_by_key(const std::string& json, const std::string& key, const std::string& filter, std::vector<std::string>& arr);
 

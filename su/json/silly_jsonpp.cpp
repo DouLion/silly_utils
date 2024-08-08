@@ -40,18 +40,25 @@ Json::Value silly_jsonpp::loads(const std::string& content)
     return Json::nullValue;
 }
 
-std::string silly_jsonpp::to_string(const Json::Value root)
+std::string silly_jsonpp::to_string(const Json::Value root, const silly_jsonpp_opt& opt)
 {
-    static Json::Value jv_def = []() {
-        Json::Value jv_def;
-        Json::StreamWriterBuilder::setDefaults(&jv_def);
-        jv_def["emitUTF8"] = true;
-        return jv_def;
-    }();
+    Json::StreamWriterBuilder stream_builder;
+    if (opt.utf8)
+    {
+        stream_builder["emitUTF8"] = true;
+    }
+
+    if (opt.precision)
+    {
+        stream_builder["precision"] = opt.precision;
+        // decimal 仅小小数位保留    123456.789 保留 1位 是123456.7
+        // significant 整个数字保留  123456.789 保留 7位 是123456.7
+        stream_builder["precisionType"] = "decimal"; //
+        
+    }
 
     std::ostringstream stream;
-    Json::StreamWriterBuilder stream_builder;
-    stream_builder.settings_ = jv_def;  // Config emitUTF8
+    
     std::unique_ptr<Json::StreamWriter> writer(stream_builder.newStreamWriter());
     writer->write(root, &stream);
     return stream.str();
