@@ -16,14 +16,14 @@ bool otl_conn_opt::load(const std::string& s_opt)
     }
 
     Json::Value jv_root;
-    if ((jv_root = silly_jsonpp::loads(s_opt)).isNull())
+    if (!(jv_root = silly_jsonpp::loads(s_opt)).isNull())
     {
         silly_jsonpp::check_member_string(jv_root, SILLY_OTL_OPT_S_DSN, m_dsn);
         if (m_dsn.empty())  // 非DSN方式
         {
             // 检查类型
             std::string type_str;
-            if (silly_jsonpp::check_member_string(jv_root, SILLY_OTL_OPT_S_TYPE, type_str))
+            if (!silly_jsonpp::check_member_string(jv_root, SILLY_OTL_OPT_S_TYPE, type_str))
             {
                 m_err = "指定链接类型";
                 return status;
@@ -41,12 +41,12 @@ bool otl_conn_opt::load(const std::string& s_opt)
                 return status;
             }
 
-            if (silly_jsonpp::check_member_string(jv_root, SILLY_OTL_OPT_S_IP, m_ip))
+            if (!silly_jsonpp::check_member_string(jv_root, SILLY_OTL_OPT_S_IP, m_ip))
             {
                 m_err = "未指定IP";
                 return status;
             }
-            if (silly_jsonpp::check_member_string(jv_root, SILLY_OTL_OPT_S_DRIVER, m_driver))
+            if (!silly_jsonpp::check_member_string(jv_root, SILLY_OTL_OPT_S_DRIVER, m_driver))
             {
                 m_err = "未指定驱动";
                 return status;
@@ -85,18 +85,18 @@ bool otl_conn_opt::load(const std::string& s_opt)
                 }
             }
 
-            if (silly_jsonpp::check_member_string(jv_root, SILLY_OTL_OPT_S_SCHEMA, m_schema))
+            if (!silly_jsonpp::check_member_string(jv_root, SILLY_OTL_OPT_S_SCHEMA, m_schema))
             {
                 m_err = "未指定数据库";
                 return status;
             }
         }
-        if (silly_jsonpp::check_member_string(jv_root, SILLY_OTL_OPT_S_USER, m_user))
+        if (!silly_jsonpp::check_member_string(jv_root, SILLY_OTL_OPT_S_USER, m_user))
         {
             m_err = "未指定用户名";
             return status;
         }
-        if (silly_jsonpp::check_member_string(jv_root, SILLY_OTL_OPT_S_PASSWORD, m_password))
+        if (!silly_jsonpp::check_member_string(jv_root, SILLY_OTL_OPT_S_PASSWORD, m_password))
         {
             m_err = "未指定密码";
             return status;
