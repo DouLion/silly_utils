@@ -15,9 +15,8 @@
 
 #include <png.h>
 #include <setjmp.h>
-#include <vector>
-#include <iostream>
-#include "math/silly_matrix.h"
+#include <log/silly_log.h>
+#include <math/silly_matrix.h>
 #include <image/silly_color.h>
 
 #ifndef png_jmpbuf
@@ -78,7 +77,7 @@ class png_utils
     /// </summary>
     /// <param name="path"></param>
     /// <returns></returns>
-    static png_data read(const char *path);
+    static png_data read(const std::string& path);
 
     /// <summary>
     /// 将png数据块写回文件, TODO: 这个函数在Centos上保存图片时,图片会有截断,导致保存内容有缺失,检查问题,优先使用encode_to_memory转为二进制流然后写入文件
@@ -86,62 +85,12 @@ class png_utils
     /// <param name="path"></param>
     /// <param name="data"></param>
     /// <returns></returns>
-    static bool write(const char *path, const png_data &data);
+    static bool write(const std::string& path, const png_data &data);
 
-    /// <summary>
-    /// 将png_data转编码为内存png数据
-    /// </summary>
-    /// <param name="data"></param>
-    /// <param name="buf"></param>
-    /// <param name="len"></param>
-    /// <returns></returns>
-    static bool encode_to_memory(const png_data &data, char **buf, size_t &len);
+    static bool memory_encode(const png_data &data, std::string& buff);
 
-    static std::string encode_to_memory(const png_data &data);
+    static bool memory_decode(const std::string& buff, png_data &data);
 
-    /// <summary>
-    /// 将两个矩阵转为png,一个矩阵存储RGB,一个矩阵存阴影值
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="evel">存储这RGB的值</param>
-    /// <param name="share">只存储阴影值</param>
-    /// <param name="threshold">阈值</param>
-    /// <param name="pixel_colors">颜色</param>
-    /// <returns></returns>
-	/*
-    template <typename T>
-    static png_data evel_share_to_png(silly_math::matrix_2d<T> evel, silly_math::matrix_2d<T> share, std::vector<T> threshold, std::vector<unsigned char> pixel_colors)
-    {
-        int height = evel.row();
-        int width = evel.col();
-        if (height != share.row() || width != share.col())
-        {
-            std::cout << "The size of the elevation matrix and shadow matrix is not equal " << std::endl;
-            return png_data();
-        }
-        png_data block_image = silly_image::png_utils::create_empty(height, width, PNG_COLOR_TYPE_RGB_ALPHA);
-        for (int r = 0; r < evel.row(); r++)
-        {
-            for (int c = 0; c < evel.col(); c++)
-            {
-                T value = evel.at(r, c);
-                size_t n;
-                for (n = 0; n < threshold.size(); n++)  // 从1开始，因为初始值不需要比较
-                {
-                    if (value < threshold.at(n))
-                    {
-                        break;  // 找到匹配的值后，跳出内循环
-                    }
-                }
-                size_t col_pos = c * block_image.pixel_size;
-                block_image.data[r][col_pos] = pixel_colors[n].red;
-                block_image.data[r][col_pos + 1] = pixel_colors[n].green;
-                block_image.data[r][col_pos + 2] = pixel_colors[n].blue;
-                block_image.data[r][col_pos + 3] = share.at(r, c);
-            }
-        }
-        return block_image;
-    }*/
 };
 }  // namespace silly_image
 #endif  // SILLY_UTILS_PNG_UTILS_H

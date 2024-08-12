@@ -83,7 +83,7 @@ std::string silly_http::request_get(const std::string& url, const std::map<std::
 
         /* some servers do not like requests that are made without a user-agent
            field, so we provide one */
-        curl_easy_setopt(curl, CURLOPT_USERAGENT, "libcurl-agent/1.0");
+        curl_easy_setopt(curl, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36");
 
         /* get it! */
         res = curl_easy_perform(curl);

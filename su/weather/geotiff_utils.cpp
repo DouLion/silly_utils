@@ -3,9 +3,16 @@
 //
 
 #include "geotiff_utils.h"
+#include <geotiffio.h>
+#include <xtiffio.h>
+#include <geo_tiffp.h>
 
-bool geotiff_utils::get_tif_data(TIFF* tiff, tif_data& res_tif)
+#define SILLY_GEOTOFF_STRIP_TIF 1
+#define SILLY_GEOTOFF_TILE_TIF 2
+#define SILLY_GEOTOFF_SCANLINE_TIF 3
+bool geotiff_utils::get_tif_data(void* tttt, tif_data& res_tif)
 {
+    TIFF* tiff = (TIFF*)tttt;
     // 读取图像基本信息
     TIFFGetField(tiff, TIFFTAG_IMAGEWIDTH, &res_tif.tif_width);
     TIFFGetField(tiff, TIFFTAG_IMAGELENGTH, &res_tif.tif_height);
@@ -110,16 +117,16 @@ bool geotiff_utils::get_tif_data(TIFF* tiff, tif_data& res_tif)
         int rc_4 = TIFFGetField(tiff, TIFFTAG_TILEDEPTH, &tiledepth);
         if (res_tif.tif_tileWidth % 16 == 0 && res_tif.tif_tileHeight % 16 == 0)
         {
-            res_tif.tif_type = TILE_TIF;
+            res_tif.tif_type = SILLY_GEOTOFF_TILE_TIF;
         }
     }
     else if (rc_1 && nstrips >= 1 && rowsperstrip >= 1)
     {
-        res_tif.tif_type = STRIP_TIF;
+        res_tif.tif_type = SILLY_GEOTOFF_STRIP_TIF;
     }
     else if (res_tif.tif_lineSize > 0)
     {
-        res_tif.tif_type = SCANLINE_TIF;
+        res_tif.tif_type = SILLY_GEOTOFF_SCANLINE_TIF;
     }
 
     uint64_t tileSize = TIFFVTileSize64(tiff, res_tif.tif_height);
@@ -182,18 +189,32 @@ tif_data geotiff_utils::readGeoTiff(std::string filePath)
         XTIFFClose(tiff);
         return res_tif;
     }
-
+    char* strip_buff = nullptr;
     switch (res_tif.tif_type)
     {
-        case STRIP_TIF:
+        case SILLY_GEOTOFF_STRIP_TIF:
             // 逐行读取像素数据
             res_tif.tif_matrix2.create(res_tif.tif_height, res_tif.tif_width);
+            strip_buff = new char[res_tif.tif_lineSize];
             for (uint32_t row = 0; row < res_tif.tif_height; ++row)
-            {
-                TIFFReadScanline(tiff, res_tif.tif_matrix2.seek_row(row), row);
+            {   
+                // TIFFReadScanline(tiff, res_tif.tif_matrix2.seek_row(row), row);
+                TIFFReadScanline(tiff, strip_buff, row);
+                if (res_tif.tif_sampleFormat == SAMPLEFORMAT_IEEEFP && res_tif.tif_bitsPerSample == 32)
+                {
+                    memcpy(res_tif.tif_matrix2.seek_row(row), strip_buff, res_tif.tif_lineSize);
+                }
+                else if(res_tif.tif_sampleFormat == SAMPLEFORMAT_IEEEFP && res_tif.tif_bitsPerSample == 64)
+                {
+                    for (int col = 0; col < res_tif.tif_width; ++col)
+                    {
+                        res_tif.tif_matrix2[row][col] = ((double*)strip_buff)[col];
+                    }
+                }
             }
+            delete[] strip_buff;
             break;
-        case TILE_TIF:
+        case SILLY_GEOTOFF_TILE_TIF:
             if (res_tif.tif_lineSize > 0)
             {
                 res_tif.tif_matrix2.create(res_tif.tif_height, res_tif.tif_width);

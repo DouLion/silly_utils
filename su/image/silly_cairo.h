@@ -1,0 +1,57 @@
+/*
+ * @copyright: Beijing TianZhiXiang Information Technology Co., Ltd. All rights
+ * reserved. 北京天智祥信息科技有限公司版权所有
+ * @website: http://www.tianzhixiang.com.cn/
+ * @author: dou li yang
+ * @date: 24-8-9 下午2:32
+ * @version: 1.0.1
+ * @description: silly_cairo 类声明
+ */
+#ifndef SILLY_UTILS_SILLY_CAIRO_H
+#define SILLY_UTILS_SILLY_CAIRO_H
+
+#include <cairo/cairo.h>
+#include <image/png_utils.h>
+#include <image/silly_font.h>
+using namespace silly_image;
+
+
+class silly_cairo_text
+{
+  public:
+    double x{0};
+    double y{0};
+    std::string text;
+    std::string font_family{SimSum};
+    double font_size{10};
+};
+
+class silly_cairo
+{
+  public:
+    silly_cairo() = default;
+    bool create(const size_t h, const size_t& w, const int& type = png_type::eptRGBA);
+    void clean(silly_color color = {0, 0, 0, 0});
+    bool read(const std::string& path);
+    bool write(const std::string& path);
+    bool decode(const std::string& bin);
+    bool decode(const char* data, const size_t size);
+    bool encode(std::string& bin);
+    //bool encode(unsigned char** data, size_t& size);
+    void set_color(silly_color color);
+
+    void draw(silly_cairo_text sct);
+
+    void release();
+
+  private:
+
+    int m_format{0};
+    size_t m_width{0};
+    size_t m_height{0};
+    cairo_t* m_cr{nullptr};
+    cairo_surface_t* m_surface{nullptr};
+    std::mutex m_mtx; // 同时只能做一件事情
+};
+
+#endif  // SILLY_UTILS_SILLY_CAIRO_H

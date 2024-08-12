@@ -69,8 +69,13 @@
 
 #if WIN32
 #include <Windows.h>
+#include <winsock2.h>
+#pragma comment(lib, "WSOCK32")
+#pragma comment(lib, "ws2_32")
 #else
-
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 #endif
 
 // 一些自定义宏

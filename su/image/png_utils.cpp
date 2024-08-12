@@ -2,11 +2,26 @@
 // Created by dly on 2023/7/25.
 //
 
-#include <cstdlib>
-#include <cstring>
 #include "png_utils.h"
-#include "su_marco.h"
+
 using namespace silly_image;
+
+static void silly_png_write_callback(png_structp png_ptr, png_bytep data, png_size_t length)
+{
+    std::vector<unsigned char> *p = (std::vector<unsigned char> *)png_get_io_ptr(png_ptr);
+    p->insert(p->end(), data, data + length);
+}
+
+static void silly_png_read_callback(png_structp png_ptr, png_bytep data, png_size_t length)
+{
+    std::string *pngData = (std::string *)png_get_io_ptr(png_ptr);
+    if (length > pngData->size())
+    {
+        length = pngData->size();
+    }
+    memcpy(data, pngData->data(), length);
+    pngData->erase(0, length);
+}
 
 png_data png_utils::create_empty(const size_t &rows, const size_t &cols, const png_uint_32 &color_type, const png_uint_32 &depth)
 {
@@ -48,12 +63,12 @@ png_data png_utils::create_empty(const size_t &rows, const size_t &cols, const p
     return ret_data;
 }
 
-png_data png_utils::read(const char *path)
+png_data png_utils::read(const std::string &path)
 {
     png_data ret_data;
 
-    png_structp png_ptr;
-    png_infop info_ptr;
+    png_structp png_ptr = nullptr;
+    png_infop info_ptr = nullptr;
     int sig_read = 0;
     png_uint_32 width, height;
     int bit_depth_1, color_type_1, interlace_type_1;
@@ -75,10 +90,10 @@ png_data png_utils::read(const char *path)
         return ret_data;
     }
     FILE *fp = nullptr;
-    fp = fopen(path, "rb");
-    if (nullptr == fp)
+    fp = fopen(path.c_str(), "rb");
+    if (!fp)
     {
-        //fclose(fp);
+        // fclose(fp);
         return ret_data;
     }
 
@@ -108,27 +123,27 @@ png_data png_utils::read(const char *path)
     return ret_data;
 }
 
-bool png_utils::write(const char *path, const png_data &data)
+bool png_utils::write(const std::string &path, const png_data &data)
 {
     if (!data.height || !data.width || !data.data)
     {
-        SU_DEBUG_PRINT("invalid png data.");
+        SLOG_DEBUG("invalid png data.");
         return false;
     }
 
     FILE *output_fp;
-    output_fp = fopen(path, "wb");
+    output_fp = fopen(path.c_str(), "wb");
 
     png_structp png_write_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, 0, 0, 0);
     if (nullptr == png_write_ptr)
     {
-        SU_DEBUG_PRINT("png_create_write_struct failed.");
+        SLOG_DEBUG("png_create_write_struct failed.");
         return false;
     }
     png_infop png_w_info = png_create_info_struct(png_write_ptr);
     if (nullptr == png_write_info)
     {
-        SU_DEBUG_PRINT("png_create_info_struct failed.");
+        SLOG_DEBUG("png_create_info_struct failed.");
         return false;
     }
     if (setjmp(png_jmpbuf(png_write_ptr)))
@@ -148,80 +163,88 @@ bool png_utils::write(const char *path, const png_data &data)
     return true;
 }
 
-#include <vector>
-
-static void PngWriteCallback(png_structp png_ptr, png_bytep data, png_size_t length)
+bool png_utils::memory_encode(const png_data &data, std::string &buff)
 {
-    std::vector<unsigned char> *p = (std::vector<unsigned char> *)png_get_io_ptr(png_ptr);
-    p->insert(p->end(), data, data + length);
-}
-bool silly_image::png_utils::encode_to_memory(const png_data &data, char **buf, size_t &len)
-{
-    png_structp p = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-    if (!p)
+    bool status = false;
+    png_structp png_ptr = nullptr;
+    png_infop info_ptr = nullptr;
+    png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+    if (!png_ptr)
     {
-        return false;
+        return status;
     }
-    png_infop info_ptr = png_create_info_struct(p);
+    info_ptr = png_create_info_struct(png_ptr);
     if (!info_ptr)
     {
-        return false;
+        png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
+        return status;
     }
-    if (setjmp(png_jmpbuf(p)))
+    if (setjmp(png_jmpbuf(png_ptr)))
     {
-        return false;
+        png_destroy_write_struct(&png_ptr, &info_ptr);
+        return status;
     }
-    png_set_IHDR(p, info_ptr, data.width, data.height, data.bit_depth, data.color_type, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
-    // png_set_compression_level(p, 1);
-    png_set_rows(p, info_ptr, data.data);
-    std::vector<unsigned char> out;
-    png_set_write_fn(p, &out, PngWriteCallback, NULL);
-    png_write_png(p, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
-    if (out.empty())
-    {
-        return false;
-    }
-    len = out.size();
-    *buf = (char *)malloc(len);
-    if (*buf)
-    {
-        memcpy(*buf, &out[0], len);
-        return true;
-    }
-    return false;
+    png_set_IHDR(png_ptr, info_ptr, data.width, data.height, data.bit_depth, data.color_type, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+    png_set_rows(png_ptr, info_ptr, data.data);
+    png_set_write_fn(png_ptr, &buff[0], silly_png_write_callback, NULL);
+    png_write_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
+    png_destroy_write_struct(&png_ptr, &info_ptr);
+    status = buff.size();
+    return status;
 }
 
-std::string silly_image::png_utils::encode_to_memory(const png_data &data)
+bool png_utils::memory_decode(const std::string &buff, png_data &data)
 {
-    std::string result;
-    png_structp p = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-    if (!p)
+    png_structp png_ptr = nullptr;
+    png_infop info_ptr = nullptr;
+    png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+    if (!png_ptr)
     {
-        return result;
+        std::cerr << "Failed to initialize PNG read struct." << std::endl;
+        return false;
     }
-    png_infop info_ptr = png_create_info_struct(p);
+
+    info_ptr = png_create_info_struct(png_ptr);
     if (!info_ptr)
     {
-        return result;
+        png_destroy_read_struct(&png_ptr, (png_infopp)NULL, (png_infopp)NULL);
+        std::cerr << "Failed to initialize PNG info struct." << std::endl;
+        return false;
     }
-    if (setjmp(png_jmpbuf(p)))
+
+    if (setjmp(png_jmpbuf(png_ptr)))
     {
-        return result;
+        png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);
+        std::cerr << "Error during PNG parsing." << std::endl;
+        return false;
     }
-    png_set_IHDR(p, info_ptr, data.width, data.height, data.bit_depth, data.color_type, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
-    // png_set_compression_level(p, 1);
-    png_set_rows(p, info_ptr, data.data);
-    std::vector<unsigned char> out;
-    png_set_write_fn(p, &out, PngWriteCallback, NULL);
-    png_write_png(p, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
-    if (out.empty())
+
+    // 设置输入数据作为PNG读取源
+    png_set_read_fn(png_ptr, const_cast<std::string *>(&buff), silly_png_read_callback);
+
+    // 读取PNG头部信息
+    png_read_info(png_ptr, info_ptr);
+
+    // 获取PNG图像的基本信息
+    png_uint_32 width, height;
+    int bit_depth, color_type;
+    png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth, &color_type, NULL, NULL, NULL);
+    png_read_update_info(png_ptr, info_ptr);
+    data = png_utils::create_empty(height, width, color_type, bit_depth);
+    // 读取PNG图像的所有数据
+    // png_read_end(png_ptr, info_ptr);
+    // 读取PNG图像像素数据
+    /*data.data = (png_bytep *)malloc(height * sizeof(png_bytep));
+    for (int r = 0; r < height; ++r)
     {
-        return result;
-    }
-    size_t len = out.size();
-    result.resize(len);
-    memcpy(&result[0], &out[0], len);
-    return result;
+        data.data[r] = (png_byte *)malloc(png_get_rowbytes(png_ptr, info_ptr));
+    }*/
+    png_read_image(png_ptr, data.data);
+
+    // 清理资源
+    png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);
+
+    return true;
 }
 
 void png_data::release()
@@ -250,7 +273,7 @@ void png_data::set_pixel(const size_t &r, const size_t &c, const silly_color &sp
 {
     if (!(r < height && c < width))
     {
-        // SU_DEBUG_PRINT("invalid %zu < %u and %zu < %u.", r, height, c, width);
+        // SLOG_DEBUG("invalid %zu < %u and %zu < %u.", r, height, c, width);
         return;
     }
     size_t col_pos = c * pixel_size;

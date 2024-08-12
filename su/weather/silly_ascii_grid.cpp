@@ -69,11 +69,11 @@ bool silly_ascii_grid::read_asc(const std::string& path)
         {
             linestream >> cellsize;
         }
-        else if (key == "NODATA_value")
+        else if (key == "nodata_value")
         {
             linestream >> NODATA;
         }
-        if (key == "NODATA_value")
+        if (key == "nodata_value")
             break;  // header section ends after NODATA_value
     }
 

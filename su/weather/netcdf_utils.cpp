@@ -5,10 +5,14 @@
 #include "netcdf_utils.h"
 #include <netcdf>
 #include <filesystem>
-
+#include <log/silly_log.h>
 using namespace netCDF;
 using namespace netCDF::exceptions;
-
+static void convertToLower(std::string &str) {
+    for (size_t i = 0; i < str.length(); i++) {
+        str[i] = std::tolower(str[i]); // 将每个字符转换为小写
+    }
+}
 bool netcdf_utils::read_netcdf(const std::string& path, const std::string& group, std::map<int, DMatrix>& data, nc_info& info)
 {
     // TODO: 这里不应该假定数据的类型
@@ -27,16 +31,54 @@ bool netcdf_utils::read_netcdf(const std::string& path, const std::string& group
         NcGroup nc_group = nc_file.getGroup("/", NcGroup::GroupLocation::AllGrps);
 
         auto allVars = nc_group.getVars(netCDF::NcGroup::All);
-        NcVar value_var = nc_group.getVar(group);
 
-        std::vector<NcDim> ncDimVector = value_var.getDims();
-        /*for (auto& nd : ncDimVector)
+        bool found = false;
+        for(auto  [k, v]: allVars)
         {
-                std::cout << nd.getName() << std::endl;
+            std::string nnk = k;
+            convertToLower(nnk);
+            size_t pos = nnk.find("lon");
+            if(pos != std::string::npos)
+            {
+                SLOG_INFO("{} YES {}", k, path)
+                found = true;
+            }
+            if (nnk == "x")
+            {
+                SLOG_INFO("{} YES {}", k, path)
+                found = true;
+            }
         }
-        if (ncDimVector.size() != 3) {
-                return false;
-        }*/
+        if(!found)
+        {
+            SLOG_ERROR("{}", path);
+            for(auto  [k, v]: allVars)
+            {
+
+               // std::cout << "\t" << k << std::endl;
+            }
+        }
+
+
+        //NcVar value_var = nc_group.getVar(group);
+
+       /* std::vector<NcDim> ncDimVector = value_var.getDims();
+        std::map<std::string, int> name_ii;
+        for (auto& nd : ncDimVector)
+        {
+            std::cout << nd.getName() << std::endl;
+            name_ii[nd.getName()] = 1;
+        }
+
+        if(name_ii.find("lon") == name_ii.end())
+        {
+            throw "lon not found";
+        }
+
+        if(name_ii.find("lon") == name_ii.end())
+        {
+            throw "lon not found";
+        }
 
         std::string time_name, lan_name, lon_name;
         size_t time_len = 1;
@@ -67,8 +109,8 @@ bool netcdf_utils::read_netcdf(const std::string& path, const std::string& group
         }
         float addOffset = 0;
         float scaleFactor = 1.0;
-        float invalid_data = 0;
-        std::map<std::string, NcVarAtt> extra_vars = value_var.getAtts();
+        float invalid_data = 0;*/
+       /* std::map<std::string, NcVarAtt> extra_vars = value_var.getAtts();
         for (auto [key_, attr_] : extra_vars)
         {
             if (key_ == "_FillValue")
@@ -138,10 +180,14 @@ bool netcdf_utils::read_netcdf(const std::string& path, const std::string& group
                 }
             }
             data.insert({lvl, mtx});
-        }
+        }*/
         ret_status = true;
     }
     catch (NcException& e)
+    {
+        std::cout << "NetCDF ERROR: [" << path << "]" << e.what() << std::endl;
+    }
+    catch (std::exception& e)
     {
         std::cout << "NetCDF ERROR: [" << path << "]" << e.what() << std::endl;
     }
