@@ -5,6 +5,7 @@
 #include "silly_encode.h"
 #include <log/silly_log.h>
 #include <iconv.h>
+
 silly_encode::enum_encode silly_encode::system_encode()
 {
     silly_encode::enum_encode code = silly_encode::enum_encode::Unknown;
