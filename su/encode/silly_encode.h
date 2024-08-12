@@ -80,17 +80,28 @@ class silly_encode
   public:
     enum class enum_encode
     {
-        eeInvalid = 0,
-        eeANSI = 1,
-        eeUTF16_LE = 2,
-        eeUTF16_BE = 3,
-        eeUTF8_BOM = 4,
-        eeUTF8 = 5,
-        eeUnicode = 6,
-        eeUnicode_BE = 7
+        Unknown = 0,
+        ANSI = 1,    //
+        UTF16_LE = 2,
+        UTF16_BE = 3,
+        UTF8_BOM = 4,
+        UTF8 = 5,
+        Unicode = 6,
+        Unicode_BE = 7,
+        GBK = 8
     };
 
-    static enum_encode check_system_encode();
+    static bool is_utf8(const std::string& str);
+
+    static enum_encode system_encode();
+
+    /// <summary>
+    /// 检查文件编码
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    static enum_encode check_file_encode(const std::string &path);
+
 
     /// <summary>
     /// URL编码
@@ -113,63 +124,18 @@ class silly_encode
     /// <param name="to">目标字符串编码</param>
     /// <param name="text">源字符串</param>
     /// <returns></returns>
-    static std::string encode_convert(const char *from, const char *to, const char *text);
+    static bool iconv_convert(const std::string &from, const std::string &to, const std::string &text, std::string &ret);
 
-    static bool encode_convert(const std::string &from, const std::string &to, const std::string &text, std::string &ret);
-
-    static bool icu_convert(const std::string &from, const std::string &to, const std::string &text, std::string &ret);
-
-    /// <summary>
-    /// 检查文件编码
-    /// </summary>
-    /// <param name="path"></param>
-    /// <returns></returns>
-    static enum_encode check_file_encode(const std::string &path);
 
     /// <summary>
     /// 一常用的编码转化
     /// </summary>
     /// <param name="text"></param>
     /// <returns></returns>
-    static std::string gbk_utf8(const char *text)
-    {
-        return encode_convert("GBK", "UTF-8", text);
-    }
-
-    static std::string utf8_gbk(const char *text)
-    {
-        return encode_convert("UTF-8", "GBK", text);
-    }
-
-    static std::string unicode_gbk(const char *text)
-    {
-        return encode_convert("EUC-CN", "GBK", text);
-    }
-
-    static std::string unicode_utf8(const char *text)
-    {
-        return encode_convert("EUC-CN", "UTF-8", text);
-    }
-
-    static std::string gbk_utf8(const std::string &text)
-    {
-        return encode_convert("GBK", "UTF-8", text.c_str());
-    }
-
-    static std::string utf8_gbk(const std::string &text)
-    {
-        return encode_convert("UTF-8", "GBK", text.c_str());
-    }
-
-    static std::string unicode_gbk(const std::string &text)
-    {
-        return encode_convert("EUC-CN", "GBK", text.c_str());
-    }
-
-    static std::string unicode_utf8(const std::string &text)
-    {
-        return encode_convert("EUC-CN", "UTF-8", text.c_str());
-    }
+    static std::string gbk_utf8(const std::string &text);
+    static std::string utf8_gbk(const std::string &text);
+    static std::string unicode_gbk(const std::string &text);
+    static std::string unicode_utf8(const std::string &text);
 
     /// <summary>
     /// utf8转宽字符, 这个函数没有经过验证,且于区别平台的大端序和小端序

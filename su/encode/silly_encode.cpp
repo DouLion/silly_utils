@@ -5,15 +5,9 @@
 #include "silly_encode.h"
 #include <log/silly_log.h>
 #include <iconv.h>
-//#include <unicode/ucnv.h>
-//#include <unicode/ustring.h>
-//#include <unicode/unistr.h>
-//#include <unicode/ustream.h>
-
-
-silly_encode::enum_encode silly_encode::check_system_encode()
+silly_encode::enum_encode silly_encode::system_encode()
 {
-    silly_encode::enum_encode code = silly_encode::enum_encode::eeInvalid;
+    silly_encode::enum_encode code = silly_encode::enum_encode::Unknown;
     std::string a = std::cout.getloc().name();
     return code;
 }
@@ -48,8 +42,8 @@ std::string silly_encode::url_encode(const std::string &src)
 std::string silly_encode::url_decode(const std::string &src)
 {
     std::string dst;
-    size_t srclen = src.size();
-    for (size_t i = 0; i < srclen; i++)
+    size_t src_len = src.size();
+    for (size_t i = 0; i < src_len; i++)
     {
         if (src[i] == '%')
         {
@@ -78,51 +72,7 @@ std::string silly_encode::url_decode(const std::string &src)
     return dst;
 }
 
-std::string silly_encode::encode_convert(const char *from, const char *to, const char *text)
-{
-    std::string encode_str;
-    iconv_t cd;
-    cd = iconv_open(to, from);
-    if (cd == (iconv_t)-1)
-    {
-        SLOG_ERROR("iconv_open");
-        return encode_str;
-    }
-
-    size_t src_len = strlen(text);
-    std::string buffer;
-    // 准备输出缓冲区
-    buffer.resize(src_len * 4);  // 假设每个字符最多需要 4 个字节
-
-    // 进行转换
-    size_t inBytesLeft = src_len;
-    char *in = (char *)&text[0];
-    size_t outBytesLeft = src_len * 4;
-    char *out = (char *)&buffer[0];
-
-    size_t result = iconv(cd, &in, &inBytesLeft, &out, &outBytesLeft);
-    if (result == (size_t)-1)
-    {
-        if (errno == EILSEQ)
-        {  // 非法序列
-            SLOG_ERROR("非法序列")
-        }
-        else
-        {
-            SLOG_ERROR("iconv")
-        }
-    }
-    else
-    {
-        encode_str = buffer;
-    }
-    // 关闭 iconv 描述符
-    iconv_close(cd);
-
-    return encode_str;
-}
-
-bool silly_encode::encode_convert(const std::string &from, const std::string &to, const std::string &text, std::string &ret)
+bool silly_encode::iconv_convert(const std::string &from, const std::string &to, const std::string &text, std::string &ret)
 {
     bool status = false;
     iconv_t cd;
@@ -164,76 +114,34 @@ bool silly_encode::encode_convert(const std::string &from, const std::string &to
     return status;
 }
 
-bool silly_encode::icu_convert(const std::string &from, const std::string &to, const std::string &text, std::string &ret)
-{
-    bool status = false;
-    //icu::UnicodeString unicode_str = icu::UnicodeString::fromUTF8(text);
-
-    //// 准备转换
-    //UErrorCode errorCode = U_ZERO_ERROR;
-    //UConverter *converter = ucnv_open("GBK", &errorCode);
-    //if (U_FAILURE(errorCode))
-    //{
-    //    std::cerr << "Error opening converter: " << u_errorName(errorCode) << std::endl;
-    //    return status;
-    //}
-
-    //// 计算缓冲区大小
-    //int32_t gbk_length = ucnv_fromUChars(converter, nullptr, 0, unicode_str.getBuffer(), unicode_str.length(), &errorCode);
-    //if (errorCode != U_BUFFER_OVERFLOW_ERROR)
-    //{
-    //    std::cerr << "Error calculating buffer size: " << u_errorName(errorCode) << std::endl;
-    //    ucnv_close(converter);
-    //    return status;
-    //}
-    //errorCode = U_ZERO_ERROR;
-
-    //// 实际转换
-    //std::string gbk_str(gbk_length, '\0');  // 创建一个适当大小的字符串缓冲区
-    //ucnv_fromUChars(converter, &gbk_str[0], gbk_str.size(), unicode_str.getBuffer(), unicode_str.length(), &errorCode);
-
-    //// 检查转换错误
-    //if (U_FAILURE(errorCode))
-    //{
-    //    std::cerr << "Error during conversion: " << u_errorName(errorCode) << std::endl;
-    //    ucnv_close(converter);
-    //    return status;
-    //}
-
-    //// 清理资源
-    //ucnv_close(converter);
-    //ret = gbk_str;
-    return status;
-}
-
 silly_encode::enum_encode silly_encode::check_file_encode(const std::string &path)
 {
-    silly_encode::enum_encode code = silly_encode::enum_encode::eeInvalid;
+    silly_encode::enum_encode code = silly_encode::enum_encode::Unknown;
     std::ifstream fin(path, std::ios::binary);
     if (fin.is_open())
     {
         return code;
     }
     unsigned char s2;
-    fin.read((char *)&s2, sizeof(s2));  //读取第一个字节，然后左移8位
+    fin.read((char *)&s2, sizeof(s2));  // 读取第一个字节，然后左移8位
     int p = s2 << 8;
-    fin.read((char *)&s2, sizeof(s2));  //读取第二个字节
+    fin.read((char *)&s2, sizeof(s2));  // 读取第二个字节
     p += s2;
     fin.close();
 
-    switch (p)  //判断文本前两个字节
+    switch (p)  // 判断文本前两个字节
     {
         case 0xfffe:  // 65534
-            code = silly_encode::enum_encode::eeUnicode;
+            code = silly_encode::enum_encode::Unicode;
             break;
         case 0xfeff:  // 65279
-            code = silly_encode::enum_encode::eeUnicode_BE;
+            code = silly_encode::enum_encode::Unicode_BE;
             break;
         case 0xe6a2:  // 59042
-            code = silly_encode::enum_encode::eeUTF8;
+            code = silly_encode::enum_encode::UTF8;
             break;
         default:
-            code = silly_encode::enum_encode::eeANSI;
+            code = silly_encode::enum_encode::ANSI;
     }
     return code;
 }
@@ -312,7 +220,7 @@ silly_encode::enum_encode silly_encode::is_utf8(const char *data, size_t size)
                 }
                 else
                 {
-                    return enum_encode::eeANSI;
+                    return enum_encode::ANSI;
                 }
                 nBytes--;
             }
@@ -321,31 +229,31 @@ silly_encode::enum_encode silly_encode::is_utf8(const char *data, size_t size)
         {
             if ((ch & 0xC0) != 0x80)
             {
-                return enum_encode::eeANSI;
+                return enum_encode::ANSI;
             }
             nBytes--;
         }
     }
     if (nBytes > 0 || bAnsi)
     {
-        return enum_encode::eeANSI;
+        return enum_encode::ANSI;
     }
-    return enum_encode::eeUTF8;
+    return enum_encode::UTF8;
 }
 
 silly_encode::enum_encode silly_encode::detect_encode(const char *data, size_t size)
 {
     if (size > 2 && data[0] == 0xFF && data[1] == 0xFE)
     {
-        return enum_encode::eeUTF16_LE;
+        return enum_encode::UTF16_LE;
     }
     else if (size > 2 && data[0] == 0xFE && data[1] == 0xFF)
     {
-        return enum_encode::eeUTF16_BE;
+        return enum_encode::UTF16_BE;
     }
     else if (size > 3 && data[0] == 0xEF && data[1] == 0xBB && data[2] == 0xBF)
     {
-        return enum_encode::eeUTF8_BOM;
+        return enum_encode::UTF8_BOM;
     }
     else
     {
@@ -481,4 +389,84 @@ std::string silly_encode::cxx11_wstring_string(const std::wstring &wstr)
         s_result.clear();
     }
     return s_result;
+}
+bool silly_encode::is_utf8(const std::string &str)
+{
+    int expected_bytes = 0;
+    for (unsigned char c : str)
+    {
+        if (expected_bytes == 0)
+        {
+            if ((c >> 7) == 0)
+            {
+                // 1 byte character (0xxxxxxx)
+                continue;
+            }
+            else if ((c >> 5) == 0b110)
+            {
+                // Start of 2 byte character (110xxxxx)
+                expected_bytes = 1;
+            }
+            else if ((c >> 4) == 0b1110)
+            {
+                // Start of 3 byte character (1110xxxx)
+                expected_bytes = 2;
+            }
+            else if ((c >> 3) == 0b11110)
+            {
+                // Start of 4 byte character (11110xxx)
+                expected_bytes = 3;
+            }
+            else
+            {
+                return false;  // Invalid UTF-8
+            }
+        }
+        else
+        {
+            if ((c >> 6) != 0b10)
+            {
+                return false;  // Invalid continuation byte
+            }
+            expected_bytes--;
+        }
+    }
+    return expected_bytes == 0;  // All expected bytes must be accounted for
+}
+
+std::string silly_encode::gbk_utf8(const std::string &text)
+{
+    std::string ret;
+    if (!iconv_convert("GBK", "UTF-8", text, ret))
+    {
+        ret.clear();
+    }
+    return ret;
+}
+std::string silly_encode::utf8_gbk(const std::string &text)
+{
+    std::string ret;
+    if (!iconv_convert("UTF-8", "GBK", text, ret))
+    {
+        ret.clear();
+    }
+    return ret;
+}
+std::string silly_encode::unicode_gbk(const std::string &text)
+{
+    std::string ret;
+    if (!iconv_convert("EUC-CN", "GBK", text, ret))
+    {
+        ret.clear();
+    }
+    return ret;
+}
+std::string silly_encode::unicode_utf8(const std::string &text)
+{
+    std::string ret;
+    if (!iconv_convert("GBK", "EUC-CN", text, ret))
+    {
+        ret.clear();
+    }
+    return ret;
 }

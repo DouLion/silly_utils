@@ -98,7 +98,7 @@ ELSEIF (CMAKE_HOST_SYSTEM_NAME MATCHES "Windows")
 
     ADD_DEFINITIONS("-DIS_WIN32")
     ADD_DEFINITIONS("-DWIN32_LEAN_AND_MEAN")
-    add_compile_options(/wd4819 /wd4005 /wd4834 /utf-8 /openmp)
+    add_compile_options(/wd4819 /wd4005 /wd4834 /wd4996 /utf-8 /openmp)
     SET(STATIC_LIB_SUFFIX "lib")
     SET(DYNAMIC_LIB_SUFFIX "dll")
 
