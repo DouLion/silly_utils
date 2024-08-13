@@ -293,7 +293,7 @@ class otl_conn_opt
     }
 
     template <typename Func, typename... Args>
-    bool session(const std::string& sql, Func&& func, Args&&... args)
+    bool session(Func&& func, Args&&... args)
     {
         bool status = false;
         otl_connect db;
@@ -303,10 +303,8 @@ class otl_conn_opt
             db.auto_commit_off();
             db.set_timeout(m_timeout);
             db.set_max_long_size(INT_MAX - 1);
-            otl_stream stream;
-            stream.open(1, sql.c_str(), db);
-            stream.set_commit(false);
-            func(&db, sql, std::forward<Args>(args)...);
+
+            func(&db, std::forward<Args>(args)...);
             db.commit();
             status = true;
         }
