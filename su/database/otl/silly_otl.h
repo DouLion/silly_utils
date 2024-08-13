@@ -57,12 +57,12 @@ enum class enum_database_type
     dbKingB8 = 6      // 人大金仓
 };
 
-constexpr char* SILLY_DB_TYPE_MSSQL_STR = "sqlserver";
-constexpr char* SILLY_DB_TYPE_MYSQL_STR = "mysql";
-constexpr char* SILLY_DB_TYPE_ORACLE_STR = "oracle";
-constexpr char* SILLY_DB_TYPE_DM8_STR = "dm8";
-constexpr char* SILLY_DB_TYPE_POSTGRESQL_STR = "postgresql";
-constexpr char* SILLY_DB_TYPE_KINGB8_STR = "kb8";
+const static char* SILLY_DB_TYPE_MSSQL_STR = "sqlserver";
+const static char* SILLY_DB_TYPE_MYSQL_STR = "mysql";
+const static char* SILLY_DB_TYPE_ORACLE_STR = "oracle";
+const static char* SILLY_DB_TYPE_DM8_STR = "dm8";
+const static char* SILLY_DB_TYPE_POSTGRESQL_STR = "postgresql";
+const static char* SILLY_DB_TYPE_KINGB8_STR = "kb8";
 
 static enum_database_type str_to_db_type(const std::string& desc)
 {
@@ -123,11 +123,11 @@ static std::string db_type_to_str(const enum_database_type& type)
     return s_ret;
 }
 
-constexpr char* SILLY_OTL_MYSQL_ODBC_FORMAT = "Driver={%s};Server=%s;Port=%d;Database=%s;User=%s;Password=%s;Option=3;charset=UTF8;";
-constexpr char* SILLY_OTL_MSSQL_ODBC_FORMAT = "Driver={%s};Server=%s;Port:%d;Database=%s;UID=%s;PWD=%s;";
-constexpr char* SILLY_OTL_ORACLE_ODBC_FORMAT = "Driver={%s};DBQ=%s:%d/%s;Uid=%s;Pwd=%s;";
-constexpr char* SILLY_OTL_POSTGRE_ODBC_FORMAT = "Driver={%s};Server=%s;Port=%d;Database=%s;Uid=%s;Pwd=%s;";
-constexpr char* SILLY_OTL_DSN_FORMAT = "UID=%s;PWD=%s;DSN=%s;CHARSET=UTF8;";
+const static char* SILLY_OTL_MYSQL_ODBC_FORMAT = "Driver={%s};Server=%s;Port=%d;Database=%s;User=%s;Password=%s;Option=3;charset=UTF8;";
+const static char* SILLY_OTL_MSSQL_ODBC_FORMAT = "Driver={%s};Server=%s;Port:%d;Database=%s;UID=%s;PWD=%s;";
+const static char* SILLY_OTL_ORACLE_ODBC_FORMAT = "Driver={%s};DBQ=%s:%d/%s;Uid=%s;Pwd=%s;";
+const static char* SILLY_OTL_POSTGRE_ODBC_FORMAT = "Driver={%s};Server=%s;Port=%d;Database=%s;Uid=%s;Pwd=%s;";
+const static char* SILLY_OTL_DSN_FORMAT = "UID=%s;PWD=%s;DSN=%s;CHARSET=UTF8;";
 
 #define SILLY_OTL_OPT_S_IP "ip"
 #define SILLY_OTL_OPT_S_PORT "port"
@@ -230,8 +230,8 @@ class otl_conn_opt
             db.rlogon(m_conn.c_str(), true);
             db.set_timeout(m_timeout);
             db.set_max_long_size(INT_MAX - 1);
-           /* otl_stream stream;
-            stream.open(1, sql.c_str(), db);*/
+            /* otl_stream stream;
+             stream.open(1, sql.c_str(), db);*/
             func(&db, std::forward<Args>(args)...);
             db.commit();
             // stream.close();
@@ -272,7 +272,7 @@ class otl_conn_opt
             {
                 db.direct_exec(sql.c_str());
             }
-           
+
             db.commit();
             status = true;
         }

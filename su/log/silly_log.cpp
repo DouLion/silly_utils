@@ -24,8 +24,10 @@ silly_log::silly_log()
     try
     {
         auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+#ifndef NDEBUG
         m_spdlog_debug = std::make_shared<spdlog::logger>(SU_SINK_NAME_DEBUG, spdlog::sinks_init_list{console_sink});
         m_spdlog_debug->set_pattern(log_pattern);
+#endif
         m_spdlog_info = std::make_shared<spdlog::logger>(SU_SINK_NAME_INFO, spdlog::sinks_init_list{console_sink});
         m_spdlog_info->set_pattern(log_pattern);
         m_spdlog_warn = std::make_shared<spdlog::logger>(SU_SINK_NAME_WARN, spdlog::sinks_init_list{console_sink});
@@ -56,8 +58,9 @@ bool silly_log::init(const option& opt)
     bool status = true;
 
     register_spdlog(opt);
-
+#ifndef NDEBUG
     status &= (m_spdlog_debug != nullptr);
+#endif
     status &= (m_spdlog_info != nullptr);
     status &= (m_spdlog_warn != nullptr);
     status &= (m_spdlog_error != nullptr);
@@ -84,7 +87,9 @@ bool silly_log::init(const std::string& path){
 
 void silly_log::register_loguru(const option& opt)
 {
+#ifndef NDEBUG
     m_spdlog_debug = nullptr;
+#endif
     m_spdlog_info = nullptr;
     m_spdlog_warn = nullptr;
     m_spdlog_error = nullptr;
@@ -132,8 +137,10 @@ void silly_log::register_spdlog(const option& opt)
 
         // m_spdlog_debug = std::make_shared<spdlog::logger>(SU_SINK_NAME_DEBUG, spdlog::sinks_init_list{console_sink, debug_file_sink});
         // debug 信息暂时不考虑输出到文件
+#ifndef NDEBUG
         m_spdlog_debug = std::make_shared<spdlog::logger>(SU_SINK_NAME_DEBUG, spdlog::sinks_init_list{console_sink});
         m_spdlog_debug->set_pattern(log_pattern);
+#endif
         m_spdlog_info = std::make_shared<spdlog::logger>(SU_SINK_NAME_INFO, spdlog::sinks_init_list{console_sink, info_file_sink});
         m_spdlog_info->set_pattern(log_pattern);
         m_spdlog_warn = std::make_shared<spdlog::logger>(SU_SINK_NAME_WARN, spdlog::sinks_init_list{console_sink, warn_file_sink});
@@ -158,7 +165,9 @@ void silly_log::register_spdlog(const option& opt)
 }
 void silly_log::register_glog(const option& opt)
 {
+#ifndef NDEBUG
     m_spdlog_debug = nullptr;
+#endif
     m_spdlog_info = nullptr;
     m_spdlog_warn = nullptr;
     m_spdlog_error = nullptr;

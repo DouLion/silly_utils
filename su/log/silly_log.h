@@ -61,8 +61,10 @@ class silly_log : public silly_singleton<silly_log>
     /// <returns></returns>
     bool init(const option& opt);
 
+#ifndef NDEBUG
     template <typename... Args>
     void debug(Args&&... s);
+#endif
 
     template <typename... Args>
     void info(Args&&... s);
@@ -82,12 +84,15 @@ class silly_log : public silly_singleton<silly_log>
     void register_glog(const option& opt);
 
   public:
+#ifndef NDEBUG
     std::shared_ptr<spdlog::logger> m_spdlog_debug;
+#endif
     std::shared_ptr<spdlog::logger> m_spdlog_info;
     std::shared_ptr<spdlog::logger> m_spdlog_warn;
     std::shared_ptr<spdlog::logger> m_spdlog_error;
 };
 
+#ifndef NDEBUG
 template <typename... Args>
 void silly_log::debug(Args&&... s)
 {
@@ -96,6 +101,7 @@ void silly_log::debug(Args&&... s)
         m_spdlog_debug->debug(std::forward<Args>(s)...);
     }
 }
+#endif
 template <typename... Args>
 void silly_log::info(Args&&... s)
 {
@@ -120,12 +126,16 @@ void silly_log::error(Args&&... s)
         m_spdlog_error->error(std::forward<Args>(s)...);
     }
 }
-
-#define SLOG_DEBUG(s, ...)                                             \
+#ifndef NDEBUG
+#define SLOG_DEBUG(s, ...) \
     if (silly_log::instance().m_spdlog_debug)                          \
     {                                                                  \
         silly_log::instance().m_spdlog_debug->debug(s, ##__VA_ARGS__); \
     }
+#else
+#define SLOG_DEBUG(s, ...)
+#endif
+
 #define SLOG_INFO(s, ...)                                            \
     if (silly_log::instance().m_spdlog_info)                         \
     {                                                                \

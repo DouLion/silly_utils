@@ -161,21 +161,6 @@
 #endif
 
 
-#ifndef SU_SWITCH_CONSOLE_ENCODE
-#define SU_SWITCH_CONSOLE_ENCODE(p)
-//if (p)                                 \
-    //{                                      \
-    //    system(p);                         \
-    //}                                      \
-    //else                                   \
-    //{                                      \
-    //    system(SU_CONSOLE_DEFAULT_ENCODE); \
-    //}
-#endif
-// #ifndef __FILENAME__
-// #define __FILENAME__ (strrchr("/" __FILE__, '/') + 1)
-// #endif
-
 #ifndef SU_PRINT_COLORS
 #define SU_PRINT_COLORS                                                    \
     printf(SU_PRINTF_COLOR_NONE "SU_PRINTF_COLOR_NONE\n");                 \
