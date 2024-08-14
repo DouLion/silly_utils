@@ -41,6 +41,7 @@ class silly_cairo
     // bool encode(unsigned char** data, size_t& size);
     void set_color(silly_color color);
 
+    void paint(const silly_cairo& other, const double& x = 0, const double& y = 0, const double& alpha = 1.);
     void draw(silly_cairo_text sct);
 
     void draw_poly(const silly_poly& poly, const silly_geo_rect& rect);

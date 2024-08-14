@@ -184,6 +184,7 @@ void silly_cairo::clean(silly_color color)
     set_color(color);
     cairo_rectangle(m_cr, 0, 0, m_width, m_height);
     cairo_fill(m_cr);
+    cairo_stroke(m_cr);
 }
 
 void silly_cairo::draw_poly(const silly_poly &poly, const silly_geo_rect &rect)
@@ -251,4 +252,9 @@ void silly_cairo::draw_ring_web_mercator(const silly_ring &ring, const silly_geo
         cairo_line_to(m_cr, (mcx - mc_left) * x_pixel_per_degree, (mc_top - mcy) * y_pixel_per_degree);
     }
     cairo_close_path(m_cr);
+}
+void silly_cairo::paint(const silly_cairo &other, const double &x, const double &y, const double &alpha)
+{
+    cairo_set_source_surface(m_cr, other.m_surface, x, y);
+    cairo_paint_with_alpha(m_cr, alpha);
 }
