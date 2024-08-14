@@ -22,8 +22,9 @@ class silly_cairo_text
     double x{0};
     double y{0};
     std::string text;
-    std::string font_family{SimSum};
     double font_size{10};
+    std::string font_family{MicroSoftYaHei};
+
 };
 
 class silly_cairo

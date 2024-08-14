@@ -10,19 +10,30 @@
 #ifndef SILLY_UTILS_SILLY_FONT_H
 #define SILLY_UTILS_SILLY_FONT_H
 #include <su_marco.h>
-
+#if IS_WIN32
 // 宋体
-#define SimSum  "SimSum"
+#define SimSun  "SimSun"
 // 微软雅黑常规
-#define MicroSoftYH "MSYH"
-// 微软雅黑粗体
-#define MicroSoftYHBold "MSYHBD"
-// 微软雅黑细体
-#define MicroSoftYHLight "MSYHL"
+#define MicroSoftYaHei "Microsoft YaHei"
 // 楷体
-#define SimKai "SimKai"
+#define KaiTi "KaiTi"
 // 隶书
-#define SimLi "SimLi"
+#define LiSu "LiSu"
+#elif IS_LINUX
+
+#define SimSun  "SimSun"
+#define MicroSoftYaHei "Microsoft YaHei"
+#define KaiTi "KaiTi"
+#define LiSu "LiSu"
+
+#elif IS_MACOS
+
+#define SimSun  "SimSun"
+#define MicroSoftYaHei "Microsoft YaHei"
+#define KaiTi "KaiTi"
+#define LiSu "LiSu"
+
+#endif
 
 class silly_font
 {
