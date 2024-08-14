@@ -152,14 +152,14 @@ void silly_log::error(Args&&... s)
         silly_log::instance().m_spdlog_error->error(s, ##__VA_ARGS__); \
     }*/
 #ifndef NDEBUG
-#define SLOG_DEBUG(s, ...)  silly_log::instance().debug(silly_format::format("<{}:{}> ", SU_FILE_NAME, __LINE__).append(silly_format::format(s, ##__VA_ARGS__)));
+#define SLOG_DEBUG(s, ...)  silly_log::instance().debug(silly_format::format("<{}:{}> ", SU_FILE_NAME, __LINE__).append(s), ##__VA_ARGS__);
 #else
 #define SLOG_DEBUG(s, ...)
 #endif
-#define SLOG_INFO(s, ...) silly_log::instance().info(silly_format::format("<{}:{}> ", SU_FILE_NAME, __LINE__).append(silly_format::format(s, ##__VA_ARGS__)));
+#define SLOG_INFO(s, ...) silly_log::instance().info(silly_format::format("<{}:{}> ", SU_FILE_NAME, __LINE__).append(s), ##__VA_ARGS__);
 
-#define SLOG_WARN(s, ...) silly_log::instance().warn(silly_format::format("<{}:{}> ", SU_FILE_NAME, __LINE__).append(silly_format::format(s, ##__VA_ARGS__)));
+#define SLOG_WARN(s, ...) silly_log::instance().warn(silly_format::format("<{}:{}> ", SU_FILE_NAME, __LINE__).append(s), ##__VA_ARGS__);
 
-#define SLOG_ERROR(s, ...) silly_log::instance().error(silly_format::format("<{}:{}> ", SU_FILE_NAME, __LINE__).append(silly_format::format(s, ##__VA_ARGS__)));
+#define SLOG_ERROR(s, ...) silly_log::instance().error(silly_format::format("<{}:{}> ", SU_FILE_NAME, __LINE__).append(s), ##__VA_ARGS__);
 
 #endif  // SILLY_UTILS_SILLY_LOG_H
