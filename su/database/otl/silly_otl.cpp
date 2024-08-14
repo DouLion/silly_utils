@@ -162,13 +162,13 @@ bool otl_conn_opt::check()
     }
     catch (otl_exception& e)
     {
-        m_err = silly_format::format("打开链接失败, \nsql:%s \nmessage:%s \n state:%s", (char*)e.stm_text, (char*)e.msg, (char*)e.sqlstate);
-        // SLOG_ERROR("查询失败, \nsql:%s \nmessage:%s \n state:%s", e.stm_text, e.msg, e.sqlstate);
+        db.rollback();
+        m_err = silly_format::format("OTL_ERR \nCONN:{} \nCODE:{} \nMSG:{} \nSTATE:{}\n", m_conn, e.code, (char*)e.msg, (char*)e.sqlstate);
     }
-    catch (const std::exception& p)
+    catch (std::exception& p)
     {
-        m_err = p.what();
-        SLOG_ERROR("%s", p.what());
+        db.rollback();
+        m_err = silly_format::format("OTL_UNKNOWN{}\n", p.what());
     }
     db.logoff();
     return status;

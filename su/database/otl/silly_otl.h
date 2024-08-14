@@ -241,13 +241,12 @@ class otl_conn_opt
         catch (otl_exception& e)
         {
             db.rollback();
-            // SLOG_ERROR("OTL_ERR \nCONN:{} \nCODE:{} \nMSG:{} \nSTATE:{}\n", m_conn, e.code, (char*)e.msg, (char*)e.sqlstate);
             m_err = silly_format::format("OTL_ERR \nCONN:{} \nCODE:{} \nMSG:{} \nSTATE:{}\n", m_conn, e.code, (char*)e.msg, (char*)e.sqlstate);
         }
         catch (std::exception& p)
         {
             db.rollback();
-            m_err = silly_format::format("OTL_UNKOWN{}\n", p.what());
+            m_err = silly_format::format("OTL_UNKNOWN{}\n", p.what());
         }
         db.logoff();
 
@@ -279,13 +278,12 @@ class otl_conn_opt
         catch (otl_exception& e)
         {
             db.rollback();
-            // SLOG_ERROR("OTL_ERR \nCONN:{} \nCODE:{} \nMSG:{} \nSTATE:{}\n", m_conn, e.code, (char*)e.msg, (char*)e.sqlstate);
             m_err = silly_format::format("OTL_ERR \nCONN:{} \nCODE:{} \nMSG:{} \nSTATE:{}\n", m_conn, e.code, (char*)e.msg, (char*)e.sqlstate);
         }
         catch (std::exception& p)
         {
             db.rollback();
-            m_err = silly_format::format("OTL_UNKOWN{}\n", p.what());
+            m_err = silly_format::format("OTL_UNKNOWN{}\n", p.what());
         }
         db.logoff();
 
@@ -316,7 +314,7 @@ class otl_conn_opt
         catch (std::exception& p)
         {
             db.rollback();
-            m_err = silly_format::format("OTL_UNKOWN{}\n", p.what());
+            m_err = silly_format::format("OTL_UNKNOWN{}\n", p.what());
         }
         db.logoff();
 
@@ -353,13 +351,12 @@ class otl_conn_opt
         catch (otl_exception& e)
         {
             db.rollback();
-            // SLOG_ERROR("OTL_ERR \nCONN:{} \nCODE:{} \nMSG:{} \nSTATE:{}\n", m_conn, e.code, (char*)e.msg, (char*)e.sqlstate);
             m_err = silly_format::format("OTL_ERR \nCONN:{} \nCODE:{} \nMSG:{} \nSTATE:{}\n", m_conn, e.code, (char*)e.msg, (char*)e.sqlstate);
         }
         catch (std::exception& p)
         {
             db.rollback();
-            m_err = silly_format::format("OTL_UNKOWN{}\n", p.what());
+            m_err = silly_format::format("OTL_UNKNOWN{}\n", p.what());
         }
         db.logoff();
 
@@ -398,13 +395,12 @@ class otl_conn_opt
         catch (otl_exception& e)
         {
             db.rollback();
-            // SLOG_ERROR("OTL_ERR \nCONN:{} \nCODE:{} \nMSG:{} \nSTATE:{}\n", m_conn, e.code, (char*)e.msg, (char*)e.sqlstate);
             m_err = silly_format::format("OTL_ERR \nCONN:{} \nCODE:{} \nMSG:{} \nSTATE:{}\n", m_conn, e.code, (char*)e.msg, (char*)e.sqlstate);
         }
         catch (std::exception& p)
         {
             db.rollback();
-            m_err = silly_format::format("OTL_UNKOWN{}\n", p.what());
+            m_err = silly_format::format("OTL_UNKNOWN{}\n", p.what());
         }
         db.logoff();
 
