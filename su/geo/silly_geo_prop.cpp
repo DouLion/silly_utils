@@ -43,7 +43,7 @@ silly_geo_prop::~silly_geo_prop()
     // SU_MEM_FREE(m_data)
 }
 
-void silly_geo_prop::destroy()
+void silly_geo_prop::release()
 {
 }
 

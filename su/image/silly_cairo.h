@@ -13,8 +13,8 @@
 #include <cairo/cairo.h>
 #include <image/png_utils.h>
 #include <image/silly_font.h>
+#include <geo/silly_geo.h>
 using namespace silly_image;
-
 
 class silly_cairo_text
 {
@@ -37,21 +37,28 @@ class silly_cairo
     bool decode(const std::string& bin);
     bool decode(const char* data, const size_t size);
     bool encode(std::string& bin);
-    //bool encode(unsigned char** data, size_t& size);
+    // bool encode(unsigned char** data, size_t& size);
     void set_color(silly_color color);
 
     void draw(silly_cairo_text sct);
 
+    void draw_poly(const silly_poly& poly, const silly_geo_rect& rect);
+
+    void draw_poly_web_mercator(const silly_poly& poly, const silly_geo_rect& rect);
+
     void release();
 
   private:
+    void draw_ring(const silly_ring& ring, const silly_geo_rect& rect);
+    void draw_ring_web_mercator(const silly_ring& ring, const silly_geo_rect& rect);
 
+  private:
     int m_format{0};
     size_t m_width{0};
     size_t m_height{0};
     cairo_t* m_cr{nullptr};
     cairo_surface_t* m_surface{nullptr};
-    std::mutex m_mtx; // 同时只能做一件事情
+    std::mutex m_mtx;  // 同时只能做一件事情
 };
 
 #endif  // SILLY_UTILS_SILLY_CAIRO_H

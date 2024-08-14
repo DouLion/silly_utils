@@ -11,22 +11,22 @@
 #include <cairo/cairo.h>
 #include <cairo/cairo-ft.h>
 #include <ft2build.h>
+#include "geo/silly_projection.h"
 #include FT_FREETYPE_H
 
 static std::map<std::string, FT_Face> CAIRO_NAME_FONT{};
 static FT_Library CAIRO_FONT_LIB;
 
-
-
 struct st_png_data
 {
-    char* data;
+    char *data;
     uint32_t offset;
     uint32_t length;
 };
-static cairo_status_t cairo_read_func_mine(void* closure, unsigned char* data, uint32_t length)
+
+static cairo_status_t cairo_read_func_mine(void *closure, unsigned char *data, uint32_t length)
 {
-    st_png_data* pPngData = (st_png_data*)closure;
+    st_png_data *pPngData = (st_png_data *)closure;
     if (pPngData->length - pPngData->offset < length)
     {
         length = pPngData->length - pPngData->offset;
@@ -37,23 +37,24 @@ static cairo_status_t cairo_read_func_mine(void* closure, unsigned char* data, u
 
     return CAIRO_STATUS_SUCCESS;
 }
-static cairo_surface_t* from_binary_data(const char* data, const int& size)
+
+static cairo_surface_t *from_binary_data(const char *data, const int &size)
 {
-    cairo_surface_t* surface;
-    st_png_data pngData = {(char*)data, 0, (uint32_t)size};
+    cairo_surface_t *surface;
+    st_png_data pngData = {(char *)data, 0, (uint32_t)size};
     surface = cairo_image_surface_create_from_png_stream(cairo_read_func_mine, &pngData);
     return surface;
 }
 
-static cairo_status_t cairo_write_func_mine(void* closure, const unsigned char* data, uint32_t length)
+static cairo_status_t cairo_write_func_mine(void *closure, const unsigned char *data, uint32_t length)
 {
-    std::string& bin = *((std::string*)closure);
+    std::string &bin = *((std::string *)closure);
     bin.resize(length);
     memcpy(&bin[0], data, length);
     return CAIRO_STATUS_SUCCESS;
 }
 
-bool silly_cairo::create(const size_t h, const size_t& w, const int& type)
+bool silly_cairo::create(const size_t h, const size_t &w, const int &type)
 {
     if (!h || !w)
     {
@@ -84,7 +85,8 @@ bool silly_cairo::create(const size_t h, const size_t& w, const int& type)
     }
     return true;
 }
-bool silly_cairo::read(const std::string& path)
+
+bool silly_cairo::read(const std::string &path)
 {
     if (!(m_surface = cairo_image_surface_create_from_png(path.c_str())))
     {
@@ -95,15 +97,18 @@ bool silly_cairo::read(const std::string& path)
     m_height = cairo_image_surface_get_height(m_surface);
     return true;
 }
-bool silly_cairo::write(const std::string& path)
+
+bool silly_cairo::write(const std::string &path)
 {
     return (CAIRO_STATUS_SUCCESS == cairo_surface_write_to_png(m_surface, path.c_str()));
 }
-bool silly_cairo::decode(const std::string& bin)
+
+bool silly_cairo::decode(const std::string &bin)
 {
     return decode(bin.c_str(), bin.size());
 }
-bool silly_cairo::decode(const char* data, const size_t size)
+
+bool silly_cairo::decode(const char *data, const size_t size)
 {
     m_surface = from_binary_data(data, size);
     if (!m_surface)
@@ -120,7 +125,8 @@ bool silly_cairo::decode(const char* data, const size_t size)
     }
     return true;
 }
-bool silly_cairo::encode(std::string& bin)
+
+bool silly_cairo::encode(std::string &bin)
 {
     cairo_surface_write_to_png_stream(m_surface, cairo_write_func_mine, &bin);
     if (bin.empty())
@@ -146,13 +152,14 @@ void silly_cairo::draw(silly_cairo_text sct)
 {
     /*auto iter = CAIRO_NAME_FONT.find(sct.font_family);
     if( != std::end(m))*/
-    cairo_set_source_rgba (m_cr, 1, 0.2, 0.2, 0.6);
+    cairo_set_source_rgba(m_cr, 1, 0.2, 0.2, 0.6);
     cairo_select_font_face(m_cr, sct.font_family.c_str(), CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
     cairo_set_font_size(m_cr, sct.font_size);
     cairo_move_to(m_cr, sct.x, sct.y);  // 高
     cairo_show_text(m_cr, sct.text.c_str());
     cairo_stroke(m_cr);
 }
+
 void silly_cairo::set_color(silly_color color)
 {
     const double icc = 255.0;
@@ -169,12 +176,79 @@ void silly_cairo::set_color(silly_color color)
             break;
         default:
             break;
-        
     }
 }
+
 void silly_cairo::clean(silly_color color)
 {
     set_color(color);
     cairo_rectangle(m_cr, 0, 0, m_width, m_height);
     cairo_fill(m_cr);
+}
+
+void silly_cairo::draw_poly(const silly_poly &poly, const silly_geo_rect &rect)
+{
+    std::unique_lock loc(m_mtx);
+    // 画外环
+    draw_ring(poly.outer_ring, rect);
+
+    // 画内环
+    for (auto &ring : poly.inner_rings)
+    {
+        draw_ring(ring, rect);
+    }
+    cairo_set_fill_rule(m_cr, CAIRO_FILL_RULE_EVEN_ODD);
+    cairo_fill_preserve(m_cr);
+    cairo_stroke(m_cr);
+}
+
+void silly_cairo::draw_poly_web_mercator(const silly_poly &poly, const silly_geo_rect &rect)
+{
+    std::unique_lock loc(m_mtx);
+    // 画外环
+    draw_ring_web_mercator(poly.outer_ring, rect);
+
+    // 画内环
+    for (auto &ring : poly.inner_rings)
+    {
+        draw_ring_web_mercator(ring, rect);
+    }
+    cairo_set_fill_rule(m_cr, CAIRO_FILL_RULE_EVEN_ODD);
+    cairo_fill_preserve(m_cr);
+    cairo_stroke(m_cr);
+}
+
+void silly_cairo::draw_ring(const silly_ring &ring, const silly_geo_rect &rect)
+{
+    cairo_new_sub_path(m_cr);
+
+    double x_pixel_per_degree = m_width / (rect.right - rect.left);
+    double y_pixel_per_degree = m_height / (rect.top - rect.bottom);
+    cairo_move_to(m_cr, (ring.points[0].lgtd - rect.left) * x_pixel_per_degree, (rect.top - ring.points[0].lttd) * y_pixel_per_degree);
+    for (int i = 1; i < ring.points.size(); ++i)
+    {
+        cairo_line_to(m_cr, (ring.points[i].lgtd - rect.left) * x_pixel_per_degree, (rect.top - ring.points[i].lttd) * y_pixel_per_degree);
+    }
+    cairo_close_path(m_cr);
+}
+
+void silly_cairo::draw_ring_web_mercator(const silly_ring &ring, const silly_geo_rect &rect)
+{
+    double mc_left, mc_top, mc_right, mc_bottom;  // 多内环的情况这几个变量会重复计算,但是开销很小,可以暂时忽略
+    silly_projection::geo_to_mercator(rect.left, rect.top, mc_left, mc_top);
+    silly_projection::geo_to_mercator(rect.right, rect.bottom, mc_right, mc_bottom);
+
+    cairo_new_sub_path(m_cr);
+    double mcx, mcy;
+
+    double x_pixel_per_degree = m_width / (mc_right - mc_left);
+    double y_pixel_per_degree = m_height / (mc_top - mc_bottom);
+    silly_projection::geo_to_mercator(ring.points[0].lgtd, ring.points[0].lttd, mcx, mcy);
+    cairo_move_to(m_cr, (mcx - mc_left) * x_pixel_per_degree, (mc_top - mcy) * y_pixel_per_degree);
+    for (int i = 1; i < ring.points.size(); ++i)
+    {
+        silly_projection::geo_to_mercator(ring.points[i].lgtd, ring.points[i].lttd, mcx, mcy);
+        cairo_line_to(m_cr, (mcx - mc_left) * x_pixel_per_degree, (mc_top - mcy) * y_pixel_per_degree);
+    }
+    cairo_close_path(m_cr);
 }

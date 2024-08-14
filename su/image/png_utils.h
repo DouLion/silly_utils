@@ -23,7 +23,6 @@
 #define png_jmpbuf(png_ptr) ((png_ptr)->png_jmpbuf)
 #endif
 
-
 namespace silly_image
 {
 
@@ -51,6 +50,7 @@ class png_data
     /// <param name="sp"></param>
     void set_pixel(const size_t &r, const size_t &c, const silly_color &sp);
     png_data operator=(const png_data &other);
+  //private:
     png_bytep *data{nullptr};
     png_uint_32 width{0};
     png_uint_32 height{0};
@@ -77,7 +77,7 @@ class png_utils
     /// </summary>
     /// <param name="path"></param>
     /// <returns></returns>
-    static png_data read(const std::string& path);
+    static png_data read(const std::string &path);
 
     /// <summary>
     /// 将png数据块写回文件, TODO: 这个函数在Centos上保存图片时,图片会有截断,导致保存内容有缺失,检查问题,优先使用encode_to_memory转为二进制流然后写入文件
@@ -85,12 +85,27 @@ class png_utils
     /// <param name="path"></param>
     /// <param name="data"></param>
     /// <returns></returns>
-    static bool write(const std::string& path, const png_data &data);
+    static bool write(const std::string &path, const png_data &data);
 
-    static bool memory_encode(const png_data &data, std::string& buff);
+    static bool memory_encode(const png_data &data, std::string &buff);
 
-    static bool memory_decode(const std::string& buff, png_data &data);
+    static bool memory_decode(const std::string &buff, png_data &data);
 
+    /// <summary>
+    /// RGB图像转RGBA
+    /// </summary>
+    /// <param name="src"></param>
+    /// <param name="dst"></param>
+    /// <returns></returns>
+    static bool rgb_to_rgba(const png_data &src, png_data &dst, const png_byte& alpha = 255);
+
+    /// <summary>
+    /// RGBA图像转RGB
+    /// </summary>
+    /// <param name="src"></param>
+    /// <param name="dst"></param>
+    /// <returns></returns>
+    static bool rgba_to_rgb(const png_data &src, png_data &dst);
 };
 }  // namespace silly_image
 #endif  // SILLY_UTILS_PNG_UTILS_H

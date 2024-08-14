@@ -321,7 +321,7 @@ tif_data geotiff_utils::readGeoTiff(std::string filePath)
 
     // 关闭影像数据和GTIF对象
 
-    res_tif.tif_matrix2.destroy();
+    res_tif.tif_matrix2.release();
     XTIFFClose(tiff);
     return res_tif;
 }

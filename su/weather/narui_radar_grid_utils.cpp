@@ -273,7 +273,7 @@ bool silly_nrd_grid_utils::read_grid(const std::string& file, const double& dst_
         size_t drows = tmp_grid.row() * head.dlat / dst_scale;
         size_t dcols = tmp_grid.col() * head.dlon / dst_scale;
         matrix_tools::resize(tmp_grid, grid, drows, dcols);
-        tmp_grid.destroy();
+        tmp_grid.release();
     }
 
     status = true;

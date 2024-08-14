@@ -85,3 +85,25 @@ std::string silly_string_algo::replace(const std::string &src, const std::string
     }
     return result;
 }
+size_t silly_string_algo::count_with_chinese_character(const std::string &u8str)
+{
+    size_t count = 0;
+    for (size_t i = 0; i < u8str.size(); ++i)
+    {
+        // 对于UTF-8编码，中文字符占3或4个字节，其首字节均大于0x80
+        if ((unsigned char)u8str[i] >= 0x80)
+        {
+            // 跳过整个中文字符的字节
+            if ((u8str[i] & 0xF0) == 0xF0)
+            {
+                i += 3;  // 对于4字节的UTF-8字符
+            }
+            else
+            {
+                i += 2;  // 对于3字节的UTF-8字符
+            }
+            ++count;
+        }
+    }
+    return count;
+}

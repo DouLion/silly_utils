@@ -246,6 +246,48 @@ bool png_utils::memory_decode(const std::string &buff, png_data &data)
 
     return true;
 }
+bool png_utils::rgb_to_rgba(const png_data &src, png_data &dst, const png_byte& alpha)
+{
+    if(src.color_type != PNG_COLOR_TYPE_RGB)
+    {
+        return false;
+    }
+    dst = create_empty(src.height, src.width, PNG_COLOR_TYPE_RGB_ALPHA, src.bit_depth);
+    for(size_t r = 0; r < src.height; ++r)
+    {
+        png_bytep srcp = src.data[r];
+        png_bytep dstp = dst.data[r];
+        for(size_t c = 0; c < src.width; ++c)
+        {
+            memcpy(dstp, srcp, 3);
+            dstp[3] = alpha;
+            srcp += 3;
+            dstp += 4;
+        }
+    }
+
+    return true;
+}
+bool png_utils::rgba_to_rgb(const png_data &src, png_data &dst)
+{
+    if(src.color_type != PNG_COLOR_TYPE_RGB_ALPHA)
+    {
+        return false;
+    }
+    dst = create_empty(src.height, src.width, PNG_COLOR_TYPE_RGB, src.bit_depth);
+    for(size_t r = 0; r < src.height; ++r)
+    {
+        png_bytep srcp = src.data[r];
+        png_bytep dstp = dst.data[r];
+        for(size_t c = 0; c < src.width; ++c)
+        {
+            memcpy(dstp, srcp, 3);
+            srcp += 4;
+            dstp += 3;
+        }
+    }
+    return true;
+}
 
 void png_data::release()
 {

@@ -51,9 +51,6 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${GZIP_HPP_INCLUDE_DIRS})
 find_package(7zip CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC 7zip::7zip)
 
-find_package(RapidJSON CONFIG REQUIRED)
-target_link_libraries(${PROJECT_NAME} PUBLIC rapidjson)
-
 find_package(netCDFCxx CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC netCDF::netcdf netCDF::netcdf-cxx4)
 

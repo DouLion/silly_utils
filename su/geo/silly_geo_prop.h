@@ -38,7 +38,7 @@ class silly_geo_prop
     silly_geo_prop(const std::vector<unsigned char>& bs);
 
     silly_geo_prop(const silly_geo_prop& other);
-    void destroy();
+    void release();
     ~silly_geo_prop();
 
   public:

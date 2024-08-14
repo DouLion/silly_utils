@@ -6,7 +6,7 @@
  * @date: 2023/7/19 15:17
  * @version: 1.0.1
  * @software: silly_utils
- * @description:
+ * @description: 平面经纬度矢量基本类型定义
  */
 #pragma once
 

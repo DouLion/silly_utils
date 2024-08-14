@@ -36,10 +36,10 @@ class matrix_2d
     /// <returns></returns>
     matrix_2d<T> &operator=(const matrix_2d<T> &other)
     {
-        this->rows = other.rows;
-        this->cols = other.cols;
-        this->data = other.data;
-        this->total = other.total;
+        this->m_row = other.m_row;
+        this->m_col = other.m_col;
+        this->m_data = other.m_data;
+        this->m_total = other.m_total;
         return *this;
     }
 
@@ -56,36 +56,36 @@ class matrix_2d
         {
             return false;
         }
-        if (data && !reset)
+        if (m_data && !reset)
         {
             return false;
         }
-        if (data && reset)  // 重复调用此函数, 会重置
+        if (m_data && reset)  // 重复调用此函数, 会重置
         {
-            destroy();
+            release();
         }
-        rows = row;
-        cols = col;
-        total = rows * cols;
+        m_row = row;
+        m_col = col;
+        m_total = m_row * m_col;
 
-        data = (T *)malloc(total * sizeof(T));
-        if (!data)
+        m_data = (T *)malloc(m_total * sizeof(T));
+        if (!m_data)
         {
             return false;
         }
-        memset(data, 0, total * sizeof(T));
+        memset(m_data, 0, m_total * sizeof(T));
 
         return true;
     }
 
     void operator+=(const matrix_2d<T> &other)
     {
-        if (data && other.data && rows == other.rows && cols == other.cols)
+        if (m_data && other.m_data && m_row == other.m_row && m_col == other.m_col)
         {
             size_t i = 0;
-            while (i < total)
+            while (i < m_total)
             {
-                data[i] += other.data[i];
+                m_data[i] += other.m_data[i];
                 i++;
             }
         }
@@ -93,12 +93,12 @@ class matrix_2d
 
     void operator-=(const matrix_2d<T> &other)
     {
-        if (data && other.data && rows == other.rows && cols == other.cols)
+        if (m_data && other.m_data && m_row == other.m_row && m_col == other.m_col)
         {
             size_t i = 0;
-            while (i < total)
+            while (i < m_total)
             {
-                data[i] -= other.data[i];
+                m_data[i] -= other.m_data[i];
                 i++;
             }
         }
@@ -111,9 +111,9 @@ class matrix_2d
     /// <returns></returns>
     T *operator[](size_t r)
     {
-        if (data)
+        if (m_data)
         {
-            return data + (r * cols);
+            return m_data + (r * m_col);
         }
         return nullptr;
     }
@@ -130,12 +130,12 @@ class matrix_2d
 
     void operator+=(const T &other)
     {
-        if (data)
+        if (m_data)
         {
             size_t i = 0;
-            while (i < total)
+            while (i < m_total)
             {
-                data[i] += other;
+                m_data[i] += other;
                 i++;
             }
         }
@@ -143,38 +143,38 @@ class matrix_2d
 
     void operator-=(const T &other)
     {
-        if (data)
+        if (m_data)
         {
             size_t i = 0;
-            while (i < total)
+            while (i < m_total)
             {
-                data[i] -= other;
+                m_data[i] -= other;
                 i++;
             }
         }
     }
 
-     void operator*=(const T &other)
+    void operator*=(const T &other)
     {
-         if (data)
-         {
-             size_t i = 0;
-             while (i < total)
-             {
-                 data[i] *= other;
-                 i++;
-             }
-         }
+        if (m_data)
+        {
+            size_t i = 0;
+            while (i < m_total)
+            {
+                m_data[i] *= other;
+                i++;
+            }
+        }
     }
 
     void operator/=(const T &other)
     {
-        if (data)
+        if (m_data)
         {
             size_t i = 0;
-            while (i < total)
+            while (i < m_total)
             {
-                data[i] /= other;
+                m_data[i] /= other;
                 i++;
             }
         }
@@ -182,12 +182,12 @@ class matrix_2d
 
     matrix_2d<T> operator+(const T *v)
     {
-        if (data)
+        if (m_data)
         {
             size_t i = 0;
-            while (i < total)
+            while (i < m_total)
             {
-                data[i] += v;
+                m_data[i] += v;
                 i++;
             }
         }
@@ -196,12 +196,12 @@ class matrix_2d
 
     matrix_2d<T> operator-(const T *v)
     {
-        if (data)
+        if (m_data)
         {
             size_t i = 0;
-            while (i < total)
+            while (i < m_total)
             {
-                data[i] -= v;
+                m_data[i] -= v;
                 i++;
             }
         }
@@ -210,12 +210,12 @@ class matrix_2d
 
     matrix_2d<T> operator*(const T *v)
     {
-        if (data)
+        if (m_data)
         {
             size_t i = 0;
-            while (i < total)
+            while (i < m_total)
             {
-                data[i] *= v;
+                m_data[i] *= v;
                 i++;
             }
         }
@@ -224,12 +224,12 @@ class matrix_2d
 
     matrix_2d<T> operator/(const T *v)
     {
-        if (data)
+        if (m_data)
         {
             size_t i = 0;
-            while (i < total)
+            while (i < m_total)
             {
-                data[i] /= v;
+                m_data[i] /= v;
                 i++;
             }
         }
@@ -238,9 +238,9 @@ class matrix_2d
 
     T *seek_row(const size_t &r)
     {
-        if (data)
+        if (m_data)
         {
-            return data + (r * cols);
+            return m_data + (r * m_col);
         }
 
         return nullptr;
@@ -253,10 +253,10 @@ class matrix_2d
     matrix_2d<T> copy()
     {
         matrix_2d<T> ret;
-        ret.create(rows, cols);
-        if (data)
+        ret.create(m_row, m_col);
+        if (m_data)
         {
-            memcpy(ret.data, data, total * sizeof(T));
+            memcpy(ret.m_data, m_data, m_total * sizeof(T));
         }
 
         return ret;
@@ -270,13 +270,13 @@ class matrix_2d
     /// <returns></returns>
     T &at(size_t r, size_t c) const
     {
-        /*if (r < rows && c < cols && data)
+        /*if (r < m_row && c < m_col && m_data)
         {
-            return data[r * cols + c];
+            return m_data[r * m_col + c];
         }
-        return mp;*/
+        return m_mp;*/
         // 这个地方应该考虑如何更优雅的实现保护
-        return data[r * cols + c];
+        return m_data[r * m_col + c];
     }
 
     /// <summary>
@@ -285,12 +285,12 @@ class matrix_2d
     /// <param name="val"></param>
     void set(T val)
     {
-        if (data)
+        if (m_data)
         {
             size_t i = 0;
-            while (i < total)
+            while (i < m_total)
             {
-                data[i++] = val;
+                m_data[i++] = val;
             }
         }
     }
@@ -298,22 +298,22 @@ class matrix_2d
     /// <summary>
     /// 释放内存,需要手动调用
     /// </summary>
-    void destroy()
+    void release()
     {
-        if (data)
+        if (m_data)
         {
-            free(data);
-            data = nullptr;
+            free(m_data);
+            m_data = nullptr;
         }
     }
     const size_t row() const
     {
-        return rows;
+        return m_row;
     }
 
     const size_t col() const
     {
-        return cols;
+        return m_col;
     }
 
     /// <summary>
@@ -326,15 +326,15 @@ class matrix_2d
     matrix_2d<T> cast_from(matrix_2d<U> &other)
     {
         create(other.row(), other.col(), true);
-        if (!data)
+        if (!m_data)
         {
             throw std::bad_alloc();  // or handle allocation failure
         }
-        for (size_t i = 0; i < total; ++i)
+        for (size_t i = 0; i < m_total; ++i)
         {
-            data[i] = static_cast<T>(other.at(i / cols, i % cols));
+            m_data[i] = static_cast<T>(other.at(i / m_col, i % m_col));
         }
-        other.destroy(); // 注销源矩阵
+        other.destroy();  // 注销源矩阵
         return *this;
     }
 
@@ -344,18 +344,18 @@ class matrix_2d
     /// <returns></returns>
     T *get_data() const
     {
-        return data;
+        return m_data;
     }
 
   private:
-    T *data{nullptr};
+    T *m_data{nullptr};
     // 行数
-    size_t rows{0};
+    size_t m_row{0};
     // 列数
-    size_t cols{0};
+    size_t m_col{0};
     // 总数据量
-    size_t total{0};
-    T mp{0};
+    size_t m_total{0};
+    T m_mp{0};
 };
 
 typedef matrix_2d<int> IMatrix;
@@ -393,17 +393,17 @@ class matrix_tools
     static bool convert_matrix(silly_math::matrix_2d<T1> &src, silly_math::matrix_2d<T2> &dst)
     {
         bool status = false;
-        size_t rows = src.row();
-        size_t cols = src.col();
+        size_t m_row = src.row();
+        size_t m_col = src.col();
 
-        if (!dst.create(rows, cols))
+        if (!dst.create(m_row, m_col))
         {
             return status;
         }
-        size_t total = rows * cols + 1;
-        T1* srcp = src.data;
-        T2* dstp = dst.data;
-        while(total--)
+        size_t m_total = m_row * m_col + 1;
+        T1 *srcp = src.m_data;
+        T2 *dstp = dst.m_data;
+        while (m_total--)
         {
             *dstp = static_cast<T2>(*srcp);
             dstp++;
