@@ -96,7 +96,7 @@ bool silly_geo_convert::matrix_geo_to_mercator(silly_math::matrix_2d<T> src, con
             dst.at(j, i) = tmp.at(dst_r, dst_c);
         }
     }
-    tmp.destroy();
+    tmp.release();
     return true;
 }
 
@@ -145,7 +145,7 @@ bool silly_geo_convert::matrix_geo_to_mercator_ez(silly_math::matrix_2d<T> src, 
             dst.at(j, i) = tmp.at(dst_r, dst_c);
         }
     }
-    tmp.destroy();
+    tmp.release();
     return true;
 }
 

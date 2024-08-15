@@ -124,7 +124,7 @@ struct silly_grid_record
         value = (double *)malloc(num * sizeof(double));
     }
 
-    void destroy()
+    void release()
     {
         if (lgtd)
         {

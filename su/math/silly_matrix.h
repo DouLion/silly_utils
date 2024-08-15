@@ -334,7 +334,7 @@ class matrix_2d
         {
             m_data[i] = static_cast<T>(other.at(i / m_col, i % m_col));
         }
-        other.destroy();  // 注销源矩阵
+        other.release();  // 注销源矩阵
         return *this;
     }
 
