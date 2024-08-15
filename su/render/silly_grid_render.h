@@ -106,7 +106,7 @@ class silly_grid_render
             SFP_ERROR("经纬坐标转换墨卡托坐标失败")
             return;
         }
-        srp.mtx.destroy();
+        srp.mtx.release();
         srp.mtx = mc_mtx;
         normal_render_greater(srp);
     }
@@ -142,7 +142,7 @@ class silly_grid_render
             SFP_ERROR("经纬坐标转换墨卡托坐标失败")
             return;
         }
-        srp.mtx.destroy();
+        srp.mtx.release();
         srp.mtx = mc_mtx;
         normal_render(srp, func);
     }
