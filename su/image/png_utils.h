@@ -23,6 +23,15 @@
 #define png_jmpbuf(png_ptr) ((png_ptr)->png_jmpbuf)
 #endif
 
+/// 1x1的空白png图片
+const static std::vector<unsigned char> SILLY_1X1_RGBA_PNG = {0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
+                                                              0x01, 0x08, 0x06, 0x00, 0x00, 0x00, 0x1F, 0x15, 0xC4, 0x89, 0x00, 0x00, 0x00, 0x0B, 0x49, 0x44, 0x41, 0x54, 0x08, 0x99, 0x63, 0x60, 0x00,
+                                                              0x02, 0x00, 0x00, 0x05, 0x00, 0x01, 0x62, 0x55, 0x32, 0x88, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82};
+
+const static std::string  SILLY_1X1_RGBA_PNG_STR(
+    reinterpret_cast<const char*>(SILLY_1X1_RGBA_PNG.data()),
+    SILLY_1X1_RGBA_PNG.size());
+
 namespace silly_image
 {
 
@@ -50,7 +59,7 @@ class png_data
     /// <param name="sp"></param>
     void set_pixel(const size_t &r, const size_t &c, const silly_color &sp);
     png_data operator=(const png_data &other);
-  //private:
+    // private:
     png_bytep *data{nullptr};
     png_uint_32 width{0};
     png_uint_32 height{0};
@@ -97,7 +106,7 @@ class png_utils
     /// <param name="src"></param>
     /// <param name="dst"></param>
     /// <returns></returns>
-    static bool rgb_to_rgba(const png_data &src, png_data &dst, const png_byte& alpha = 255);
+    static bool rgb_to_rgba(const png_data &src, png_data &dst, const png_byte &alpha = 255);
 
     /// <summary>
     /// RGBA图像转RGB

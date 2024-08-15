@@ -14,6 +14,7 @@
 #include <image/png_utils.h>
 #include <image/silly_font.h>
 #include <geo/silly_geo.h>
+
 using namespace silly_image;
 
 class silly_cairo_text

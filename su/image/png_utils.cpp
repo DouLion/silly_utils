@@ -8,7 +8,7 @@ using namespace silly_image;
 
 static void silly_png_write_callback(png_structp png_ptr, png_bytep data, png_size_t length)
 {
-    std::vector<unsigned char> *p = (std::vector<unsigned char> *)png_get_io_ptr(png_ptr);
+    std::string *p = (std::string *)png_get_io_ptr(png_ptr);
     p->insert(p->end(), data, data + length);
 }
 
@@ -184,11 +184,14 @@ bool png_utils::memory_encode(const png_data &data, std::string &buff)
         png_destroy_write_struct(&png_ptr, &info_ptr);
         return status;
     }
+    //std::vector<unsigned char> buff_vec;
     png_set_IHDR(png_ptr, info_ptr, data.width, data.height, data.bit_depth, data.color_type, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
     png_set_rows(png_ptr, info_ptr, data.data);
-    png_set_write_fn(png_ptr, &buff[0], silly_png_write_callback, NULL);
+    png_set_write_fn(png_ptr, &buff, silly_png_write_callback, NULL);
     png_write_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
     png_destroy_write_struct(&png_ptr, &info_ptr);
+   /* buff.resize(buff_vec.size());
+    std::copy(buff_vec.begin(), buff_vec.end(), buff.begin());*/
     status = buff.size();
     return status;
 }

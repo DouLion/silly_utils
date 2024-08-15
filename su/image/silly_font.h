@@ -12,23 +12,23 @@
 #include <su_marco.h>
 #if IS_WIN32
 // 宋体
-#define SimSun  "SimSun"
+#define SimSun "SimSun"
 // 微软雅黑常规
 #define MicroSoftYaHei "Microsoft YaHei"
 // 楷体
 #define KaiTi "KaiTi"
 // 隶书
 #define LiSu "LiSu"
-#elif IS_LINUX
+#elif IS_MACOS
 
-#define SimSun  "SimSun"
+#define SimSun "SimSun"
 #define MicroSoftYaHei "Microsoft YaHei"
 #define KaiTi "KaiTi"
 #define LiSu "LiSu"
 
-#elif IS_MACOS
+#else
 
-#define SimSun  "SimSun"
+#define SimSun "SimSun"
 #define MicroSoftYaHei "Microsoft YaHei"
 #define KaiTi "KaiTi"
 #define LiSu "LiSu"
