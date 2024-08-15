@@ -441,9 +441,9 @@ size_t silly_netcdf::height() const
 }
 double silly_netcdf::xdelta() const
 {
-    return 0;
+    return m_xdelta;
 }
 double silly_netcdf::ydelta() const
 {
-    return 0;
+    return m_ydelta;
 }
