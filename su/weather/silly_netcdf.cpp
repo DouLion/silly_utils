@@ -251,8 +251,12 @@ bool silly_netcdf::read(const std::string& group, const std::string& lon, const 
     }
 
     // 判断矢量方向
-    m_xdelta = std::abs(lon_data.back() - lon_data.front()) / (m_width - 1);
-    m_ydelta = std::abs(lat_data.back() - lat_data.front()) / (m_height - 1);
+    m_left = std::min(lon_data.back(), lon_data.front());
+    m_right = std::max(lon_data.back(), lon_data.front());
+    m_bottom = std::min(lat_data.back(), lat_data.front());
+    m_top = std::max(lat_data.back(), lat_data.front());
+    m_xdelta = (m_right - m_left) / (m_width - 1);
+    m_ydelta = (m_top - bottom) / (m_height - 1);
     if (lat.front() < lat.back())  // 纬度由小到大
     {
         m_sort = 0;
