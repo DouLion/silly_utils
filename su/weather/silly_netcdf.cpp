@@ -249,6 +249,21 @@ bool silly_netcdf::read(const std::string& group, const std::string& lon, const 
     {
         throw std::runtime_error("lat维度必须在倒数第二个");
     }
+
+    // 判断矢量方向
+    m_xdelta = std::abs(lon_data.back() - lon_data.front()) / (m_width - 1);
+    m_ydelta = std::abs(lat_data.back() - lat_data.front()) / (m_height - 1);
+    if (lat.front() < lat.back())  // 纬度由小到大
+    {
+        m_sort = 0;
+        SLOG_DEBUG("从南往北")
+    }
+    else
+    {
+        m_sort = 1;  // 本库中所有网格存储顺序皆为 从左往右 从上往下
+        SLOG_DEBUG("从北往南")
+    }
+
     std::get<2>(*riter).getVar(&lat_data[0]);
     std::vector<std::string> band_names;
     for (size_t i = 0; i < name_nvdims.size() - 2; ++i)
@@ -297,17 +312,7 @@ bool silly_netcdf::read(const std::string& group, const std::string& lon, const 
             attr_.getValues(&m_scale);
         }
     }
-    // 判断矢量方向
-    if (lat.front() < lat.back())  // 纬度由小到大
-    {
-        m_sort = 0;
-        SLOG_DEBUG("从南往北")
-    }
-    else
-    {
-        m_sort = 1;  // 本库中所有网格存储顺序皆为 从左往右 从上往下
-        SLOG_DEBUG("从北往南")
-    }
+
     val_data.resize(total_val_size);
     nv_dst.getVar(&val_data[0]);
     size_t curr_i = 0;
@@ -429,4 +434,12 @@ size_t silly_netcdf::width() const
 size_t silly_netcdf::height() const
 {
     return m_height;
+}
+double silly_netcdf::xdelta() const
+{
+    return 0;
+}
+double silly_netcdf::ydelta() const
+{
+    return 0;
 }

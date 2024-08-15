@@ -66,6 +66,10 @@ class silly_netcdf
 
     double offset() const;
 
+    double xdelta() const;
+
+    double ydelta() const;
+
     size_t width() const;
 
     size_t height() const;
@@ -102,6 +106,8 @@ class silly_netcdf
     double m_right{0.};
     double m_bottom{0.};
     double m_top{0.};
+    double m_xdelta{0.};
+    double m_ydelta{0.};
     std::vector<std::pair<std::string, std::vector<float>>> m_nm_data;
 };
 
