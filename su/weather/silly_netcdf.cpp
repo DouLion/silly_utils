@@ -256,7 +256,7 @@ bool silly_netcdf::read(const std::string& group, const std::string& lon, const 
     m_bottom = std::min(lat_data.back(), lat_data.front());
     m_top = std::max(lat_data.back(), lat_data.front());
     m_xdelta = (m_right - m_left) / (m_width - 1);
-    m_ydelta = (m_top - bottom) / (m_height - 1);
+    m_ydelta = (m_top - m_bottom) / (m_height - 1);
     if (lat.front() < lat.back())  // 纬度由小到大
     {
         m_sort = 0;
