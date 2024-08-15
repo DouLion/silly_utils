@@ -69,7 +69,6 @@ bool silly_geo_convert::matrix_geo_to_mercator(silly_math::matrix_2d<T> src, con
         return false;
     }
     T m_left{0}, m_top{0}, m_right{0}, m_bottom{0};
-    T m_x = 0, m_y = 0;
     silly_projection::geo_to_mercator(rect.right, rect.bottom, m_right, m_bottom);
     silly_projection::geo_to_mercator(rect.left, rect.top, m_left, m_top);
     T m_width = m_right - m_left;
@@ -115,7 +114,6 @@ bool silly_geo_convert::matrix_geo_to_mercator_ez(silly_math::matrix_2d<T> src, 
         return false;
     }
     T m_left{0}, m_top{0}, m_right{0}, m_bottom{0};
-    T m_x = 0, m_y = 0;
 
     T cvt_top = std::log(std::tan((90 + m_top) * SU_PI / 360)) / (SU_PI / 180);
     T cvt_bottom = std::log(std::tan((90 + m_bottom) * SU_PI / 360)) / (SU_PI / 180);
