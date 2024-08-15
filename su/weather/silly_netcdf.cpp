@@ -249,7 +249,7 @@ bool silly_netcdf::read(const std::string& group, const std::string& lon, const 
     {
         throw std::runtime_error("lat维度必须在倒数第二个");
     }
-
+	std::get<2>(*riter).getVar(&lat_data[0]);
     // 判断矢量方向
     m_left = std::min(lon_data.back(), lon_data.front());
     m_right = std::max(lon_data.back(), lon_data.front());
