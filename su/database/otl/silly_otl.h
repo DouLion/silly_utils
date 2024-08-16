@@ -382,7 +382,7 @@ class otl_conn_opt
             db.rlogon(m_conn.c_str(), false);
             db.auto_commit_off();
             db.set_timeout(m_timeout);
-            db.set_max_long_size(INT_MAX - 1);
+            // db.set_max_long_size(1024*1024*100 - 1);
             otl_stream stream;
             stream.set_lob_stream_mode(true);
             stream.open(1, sql.c_str(), db);
