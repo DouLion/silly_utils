@@ -61,12 +61,15 @@ static cairo_status_t cairo_write_func_mine(void *closure, const unsigned char *
     return CAIRO_STATUS_SUCCESS;
 }
 
-bool silly_cairo::create(const size_t h, const size_t &w, const int &type)
+bool silly_cairo::create(const size_t ww, const size_t &hh, const int &type)
 {
-    if (!h || !w)
+
+    if (!ww || !hh)
     {
         return false;
     }
+    m_height = hh;
+    m_width = ww;
     m_format = CAIRO_FORMAT_ARGB32;
     switch (type)
     {
@@ -82,7 +85,7 @@ bool silly_cairo::create(const size_t h, const size_t &w, const int &type)
         default:
             break;
     }
-    if (!(m_surface = cairo_image_surface_create((cairo_format_t)m_format, w, h)))
+    if (!(m_surface = cairo_image_surface_create((cairo_format_t)m_format, m_width, m_height)))
     {
         return false;
     }

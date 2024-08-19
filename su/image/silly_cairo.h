@@ -45,7 +45,7 @@ class silly_cairo
   public:
     silly_cairo() = default;
 
-    bool create(const size_t h, const size_t& w, const int& type = png_type::eptRGBA);
+    bool create(const size_t ww, const size_t& hh, const int& type = png_type::eptRGBA);
     void clean(silly_color color = {0, 0, 0, 0});
     bool read(const std::string& path);
     bool write(const std::string& path);
