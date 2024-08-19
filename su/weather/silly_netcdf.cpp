@@ -332,7 +332,7 @@ bool silly_netcdf::read(const std::string& group, const std::string& lon, const 
         {
             for (int i = m_height - 1, j = 0; i >= 0; --i, ++j)
             {
-                memcpy(&tmp_data[j * m_width], &val_data[i * m_width], m_width * sizeof(float));
+                memcpy(&tmp_data[j * m_width], &val_data[curr_i + i * m_width], m_width * sizeof(float));
             }
         }
         if (m_scale != 1.0)
