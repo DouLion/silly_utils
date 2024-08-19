@@ -14,8 +14,15 @@
 #include "geo/silly_projection.h"
 #include FT_FREETYPE_H
 
-static std::map<std::string, FT_Face> CAIRO_NAME_FONT{};
-static FT_Library CAIRO_FONT_LIB;
+const static double COLOR_UNSIGNED_CHAR_DOUBLE = 255.0;
+
+#define PC_CC(a) static_cast<double>(a) / COLOR_UNSIGNED_CHAR_DOUBLE
+
+std::map<std::string, FT_Face> silly_cairo::CAIRO_NAME_FONT = {};
+
+FT_Library silly_cairo::CAIRO_FONT_LIB = nullptr;
+
+bool silly_cairo::m_enable_font = false;
 
 struct st_png_data
 {
@@ -148,12 +155,26 @@ void silly_cairo::release()
     }
 }
 
-void silly_cairo::draw(silly_cairo_text sct)
+void silly_cairo::draw_text(silly_cairo_text sct)
 {
     /*auto iter = CAIRO_NAME_FONT.find(sct.font_family);
     if( != std::end(m))*/
     cairo_set_source_rgba(m_cr, 1, 0.2, 0.2, 0.6);
-    cairo_select_font_face(m_cr, sct.font_family.c_str(), CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+    if (sct.tff_name.empty())
+    {
+        cairo_select_font_face(m_cr, sct.font_family.c_str(), CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+    }
+    else
+    {
+        //
+        cairo_font_face_t *cairo_font_face = nullptr;
+        if (CAIRO_NAME_FONT.find(sct.tff_name) != std::end(CAIRO_NAME_FONT))
+        {
+            cairo_font_face = cairo_ft_font_face_create_for_ft_face(CAIRO_NAME_FONT.at(sct.tff_name), 0);
+            cairo_set_font_face(m_cr, cairo_font_face);
+        }
+    }
+
     cairo_set_font_size(m_cr, sct.font_size);
     cairo_move_to(m_cr, sct.x, sct.y);  // 高
     cairo_show_text(m_cr, sct.text.c_str());
@@ -162,17 +183,16 @@ void silly_cairo::draw(silly_cairo_text sct)
 
 void silly_cairo::set_color(silly_color color)
 {
-    const double icc = 255.0;
     switch (m_format)
     {
         case CAIRO_FORMAT_ARGB32:
-            cairo_set_source_rgba(m_cr, static_cast<double>(color.red) / icc, static_cast<double>(color.green) / icc, static_cast<double>(color.blue) / icc, static_cast<double>(color.alpha) / icc);
+            cairo_set_source_rgba(m_cr, PC_CC(color.red), PC_CC(color.green), PC_CC(color.blue), PC_CC(color.alpha));
             break;
         case CAIRO_FORMAT_RGB24:
-            cairo_set_source_rgb(m_cr, static_cast<double>(color.red) / icc, static_cast<double>(color.green) / icc, static_cast<double>(color.blue) / icc);
+            cairo_set_source_rgb(m_cr, PC_CC(color.red), PC_CC(color.green), PC_CC(color.blue));
             break;
         case CAIRO_FORMAT_A8:
-            cairo_set_source_rgba(m_cr, static_cast<double>(color.gray) / icc, static_cast<double>(color.gray) / icc, static_cast<double>(color.gray) / icc, static_cast<double>(color.alpha) / icc);
+            cairo_set_source_rgba(m_cr, PC_CC(color.alpha), PC_CC(color.alpha), PC_CC(color.alpha), PC_CC(color.alpha));
             break;
         default:
             break;
@@ -257,4 +277,51 @@ void silly_cairo::paint(const silly_cairo &other, const double &x, const double 
 {
     cairo_set_source_surface(m_cr, other.m_surface, x, y);
     cairo_paint_with_alpha(m_cr, alpha);
+}
+size_t silly_cairo::width() const
+{
+    return m_width;
+}
+size_t silly_cairo::height() const
+{
+    return m_height;
+}
+bool silly_cairo::add_font(const std::string &name, const std::string &path)
+{
+    bool status = false;
+    FT_Face ft_face;
+
+    FT_Error ft_error;
+
+    if (!path.empty())
+    {
+        ft_error = FT_New_Face(CAIRO_FONT_LIB, path.c_str(), 0, &ft_face);
+        if (!ft_error)
+        {
+            CAIRO_NAME_FONT[name] = ft_face;
+            status = true;
+        }
+    }
+    return status;
+}
+void silly_cairo::enable_fonts()
+{
+    if (!m_enable_font)
+    {
+        if (FT_Init_FreeType(&CAIRO_FONT_LIB))
+        {
+        }
+    }
+}
+
+void silly_cairo::disable_fonts()
+{
+    for (auto &[nm, ft] : CAIRO_NAME_FONT)
+    {
+        FT_Done_Face(ft);
+    }
+    CAIRO_NAME_FONT = {};
+    FT_Done_FreeType(CAIRO_FONT_LIB);
+    CAIRO_FONT_LIB = nullptr;
+    m_enable_font = false;
 }
