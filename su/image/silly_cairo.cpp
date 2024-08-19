@@ -352,5 +352,5 @@ size_t silly_cairo::count_span(const std::string &u8str)
 }
 void silly_cairo::set_operator(const int &opt)
 {
-    cairo_set_operator(m_cr, cairo_operator_t::CAIRO_OPERATOR_SOURCE);
+    cairo_set_operator(m_cr, static_cast<cairo_operator_t>(opt));
 }
