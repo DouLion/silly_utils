@@ -157,9 +157,6 @@ void silly_cairo::release()
 
 void silly_cairo::draw_text(silly_cairo_text sct)
 {
-    /*auto iter = CAIRO_NAME_FONT.find(sct.font_family);
-    if( != std::end(m))*/
-    cairo_set_source_rgba(m_cr, 1, 0.2, 0.2, 0.6);
     if (sct.tff_name.empty())
     {
         cairo_select_font_face(m_cr, sct.font_family.c_str(), CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
