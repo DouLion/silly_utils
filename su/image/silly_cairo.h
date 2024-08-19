@@ -70,6 +70,8 @@ class silly_cairo
     /// <param name="color"></param>
     void set_color(silly_color color);
 
+    void set_operator(const int& opt);
+
     /// <summary>
     /// 将另一张图片绘制到当前图片上
     /// </summary>

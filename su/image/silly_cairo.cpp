@@ -202,9 +202,7 @@ void silly_cairo::set_color(silly_color color)
 void silly_cairo::clean(silly_color color)
 {
     set_color(color);
-    cairo_rectangle(m_cr, 0, 0, m_width, m_height);
-    cairo_fill(m_cr);
-    cairo_stroke(m_cr);
+    cairo_paint(m_cr);
 }
 
 void silly_cairo::draw_poly(const silly_poly &poly, const silly_geo_rect &rect)
@@ -351,4 +349,8 @@ size_t silly_cairo::count_span(const std::string &u8str)
         }
     }
     return count;
+}
+void silly_cairo::set_operator(const int &opt)
+{
+    cairo_set_operator(m_cr, cairo_operator_t::CAIRO_OPERATOR_SOURCE);
 }
