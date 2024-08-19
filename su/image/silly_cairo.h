@@ -20,6 +20,15 @@
 
 using namespace silly_image;
 
+enum enum_silly_cairo_align
+{
+    Middle = 1, // 居中对齐
+    LeftTop = 2,
+    LeftBottom = 3,
+    RightTop = 4,
+    RightBottom = 5
+};
+
 class silly_cairo_text
 {
   public:
@@ -75,6 +84,12 @@ class silly_cairo
     /// </summary>
     /// <param name="sct"></param>
     void draw_text(silly_cairo_text sct);
+
+    /// <summary>
+    /// 计算字符串占用字符宽度, (约)中文2个宽度,数字字母一个宽度
+    /// </summary>
+    /// <param name="u8str"></param>
+    static size_t count_span(const std::string& u8str);
 
     /// <summary>
     /// 绘制矢量面, 这个可以扩展出很多用法,

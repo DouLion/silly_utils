@@ -325,3 +325,30 @@ void silly_cairo::disable_fonts()
     CAIRO_FONT_LIB = nullptr;
     m_enable_font = false;
 }
+size_t silly_cairo::count_span(const std::string &u8str)
+{
+    size_t count = 0;
+    for (size_t i = 0; i < u8str.size(); ++i)
+    {
+        // 对于UTF-8编码，中文字符占3或4个字节，其首字节均大于0x80
+        if ((unsigned char)u8str[i] >= 0x80)
+        {
+            // 跳过整个中文字符的字节
+            if ((u8str[i] & 0xF0) == 0xF0)
+            {
+                i += 3;  // 对于4字节的UTF-8字符
+            }
+            else
+            {
+                i += 2;  // 对于3字节的UTF-8字符
+            }
+            ++count;
+            ++count;
+        }
+        else // 如果不是中文则认为是数字或者字母
+        {
+            ++count;
+        }
+    }
+    return count;
+}
