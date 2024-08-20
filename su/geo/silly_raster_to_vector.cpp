@@ -46,12 +46,12 @@ void silly_vectorizer::interpolation(const silly_trace_node &n1, const silly_tra
             {
                 point.lgtd = n1.p.lgtd;
 
-                point.lttd = n1.p.lttd + m_ydelta * (m_theshold - n1.val) / (n2.val - n1.val);
+                point.lttd = n1.p.lttd + m_ydelta * (m_threshold_l - n1.val) / (n2.val - n1.val);
             }
             else if (n1.p.lttd == n2.p.lttd)
             {
                 point.lttd = n1.p.lttd;
-                point.lgtd = n1.p.lgtd + m_xdelta * (m_theshold - n1.val) / (n2.val - n1.val);
+                point.lgtd = n1.p.lgtd + m_xdelta * (m_threshold_l - n1.val) / (n2.val - n1.val);
             }
             else
             {
@@ -63,18 +63,19 @@ void silly_vectorizer::interpolation(const silly_trace_node &n1, const silly_tra
             {
                 point.lgtd = n1.p.lgtd;
 
-                point.lttd = n1.p.lttd + m_ydelta * (m_theshold - n1.val) / (n2.val - n1.val);
+                point.lttd = n1.p.lttd + m_ydelta * (m_threshold_l - n1.val) / (n2.val - n1.val);
             }
             else
             {
                 point.lttd = n1.p.lttd;
-                point.lgtd = n1.p.lgtd + m_xdelta * (m_theshold - n1.val) / (n2.val - n1.val);
+                point.lgtd = n1.p.lgtd + m_xdelta * (m_threshold_l - n1.val) / (n2.val - n1.val);
             }
 #endif
             break;
         case 2:  // 直接取中点
             point.lgtd = (n1.p.lgtd + n2.p.lgtd) / 2.;
             point.lttd = (n1.p.lttd + n2.p.lttd) / 2.;
+
         default:
             break;
     }
@@ -98,26 +99,6 @@ void silly_vectorizer::trace_one_line(int r0l, int c0l, silly_ring &ring)
     r = r0l;
     c = c0l - 1;
     RECURSION_TRACE_LINE(r, c)
-}
-
-bool doIntersect(silly_point p1, silly_point p2, silly_point p3, silly_point p4)
-{
-    // 计算方向和叉积
-    auto dir = [](silly_point p1, silly_point p2, silly_point p3) -> double { return (p2.lgtd - p1.lgtd) * (p3.lttd - p1.lttd) - (p2.lttd - p1.lttd) * (p3.lgtd - p1.lgtd); };
-
-    // 如果方向相同，则线段不会相交
-    bool d1 = dir(p1, p2, p3) * dir(p1, p2, p4) <= 0;
-    bool d2 = dir(p3, p4, p1) * dir(p3, p4, p2) <= 0;
-
-    if (d1 && d2)
-    {
-        // 检查边界情况
-        if (std::max(p1.lgtd, p2.lgtd) >= std::min(p3.lgtd, p4.lgtd) && std::min(p1.lgtd, p2.lgtd) <= std::max(p3.lgtd, p4.lgtd) && std::max(p3.lttd, p4.lttd) >= std::min(p1.lttd, p2.lttd) && std::min(p3.lttd, p4.lttd) <= std::max(p1.lttd, p2.lttd))
-        {
-            return true;
-        }
-    }
-    return false;
 }
 
 bool silly_vectorizer::point_in_ring(const silly_point &p, const silly_ring &ring, const double &maxx)
@@ -146,7 +127,7 @@ bool silly_vectorizer::point_in_ring(const silly_point &p, const silly_ring &rin
     return inside;
 }
 
-std::vector<silly_poly> silly_vectorizer::trace_all_rings()
+std::vector<silly_poly> silly_vectorizer::trace_all_polys()
 {
     std::vector<silly_poly> result;
     bool has_not_traced = true;
@@ -329,52 +310,19 @@ void silly_vectorizer::set(const std::vector<trace_square_point> &points)
         }
         int c = std::round((p.p.lgtd - m_left) / m_xdelta) + 1;
         int r = std::round((m_top - p.p.lttd) / m_ydelta) + 1;
-        if (p.v > m_theshold)
+        if (p.v > m_threshold_l)
         {
             m_mat[r][c].val = p.v;
             m_mat[r][c].great = 1;
         }
-        else if (p.v == m_theshold)
+        else if (p.v == m_threshold_l)
         {
             m_mat[r][c].val = p.v - 0.0001;  // 避免和阈值重合
             m_mat[r][c].great = 1;
         }
         m_mat[r][c].p = p.p;
     }
-    // 初始化边
-    for (int i = 0; i < m_height + 2; ++i)
-    {
-        m_mat[i][0].p.lgtd = m_left - m_xdelta;
-        m_mat[i][0].p.lttd = m_top - i * m_ydelta + m_ydelta;
-        m_mat[i][m_width + 1].p.lgtd = m_right + m_ydelta;
-        m_mat[i][m_width + 1].p.lttd = m_top - i * m_ydelta + m_ydelta;
-    }
-
-    for (int i = 0; i < m_width + 2; ++i)
-    {
-        m_mat[0][i].p.lttd = m_top + m_ydelta;
-        m_mat[0][i].p.lgtd = m_left + i * m_xdelta - m_xdelta;
-        m_mat[m_height + 1][i].p.lttd = m_bottom - m_ydelta;
-        m_mat[m_height + 1][i].p.lgtd = m_left + i * m_xdelta - m_xdelta;
-    }
-
-    /*  for (int r = 0; r < m_height + 1; ++r)
-      {
-          for (int c = 0; c < m_width + 1; ++c)
-          {
-              if (m_mat[r][c].great)
-              {
-                  SLOG_DEBUG("\n<===R {:03d}=====C {:03d}=====>\n{:02f}, {:02f}\n{:02f}, {:02f}\n{:02f}, {:02f}",r, c, m_mat[r][c].p.lgtd, m_mat[r][c].p.lttd, m_mat[r][c + 1].p.lgtd, m_mat[r][c + 1].p.lttd, m_mat[r+1][c].p.lgtd, m_mat[r+1][c].p.lttd)
-
-                  assert(m_mat[r][c].p.lttd == m_mat[r][c + 1].p.lttd);
-                  assert((m_mat[r][c].p.lgtd + m_xdelta) == m_mat[r][c + 1].p.lgtd);
-                  assert((m_mat[r][c].p.lttd - m_ydelta) == m_mat[r+1][c].p.lttd);
-                  assert(m_mat[r][c].p.lgtd == m_mat[r+1][c].p.lgtd);
-
-              }
-          }
-      }*/
-
+    fill_mat();
     return;
 }
 
@@ -441,7 +389,7 @@ void silly_vectorizer::find_edge()
                     m_mat[r][c].segments[1].traced = 0;
                     avg = (m_mat[r][c].val + m_mat[r][c + 1].val + m_mat[r + 1][c + 1].val + m_mat[r + 1][c].val) / 4.0;
 
-                    if (avg > m_theshold)
+                    if (avg > m_threshold_l)
                     {
                         ///   //  0-3   1-2
                         // 0
@@ -503,7 +451,7 @@ void silly_vectorizer::find_edge()
                     m_mat[r][c].segments[1].traced = 0;
                     avg = (m_mat[r][c].val + m_mat[r][c + 1].val + m_mat[r + 1][c + 1].val + m_mat[r + 1][c].val) / 4.0;
 
-                    if (avg > m_theshold)
+                    if (avg > m_threshold_l)
                     {
                         ///   //  0-1   2-3
                         // 0
@@ -565,4 +513,99 @@ void silly_vectorizer::find_edge()
             }
         }
     }
+}
+void silly_vectorizer::set(const std::vector<trace_square_point> &points, const double &t)
+{
+    // 初始化矩阵, 并在周围添加框
+    m_threshold_l = t;
+    set(points);
+    fill_mat();
+}
+void silly_vectorizer::set(const std::vector<trace_square_point> &points, const double &low, const double &high)
+{
+    m_threshold_l = low;
+    m_threshold_h = high;
+    double fix = (m_threshold_h - m_threshold_l) * 0.001;
+    m_mat.resize(m_height + 2, std::vector<silly_trace_node>(m_width + 2));
+#if defined(_OPENMP)
+#pragma omp parallel for num_threads(8)
+#endif
+    for (int i = 0; i < points.size(); ++i)
+    {
+        const auto &p = points[i];
+        if (p.p.lgtd < m_left || p.p.lgtd > m_right || p.p.lttd < m_bottom || p.p.lttd > m_top)
+        {
+            continue;
+        }
+        int c = std::round((p.p.lgtd - m_left) / m_xdelta) + 1;
+        int r = std::round((m_top - p.p.lttd) / m_ydelta) + 1;
+        if (p.v >= m_threshold_l && p.v <= m_threshold_h)
+        {
+            m_mat[r][c].great = 1;
+            if (p.v == m_threshold_l)
+            {
+                m_mat[r][c].val = p.v - fix;
+            }
+            else if (p.v == m_threshold_h)
+            {
+                m_mat[r][c].val = p.v + fix;
+            }
+            else
+            {
+                m_mat[r][c].val = p.v;
+            }
+        }
+        m_mat[r][c].p = p.p;
+    }
+    fill_mat();
+}
+std::vector<std::vector<silly_point>> silly_vectorizer::trace_all_lines()
+{
+    return std::vector<std::vector<silly_point>>();
+}
+void silly_vectorizer::fill_mat()
+{
+    // 填充边
+    for (int i = 0; i < m_height + 2; ++i)
+    {
+        m_mat[i][0].p.lgtd = m_left - m_xdelta;
+        m_mat[i][0].p.lttd = m_top - i * m_ydelta + m_ydelta;
+        m_mat[i][m_width + 1].p.lgtd = m_right + m_ydelta;
+        m_mat[i][m_width + 1].p.lttd = m_top - i * m_ydelta + m_ydelta;
+    }
+
+    for (int i = 0; i < m_width + 2; ++i)
+    {
+        m_mat[0][i].p.lttd = m_top + m_ydelta;
+        m_mat[0][i].p.lgtd = m_left + i * m_xdelta - m_xdelta;
+        m_mat[m_height + 1][i].p.lttd = m_bottom - m_ydelta;
+        m_mat[m_height + 1][i].p.lgtd = m_left + i * m_xdelta - m_xdelta;
+    }
+}
+std::vector<silly_poly> silly_vectorizer::vectorize(const std::vector<trace_square_point> &points, const double &t)
+{
+    set(points, t);
+    mark();
+    find_edge();
+    return trace_all_polys();
+}
+void silly_vectorizer::set(const trace_grid_info &info)
+{
+    m_height = info.height;
+    m_width = info.width;
+    m_left = info.left;
+    m_right = info.right;
+    m_top = info.top;
+    m_bottom = info.bottom;
+    m_xdelta = info.xdelta;
+    m_ydelta = info.ydelta;
+
+}
+void silly_vectorizer::set(const trace_algo_info &info)
+{
+    m_fill = info.fill;
+    m_ignore_count = info.ignore_count;
+    m_interpolation_mode = info.interpolation_mode;
+    m_smooth = info.smooth;
+    m_threshold_l = info.threshold;
 }
