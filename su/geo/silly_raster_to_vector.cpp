@@ -5,8 +5,6 @@
 #include "silly_raster_to_vector.h"
 #include <log/silly_log.h>
 
-// #define CASE_01_NEXT(r, c, )
-
 #define RECURSION_TRACE_LINE(r, c)                               \
     if (r > -1 && c > -1 && r < m_height + 2 && c < m_width + 2) \
     {                                                            \
@@ -102,26 +100,50 @@ void silly_vectorizer::trace_one_line(int r0l, int c0l, silly_ring &ring)
     RECURSION_TRACE_LINE(r, c)
 }
 
-bool silly_vectorizer::point_in_ring(const silly_point &point, const silly_ring &ring)
+bool doIntersect(silly_point p1, silly_point p2, silly_point p3, silly_point p4)
 {
-    size_t i, j;
-    double d;
-    int c = 0;
-    size_t num = ring.points.size();
-    for (i = 0, j = num - 1; i < num; j = i++)
-    {
-        d = (ring.points[j].lgtd - ring.points[i].lgtd) * (point.lttd - ring.points[i].lttd) / (ring.points[j].lttd - ring.points[i].lttd) + ring.points[i].lgtd;
-        if (point.lgtd == d)
-        {
-            return 0;
-        }
+    // 计算方向和叉积
+    auto dir = [](silly_point p1, silly_point p2, silly_point p3) -> double { return (p2.lgtd - p1.lgtd) * (p3.lttd - p1.lttd) - (p2.lttd - p1.lttd) * (p3.lgtd - p1.lgtd); };
 
-        if ((((ring.points[i].lttd <= point.lttd) && (point.lttd < ring.points[j].lttd) || ((ring.points[j].lttd <= point.lttd) && (point.lttd < ring.points[i].lttd))) && (point.lgtd < d)))
+    // 如果方向相同，则线段不会相交
+    bool d1 = dir(p1, p2, p3) * dir(p1, p2, p4) <= 0;
+    bool d2 = dir(p3, p4, p1) * dir(p3, p4, p2) <= 0;
+
+    if (d1 && d2)
+    {
+        // 检查边界情况
+        if (std::max(p1.lgtd, p2.lgtd) >= std::min(p3.lgtd, p4.lgtd) && std::min(p1.lgtd, p2.lgtd) <= std::max(p3.lgtd, p4.lgtd) && std::max(p3.lttd, p4.lttd) >= std::min(p1.lttd, p2.lttd) && std::min(p3.lttd, p4.lttd) <= std::max(p1.lttd, p2.lttd))
         {
-            c = !c;
+            return true;
         }
     }
-    return c;
+    return false;
+}
+
+bool silly_vectorizer::point_in_ring(const silly_point &p, const silly_ring &ring, const double &maxx)
+{
+    /* OGRPoint* po = geo_utils::SillyPointToOGRPoint(p);
+
+     OGRPolygon* pl =  geo_utils ::SillyRingToPolygon(ring);
+     return pl->Intersects(po);*/
+
+    int n = ring.points.size();
+    if (n < 3)
+        return false;  // 多边形至少需要三个顶点
+
+    bool inside = false;
+    for (int i = 0, j = n - 1; i < n; j = i++)
+    {
+        const silly_point &a = ring.points[i];
+        const silly_point &b = ring.points[j];
+
+        // 检查线段 (a, b) 是否与射线交叉
+        if ((a.lttd > p.lttd) != (b.lttd > p.lttd) && (p.lgtd < (b.lgtd - a.lgtd) * (p.lttd - a.lttd) / (b.lttd - a.lttd) + a.lgtd))
+        {
+            inside = !inside;  // 每次交点切换inside状态
+        }
+    }
+    return inside;
 }
 
 std::vector<silly_poly> silly_vectorizer::trace_all_rings()
@@ -140,59 +162,84 @@ std::vector<silly_poly> silly_vectorizer::trace_all_rings()
         {
             for (int c = 1; c < m_width + 2 && !has_not_traced; ++c)
             {
-                switch (m_mat[r][c].cv)
+                auto &tmp = m_mat[r][c];
+                switch (tmp.cv)
                 {
                     case 0:
                     case 15:
                         break;
                     default:
-                        for (auto &segment : m_mat[r][c].segments)
+                        for (auto &segment : tmp.segments)
                         {
                             if (!segment.traced)
                             {
+                                SLOG_DEBUG("起始点\n{},{}\n{},{}", segment.f.lgtd, segment.f.lttd, segment.t.lgtd, segment.t.lttd)
                                 ring.points.push_back(segment.f);
                                 ring.points.push_back(segment.t);
                                 segment.traced = 1;
 
                                 // 递归查找下一个点
                                 trace_one_line(r, c, ring);
-                                switch (m_mat[r][c].cv)
+                                // 计算闭合凸多边形的形心,保证检查点一定落在阈值之上的面内
+                                switch (tmp.cv)
                                 {
-                                    case 8:
-                                    case 9:
-                                    case 10:
-                                    case 11:
-                                    case 12:
-                                    case 13:
-                                    case 14:
-                                        // 取当前点就行
-                                        mark_point = m_mat[r][c].p;
-                                        break;
-
-                                    case 5:
-                                        if (m_mat[r][c].val > m_theshold)
-                                        {
-                                            mark_point = m_mat[r][c].p;
-                                        }
-                                        else
-                                        {
-                                            mark_point = m_mat[r][c + 1].p;
-                                        }
-                                        break;
-                                    case 7:
-                                    case 4:
-                                    case 6:
-                                        mark_point = m_mat[r][c + 1].p;
-                                        // 右上
-                                        break;
                                     case 1:
-                                    case 3:
-                                        mark_point = m_mat[r + 1][c].p;
-                                        // 左下
+                                        mark_point.lgtd = (tmp.p.lgtd + segment.f.lgtd + segment.t.lgtd) / 3.0;
+                                        mark_point.lttd = (tmp.p.lttd - m_ydelta + segment.f.lttd + segment.t.lttd) / 3.0;
                                         break;
                                     case 2:
-                                        mark_point = m_mat[r + 1][c + 1].p;
-                                        // 右下
+                                        mark_point.lgtd = (tmp.p.lgtd + m_xdelta + segment.f.lgtd + segment.t.lgtd) / 3.0;
+                                        mark_point.lttd = (tmp.p.lttd - m_ydelta + segment.f.lttd + segment.t.lttd) / 3.0;
+                                        break;
+                                    case 3:
+                                        mark_point.lgtd = (tmp.p.lgtd * 2 + m_xdelta + segment.f.lgtd + segment.t.lgtd) / 4.0;
+                                        mark_point.lttd = (tmp.p.lttd * 2 - m_ydelta * 2 + segment.f.lttd + segment.t.lttd) / 4.0;
+                                        break;
+                                    case 4:
+                                        mark_point.lgtd = (tmp.p.lgtd + m_xdelta + segment.f.lgtd + segment.t.lgtd) / 3.0;
+                                        mark_point.lttd = (tmp.p.lttd + segment.f.lttd + segment.t.lttd) / 3.0;
+                                        break;
+                                    case 5:
+                                        //
+                                        mark_point.lgtd = (tmp.p.lgtd * 2 + m_xdelta + tmp.segments[0].f.lgtd + tmp.segments[0].t.lgtd + tmp.segments[1].f.lgtd + tmp.segments[1].t.lgtd) / 6.0;
+                                        mark_point.lttd = (tmp.p.lttd * 2 - m_ydelta + tmp.segments[0].f.lttd + tmp.segments[0].t.lttd + tmp.segments[1].f.lttd + tmp.segments[1].t.lttd) / 6.0;
+                                        break;
+                                    case 6:
+                                        mark_point.lgtd = (tmp.p.lgtd * 2 + m_xdelta * 2 + segment.f.lgtd + segment.t.lgtd) / 4.0;
+                                        mark_point.lttd = (tmp.p.lttd * 2 - m_ydelta + segment.f.lttd + segment.t.lttd) / 4.0;
+                                        break;
+                                    case 7:
+                                        mark_point.lgtd = (tmp.p.lgtd * 3 + m_xdelta * 2 + segment.f.lgtd + segment.t.lgtd) / 5.0;
+                                        mark_point.lttd = (tmp.p.lttd * 3 - m_ydelta * 2 + segment.f.lttd + segment.t.lttd) / 5.0;
+                                        break;
+                                    case 8:
+                                        mark_point.lgtd = (tmp.p.lgtd + segment.f.lgtd + segment.t.lgtd) / 3.0;
+                                        mark_point.lttd = (tmp.p.lttd + segment.f.lttd + segment.t.lttd) / 3.0;
+                                        break;
+                                    case 9:
+                                        mark_point.lgtd = (tmp.p.lgtd * 2 + segment.f.lgtd + segment.t.lgtd) / 4.0;
+                                        mark_point.lttd = (tmp.p.lttd * 2 - m_ydelta + segment.f.lttd + segment.t.lttd) / 4.0;
+                                        break;
+                                    case 10:
+                                        //
+                                        mark_point.lgtd = (tmp.p.lgtd * 2 + m_xdelta + tmp.segments[0].f.lgtd + tmp.segments[0].t.lgtd + tmp.segments[1].f.lgtd + tmp.segments[1].t.lgtd) / 6.0;
+                                        mark_point.lttd = (tmp.p.lttd * 2 - m_ydelta + tmp.segments[0].f.lttd + tmp.segments[0].t.lttd + tmp.segments[1].f.lttd + tmp.segments[1].t.lttd) / 6.0;
+                                        break;
+                                    case 11:
+                                        mark_point.lgtd = (tmp.p.lgtd * 3 + m_xdelta + segment.f.lgtd + segment.t.lgtd) / 5.0;
+                                        mark_point.lttd = (tmp.p.lttd * 3 - m_ydelta * 2 + segment.f.lttd + segment.t.lttd) / 5.0;
+                                        break;
+                                    case 12:
+                                        mark_point.lgtd = (tmp.p.lgtd * 2 + segment.f.lgtd + segment.t.lgtd) / 4.0;
+                                        mark_point.lttd = (tmp.p.lttd * 2 + segment.f.lttd + segment.t.lttd) / 4.0;
+                                        break;
+                                    case 13:
+                                        mark_point.lgtd = (tmp.p.lgtd * 3 + m_xdelta + segment.f.lgtd + segment.t.lgtd) / 5.0;
+                                        mark_point.lttd = (tmp.p.lttd * 3 - m_ydelta + segment.f.lttd + segment.t.lttd) / 5.0;
+                                        break;
+                                    case 14:
+                                        mark_point.lgtd = (tmp.p.lgtd * 3 + 2 * m_xdelta + segment.f.lgtd + segment.t.lgtd) / 5.0;
+                                        mark_point.lttd = (tmp.p.lttd * 3 - m_ydelta + segment.f.lttd + segment.t.lttd) / 5.0;
                                         break;
                                 }
                                 has_not_traced = true;
@@ -202,9 +249,9 @@ std::vector<silly_poly> silly_vectorizer::trace_all_rings()
             }
         }
 
-        if (ring.points.size() < m_ignore_count)
+        if (ring.points.size() <= m_ignore_count)
         {
-            printf("Hint: Ignore poly that point count less than %d.\n", m_ignore_count);
+            SLOG_DEBUG("提示: 忽略点数小于 {} 的闭合环.\n", m_ignore_count);
         }
         else
         {
@@ -213,16 +260,17 @@ std::vector<silly_poly> silly_vectorizer::trace_all_rings()
                 throw std::runtime_error("没有正确闭合");
             }
             // 点在面内判断
-            if (!point_in_ring(mark_point, ring))
+            SLOG_DEBUG("{},{}", mark_point.lgtd, mark_point.lttd);
+            if (point_in_ring(mark_point, ring))
             {
-                ring.is_outer = 0;  // 内环
+                ring.is_outer = 1;  // 外环
+                SLOG_DEBUG("外环")
             }
             else
             {
-                ring.is_outer = 1;  // 外环
+                ring.is_outer = 0;  // 内环
+                SLOG_DEBUG("内环")
             }
-
-            // std::cout << "Point num: " << ring.points.size() << ", is inner: " << ring.is_outer<< std::endl;
 
             all_rings.push_back(ring);
         }
@@ -256,21 +304,22 @@ std::vector<silly_poly> silly_vectorizer::trace_all_rings()
     {
         if (!r.points.empty())
         {
-           /* SLOG_DEBUG("XXXX")
+            SLOG_DEBUG("XXXX{}", r.points.size())
             silly_poly tmp;
             tmp.outer_ring = r;
-            r.points.clear();*/
-           result[0].inner_rings.push_back(r);
+            r.points.clear();
+            result.push_back(tmp);
         }
     }
     return result;
 }
 void silly_vectorizer::set(const std::vector<trace_square_point> &points)
 {
-    int cnt = 0;
     // 初始化矩阵, 并在周围添加框
     m_mat.resize(m_height + 2, std::vector<silly_trace_node>(m_width + 2));
-    // #pragma omp parallel for num_threads(8)
+#if defined(_OPENMP)
+#pragma omp parallel for num_threads(8)
+#endif
     for (int i = 0; i < points.size(); ++i)
     {
         const auto &p = points[i];
@@ -284,13 +333,11 @@ void silly_vectorizer::set(const std::vector<trace_square_point> &points)
         {
             m_mat[r][c].val = p.v;
             m_mat[r][c].great = 1;
-            cnt++;
         }
         else if (p.v == m_theshold)
         {
             m_mat[r][c].val = p.v - 0.0001;  // 避免和阈值重合
             m_mat[r][c].great = 1;
-            cnt++;
         }
         m_mat[r][c].p = p.p;
     }
@@ -328,7 +375,6 @@ void silly_vectorizer::set(const std::vector<trace_square_point> &points)
           }
       }*/
 
-    std::cout << cnt << std::endl;
     return;
 }
 
@@ -347,7 +393,9 @@ void silly_vectorizer::mark()
 void silly_vectorizer::find_edge()
 {
     double avg = 0.;
-    // #pragma omp parallel for num_threads(8)
+#if defined(_OPENMP)
+#pragma omp parallel for num_threads(8)
+#endif
     for (int r = 0; r < m_height + 1; ++r)
     {
         for (int c = 0; c < m_width + 1; ++c)
