@@ -238,7 +238,8 @@ std::vector<silly_poly> silly_vectorizer::trace_all_polys()
         {
             if (ring.points.back() != ring.points.front())  // 如果因为一些原因无法闭合,则主动使其闭合
             {
-                throw std::runtime_error("没有正确闭合");
+                ring.points.push_back(ring.points.front());
+                //throw std::runtime_error("没有正确闭合");
             }
             // 点在面内判断
             SLOG_DEBUG("{},{}", mark_point.lgtd, mark_point.lttd);
@@ -599,7 +600,6 @@ void silly_vectorizer::set(const trace_grid_info &info)
     m_bottom = info.bottom;
     m_xdelta = info.xdelta;
     m_ydelta = info.ydelta;
-
 }
 void silly_vectorizer::set(const trace_algo_info &info)
 {
@@ -608,4 +608,39 @@ void silly_vectorizer::set(const trace_algo_info &info)
     m_interpolation_mode = info.interpolation_mode;
     m_smooth = info.smooth;
     m_threshold_l = info.threshold;
+}
+silly_vectorizer::silly_vectorizer(const silly_vectorizer &right)
+{
+    m_height = right.m_height;
+    m_width = right.m_width;
+    m_left = right.m_left;
+    m_right = right.m_right;
+    m_top = right.m_top;
+    m_bottom = right.m_bottom;
+    m_xdelta = right.m_xdelta;
+    m_ydelta = right.m_ydelta;
+    m_fill = right.m_fill;
+    m_ignore_count = right.m_ignore_count;
+    m_interpolation_mode = right.m_interpolation_mode;
+    m_smooth = right.m_smooth;
+    m_threshold_l = right.m_threshold_l;
+    m_threshold_h = right.m_threshold_h;
+}
+silly_vectorizer &silly_vectorizer::operator=(const silly_vectorizer &right)
+{
+    m_height = right.m_height;
+    m_width = right.m_width;
+    m_left = right.m_left;
+    m_right = right.m_right;
+    m_top = right.m_top;
+    m_bottom = right.m_bottom;
+    m_xdelta = right.m_xdelta;
+    m_ydelta = right.m_ydelta;
+    m_fill = right.m_fill;
+    m_ignore_count = right.m_ignore_count;
+    m_interpolation_mode = right.m_interpolation_mode;
+    m_smooth = right.m_smooth;
+    m_threshold_l = right.m_threshold_l;
+    m_threshold_h = right.m_threshold_h;
+    return *this;
 }

@@ -65,6 +65,9 @@ class silly_vectorizer
   public:
     silly_vectorizer() = default;
 
+    silly_vectorizer(const silly_vectorizer& right);
+    silly_vectorizer& operator=(const silly_vectorizer& right);
+
 
     /// <summary>
     /// 矢量化所有面
@@ -141,7 +144,6 @@ class silly_vectorizer
     double m_threshold_l{0.};  // 低阈值
     double m_threshold_h{0.};  // 高阈值
     double m_fill{0.};         // 填充值
-    bool m_desc{false};        // 数据大小倒叙排列
     int m_smooth{5};           // 3个点之间贝塞尔插值 n 个点
     int m_ignore_count{5};     // 忽略点数小于一定值的面, 需要在抽稀或者其他简化面的手段之前使用
 
