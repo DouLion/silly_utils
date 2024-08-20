@@ -392,3 +392,22 @@ bool silly_tzx_grid::lz4_dcps_data(const char* srcd, const size_t& srcl, char** 
     }
     return false;
 }
+void silly_tzx_grid::release()
+{
+    grid.release();
+}
+silly_tzx_grid silly_tzx_grid::operator=(silly_tzx_grid other)
+{
+    this->total = other.total;
+    this->left = other.left;
+    this->right = other.right;
+    this->top = other.top;
+    this->bottom = other.bottom;
+    this->xdelta = other.xdelta;
+    this->ydelta = other.ydelta;
+
+    this->row = other.row;
+    this->col = other.col;
+    this->grid = other.grid;
+    return *this;
+}

@@ -78,21 +78,10 @@ class silly_tzx_grid
     bool read(const std::string& path);
     bool save(const std::string& path);
 
-    silly_tzx_grid operator=(silly_tzx_grid other)
-    {
-        this->total = other.total;
-        this->left = other.left;
-        this->right = other.right;
-        this->top = other.top;
-        this->bottom = other.bottom;
-        this->xdelta = other.xdelta;
-        this->ydelta = other.ydelta;
 
-        this->row = other.row;
-        this->col = other.col;
-        this->grid = other.grid;
-        return *this;
-    }
+    void release();
+
+    silly_tzx_grid operator=(silly_tzx_grid other);
 
   private:
     /// <summary>

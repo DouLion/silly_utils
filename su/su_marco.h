@@ -108,6 +108,18 @@
 #define SU_PI PI
 #define SU_2PI (SU_PI * 2.)
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
+#ifndef M_PI_2
+#define M_PI_2 1.57079632679489661923
+#endif
+
+#ifndef M_PI_2
+#define M_2PI (M_PI * 2.)
+#endif
+
 // 自然指数e
 #ifndef BASE_E
 #define BASE_E 2.71828182845904523536
@@ -138,14 +150,12 @@
 #ifndef EARTH_RADIUS
 #define EARTH_RADIUS (6378.137f)
 #endif
-#define SU_EARTH_RADIUS EARTH_RADIUS
+#define SU_EARTH_RADIUS (6378.137f)
 
 #define LN_2 (0.693147180559945f)
-#define SQRT_2 (1.4142135623730950488016887242097f)
 
-#define M_PI 3.14159265358979323846
-#define M_PI_2 1.57079632679489661923
-#define M_2PI (M_PI * 2.)
+/// 2的平方根
+#define SQRT_2 (1.4142135623730950488016887242097f)
 
 #define SU_RGB(r, g, b) ((unsigned int)(((unsigned char)(r) | ((unsigned int)((unsigned char)(g)) << 8)) | (((unsigned int)(unsigned char)(b)) << 16)))
 #define SU_ARGB(a, r, g, b) (unsigned int)(((a)&0xff) << 24 | ((r)&0xff) << 16 | ((g)&0xff) << 8 | (b & 0xff))
