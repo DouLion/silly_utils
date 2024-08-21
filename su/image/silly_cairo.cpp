@@ -63,7 +63,6 @@ static cairo_status_t cairo_write_func_mine(void *closure, const unsigned char *
 
 bool silly_cairo::create(const size_t ww, const size_t &hh, const int &type)
 {
-
     if (!ww || !hh)
     {
         return false;
@@ -343,7 +342,7 @@ size_t silly_cairo::count_span(const std::string &u8str)
             ++count;
             ++count;
         }
-        else // 如果不是中文则认为是数字或者字母
+        else  // 如果不是中文则认为是数字或者字母
         {
             ++count;
         }
@@ -353,4 +352,35 @@ size_t silly_cairo::count_span(const std::string &u8str)
 void silly_cairo::set_operator(const int &opt)
 {
     cairo_set_operator(m_cr, static_cast<cairo_operator_t>(opt));
+}
+void silly_cairo::draw_line(const std::vector<silly_point> &line, const silly_geo_rect &rect)
+{
+    double x_pixel_per_degree = m_width / (rect.right - rect.left);
+    double y_pixel_per_degree = m_height / (rect.top - rect.bottom);
+    cairo_move_to(m_cr, (line[0].lgtd - rect.left) * x_pixel_per_degree, (rect.top - line[0].lttd) * y_pixel_per_degree);
+    for (int i = 1; i < line.size(); ++i)
+    {
+        cairo_line_to(m_cr, (line[i].lgtd - rect.left) * x_pixel_per_degree, (rect.top - line[i].lttd) * y_pixel_per_degree);
+    }
+    // 实际绘制线条
+    cairo_stroke(m_cr);
+}
+void silly_cairo::draw_line_web_mercator(const std::vector<silly_point> &line, const silly_geo_rect &rect)
+{
+    double mc_left, mc_top, mc_right, mc_bottom;  // 多内环的情况这几个变量会重复计算,但是开销很小,可以暂时忽略
+    silly_projection::geo_to_mercator(rect.left, rect.top, mc_left, mc_top);
+    silly_projection::geo_to_mercator(rect.right, rect.bottom, mc_right, mc_bottom);
+
+    double mcx, mcy;
+
+    double x_pixel_per_degree = m_width / (mc_right - mc_left);
+    double y_pixel_per_degree = m_height / (mc_top - mc_bottom);
+    silly_projection::geo_to_mercator(line[0].lgtd, line[0].lttd, mcx, mcy);
+    cairo_move_to(m_cr, (mcx - mc_left) * x_pixel_per_degree, (mc_top - mcy) * y_pixel_per_degree);
+    for (int i = 1; i < line.size(); ++i)
+    {
+        silly_projection::geo_to_mercator(line[i].lgtd, line[i].lttd, mcx, mcy);
+        cairo_line_to(m_cr, (mcx - mc_left) * x_pixel_per_degree, (mc_top - mcy) * y_pixel_per_degree);
+    }
+    cairo_stroke(m_cr);
 }

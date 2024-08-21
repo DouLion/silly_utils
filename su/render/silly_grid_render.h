@@ -70,7 +70,7 @@ class silly_grid_render
         T* ptr = srp.mtx.get_data();
         if(!ptr)
         {
-            SFP_ERROR("获取矩阵数据块失败")
+            SLOG_ERROR("获取矩阵数据块失败")
             return;
         }
         srp.pd = png_utils::create_empty(srp.mtx.row(), srp.mtx.col());
@@ -103,12 +103,17 @@ class silly_grid_render
         matrix_2d<T> mc_mtx;
         if (!silly_geo_convert::matrix_geo_to_mercator(srp.mtx, srp.rect, mc_mtx))
         {
-            SFP_ERROR("经纬坐标转换墨卡托坐标失败")
+            SLOG_ERROR("经纬坐标转换墨卡托坐标失败")
             return;
         }
-        srp.mtx.release();
-        srp.mtx = mc_mtx;
-        normal_render_greater(srp);
+        // srp.mtx.release();
+        silly_render_param<T> srp2;
+        srp2.v2cs = srp.v2cs;
+        srp2.rect = srp.rect;
+        srp2.mtx = mc_mtx;
+        normal_render_greater(srp2);
+        mc_mtx.release();
+        srp.pd = srp2.pd;
     }
 
 
@@ -118,7 +123,7 @@ class silly_grid_render
         T* ptr = srp.mtx.get_data();
         if (!ptr)
         {
-            SFP_ERROR("获取矩阵数据块失败")
+            SLOG_ERROR("获取矩阵数据块失败")
             return;
         }
         srp.pd = png_utils::create_empty(srp.mtx.row(), srp.mtx.col());
@@ -139,12 +144,17 @@ class silly_grid_render
         matrix_2d<T> mc_mtx;
         if (!silly_geo_convert::matrix_geo_to_mercator(srp.mtx, srp.rect, mc_mtx))
         {
-            SFP_ERROR("经纬坐标转换墨卡托坐标失败")
+            SLOG_ERROR("经纬坐标转换墨卡托坐标失败")
             return;
         }
-        srp.mtx.release();
-        srp.mtx = mc_mtx;
-        normal_render(srp, func);
+        silly_render_param<T> srp2;
+        srp2.v2cs = srp.v2cs;
+        srp2.rect = srp.rect;
+        srp2.mtx = mc_mtx;
+        normal_render(srp2, func);
+        mc_mtx.release();
+        srp.pd = srp2.pd;
+
     }
 };
 

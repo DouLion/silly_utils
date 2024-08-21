@@ -109,6 +109,21 @@ class silly_cairo
     void draw_poly_web_mercator(const silly_poly& poly, const silly_geo_rect& rect);
 
     /// <summary>
+    /// 绘制矢量面, 这个可以扩展出很多用法,
+    /// rect用于其他任何形式的等比例缩放
+    /// </summary>
+    /// <param name="poly"></param>
+    /// <param name="rect"></param>
+    void draw_line(const std::vector<silly_point>& line, const silly_geo_rect& rect);
+
+    /// <summary>
+    /// 绘制矢量面, 将geo坐标转为web mercator坐标后绘制
+    /// </summary>
+    /// <param name="poly"></param>
+    /// <param name="rect"></param>
+    void draw_line_web_mercator(const std::vector<silly_point>& line, const silly_geo_rect& rect);
+
+    /// <summary>
     /// 释放cairo资源
     /// </summary>
     void release();
@@ -119,6 +134,9 @@ class silly_cairo
   private:
     void draw_ring(const silly_ring& ring, const silly_geo_rect& rect);
     void draw_ring_web_mercator(const silly_ring& ring, const silly_geo_rect& rect);
+
+    // void draw_line(const std::vector<silly_point>& line, const silly_geo_rect& rect);
+    // void draw_ring_web_mercator(const std::vector<silly_point>& line, const silly_geo_rect& rect);
 
   private:
     int m_format{0};

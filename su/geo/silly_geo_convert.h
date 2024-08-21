@@ -68,31 +68,34 @@ bool silly_geo_convert::matrix_geo_to_mercator(silly_math::matrix_2d<T> src, con
     {
         return false;
     }
-    T m_left{0}, m_top{0}, m_right{0}, m_bottom{0};
+    double m_left{0}, m_top{0}, m_right{0}, m_bottom{0};
     silly_projection::geo_to_mercator(rect.right, rect.bottom, m_right, m_bottom);
     silly_projection::geo_to_mercator(rect.left, rect.top, m_left, m_top);
-    T m_width = m_right - m_left;
-    T m_height = m_top - m_bottom;
+    double mc_xdelta = (m_right - m_left) / tmp.col();
+    double mc_ydelta = (m_top - m_bottom) / tmp.row();
 
-    T g_width = rect.right - rect.left;
-    T g_height = rect.top - rect.bottom;
+    double geo_xdelta = (rect.right - rect.left) / tmp.col();
+    double geo_ydelta = (rect.top - rect.bottom) / tmp.row();
+
+    /*   T g_width = rect.right - rect.left;
+       T g_height = rect.top - rect.bottom;*/
     int max_r = tmp.row() - 1;
     int max_c = tmp.col() - 1;
     // 为dst即墨卡托上每个位置找到geo上对应的位置, 然后取值, 防止图片有撕裂的情况
-    for (int i = 0; i < tmp.col(); ++i)
+    for (int r = 0; r < tmp.row(); ++r)
     {
-        for (int j = 0; j < tmp.row(); ++j)
+        for (int c = 0; c < tmp.col(); ++c)
         {
-            T m_x = i * m_width / tmp.col() + m_left;  // 每个matrix网格点对应的mecator坐标
-            T m_y = m_top - j * m_height / tmp.row();
-            T lgtd, lttd;
+            double m_x = c * mc_xdelta + m_left;  // 每个matrix网格点对应的mecator坐标
+            double m_y = m_top - r * mc_ydelta;
+            double lgtd, lttd;
             silly_projection::mercator_to_geo(m_x, m_y, lgtd, lttd);
-            int dst_c = std::round((lgtd - rect.left) / g_width * tmp.col());
-            int dst_r = std::round((rect.top - lttd) / g_height * tmp.row());
+            int dst_c = std::round((lgtd - rect.left) / geo_xdelta);
+            int dst_r = std::round((rect.top - lttd) / geo_ydelta);
             // TODO: 这一步是不是有问题,是否是必须的,防止访问溢出
             dst_c = std::min(std::max(0, dst_c), max_c);
             dst_r = std::min(std::max(0, dst_r), max_r);
-            dst.at(j, i) = tmp.at(dst_r, dst_c);
+            dst[r][c] = tmp[dst_r][dst_c];
         }
     }
     tmp.release();

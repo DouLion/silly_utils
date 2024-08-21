@@ -177,7 +177,7 @@ using namespace silly_image;
 void xscan_line_raster::image(const std::string& path)
 {
 #ifndef NDEBUG
-    png_data png = png_utils::create_empty(nrows, ncols, PNG_COLOR_TYPE_GRAY);
+    png_data png = png_utils::create_empty(nrows, ncols, PNG_COLOR_TYPE_RGB_ALPHA);
 
     for (int r = 0; r < nrows; ++r)
     {
@@ -186,12 +186,13 @@ void xscan_line_raster::image(const std::string& path)
         {
             for (int i = p.beg; i < p.end; ++i)
             {
-                png.set_pixel(r, i, silly_color(240));
+                png.set_pixel(r, i, silly_color( 255, 255, 0,175));
             }
             old = p.end;
         }
     }
 
     png_utils::write(path.c_str(), png);
+    png.release();
 #endif
 }
