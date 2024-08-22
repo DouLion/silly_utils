@@ -456,7 +456,7 @@ bool silly_netcdf::write(const std::string& path, const silly_netcdf_data& nd)
         sfc.open(path, NcFile::replace, NcFile::nc4);
         // 创建dims
         std::vector<NcDim> dims;
-        for(auto tdinfo: nd.dextra)
+        for (auto tdinfo : nd.dextra)
         {
             std::string name = std::get<0>(tdinfo);
             auto vars = std::get<1>(tdinfo);
@@ -476,28 +476,30 @@ bool silly_netcdf::write(const std::string& path, const silly_netcdf_data& nd)
             NcVar xVar = sfc.addVar(nd.dgeo.xname, ncFloat, xDim);
             std::vector<float> xs(nd.dgeo.xlen);
             std::vector<float> ys(nd.dgeo.ylen);
-            float xstep = (nd.dgeo.xlast - nd.dgeo.xfirst)/ (nd.dgeo.xlen-1);
-            for(int i = 0; i < nd.dgeo.xlen; i++)
-                xs[i] = nd.dgeo.xfirst + i*xstep;
+            float xstep = (nd.dgeo.xlast - nd.dgeo.xfirst) / (nd.dgeo.xlen - 1);
+            for (int i = 0; i < nd.dgeo.xlen; i++)
+                xs[i] = nd.dgeo.xfirst + i * xstep;
 
-            float ystep = (nd.dgeo.ylast - nd.dgeo.yfirst)/ (nd.dgeo.ylen-1);
-            for(int i = 0; i < nd.dgeo.ylen; i++)
-                ys[i] = nd.dgeo.yfirst + i*ystep;
+            float ystep = (nd.dgeo.ylast - nd.dgeo.yfirst) / (nd.dgeo.ylen - 1);
+            for (int i = 0; i < nd.dgeo.ylen; i++)
+                ys[i] = nd.dgeo.yfirst + i * ystep;
             yVar.putVar(&ys[0]);
             xVar.putVar(&xs[0]);
             yVar.putAtt("units", nd.dgeo.yunits);
             yVar.putAtt("valid_min", ncFloat, nd.dgeo.ymin);
             yVar.putAtt("valid_max", ncFloat, nd.dgeo.ymax);
+            // yVar.putAtt("positive ", "south");
 
             xVar.putAtt("units", nd.dgeo.xunits);
             xVar.putAtt("valid_min", ncFloat, nd.dgeo.xmin);
             xVar.putAtt("valid_max", ncFloat, nd.dgeo.xmax);
+            // xVar.putAtt("positive ", std::string("east"));
 
             dims.push_back(yDim);
             dims.push_back(xDim);
         }
 
-        for(auto [grp, bands] : nd.grp_bands)
+        for (auto [grp, bands] : nd.grp_bands)
         {
             NcVar data = sfc.addVar(grp, ncFloat, dims);
             data.putAtt("_FillValue", ncFloat, bands[0].fill);
@@ -505,13 +507,12 @@ bool silly_netcdf::write(const std::string& path, const silly_netcdf_data& nd)
             data.putAtt("scale", ncFloat, bands[0].scale);
             data.putAtt("units", bands[0].units);
             std::vector<float> all(bands.size() * bands[0].grid.size());
-            for(auto band: bands)
+            for (int i = 0; i < bands.size(); i++)
             {
-                all.insert(all.end(), band.grid.begin(), band.grid.end());
+                memcpy(((char*)&all[0]) + i * bands[0].grid.size() * sizeof(float), (char*)&bands[i].grid[0], bands[i].grid.size() * sizeof(float));
             }
             data.putVar(&all[0]);
         }
-
 
         sfc.close();
         status = true;

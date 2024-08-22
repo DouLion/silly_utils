@@ -16,6 +16,21 @@ using namespace netCDF::exceptions;
 // lon维度必须在倒数第一个
 // lat维度必须在倒数第二个
 
+/** 补充有效维度
+ *  名称     类型      units
+ *  time
+ *                      day since 1970-01-01 00:00:00
+ *                      year since 1970-01-01 00:00:00
+ *                      minutes since 1970-01-01 00:00:00
+ *                      days since 2022-01-01 18:00:00
+ *  height              meters  kilometers ...
+ *
+ *  level
+ *                      hPa 对应维度的单位
+ *
+ *
+ */
+
 class silly_netcdf_geo
 {
   public:
