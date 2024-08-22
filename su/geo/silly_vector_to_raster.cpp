@@ -44,6 +44,210 @@ void xscan_line_raster::reset()
         last_y = tmp_y;                                      \
     }
 
+bool xscan_line_raster::rasterization(const silly_point& point)
+{
+    std::vector<std::vector<raster_point>> vertices_arr;
+
+    // 计算所有点的边界
+    if (std::abs(left) < SU_EPSILON && std::abs(top) < SU_EPSILON && std::abs(right) < SU_EPSILON && std::abs(bottom) < SU_EPSILON)
+    {
+        // 遍历所有点来确定边界
+
+        left = SU_MIN(point.lgtd, left);
+        right = SU_MAX(point.lgtd, right);
+        top = SU_MAX(point.lttd, top);
+        bottom = SU_MIN(point.lttd, bottom);
+
+
+        // 调整边界以与网格对齐
+        left = std::floor(left / cell_size) * cell_size;
+        right = std::ceil(right / cell_size) * cell_size;
+        top = std::ceil(top / cell_size) * cell_size;
+        bottom = std::floor(bottom / cell_size) * cell_size;
+    }
+
+
+
+    nrows = std::ceil((top - bottom) / cell_size);
+    ncols = std::ceil((right - left) / cell_size);
+
+    int raster_x = std::round((point.lgtd - left) / cell_size);
+    int raster_y = std::round((top - point.lttd) / cell_size);
+
+    if (raster_x >= 0 && raster_x < ncols && raster_y >= 0 && raster_y < nrows)
+    {
+        // 由于它是一个单点，因此不需要合并连续的点,将点添加到光栅表示中。
+        raster_point rasterized_point(raster_x, raster_y);
+        std::vector<raster_point> rasterized_points;
+        rasterized_points.push_back(rasterized_point);
+        vertices_arr.push_back(rasterized_points);
+        bool status = rasterization_point(vertices_arr);
+        return status;
+    }
+
+    return false;
+}
+
+bool xscan_line_raster::rasterization(const silly_multi_point& points)
+{
+    std::vector<std::vector<raster_point>> vertices_arr;
+    // 计算所有点的边界
+    if (std::abs(left) < SU_EPSILON && std::abs(top) < SU_EPSILON && std::abs(right) < SU_EPSILON && std::abs(bottom) < SU_EPSILON)
+    {
+        // 遍历所有点来确定边界
+        for (const auto& point : points)
+        {
+            left = SU_MIN(point.lgtd, left);
+            right = SU_MAX(point.lgtd, right);
+            top = SU_MAX(point.lttd, top);
+            bottom = SU_MIN(point.lttd, bottom);
+        }
+
+        // 调整边界以与网格对齐
+        left = std::floor(left / cell_size) * cell_size;
+        right = std::ceil(right / cell_size) * cell_size;
+        top = std::ceil(top / cell_size) * cell_size;
+        bottom = std::floor(bottom / cell_size) * cell_size;
+    }
+
+    // 计算栅格大小
+    nrows = std::ceil((top - bottom) / cell_size);
+    ncols = std::ceil((right - left) / cell_size);
+
+    int last_x = 0 - ncols;
+    int last_y = 0 - nrows;
+
+    std::vector<raster_point> tmp_vertices;
+    for (const auto& point : points)
+    {
+
+        SILLY_XSCAN_LINE_CHECK_POINT(point);
+        //int raster_x = std::round((point.lgtd - left) / cell_size);
+        //int raster_y = std::round((top - point.lttd) / cell_size);
+        //if (raster_x >= 0 && raster_x < ncols && raster_y >= 0 && raster_y < nrows)
+        //{
+        //    raster_point rasterized_point(raster_x, raster_y);
+        //    tmp_vertices.push_back(rasterized_point);
+        //}
+    }
+    vertices_arr.push_back(tmp_vertices);
+    bool status = rasterization_point(vertices_arr);
+    // 调用基本的光栅化算法
+    return status;
+}
+
+
+bool xscan_line_raster::rasterization(const silly_multi_silly_line& lines)
+{
+    std::vector<std::vector<raster_point>> vertices_arr;
+
+    if (std::abs(left) < SU_EPSILON && std::abs(top) < SU_EPSILON && std::abs(right) < SU_EPSILON && std::abs(bottom) < SU_EPSILON)
+    {
+        // 查找边界框
+        for (const auto& line : lines)
+        {
+            for (const auto& point : line)
+            {
+                left = SU_MIN(point.lgtd, left);
+                right = SU_MAX(point.lgtd, right);
+                top = SU_MAX(point.lttd, top);
+                bottom = SU_MIN(point.lttd, bottom);
+            }
+        }
+        left = std::floor(left / cell_size) * cell_size;
+        right = std::ceil(right / cell_size) * cell_size;
+        top = std::ceil(top / cell_size) * cell_size;
+        bottom = std::floor(bottom / cell_size) * cell_size;
+    }
+
+    nrows = std::ceil((top - bottom) / cell_size);
+    ncols = std::ceil((right - left) / cell_size);
+
+    // 将点转换为光栅坐标并合并连续的相同点
+    int last_x = 0 - ncols;
+    int last_y = 0 - nrows;
+    std::vector<raster_point> tmp_vertices;
+
+    for (const auto& line : lines)
+    {
+        tmp_vertices.clear();
+        last_x = 0 - ncols;
+        last_y = 0 - nrows;
+        for (const auto& point : line)
+        {
+            SILLY_XSCAN_LINE_CHECK_POINT(point);
+        }
+        vertices_arr.push_back(tmp_vertices);
+    }
+
+    return rasterization(vertices_arr);
+}
+
+
+bool xscan_line_raster::rasterization(const silly_poly& poly)
+{
+    std::vector<std::vector<raster_point>> vertices_arr;
+
+    // 必要时初始化边界框
+    if (std::abs(left) < SU_EPSILON && std::abs(top) < SU_EPSILON && std::abs(right) < SU_EPSILON && std::abs(bottom) < SU_EPSILON)
+    {
+        // 查找边界框
+        for (const auto& point : poly.outer_ring.points)
+        {
+            left = SU_MIN(point.lgtd, left);
+            right = SU_MAX(point.lgtd, right);
+            top = SU_MAX(point.lttd, top);
+            bottom = SU_MIN(point.lttd, bottom);
+        }
+
+        for (const auto& ring : poly.inner_rings)
+        {
+            for (const auto& point : ring.points)
+            {
+                left = SU_MIN(point.lgtd, left);
+                right = SU_MAX(point.lgtd, right);
+                top = SU_MAX(point.lttd, top);
+                bottom = SU_MIN(point.lttd, bottom);
+            }
+        }
+
+        left = std::floor(left / cell_size) * cell_size;
+        right = std::ceil(right / cell_size) * cell_size;
+        top = std::ceil(top / cell_size) * cell_size;
+        bottom = std::floor(bottom / cell_size) * cell_size;
+    }
+
+    nrows = std::ceil((top - bottom) / cell_size);
+    ncols = std::ceil((right - left) / cell_size);
+
+    // 将点转换为光栅坐标并合并连续的相同点
+    int last_x = 0 - ncols;
+    int last_y = 0 - nrows;
+    std::vector<raster_point> tmp_vertices;
+
+    for (const auto& point : poly.outer_ring.points)
+    {
+        SILLY_XSCAN_LINE_CHECK_POINT(point);
+    }
+    vertices_arr.push_back(tmp_vertices);
+
+    for (const auto& ring : poly.inner_rings)
+    {
+        tmp_vertices.clear();
+        last_x = 0 - ncols;
+        last_y = 0 - nrows;
+        for (const auto& point : ring.points)
+        {
+            SILLY_XSCAN_LINE_CHECK_POINT(point);
+        }
+        vertices_arr.push_back(tmp_vertices);
+    }
+
+    return rasterization(vertices_arr);
+}
+
+
+
 bool xscan_line_raster::rasterization(const silly_multi_poly& m_polys)
 {
     std::vector<std::vector<raster_point>> vertices_arr;
@@ -159,6 +363,52 @@ bool xscan_line_raster::rasterization(const std::vector<std::vector<raster_point
             tmp_pair.beg = edges[i];
             tmp_pair.end = edges[i + 1];
             row_pairs[scanY].push_back(tmp_pair);
+        }
+    }
+    return true;
+}
+
+bool xscan_line_raster::rasterization_point(const std::vector<std::vector<raster_point>> vertices_arr)
+{
+
+    for (const auto& part : vertices_arr)
+    {
+        for (const auto& point : part)
+        {
+            // 如果当前扫描线上没有覆盖区间，则创建一个新的区间
+            if (row_pairs.find(point.y) == row_pairs.end())
+            {
+                row_pairs[point.y] = {{point.x, point.x}};
+            }
+            else
+            {
+                // 如果有已存在的区间，则尝试扩展这些区间
+                auto& segments = row_pairs[point.y];
+                bool addedToSegment = false;
+                for (auto& seg : segments)
+                {
+                    //if (seg.beg + 1 == point.x)
+                    // 如果是连续
+                    if (seg.end + 1 == point.x || seg.end == point.x - 1)
+                    {
+                        seg.beg = std::min(seg.beg, point.x);
+                        seg.end = std::max(seg.end, point.x);
+                        addedToSegment = true;
+                        break;
+                    }
+                    else if (seg.end - 1 == point.x)
+                    {
+                        seg.beg = std::min(seg.beg, point.x);
+                        seg.end = std::max(seg.end, point.x);
+                        addedToSegment = true;
+                        break;
+                    }
+                }
+                if (!addedToSegment)
+                {
+                    segments.push_back({point.x, point.x});
+                }
+            }
         }
     }
     return true;
