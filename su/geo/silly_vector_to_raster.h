@@ -42,7 +42,45 @@ class xscan_line_raster
     void reset();
 
     /// <summary>
-    /// 光栅化一个面矢量
+    /// 光栅化单点
+    /// </summary>
+    /// <param name="points">单点</param>
+    /// <returns></returns>
+    bool rasterization(const silly_point& point);
+
+    /// <summary>
+    /// 光栅化多点
+    /// </summary>
+    /// <param name="points">多线</param>
+    /// <returns></returns>
+    bool rasterization(const silly_multi_point& points);
+
+
+    ///// <summary>
+    ///// 光栅化单条线
+    ///// </summary>
+    ///// <param name="line">单条线</param>
+    ///// <returns></returns>
+    //bool rasterization(const silly_line& line);
+
+    /// <summary>
+    /// 光栅化多条线
+    /// </summary>
+    /// <param name="lines"></param>
+    /// <returns></returns>
+    bool rasterization(const silly_multi_silly_line& lines);
+
+    
+    /// <summary>
+    /// 光栅化一个单点矢量
+    /// </summary>
+    /// <param name="poly"></param>
+    /// <returns></returns>
+    bool rasterization(const silly_poly& poly);
+
+
+    /// <summary>
+    /// 光栅化一个多面矢量
     /// </summary>
     /// <param name="m_polys"></param>
     /// <returns></returns>
@@ -61,6 +99,8 @@ class xscan_line_raster
     /// <param name="vertices_arr"></param>
     /// <returns></returns>
     bool rasterization(const std::vector<std::vector<raster_point>> vertices_arr);
+    bool rasterization_point(const std::vector<std::vector<raster_point>> vertices_arr);
+
 
     /// <summary>
     /// 将光栅化结果绘制到灰度图上
