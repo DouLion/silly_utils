@@ -36,7 +36,9 @@ struct silly_tzx_grid_rect
     double xdelta;
     double ydelta;
 };
-
+/// 此函数中使用的float是从存储空间大小考虑
+/// 大多数情况下, float的数据范围和精度都已经足够,
+/// 所以, 这里使用float, 减少内存和序列化之后的空间占用
 class silly_tzx_grid
 {
   public:

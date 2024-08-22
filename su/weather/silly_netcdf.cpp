@@ -8,7 +8,7 @@
  * @description: silly_netcdf 类实现
  */
 #include "silly_netcdf.h"
-
+#include <netcdf.h>
 /*
  enum ncType
    {
@@ -249,7 +249,7 @@ bool silly_netcdf::read(const std::string& group, const std::string& lon, const 
     {
         throw std::runtime_error("lat维度必须在倒数第二个");
     }
-	std::get<2>(*riter).getVar(&lat_data[0]);
+    std::get<2>(*riter).getVar(&lat_data[0]);
     // 判断矢量方向
     m_left = std::min(lon_data.back(), lon_data.front());
     m_right = std::max(lon_data.back(), lon_data.front());
@@ -446,4 +446,80 @@ double silly_netcdf::xdelta() const
 double silly_netcdf::ydelta() const
 {
     return m_ydelta;
+}
+bool silly_netcdf::write(const std::string& path, const silly_netcdf_data& nd)
+{
+    bool status{false};
+    try
+    {
+        NcFile sfc;
+        sfc.open(path, NcFile::replace, NcFile::nc4);
+        // 创建dims
+        std::vector<NcDim> dims;
+        for(auto tdinfo: nd.dextra)
+        {
+            std::string name = std::get<0>(tdinfo);
+            auto vars = std::get<1>(tdinfo);
+            std::string units = std::get<2>(tdinfo);
+            NcDim tmpDim = sfc.addDim(name, vars.size());
+            NcVar tmpVar = sfc.addVar(name, ncFloat, tmpDim);  //
+
+            tmpVar.putVar(&vars[0]);
+            dims.push_back(tmpDim);
+            tmpVar.putAtt("units", units);
+        }
+        // 坐标维度
+        {
+            NcDim yDim = sfc.addDim(nd.dgeo.yname, nd.dgeo.ylen);
+            NcDim xDim = sfc.addDim(nd.dgeo.xname, nd.dgeo.xlen);
+            NcVar yVar = sfc.addVar(nd.dgeo.yname, ncFloat, yDim);  // creates variable
+            NcVar xVar = sfc.addVar(nd.dgeo.xname, ncFloat, xDim);
+            std::vector<float> xs(nd.dgeo.xlen);
+            std::vector<float> ys(nd.dgeo.ylen);
+            float xstep = (nd.dgeo.xlast - nd.dgeo.xfirst)/ (nd.dgeo.xlen-1);
+            for(int i = 0; i < nd.dgeo.xlen; i++)
+                xs[i] = nd.dgeo.xfirst + i*xstep;
+
+            float ystep = (nd.dgeo.ylast - nd.dgeo.yfirst)/ (nd.dgeo.ylen-1);
+            for(int i = 0; i < nd.dgeo.ylen; i++)
+                ys[i] = nd.dgeo.yfirst + i*ystep;
+            yVar.putVar(&ys[0]);
+            xVar.putVar(&xs[0]);
+            yVar.putAtt("units", nd.dgeo.yunits);
+            yVar.putAtt("valid_min", ncFloat, nd.dgeo.ymin);
+            yVar.putAtt("valid_max", ncFloat, nd.dgeo.ymax);
+
+            xVar.putAtt("units", nd.dgeo.xunits);
+            xVar.putAtt("valid_min", ncFloat, nd.dgeo.xmin);
+            xVar.putAtt("valid_max", ncFloat, nd.dgeo.xmax);
+
+            dims.push_back(yDim);
+            dims.push_back(xDim);
+        }
+
+        for(auto [grp, bands] : nd.grp_bands)
+        {
+            NcVar data = sfc.addVar(grp, ncFloat, dims);
+            data.putAtt("_FillValue", ncFloat, bands[0].fill);
+            data.putAtt("offset", ncFloat, bands[0].offset);
+            data.putAtt("scale", ncFloat, bands[0].scale);
+            data.putAtt("units", bands[0].units);
+            std::vector<float> all(bands.size() * bands[0].grid.size());
+            for(auto band: bands)
+            {
+                all.insert(all.end(), band.grid.begin(), band.grid.end());
+            }
+            data.putVar(&all[0]);
+        }
+
+
+        sfc.close();
+        status = true;
+    }
+    catch (NcException& e)
+    {
+        SLOG_ERROR("NC: {}", std::string(e.what()))
+        return status;
+    }
+    return status;
 }
