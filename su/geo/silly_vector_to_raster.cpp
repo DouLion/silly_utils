@@ -442,6 +442,50 @@ bool xscan_line_raster::rasterization(const std::vector<std::vector<raster_point
 
 bool xscan_line_raster::rasterization(const silly_geo_coll& geo_coll)
 {
+    bool status = false;
+    enum_geometry_type feature_type = geo_coll.m_type;
+    switch (feature_type)
+    {
+        case enum_geometry_type::egtPoint:  // 单点
+        {
+            status = rasterization(geo_coll.m_point);
+        }
+        break;
+        case enum_geometry_type::egtLineString:  // 单线
+        {
+
+            status = rasterization_line(geo_coll.m_line);
+        }
+        break;
+        case enum_geometry_type::egtPolygon:  // 单面
+        {
+
+            status = rasterization(geo_coll.m_poly);
+        }
+        break;
+        case enum_geometry_type::egtMultiPoint:  // 多点
+        {
+            status = rasterization(geo_coll.m_m_points);
+        }
+        break;
+        case enum_geometry_type::egtMultiLineString:  // 多线
+        {
+
+            status = rasterization(geo_coll.m_m_lines);
+        }
+        break;
+        case enum_geometry_type::egtMultiPolygon:  // 多面
+        {
+
+            status = rasterization(geo_coll.m_m_polys);
+        }
+        default:
+        {
+            SU_ERROR_PRINT("Unprocessable data types: %d\n", feature_type);
+        }
+        break;
+    }
+
     return false;
 }
 

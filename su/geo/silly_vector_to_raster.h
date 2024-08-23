@@ -63,7 +63,7 @@ class xscan_line_raster
     /// <summary>
     /// 光栅化多点
     /// </summary>
-    /// <param name="points">多线</param>
+    /// <param name="points">多点</param>
     /// <returns></returns>
     bool rasterization(const silly_multi_point& points);
 
