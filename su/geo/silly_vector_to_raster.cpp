@@ -66,23 +66,21 @@ bool xscan_line_raster::rasterization(const silly_point& point)
         bottom = std::floor(bottom / cell_size) * cell_size;
     }
 
-
-
     nrows = std::ceil((top - bottom) / cell_size);
     ncols = std::ceil((right - left) / cell_size);
 
     int raster_x = std::round((point.lgtd - left) / cell_size);
     int raster_y = std::round((top - point.lttd) / cell_size);
 
-    if (raster_x >= 0 && raster_x < ncols && raster_y >= 0 && raster_y < nrows)
+    if (raster_x >= 0 && raster_x <= ncols && raster_y >= 0 && raster_y <= nrows)
     {
-        // 由于它是一个单点，因此不需要合并连续的点,将点添加到光栅表示中。
-        raster_point rasterized_point(raster_x, raster_y);
-        std::vector<raster_point> rasterized_points;
-        rasterized_points.push_back(rasterized_point);
-        vertices_arr.push_back(rasterized_points);
-        bool status = rasterization_point(vertices_arr);
-        return status;
+        // 由于只有只有一个点
+        cover_pair tmp_pair;
+        tmp_pair.beg = raster_x;
+        tmp_pair.end = raster_x;
+        row_pairs[raster_y].push_back(tmp_pair);
+
+        return true;
     }
 
     return false;
@@ -136,6 +134,47 @@ bool xscan_line_raster::rasterization(const silly_multi_point& points)
     return status;
 }
 
+bool xscan_line_raster::rasterization_line(const silly_line& line)
+{
+    std::vector<std::vector<raster_point>> vertices_arr;
+
+    if (std::abs(left) < SU_EPSILON && std::abs(top) < SU_EPSILON && std::abs(right) < SU_EPSILON && std::abs(bottom) < SU_EPSILON)
+    {
+        // 查找边界框
+        for (const auto& point : line)
+        {
+            left = SU_MIN(point.lgtd, left);
+            right = SU_MAX(point.lgtd, right);
+            top = SU_MAX(point.lttd, top);
+            bottom = SU_MIN(point.lttd, bottom);
+        }
+
+        left = std::floor(left / cell_size) * cell_size;
+        right = std::ceil(right / cell_size) * cell_size;
+        top = std::ceil(top / cell_size) * cell_size;
+        bottom = std::floor(bottom / cell_size) * cell_size;
+    }
+
+    nrows = std::ceil((top - bottom) / cell_size);
+    ncols = std::ceil((right - left) / cell_size);
+
+    // 将点转换为光栅坐标并合并连续的相同点
+    int last_x = 0 - ncols;
+    int last_y = 0 - nrows;
+    std::vector<raster_point> tmp_vertices;
+
+    last_x = 0 - ncols;
+    last_y = 0 - nrows;
+    for (const auto& point : line)
+    {
+        SILLY_XSCAN_LINE_CHECK_POINT(point);
+    }
+    vertices_arr.push_back(tmp_vertices);
+
+    bool status = rasterization(vertices_arr);
+    return status;
+
+}
 
 bool xscan_line_raster::rasterization(const silly_multi_silly_line& lines)
 {
@@ -179,8 +218,8 @@ bool xscan_line_raster::rasterization(const silly_multi_silly_line& lines)
         }
         vertices_arr.push_back(tmp_vertices);
     }
-
-    return rasterization(vertices_arr);
+    bool status = rasterization(vertices_arr);
+    return status;
 }
 
 

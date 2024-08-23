@@ -216,132 +216,35 @@ BOOST_AUTO_TEST_CASE(SCANNING_LINE)
     std::filesystem::path m_m_lines = geo_path;
     std::filesystem::path point_one = geo_path;
     std::filesystem::path point_more = geo_path;
+    std::filesystem::path geo_line1 = geo_path;
+    std::filesystem::path geo_line2 = geo_path;
+    std::filesystem::path geo_poly1 = geo_path;
+    std::filesystem::path geo_poly2 = geo_path;
     grid += "/geojson/grid.geojson";
     m_m_lines+="/geojson/src_mmlines.geojson";
     point_one += "/geojson/src_point.geojson";
     point_more += "/geojson/src_points.geojson";
-
+    geo_line1 += "/geojson/src_line1.geojson";
+    geo_line2 += "/geojson/src_line2.geojson";
+    geo_poly1 += "/geojson/src_poly1.geojson";
+    geo_poly2 += "/geojson/src_poly2.geojson";
     silly_geo_coll multiPolygonData;
 
 
     silly_multi_poly multi_poly;
     std::vector<silly_geo_coll> multiPolygonDataVec;
 
-    // ============ 单点 ==================
-    silly_point point0 = silly_point(113.32007, 29.51516);
-    multiPolygonData.m_type = enum_geometry_type::egtPoint;
-    multiPolygonData.m_point = point0;
-    multiPolygonDataVec.push_back(multiPolygonData);
-    //silly_geo_utils::write_geo_coll(point_one.string(), multiPolygonDataVec);
-    xscan_line_raster xlr_op;
-    xlr_op.top = 29.54244;
-    xlr_op.bottom = 29.40021;
-    xlr_op.left = 113.25921;
-    xlr_op.right = 113.44758;
-    xlr_op.cell_size = 0.025;
-    xlr_op.rasterization(point0);
-
-
-    // ============ 多点 ==================
-    silly_point point1 = silly_point(113.34245, 29.51446);
-    silly_point point2 = silly_point(113.38534, 29.49290);
-    silly_point point3 = silly_point(113.38909, 29.46805);
-    silly_point point4 = silly_point(113.36683, 29.45751);
-    silly_point point5 = silly_point(113.33683, 29.46102);
-    silly_point point6 = silly_point(113.28784, 29.49055);
-    silly_point point7 = silly_point(113.28784, 29.51540);
-    silly_point point8 = silly_point(113.41417, 29.46360);
-    silly_point point9 = silly_point(113.38745, 29.51329);
-    silly_point point10 = silly_point(113.41417, 29.51212);
-    multiPolygonData.m_type = enum_geometry_type::egtMultiPoint;
-    multiPolygonData.m_m_points = { point1, point2, point3, point4, point5,point6, point7,point8,point9, point10 };
-    multiPolygonDataVec.push_back(multiPolygonData);
-    silly_geo_utils::write_geo_coll(point_more.string(), multiPolygonDataVec);
-    xscan_line_raster xlr_mp;
-    xlr_mp.top = 29.54244;
-    xlr_mp.bottom = 29.40021;
-    xlr_mp.left = 113.25921;
-    xlr_mp.right = 113.44758;
-    xlr_mp.cell_size = 0.025;
-    xlr_mp.rasterization(multiPolygonData.m_m_points);
-
-
-    //generateGridAndSave(grid.string().c_str(), xlr_mp.top, xlr_mp.bottom, xlr_mp.left, xlr_mp.right, xlr_mp.cell_size);
 
 
 
-
-
-
-    // ============ 多线 ==================
-
-    // 创建第一条线
-    silly_line line1 = 
-    {
-        silly_point(113.32007, 29.51516),
-        silly_point(113.34585, 29.51329),
-        silly_point(113.36905, 29.49079),
-        silly_point(113.35148, 29.48305),
-        silly_point(113.39554, 29.46899)
-    };
-
-    // 创建第二条线
-    silly_line line2 = 
-    {
-        silly_point(113.29593, 29.44180),
-        silly_point(113.34140, 29.44063),
-        silly_point(113.37491, 29.46735),
-        silly_point(113.40093, 29.48727),
-        silly_point(113.41851, 29.44649)
-    };
-
-    // 创建多线条集合
-    silly_multi_silly_line multi_line = { line1, line2 };
-    multiPolygonData.m_type = enum_geometry_type::egtMultiLineString;
-    multiPolygonData.m_m_lines = multi_line;
-
-    //multiPolygonDataVec.push_back(multiPolygonData);
-    //silly_geo_utils::write_geo_coll(m_m_lines.string(), multiPolygonDataVec);
-
-
-    xscan_line_raster xlr_mml;
-    xlr_mml.top = 29.54244;
-    xlr_mml.bottom = 29.40021;
-    xlr_mml.left = 113.25921;
-    xlr_mml.right = 113.44758;
-    xlr_mml.cell_size = 0.025;
-    xlr_mml.rasterization(multi_line);
-
-
-    int mml = 0;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // 第一个面
+        // 第一个面
     silly_poly first_poly;
     first_poly.outer_ring.points = 
     {
         silly_point(113.30624, 29.48780), 
         silly_point(113.36182, 29.51534), 
         silly_point(113.41794, 29.49356), 
-        silly_point(113.41668, 29.41501), 
-        silly_point(113.30606, 29.41483), 
+        silly_point(113.36582, 29.43773),
         silly_point(113.30624, 29.48780)
     };
     first_poly.outer_ring.is_outer = 1;
@@ -360,14 +263,13 @@ BOOST_AUTO_TEST_CASE(SCANNING_LINE)
     second_poly.outer_ring.is_outer = 1;
     // multi_poly.push_back(second_poly);
     //  添加到多面数据中
-    //multiPolygonData.m_m_polys.push_back(first_poly);
-     //multiPolygonData.m_m_polys.push_back(second_poly);
+    // multiPolygonData.m_m_polys.push_back(first_poly);
+    // multiPolygonData.m_m_polys.push_back(second_poly);
 
-    multiPolygonData.m_type = enum_geometry_type::egtMultiPolygon;
-
-    //multiPolygonDataVec.push_back(multiPolygonData);
-
-    // silly_geo_utils::write_geo_coll("./shp/src_mmpolys.geojson", multiPolygonDataVec);
+    multiPolygonData.m_type = enum_geometry_type::egtPolygon;
+    multiPolygonData.m_poly= first_poly;
+     multiPolygonDataVec.push_back(multiPolygonData);
+    silly_geo_utils::write_geo_coll(geo_poly1.string(), multiPolygonDataVec);
 
     xscan_line_raster xlr;
     xlr.top = 29.54244;
@@ -379,7 +281,112 @@ BOOST_AUTO_TEST_CASE(SCANNING_LINE)
 
 
 
-    //generateGridAndSave("./shp/grid.geojson", xlr.top, xlr.bottom, xlr.left, xlr.right, xlr.cell_size);
+
+    // ============ 单点 ==================
+    silly_point point0 = silly_point(113.32007, 29.51516);
+    multiPolygonData.m_type = enum_geometry_type::egtPoint;
+    multiPolygonData.m_point = point0;
+    multiPolygonDataVec.push_back(multiPolygonData);
+    // silly_geo_utils::write_geo_coll(point_one.string(), multiPolygonDataVec);
+    xscan_line_raster xlr_op;
+    xlr_op.top = 29.54244;
+    xlr_op.bottom = 29.40021;
+    xlr_op.left = 113.25921;
+    xlr_op.right = 113.44758;
+    xlr_op.cell_size = 0.025;
+    xlr_op.rasterization(point0);
+
+
+
+    // ============ 单线 ==================
+    // 创建第一条线
+    silly_line line1 = 
+    {
+        silly_point(113.31176,29.51434), 
+        silly_point(113.35944,29.51494), 
+        silly_point(113.36510,29.49211), 
+        silly_point(113.36409,29.48140), 
+        silly_point(113.38672,29.46403)
+    };
+    // 创建第二条线
+    silly_line line2 = 
+    {
+        silly_point(113.28711,29.43998), 
+        silly_point(113.31236,29.43958), 
+        silly_point(113.41096,29.48747), 
+        silly_point(113.41319,29.44140) 
+    };
+
+    multiPolygonData.m_type = enum_geometry_type::egtLineString;
+    multiPolygonData.m_line = line2;
+
+    // multiPolygonDataVec.push_back(multiPolygonData);
+    //silly_geo_utils::write_geo_coll(geo_line2.string(), multiPolygonDataVec);
+
+    xscan_line_raster xlr_ol;
+    xlr_ol.top = 29.54244;
+    xlr_ol.bottom = 29.40021;
+    xlr_ol.left = 113.25921;
+    xlr_ol.right = 113.44758;
+    xlr_ol.cell_size = 0.025;
+    xlr_ol.rasterization_line(multiPolygonData.m_line);
+
+
+
+
+
+    // ============ 多线 ==================
+    // 创建多线条集合
+    silly_multi_silly_line multi_line = {line1, line2};
+    multiPolygonData.m_type = enum_geometry_type::egtMultiLineString;
+    multiPolygonData.m_m_lines = multi_line;
+
+     //multiPolygonDataVec.push_back(multiPolygonData);
+     //silly_geo_utils::write_geo_coll(m_m_lines.string(), multiPolygonDataVec);
+
+    xscan_line_raster xlr_mml;
+    xlr_mml.top = 29.54244;
+    xlr_mml.bottom = 29.40021;
+    xlr_mml.left = 113.25921;
+    xlr_mml.right = 113.44758;
+    xlr_mml.cell_size = 0.025;
+    xlr_mml.rasterization(multi_line);
+
+    int mml = 0;
+
+
+
+
+    // ============ 多点 ==================
+    silly_point point1 = silly_point(113.34245, 29.51446);
+    silly_point point2 = silly_point(113.38534, 29.49290);
+    silly_point point3 = silly_point(113.38909, 29.46805);
+    silly_point point4 = silly_point(113.36683, 29.45751);
+    silly_point point5 = silly_point(113.33683, 29.46102);
+    silly_point point6 = silly_point(113.28784, 29.49055);
+    silly_point point7 = silly_point(113.28784, 29.51540);
+    silly_point point8 = silly_point(113.41417, 29.46360);
+    silly_point point9 = silly_point(113.38745, 29.51329);
+    silly_point point10 = silly_point(113.41417, 29.51212);
+    multiPolygonData.m_type = enum_geometry_type::egtMultiPoint;
+    multiPolygonData.m_m_points = { point1, point2, point3, point4, point5,point6, point7,point8,point9, point10 };
+    multiPolygonDataVec.push_back(multiPolygonData);
+    silly_geo_utils::write_geo_coll(point_more.string(), multiPolygonDataVec);
+
+    xscan_line_raster xlr_mp;
+    xlr_mp.top = 29.54244;
+    xlr_mp.bottom = 29.40021;
+    xlr_mp.left = 113.25921;
+    xlr_mp.right = 113.44758;
+    xlr_mp.cell_size = 0.025;
+    xlr_mp.rasterization(multiPolygonData.m_m_points);
+
+
+    //generateGridAndSave(grid.string().c_str(), xlr_mp.top, xlr_mp.bottom, xlr_mp.left, xlr_mp.right, xlr_mp.cell_size);
+
+
+
+
 
 
     geo_utils::destroy_gdal_env();

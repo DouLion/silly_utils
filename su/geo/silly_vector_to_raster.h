@@ -56,17 +56,17 @@ class xscan_line_raster
     bool rasterization(const silly_multi_point& points);
 
 
-    ///// <summary>
-    ///// 光栅化单条线
-    ///// </summary>
-    ///// <param name="line">单条线</param>
-    ///// <returns></returns>
-    //bool rasterization(const silly_line& line);
+    /// <summary>
+    /// 光栅化单条线
+    /// </summary>
+    /// <param name="line">单条线</param>
+    /// <returns></returns>
+    bool rasterization_line(const silly_line& line);
 
     /// <summary>
     /// 光栅化多条线
     /// </summary>
-    /// <param name="lines"></param>
+    /// <param name="lines">多线</param>
     /// <returns></returns>
     bool rasterization(const silly_multi_silly_line& lines);
 
