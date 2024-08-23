@@ -236,6 +236,57 @@ BOOST_AUTO_TEST_CASE(SCANNING_LINE)
 
 
 
+        // ============ 单线 ==================
+    // 创建第一条线
+    silly_line line1 = 
+    {
+        silly_point(113.31176,29.51434), 
+        silly_point(113.35944,29.51494), 
+        silly_point(113.36510,29.49211), 
+        silly_point(113.36409,29.48140), 
+        silly_point(113.38672,29.46403)
+    };
+    // 创建第二条线
+    silly_line line2 = 
+    {
+        silly_point(113.28711,29.43998), 
+        silly_point(113.31236,29.43958), 
+        silly_point(113.41096,29.48747), 
+        silly_point(113.41319,29.44140) 
+    };
+
+    multiPolygonData.m_type = enum_geometry_type::egtMultiLineString;
+    multiPolygonData.m_m_lines.push_back(line1);
+    multiPolygonData.m_m_lines.push_back(line2);
+
+     multiPolygonDataVec.push_back(multiPolygonData);
+    //silly_geo_utils::write_geo_coll(m_m_lines.string(), multiPolygonDataVec);
+
+    // 多线
+    xscan_line_raster xlr_ol;
+    xlr_ol.top = 29.54244;
+    xlr_ol.bottom = 29.40021;
+    xlr_ol.left = 113.25921;
+    xlr_ol.right = 113.44758;
+    xlr_ol.cell_size = 0.025;
+    xlr_ol.rasterization(multiPolygonData.m_m_lines);
+
+    // 单线
+    //xscan_line_raster xlr_ol;
+    //xlr_ol.top = 29.54244;
+    //xlr_ol.bottom = 29.40021;
+    //xlr_ol.left = 113.25921;
+    //xlr_ol.right = 113.44758;
+    //xlr_ol.cell_size = 0.025;
+    //xlr_ol.rasterization_line(multiPolygonData.m_line);
+
+
+
+
+
+
+
+
 
         // 第一个面
     silly_poly first_poly;
@@ -296,40 +347,6 @@ BOOST_AUTO_TEST_CASE(SCANNING_LINE)
     xlr_op.cell_size = 0.025;
     xlr_op.rasterization(point0);
 
-
-
-    // ============ 单线 ==================
-    // 创建第一条线
-    silly_line line1 = 
-    {
-        silly_point(113.31176,29.51434), 
-        silly_point(113.35944,29.51494), 
-        silly_point(113.36510,29.49211), 
-        silly_point(113.36409,29.48140), 
-        silly_point(113.38672,29.46403)
-    };
-    // 创建第二条线
-    silly_line line2 = 
-    {
-        silly_point(113.28711,29.43998), 
-        silly_point(113.31236,29.43958), 
-        silly_point(113.41096,29.48747), 
-        silly_point(113.41319,29.44140) 
-    };
-
-    multiPolygonData.m_type = enum_geometry_type::egtLineString;
-    multiPolygonData.m_line = line2;
-
-    // multiPolygonDataVec.push_back(multiPolygonData);
-    //silly_geo_utils::write_geo_coll(geo_line2.string(), multiPolygonDataVec);
-
-    xscan_line_raster xlr_ol;
-    xlr_ol.top = 29.54244;
-    xlr_ol.bottom = 29.40021;
-    xlr_ol.left = 113.25921;
-    xlr_ol.right = 113.44758;
-    xlr_ol.cell_size = 0.025;
-    xlr_ol.rasterization_line(multiPolygonData.m_line);
 
 
 
