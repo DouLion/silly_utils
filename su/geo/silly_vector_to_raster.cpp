@@ -8,8 +8,8 @@
 #include <math.h>
 
 #define SILLY_SV2R_CHECK_INTERSECT_POINT(a, b)                              \
-    raster_point v1 = vertices[a];                                             \
-    raster_point v2 = vertices[b];                                             \
+    raster_point v1 = vertices[a];                                          \
+    raster_point v2 = vertices[b];                                          \
     if ((scanY >= v1.y && scanY < v2.y) || (scanY >= v2.y && scanY < v1.y)) \
     {                                                                       \
         float slope = (v2.x - v1.x) / (v2.y - v1.y);                        \
@@ -39,39 +39,27 @@ void xscan_line_raster::reset()
     int tmp_y = std::round((top - point.lttd) / cell_size);  \
     if (last_x != tmp_x || last_y != tmp_y)                  \
     {                                                        \
-        tmp_vertices.push_back(raster_point(tmp_x, tmp_y));     \
+        tmp_vertices.push_back(raster_point(tmp_x, tmp_y));  \
         last_x = tmp_x;                                      \
         last_y = tmp_y;                                      \
     }
 
-bool xscan_line_raster::rasterization(const silly_point& point)
+bool xscan_line_raster::remove_repeat_row_pairs()
 {
-    std::vector<std::vector<raster_point>> vertices_arr;
-
-    // 计算所有点的边界
-    if (std::abs(left) < SU_EPSILON && std::abs(top) < SU_EPSILON && std::abs(right) < SU_EPSILON && std::abs(bottom) < SU_EPSILON)
+    for (auto& [key, pairs] : row_pairs)
     {
-        // 遍历所有点来确定边界
-
-        left = SU_MIN(point.lgtd, left);
-        right = SU_MAX(point.lgtd, right);
-        top = SU_MAX(point.lttd, top);
-        bottom = SU_MIN(point.lttd, bottom);
-
-
-        // 调整边界以与网格对齐
-        left = std::floor(left / cell_size) * cell_size;
-        right = std::ceil(right / cell_size) * cell_size;
-        top = std::ceil(top / cell_size) * cell_size;
-        bottom = std::floor(bottom / cell_size) * cell_size;
+        // 使用 std::set 来自动去重
+        std::set<cover_pair> unique_pairs(pairs.begin(), pairs.end());
+        // 清空源数据将去重后的结果复制回原 vector
+        pairs.assign(unique_pairs.begin(), unique_pairs.end());
     }
+    return true;
+}
 
-    nrows = std::ceil((top - bottom) / cell_size);
-    ncols = std::ceil((right - left) / cell_size);
-
+bool xscan_line_raster::rasterization_point_algo(const silly_point& point)
+{
     int raster_x = std::round((point.lgtd - left) / cell_size);
     int raster_y = std::round((top - point.lttd) / cell_size);
-
     if (raster_x >= 0 && raster_x <= ncols && raster_y >= 0 && raster_y <= nrows)
     {
         // 由于只有只有一个点
@@ -79,16 +67,23 @@ bool xscan_line_raster::rasterization(const silly_point& point)
         tmp_pair.beg = raster_x;
         tmp_pair.end = raster_x;
         row_pairs[raster_y].push_back(tmp_pair);
-
         return true;
     }
-
     return false;
+}
+
+bool xscan_line_raster::rasterization(const silly_point& point)
+{
+    nrows = std::ceil((top - bottom) / cell_size);
+    ncols = std::ceil((right - left) / cell_size);
+
+    bool status = rasterization_point_algo(point);
+
+    return status;
 }
 
 bool xscan_line_raster::rasterization(const silly_multi_point& points)
 {
-    std::vector<std::vector<raster_point>> vertices_arr;
     // 计算所有点的边界
     if (std::abs(left) < SU_EPSILON && std::abs(top) < SU_EPSILON && std::abs(right) < SU_EPSILON && std::abs(bottom) < SU_EPSILON)
     {
@@ -115,29 +110,92 @@ bool xscan_line_raster::rasterization(const silly_multi_point& points)
     int last_x = 0 - ncols;
     int last_y = 0 - nrows;
 
-    std::vector<raster_point> tmp_vertices;
     for (const auto& point : points)
     {
-
-        SILLY_XSCAN_LINE_CHECK_POINT(point);
-        //int raster_x = std::round((point.lgtd - left) / cell_size);
-        //int raster_y = std::round((top - point.lttd) / cell_size);
-        //if (raster_x >= 0 && raster_x < ncols && raster_y >= 0 && raster_y < nrows)
-        //{
-        //    raster_point rasterized_point(raster_x, raster_y);
-        //    tmp_vertices.push_back(rasterized_point);
-        //}
+        rasterization_point_algo(point);
     }
-    vertices_arr.push_back(tmp_vertices);
-    bool status = rasterization_point(vertices_arr);
-    // 调用基本的光栅化算法
-    return status;
+
+    // 去重row_pairs
+    remove_repeat_row_pairs();
+
+    return true;
+}
+
+bool xscan_line_raster::rasterization_line_algo(const silly_line& line)
+{
+    if (line.size() < 2)
+    {
+        return false;  // 如果线段小于两个点，则无法处理
+    }
+    // 遍历线段中的每一对点
+    for (size_t i = 0; i < line.size() - 1; ++i)
+    {
+        const silly_point& p1 = line[i];
+        const silly_point& p2 = line[i + 1];
+
+        // 将经纬度转换为栅格列和行
+        int col1 = std::round((p1.lgtd - left) / cell_size);
+        int row1 = std::round((top - p1.lttd) / cell_size);
+        int col2 = std::round((p2.lgtd - left) / cell_size);
+        int row2 = std::round((top - p2.lttd) / cell_size);
+
+        // 处理垂直线段
+        if (col1 == col2)
+        {
+            int start_row = std::min(row1, row2);
+            int end_row = std::max(row1, row2);
+            for (int row = start_row; row <= end_row; ++row)
+            {
+                if (row >= 0 && row < nrows)
+                {
+                    row_pairs[row].push_back({col1, col1});
+                }
+            }
+            continue;
+        }
+
+        // 处理非垂直线段
+        if (row1 == row2)
+        {
+            int beg = std::min(col1, col2);
+            int end = std::max(col1, col2);
+            if (beg >= 0 && beg < ncols && end >= 0 && end < ncols)
+            {
+                row_pairs[row1].push_back({beg, end});
+            }
+            continue;
+        }
+
+        // 计算斜率和截距
+        float slope = (p2.lttd - p1.lttd) / (p2.lgtd - p1.lgtd);
+        float intercept = p1.lttd - slope * p1.lgtd;
+
+        int min_col = std::min(col1, col2);  // 最小x
+        int max_col = std::max(col1, col2);  // 最大x
+
+        int min_row = std::min(row1, row2);  // 最小y
+        int max_row = std::max(row1, row2);  // 最大y
+
+        // 对于每一列，找到对应的行
+        for (int col = min_col; col <= max_col; ++col)
+        {
+            // 使用斜率和截距计算该列对应的行
+            float y = slope * ((col + 0.5) * cell_size + left) + intercept;  // 使用0.5是为了确保点在栅格中心
+            int row = std::round((top - y) / cell_size);
+            // 确保行在范围内
+            if (row >= min_row && row <= max_row)
+            {
+                // 添加该点到对应行的列表中
+                row_pairs[row].push_back({col, col});
+            }
+        }
+    }
+
+    return true;
 }
 
 bool xscan_line_raster::rasterization_line(const silly_line& line)
 {
-    std::vector<std::vector<raster_point>> vertices_arr;
-
     if (std::abs(left) < SU_EPSILON && std::abs(top) < SU_EPSILON && std::abs(right) < SU_EPSILON && std::abs(bottom) < SU_EPSILON)
     {
         // 查找边界框
@@ -158,22 +216,12 @@ bool xscan_line_raster::rasterization_line(const silly_line& line)
     nrows = std::ceil((top - bottom) / cell_size);
     ncols = std::ceil((right - left) / cell_size);
 
-    // 将点转换为光栅坐标并合并连续的相同点
-    int last_x = 0 - ncols;
-    int last_y = 0 - nrows;
-    std::vector<raster_point> tmp_vertices;
+    rasterization_line_algo(line);
 
-    last_x = 0 - ncols;
-    last_y = 0 - nrows;
-    for (const auto& point : line)
-    {
-        SILLY_XSCAN_LINE_CHECK_POINT(point);
-    }
-    vertices_arr.push_back(tmp_vertices);
+    // 去重row_pairs
+    remove_repeat_row_pairs();
 
-    bool status = rasterization(vertices_arr);
-    return status;
-
+    return true;
 }
 
 bool xscan_line_raster::rasterization(const silly_multi_silly_line& lines)
@@ -202,26 +250,16 @@ bool xscan_line_raster::rasterization(const silly_multi_silly_line& lines)
     nrows = std::ceil((top - bottom) / cell_size);
     ncols = std::ceil((right - left) / cell_size);
 
-    // 将点转换为光栅坐标并合并连续的相同点
-    int last_x = 0 - ncols;
-    int last_y = 0 - nrows;
-    std::vector<raster_point> tmp_vertices;
-
     for (const auto& line : lines)
     {
-        tmp_vertices.clear();
-        last_x = 0 - ncols;
-        last_y = 0 - nrows;
-        for (const auto& point : line)
-        {
-            SILLY_XSCAN_LINE_CHECK_POINT(point);
-        }
-        vertices_arr.push_back(tmp_vertices);
+        rasterization_line_algo(line);
     }
-    bool status = rasterization(vertices_arr);
-    return status;
-}
 
+    // 去重row_pairs
+    remove_repeat_row_pairs();
+
+    return true;
+}
 
 bool xscan_line_raster::rasterization(const silly_poly& poly)
 {
@@ -285,15 +323,10 @@ bool xscan_line_raster::rasterization(const silly_poly& poly)
     return rasterization(vertices_arr);
 }
 
-
-
 bool xscan_line_raster::rasterization(const silly_multi_poly& m_polys)
 {
     std::vector<std::vector<raster_point>> vertices_arr;
-    if(std::abs(left) < SU_EPSILON &&
-        std::abs(top) < SU_EPSILON &&
-        std::abs(right) < SU_EPSILON &&
-        std::abs(bottom) < SU_EPSILON)
+    if (std::abs(left) < SU_EPSILON && std::abs(top) < SU_EPSILON && std::abs(right) < SU_EPSILON && std::abs(bottom) < SU_EPSILON)
     {
         // 找出上下左右
         for (const auto& poly : m_polys)
@@ -381,13 +414,13 @@ bool xscan_line_raster::rasterization(const std::vector<std::vector<raster_point
             {
                 raster_point v1 = vertices[i];
                 raster_point v2 = vertices[(i + 1) % numVertices];
-                if ((scanY >= v1.y && scanY < v2.y) || (scanY >= v2.y && scanY < v1.y)) // v1 v2 不在同一行
+                if ((scanY >= v1.y && scanY < v2.y) || (scanY >= v2.y && scanY < v1.y))  // v1 v2 不在同一行
                 {
                     float slope = (v2.x - v1.x) / (v2.y - v1.y);
                     float x = (scanY - v1.y) * slope + v1.x;
                     edges.push_back(static_cast<int>(x));
                 }
-                else if (v1.y == v2.y && scanY == v1.y) // v1 v2 在同一行
+                else if (v1.y == v2.y && scanY == v1.y)  // v1 v2 在同一行
                 {
                     edges.push_back(v1.x);
                     edges.push_back(v2.x);
@@ -407,54 +440,52 @@ bool xscan_line_raster::rasterization(const std::vector<std::vector<raster_point
     return true;
 }
 
-bool xscan_line_raster::rasterization_point(const std::vector<std::vector<raster_point>> vertices_arr)
-{
-
-    for (const auto& part : vertices_arr)
-    {
-        for (const auto& point : part)
-        {
-            // 如果当前扫描线上没有覆盖区间，则创建一个新的区间
-            if (row_pairs.find(point.y) == row_pairs.end())
-            {
-                row_pairs[point.y] = {{point.x, point.x}};
-            }
-            else
-            {
-                // 如果有已存在的区间，则尝试扩展这些区间
-                auto& segments = row_pairs[point.y];
-                bool addedToSegment = false;
-                for (auto& seg : segments)
-                {
-                    //if (seg.beg + 1 == point.x)
-                    // 如果是连续
-                    if (seg.end + 1 == point.x || seg.end == point.x - 1)
-                    {
-                        seg.beg = std::min(seg.beg, point.x);
-                        seg.end = std::max(seg.end, point.x);
-                        addedToSegment = true;
-                        break;
-                    }
-                    else if (seg.end - 1 == point.x)
-                    {
-                        seg.beg = std::min(seg.beg, point.x);
-                        seg.end = std::max(seg.end, point.x);
-                        addedToSegment = true;
-                        break;
-                    }
-                }
-                if (!addedToSegment)
-                {
-                    segments.push_back({point.x, point.x});
-                }
-            }
-        }
-    }
-    return true;
-}
-
 bool xscan_line_raster::rasterization(const silly_geo_coll& geo_coll)
 {
+    bool status = false;
+    enum_geometry_type feature_type = geo_coll.m_type;
+    switch (feature_type)
+    {
+        case enum_geometry_type::egtPoint:  // 单点
+        {
+            status = rasterization(geo_coll.m_point);
+        }
+        break;
+        case enum_geometry_type::egtLineString:  // 单线
+        {
+
+            status = rasterization_line(geo_coll.m_line);
+        }
+        break;
+        case enum_geometry_type::egtPolygon:  // 单面
+        {
+
+            status = rasterization(geo_coll.m_poly);
+        }
+        break;
+        case enum_geometry_type::egtMultiPoint:  // 多点
+        {
+            status = rasterization(geo_coll.m_m_points);
+        }
+        break;
+        case enum_geometry_type::egtMultiLineString:  // 多线
+        {
+
+            status = rasterization(geo_coll.m_m_lines);
+        }
+        break;
+        case enum_geometry_type::egtMultiPolygon:  // 多面
+        {
+
+            status = rasterization(geo_coll.m_m_polys);
+        }
+        default:
+        {
+            SU_ERROR_PRINT("Unprocessable data types: %d\n", feature_type);
+        }
+        break;
+    }
+
     return false;
 }
 
@@ -475,7 +506,7 @@ void xscan_line_raster::image(const std::string& path)
         {
             for (int i = p.beg; i < p.end; ++i)
             {
-                png.set_pixel(r, i, silly_color( 255, 255, 0,175));
+                png.set_pixel(r, i, silly_color(255, 255, 0, 175));
             }
             old = p.end;
         }

@@ -23,11 +23,16 @@ struct raster_point
     int x{0}, y{0};
 };
 
-
 struct cover_pair
 {
     int beg;
     int end;
+
+    // 重载<操作符,用于去重排序
+    bool operator<(const cover_pair& other) const
+    {
+        return (beg < other.beg) || (beg == other.beg && end < other.end);
+    }
 };
 /// X扫描线算法
 /*
@@ -42,6 +47,13 @@ class xscan_line_raster
     void reset();
 
     /// <summary>
+    /// 光栅化单点的算法
+    /// </summary>
+    /// <param name="line"></param>
+    /// <returns></returns>
+    bool rasterization_point_algo(const silly_point& point);
+
+    /// <summary>
     /// 光栅化单点
     /// </summary>
     /// <param name="points">单点</param>
@@ -51,10 +63,16 @@ class xscan_line_raster
     /// <summary>
     /// 光栅化多点
     /// </summary>
-    /// <param name="points">多线</param>
+    /// <param name="points">多点</param>
     /// <returns></returns>
     bool rasterization(const silly_multi_point& points);
 
+    /// <summary>
+    /// 光栅化单线的算法
+    /// </summary>
+    /// <param name="line"></param>
+    /// <returns></returns>
+    bool rasterization_line_algo(const silly_line& line);
 
     /// <summary>
     /// 光栅化单条线
@@ -70,14 +88,12 @@ class xscan_line_raster
     /// <returns></returns>
     bool rasterization(const silly_multi_silly_line& lines);
 
-    
     /// <summary>
     /// 光栅化一个单点矢量
     /// </summary>
     /// <param name="poly"></param>
     /// <returns></returns>
     bool rasterization(const silly_poly& poly);
-
 
     /// <summary>
     /// 光栅化一个多面矢量
@@ -99,8 +115,12 @@ class xscan_line_raster
     /// <param name="vertices_arr"></param>
     /// <returns></returns>
     bool rasterization(const std::vector<std::vector<raster_point>> vertices_arr);
-    bool rasterization_point(const std::vector<std::vector<raster_point>> vertices_arr);
 
+    /// <summary>
+    /// 去除重复的row_pairs
+    /// </summary>
+    /// <returns></returns>
+    bool remove_repeat_row_pairs();
 
     /// <summary>
     /// 将光栅化结果绘制到灰度图上
