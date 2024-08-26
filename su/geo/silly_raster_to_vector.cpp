@@ -81,7 +81,33 @@ void silly_vectorizer::interpolation(const silly_trace_node &n1, const silly_tra
     }
 }
 
-void silly_vectorizer::trace_one_line(int r0l, int c0l, silly_ring &ring)
+bool silly_vectorizer::recurse_trace_line(int r, int c, silly_ring &ring)
+{
+    if (r > -1 && c > -1 && r < m_height + 2 && c < m_width + 2)
+    {
+        for (auto &segment : m_mat[r][c].segments)
+        {
+            if (!segment.traced)
+            {
+                if (ring.points.back() == segment.f)
+                {
+                    ring.points.push_back(segment.t);
+                    segment.traced = 1;
+                    return true;
+                }
+                if (ring.points.back() == segment.t)
+                {
+                    ring.points.push_back(segment.f);
+                    segment.traced = 1;
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+/*void silly_vectorizer::trace_one_line(int r0l, int c0l, silly_ring &ring)
 {
     // 上
     int r = r0l - 1;
@@ -99,6 +125,56 @@ void silly_vectorizer::trace_one_line(int r0l, int c0l, silly_ring &ring)
     r = r0l;
     c = c0l - 1;
     RECURSION_TRACE_LINE(r, c)
+}*/
+
+void silly_vectorizer::trace_one_line(int r0l, int c0l, silly_ring &ring)
+{
+    bool has_next = true;
+
+    int nrow = r0l, ncol = c0l;
+    while (has_next)
+    {
+
+        // 上
+        int tmpr = nrow - 1;
+        int tmpc = ncol;
+        if (recurse_trace_line(tmpr, tmpc, ring))
+        {
+            nrow = tmpr;
+            ncol = tmpc;
+            continue;
+        }
+        // 右
+        tmpr = nrow;
+        tmpc = ncol + 1;
+        if (recurse_trace_line(tmpr, tmpc, ring))
+        {
+            nrow = tmpr;
+            ncol = tmpc;
+            continue;
+        }
+        // 下
+        tmpr = nrow + 1;
+        tmpc = ncol;
+        if (recurse_trace_line(tmpr, tmpc, ring))
+        {
+            nrow = tmpr;
+            ncol = tmpc;
+            continue;
+        }
+        // 左
+        tmpr = nrow;
+        tmpc = ncol - 1;
+        if (recurse_trace_line(tmpr, tmpc, ring))
+        {
+            nrow = tmpr;
+            ncol = tmpc;
+            continue;
+        }
+        has_next = false;
+    }
+    assert(ring.points.size() > 2);
+    return;
 }
 
 bool silly_vectorizer::point_in_ring(const silly_point &p, const silly_ring &ring, const double &maxx)
@@ -238,8 +314,8 @@ std::vector<silly_poly> silly_vectorizer::trace_all_polys()
         {
             if (ring.points.back() != ring.points.front())  // 如果因为一些原因无法闭合,则主动使其闭合
             {
-                ring.points.push_back(ring.points.front());
-                //throw std::runtime_error("没有正确闭合");
+                //ring.points.push_back(ring.points.front());
+                throw std::runtime_error("没有正确闭合");
             }
             // 点在面内判断
             SLOG_DEBUG("{},{}", mark_point.lgtd, mark_point.lttd);
@@ -293,6 +369,7 @@ std::vector<silly_poly> silly_vectorizer::trace_all_polys()
             result.push_back(tmp);
         }
     }
+    m_mat.clear();
     return result;
 }
 void silly_vectorizer::set(const std::vector<trace_square_point> &points)

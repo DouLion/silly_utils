@@ -121,6 +121,8 @@ class silly_vectorizer
 
     void trace_one_line(int r0l, int c0l, silly_ring& ring);
 
+    bool recurse_trace_line(int r, int c, silly_ring& ring);
+
     static bool point_in_ring(const silly_point& point, const silly_ring& ring, const double& maxx = 1.e8);
 
     std::vector<std::vector<silly_point>> trace_all_lines();
