@@ -104,11 +104,18 @@ class silly_vectorizer
     // useless
     void set(const std::vector<trace_square_point>& points, const double& low, const double& high);
 
+    std::vector<silly_poly> smooth_poly(const std::vector<silly_poly> &polys);
+    std::vector<silly_poly> simplify_poly(const std::vector<silly_poly> &polys, const double &angle = 5.0);
+
+
+
     /// <summary>
     /// 标记所有大于threshold的点,为提取边界做准备
     /// </summary>
     /// <returns></returns>
     void mark();
+
+    void mark_edge(int r, int c, int tp);
 
     /// <summary>
     /// 标记出所有边界
@@ -131,7 +138,7 @@ class silly_vectorizer
   private:
     void fill_mat();
 
-  private:
+  public:
     int m_width{1220};
     int m_height{720};
     double m_xdelta{0.05};

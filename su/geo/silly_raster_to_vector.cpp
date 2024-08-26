@@ -134,7 +134,6 @@ void silly_vectorizer::trace_one_line(int r0l, int c0l, silly_ring &ring)
     int nrow = r0l, ncol = c0l;
     while (has_next)
     {
-
         // 上
         int tmpr = nrow - 1;
         int tmpc = ncol;
@@ -173,7 +172,7 @@ void silly_vectorizer::trace_one_line(int r0l, int c0l, silly_ring &ring)
         }
         has_next = false;
     }
-    assert(ring.points.size() > 2);
+    // assert(ring.points.size() > 2);
     return;
 }
 
@@ -230,7 +229,7 @@ std::vector<silly_poly> silly_vectorizer::trace_all_polys()
                         {
                             if (!segment.traced)
                             {
-                                SLOG_DEBUG("起始点\n{},{}\n{},{}", segment.f.lgtd, segment.f.lttd, segment.t.lgtd, segment.t.lttd)
+                                // SLOG_DEBUG("起始点\n{},{}\n{},{}", segment.f.lgtd, segment.f.lttd, segment.t.lgtd, segment.t.lttd)
                                 ring.points.push_back(segment.f);
                                 ring.points.push_back(segment.t);
                                 segment.traced = 1;
@@ -314,8 +313,8 @@ std::vector<silly_poly> silly_vectorizer::trace_all_polys()
         {
             if (ring.points.back() != ring.points.front())  // 如果因为一些原因无法闭合,则主动使其闭合
             {
-                //ring.points.push_back(ring.points.front());
-                throw std::runtime_error("没有正确闭合");
+                ring.points.push_back(ring.points.front());
+                // throw std::runtime_error("没有正确闭合");
             }
             // 点在面内判断
             SLOG_DEBUG("{},{}", mark_point.lgtd, mark_point.lttd);
@@ -369,12 +368,13 @@ std::vector<silly_poly> silly_vectorizer::trace_all_polys()
             result.push_back(tmp);
         }
     }
-    m_mat.clear();
+    // m_mat.clear();
     return result;
 }
 void silly_vectorizer::set(const std::vector<trace_square_point> &points)
 {
     // 初始化矩阵, 并在周围添加框
+    m_mat.clear();
     m_mat.resize(m_height + 2, std::vector<silly_trace_node>(m_width + 2));
 #if defined(_OPENMP)
 #pragma omp parallel for num_threads(8)
@@ -414,6 +414,9 @@ void silly_vectorizer::mark()
             m_mat[r][c].cv = (m_mat[r][c].great << 3) | (m_mat[r][c + 1].great << 2) | (m_mat[r + 1][c + 1].great << 1) | m_mat[r + 1][c].great;
         }
     }
+}
+void silly_vectorizer::mark_edge(int r, int c, int tp)
+{
 }
 
 void silly_vectorizer::find_edge()
@@ -603,6 +606,7 @@ void silly_vectorizer::set(const std::vector<trace_square_point> &points, const 
 {
     m_threshold_l = low;
     m_threshold_h = high;
+    m_mat.clear();
     double fix = (m_threshold_h - m_threshold_l) * 0.001;
     m_mat.resize(m_height + 2, std::vector<silly_trace_node>(m_width + 2));
 #if defined(_OPENMP)
@@ -720,4 +724,180 @@ silly_vectorizer &silly_vectorizer::operator=(const silly_vectorizer &right)
     m_threshold_l = right.m_threshold_l;
     m_threshold_h = right.m_threshold_h;
     return *this;
+}
+
+static double bezier_In(const double &t, double x1, double x2, double x3)
+{
+    // 参数校验：确保 t 在 0 到 1 之间
+    if (t < 0.0 || t > 1.0)
+    {
+        throw std::invalid_argument("Parameter t must be in the range [0, 1]");
+    }
+
+    double controlPoint1 = (x2 - x1) * t + x1;                                // 第一个控制点
+    double controlPoint2 = (x3 - x2) * t + x2;                                // 第二个控制点
+    double finalPoint = (controlPoint2 - controlPoint1) * t + controlPoint1;  // 最终点
+
+    return finalPoint;
+}
+
+std::vector<silly_poly> silly_vectorizer::smooth_poly(const std::vector<silly_poly> &polys)
+
+{
+    std::vector<silly_poly> smooth_polys;
+    for (auto poly : polys)
+    {
+        silly_poly smooth_poly;
+        double x = 0, y = 0;
+        size_t p_size = poly.outer_ring.points.size();
+        for (int j = 0; j < poly.outer_ring.points.size(); j++)
+        {
+            double bzr_step = 1.0 / m_smooth;
+            double t = bzr_step;
+
+            // 取中点作为控制点
+            size_t m1 = j + 1, m2 = j + 2;
+            m1 = m1 < p_size ? m1 : m1 - p_size;
+            m2 = m2 < p_size ? m2 : m2 - p_size;
+            double x0 = (poly.outer_ring.points[j].lgtd + poly.outer_ring.points[m1].lgtd) / 2;
+            double y0 = (poly.outer_ring.points[j].lttd + poly.outer_ring.points[m1].lttd) / 2;
+            double x2 = (poly.outer_ring.points[m2].lgtd + poly.outer_ring.points[m1].lgtd) / 2;
+            double y2 = (poly.outer_ring.points[m2].lttd + poly.outer_ring.points[m1].lttd) / 2;
+
+            smooth_poly.outer_ring.points.emplace_back(x0, y0);
+            for (int k = 0; k < m_smooth; k++)
+            {
+                x = bezier_In(t, x0, poly.outer_ring.points[m1].lgtd, x2);
+                y = bezier_In(t, y0, poly.outer_ring.points[m1].lttd, y2);
+                smooth_poly.outer_ring.points.emplace_back(x, y);
+                t += bzr_step;
+            }
+        }
+        for (auto ring : poly.inner_rings)
+        {
+            while (ring.points.back() == ring.points.front())
+            {
+                ring.points.pop_back();
+            }
+            silly_ring smooth_ring;
+            p_size = ring.points.size();
+
+            for (int j = 0; j < ring.points.size(); j++)
+            {
+                double bzr_step = 1.0 / m_smooth;
+                double t = bzr_step;
+
+                // 取中点作为控制点
+                size_t m1 = j + 1, m2 = j + 2;
+                m1 = m1 < p_size ? m1 : m1 - p_size;
+                m2 = m2 < p_size ? m2 : m2 - p_size;
+                double x0 = (ring.points[j].lgtd + ring.points[m1].lgtd) / 2;
+                double y0 = (ring.points[j].lttd + ring.points[m1].lttd) / 2;
+                double x2 = (ring.points[m2].lgtd + ring.points[m1].lgtd) / 2;
+                double y2 = (ring.points[m2].lttd + ring.points[m1].lttd) / 2;
+
+                smooth_ring.points.emplace_back(x0, y0);
+                for (int k = 0; k < m_smooth; k++)
+                {
+                    x = bezier_In(t, x0, ring.points[m1].lgtd, x2);
+                    y = bezier_In(t, y0, ring.points[m1].lttd, y2);
+                    smooth_ring.points.emplace_back(x, y);
+                    t += bzr_step;
+                }
+            }
+            smooth_poly.inner_rings.emplace_back(smooth_ring);
+        }
+
+        smooth_polys.push_back(smooth_poly);
+    }
+    return smooth_polys;
+}
+
+bool is_less_than_slope(const silly_point &p1, const silly_point &p2, const silly_point &p3, const double angle)
+{
+    // double slope = 0.1;// std::tan(std::abs(angle));
+    double x1_diff = p2.lgtd - p1.lgtd;
+    double x2_diff = p3.lgtd - p2.lgtd;
+    double y1_diff = p2.lttd - p1.lttd;
+    double y2_diff = p3.lttd - p2.lttd;
+
+    // 检查分母是否接近零，避免除以零的情况
+    if (std::abs(x1_diff) < SILLY_GEO_FLOAT_IGNORE_DIFF || std::abs(x2_diff) < SILLY_GEO_FLOAT_IGNORE_DIFF)
+    {
+        if (std::abs(x1_diff - x2_diff) < SILLY_GEO_FLOAT_IGNORE_DIFF)
+        {
+            return true;  // 两点间几乎平行，视作通过测试
+        }
+        return false;  // 其他情况下，由于无法计算斜率，返回false
+    }
+
+    // 使用std::atan2直接处理象限问题，并避免了不必要的数学常数转换
+    double angle1 = std::atan2(y1_diff, x1_diff) * 180.0 / M_PI;
+    double angle2 = std::atan2(y2_diff, x2_diff) * 180.0 / M_PI;
+
+    // 考虑角度的周期性，确保不丢失解决方案
+    double diff = std::abs(angle1 - angle2);
+    if (diff < angle)
+    {
+        return true;
+    }
+    else if (diff > 180.0 - angle)
+    {
+        // 如果两个角度的差值大于180度减去指定角度，则调整角度差，使其小于180度
+        return true;
+    }
+
+    return false;
+}
+
+std::vector<silly_poly> silly_vectorizer::simplify_poly(const std::vector<silly_poly> &polys, const double &angle)
+{
+    std::vector<silly_poly> simple_polys;
+    for (auto poly : polys)
+    {
+        silly_poly simple_poly;
+
+        size_t p_size = poly.outer_ring.points.size();
+        simple_poly.outer_ring.points.push_back(poly.outer_ring.points[0]);
+        double x = 0, y = 0;
+        for (int j = 0; j < poly.outer_ring.points.size(); j++)
+        {
+            // 取中点作为控制点
+            size_t m1 = j + 1, m2 = j + 2;
+            m1 = m1 < p_size ? m1 : m1 - p_size;
+            m2 = m2 < p_size ? m2 : m2 - p_size;
+            if (!is_less_than_slope(simple_poly.outer_ring.points.back(), poly.outer_ring.points[m1], poly.outer_ring.points[m2], angle))  // 角度相差过大就把当中间点塞进去
+            {
+                simple_poly.outer_ring.points.emplace_back(poly.outer_ring.points[m1]);
+            }
+        }
+
+        for (auto ring : poly.inner_rings)
+        {
+            while (ring.points.back() == ring.points.front())
+            {
+                ring.points.pop_back();
+            }
+            silly_ring simple_ring;
+            simple_ring.points.push_back(ring.points[0]);
+            p_size = ring.points.size();
+            double x = 0, y = 0;
+            for (int j = 0; j < ring.points.size(); j++)
+            {
+                // 取中点作为控制点
+                size_t m1 = j + 1, m2 = j + 2;
+                m1 = m1 < p_size ? m1 : m1 - p_size;
+                m2 = m2 < p_size ? m2 : m2 - p_size;
+                if (!is_less_than_slope(simple_ring.points.back(), ring.points[m1], ring.points[m2], angle))  // 角度相差过大就把当中间点塞进去
+                {
+                    simple_ring.points.emplace_back(ring.points[m1]);
+                }
+            }
+            simple_poly.inner_rings.emplace_back(simple_ring);
+        }
+
+        simple_polys.emplace_back(simple_poly);
+    }
+
+    return simple_polys;
 }
