@@ -106,6 +106,7 @@ class silly_vectorizer
 
     std::vector<silly_poly> smooth_poly(const std::vector<silly_poly> &polys);
     std::vector<silly_poly> simplify_poly(const std::vector<silly_poly> &polys, const double &angle = 5.0);
+    std::vector<silly_poly> simplify_poly_mid_point(const std::vector<silly_poly> &polys);
 
 
 

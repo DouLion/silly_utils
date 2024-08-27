@@ -816,13 +816,13 @@ std::vector<silly_poly> silly_vectorizer::smooth_poly(const std::vector<silly_po
 bool is_less_than_slope(const silly_point &p1, const silly_point &p2, const silly_point &p3, const double angle)
 {
     // double slope = 0.1;// std::tan(std::abs(angle));
-    double x1_diff = p2.lgtd - p1.lgtd;
-    double x2_diff = p3.lgtd - p2.lgtd;
-    double y1_diff = p2.lttd - p1.lttd;
-    double y2_diff = p3.lttd - p2.lttd;
+    double x1_diff = std::abs(p2.lgtd - p1.lgtd);
+    double y1_diff = std::abs(p2.lttd - p1.lttd);
+    double x2_diff = std::abs(p3.lgtd - p1.lgtd);
+    double y2_diff = std::abs(p3.lttd - p1.lttd);
 
     // 检查分母是否接近零，避免除以零的情况
-    if (std::abs(x1_diff) < SILLY_GEO_FLOAT_IGNORE_DIFF || std::abs(x2_diff) < SILLY_GEO_FLOAT_IGNORE_DIFF)
+    if (x1_diff < SILLY_GEO_FLOAT_IGNORE_DIFF || x2_diff < SILLY_GEO_FLOAT_IGNORE_DIFF)
     {
         if (std::abs(x1_diff - x2_diff) < SILLY_GEO_FLOAT_IGNORE_DIFF)
         {
@@ -860,14 +860,19 @@ std::vector<silly_poly> silly_vectorizer::simplify_poly(const std::vector<silly_
         size_t p_size = poly.outer_ring.points.size();
         simple_poly.outer_ring.points.push_back(poly.outer_ring.points[0]);
         double x = 0, y = 0;
-        for (int j = 0; j < poly.outer_ring.points.size(); j++)
+        int bi = 0;
+        for (int j = 1; j <= p_size, bi <= p_size; j++)
         {
-            // 取中点作为控制点
-            size_t m1 = j + 1, m2 = j + 2;
-            m1 = m1 < p_size ? m1 : m1 - p_size;
-            m2 = m2 < p_size ? m2 : m2 - p_size;
-            if (!is_less_than_slope(simple_poly.outer_ring.points.back(), poly.outer_ring.points[m1], poly.outer_ring.points[m2], angle))  // 角度相差过大就把当中间点塞进去
+           /* size_t m1 = j + 1, m2 = j + 2;
+           */
+           size_t m1 = j;
+           size_t m2 = bi+1;
+           size_t m0 = bi < p_size ? bi : bi - p_size;
+           m1 = m1 < p_size ? m1 : m1 - p_size;
+           m2 = m2 < p_size ? m2 : m2 - p_size;
+            if (!is_less_than_slope(poly.outer_ring.points[m0], poly.outer_ring.points[m1], poly.outer_ring.points[m2], angle))  // 角度相差过大就把当中间点塞进去
             {
+                bi = j;
                 simple_poly.outer_ring.points.emplace_back(poly.outer_ring.points[m1]);
             }
         }
@@ -881,7 +886,6 @@ std::vector<silly_poly> silly_vectorizer::simplify_poly(const std::vector<silly_
             silly_ring simple_ring;
             simple_ring.points.push_back(ring.points[0]);
             p_size = ring.points.size();
-            double x = 0, y = 0;
             for (int j = 0; j < ring.points.size(); j++)
             {
                 // 取中点作为控制点
@@ -893,6 +897,56 @@ std::vector<silly_poly> silly_vectorizer::simplify_poly(const std::vector<silly_
                     simple_ring.points.emplace_back(ring.points[m1]);
                 }
             }
+            simple_poly.inner_rings.emplace_back(simple_ring);
+        }
+
+        simple_polys.emplace_back(simple_poly);
+    }
+
+    return simple_polys;
+}
+std::vector<silly_poly> silly_vectorizer::simplify_poly_mid_point(const std::vector<silly_poly> &polys)
+{
+    std::vector<silly_poly> simple_polys;
+    for (auto poly : polys)
+    {
+        silly_poly simple_poly;
+
+        size_t p_size = poly.outer_ring.points.size();
+        double x = 0, y = 0;
+        int j = 0;
+        for (; j < poly.outer_ring.points.size()-1; j++)
+        {
+
+            x = (poly.outer_ring.points[j].lgtd + poly.outer_ring.points[j+1].lgtd) / 2;
+            y = (poly.outer_ring.points[j].lttd + poly.outer_ring.points[j+1].lttd) / 2;
+            simple_poly.outer_ring.points.push_back({x, y});
+        }
+        x = (poly.outer_ring.points[j].lgtd + poly.outer_ring.points[0].lgtd) / 2;
+        y = (poly.outer_ring.points[j].lttd + poly.outer_ring.points[0].lttd) / 2;
+        simple_poly.outer_ring.points.push_back({x, y});
+        simple_poly.outer_ring.points.push_back(poly.outer_ring.points[0]);
+
+        for (auto ring : poly.inner_rings)
+        {
+            while (ring.points.back() == ring.points.front())
+            {
+                ring.points.pop_back();
+            }
+            silly_ring simple_ring;
+            simple_ring.points.push_back(ring.points[0]);
+            p_size = ring.points.size();
+            for (j = 0; j < ring.points.size()-1; j++)
+            {
+                // 取中点作为控制点
+                x = (ring.points[j].lgtd + ring.points[j+1].lgtd) / 2;
+                y = (ring.points[j].lttd + ring.points[j+1].lttd) / 2;
+                simple_ring.points.push_back({x, y});
+            }
+            x = (ring.points[j].lgtd + ring.points[0].lgtd) / 2;
+            y = (ring.points[j].lttd + ring.points[0].lttd) / 2;
+            simple_ring.points.push_back({x, y});
+            simple_ring.points.push_back(simple_ring.points[0]);
             simple_poly.inner_rings.emplace_back(simple_ring);
         }
 
