@@ -39,7 +39,6 @@ class silly_geo_utils
     /// </summary>
     static void destroy_gdal_env();
 
-
     /// <summary>
     /// 求一个面的形心(几何中心),利用ogr库算法
     /// </summary>
@@ -54,7 +53,7 @@ class silly_geo_utils
     /// </summary>
     /// <param name="poly"></param>
     /// <returns></returns>
-    static silly_geo_coll intersection_area(silly_poly poly_main, silly_poly poly_deputy);
+    static std::vector<silly_poly> intersection_area(silly_poly poly_main, silly_poly poly_deputy);
 
     /// <summary>
     /// 求两个点的方位角,p2相对于p1的方位角(左上角右下角坐标系均可), 正北方向为0度,顺时针
@@ -107,121 +106,148 @@ class silly_geo_utils
     /// <returns></returns>
     static bool get_driver_name(const char* file, std::string& driverName);
 
-    // ================ gdal中矢量与silly utils中矢量互转 ================
-
-    // ================ 单环 ================
+    /// <summary>
+    /// 两个面是否相交
+    /// </summary>
+    /// <param name="mpoly1"></param>
+    /// <param name="mpoly2"></param>
+    /// <returns></returns>
+    static bool intersect(const silly_multi_poly& mpoly1, const silly_multi_poly& mpoly2);
 
     /// <summary>
-    /// 将 silly_ring 转换为 OGRPolygon
+    /// 点是否在面内
     /// </summary>
-    /// <param name="ring"></param>
+    /// <param name="point"></param>
+    /// <param name="mpoly"></param>
     /// <returns></returns>
-    static OGRPolygon* SillyRingToPolygon(const silly_ring& ring);
+    static bool intersect(const silly_point& point, const silly_multi_poly& mpoly);
 
     /// <summary>
-    /// 环OGRLinearRing对象，将其转换为silly_ring对象  (环)
+    /// 两个面的相交区域
     /// </summary>
-    /// <param name="ring"></param>
+    /// <param name="mpoly1"></param>
+    /// <param name="mpoly2"></param>
     /// <returns></returns>
-    static silly_ring OGRRingToSillyRing(OGRLinearRing* ring);
+    static std::vector<silly_poly> intersection(const silly_multi_poly& mpoly1, const silly_multi_poly& mpoly2);
 
-    // ================ 单点 ================
+
+    /// ================ gdal中矢量与silly utils中矢量互转 ================
+
+
+    /// ================ 单点 ================
 
     /// <summary>
     /// 将 OGRPoint(单点) 转换为 silly_point(单点) 类型
     /// </summary>
     /// <param name="ogrPoint"></param>
     /// <returns></returns>
-    static silly_point OGRPointToSillyPoint(OGRPoint* ogrPoint);
+    static silly_point silly_point_from_ogr(const OGRPoint* ogrPoint);
 
     /// <summary>
     /// 将 silly_point(单点) 转换为 OGRPoint(单点) 类型
     /// </summary>
     /// <param name="point"></param>
     /// <returns></returns>
-    static OGRPoint* SillyPointToOGRPoint(const silly_point& point);
+    static OGRPoint silly_point_to_ogr(const silly_point& point);
 
-    // ================ 多点 ================
+    /// ================ 多点 ================
 
     /// <summary>
     /// 将 OGRMultiPoint(多点) 转换为 silly_multi_point(多点) 类型
     /// </summary>
     /// <param name="ogrMultiPoint"></param>
     /// <returns></returns>
-    static silly_multi_point OGRMulPointToSillyMulPoint(OGRMultiPoint* ogrMultiPoint);
+    static silly_multi_point silly_multi_point_from_ogr(const OGRMultiPoint* ogrMultiPoint);
 
     /// <summary>
     /// 将 silly_multi_point(多点) 转换为 OGRMultiPoint(多点) 类型
     /// </summary>
     /// <param name="mulitPoint"></param>
     /// <returns></returns>
-    static OGRMultiPoint* SillyMulPointToOGRMulPoint(const silly_multi_point& mulitPoint);
+    static OGRMultiPoint silly_multi_point_to_ogr(const silly_multi_point& mulitPoint);
 
-    // ================ 单线 ================
+    /// ================ 单线 ================
 
     /// <summary>
     /// OGRLineString(线)类型转为silly_line(线)类型
     /// </summary>
     /// <param name="lineString"></param>
     /// <returns></returns>
-    static silly_line OGRLineToSillyLine(OGRLineString* lineString);
+    static silly_line silly_line_from_ogr(const OGRLineString* lineString);
 
     /// <summary>
     /// 将 silly_line(线) 转换为 OGRLineString(线)类型
     /// </summary>
     /// <param name="line"></param>
     /// <returns></returns>
-    static OGRLineString* SillyLineToOGRLine(const silly_line& line);
+    static OGRLineString silly_line_to_ogr(const silly_line& line);
 
-    // ================ 多线 ================
+    /// ================ 多线 ================
 
     /// <summary>
     /// OGRMultiLineString(多线)类型转为 silly_multiline(多线)类型
     /// </summary>
     /// <param name="multiLineString"></param>
     /// <returns></returns>
-    static silly_multi_silly_line OGRMulLineToSillyMulLine(OGRMultiLineString* multiLineString);
+    static silly_multi_silly_line silly_multi_line_from_ogr(const OGRMultiLineString* multiLineString);
 
     /// <summary>
     /// 将 silly_multiline(多线) 转换为 OGRMultiLineString(多线)类型
     /// </summary>
     /// <param name="multiLine"></param>
     /// <returns></returns>
-    static OGRMultiLineString* SillyMulLineToOGRMulLine(const silly_multi_silly_line& multiLine);
+    static OGRMultiLineString silly_multi_line_to_ogr(const silly_multi_silly_line& multiLine);
 
-    // ================ 单面 ================
+    /// ================ 闭合环 ================
+
+    /// <summary>
+    /// 环OGRLinearRing对象，将其转换为silly_ring对象  (环)
+    /// </summary>
+    /// <param name="ring"></param>
+    /// <returns></returns>
+    static silly_ring silly_ring_from_ogr(const OGRLinearRing* ring);
+
+    /// <summary>
+    /// 将 silly_ring 转换为 OGRPolygon
+    /// </summary>
+    /// <param name="ring"></param>
+    /// <returns></returns>
+    static OGRLinearRing silly_ring_to_ogr(const silly_ring& ring);
+
+
+    /// ================ 单面 ================
 
     /// <summary>
     /// OGRPolygon 对象转换为 silly_poly (多环:外环+内环)对象  (单面)
     /// </summary>
     /// <param name="polygon"></param>
     /// <returns></returns>
-    static silly_poly OGRPolyToSillyPoly(OGRPolygon* polygon);
+    static silly_poly silly_poly_from_ogr(const OGRPolygon* polygon);
 
     /// <summary>
     /// 将 silly_poly 转换为 OGRPolygon(单面)
     /// </summary>
     /// <param name="poly"></param>
     /// <returns></returns>
-    static OGRPolygon* SillyPolyToOGRPoly(const silly_poly& poly);
+    static OGRPolygon silly_poly_to_ogr(const silly_poly& poly);
 
-    // ================ 多面 ================
+    /// ================ 多面 ================
 
     /// <summary>
     /// 多面的OGRMultiPolygon对象转换为silly_multi_poly(多面)
     /// </summary>
     /// <param name="multiPolygon"></param>
     /// <returns></returns>
-    static silly_multi_poly OGRMulPolyToSillyMulPoly(OGRMultiPolygon* multiPolygon);
+    static silly_multi_poly silly_multi_poly_from_ogr(const OGRMultiPolygon* multiPolygon);
 
     /// <summary>
     /// 将silly_multi_poly对象转换为OGRMultiPolygon对象(多面)
     /// </summary>
     /// <param name="multiPoly"></param>
     /// <returns></returns>
-    static OGRMultiPolygon* SillyMulPolyToOGRMulPoly(const silly_multi_poly& multiPoly);
+    static OGRMultiPolygon silly_multi_poly_to_ogr(const silly_multi_poly& multiPoly);
 };
 
-typedef silly_geo_utils geo_utils; // 兼容之前的写法
+typedef silly_geo_utils geo_utils;  // 兼容之前的写法
 
 #endif  // SILLY_UTILS_SILLY_GEO_OPERATION_H
