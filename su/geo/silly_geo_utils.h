@@ -70,7 +70,7 @@ class silly_geo_utils
     /// <param name="collection"></param>
     /// <returns></returns>
     /// 注:读取 shp , geojson 类型文件中可以实现
-    static bool read_geo_coll(const std::string& file, std::vector<silly_geo_coll>& collections);
+    static bool read_geo_coll(const std::string& file, std::vector<silly_geo_coll>& collections, const bool& ignore_prop = false);
 
     /// <summary>
     /// 将silly_geo_coll数据结构写入矢量文件(如shp文件)

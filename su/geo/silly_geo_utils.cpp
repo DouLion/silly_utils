@@ -542,7 +542,7 @@ bool read_all_types_data(const enum_geometry_type& feature_type, const OGRGeomet
     return status;
 }
 
-bool geo_utils::read_geo_coll(const std::string& file, std::vector<silly_geo_coll>& collections)
+bool geo_utils::read_geo_coll(const std::string& file, std::vector<silly_geo_coll>& collections, const bool& ignore_prop)
 {
     bool status = false;
 
@@ -598,7 +598,10 @@ bool geo_utils::read_geo_coll(const std::string& file, std::vector<silly_geo_col
             OGRGeometry* geometry = feature->GetGeometryRef();  // 获取矢量数据
             enum_geometry_type feature_type = (enum_geometry_type)wkbFlatten(geometry->getGeometryType());
             temp_geo_coll.m_type = feature_type;                                  // 添加矢量数据类型
-            read_property(feature, properties, temp_geo_coll.m_props);            // 读取属性数据
+            if(ignore_prop)
+            {
+                read_property(feature, properties, temp_geo_coll.m_props);            // 读取属性数据
+            }
             status = read_all_types_data(feature_type, geometry, temp_geo_coll);  // 添加所有数据类型,如果是复合数据类型会递归的调用
             OGRFeature::DestroyFeature(feature);
             collections.push_back(temp_geo_coll);
