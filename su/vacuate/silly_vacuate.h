@@ -1,20 +1,16 @@
 /*
- * @copyright: Beijing tianzhixiang Information Technology Co., Ltd. All rights
- * reserved.
+ * @copyright: Beijing TianZhiXiang Information Technology Co., Ltd. All rights
+ * reserved. 北京天智祥信息科技有限公司版权所有
  * @website: http://www.tianzhixiang.com.cn/
  * @author: dou li yang
- * @date: 2023/1/16 17:10
- * @version: 1.0.1
- * @software: ThiessenServer
- * @description:
+ * @date: 2024-08-28
+ * @file: silly_vacuate.h
+ * @description: silly_vacuate 类声明   http://sourceforge.net/projects/psimpl/
+ * @version: v1.0.1 2024-08-28 dou li yang
  */
-#pragma once
-
-#ifndef VACUATE_WRAPPER_H
-#define VACUATE_WRAPPER_H
-
-#include <vector>
-
+#ifndef SILLY_UTILS_SILLY_VACUATE_H
+#define SILLY_UTILS_SILLY_VACUATE_H
+#include <su_marco.h>
 enum VacuateAlgorithmType
 {
     NTH_POINT,  // N点: 只保留第一个、最后一个和每个第n个点, 该算法非常快，但不幸的是，它不太擅长保留直线的几何特征。
@@ -28,17 +24,17 @@ enum VacuateAlgorithmType
     DOUGLAS_PEUCKER_VARIANT  // 使用点数容差代替点到边距离容差; 是一次处理单个边缘（选择伪随机）
 };
 
-class vacuate_wrapper
+class silly_vacuate
 {
   public:
-    static bool VacuateNPoint(const int& n, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims = 2);
-    static bool VacuateRadialDistance(const double& radialDistance, const std::vector<double>& points, std::vector<double>& outputs, const int& dims = 2);
-    static bool VacuatePerpendicularDistance(const int& repeat, const double& distance, const std::vector<double>& points, std::vector<double>& outputs, const int& dims = 2);
-    static bool VacuateReumannWitkam(const double& distance, const std::vector<double>& points, std::vector<double>& outputs, const int& dims = 2);
-    static bool VacuateOpheim(const double& minDistance, const double& maxDistance, const std::vector<double>& points, std::vector<double>& outputs, const int& dims = 2);
-    static bool VacuateLang(const int& lookAhead, const double& distance, const std::vector<double>& points, std::vector<double>& outputs, const int& dims = 2);
-    static bool VacuateDouglasPeucker(const double& distance, const std::vector<double>& points, std::vector<double>& outputs, const int& dims = 2);
-    static bool VacuateDouglasPeuckerVariant(const int& pointNum, const std::vector<double>& points, std::vector<double>& outputs, const int& dims = 2);
+    static bool n_point(const int& n, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims = 2);
+    static bool radial_distance(const double& radialDistance, const std::vector<double>& points, std::vector<double>& outputs, const int& dims = 2);
+    static bool perpendicular_distance(const int& repeat, const double& distance, const std::vector<double>& points, std::vector<double>& outputs, const int& dims = 2);
+    static bool reumann_witkam(const double& distance, const std::vector<double>& points, std::vector<double>& outputs, const int& dims = 2);
+    static bool opheim(const double& minDistance, const double& maxDistance, const std::vector<double>& points, std::vector<double>& outputs, const int& dims = 2);
+    static bool lang(const int& lookAhead, const double& distance, const std::vector<double>& points, std::vector<double>& outputs, const int& dims = 2);
+    static bool douglas_peucker(const double& distance, const std::vector<double>& points, std::vector<double>& outputs, const int& dims = 2);
+    static bool douglas_peucker_variant(const int& pointNum, const std::vector<double>& points, std::vector<double>& outputs, const int& dims = 2);
 };
 
-#endif  // VACUATE_WRAPPER_H
+#endif  // SILLY_UTILS_SILLY_VACUATE_H

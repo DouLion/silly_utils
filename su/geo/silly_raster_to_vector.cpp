@@ -4,6 +4,7 @@
 
 #include "silly_raster_to_vector.h"
 #include <log/silly_log.h>
+#include <vacuate/silly_vacuate.h>
 
 #define RECURSION_TRACE_LINE(r, c)                               \
     if (r > -1 && c > -1 && r < m_height + 2 && c < m_width + 2) \
@@ -673,14 +674,14 @@ std::vector<silly_poly> silly_vectorizer::vectorize(const std::vector<trace_squa
 }
 void silly_vectorizer::set(const trace_grid_info &info)
 {
-    m_height = info.height;
-    m_width = info.width;
     m_left = info.left;
     m_right = info.right;
     m_top = info.top;
     m_bottom = info.bottom;
     m_xdelta = info.xdelta;
     m_ydelta = info.ydelta;
+    m_width = std::round((m_right - m_left) / m_xdelta);
+    m_height = std::round((m_top - m_bottom) / m_ydelta);
 }
 void silly_vectorizer::set(const trace_algo_info &info)
 {
@@ -747,160 +748,63 @@ std::vector<silly_poly> silly_vectorizer::smooth_poly(const std::vector<silly_po
     std::vector<silly_poly> smooth_polys;
     for (auto poly : polys)
     {
-        silly_poly smooth_poly;
-        double x = 0, y = 0;
-        size_t p_size = poly.outer_ring.points.size();
-        for (int j = 0; j < poly.outer_ring.points.size(); j++)
-        {
-            double bzr_step = 1.0 / m_smooth;
-            double t = bzr_step;
+        silly_poly tmp;
+        tmp.outer_ring = smooth_ring(poly.outer_ring);
 
-            // 取中点作为控制点
-            size_t m1 = j + 1, m2 = j + 2;
-            m1 = m1 < p_size ? m1 : m1 - p_size;
-            m2 = m2 < p_size ? m2 : m2 - p_size;
-            double x0 = (poly.outer_ring.points[j].lgtd + poly.outer_ring.points[m1].lgtd) / 2;
-            double y0 = (poly.outer_ring.points[j].lttd + poly.outer_ring.points[m1].lttd) / 2;
-            double x2 = (poly.outer_ring.points[m2].lgtd + poly.outer_ring.points[m1].lgtd) / 2;
-            double y2 = (poly.outer_ring.points[m2].lttd + poly.outer_ring.points[m1].lttd) / 2;
-
-            smooth_poly.outer_ring.points.emplace_back(x0, y0);
-            for (int k = 0; k < m_smooth; k++)
-            {
-                x = bezier_In(t, x0, poly.outer_ring.points[m1].lgtd, x2);
-                y = bezier_In(t, y0, poly.outer_ring.points[m1].lttd, y2);
-                smooth_poly.outer_ring.points.emplace_back(x, y);
-                t += bzr_step;
-            }
-        }
         for (auto ring : poly.inner_rings)
         {
-            while (ring.points.back() == ring.points.front())
-            {
-                ring.points.pop_back();
-            }
-            silly_ring smooth_ring;
-            p_size = ring.points.size();
-
-            for (int j = 0; j < ring.points.size(); j++)
-            {
-                double bzr_step = 1.0 / m_smooth;
-                double t = bzr_step;
-
-                // 取中点作为控制点
-                size_t m1 = j + 1, m2 = j + 2;
-                m1 = m1 < p_size ? m1 : m1 - p_size;
-                m2 = m2 < p_size ? m2 : m2 - p_size;
-                double x0 = (ring.points[j].lgtd + ring.points[m1].lgtd) / 2;
-                double y0 = (ring.points[j].lttd + ring.points[m1].lttd) / 2;
-                double x2 = (ring.points[m2].lgtd + ring.points[m1].lgtd) / 2;
-                double y2 = (ring.points[m2].lttd + ring.points[m1].lttd) / 2;
-
-                smooth_ring.points.emplace_back(x0, y0);
-                for (int k = 0; k < m_smooth; k++)
-                {
-                    x = bezier_In(t, x0, ring.points[m1].lgtd, x2);
-                    y = bezier_In(t, y0, ring.points[m1].lttd, y2);
-                    smooth_ring.points.emplace_back(x, y);
-                    t += bzr_step;
-                }
-            }
-            smooth_poly.inner_rings.emplace_back(smooth_ring);
+            tmp.inner_rings.push_back(smooth_ring(ring));
         }
 
-        smooth_polys.push_back(smooth_poly);
+        smooth_polys.push_back(tmp);
     }
     return smooth_polys;
 }
 
 bool is_less_than_slope(const silly_point &p1, const silly_point &p2, const silly_point &p3, const double angle)
 {
-    // double slope = 0.1;// std::tan(std::abs(angle));
-    double x1_diff = std::abs(p2.lgtd - p1.lgtd);
-    double y1_diff = std::abs(p2.lttd - p1.lttd);
-    double x2_diff = std::abs(p3.lgtd - p1.lgtd);
-    double y2_diff = std::abs(p3.lttd - p1.lttd);
-
+    double x1_diff = p2.lgtd - p1.lgtd;
+    double y1_diff = p2.lttd - p1.lttd;
+    double x2_diff = p3.lgtd - p1.lgtd;
+    double y2_diff = p3.lttd - p1.lttd;
+    double angle1 = 90.0f, angle2 = 90.0f;
     // 检查分母是否接近零，避免除以零的情况
-    if (x1_diff < SILLY_GEO_FLOAT_IGNORE_DIFF || x2_diff < SILLY_GEO_FLOAT_IGNORE_DIFF)
+    if (std::abs(x1_diff) > SILLY_GEO_FLOAT_IGNORE_DIFF)
     {
-        if (std::abs(x1_diff - x2_diff) < SILLY_GEO_FLOAT_IGNORE_DIFF)
-        {
-            return true;  // 两点间几乎平行，视作通过测试
-        }
-        return false;  // 其他情况下，由于无法计算斜率，返回false
+        angle1 = std::atan2(y1_diff, x1_diff) * 180.0 / PI;
     }
-
-    // 使用std::atan2直接处理象限问题，并避免了不必要的数学常数转换
-    double angle1 = std::atan2(y1_diff, x1_diff) * 180.0 / M_PI;
-    double angle2 = std::atan2(y2_diff, x2_diff) * 180.0 / M_PI;
+    if (std::abs(x2_diff) > SILLY_GEO_FLOAT_IGNORE_DIFF)
+    {
+        angle2 = std::atan2(y2_diff, x2_diff) * 180.0 / PI;
+    }
 
     // 考虑角度的周期性，确保不丢失解决方案
-    double diff = std::abs(angle1 - angle2);
-    if (diff < angle)
+    if (std::abs(angle1 - angle2) < angle)
     {
-        return true;
-    }
-    else if (diff > 180.0 - angle)
-    {
-        // 如果两个角度的差值大于180度减去指定角度，则调整角度差，使其小于180度
         return true;
     }
 
     return false;
 }
 
-std::vector<silly_poly> silly_vectorizer::simplify_poly(const std::vector<silly_poly> &polys, const double &angle)
+std::vector<silly_poly> silly_vectorizer::simplify_poly_less_angle(const std::vector<silly_poly> &polys, const double &angle)
 {
     std::vector<silly_poly> simple_polys;
     for (auto poly : polys)
     {
         silly_poly simple_poly;
 
-        size_t p_size = poly.outer_ring.points.size();
-        simple_poly.outer_ring.points.push_back(poly.outer_ring.points[0]);
-        double x = 0, y = 0;
-        int bi = 0;
-        for (int j = 1; j <= p_size, bi <= p_size; j++)
-        {
-           /* size_t m1 = j + 1, m2 = j + 2;
-           */
-           size_t m1 = j;
-           size_t m2 = bi+1;
-           size_t m0 = bi < p_size ? bi : bi - p_size;
-           m1 = m1 < p_size ? m1 : m1 - p_size;
-           m2 = m2 < p_size ? m2 : m2 - p_size;
-            if (!is_less_than_slope(poly.outer_ring.points[m0], poly.outer_ring.points[m1], poly.outer_ring.points[m2], angle))  // 角度相差过大就把当中间点塞进去
-            {
-                bi = j;
-                simple_poly.outer_ring.points.emplace_back(poly.outer_ring.points[m1]);
-            }
-        }
+
+
+        simple_poly.outer_ring = simplify_ring_douglas(poly.outer_ring, angle);
 
         for (auto ring : poly.inner_rings)
         {
-            while (ring.points.back() == ring.points.front())
-            {
-                ring.points.pop_back();
-            }
-            silly_ring simple_ring;
-            simple_ring.points.push_back(ring.points[0]);
-            p_size = ring.points.size();
-            for (int j = 0; j < ring.points.size(); j++)
-            {
-                // 取中点作为控制点
-                size_t m1 = j + 1, m2 = j + 2;
-                m1 = m1 < p_size ? m1 : m1 - p_size;
-                m2 = m2 < p_size ? m2 : m2 - p_size;
-                if (!is_less_than_slope(simple_ring.points.back(), ring.points[m1], ring.points[m2], angle))  // 角度相差过大就把当中间点塞进去
-                {
-                    simple_ring.points.emplace_back(ring.points[m1]);
-                }
-            }
-            simple_poly.inner_rings.emplace_back(simple_ring);
+            simple_poly.inner_rings.push_back(simplify_ring_douglas(ring, angle));
         }
 
         simple_polys.emplace_back(simple_poly);
+        // break;
     }
 
     return simple_polys;
@@ -915,11 +819,10 @@ std::vector<silly_poly> silly_vectorizer::simplify_poly_mid_point(const std::vec
         size_t p_size = poly.outer_ring.points.size();
         double x = 0, y = 0;
         int j = 0;
-        for (; j < poly.outer_ring.points.size()-1; j++)
+        for (; j < poly.outer_ring.points.size() - 1; j++)
         {
-
-            x = (poly.outer_ring.points[j].lgtd + poly.outer_ring.points[j+1].lgtd) / 2;
-            y = (poly.outer_ring.points[j].lttd + poly.outer_ring.points[j+1].lttd) / 2;
+            x = (poly.outer_ring.points[j].lgtd + poly.outer_ring.points[j + 1].lgtd) / 2;
+            y = (poly.outer_ring.points[j].lttd + poly.outer_ring.points[j + 1].lttd) / 2;
             simple_poly.outer_ring.points.push_back({x, y});
         }
         x = (poly.outer_ring.points[j].lgtd + poly.outer_ring.points[0].lgtd) / 2;
@@ -936,11 +839,11 @@ std::vector<silly_poly> silly_vectorizer::simplify_poly_mid_point(const std::vec
             silly_ring simple_ring;
             simple_ring.points.push_back(ring.points[0]);
             p_size = ring.points.size();
-            for (j = 0; j < ring.points.size()-1; j++)
+            for (j = 0; j < ring.points.size() - 1; j++)
             {
                 // 取中点作为控制点
-                x = (ring.points[j].lgtd + ring.points[j+1].lgtd) / 2;
-                y = (ring.points[j].lttd + ring.points[j+1].lttd) / 2;
+                x = (ring.points[j].lgtd + ring.points[j + 1].lgtd) / 2;
+                y = (ring.points[j].lttd + ring.points[j + 1].lttd) / 2;
                 simple_ring.points.push_back({x, y});
             }
             x = (ring.points[j].lgtd + ring.points[0].lgtd) / 2;
@@ -954,4 +857,182 @@ std::vector<silly_poly> silly_vectorizer::simplify_poly_mid_point(const std::vec
     }
 
     return simple_polys;
+}
+std::vector<silly_poly> silly_vectorizer::simplify_poly_same_slope(const std::vector<silly_poly> &polys)
+{
+    std::vector<silly_poly> result;
+    for (auto poly : polys)
+    {
+        silly_poly tmp;
+        tmp.outer_ring = simplify_ring_same_slope(poly.outer_ring);
+        for (auto ring : poly.inner_rings)
+        {
+            tmp.inner_rings.push_back(simplify_ring_same_slope(ring));
+        }
+        result.push_back(tmp);
+        // break;
+    }
+
+    return result;
+}
+size_t silly_vectorizer::width() const
+{
+    return m_width;
+}
+size_t silly_vectorizer::height() const
+{
+    return m_height;
+}
+silly_ring silly_vectorizer::simplify_ring_same_slope(const silly_ring &ring)
+{
+    silly_ring result;
+    if (ring.points.size() < 3)
+    {
+        return ring;
+    }
+    int i = 0;
+    int num = ring.points.size();
+    result.points.push_back(ring.points[0]);
+    for (; i < num; ++i)
+    {
+        int n1 = (i + 1) % num, n2 = (i + 2) % num;
+        double dx1 = ring.points[n1].lgtd - ring.points[i].lgtd;
+        double dy1 = ring.points[n1].lttd - ring.points[i].lttd;
+        double dx2 = ring.points[n2].lgtd - ring.points[n1].lgtd;
+        double dy2 = ring.points[n2].lttd - ring.points[n1].lttd;
+
+        double slope1 = 1.0e10, slope2 = 1.0e10;
+        if (std::abs(dx1) > SILLY_GEO_FLOAT_IGNORE_DIFF)
+        {
+            slope1 = dy1 / dx1;
+        }
+        if (std::abs(dx2) > SILLY_GEO_FLOAT_IGNORE_DIFF)
+        {
+            slope2 = dy2 / dx2;
+        }
+
+        if (std::abs(slope1 - slope2) < SILLY_GEO_FLOAT_IGNORE_DIFF)
+        {
+            continue;
+        }
+        result.points.push_back(ring.points[i]);
+    }
+
+    return result;
+}
+silly_ring silly_vectorizer::simplify_ring_less_angle(const silly_ring &ring, double angle)
+{
+    silly_ring result;
+    if (ring.points.size() < 3)
+    {
+        return result;
+    }
+
+    int num = ring.points.size();
+    int limit_num = num;
+    if(ring.points.front() == ring.points.back())
+    {
+        limit_num--;
+    }
+    result.points.push_back(ring.points[0]);
+    for (int i = 1; i < num; ++i)
+    {
+        int n1 = (i - 1) % num, n2 = (i + 1) % num;
+        if (!is_less_than_slope(ring.points[i], ring.points[n1], ring.points[n2], angle))
+        {
+            result.points.push_back(ring.points[i]);
+        }
+    }
+    if(result.points.front() != result.points.back())
+    {
+        result.points.push_back(result.points.front());
+    }
+    return result;
+}
+silly_ring silly_vectorizer::smooth_ring(const silly_ring &ring)
+{
+    silly_ring result;
+
+    double x = 0, y = 0;
+    size_t p_size = ring.points.size();
+
+    for (int j = 0; j < p_size; j++)
+    {
+        double bzr_step = 1.0 / m_smooth;
+        double t = bzr_step;
+
+        // 取中点作为控制点
+        size_t m1 = j + 1, m2 = j + 2;
+        m1 = m1 < p_size ? m1 : m1 - p_size;
+        m2 = m2 < p_size ? m2 : m2 - p_size;
+        double x0 = (ring.points[j].lgtd + ring.points[m1].lgtd) / 2;
+        double y0 = (ring.points[j].lttd + ring.points[m1].lttd) / 2;
+        double x2 = (ring.points[m2].lgtd + ring.points[m1].lgtd) / 2;
+        double y2 = (ring.points[m2].lttd + ring.points[m1].lttd) / 2;
+
+        result.points.emplace_back(x0, y0);
+        for (int k = 0; k < m_smooth; k++)
+        {
+            x = bezier_In(t, x0, ring.points[m1].lgtd, x2);
+            y = bezier_In(t, y0, ring.points[m1].lttd, y2);
+            result.points.emplace_back(x, y);
+            t += bzr_step;
+        }
+    }
+    result.points.push_back(ring.points[0]);
+    return result;
+}
+silly_ring silly_vectorizer::simplify_ring_less_angle_1(const silly_ring &ring, double angle)
+{
+    silly_ring result;
+    if (ring.points.size() < 3)
+    {
+        return result;
+    }
+
+    int num = ring.points.size();
+    int limit_num = num;
+    if(ring.points.front() == ring.points.back())
+    {
+        limit_num--;
+    }
+    result.points.push_back(ring.points[0]);
+    int c = 0;
+    for (int i = 0; i < num; ++i)
+    {
+        int n1 = (i + 1) % num, n2 = (i + 2) % num;
+        if (!is_less_than_slope(ring.points[c], ring.points[n1], ring.points[n2], angle))
+        {
+            result.points.push_back(ring.points[i]);
+            c = i;
+        }
+    }
+    if(result.points.front() != result.points.back())
+    {
+        result.points.push_back(result.points.front());
+    }
+    return result;
+}
+silly_ring silly_vectorizer::simplify_ring_douglas(const silly_ring &ring, double dist)
+{
+    silly_ring result;
+    if(ring.points.size() < 3)
+    {
+        return result;
+    }
+    size_t p_size = ring.points.size();
+    std::vector<double> inputs;
+    for(auto p : ring.points)
+    {
+        inputs.emplace_back(p.lgtd);
+        inputs.emplace_back(p.lttd);
+    }
+    std::vector<double> outputs;
+    silly_vacuate::douglas_peucker(dist, inputs, outputs);
+    for(auto i = 0; i < outputs.size()/2; i++)
+    {
+        result.points.push_back({outputs[i*2], outputs[i*2+1]});
+    }
+
+    return result;
 }

@@ -18,7 +18,7 @@
 #include <cstring>
 
 // 小于这个值就认为是同一个值,经纬度小数后8位约1cm精确度
-#define SILLY_GEO_FLOAT_IGNORE_DIFF 1e-8
+#define SILLY_GEO_FLOAT_IGNORE_DIFF 1e-3
 
 // geometry types
 // 点
@@ -147,12 +147,18 @@ struct silly_geo_rect  // 普通坐标点
     }
 };
 
-typedef std::vector<silly_point> silly_multi_point;
+class silly_multi_point : public std::vector<silly_point>
+{
+};
 
 /// 线
-typedef std::vector<silly_point> silly_line;
+class silly_line : public std::vector<silly_point>
+{
+};
 
-typedef std::vector<silly_line> silly_multi_silly_line;
+class silly_multi_silly_line : public std::vector<silly_line>
+{
+};
 
 /// 环
 struct silly_ring
@@ -167,6 +173,8 @@ struct silly_poly  // 普通面
     std::vector<silly_ring> inner_rings;  // 内环
 };
 
-typedef std::vector<silly_poly> silly_multi_poly;
+class silly_multi_poly : public std::vector<silly_poly>
+{
+};
 
 #endif  // SILLY_UTILS_SILLY_GEO_H

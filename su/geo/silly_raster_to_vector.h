@@ -41,8 +41,6 @@ struct trace_square_point
 
 struct trace_grid_info
 {
-    int width{1220};
-    int height{720};
     double xdelta{0.05};
     double ydelta{0.05};
     double left{74.};
@@ -105,10 +103,41 @@ class silly_vectorizer
     void set(const std::vector<trace_square_point>& points, const double& low, const double& high);
 
     std::vector<silly_poly> smooth_poly(const std::vector<silly_poly> &polys);
-    std::vector<silly_poly> simplify_poly(const std::vector<silly_poly> &polys, const double &angle = 5.0);
+    std::vector<silly_poly> simplify_poly_less_angle(const std::vector<silly_poly> &polys, const double &angle);
+    std::vector<silly_poly> simplify_poly_same_slope(const std::vector<silly_poly> &polys);
     std::vector<silly_poly> simplify_poly_mid_point(const std::vector<silly_poly> &polys);
 
+    /// <summary>
+    /// 消除斜率相同的连续点, 以简化环
+    /// </summary>
+    /// <param name="ring"></param>
+    /// <returns></returns>
+    silly_ring simplify_ring_same_slope(const silly_ring& ring);
 
+    /// <summary>
+    /// 跟具连续两个线段的夹角差小于一定一定角度,简化环
+    /// </summary>
+    /// <param name="ring"></param>
+    /// <param name="angle"></param>
+    /// <returns></returns>
+    silly_ring simplify_ring_less_angle(const silly_ring& ring, double angle);
+
+    /// <summary>
+    /// 根据具两个连续点与参照点的夹角差小于一定一定角度,简化环
+    /// </summary>
+    /// <param name="ring"></param>
+    /// <param name="angle"></param>
+    /// <returns></returns>
+    silly_ring simplify_ring_less_angle_1(const silly_ring& ring, double angle);
+    silly_ring smooth_ring(const silly_ring& ring);
+
+    /// <summary>
+    /// 道格拉斯曲线抽稀
+    /// </summary>
+    /// <param name="ring"></param>
+    /// <param name="dist">距离容差, 不确定具体含义,但是调整可以获得更好的效果</param>
+    /// <returns></returns>
+    silly_ring simplify_ring_douglas(const silly_ring& ring, double dist);
 
     /// <summary>
     /// 标记所有大于threshold的点,为提取边界做准备
@@ -136,12 +165,15 @@ class silly_vectorizer
     std::vector<std::vector<silly_point>> trace_all_lines();
     std::vector<silly_poly> trace_all_polys();
 
+    size_t width() const;
+    size_t height() const;
+
   private:
     void fill_mat();
 
-  public:
-    int m_width{1220};
-    int m_height{720};
+  private:
+    int m_width{0};
+    int m_height{0};
     double m_xdelta{0.05};
     double m_ydelta{0.05};
     double m_left{74.};

@@ -87,6 +87,9 @@ class silly_cairo
     /// <param name="sct"></param>
     void draw_text(silly_cairo_text sct);
 
+
+    void draw_point(const silly_point& p, const double& size, const silly_geo_rect& rect);
+
     /// <summary>
     /// 计算字符串占用字符宽度, (约)中文2个宽度,数字字母一个宽度
     /// </summary>

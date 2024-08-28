@@ -1,14 +1,23 @@
-//
-// Created by dly on 2023/1/16.
-//
+/*
+ * @copyright: Beijing TianZhiXiang Information Technology Co., Ltd. All rights
+ * reserved. 北京天智祥信息科技有限公司版权所有
+ * @website: http://www.tianzhixiang.com.cn/
+ * @author: dou li yang
+ * @date: 2024-08-28
+ * @file: silly_vacuate.cpp
+ * @description: silly_vacuate实现
+ * @version: v1.0.1 2024-08-28 dou li yang
+ */
+#include "silly_vacuate.h"
+
 #include "vacuate/psimpl.h"
 
 using namespace psimpl;
 
 #include <iterator>
-#include "vacuate/vacuate_wrapper.h"
+#include "vacuate/silly_vacuate.h"
 
-bool vacuate_wrapper::VacuateNPoint(const int& n, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
+bool silly_vacuate::n_point(const int& n, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
 {
     try
     {
@@ -34,7 +43,7 @@ bool vacuate_wrapper::VacuateNPoint(const int& n, const std::vector<double>& inp
     return true;
 }
 
-bool vacuate_wrapper::VacuateRadialDistance(const double& radialDistance, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
+bool silly_vacuate::radial_distance(const double& radialDistance, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
 {
     try
     {
@@ -60,7 +69,7 @@ bool vacuate_wrapper::VacuateRadialDistance(const double& radialDistance, const 
     return true;
 }
 
-bool vacuate_wrapper::VacuatePerpendicularDistance(const int& repeat, const double& distance, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
+bool silly_vacuate::perpendicular_distance(const int& repeat, const double& distance, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
 {
     try
     {
@@ -86,7 +95,7 @@ bool vacuate_wrapper::VacuatePerpendicularDistance(const int& repeat, const doub
     return true;
 }
 
-bool vacuate_wrapper::VacuateReumannWitkam(const double& distance, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
+bool silly_vacuate::reumann_witkam(const double& distance, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
 {
     try
     {
@@ -112,7 +121,7 @@ bool vacuate_wrapper::VacuateReumannWitkam(const double& distance, const std::ve
     return true;
 }
 
-bool vacuate_wrapper::VacuateOpheim(const double& minDistance, const double& maxDistance, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
+bool silly_vacuate::opheim(const double& minDistance, const double& maxDistance, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
 {
     try
     {
@@ -138,7 +147,7 @@ bool vacuate_wrapper::VacuateOpheim(const double& minDistance, const double& max
     return true;
 }
 
-bool vacuate_wrapper::VacuateLang(const int& lookAhead, const double& distance, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
+bool silly_vacuate::lang(const int& lookAhead, const double& distance, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
 {
     try
     {
@@ -164,7 +173,7 @@ bool vacuate_wrapper::VacuateLang(const int& lookAhead, const double& distance, 
     return true;
 }
 
-bool vacuate_wrapper::VacuateDouglasPeucker(const double& distance, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
+bool silly_vacuate::douglas_peucker(const double& distance, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
 {
     try
     {
@@ -190,7 +199,7 @@ bool vacuate_wrapper::VacuateDouglasPeucker(const double& distance, const std::v
     return true;
 }
 
-bool vacuate_wrapper::VacuateDouglasPeuckerVariant(const int& pointNum, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
+bool silly_vacuate::douglas_peucker_variant(const int& pointNum, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
 {
     try
     {
