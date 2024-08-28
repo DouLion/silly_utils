@@ -922,11 +922,23 @@ bool silly_geo_utils::intersect(const silly_multi_poly& mpoly1, const silly_mult
 {
     return false;
 }
-bool silly_geo_utils::intersect(const silly_point& point, const silly_multi_poly& mpoly)
-{
-    return false;
-}
 std::vector<silly_poly> silly_geo_utils::intersection(const silly_multi_poly& mpoly1, const silly_multi_poly& mpoly2)
 {
     return std::vector<silly_poly>();
+}
+bool silly_geo_utils::intersect(const silly_multi_poly& mpoly, const silly_point& point)
+{
+    return false;
+}
+bool silly_geo_utils::intersect(const silly_multi_poly& mpoly, const silly_line& line)
+{
+    return false;
+}
+bool silly_geo_utils::nearby(const silly_point& point, const silly_line& line, const double& dist)
+{
+    return false;
+}
+std::vector<silly_line> silly_geo_utils::intersection(const silly_multi_poly& mpoly, const silly_line& line)
+{
+    return std::vector<silly_line>();
 }

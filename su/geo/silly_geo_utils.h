@@ -107,20 +107,25 @@ class silly_geo_utils
     static bool get_driver_name(const char* file, std::string& driverName);
 
     /// <summary>
-    /// 两个面是否相交
+    /// 矢量与面是否相交
     /// </summary>
-    /// <param name="mpoly1"></param>
-    /// <param name="mpoly2"></param>
+    /// <param name=""></param>
+    /// <param name=""></param>
     /// <returns></returns>
     static bool intersect(const silly_multi_poly& mpoly1, const silly_multi_poly& mpoly2);
 
+    static bool intersect(const silly_multi_poly& mpoly, const silly_point& point);
+
+    static bool intersect(const silly_multi_poly& mpoly, const silly_line& line);
+
     /// <summary>
-    /// 点是否在面内
+    /// 点距离线在一定范围内
     /// </summary>
     /// <param name="point"></param>
-    /// <param name="mpoly"></param>
+    /// <param name="line"></param>
+    /// <param name="dist"></param>
     /// <returns></returns>
-    static bool intersect(const silly_point& point, const silly_multi_poly& mpoly);
+    static bool nearby(const silly_point& point, const silly_line& line, const double& dist);
 
     /// <summary>
     /// 两个面的相交区域
@@ -129,6 +134,14 @@ class silly_geo_utils
     /// <param name="mpoly2"></param>
     /// <returns></returns>
     static std::vector<silly_poly> intersection(const silly_multi_poly& mpoly1, const silly_multi_poly& mpoly2);
+
+    /// <summary>
+    /// 线相交面的部分
+    /// </summary>
+    /// <param name="mpoly1"></param>
+    /// <param name="line"></param>
+    /// <returns></returns>
+    static std::vector<silly_line> intersection(const silly_multi_poly& mpoly, const silly_line& line);
 
 
     /// ================ gdal中矢量与silly utils中矢量互转 ================
