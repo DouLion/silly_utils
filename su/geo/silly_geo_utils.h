@@ -44,16 +44,7 @@ class silly_geo_utils
     /// </summary>
     /// <param name="poly"></param>
     /// <returns></returns>
-    static silly_point poly_centroid(silly_poly poly);
-
-    /// <summary>
-    /// 判断两个面是否相交,如果相交求出相交区域,如果不相交,返回一个空变量
-    /// 利用ogr库算法
-    /// 可以两个面相交得到多面的情况
-    /// </summary>
-    /// <param name="poly"></param>
-    /// <returns></returns>
-    static std::vector<silly_poly> intersection_area(silly_poly poly_main, silly_poly poly_deputy);
+    static silly_point poly_centroid(const silly_poly& poly);
 
     /// <summary>
     /// 求两个点的方位角,p2相对于p1的方位角(左上角右下角坐标系均可), 正北方向为0度,顺时针
@@ -61,7 +52,7 @@ class silly_geo_utils
     /// <param name="p1">参照物</param>
     /// <param name="p2">参照方向</param>
     /// <returns>p2相对于p1的方位角,结果为角度值,</returns>
-    static double two_point_azimuth(silly_point from, silly_point to);
+    static double azimuth(silly_point from, silly_point to);
 
     /// <summary>
     /// 读取矢量文件中的数据存储到silly_geo_coll数据结构中
@@ -104,7 +95,7 @@ class silly_geo_utils
     /// <param name="file">文件名</param>
     /// <param name="driverName">存储类型</param>
     /// <returns></returns>
-    static bool get_driver_name(const char* file, std::string& driverName);
+    static bool get_driver_name(const std::string& file, std::string& driverName);
 
     /// <summary>
     /// 矢量与面是否相交
@@ -142,6 +133,73 @@ class silly_geo_utils
     /// <param name="line"></param>
     /// <returns></returns>
     static std::vector<silly_line> intersection(const silly_multi_poly& mpoly, const silly_line& line);
+
+    /// <summary>
+    /// 面积
+    /// </summary>
+    /// <param name="points"></param>
+    /// <returns></returns>
+    static double area(const std::vector<silly_point>& points);
+
+    /// <summary>
+    /// 面积
+    /// </summary>
+    /// <param name="xs"></param>
+    /// <param name="ys"></param>
+    /// <returns></returns>
+    template <typename T>
+    static double area(const std::vector<T>& xs, const std::vector<T>& ys);
+
+    /// <summary>
+    /// 面积
+    /// </summary>
+    /// <param name="pnum">点数量</param>
+    /// <param name="xs"></param>
+    /// <param name="ys"></param>
+    /// <returns></returns>
+    template <typename T>
+    // typename std::enable_if<std::is_arithmetic<T>::value, T>::type
+    static double area(const int& pnum, const T* xs,const  T* ys);
+
+    /// <summary>
+    /// 面积
+    /// </summary>
+    /// <param name="pnum">点数量</param>
+    /// <param name="points">x0,y0,x1,y1 .... xn,yn n = pnum - 1</param>
+    /// <returns></returns>
+    template <typename T>
+    static double area(const int& pnum, const T* points);
+
+    /// <summary>
+    /// 计算面的经纬度面积
+    /// </summary>
+    /// <param name="mpoly"></param>
+    /// <returns></returns>
+    static double area_degree(const silly_poly& poly);
+
+
+    /// <summary>
+    /// 计算面积平方公里
+    /// </summary>
+    /// <param name="mpoly"></param>
+    /// <returns></returns>
+    static double area_sqkm(const silly_poly& poly);
+
+
+    /// <summary>
+    /// 计算面的经纬度面积
+    /// </summary>
+    /// <param name="mpoly"></param>
+    /// <returns></returns>
+    static double area_degree(const silly_multi_poly& mpoly);
+
+
+    /// <summary>
+    /// 计算面积平方公里
+    /// </summary>
+    /// <param name="mpoly"></param>
+    /// <returns></returns>
+    static double area_sqkm(const silly_multi_poly& mpoly);
 
 
     /// ================ gdal中矢量与silly utils中矢量互转 ================

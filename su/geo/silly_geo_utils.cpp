@@ -1,9 +1,6 @@
 
 
 #include "silly_geo_utils.h"
-#include <math.h>
-#include <filesystem>
-
 // GDAL.
 #include "ogr_spatialref.h"
 // #include "gdal_priv.h"
@@ -17,7 +14,7 @@
 
 using namespace ClipperLib;
 
-silly_point geo_utils::poly_centroid(silly_poly poly)
+silly_point geo_utils::poly_centroid(const silly_poly& poly)
 {
     silly_point center_point;
     OGRPolygon orgPloy = geo_utils::silly_poly_to_ogr(poly);
@@ -31,55 +28,8 @@ silly_point geo_utils::poly_centroid(silly_poly poly)
     return center_point;
 }
 
-std::vector<silly_poly> geo_utils::intersection_area(silly_poly poly_main, silly_poly poly_deputy)
-{
-    std::vector<silly_poly> result;
 
-    // 创建 OGRPolygon 对象
-    OGRPolygon org_ploy_main = geo_utils::silly_poly_to_ogr(poly_main);
-    OGRPolygon org_ploy_deputy = geo_utils::silly_poly_to_ogr(poly_deputy);
-
-    // 判断两个 OGRPolygon 是否相交
-    if (!org_ploy_main.Intersects(&org_ploy_deputy))
-    {
-        return result;
-    }
-
-    // 计算相交区域
-    OGRGeometry* intersection = org_ploy_main.Intersection(&org_ploy_deputy);
-
-    // 处理不同几何类型的情况
-    OGRwkbGeometryType geometryType = intersection->getGeometryType();
-    switch (geometryType)
-    {
-        // 单面
-        case wkbPolygon:
-        case wkbPolygon25D:
-        {
-            OGRPolygon* intersectingPolygon = (OGRPolygon*)(intersection);
-            result.emplace_back(geo_utils::silly_poly_from_ogr(intersectingPolygon));
-            break;
-        }
-        // 多面
-        case wkbMultiPolygon:
-        case wkbMultiPolygon25D:
-        {
-            OGRMultiPolygon* intersectingMultiPolygon = (OGRMultiPolygon*)(intersection);
-            auto m_polys = geo_utils::silly_multi_poly_from_ogr(intersectingMultiPolygon);
-            for (auto poly : m_polys)
-            {
-                result.emplace_back(poly);
-            }
-            break;
-        }
-        default:
-            break;
-    }
-
-    return result;
-}
-
-double geo_utils::two_point_azimuth(silly_point from, silly_point to)
+double geo_utils::azimuth(silly_point from, silly_point to)
 {
     double theta = atan2(to.lgtd - from.lgtd, to.lttd - from.lttd);
     theta = theta * 180.0 / SU_PI;
@@ -613,16 +563,16 @@ bool geo_utils::read_geo_coll(const std::string& file, std::vector<silly_geo_col
 }
 
 // 根据文件拓展得到对应的存储格式 TODO :
-bool geo_utils::get_driver_name(const char* file, std::string& driverName)
+bool geo_utils::get_driver_name(const std::string& file, std::string& driverName)
 {
-    bool status = false;
+    bool status = true;
     // if (!std::filesystem::exists(std::filesystem::path(file)))
     //{
     //     SU_ERROR_PRINT("Error: file does not exist %s ", file);
     //     return status;
     // }
     //  获取文件扩展名
-    std::string lowerExtension = std::filesystem::path(file).extension().string();
+    std::string lowerExtension = std::filesystem::path(file.c_str()).extension().string();
     // 将文件扩展名转换为小写
     std::transform(lowerExtension.begin(), lowerExtension.end(), lowerExtension.begin(), ::tolower);
     if (lowerExtension == SILLY_SHP_SUFFIX)
@@ -659,10 +609,9 @@ bool geo_utils::get_driver_name(const char* file, std::string& driverName)
     }
     else
     {
-        driverName = "none";
-        return status;
+        driverName = "";
+        status = false;
     }
-    status = true;
     return status;
 }
 
@@ -927,7 +876,50 @@ bool silly_geo_utils::intersect(const silly_multi_poly& mpoly1, const silly_mult
 }
 std::vector<silly_poly> silly_geo_utils::intersection(const silly_multi_poly& mpoly1, const silly_multi_poly& mpoly2)
 {
-    return std::vector<silly_poly>();
+    std::vector<silly_poly> result;
+
+    // 创建 OGRPolygon 对象
+    OGRMultiPolygon org_ploy_1 = geo_utils::silly_multi_poly_to_ogr(mpoly1);
+    OGRMultiPolygon org_ploy_2 = geo_utils::silly_multi_poly_to_ogr(mpoly2);
+
+    /*// 判断两个 OGRPolygon 是否相交
+    if (!org_ploy_1.Intersects(&org_ploy_2))
+    {
+        return result;
+    }*/
+
+    // 计算相交区域
+    OGRGeometry* intersection = org_ploy_1.Intersection(&org_ploy_2);
+
+    // 处理不同几何类型的情况
+    OGRwkbGeometryType geometryType = intersection->getGeometryType();
+    switch (geometryType)
+    {
+        // 单面
+        case wkbPolygon:
+        case wkbPolygon25D:
+        {
+            OGRPolygon* intersectingPolygon = (OGRPolygon*)(intersection);
+            result.emplace_back(geo_utils::silly_poly_from_ogr(intersectingPolygon));
+            break;
+        }
+        // 多面
+        case wkbMultiPolygon:
+        case wkbMultiPolygon25D:
+        {
+            OGRMultiPolygon* intersectingMultiPolygon = (OGRMultiPolygon*)(intersection);
+            auto m_polys = geo_utils::silly_multi_poly_from_ogr(intersectingMultiPolygon);
+            for (auto poly : m_polys)
+            {
+                result.emplace_back(poly);
+            }
+            break;
+        }
+        default:
+            break;
+    }
+
+    return result;
 }
 bool silly_geo_utils::intersect(const silly_multi_poly& mpoly, const silly_point& point)
 {
@@ -944,4 +936,47 @@ bool silly_geo_utils::nearby(const silly_point& point, const silly_line& line, c
 std::vector<silly_line> silly_geo_utils::intersection(const silly_multi_poly& mpoly, const silly_line& line)
 {
     return std::vector<silly_line>();
+}
+double silly_geo_utils::area(const std::vector<silly_point>& points)
+{
+    size_t n = points.size();
+    // 确保至少有3个点才能构成一个多边形
+    if (n < 3) {
+        return 0.0;
+    }
+
+    double area = 0.0;
+    for (size_t i = 0; i < n; ++i) {
+        size_t j = (i + 1) % n;
+        area += points[i].lgtd * points[j].lttd;
+        area -= points[j].lgtd * points[i].lttd;
+    }
+    return std::abs(area) / 2.0;
+}
+double silly_geo_utils::area_degree(const silly_poly& poly)
+{
+    double total_area = area(poly.outer_ring.points);
+    if(total_area < 1.E-15)
+    {
+        return total_area;
+    }
+
+    for(auto inner_ring : poly.inner_rings)
+    {
+        total_area -= area(inner_ring.points);
+    }
+
+    return total_area;
+}
+double silly_geo_utils::area_sqkm(const silly_poly& poly)
+{
+    return 0;
+}
+double silly_geo_utils::area_degree(const silly_multi_poly& mpoly)
+{
+    return 0;
+}
+double silly_geo_utils::area_sqkm(const silly_multi_poly& mpoly)
+{
+    return 0;
 }

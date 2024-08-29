@@ -64,23 +64,17 @@ bool xscan_line_raster::rasterization(const silly_line& line)
             continue;
         }
 
-        /*if (x = last_x)
+        if (x = last_x)
         {
             for (int ny = std::min(last_y, y); ny < std::max(last_y, y); ny++)
             {
                 row_col[ny][x] = 0;
             }
-        }*/
+        }
         last_x = x;
         last_y = y;
     }
-    for (auto& [r, c_i] : row_col)
-    {
-        for (auto& [c, _] : c_i)
-        {
-            m_row_pairs[r].push_back({c, c});
-        }
-    }
+
     slim();
     return true;
 }
@@ -254,7 +248,7 @@ void xscan_line_raster::image(const std::string& path)
 {
 #ifndef NDEBUG
     png_data png = png_utils::create_empty(m_height, m_width, PNG_COLOR_TYPE_RGB_ALPHA);
-#pragma omp parallel for num_threads(8)
+//#pragma omp parallel for num_threads(8)
     for (int r = 0; r < m_height; ++r)
     {
         int old = 0;
