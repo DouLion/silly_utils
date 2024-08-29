@@ -36,7 +36,7 @@ double geo_utils::azimuth(silly_point from, silly_point to)
     return theta;
 }
 
-std::string geo_utils::convert_angle_to_desc(const double& angle)
+std::string geo_utils::angle_to_desc(const double& angle)
 {
     std::string desc;
     if (angle >= -15.0 && angle <= 15.0)
@@ -89,7 +89,7 @@ OGRLinearRing geo_utils::silly_ring_to_ogr(const silly_ring& ring)
         xs[i] = ring.points[i].lgtd;
         ys[i] = ring.points[i].lttd;
     }
-    result.setPoints(ring.points.size(), &xs[0], &ys[0]);
+    result.setPoints(static_cast<int>(ring.points.size()), &xs[0], &ys[0]);
     result.closeRings();
     return result;
 }
@@ -125,14 +125,14 @@ OGRPoint geo_utils::silly_point_to_ogr(const silly_point& point)
 // 将 OGRMultiPoint(多点) 转换为 silly_multi_point(多点) 类型
 silly_multi_point geo_utils::silly_multi_point_from_ogr(const OGRMultiPoint* ogrMultiPoint)
 {
-    silly_multi_point mulitPoint;
+    silly_multi_point multiPoint;
     int pointCount = ogrMultiPoint->getNumGeometries();
     for (int i = 0; i < pointCount; i++)
     {
         silly_point sillyPoint = silly_point_from_ogr(ogrMultiPoint->getGeometryRef(i));
-        mulitPoint.push_back(sillyPoint);
+        multiPoint.push_back(sillyPoint);
     }
-    return mulitPoint;
+    return multiPoint;
 }
 
 // 将 silly_multi_point(多点) 转换为 OGRMultiPoint(多点) 类型
@@ -170,7 +170,7 @@ OGRLineString geo_utils::silly_line_to_ogr(const silly_line& line)
         xs[i] = line[i].lgtd;
         ys[i] = line[i].lttd;
     }
-    ogrLineString.setPoints(line.size(), &xs[0], &ys[0]);
+    ogrLineString.setPoints((int)line.size(), &xs[0], &ys[0]);
     return ogrLineString;
 }
 
@@ -181,7 +181,7 @@ silly_multi_silly_line geo_utils::silly_multi_line_from_ogr(const OGRMultiLineSt
     int numLines = multiLineString->getNumGeometries();
     for (int i = 0; i < numLines; i++)
     {
-        OGRLineString* lineString = (OGRLineString*)(multiLineString->getGeometryRef(i));
+        auto lineString = (OGRLineString*)multiLineString->getGeometryRef(i);
         if (lineString != nullptr)
         {
             silly_line line = silly_line_from_ogr(lineString);
@@ -210,13 +210,13 @@ silly_poly geo_utils::silly_poly_from_ogr(const OGRPolygon* polygon)
 {
     silly_poly poly;
     // 处理OGRPolygon外环
-    OGRLinearRing* outerRing = (OGRLinearRing*)polygon->getExteriorRing();
+    auto outerRing = (OGRLinearRing*)polygon->getExteriorRing();
     poly.outer_ring = silly_ring_from_ogr(outerRing);
     // 处理OGRPolygon内环
     int innerRingCount = polygon->getNumInteriorRings();
     for (int k = 0; k < innerRingCount; k++)
     {
-        OGRLinearRing* ring = (OGRLinearRing*)polygon->getInteriorRing(k);
+        auto ring = (OGRLinearRing*)polygon->getInteriorRing(k);
         silly_ring innerRing = silly_ring_from_ogr(ring);
         poly.inner_rings.push_back(innerRing);
     }
@@ -249,7 +249,7 @@ silly_multi_poly geo_utils::silly_multi_poly_from_ogr(const OGRMultiPolygon* mul
     for (int i = 0; i < polygonCount; i++)
     {
         silly_poly tmp_poly;
-        OGRPolygon* polygon = (OGRPolygon*)multiPolygon->getGeometryRef(i);
+        auto polygon = (OGRPolygon*)multiPolygon->getGeometryRef(i);
         tmp_poly = silly_poly_from_ogr(polygon);
         multi_poly.push_back(tmp_poly);
     }
@@ -284,7 +284,7 @@ void geo_utils::destroy_gdal_env()
 
 bool geo_utils::is_valid_shp(const std::string& shp_file)
 {
-    GDALDataset* poDSr = (GDALDataset*)GDALOpenEx(shp_file.c_str(), GDAL_OF_ALL | GDAL_OF_READONLY, nullptr, nullptr, nullptr);
+    auto poDSr = (GDALDataset*)GDALOpenEx(shp_file.c_str(), GDAL_OF_ALL | GDAL_OF_READONLY, nullptr, nullptr, nullptr);
     if (nullptr == poDSr)
     {
         return false;
@@ -298,21 +298,21 @@ bool geo_utils::check_shp_info(const std::string& shp_file, enum_geometry_type& 
     bool status = false;
     std::map<std::string, std::string> result;
 
-    GDALDataset* poDSr = (GDALDataset*)GDALOpenEx(shp_file.c_str(), GDAL_OF_ALL | GDAL_OF_READONLY, NULL, NULL, NULL);
-    if (NULL == poDSr)
+    auto poDSr = (GDALDataset*)GDALOpenEx(shp_file.c_str(), GDAL_OF_ALL | GDAL_OF_READONLY, nullptr, nullptr, nullptr);
+    if (nullptr == poDSr)
     {
         return status;
     }
     OGRLayer* poLayer_r = poDSr->GetLayer(0);
-    if (poLayer_r == NULL)
+    if (poLayer_r == nullptr)
     {
         GDALClose(poDSr);
         return status;
     }
-    OGRFeature* pFeature_r = NULL;
+    OGRFeature* pFeature_r = nullptr;
     // 获取Feature特征
     pFeature_r = poLayer_r->GetNextFeature();
-    if (NULL == pFeature_r)
+    if (nullptr == pFeature_r)
     {
         GDALClose(poDSr);
         return status;
@@ -339,14 +339,14 @@ bool geo_utils::check_shp_info(const std::string& shp_file, enum_geometry_type& 
     for (int i = 0; i < fieldCnt; i++)
     {
         OGRFieldDefn* def = pFeature_r->GetFieldDefnRef(i);
-        OGRFieldType type = def->GetType();
+        OGRFieldType type_ = def->GetType();
         std::string field_name = def->GetNameRef();
         if (!silly_encode::check_text_utf8(field_name.c_str(), field_name.size()))
         {
             field_name = silly_encode::gbk_utf8(field_name);
         }
         silly_geo_prop::enum_prop_type field_type{silly_geo_prop::enum_prop_type::eptNone};
-        switch (type)
+        switch (type_)
         {
             case OFTInteger:
                 field_type = silly_geo_prop::enum_prop_type::eptInt;
@@ -363,7 +363,7 @@ bool geo_utils::check_shp_info(const std::string& shp_file, enum_geometry_type& 
                 break;
             case OFTStringList:
                 break;
-#if _DEBUG
+#ifndef NDEBUG
                 // 弃用 deprecated
             case OFTWideString:
                 break;
@@ -467,50 +467,49 @@ bool read_all_types_data(const enum_geometry_type& feature_type, const OGRGeomet
     {
         case enum_geometry_type::egtPoint:  // 单点
         {
-            auto geo_type = geometry->getGeometryType();
-            OGRPoint* point = (OGRPoint*)(geometry);
+            auto point = (OGRPoint*)(geometry);
             geo_coll.m_point = geo_utils::silly_point_from_ogr(point);
             status = true;
         }
         break;
         case enum_geometry_type::egtLineString:  // 单线
         {
-            OGRLineString* lineString = (OGRLineString*)(geometry);
+            auto lineString = (OGRLineString*)(geometry);
             geo_coll.m_line = geo_utils::silly_line_from_ogr(lineString);
             status = true;
         }
         break;
         case enum_geometry_type::egtPolygon:  // 单面
         {
-            OGRPolygon* polygon = (OGRPolygon*)(geometry);
+            auto polygon = (OGRPolygon*)(geometry);
             geo_coll.m_poly = geo_utils::silly_poly_from_ogr(polygon);
             status = true;
         }
         break;
         case enum_geometry_type::egtMultiPoint:  // 多点
         {
-            OGRMultiPoint* multiPoint = (OGRMultiPoint*)(geometry);
+            auto multiPoint = (OGRMultiPoint*)(geometry);
             geo_coll.m_m_points = geo_utils::silly_multi_point_from_ogr(multiPoint);
             status = true;
         }
         break;
         case enum_geometry_type::egtMultiLineString:  // 多线
         {
-            OGRMultiLineString* multiLineString = (OGRMultiLineString*)(geometry);
+            auto multiLineString = (OGRMultiLineString*)(geometry);
             geo_coll.m_m_lines = geo_utils::silly_multi_line_from_ogr(multiLineString);
             status = true;
         }
         break;
         case enum_geometry_type::egtMultiPolygon:  // 多面
         {
-            OGRMultiPolygon* multiPolygon = (OGRMultiPolygon*)(geometry);
+            auto multiPolygon = (OGRMultiPolygon*)(geometry);
             geo_coll.m_m_polys = geo_utils::silly_multi_poly_from_ogr(multiPolygon);
             status = true;
         }
         break;
         case enum_geometry_type::egtCompositeType:  // 复合数据类型
         {
-            OGRGeometryCollection* geomCollection = (OGRGeometryCollection*)(geometry);
+            auto geomCollection = (OGRGeometryCollection*)(geometry);
             int numGeometries = geomCollection->getNumGeometries();
             SU_DEBUG_PRINT("Number of Geometries in Collection: %d\n", numGeometries);
             for (int j = 0; j < numGeometries; j++)
@@ -518,7 +517,7 @@ bool read_all_types_data(const enum_geometry_type& feature_type, const OGRGeomet
                 OGRGeometry* collGeometry = geomCollection->getGeometryRef(j);
                 if (collGeometry != nullptr)
                 {
-                    enum_geometry_type feature_type_ = (enum_geometry_type)wkbFlatten(collGeometry->getGeometryType());
+                    auto feature_type_ = (enum_geometry_type)wkbFlatten(collGeometry->getGeometryType());
                     status = read_all_types_data(feature_type_, collGeometry, geo_coll);
                 }
             }
@@ -556,7 +555,7 @@ bool geo_utils::read_geo_coll(const std::string& file, std::vector<silly_geo_col
         return status;
     }
     // 打开现有 shp 文件
-    GDALDataset* dataset = static_cast<GDALDataset*>(GDALOpenEx(nfpath.c_str(), GDAL_OF_ALL | GDAL_OF_READONLY, NULL, NULL, NULL));
+    auto dataset = static_cast<GDALDataset*>(GDALOpenEx(nfpath.c_str(), GDAL_OF_ALL | GDAL_OF_READONLY, nullptr, nullptr, nullptr));
     if (dataset == nullptr)
     {
         // 处理文件打开失败的情况
@@ -577,7 +576,7 @@ bool geo_utils::read_geo_coll(const std::string& file, std::vector<silly_geo_col
         }
         layer->ResetReading();
         OGRFeature* feature;
-        int iEntities = layer->GetFeatureCount();  // 获取属性的个数,即矢量数据的个数
+        int64_t iEntities = layer->GetFeatureCount();  // 获取属性的个数,即矢量数据的个数
         if (iEntities <= 0)
         {
             GDALClose(dataset);
@@ -588,7 +587,7 @@ bool geo_utils::read_geo_coll(const std::string& file, std::vector<silly_geo_col
         {
             silly_geo_coll temp_geo_coll;
             OGRGeometry* geometry = feature->GetGeometryRef();  // 获取矢量数据
-            enum_geometry_type feature_type = (enum_geometry_type)wkbFlatten(geometry->getGeometryType());
+            auto feature_type = (enum_geometry_type)wkbFlatten(geometry->getGeometryType());
             temp_geo_coll.m_type = feature_type;  // 添加矢量数据类型
             if (ignore_prop)
             {
@@ -665,24 +664,34 @@ OGRFieldType convertToOGRFieldType(const silly_geo_prop::enum_prop_type& type)
     {
         case silly_geo_prop::enum_prop_type::eptNone:
             result = OFTString;
+            break;
         case silly_geo_prop::enum_prop_type::eptInt:
             result = OFTInteger;
+            break;
         case silly_geo_prop::enum_prop_type::eptNumeric:
             result = OFTReal;
+            break;
         case silly_geo_prop::enum_prop_type::eptString:
             result = OFTString;
+            break;
         case silly_geo_prop::enum_prop_type::eptBinary:
             result = OFTBinary;
+            break;
         case silly_geo_prop::enum_prop_type::eptTime:
             result = OFTTime;
+            break;
         case silly_geo_prop::enum_prop_type::eptDate:
             result = OFTDate;
+            break;
         case silly_geo_prop::enum_prop_type::eptDateTime:
             result = OFTDateTime;
+            break;
         case silly_geo_prop::enum_prop_type::eptLong:
             result = OFTInteger64;
+            break;
         default:
             result = OFTString;
+            break;
     }
     return result;
 }
@@ -691,7 +700,7 @@ OGRFieldType convertToOGRFieldType(const silly_geo_prop::enum_prop_type& type)
 bool writePropertiesToGeometry(OGRFeature* feature, const std::map<std::string, silly_geo_prop>& m_props)
 {
     bool status = true;
-    for (auto [key, prop] : m_props)
+    for (const auto& [key, prop] : m_props)
     {
         int fieldIndex = feature->GetFieldIndex(key.c_str());
         if (fieldIndex >= 0)
@@ -846,7 +855,7 @@ bool geo_utils::write_geo_coll(const std::string& file, const std::vector<silly_
     }
     // 根据拓展名得到存储格式
     std::string driverName;
-    if (!get_driver_name(file.c_str(), driverName))
+    if (!get_driver_name(file, driverName))
     {
         SFP_ERROR("Error: Unable to obtain storage method for this type: %s\n", file);
         return status;
@@ -874,7 +883,7 @@ bool geo_utils::write_geo_coll(const std::string& file, const std::vector<silly_
     }
     // TODO :
 
-    for (auto [k, p] : collections.front().m_props)  // 添加属性
+    for (const auto& [k, p] : collections.front().m_props)  // 添加属性
     {
         OGRFieldType ogrType = convertToOGRFieldType(p.value_type());
         OGRFieldDefn fieldDef(k.c_str(), ogrType);
@@ -939,7 +948,7 @@ std::vector<silly_poly> silly_geo_utils::intersection(const silly_multi_poly& mp
         case wkbPolygon:
         case wkbPolygon25D:
         {
-            OGRPolygon* intersectingPolygon = (OGRPolygon*)(intersection);
+            auto intersectingPolygon = (OGRPolygon*)(intersection);
             result.emplace_back(geo_utils::silly_poly_from_ogr(intersectingPolygon));
             break;
         }
@@ -947,9 +956,9 @@ std::vector<silly_poly> silly_geo_utils::intersection(const silly_multi_poly& mp
         case wkbMultiPolygon:
         case wkbMultiPolygon25D:
         {
-            OGRMultiPolygon* intersectingMultiPolygon = (OGRMultiPolygon*)(intersection);
+            auto intersectingMultiPolygon = (OGRMultiPolygon*)(intersection);
             auto m_polys = geo_utils::silly_multi_poly_from_ogr(intersectingMultiPolygon);
-            for (auto poly : m_polys)
+            for (const auto& poly : m_polys)
             {
                 result.emplace_back(poly);
             }
@@ -1007,7 +1016,7 @@ double silly_geo_utils::area(const silly_poly& poly)
         return total_area;
     }
 
-    for (auto inner_ring : poly.inner_rings)
+    for (const auto& inner_ring : poly.inner_rings)
     {
         total_area -= area(inner_ring.points);
     }
@@ -1021,7 +1030,7 @@ double silly_geo_utils::area_sqkm(const silly_poly& poly)
     {
         return total_area;
     }
-    for (auto inner_ring : poly.inner_rings)
+    for (const auto& inner_ring : poly.inner_rings)
     {
         total_area -= area_sqkm(inner_ring.points);
     }
@@ -1030,7 +1039,7 @@ double silly_geo_utils::area_sqkm(const silly_poly& poly)
 double silly_geo_utils::area(const silly_multi_poly& mpoly)
 {
     double total_area = 0;
-    for (auto poly : mpoly)
+    for (const auto& poly : mpoly)
     {
         total_area += area(poly);
     }
@@ -1039,7 +1048,7 @@ double silly_geo_utils::area(const silly_multi_poly& mpoly)
 double silly_geo_utils::area_sqkm(const silly_multi_poly& mpoly)
 {
     double total_area = 0;
-    for (auto poly : mpoly)
+    for (const auto& poly : mpoly)
     {
         total_area += area_sqkm(poly);
     }
@@ -1053,7 +1062,9 @@ std::vector<silly_poly> silly_geo_utils::trans_intersection(const silly_multi_po
 }
 std::vector<silly_line> silly_geo_utils::trans_intersection(const silly_multi_poly& mpoly1, const silly_line& line)
 {
-    return std::vector<silly_line>();
+    std::vector<silly_line> result;
+    // TODO:
+    return result;
 }
 double silly_geo_utils::area_sqkm(const std::vector<silly_point>& points)
 {
@@ -1064,8 +1075,7 @@ double silly_geo_utils::area_sqkm(const std::vector<silly_point>& points)
         minx = std::min(minx, p.lgtd);
     }
     std::vector<silly_point> gpoints;
-    silly_guass_param sgp;
-    double central = SU_GAUSS6_L0(SU_GAUSS6_NO((minx + maxx) / 2));
+    auto central = SU_GAUSS6_L0(SU_GAUSS6_NO((minx + maxx) / 2));
     for (auto p : points)
     {
         silly_point tmp;

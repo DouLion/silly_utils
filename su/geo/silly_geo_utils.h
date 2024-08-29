@@ -55,11 +55,11 @@ class silly_geo_utils
     static double azimuth(silly_point from, silly_point to);
 
     /// <summary>
-    /// 角度转方向 正北方向为0度, 轴左右15°认为是正方向
+    /// 角度转方向 正北方向为0度, 顺时针
     /// </summary>
     /// <param name="angle"></param>
     /// <returns></returns>
-    static std::string convert_angle_to_desc(const double& angle);
+    static std::string angle_to_desc(const double& angle);
 
     /// <summary>
     /// 读取矢量文件中的数据存储到silly_geo_coll数据结构中
@@ -258,9 +258,9 @@ class silly_geo_utils
     /// <summary>
     /// 将 silly_multi_point(多点) 转换为 OGRMultiPoint(多点) 类型
     /// </summary>
-    /// <param name="mulitPoint"></param>
+    /// <param name="multiPoint"></param>
     /// <returns></returns>
-    static OGRMultiPoint silly_multi_point_to_ogr(const silly_multi_point& mulitPoint);
+    static OGRMultiPoint silly_multi_point_to_ogr(const silly_multi_point& multiPoint);
 
     /// ================ 单线 ================
 
@@ -360,9 +360,9 @@ double silly_geo_utils::area(const std::vector<T>& xs, const std::vector<T>& ys)
         return result;
     }
 
-    for (size_t i = 0; i < pnum; ++i)
+    for (int i = 0; i < pnum; ++i)
     {
-        size_t j = (i + 1) % pnum;
+        int j = (i + 1) % pnum;
         result += xs[i] * ys[j];
         result -= xs[j] * ys[i];
     }
@@ -378,7 +378,7 @@ double silly_geo_utils::area(const int& pnum, const T* points)
         return result;
     }
 
-    for (size_t n = 0; n < pnum; ++n)
+    for (int n = 0; n < pnum; ++n)
     {
         int i = n * 2;
         int j = ((n + 1) % pnum) * 2;
@@ -397,7 +397,7 @@ double silly_geo_utils::area(const int& pnum, const T* xs, const T* ys)
         return result;
     }
 
-    for (size_t i = 0; i < pnum; ++i)
+    for (int i = 0; i < pnum; ++i)
     {
         size_t j = (i + 1) % pnum;
         result += xs[i] * ys[j];

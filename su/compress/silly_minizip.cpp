@@ -3,16 +3,6 @@
 //
 
 #include "silly_minizip.h"
-#include <filesystem>
-#include <stdio.h>
-#include <dirent.h>
-#include <string.h>
-#include <string>
-#include <vector>
-#include <fstream>
-
-#include <boost/algorithm/string.hpp>
-
 #include "minizip/zip.h"
 #include "minizip/unzip.h"
 #include "su_marco.h"
