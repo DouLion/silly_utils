@@ -86,6 +86,48 @@ double geo_utils::two_point_azimuth(silly_point from, silly_point to)
     return theta;
 }
 
+std::string geo_utils::convert_angle_to_desc(const double& angle)
+{
+    std::string desc;
+    if (angle >= -15.0 && angle <= 15.0)
+    {
+        desc = "北部";
+    }
+    else if (angle > 15.0 && angle < 75.0)
+    {
+        desc = "东北部";
+    }
+    else if (angle >= 75.0 && angle <= 105.0)
+    {
+        desc = "东部";
+    }
+    else if (angle > 105.0 && angle < 165.0)
+    {
+        desc = "东南部";
+    }
+    else if ((angle >= 165.0 && angle <= 180.0) || (angle >= -180.0 && angle <= -165.0))
+    {
+        desc = "南部";
+    }
+    else if (angle > -165.0 && angle < -105.0)
+    {
+        desc = "西南部";
+    }
+    else if (angle >= -105.0 && angle <= -75.0)
+    {
+        desc = "西部";
+    }
+    else if (angle > -75.0 && angle < -15.0)
+    {
+        desc = "西北部";
+    }
+    else
+    {
+        desc = "局部";
+    }
+    return desc;
+}
+
 // 将 silly_ring 转换为 OGRPolygon
 OGRLinearRing geo_utils::silly_ring_to_ogr(const silly_ring& ring)
 {

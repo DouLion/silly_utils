@@ -64,6 +64,13 @@ class silly_geo_utils
     static double two_point_azimuth(silly_point from, silly_point to);
 
     /// <summary>
+    /// 角度转方向 正北方向为0度, 轴左右15°认为是正方向
+    /// </summary>
+    /// <param name="angle"></param>
+    /// <returns></returns>
+    static std::string convert_angle_to_desc(const double& angle);
+
+    /// <summary>
     /// 读取矢量文件中的数据存储到silly_geo_coll数据结构中
     /// </summary>
     /// <param name="file"></param>
