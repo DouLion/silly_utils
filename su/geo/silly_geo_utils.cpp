@@ -11,6 +11,7 @@
 #include <polyclipping/clipper.hpp>
 #include <encode/silly_encode.h>
 #include "su_marco.h"
+#include <proj/silly_proj.h>
 
 using namespace ClipperLib;
 
@@ -910,6 +911,7 @@ bool geo_utils::write_geo_coll(const std::string& file, const std::vector<silly_
 }
 bool silly_geo_utils::intersect(const silly_multi_poly& mpoly1, const silly_multi_poly& mpoly2)
 {
+    // TODO:
     return false;
 }
 std::vector<silly_poly> silly_geo_utils::intersection(const silly_multi_poly& mpoly1, const silly_multi_poly& mpoly2)
@@ -961,18 +963,22 @@ std::vector<silly_poly> silly_geo_utils::intersection(const silly_multi_poly& mp
 }
 bool silly_geo_utils::intersect(const silly_multi_poly& mpoly, const silly_point& point)
 {
+    // TODO:
     return false;
 }
 bool silly_geo_utils::intersect(const silly_multi_poly& mpoly, const silly_line& line)
 {
+    // TODO:
     return false;
 }
 bool silly_geo_utils::nearby(const silly_point& point, const silly_line& line, const double& dist)
 {
+    // TODO:
     return false;
 }
 std::vector<silly_line> silly_geo_utils::intersection(const silly_multi_poly& mpoly, const silly_line& line)
 {
+    // TODO:
     return std::vector<silly_line>();
 }
 double silly_geo_utils::area(const std::vector<silly_point>& points)
@@ -1010,20 +1016,39 @@ double silly_geo_utils::area(const silly_poly& poly)
 }
 double silly_geo_utils::area_sqkm(const silly_poly& poly)
 {
-    return 0;
+    double total_area = area_sqkm(poly.outer_ring.points);
+    if (total_area < 1.E-15)
+    {
+        return total_area;
+    }
+    for (auto inner_ring : poly.inner_rings)
+    {
+        total_area -= area_sqkm(inner_ring.points);
+    }
+    return total_area;
 }
 double silly_geo_utils::area(const silly_multi_poly& mpoly)
 {
-    return 0;
+    double total_area = 0;
+    for (auto poly : mpoly)
+    {
+        total_area += area(poly);
+    }
+    return total_area;
 }
 double silly_geo_utils::area_sqkm(const silly_multi_poly& mpoly)
 {
-    return 0;
+    double total_area = 0;
+    for (auto poly : mpoly)
+    {
+        total_area += area_sqkm(poly);
+    }
+    return total_area;
 }
 std::vector<silly_poly> silly_geo_utils::trans_intersection(const silly_multi_poly& mpoly1, const silly_multi_poly& mpoly2)
 {
     std::vector<silly_poly> result;
-
+    // TODO:
     return result;
 }
 std::vector<silly_line> silly_geo_utils::trans_intersection(const silly_multi_poly& mpoly1, const silly_line& line)
@@ -1032,5 +1057,20 @@ std::vector<silly_line> silly_geo_utils::trans_intersection(const silly_multi_po
 }
 double silly_geo_utils::area_sqkm(const std::vector<silly_point>& points)
 {
-    return 0;
+    double maxx = -1e10, minx = 1e10;
+    for (auto p : points)
+    {
+        maxx = std::max(maxx, p.lgtd);
+        minx = std::min(minx, p.lgtd);
+    }
+    std::vector<silly_point> gpoints;
+    silly_guass_param sgp;
+    double central = SU_GAUSS6_L0(SU_GAUSS6_NO((minx + maxx) / 2));
+    for (auto p : points)
+    {
+        silly_point tmp;
+        silly_proj::lonlat_to_gauss(central, p.lgtd, p.lttd, tmp.lttd, tmp.lgtd);
+        gpoints.push_back(tmp);
+    }
+    return area(gpoints) / 1e6;
 }
