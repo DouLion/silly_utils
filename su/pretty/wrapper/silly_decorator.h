@@ -14,8 +14,7 @@
 #include <string>
 
 template <typename Func, typename Obj, typename... Args>
-auto exception_decorator_member_func(Func&& func, Obj&& obj, std::string&& err, Args&&... args)
-    -> decltype(std::invoke(std::forward<Func>(func), std::forward<Obj>(obj), std::forward<Args>(args)...))
+auto exception_decorator_member_func(Func&& func, Obj&& obj, std::string&& err, Args&&... args) -> decltype(std::invoke(std::forward<Func>(func), std::forward<Obj>(obj), std::forward<Args>(args)...))
 {
     try
     {

@@ -184,14 +184,14 @@ bool png_utils::memory_encode(const png_data &data, std::string &buff)
         png_destroy_write_struct(&png_ptr, &info_ptr);
         return status;
     }
-    //std::vector<unsigned char> buff_vec;
+    // std::vector<unsigned char> buff_vec;
     png_set_IHDR(png_ptr, info_ptr, data.width, data.height, data.bit_depth, data.color_type, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
     png_set_rows(png_ptr, info_ptr, data.data);
     png_set_write_fn(png_ptr, &buff, silly_png_write_callback, NULL);
     png_write_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
     png_destroy_write_struct(&png_ptr, &info_ptr);
-   /* buff.resize(buff_vec.size());
-    std::copy(buff_vec.begin(), buff_vec.end(), buff.begin());*/
+    /* buff.resize(buff_vec.size());
+     std::copy(buff_vec.begin(), buff_vec.end(), buff.begin());*/
     status = buff.size();
     return status;
 }
@@ -249,18 +249,18 @@ bool png_utils::memory_decode(const std::string &buff, png_data &data)
 
     return true;
 }
-bool png_utils::rgb_to_rgba(const png_data &src, png_data &dst, const png_byte& alpha)
+bool png_utils::rgb_to_rgba(const png_data &src, png_data &dst, const png_byte &alpha)
 {
-    if(src.color_type != PNG_COLOR_TYPE_RGB)
+    if (src.color_type != PNG_COLOR_TYPE_RGB)
     {
         return false;
     }
     dst = create_empty(src.height, src.width, PNG_COLOR_TYPE_RGB_ALPHA, src.bit_depth);
-    for(size_t r = 0; r < src.height; ++r)
+    for (size_t r = 0; r < src.height; ++r)
     {
         png_bytep srcp = src.data[r];
         png_bytep dstp = dst.data[r];
-        for(size_t c = 0; c < src.width; ++c)
+        for (size_t c = 0; c < src.width; ++c)
         {
             memcpy(dstp, srcp, 3);
             dstp[3] = alpha;
@@ -273,16 +273,16 @@ bool png_utils::rgb_to_rgba(const png_data &src, png_data &dst, const png_byte& 
 }
 bool png_utils::rgba_to_rgb(const png_data &src, png_data &dst)
 {
-    if(src.color_type != PNG_COLOR_TYPE_RGB_ALPHA)
+    if (src.color_type != PNG_COLOR_TYPE_RGB_ALPHA)
     {
         return false;
     }
     dst = create_empty(src.height, src.width, PNG_COLOR_TYPE_RGB, src.bit_depth);
-    for(size_t r = 0; r < src.height; ++r)
+    for (size_t r = 0; r < src.height; ++r)
     {
         png_bytep srcp = src.data[r];
         png_bytep dstp = dst.data[r];
-        for(size_t c = 0; c < src.width; ++c)
+        for (size_t c = 0; c < src.width; ++c)
         {
             memcpy(dstp, srcp, 3);
             srcp += 4;

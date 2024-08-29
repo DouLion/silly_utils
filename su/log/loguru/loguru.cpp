@@ -634,7 +634,7 @@ static void escape(std::string& out, const std::string& str)
             out += "\\ ";
         }
         else if (0 <= c && c < 0x20)
-        {   // ASCI control character:
+        {  // ASCI control character:
             // else if (c < 0x20 || c != (c & 127)) { // ASCII control character or UTF-8:
             out += "\\x";
             write_hex_byte(out, static_cast<uint8_t>(c));

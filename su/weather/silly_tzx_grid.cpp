@@ -31,7 +31,7 @@ const int silly_tzx_grid_NAMEL = 32;
 const int silly_tzx_grid_UNITL = 32;
 
 #define SILLY_TZX_GRID_MEMCPY_TYPE(buff, val) \
-    memcpy(buff, &val, sizeof(val));            \
+    memcpy(buff, &val, sizeof(val));          \
     buff += sizeof(val);
 
 silly_tzx_grid::silly_tzx_grid()

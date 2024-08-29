@@ -27,7 +27,7 @@ bool silly_nrd_grid_utils::read_header(const std::string& file)
     std::ifstream ifs;
     ifs.open(file, std::ios::out | std::ios::binary);
     // ifs.open(path, std::ios::in);
-    //判断文件是否打开成功
+    // 判断文件是否打开成功
     if (!ifs.is_open())
     {
         std::cerr << "file open failed" << std::endl;
@@ -196,7 +196,7 @@ bool silly_nrd_grid_utils::read_grid(const std::string& file, const double& dst_
     std::ifstream ifs;
     ifs.open(file, std::ios::out | std::ios::binary);
     // ifs.open(path, std::ios::in);
-    //判断文件是否打开成功
+    // 判断文件是否打开成功
     if (!ifs.is_open())
     {
         std::cerr << "file open failed" << std::endl;

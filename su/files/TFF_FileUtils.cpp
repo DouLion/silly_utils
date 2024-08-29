@@ -11,16 +11,16 @@
 ////    - v1.0	2017-02-09	gaoyang
 ////
 //////////////////////////////////////////////////////////////////////////////////////
-//#include <boost/foreach.hpp>
-//#include <boost/progress.hpp>
-//#include <boost/algorithm/string.hpp>
-//#include <boost/xpressive/xpressive_dynamic.hpp>
-//#include <boost/filesystem/operations.hpp>
-//#include "encode/silly_encode.h"
-//#include "TFF_FileUtils.h"
+// #include <boost/foreach.hpp>
+// #include <boost/progress.hpp>
+// #include <boost/algorithm/string.hpp>
+// #include <boost/xpressive/xpressive_dynamic.hpp>
+// #include <boost/filesystem/operations.hpp>
+// #include "encode/silly_encode.h"
+// #include "TFF_FileUtils.h"
 //
-//using namespace boost::xpressive;
-//using namespace std::filesystem;
+// using namespace boost::xpressive;
+// using namespace std::filesystem;
 //// std::filesystem::path FileUtils::GetPath(const std::string& path)
 ////{
 ////	std::filesystem::path fspath(path);
@@ -77,11 +77,11 @@
 ////	return GetPath(path).string();
 ////}
 //
-//bool FileUtils::IsDirectory(const char* dirPath)
+// bool FileUtils::IsDirectory(const char* dirPath)
 //{
-//#if defined(IS_WIN32)
-//#pragma region C
-//#endif
+// #if defined(IS_WIN32)
+// #pragma region C
+// #endif
 //
 //    // C.
 //    // struct _stat f_stat;
@@ -92,53 +92,53 @@
 //    //}
 //    // return ret;
 //
-//#if defined(IS_WIN32)
-//#pragma endregion
-//#endif
+// #if defined(IS_WIN32)
+// #pragma endregion
+// #endif
 //
-//#if defined(IS_WIN32)
-//#pragma region Boost
-//#endif
+// #if defined(IS_WIN32)
+// #pragma region Boost
+// #endif
 //
 //    try
 //    {
-//#ifdef UNICODE
+// #ifdef UNICODE
 //        std::wstring dirPathWStr = silly_encode::cxx11_string_wstring(dirPath);
 //        bool bRet = std::filesystem::is_directory(std::filesystem::path(dirPathWStr));
 //        return bRet;
-//#else
+// #else
 //        bool bRet = std::filesystem::is_directory(std::filesystem::path(dirPath));
 //        return bRet;
-//#endif
+// #endif
 //    }
 //    catch (std::filesystem::filesystem_error& err)
 //    {
 //        return false;
 //    }
 //
-//#if defined(IS_WIN32)
-//#pragma endregion
-//#endif
+// #if defined(IS_WIN32)
+// #pragma endregion
+// #endif
 //}
 //
-//bool FileUtils::IsDirectory(const std::string& dirPath)
+// bool FileUtils::IsDirectory(const std::string& dirPath)
 //{
 //    return IsDirectory(dirPath.c_str());
 //}
 //
-//bool FileUtils::IsRegularFile(const char* filePath)
+// bool FileUtils::IsRegularFile(const char* filePath)
 //{
 //    // Boost.
 //    try
 //    {
-//#ifdef UNICODE
+// #ifdef UNICODE
 //        std::wstring filePathWStr = silly_encode::cxx11_string_wstring(filePath);
 //        bool bRet = std::filesystem::is_regular_file(std::filesystem::path(filePathWStr));
 //        return bRet;
-//#else
+// #else
 //        bool bRet = std::filesystem::is_regular_file(std::filesystem::path(filePath));
 //        return bRet;
-//#endif
+// #endif
 //    }
 //    catch (std::filesystem::filesystem_error& err)
 //    {
@@ -147,24 +147,24 @@
 //    }
 //}
 //
-//bool FileUtils::IsRegularFile(const std::string& filePath)
+// bool FileUtils::IsRegularFile(const std::string& filePath)
 //{
 //    return IsRegularFile(filePath.c_str());
 //}
 //
-//bool FileUtils::IsSymlinkFile(const char* filePath)
+// bool FileUtils::IsSymlinkFile(const char* filePath)
 //{
 //    // Boost.
 //    try
 //    {
-//#ifdef UNICODE
+// #ifdef UNICODE
 //        std::wstring filePathWStr = silly_encode::cxx11_string_wstring(filePath);
 //        bool bRet = std::filesystem::is_symlink(std::filesystem::path(filePathWStr));
 //        return bRet;
-//#else
+// #else
 //        bool bRet = std::filesystem::is_symlink(std::filesystem::path(filePath));
 //        return bRet;
-//#endif
+// #endif
 //    }
 //    catch (std::filesystem::filesystem_error& err)
 //    {
@@ -173,12 +173,12 @@
 //    }
 //}
 //
-//bool FileUtils::IsSymlinkFile(const std::string& filePath)
+// bool FileUtils::IsSymlinkFile(const std::string& filePath)
 //{
 //    return IsSymlinkFile(filePath.c_str());
 //}
 //
-//std::string FileUtils::GetInitialPath()
+// std::string FileUtils::GetInitialPath()
 //{
 //    // Boost.
 //    try
@@ -192,7 +192,7 @@
 //    }
 //}
 //
-//std::string FileUtils::GetCurrentPath()
+// std::string FileUtils::GetCurrentPath()
 //{
 //    // Boost.
 //    try
@@ -206,7 +206,7 @@
 //    }
 //}
 //
-//void FileUtils::GetLastWriteTime(const char* filePath, std::filesystem::file_time_type& time)
+// void FileUtils::GetLastWriteTime(const char* filePath, std::filesystem::file_time_type& time)
 //{
 //    // Boost.
 //    //	try
@@ -224,22 +224,22 @@
 //    //	}
 //}
 //
-//void FileUtils::GetLastWriteTime(const std::string& filePath, std::filesystem::file_time_type& time)
+// void FileUtils::GetLastWriteTime(const std::string& filePath, std::filesystem::file_time_type& time)
 //{
 //    GetLastWriteTime(filePath.c_str(), time);
 //}
 //
-//bool FileUtils::ModifyLastWriteTime(const char* dstPath, const std::filesystem::file_time_type& time)
+// bool FileUtils::ModifyLastWriteTime(const char* dstPath, const std::filesystem::file_time_type& time)
 //{
 //    // Boost.
 //    try
 //    {
-//#ifdef UNICODE
+// #ifdef UNICODE
 //        std::wstring dstPathWStr = silly_encode::cxx11_string_wstring(dstPath);
 //        std::filesystem::last_write_time(std::filesystem::path(dstPathWStr), time);
-//#else
+// #else
 //        std::filesystem::last_write_time(std::filesystem::path(dstPath), time);
-//#endif
+// #endif
 //
 //        return true;
 //    }
@@ -250,24 +250,24 @@
 //    }
 //}
 //
-//bool FileUtils::ModifyLastWriteTime(const std::string& dstPath, const std::filesystem::file_time_type& time)
+// bool FileUtils::ModifyLastWriteTime(const std::string& dstPath, const std::filesystem::file_time_type& time)
 //{
 //    return ModifyLastWriteTime(dstPath.c_str(), time);
 //}
 //
-//std::filesystem::space_info FileUtils::GetSpaceInfo(const char* dstPath)
+// std::filesystem::space_info FileUtils::GetSpaceInfo(const char* dstPath)
 //{
 //    // Boost.
 //    std::filesystem::space_info si;
 //    std::error_code _Ec;
 //    try
 //    {
-//#ifdef UNICODE
+// #ifdef UNICODE
 //        std::wstring dstPathWStr = silly_encode::cxx11_string_wstring(dstPath);
 //        si = std::filesystem::space(std::filesystem::path(dstPathWStr), _Ec);
-//#else
+// #else
 //        si = std::filesystem::space(std::filesystem::path(dstPath));
-//#endif
+// #endif
 //    }
 //    catch (std::filesystem::filesystem_error& err)
 //    {
@@ -277,22 +277,22 @@
 //    return si;
 //}
 //
-//std::filesystem::space_info FileUtils::GetSpaceInfo(const std::string& dstPath)
+// std::filesystem::space_info FileUtils::GetSpaceInfo(const std::string& dstPath)
 //{
 //    return GetSpaceInfo(dstPath.c_str());
 //}
 //
-//bool FileUtils::IsExists(const char* path, const bool bDir)
+// bool FileUtils::IsExists(const char* path, const bool bDir)
 //{
 //    try
 //    {
 //        std::filesystem::path pathFile;
-//#ifdef UNICODE
+// #ifdef UNICODE
 //        std::wstring pathWStr = silly_encode::cxx11_string_wstring(path);
 //        pathFile = pathWStr;
-//#else
+// #else
 //        pathFile = path;
-//#endif
+// #endif
 //
 //        if (!bDir)
 //        {
@@ -318,12 +318,12 @@
 //    }
 //}
 //
-//bool FileUtils::IsExists(const std::string& path, const bool bDir)
+// bool FileUtils::IsExists(const std::string& path, const bool bDir)
 //{
 //    return IsExists(path.c_str(), bDir);
 //}
 //
-//int FileUtils::GetFileSize(const char* filePath)
+// int FileUtils::GetFileSize(const char* filePath)
 //{
 //    // C.
 //    // int ret = 0;
@@ -348,14 +348,14 @@
 //    // Boost.
 //    try
 //    {
-//#ifdef UNICODE
+// #ifdef UNICODE
 //        std::wstring filePathWStr = silly_encode::cxx11_string_wstring(filePath);
 //        std::filesystem::path path(filePathWStr);
 //        return (int)std::filesystem::file_size(path);
-//#else
+// #else
 //        std::filesystem::path path(filePath);
 //        return (int)std::filesystem::file_size(path);
-//#endif
+// #endif
 //    }
 //    catch (std::filesystem::filesystem_error& err)
 //    {
@@ -364,53 +364,53 @@
 //    }
 //}
 //
-//int FileUtils::GetFileSize(const std::string& filePath)
+// int FileUtils::GetFileSize(const std::string& filePath)
 //{
 //    return GetFileSize(filePath.c_str());
 //}
 //
-//std::string FileUtils::GetParentDirectory(const char* currentPath)
+// std::string FileUtils::GetParentDirectory(const char* currentPath)
 //{
-//#if BOOST_VERSION > 104100
+// #if BOOST_VERSION > 104100
 //    try
 //    {
-//#ifdef UNICODE
+// #ifdef UNICODE
 //        std::wstring currentPathWStr = silly_encode::cxx11_string_wstring(currentPath);
 //        std::filesystem::path path(currentPathWStr);
 //        return path.parent_path().string();
-//#else
+// #else
 //        std::filesystem::path path(currentPath);
 //        return path.parent_path().string();
-//#endif
+// #endif
 //    }
 //    catch (std::filesystem::filesystem_error& err)
 //    {
 //        printf("err: %s", err.what());
 //        return "";
 //    }
-//#else
+// #else
 //    return "";
-//#endif
+// #endif
 //}
 //
-//std::string FileUtils::GetParentDirectory(const std::string& currentPath)
+// std::string FileUtils::GetParentDirectory(const std::string& currentPath)
 //{
 //    return GetParentDirectory(currentPath.c_str());
 //}
 //
-//bool FileUtils::Mkdir(const char* dirPath)
+// bool FileUtils::Mkdir(const char* dirPath)
 //{
 //    try
 //    {
 //        bool bRet = true;
 //        if (!IsExists(dirPath))
 //        {
-//#ifdef UNICODE
+// #ifdef UNICODE
 //            std::wstring dirPathWStr = silly_encode::cxx11_string_wstring(dirPath);
 //            bRet = std::filesystem::create_directories(std::filesystem::path(dirPathWStr));
-//#else
+// #else
 //            bRet = std::filesystem::create_directories(std::filesystem::path(dirPath));
-//#endif
+// #endif
 //        }
 //
 //        return bRet;
@@ -422,18 +422,18 @@
 //    }
 //}
 //
-//bool FileUtils::Mkdir(const std::string& dirPath)
+// bool FileUtils::Mkdir(const std::string& dirPath)
 //{
 //    return Mkdir(dirPath.c_str());
 //}
 //
-//std::string FileUtils::ExtractDirectory(const char* filePath)
+// std::string FileUtils::ExtractDirectory(const char* filePath)
 //{
 //    std::string ret = "";
 //
 //    try
 //    {
-//#if BOOST_VERSION > 104100
+// #if BOOST_VERSION > 104100
 //        if (!IsDirectory(filePath))
 //        {
 //            std::deque<std::string> tokens;
@@ -448,7 +448,7 @@
 //                ret = boost::algorithm::join(tokens, "/");
 //            }
 //        }
-//#endif
+// #endif
 //    }
 //    catch (std::filesystem::filesystem_error& err)
 //    {
@@ -458,29 +458,29 @@
 //    return ret;
 //}
 //
-//std::string FileUtils::ExtractDirectory(const std::string& filePath)
+// std::string FileUtils::ExtractDirectory(const std::string& filePath)
 //{
 //    return ExtractDirectory(filePath.c_str());
 //}
 //
-//std::string FileUtils::GetLeaf(const char* dstPath)
+// std::string FileUtils::GetLeaf(const char* dstPath)
 //{
-//#ifdef UNICODE
+// #ifdef UNICODE
 //    std::wstring dstPathWStr = silly_encode::cxx11_string_wstring(dstPath);
 //    std::filesystem::path p(dstPathWStr);
 //    return p.filename().string();
-//#else
+// #else
 //    std::filesystem::path p(dstPath);
 //    return p.filename().string();
-//#endif
+// #endif
 //}
 //
-//std::string FileUtils::GetLeaf(const std::string& dstPath)
+// std::string FileUtils::GetLeaf(const std::string& dstPath)
 //{
 //    return GetLeaf(dstPath.c_str());
 //}
 //
-//void FileUtils::ListFilesRecursive(const char* currentPath, const std::string& filter, std::vector<std::string>& filePathVec)
+// void FileUtils::ListFilesRecursive(const char* currentPath, const std::string& filter, std::vector<std::string>& filePathVec)
 //{
 //    //	try
 //    //	{
@@ -527,12 +527,12 @@
 //    //	}
 //}
 //
-//void FileUtils::ListFilesRecursive(const std::string& currentPath, const std::string& filter, std::vector<std::string>& filePathVec)
+// void FileUtils::ListFilesRecursive(const std::string& currentPath, const std::string& filter, std::vector<std::string>& filePathVec)
 //{
 //    ListFilesRecursive(currentPath.c_str(), filter, filePathVec);
 //}
 //
-//void FileUtils::ListDirsRecursive(const char* currentPath, std::vector<std::string>& dirPathVec)
+// void FileUtils::ListDirsRecursive(const char* currentPath, std::vector<std::string>& dirPathVec)
 //{
 //    //	try
 //    //	{
@@ -564,39 +564,39 @@
 //    //	}
 //}
 //
-//void FileUtils::ListDirsRecursive(const std::string& currentPath, std::vector<std::string>& dirPathVec)
+// void FileUtils::ListDirsRecursive(const std::string& currentPath, std::vector<std::string>& dirPathVec)
 //{
 //    ListDirsRecursive(currentPath.c_str(), dirPathVec);
 //}
 //
-//void FileUtils::ListFiles(const char* currentPath, const std::string& filter, std::vector<std::string>& filePathVec)
+// void FileUtils::ListFiles(const char* currentPath, const std::string& filter, std::vector<std::string>& filePathVec)
 //{
 //    try
 //    {
 //        filePathVec.clear();
 //
-//#if BOOST_VERSION > 104100
+// #if BOOST_VERSION > 104100
 //        std::vector<std::filesystem::path> paths;
 //
 //        std::filesystem::path currPath;
 //        std::filesystem::path filterPath;
 //
-//#ifdef UNICODE
+// #ifdef UNICODE
 //        std::wstring currentPathWStr = silly_encode::cxx11_string_wstring(currentPath);
 //        currPath = currentPathWStr;
 //        std::wstring filterWStr = silly_encode::cxx11_string_wstring(filter);
 //        filterPath = currPath / filterWStr;
-//#else
+// #else
 //        currPath = currentPath;
 //        filterPath = currPath / filter;
-//#endif
+// #endif
 //
 //        std::filesystem::path filterDir1 = filterPath.parent_path();
 //        std::string filename = filterPath.filename().string();
 //        // 转换文件通配符为正则表达式.
 //        std::string str = boost::replace_all_copy(boost::replace_all_copy(filename, ".", "\\."), "*", ".*");
 //
-//#ifdef UNICODE
+// #ifdef UNICODE
 //        wsregex reg = wsregex::compile(silly_encode::cxx11_string_wstring(str));
 //        std::copy(directory_iterator(currPath), directory_iterator(), back_inserter(paths));
 //        size_t pathLen = paths.size();
@@ -609,7 +609,7 @@
 //                filePathVec.push_back(paths[i].string());
 //            }
 //        }
-//#else
+// #else
 //        sregex reg = sregex::compile(str);
 //        std::copy(directory_iterator(currPath), directory_iterator(), back_inserter(paths));
 //        size_t pathLen = paths.size();
@@ -622,9 +622,9 @@
 //                filePathVec.push_back(paths[i].string());
 //            }
 //        }
-//#endif
+// #endif
 //
-//#endif
+// #endif
 //    }
 //    catch (std::filesystem::filesystem_error& err)
 //    {
@@ -632,32 +632,32 @@
 //    }
 //}
 //
-//void FileUtils::ListFiles(const std::string& currentPath, const std::string& filter, std::vector<std::string>& filePathVec)
+// void FileUtils::ListFiles(const std::string& currentPath, const std::string& filter, std::vector<std::string>& filePathVec)
 //{
 //    ListFiles(currentPath.c_str(), filter, filePathVec);
 //}
 //
-//void FileUtils::ListFiles(const std::string& currentPath, const std::string& givenFileName, const std::string& filter, std::vector<std::string>& filePathVec, const bool bSplitName)
+// void FileUtils::ListFiles(const std::string& currentPath, const std::string& givenFileName, const std::string& filter, std::vector<std::string>& filePathVec, const bool bSplitName)
 //{
 //    try
 //    {
 //        filePathVec.clear();
 //
-//#if BOOST_VERSION > 104100
+// #if BOOST_VERSION > 104100
 //        std::vector<std::filesystem::path> paths;
 //
 //        std::filesystem::path currPath;
 //        std::filesystem::path filterPath;
 //
-//#ifdef UNICODE
+// #ifdef UNICODE
 //        std::wstring currentPathWStr = silly_encode::cxx11_string_wstring(currentPath);
 //        currPath = currentPathWStr;
 //        std::wstring filterWStr = silly_encode::cxx11_string_wstring(filter);
 //        filterPath = currPath / filterWStr;
-//#else
+// #else
 //        currPath = currentPath;
 //        filterPath = currPath / filter;
-//#endif
+// #endif
 //
 //        std::filesystem::path filterDir1 = filterPath.parent_path();
 //        std::string filename = filterPath.filename().string();
@@ -679,7 +679,7 @@
 //                filePathVec.push_back(paths[i].string());
 //            }
 //        }
-//#endif
+// #endif
 //    }
 //    catch (std::filesystem::filesystem_error& err)
 //    {
@@ -687,21 +687,21 @@
 //    }
 //}
 //
-//void FileUtils::ListDirs(const char* currentPath, std::vector<std::string>& dirPathVec)
+// void FileUtils::ListDirs(const char* currentPath, std::vector<std::string>& dirPathVec)
 //{
 //    try
 //    {
 //        dirPathVec.clear();
 //
-//#if BOOST_VERSION > 104100
+// #if BOOST_VERSION > 104100
 //        std::vector<std::filesystem::path> paths;
 //        std::filesystem::path p;
-//#ifdef UNICODE
+// #ifdef UNICODE
 //        std::wstring currentPathWStr = silly_encode::cxx11_string_wstring(currentPath);
 //        p = currentPathWStr;
-//#else
+// #else
 //        p = currentPath;
-//#endif
+// #endif
 //        std::copy(directory_iterator(p), directory_iterator(), back_inserter(paths));
 //        size_t pathLen = paths.size();
 //        for (unsigned int i = 0; i < pathLen; ++i)
@@ -712,7 +712,7 @@
 //                dirPathVec.push_back(dirFullpath);
 //            }
 //        }
-//#endif
+// #endif
 //    }
 //    catch (std::filesystem::filesystem_error& err)
 //    {
@@ -720,12 +720,12 @@
 //    }
 //}
 //
-//void FileUtils::ListDirs(const std::string& currentPath, std::vector<std::string>& dirPathVec)
+// void FileUtils::ListDirs(const std::string& currentPath, std::vector<std::string>& dirPathVec)
 //{
 //    ListDirs(currentPath.c_str(), dirPathVec);
 //}
 //
-//bool FileUtils::CopyFile(const char* srcFilePath, const char* dstFilePath, const bool bCover)
+// bool FileUtils::CopyFile(const char* srcFilePath, const char* dstFilePath, const bool bCover)
 //{
 //    try
 //    {
@@ -741,17 +741,17 @@
 //            DelFile(dstFilePath);
 //        }
 //
-//#ifdef UNICODE
+// #ifdef UNICODE
 //        std::wstring srcFilePathWStr = silly_encode::cxx11_string_wstring(srcFilePath);
 //        std::filesystem::path srcPath(srcFilePathWStr);
 //        std::wstring dstFilePathWStr = silly_encode::cxx11_string_wstring(dstFilePath);
 //        std::filesystem::path dstPath(dstFilePathWStr);
 //        std::filesystem::copy_file(srcPath, dstPath);
-//#else
+// #else
 //        std::filesystem::path srcPath(srcFilePath);
 //        std::filesystem::path dstPath(dstFilePath);
 //        std::filesystem::copy_file(srcPath, dstPath);
-//#endif
+// #endif
 //
 //        return true;
 //    }
@@ -762,22 +762,22 @@
 //    }
 //}
 //
-//bool FileUtils::CopyFile(const std::string& srcFilePath, const std::string& dstFilePath, const bool bCover)
+// bool FileUtils::CopyFile(const std::string& srcFilePath, const std::string& dstFilePath, const bool bCover)
 //{
 //    return CopyFile(srcFilePath.c_str(), dstFilePath.c_str(), bCover);
 //}
 //
-//bool FileUtils::MoveFile(const char* srcPath, const char* dstPath)
+// bool FileUtils::MoveFile(const char* srcPath, const char* dstPath)
 //{
 //    return Rename(srcPath, dstPath);
 //}
 //
-//bool FileUtils::MoveFile(const std::string& srcPath, const std::string& dstPath)
+// bool FileUtils::MoveFile(const std::string& srcPath, const std::string& dstPath)
 //{
 //    return MoveFile(srcPath.c_str(), dstPath.c_str());
 //}
 //
-//bool FileUtils::CopyDirectory(const char* srcDirPath, const char* dstDirPath, const std::string& filter)
+// bool FileUtils::CopyDirectory(const char* srcDirPath, const char* dstDirPath, const std::string& filter)
 //{
 //    try
 //    {
@@ -787,12 +787,12 @@
 //        }
 //
 //        std::filesystem::path srcPath;
-//#ifdef UNICODE
+// #ifdef UNICODE
 //        std::wstring srcDirPathWStr = silly_encode::cxx11_string_wstring(srcDirPath);
 //        srcPath = srcDirPathWStr;
-//#else
+// #else
 //        srcPath = srcDirPath;
-//#endif
+// #endif
 //        std::vector<std::string> filePathVec;
 //        ListFilesRecursive(srcDirPath, filter, filePathVec);
 //        if (filePathVec.empty())
@@ -803,28 +803,28 @@
 //
 //        std::string srcDirName = GetLeaf(srcDirPath);
 //        std::filesystem::path dstPath(dstDirPath);
-//#ifdef UNICODE
+// #ifdef UNICODE
 //        std::wstring dstDirPathWStr = silly_encode::cxx11_string_wstring(dstDirPath);
 //        dstPath = dstDirPathWStr;
-//#else
+// #else
 //        dstPath = dstDirPath;
-//#endif
+// #endif
 //        dstPath.append(srcDirName.c_str());
-//#include <boost/progress.hpp>
+// #include <boost/progress.hpp>
 //        std::filesystem::path tmp;
 //        std::filesystem::path p;
 //        boost::progress_display pd((unsigned long)filePathVec.size());
 //        BOOST_FOREACH (std::string& filePath, filePathVec)
 //        {
-//#ifdef UNICODE
+// #ifdef UNICODE
 //            std::wstring filePathWStr = silly_encode::cxx11_string_wstring(filePath);
 //            p = filePathWStr;
 //            std::wstring nameWStr = silly_encode::cxx11_string_wstring(p.string().substr(srcPath.string().length()));
 //            tmp = dstPath / nameWStr;
-//#else
+// #else
 //            p = filePath;
 //            tmp = dstPath / p.string().substr(srcPath.string().length());
-//#endif
+// #endif
 //
 //            Mkdir(tmp.parent_path().string());
 //
@@ -841,12 +841,12 @@
 //    }
 //}
 //
-//bool FileUtils::CopyDirectory(const std::string& srcDirPath, const std::string& dstDirPath, const std::string& filter)
+// bool FileUtils::CopyDirectory(const std::string& srcDirPath, const std::string& dstDirPath, const std::string& filter)
 //{
 //    return CopyDirectory(srcDirPath.c_str(), dstDirPath.c_str(), filter);
 //}
 //
-//bool FileUtils::MoveDirectory(const char* srcDirPath, const char* dstDirPath, const std::string& filter)
+// bool FileUtils::MoveDirectory(const char* srcDirPath, const char* dstDirPath, const std::string& filter)
 //{
 //    try
 //    {
@@ -856,12 +856,12 @@
 //        }
 //
 //        std::filesystem::path srcPath;
-//#ifdef UNICODE
+// #ifdef UNICODE
 //        std::wstring srcDirPathWStr = silly_encode::cxx11_string_wstring(srcDirPath);
 //        srcPath = srcDirPathWStr;
-//#else
+// #else
 //        srcPath = srcDirPath;
-//#endif
+// #endif
 //        std::vector<std::string> filePathVec;
 //        ListFilesRecursive(srcDirPath, filter, filePathVec);
 //        if (filePathVec.empty())
@@ -872,12 +872,12 @@
 //
 //        std::string srcDirName = GetLeaf(srcDirPath);
 //        std::filesystem::path dstPath(dstDirPath);
-//#ifdef UNICODE
+// #ifdef UNICODE
 //        std::wstring dstDirPathWStr = silly_encode::cxx11_string_wstring(dstDirPath);
 //        dstPath = dstDirPathWStr;
-//#else
+// #else
 //        dstPath = dstDirPath;
-//#endif
+// #endif
 //        dstPath.append(srcDirName.c_str());
 //
 //        std::filesystem::path tmp;
@@ -885,15 +885,15 @@
 //        boost::progress_display pd((unsigned long)filePathVec.size());
 //        BOOST_FOREACH (std::string& filePath, filePathVec)
 //        {
-//#ifdef UNICODE
+// #ifdef UNICODE
 //            std::wstring filePathWStr = silly_encode::cxx11_string_wstring(filePath);
 //            p = filePathWStr;
 //            std::wstring nameWStr = silly_encode::cxx11_string_wstring(p.string().substr(srcPath.string().length()));
 //            tmp = dstPath / nameWStr;
-//#else
+// #else
 //            p = filePath;
 //            tmp = dstPath / p.string().substr(srcPath.string().length());
-//#endif
+// #endif
 //
 //            Mkdir(tmp.parent_path().string());
 //
@@ -910,23 +910,23 @@
 //    }
 //}
 //
-//bool FileUtils::MoveDirectory(const std::string& srcDirPath, const std::string& dstDirPath, const std::string& filter)
+// bool FileUtils::MoveDirectory(const std::string& srcDirPath, const std::string& dstDirPath, const std::string& filter)
 //{
 //    return MoveDirectory(srcDirPath.c_str(), dstDirPath.c_str(), filter);
 //}
 //
-//bool FileUtils::DeleteDirectory(const char* dirPath)
+// bool FileUtils::DeleteDirectory(const char* dirPath)
 //{
 //    try
 //    {
 //        std::filesystem::path path;
 //
-//#ifdef UNICODE
+// #ifdef UNICODE
 //        std::wstring dirPathWStr = silly_encode::cxx11_string_wstring(dirPath);
 //        path = dirPathWStr;
-//#else
+// #else
 //        path = dirPath;
-//#endif
+// #endif
 //        boost::system::error_code errCode;
 //        std::filesystem::remove_all(path, errCode);
 //
@@ -938,23 +938,23 @@
 //    }
 //}
 //
-//bool FileUtils::DeleteDirectory(const std::string& dirPath)
+// bool FileUtils::DeleteDirectory(const std::string& dirPath)
 //{
 //    return DeleteDirectory(dirPath.c_str());
 //}
 //
-//bool FileUtils::DelFile(const char* filePath)
+// bool FileUtils::DelFile(const char* filePath)
 //{
 //    try
 //    {
 //        std::filesystem::path path;
 //
-//#ifdef UNICODE
+// #ifdef UNICODE
 //        std::wstring filePathWStr = silly_encode::cxx11_string_wstring(filePath);
 //        path = filePathWStr;
-//#else
+// #else
 //        path = filePath;
-//#endif
+// #endif
 //        boost::system::error_code errCode;
 //        std::filesystem::remove(path, errCode);
 //
@@ -967,12 +967,12 @@
 //    }
 //}
 //
-//bool FileUtils::DelFile(const std::string& filePath)
+// bool FileUtils::DelFile(const std::string& filePath)
 //{
 //    return DelFile(filePath.c_str());
 //}
 //
-//bool FileUtils::DelGivenFile(const std::string& dirPath, const std::string& givenFileName, const std::string& filter)
+// bool FileUtils::DelGivenFile(const std::string& dirPath, const std::string& givenFileName, const std::string& filter)
 //{
 //    try
 //    {
@@ -996,21 +996,21 @@
 //    }
 //}
 //
-//bool FileUtils::Rename(const char* srcPath, const char* dstPath)
+// bool FileUtils::Rename(const char* srcPath, const char* dstPath)
 //{
 //    try
 //    {
-//#ifdef UNICODE
+// #ifdef UNICODE
 //        std::wstring srcPathWStr = silly_encode::cxx11_string_wstring(srcPath);
 //        std::filesystem::path src(srcPathWStr);
 //        std::wstring dstPathWStr = silly_encode::cxx11_string_wstring(dstPath);
 //        std::filesystem::path dst(dstPathWStr);
 //        std::filesystem::rename(src, dst);
-//#else
+// #else
 //        std::filesystem::path src(srcPath);
 //        std::filesystem::path dst(dstPath);
 //        std::filesystem::rename(src, dst);
-//#endif
+// #endif
 //
 //        return true;
 //    }
@@ -1021,12 +1021,12 @@
 //    }
 //}
 //
-//bool FileUtils::Rename(const std::string& srcPath, const std::string& dstPath)
+// bool FileUtils::Rename(const std::string& srcPath, const std::string& dstPath)
 //{
 //    return Rename(srcPath.c_str(), dstPath.c_str());
 //}
 //
-//bool FileUtils::ReadAll(const char* filePath, std::string& fileContent)
+// bool FileUtils::ReadAll(const char* filePath, std::string& fileContent)
 //{
 //    // C.
 //    FILE* pf = fopen(filePath, "rb");
@@ -1056,12 +1056,12 @@
 //    return false;
 //}
 //
-//bool FileUtils::ReadAll(const std::string& filePath, std::string& fileContent)
+// bool FileUtils::ReadAll(const std::string& filePath, std::string& fileContent)
 //{
 //    return ReadAll(filePath.c_str(), fileContent);
 //}
 //
-//bool FileUtils::ReadAll(const char* filePath, char** fileContent, int& fileSize, bool bTxt)
+// bool FileUtils::ReadAll(const char* filePath, char** fileContent, int& fileSize, bool bTxt)
 //{
 //    // C.
 //    FILE* pf = fopen(filePath, "rb");
@@ -1108,12 +1108,12 @@
 //    return false;
 //}
 //
-//bool FileUtils::ReadAll(const std::string& filePath, char** fileContent, int& fileSize, bool bTxt)
+// bool FileUtils::ReadAll(const std::string& filePath, char** fileContent, int& fileSize, bool bTxt)
 //{
 //    return ReadAll(filePath.c_str(), fileContent, fileSize, bTxt);
 //}
 //
-//bool FileUtils::WriteAll(const char* filePath, std::string& fileContent)
+// bool FileUtils::WriteAll(const char* filePath, std::string& fileContent)
 //{
 //    std::string dirPath = ExtractDirectory(filePath);
 //    if (!Mkdir(dirPath))
@@ -1147,12 +1147,12 @@
 //    return true;
 //}
 //
-//bool FileUtils::WriteAll(const std::string& filePath, std::string& fileContent)
+// bool FileUtils::WriteAll(const std::string& filePath, std::string& fileContent)
 //{
 //    return WriteAll(filePath.c_str(), fileContent);
 //}
 //
-//bool FileUtils::WriteAll(const char* filePath, char* fileContent, int fileSize)
+// bool FileUtils::WriteAll(const char* filePath, char* fileContent, int fileSize)
 //{
 //    std::string dirPath = ExtractDirectory(filePath);
 //    if (!Mkdir(dirPath))
@@ -1186,7 +1186,7 @@
 //    return true;
 //}
 //
-//bool FileUtils::WriteAll(const std::string& filePath, char* fileContent, int fileSize)
+// bool FileUtils::WriteAll(const std::string& filePath, char* fileContent, int fileSize)
 //{
 //    return WriteAll(filePath.c_str(), fileContent, fileSize);
 //}

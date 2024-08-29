@@ -15,7 +15,6 @@
 
 class icon_utils
 {
-
 };
 
-#endif //SILLY_UTILS_ICON_UTILS_H
+#endif  // SILLY_UTILS_ICON_UTILS_H

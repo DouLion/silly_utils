@@ -37,9 +37,9 @@ struct nrd_header
     double dlon{0.};    // 网格列间距，以1/10000度为计数单位
     int calt{0};        // 特征高度，仅CAPPI为海拔高度(米)，其余均为0.
 
-    char varCode[8]{{0}};   //产品代码
-    char varUnit[8]{{0}};   //数据单位
-    char varName[32]{{0}};  //产品中文名称
+    char varCode[8]{{0}};   // 产品代码
+    char varUnit[8]{{0}};   // 数据单位
+    char varName[32]{{0}};  // 产品中文名称
 
     unsigned short varID;  // 产品编号
 
@@ -73,7 +73,7 @@ struct nrd_header
     char rgnName[52]{{0}};  // 区域/雷达ID号名称
     char country[20]{{0}};  // 国家名
     // 保留字
-    char reserve[36]{{0}};  //保留字节
+    char reserve[36]{{0}};  // 保留字节
 };
 
 class silly_nrd_grid_utils

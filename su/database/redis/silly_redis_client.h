@@ -16,13 +16,10 @@ class silly_redis_client
   public:
     bool init(const std::string& ip, const int& port, const std::string pwd = "");
 
-
-
   private:
     std::string m_ip;
     std::string m_pwd;
     int m_port;
-
 };
 
 #endif  // SILLY_UTILS_SILLY_REDIS_CLIENT_H

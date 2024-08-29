@@ -384,14 +384,14 @@ void silly_cairo::draw_line_web_mercator(const std::vector<silly_point> &line, c
     }
     cairo_stroke(m_cr);
 }
-void silly_cairo::draw_point(const silly_point &p, const double &size, const silly_geo_rect& rect)
+void silly_cairo::draw_point(const silly_point &p, const double &size, const silly_geo_rect &rect)
 {
-    cairo_set_line_width(m_cr, size); // 圆点的直径
+    cairo_set_line_width(m_cr, size);  // 圆点的直径
 
-    double x = (p.lgtd - rect.left)/(rect.right - rect.left) * m_width;
-    double y = (rect.top - p.lttd)/(rect.top - rect.bottom) * m_height;
+    double x = (p.lgtd - rect.left) / (rect.right - rect.left) * m_width;
+    double y = (rect.top - p.lttd) / (rect.top - rect.bottom) * m_height;
 
     // 绘制圆点
-    cairo_arc(m_cr, x,y, size/2., 0, 2 * M_PI); // 圆心位置 (100, 100), 半径 5
+    cairo_arc(m_cr, x, y, size / 2., 0, 2 * M_PI);  // 圆心位置 (100, 100), 半径 5
     cairo_stroke(m_cr);
 }

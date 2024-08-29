@@ -33,7 +33,7 @@ struct cover_pair
 class xscan_line_raster
 {
   public:
-    void set(const silly_geo_rect& rect, const  double& cell_size);
+    void set(const silly_geo_rect& rect, const double& cell_size);
 
     /// <summary>
     /// 光栅化单点
@@ -96,7 +96,6 @@ class xscan_line_raster
     std::map<int, std::vector<cover_pair>> row_pairs() const;
 
   private:
-
     /// <summary>
     /// 光栅化的基本算法, int运算效率高
     /// </summary>
@@ -104,7 +103,7 @@ class xscan_line_raster
     /// <returns></returns>
     bool rasterization(const std::vector<std::vector<raster_point>> vertices_arr);
 
-    void check_line_point(silly_point point, std::vector<raster_point>&vct, int& last_x, int& last_y);
+    void check_line_point(silly_point point, std::vector<raster_point>& vct, int& last_x, int& last_y);
 
     /// <summary>
     /// 点 线 不会闭合, 可能会存在一些点重合
@@ -113,7 +112,6 @@ class xscan_line_raster
     void slim();
 
   private:
-
     // 数据记录以经纬度左上角为原点, 向东为col的正方向,向下为row的正方向
     int m_width{0};
     int m_height{0};

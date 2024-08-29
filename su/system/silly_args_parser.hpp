@@ -12,7 +12,6 @@
 
 class silly_args_parser
 {
-
 };
 
-#endif //SILLY_UTILS_SILLY_ARGS_PARSER_HPP
+#endif  // SILLY_UTILS_SILLY_ARGS_PARSER_HPP

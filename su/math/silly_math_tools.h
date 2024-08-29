@@ -12,8 +12,8 @@
 
 class silly_math_tools
 {
-public:
-    void arr_compress_scale_offset_short(const float& fmax,  const float& fmin, float& offset, float& scale);
+  public:
+    void arr_compress_scale_offset_short(const float& fmax, const float& fmin, float& offset, float& scale);
 };
 
-#endif //SILLY_UTILS_SILLY_MATH_TOOLS_H
+#endif  // SILLY_UTILS_SILLY_MATH_TOOLS_H

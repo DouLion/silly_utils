@@ -62,7 +62,7 @@ class silly_mail_send
     /// </summary>
     /// <param name="sman"></param>
     void add_receiver(const silly_mail_addr_name& sman);
-   
+
     /// <summary>
     /// 设置邮件接收者
     /// </summary>

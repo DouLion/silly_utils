@@ -158,7 +158,7 @@
 #define SQRT_2 (1.4142135623730950488016887242097f)
 
 #define SU_RGB(r, g, b) ((unsigned int)(((unsigned char)(r) | ((unsigned int)((unsigned char)(g)) << 8)) | (((unsigned int)(unsigned char)(b)) << 16)))
-#define SU_ARGB(a, r, g, b) (unsigned int)(((a)&0xff) << 24 | ((r)&0xff) << 16 | ((g)&0xff) << 8 | (b & 0xff))
+#define SU_ARGB(a, r, g, b) (unsigned int)(((a) & 0xff) << 24 | ((r) & 0xff) << 16 | ((g) & 0xff) << 8 | (b & 0xff))
 #define SU_RGBA(r, g, b, a) SU_ARGB(a, r, g, b)
 #define SU_XRGB(r, g, b) SU_ARGB(0xff, r, g, b)
 
@@ -169,7 +169,6 @@
 #define SU_CONSOLE_DEFAULT_ENCODE "export LANG=zh_CN.UTF-8"
 #endif
 #endif
-
 
 #ifndef SU_PRINT_COLORS
 #define SU_PRINT_COLORS                                                    \
@@ -290,9 +289,7 @@
 #define SUM_MEM_DEL_ARR(p) \
     if ((p))               \
     {                      \
-        delete[](p);       \
+        delete[] (p);      \
         (p) = nullptr;     \
     }
 #endif
-
-

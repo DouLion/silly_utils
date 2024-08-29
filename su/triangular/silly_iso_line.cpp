@@ -34,12 +34,12 @@ void silly_iso_line::set_rect(const silly_geo_rect& rect)
 
 void silly_iso_line::set_data(const size_t& num, const double* lgtd, const double* lttd, const double* data)
 {
-    m_data_num = num;// +4;
+    m_data_num = num;  // +4;
     m_ddx = (double*)malloc(m_data_num * sizeof(double));
     m_ddy = (double*)malloc(m_data_num * sizeof(double));
     m_ddz = (double*)malloc(m_data_num * sizeof(double));
-    double right = 0,  top = 0;
-    double left = 9999,  bottom = 9999;
+    double right = 0, top = 0;
+    double left = 9999, bottom = 9999;
     double tx, ty, tz;
     for (int i = 0; i < num; ++i)
     {
@@ -58,9 +58,9 @@ void silly_iso_line::set_data(const size_t& num, const double* lgtd, const doubl
         m_ddz[i] = tz;
     }
 
-    m_max_dz = ((int)(m_max_dz / 10.) + 1) * 10;  //取得比maxz大的整数
-    m_min_dz = ((int)(m_min_dz / 10.)) * 10;      //取得比minz小的整数
-    //把所有数据变为正值
+    m_max_dz = ((int)(m_max_dz / 10.) + 1) * 10;  // 取得比maxz大的整数
+    m_min_dz = ((int)(m_min_dz / 10.)) * 10;      // 取得比minz小的整数
+    // 把所有数据变为正值
     if (m_min_dz < 0)
     {
         for (int i = 0; i < num; i++)
@@ -69,29 +69,28 @@ void silly_iso_line::set_data(const size_t& num, const double* lgtd, const doubl
         }
     }
 
-
-   // 上下外扩一个面
+    // 上下外扩一个面
     double exleft, exright, extop, exbottom;
-    exleft  = left - (right - left) / 10.;
+    exleft = left - (right - left) / 10.;
     exright = right + (right - left) / 10.;
     extop = top + (top - bottom) / 10.;
     exbottom = bottom - (top - bottom) / 10.;
 
-    //m_ddx[num] = exleft;
-    //m_ddy[num] = extop;
-    //m_ddz[num] = 0;
+    // m_ddx[num] = exleft;
+    // m_ddy[num] = extop;
+    // m_ddz[num] = 0;
 
-    //m_ddx[num] = exleft;
-    //m_ddy[num] = bottom;
-    //m_ddz[num] = 0;
+    // m_ddx[num] = exleft;
+    // m_ddy[num] = bottom;
+    // m_ddz[num] = 0;
 
-    //m_ddx[num] = exright;
-    //m_ddy[num] = extop;
-    //m_ddz[num] = 0;
+    // m_ddx[num] = exright;
+    // m_ddy[num] = extop;
+    // m_ddz[num] = 0;
 
-    //m_ddx[num] = exright;
-    //m_ddy[num] = bottom;
-    //m_ddz[num] = 0;
+    // m_ddx[num] = exright;
+    // m_ddy[num] = bottom;
+    // m_ddz[num] = 0;
 }
 
 void silly_iso_line::set_level(const std::vector<double>& thresholds)
@@ -106,26 +105,25 @@ void silly_iso_line::make_tri_net()
     //// ddx, ddy, m_ddz  生成三角形,每个三角形 a b c 三个边, z 值为?
     m_tri_num = DelaunayTri.Triangulate(m_data_num, m_ddx, m_ddy, m_ddz, m_tax, m_tay, m_taz, m_tbx, m_tby, m_tbz, m_tcx, m_tcy, m_tcz);
 #else
-   /* std::vector<delaunay::Point<double>> nps;
-    for (int i = 0; i < m_data_num; ++i)
-    {
-        nps.push_back({ m_ddx[i] , m_ddy[i] });
-    }*/
+    /* std::vector<delaunay::Point<double>> nps;
+     for (int i = 0; i < m_data_num; ++i)
+     {
+         nps.push_back({ m_ddx[i] , m_ddy[i] });
+     }*/
     delaunay::Delaunay<double> result = delaunay::triangulate(m_data_num, m_ddx, m_ddy);
     std::vector<silly_geo_coll> tri_shps;
     for (auto ts : result.triangles)
     {
         silly_geo_coll sgc;
         sgc.m_type = enum_geometry_type::egtPolygon;
-        sgc.m_poly.outer_ring.points.push_back({ m_ddx[ts.p0.i], m_ddy[ts.p0.i] });
-        sgc.m_poly.outer_ring.points.push_back({ m_ddx[ts.p1.i], m_ddy[ts.p1.i] });
-        sgc.m_poly.outer_ring.points.push_back({ m_ddx[ts.p2.i], m_ddy[ts.p2.i] });
-        sgc.m_poly.outer_ring.points.push_back({ m_ddx[ts.p0.i], m_ddy[ts.p0.i] });
-       // sgc.m_props["idx"] = silly_geo_prop(i);
+        sgc.m_poly.outer_ring.points.push_back({m_ddx[ts.p0.i], m_ddy[ts.p0.i]});
+        sgc.m_poly.outer_ring.points.push_back({m_ddx[ts.p1.i], m_ddy[ts.p1.i]});
+        sgc.m_poly.outer_ring.points.push_back({m_ddx[ts.p2.i], m_ddy[ts.p2.i]});
+        sgc.m_poly.outer_ring.points.push_back({m_ddx[ts.p0.i], m_ddy[ts.p0.i]});
+        // sgc.m_props["idx"] = silly_geo_prop(i);
         tri_shps.push_back(sgc);
     }
     geo_utils::write_geo_coll("./iso_tri2.shp", tri_shps);
-
 
 #endif
 }
@@ -135,9 +133,9 @@ void silly_iso_line::make_tri_intersect()
     //  TODO 这个循环可以 多线程执行, 结果不会相互影响
 
     int i;
-    //#if _OPENMP
-    //    #pragma omp parallel for private(i)
-    //#endif
+    // #if _OPENMP
+    //     #pragma omp parallel for private(i)
+    // #endif
     for (i = 0; i < m_thresholds.size(); ++i)
     {
         m_level_tris[i] = {};
@@ -157,7 +155,7 @@ void silly_iso_line::make_tri_intersect(const size_t& level, const bool& greater
     //  这里计算每个for循环中的计算没那么复杂,不适用多线程
     for (int i = 0; i < m_tri_num; i++)
     {
-        //遍历所有三角形获得通过等值线的边数n,并记录三角形的边序号tbb[i],三角形序号tb[i]
+        // 遍历所有三角形获得通过等值线的边数n,并记录三角形的边序号tbb[i],三角形序号tb[i]
         x1 = m_tax[i];
         x2 = m_tbx[i];
         x3 = m_tcx[i];
@@ -184,28 +182,28 @@ void silly_iso_line::make_tri_intersect(const size_t& level, const bool& greater
         int cont = 0;
         if ((threshold - z1) * (threshold - z2) < 0 && z1 != z2)
         {
-            tmp_tri.nBian[0] = 1;                                             //等值线从AB边穿过
-            tmp_tri.dv[0].x = x1 + (x2 - x1) * (threshold - z1) / (z2 - z1);  //线性插值
+            tmp_tri.nBian[0] = 1;                                             // 等值线从AB边穿过
+            tmp_tri.dv[0].x = x1 + (x2 - x1) * (threshold - z1) / (z2 - z1);  // 线性插值
             tmp_tri.dv[0].y = y1 + (y2 - y1) * (threshold - z1) / (z2 - z1);
             cont++;
         }
         if ((threshold - z1) * (threshold - z3) < 0 && z1 != z3)
         {
-            tmp_tri.nBian[1] = 1;  //等值线从AC边穿过
+            tmp_tri.nBian[1] = 1;  // 等值线从AC边穿过
             tmp_tri.dv[1].x = x3 + (x1 - x3) * (threshold - z3) / (z1 - z3);
             tmp_tri.dv[1].y = y3 + (y1 - y3) * (threshold - z3) / (z1 - z3);
             cont++;
         }
         if ((threshold - z2) * (threshold - z3) < 0 && z2 != z3)
         {
-            tmp_tri.nBian[2] = 1;  //等值线从BC边穿过
+            tmp_tri.nBian[2] = 1;  // 等值线从BC边穿过
             tmp_tri.dv[2].x = x2 + (x3 - x2) * (threshold - z2) / (z3 - z2);
             tmp_tri.dv[2].y = y2 + (y3 - y2) * (threshold - z2) / (z3 - z2);
             cont++;
         }
         if (cont == 2)
         {
-            //#pragma omp atomic
+            // #pragma omp atomic
             m_level_tris[level].push_back(tmp_tri);
         }
         else
@@ -218,9 +216,9 @@ void silly_iso_line::make_tri_intersect(const size_t& level, const bool& greater
 void silly_iso_line::make_iso_area()
 {
     int i;
-    //#if _OPENMP
-    //#pragma omp parallel for private(i)
-    //#endif
+    // #if _OPENMP
+    // #pragma omp parallel for private(i)
+    // #endif
     for (i = 0; i < m_thresholds.size(); ++i)
     {
         m_level_polys[i] = {};
@@ -245,10 +243,10 @@ void silly_iso_line::make_iso_area(const size_t& level)
     int trace_tri = 0;
     for (i = 0; i < m_level_tris[level].size(); i++)
     {
-        //搜索闭合等值线
+        // 搜索闭合等值线
         if (m_level_tris[level][i].traced)
         {
-            continue;  //已被跟踪过
+            continue;  // 已被跟踪过
         }
 
         m_level_tris[level][i].traced = 1;  // 找到一个没有被跟踪过的三角形
@@ -284,7 +282,7 @@ void silly_iso_line::make_iso_area(const size_t& level)
     }
 }
 
-//等值面生成
+// 等值面生成
 void silly_iso_line::iso_fill(const size_t& level, const size_t& tri_num, std::vector<iso_triangle>& tris)
 {
     /* 每个三角形,如果穿过边,那么一定有且仅有两个边被穿过

@@ -345,7 +345,6 @@ class silly_geo_utils
 
 typedef silly_geo_utils geo_utils;  // 兼容之前的写法
 
-
 template <typename T>
 double silly_geo_utils::area(const std::vector<T>& xs, const std::vector<T>& ys)
 {

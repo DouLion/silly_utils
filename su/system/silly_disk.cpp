@@ -36,7 +36,6 @@ double silly_disk::space_available(const std::string& path, const storage_unit& 
 
         ret = si.available;
         ret = ret / std::pow(1024.0, static_cast<double>(unit));
-
     }
     catch (const std::filesystem::filesystem_error& e)
     {

@@ -53,12 +53,11 @@ std::string silly_jsonpp::to_string(const Json::Value root, const silly_jsonpp_o
         stream_builder["precision"] = opt.precision;
         // decimal 仅小小数位保留    123456.789 保留 1位 是123456.7
         // significant 整个数字保留  123456.789 保留 7位 是123456.7
-        stream_builder["precisionType"] = "decimal"; //
-        
+        stream_builder["precisionType"] = "decimal";  //
     }
 
     std::ostringstream stream;
-    
+
     std::unique_ptr<Json::StreamWriter> writer(stream_builder.newStreamWriter());
     writer->write(root, &stream);
     return stream.str();
@@ -137,9 +136,9 @@ void silly_jsonpp::find_by_key(const Json::Value& root, const std::string& key, 
 }
 bool silly_jsonpp::check_member_string(const Json::Value& root, const std::string& key, std::string& val)
 {
-    if(root.isMember(key))
+    if (root.isMember(key))
     {
-        if(root[key].isString())
+        if (root[key].isString())
         {
             val = root[key].asString();
             return true;
@@ -254,4 +253,3 @@ bool silly_jsonpp::check_member_object(const Json::Value& root, const std::strin
     }
     return false;
 }
-

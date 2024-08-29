@@ -15,7 +15,6 @@
 
 class gif_utils
 {
-
 };
 
-#endif //SILLY_UTILS_GIF_UTILS_H
+#endif  // SILLY_UTILS_GIF_UTILS_H

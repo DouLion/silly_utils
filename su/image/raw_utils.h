@@ -15,7 +15,6 @@
 
 class raw_utils
 {
-
 };
 
-#endif //SILLY_UTILS_RAW_UTILS_H
+#endif  // SILLY_UTILS_RAW_UTILS_H

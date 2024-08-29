@@ -14,14 +14,8 @@
 #include <image/png_utils.h>
 #include <image/silly_color.h>
 
-
-
-
 class silly_render
 {
-
-
-
 };
 
 #endif  // SILLY_UTILS_SILLY_RENDER_H

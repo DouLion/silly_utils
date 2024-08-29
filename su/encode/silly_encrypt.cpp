@@ -34,19 +34,18 @@ std::string silly_encrypt::md5_text_encode(const std::string &text)
 
 std::string silly_encrypt::md5_file_encode(const std::string &file_path)
 {
-    
     const size_t size = CryptoPP::Weak1::MD5::DIGESTSIZE * 2;
     // 用于存储最终的哈希值
-   // CryptoPP::byte digest[size] = {0};
+    // CryptoPP::byte digest[size] = {0};
     std::string digest;
     try
     {
         // 创建一个MD5对象
         CryptoPP::Weak1::MD5 md5_hash;
         //// 创建文件源，计算哈希
-        //CryptoPP::ArraySink asink(digest, size);
-        //CryptoPP::HashFilter hfilter(md5_hash, new CryptoPP::HexEncoder(&asink));
-        //CryptoPP::FileSource(file_path.c_str(), true, &hfilter);
+        // CryptoPP::ArraySink asink(digest, size);
+        // CryptoPP::HashFilter hfilter(md5_hash, new CryptoPP::HexEncoder(&asink));
+        // CryptoPP::FileSource(file_path.c_str(), true, &hfilter);
         CryptoPP::FileSource fileSource(file_path.c_str(), true, new CryptoPP::HashFilter(md5_hash, new CryptoPP::HexEncoder(new CryptoPP::StringSink(digest))));
     }
     catch (const CryptoPP::Exception &e)

@@ -61,8 +61,7 @@ class silly_netcdf_band_data
     float fill{-9999.};
     float offset{0.};
     std::string units{"mm"};
-    std::vector<float> grid; // 西北角为原点,逐行存储
-
+    std::vector<float> grid;  // 西北角为原点,逐行存储
 };
 
 class silly_netcdf_data
@@ -74,7 +73,6 @@ class silly_netcdf_data
     std::vector<std::tuple<std::string, std::vector<float>, std::string>> dextra;
     // 波段数据
     std::map<std::string, std::vector<silly_netcdf_band_data>> grp_bands;
-
 };
 
 class silly_netcdf
@@ -86,7 +84,6 @@ class silly_netcdf
     /// <param name="path">文件路径</param>
     /// <returns></returns>
     bool open(const std::string& path);
-
 
     std::vector<std::string> members();
 

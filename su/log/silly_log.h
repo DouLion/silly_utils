@@ -152,7 +152,7 @@ void silly_log::error(Args&&... s)
         silly_log::instance().m_spdlog_error->error(s, ##__VA_ARGS__); \
     }*/
 #ifndef NDEBUG
-#define SLOG_DEBUG(s, ...)  silly_log::instance().debug(silly_format::format("<{}:{}> ", SU_FILE_NAME, __LINE__).append(s), ##__VA_ARGS__);
+#define SLOG_DEBUG(s, ...) silly_log::instance().debug(silly_format::format("<{}:{}> ", SU_FILE_NAME, __LINE__).append(s), ##__VA_ARGS__);
 #else
 #define SLOG_DEBUG(s, ...)
 #endif

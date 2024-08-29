@@ -95,7 +95,6 @@ auto silly_thread_pool::enqueue(F&& f, Args&&... args) -> std::future<typename s
         {
             throw std::runtime_error("enqueue on stopped silly_thread_pool");
         }
-           
 
         tasks.emplace([task]() { (*task)(); });
     }
@@ -115,5 +114,4 @@ inline silly_thread_pool::~silly_thread_pool()
     {
         worker.join();
     }
-       
 }

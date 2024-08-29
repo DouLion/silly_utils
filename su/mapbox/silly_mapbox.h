@@ -15,7 +15,6 @@
 
 class silly_mapbox
 {
-
 };
 
-#endif //SILLY_UTILS_SILLY_MAPBOX_H
+#endif  // SILLY_UTILS_SILLY_MAPBOX_H

@@ -77,48 +77,46 @@ class silly_time2s
 /// </summary>
 namespace silly_ntime
 {
-    class duration
-    {
-        duration() = default;
-        duration(int h, int m, int s);
+class duration
+{
+    duration() = default;
+    duration(int h, int m, int s);
 
-        int total_seconds();
-        int hours{ 0 };
-        int minutes{ 0 };
-        int seconds{ 0 };
-    };
+    int total_seconds();
+    int hours{0};
+    int minutes{0};
+    int seconds{0};
+};
 
-    class time
-    {
-        void now();
-        bool fstr(const std::string& str);
-        std::string pstr();
+class time
+{
+    void now();
+    bool fstr(const std::string& str);
+    std::string pstr();
 
-        bool operator==(const time& t) const;
-        bool operator>(const time& t) const;
-        bool operator<(const time& t) const;
-        bool operator>=(const time& t) const;
-        bool operator<=(const time& t) const;
+    bool operator==(const time& t) const;
+    bool operator>(const time& t) const;
+    bool operator<(const time& t) const;
+    bool operator>=(const time& t) const;
+    bool operator<=(const time& t) const;
 
-        time& operator+(const int& s);
-        time& operator-(const int& s);
+    time& operator+(const int& s);
+    time& operator-(const int& s);
 
-        time& operator+(const duration& d);
-        time& operator-(const duration& d);
+    time& operator+(const duration& d);
+    time& operator-(const duration& d);
 
-        time& operator+=(const int& s);
-        time& operator-=(const int& s);
+    time& operator+=(const int& s);
+    time& operator-=(const int& s);
 
-        time& operator+=(const duration& d);
-        time& operator-=(const duration& d);
+    time& operator+=(const duration& d);
+    time& operator-=(const duration& d);
 
+  private:
+    time_t timestamp;
+};
 
-    private:
-        time_t timestamp;
-    };
-
- 
-}
+}  // namespace silly_ntime
 
 /// <summary>
 /// 单位更加精细的时间 super time
@@ -128,14 +126,12 @@ namespace silly_stime
 
 class time
 {
-
 };
 
 class duration
 {
-
 };
 
-}  // namespace silly_time
+}  // namespace silly_stime
 
 #endif  // SILLY_UTILS_SILLY_TIME_H

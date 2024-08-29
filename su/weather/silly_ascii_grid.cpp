@@ -85,7 +85,7 @@ bool silly_ascii_grid::read_asc(const std::string& path)
         for (int c = 0; c < ncols; ++c)
         {
             inFile >> value;
-            //data[r * ncols + c];
+            // data[r * ncols + c];
             m_data[r][c] = value;
         }
     }
@@ -103,21 +103,19 @@ bool silly_ascii_grid::read_bin()
     ncols = curr[0];
     curr++;
 
-
-
-    if(static_cast<size_t>((nrows * ncols+2) * sizeof(double)) != total)
+    if (static_cast<size_t>((nrows * ncols + 2) * sizeof(double)) != total)
     {
         return status;
     }
     m_data.create(nrows, ncols);
     size_t i = 0;
 
-    for(size_t r = 0; r < nrows; ++r)
+    for (size_t r = 0; r < nrows; ++r)
     {
-        for(size_t c = 0; c < ncols; ++c)
+        for (size_t c = 0; c < ncols; ++c)
         {
-           /* MAXV = SU_MAX(curr[i], MAXV);
-            MINV = SU_MIN(curr[i], MINV);*/
+            /* MAXV = SU_MAX(curr[i], MAXV);
+             MINV = SU_MIN(curr[i], MINV);*/
             m_data[r][c] = curr[0];
             curr++;
         }

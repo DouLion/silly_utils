@@ -129,7 +129,7 @@ void silly_proj::lonlat_to_gauss(const double& central, const double& lon, const
 
     double M = WGS84_SEMI_MAJOR_AXIS * ((1 - WGS84_E2 / 4.0 - 3.0 * WGS84_E2 * WGS84_E2 / 64.0 - 5.0 * WGS84_E2 * WGS84_E2 * WGS84_E2 / 256.0) * latRad -
                                         (3.0 * WGS84_E2 / 8.0 + 3.0 * WGS84_E2 * WGS84_E2 / 32.0 + 45.0 * WGS84_E2 * WGS84_E2 * WGS84_E2 / 1024.0) * sin(2.0 * latRad) +
-             (15.0 * WGS84_E2 * WGS84_E2 / 256.0 + 45.0 * WGS84_E2 * WGS84_E2 * WGS84_E2 / 1024.0) * sin(4.0 * latRad) - (35.0 * WGS84_E2 * WGS84_E2 * WGS84_E2 / 3072.0) * sin(6.0 * latRad));
+                                        (15.0 * WGS84_E2 * WGS84_E2 / 256.0 + 45.0 * WGS84_E2 * WGS84_E2 * WGS84_E2 / 1024.0) * sin(4.0 * latRad) - (35.0 * WGS84_E2 * WGS84_E2 * WGS84_E2 / 3072.0) * sin(6.0 * latRad));
 
     // 计算 X, Y 坐标
     gy = M + N * tan(latRad) * (A * A / 2.0 + (5.0 - T + 9.0 * C + 4.0 * C * C) * A * A * A * A / 24.0 + (61.0 - 58.0 * T + T * T + 600.0 * C - 330.0 * WGS84_E2) * A * A * A * A * A * A / 720.0);

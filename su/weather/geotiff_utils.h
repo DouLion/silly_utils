@@ -16,14 +16,13 @@
 #include "math/silly_matrix.h"
 using namespace silly_math;
 
-
 class tif_data
 {
   public:
     uint32_t tif_width{0};
     uint32_t tif_height{0};
 
-    uint16_t tif_bitsPerSample{64};  // 每个数据占几位(8位一个byte)
+    uint16_t tif_bitsPerSample{64};   // 每个数据占几位(8位一个byte)
     uint16_t tif_samplesPerPixel{1};  // 获取每个像素的样本数:通道数
 
     uint32_t tif_tileWidth;
@@ -50,7 +49,7 @@ class tif_data
 
     // 以字节为将tif矩阵存入
     matrix_2d<double> tif_matrix2;
-    //matrix_2d<unsigned char> tif_matrix2;
+    // matrix_2d<unsigned char> tif_matrix2;
 
   private:
 };

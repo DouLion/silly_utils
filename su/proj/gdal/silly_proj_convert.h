@@ -15,7 +15,6 @@
 #include <ogr_spatialref.h>
 #include <cpl_conv.h>
 
-
 struct spc_srs_param
 {
     silly_proj_def_enum wk_num;
@@ -30,8 +29,9 @@ struct silly_proj_param
 class silly_proj_convert
 {
     friend class silly_projection_define;
+
   public:
-    silly_proj_convert() =default;
+    silly_proj_convert() = default;
     ~silly_proj_convert();
     /// <summary>
     /// 根据参数构建转换
@@ -41,7 +41,7 @@ class silly_proj_convert
     bool begin(const silly_proj_param &p);
 
     bool convert(const double &fromX, const double &fromY, double &toX, double &toY);
-    bool convert(const std::vector<double>& fromX, const std::vector<double> &fromY, std::vector<double> &toX, std::vector<double> &toY);
+    bool convert(const std::vector<double> &fromX, const std::vector<double> &fromY, std::vector<double> &toX, std::vector<double> &toY);
 
     /// <summary>
     /// 关闭转换,释放转换对象

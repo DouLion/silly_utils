@@ -15,7 +15,6 @@
 
 class bmp_utils
 {
-
 };
 
-#endif //SILLY_UTILS_BMP_UTILS_H
+#endif  // SILLY_UTILS_BMP_UTILS_H

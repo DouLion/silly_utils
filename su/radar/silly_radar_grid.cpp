@@ -18,8 +18,9 @@ const static char SILLY_RADAR_GRID_3 = 'X';
 const int SILLY_RADAR_GRID_NAMEL = 32;
 const int SILLY_RADAR_GRID_UNITL = 32;
 
-#define SILLY_RADAR_GRID_MEMCPY_TYPE(buff, val) memcpy(buff, &val, sizeof(val)); buff += sizeof(val);
-
+#define SILLY_RADAR_GRID_MEMCPY_TYPE(buff, val) \
+    memcpy(buff, &val, sizeof(val));            \
+    buff += sizeof(val);
 
 silly_radar_grid::silly_radar_grid()
 {
@@ -32,7 +33,7 @@ silly_radar_grid::silly_radar_grid()
 bool silly_radar_grid::serialize(char** buff, size_t& len)
 {
     bool status = false;
-    if (!grid.row() || !grid.col())	// 以网格点数据为主
+    if (!grid.row() || !grid.col())  // 以网格点数据为主
     {
         return status;
     }
@@ -45,25 +46,40 @@ bool silly_radar_grid::serialize(char** buff, size_t& len)
     }
 
     *buff = (char*)SILLY_RADAR_GRID_MALLOC(total);
-    if (!*buff) { return status; }
+    if (!*buff)
+    {
+        return status;
+    }
     char* p = *buff;
 
-    memcpy(p, m_prefix, sizeof(m_prefix)); p += sizeof(m_prefix);
-    memcpy(p, &total, sizeof(total)); p += sizeof(total);
+    memcpy(p, m_prefix, sizeof(m_prefix));
+    p += sizeof(m_prefix);
+    memcpy(p, &total, sizeof(total));
+    p += sizeof(total);
 
-    memcpy(p, &left, sizeof(left)); p += sizeof(left);
-    memcpy(p, &top, sizeof(top)); p += sizeof(top);
-    memcpy(p, &right, sizeof(right)); p += sizeof(right);
-    memcpy(p, &bottom, sizeof(bottom)); p += sizeof(bottom);
+    memcpy(p, &left, sizeof(left));
+    p += sizeof(left);
+    memcpy(p, &top, sizeof(top));
+    p += sizeof(top);
+    memcpy(p, &right, sizeof(right));
+    p += sizeof(right);
+    memcpy(p, &bottom, sizeof(bottom));
+    p += sizeof(bottom);
 
-    memcpy(p, &xdelta, sizeof(xdelta)); p += sizeof(xdelta);
-    memcpy(p, &ydelta, sizeof(ydelta)); p += sizeof(ydelta);
+    memcpy(p, &xdelta, sizeof(xdelta));
+    p += sizeof(xdelta);
+    memcpy(p, &ydelta, sizeof(ydelta));
+    p += sizeof(ydelta);
 
-    memcpy(p, name, sizeof(name)); p += sizeof(name);
-    memcpy(p, units, sizeof(units)); p += sizeof(units);
+    memcpy(p, name, sizeof(name));
+    p += sizeof(name);
+    memcpy(p, units, sizeof(units));
+    p += sizeof(units);
 
-    memcpy(p, &row, sizeof(row)); p += sizeof(row);
-    memcpy(p, &col, sizeof(col)); p += sizeof(col);
+    memcpy(p, &row, sizeof(row));
+    p += sizeof(row);
+    memcpy(p, &col, sizeof(col));
+    p += sizeof(col);
 
     memcpy(p, grid.seek_row(0), row * col * sizeof(float));
     status = true;
@@ -79,24 +95,35 @@ bool silly_radar_grid::unserialize(const char* buff, const size_t& len)
         return status;
     }
     char* p = (char*)buff + 4;
-    total = ((size_t*)p)[0]; p += sizeof(size_t);
+    total = ((size_t*)p)[0];
+    p += sizeof(size_t);
     if (total > len)
     {
         return false;
     }
-    left = ((float*)p)[0]; p += sizeof(float);
-    top = ((float*)p)[0]; p += sizeof(float);
-    right = ((float*)p)[0]; p += sizeof(float);
-    bottom = ((float*)p)[0]; p += sizeof(float);
+    left = ((float*)p)[0];
+    p += sizeof(float);
+    top = ((float*)p)[0];
+    p += sizeof(float);
+    right = ((float*)p)[0];
+    p += sizeof(float);
+    bottom = ((float*)p)[0];
+    p += sizeof(float);
 
-    xdelta = ((float*)p)[0]; p += sizeof(float);
-    ydelta = ((float*)p)[0]; p += sizeof(float);
+    xdelta = ((float*)p)[0];
+    p += sizeof(float);
+    ydelta = ((float*)p)[0];
+    p += sizeof(float);
 
-    memcpy(name, p, sizeof(name)); p += sizeof(name);
-    memcpy(units, p, sizeof(units)); p += sizeof(units);
+    memcpy(name, p, sizeof(name));
+    p += sizeof(name);
+    memcpy(units, p, sizeof(units));
+    p += sizeof(units);
 
-    row = ((size_t*)p)[0]; p += sizeof(size_t);
-    col = ((size_t*)p)[0]; p += sizeof(size_t);
+    row = ((size_t*)p)[0];
+    p += sizeof(size_t);
+    col = ((size_t*)p)[0];
+    p += sizeof(size_t);
 
     grid.create(row, col, true);
     memcpy(grid.seek_row(0), p, row * col * sizeof(float));
@@ -124,7 +151,7 @@ void silly_radar_grid::puzzle(const std::vector<silly_radar_grid>& srg_list)
             float x = left + c * xdelta;
             float y = top - r * ydelta;
             // 使用两个值之间的最大值
-            float value = -999999.0; // invalid data
+            float value = -999999.0;  // invalid data
 
             for (auto srg : srg_list)
             {
@@ -159,12 +186,12 @@ bool silly_radar_grid::read(const std::string& path)
     size_t fileSize = static_cast<size_t>(inputFileStream.tellg());
     inputFileStream.seekg(0, std::ios::beg);
 
-    if(fileSize)
+    if (fileSize)
     {
         buff = new char[fileSize];
         inputFileStream.read(buff, fileSize);
         status = unserialize(buff, fileSize);
-        delete [] buff;
+        delete[] buff;
     }
     inputFileStream.close();
     // SILLY_RADAR_GRID_FREE(buff)
@@ -185,7 +212,7 @@ bool silly_radar_grid::save(const std::string& path)
             status = true;
         }
 
-        //status = FileUtils::WriteAll(path.c_str(), buff, len);
+        // status = FileUtils::WriteAll(path.c_str(), buff, len);
     }
     SILLY_RADAR_GRID_FREE(buff)
     return status;

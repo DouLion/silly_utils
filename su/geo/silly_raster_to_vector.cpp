@@ -794,8 +794,6 @@ std::vector<silly_poly> silly_vectorizer::simplify_poly_less_angle(const std::ve
     {
         silly_poly simple_poly;
 
-
-
         simple_poly.outer_ring = simplify_ring_douglas(poly.outer_ring, angle);
 
         for (auto ring : poly.inner_rings)
@@ -930,7 +928,7 @@ silly_ring silly_vectorizer::simplify_ring_less_angle(const silly_ring &ring, do
 
     int num = ring.points.size();
     int limit_num = num;
-    if(ring.points.front() == ring.points.back())
+    if (ring.points.front() == ring.points.back())
     {
         limit_num--;
     }
@@ -943,7 +941,7 @@ silly_ring silly_vectorizer::simplify_ring_less_angle(const silly_ring &ring, do
             result.points.push_back(ring.points[i]);
         }
     }
-    if(result.points.front() != result.points.back())
+    if (result.points.front() != result.points.back())
     {
         result.points.push_back(result.points.front());
     }
@@ -992,7 +990,7 @@ silly_ring silly_vectorizer::simplify_ring_less_angle_1(const silly_ring &ring, 
 
     int num = ring.points.size();
     int limit_num = num;
-    if(ring.points.front() == ring.points.back())
+    if (ring.points.front() == ring.points.back())
     {
         limit_num--;
     }
@@ -1007,7 +1005,7 @@ silly_ring silly_vectorizer::simplify_ring_less_angle_1(const silly_ring &ring, 
             c = i;
         }
     }
-    if(result.points.front() != result.points.back())
+    if (result.points.front() != result.points.back())
     {
         result.points.push_back(result.points.front());
     }
@@ -1016,22 +1014,22 @@ silly_ring silly_vectorizer::simplify_ring_less_angle_1(const silly_ring &ring, 
 silly_ring silly_vectorizer::simplify_ring_douglas(const silly_ring &ring, double dist)
 {
     silly_ring result;
-    if(ring.points.size() < 3)
+    if (ring.points.size() < 3)
     {
         return result;
     }
     size_t p_size = ring.points.size();
     std::vector<double> inputs;
-    for(auto p : ring.points)
+    for (auto p : ring.points)
     {
         inputs.emplace_back(p.lgtd);
         inputs.emplace_back(p.lttd);
     }
     std::vector<double> outputs;
     silly_vacuate::douglas_peucker(dist, inputs, outputs);
-    for(auto i = 0; i < outputs.size()/2; i++)
+    for (auto i = 0; i < outputs.size() / 2; i++)
     {
-        result.points.push_back({outputs[i*2], outputs[i*2+1]});
+        result.points.push_back({outputs[i * 2], outputs[i * 2 + 1]});
     }
 
     return result;

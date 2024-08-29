@@ -16,23 +16,24 @@ class silly_bilinear_interpolate
   public:
     T interpolate()
     {
-        T x_delta = (x - xl)/(xr - xl);
-        T y_delta = (y - yb)/(yt - yb);
+        T x_delta = (x - xl) / (xr - xl);
+        T y_delta = (y - yb) / (yt - yb);
 
-        return (1 - x_delta)*(1 - y_delta)*vlb + x_delta*(1 - y_delta)*vlr + (1 - x_delta)*y_delta*vtb + x_delta*y_delta*vtr;
+        return (1 - x_delta) * (1 - y_delta) * vlb + x_delta * (1 - y_delta) * vlr + (1 - x_delta) * y_delta * vtb + x_delta * y_delta * vtr;
     }
+
   public:
-    T xl; // left
-    T xr; // right
-    T yb; // bottom
-    T yt; // top
+    T xl;  // left
+    T xr;  // right
+    T yb;  // bottom
+    T yt;  // top
     T x;
     T y;
 
-    T vlb; // left bottom
-    T vtb; // top bottom
-    T vlr; // left top
-    T vtr; // right top
+    T vlb;  // left bottom
+    T vtb;  // top bottom
+    T vlr;  // left top
+    T vtr;  // right top
 };
 
 #endif  // SILLY_UTILS_SILLY_INTERPOLATE_H

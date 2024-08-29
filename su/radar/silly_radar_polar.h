@@ -10,16 +10,14 @@
 #ifndef SILLY_UTILS_SILLY_RADAR_POLAR_H
 #define SILLY_UTILS_SILLY_RADAR_POLAR_H
 
-
 #include <iostream>
 #include <math/silly_matrix.h>
 
-#define TZX_RADAR_POLAR_FILE_SUFFIX  ".rpolar"
+#define TZX_RADAR_POLAR_FILE_SUFFIX ".rpolar"
 
 class silly_radar_polar
 {
-public:
-
+  public:
     silly_radar_polar() = default;
 
     /// <summary>
@@ -75,31 +73,29 @@ public:
         return *this;
     }
 
-
-public:
-
-    size_t total{ 0 };
+  public:
+    size_t total{0};
     // 长度
-    size_t r_size{ 0 };
+    size_t r_size{0};
 
     // 方位角数量
-    size_t az_size{ 0 };
+    size_t az_size{0};
     // range#meters_between_gates=75.00000298023224  长度上每个格子表示的长度,单位为米
     float meters;
     /*
- * azimuth 一般指方位角。 方位角，又称地平经度(Azimuth angle，缩写为Az)，是在平面上量度物体之间的角度差的方法之一。是从某点的指北方向线起，依顺时针方向到目标方向线之间的水平夹角。
- * */
+     * azimuth 一般指方位角。 方位角，又称地平经度(Azimuth angle，缩写为Az)，是在平面上量度物体之间的角度差的方法之一。是从某点的指北方向线起，依顺时针方向到目标方向线之间的水平夹角。
+     * */
     // 起始方位角
-    float az_start{ 0. };
+    float az_start{0.};
     // 中心点经纬度
-    float center_x{ 0. };
-    float center_y{ 0. };
+    float center_x{0.};
+    float center_y{0.};
 
     // float fill{ SHRT_MAX + 1 };
 
-    char name[32]{ 0 };
-    char units[32]{ 0 };
+    char name[32]{0};
+    char units[32]{0};
 
     float* data{nullptr};
 };
-#endif //SILLY_UTILS_SILLY_RADAR_POLAR_H
+#endif  // SILLY_UTILS_SILLY_RADAR_POLAR_H

@@ -197,14 +197,14 @@ tif_data geotiff_utils::readGeoTiff(std::string filePath)
             res_tif.tif_matrix2.create(res_tif.tif_height, res_tif.tif_width);
             strip_buff = new char[res_tif.tif_lineSize];
             for (uint32_t row = 0; row < res_tif.tif_height; ++row)
-            {   
+            {
                 // TIFFReadScanline(tiff, res_tif.tif_matrix2.seek_row(row), row);
                 TIFFReadScanline(tiff, strip_buff, row);
                 if (res_tif.tif_sampleFormat == SAMPLEFORMAT_IEEEFP && res_tif.tif_bitsPerSample == 32)
                 {
                     memcpy(res_tif.tif_matrix2.seek_row(row), strip_buff, res_tif.tif_lineSize);
                 }
-                else if(res_tif.tif_sampleFormat == SAMPLEFORMAT_IEEEFP && res_tif.tif_bitsPerSample == 64)
+                else if (res_tif.tif_sampleFormat == SAMPLEFORMAT_IEEEFP && res_tif.tif_bitsPerSample == 64)
                 {
                     for (int col = 0; col < res_tif.tif_width; ++col)
                     {

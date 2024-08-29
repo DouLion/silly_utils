@@ -12,8 +12,8 @@
 
 size_t req_reply(void* ptr, size_t size, size_t nmemb, void* stream)
 {
-    //在注释的里面可以打印请求流，cookie的信息
-    // cout << "----->reply" << endl;
+    // 在注释的里面可以打印请求流，cookie的信息
+    //  cout << "----->reply" << endl;
     std::string* str = (std::string*)stream;
     // cout << *str << endl;
     (*str).append((char*)ptr, size * nmemb);

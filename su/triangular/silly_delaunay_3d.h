@@ -11,14 +11,14 @@
 #ifndef SILLY_UTILS_SILLY_DELAUNAY_3D_H
 #define SILLY_UTILS_SILLY_DELAUNAY_3D_H
 
-class silly_delaunay_3d {
-public:
+class silly_delaunay_3d
+{
+  public:
     silly_delaunay_3d();
 
     ~silly_delaunay_3d();
 
-private:
-
+  private:
 };
 
-#endif //SILLY_UTILS_SILLY_DELAUNAY_3D_H
+#endif  // SILLY_UTILS_SILLY_DELAUNAY_3D_H

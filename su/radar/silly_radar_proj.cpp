@@ -5,7 +5,6 @@
 #include "silly_radar_proj.h"
 #include <cmath>
 
-
 //-------------------- 地球坐标系定位计算 ---------------------------
 silly_radar_earth::silly_radar_earth()
 {
@@ -14,7 +13,7 @@ silly_radar_earth::silly_radar_earth()
     r_res = 1.000;
 }
 
-//根据经纬度值来计算方位和地心角
+// 根据经纬度值来计算方位和地心角
 void silly_radar_earth::geo2polar(double phy, double delta_numda, double& beta, double& theta)
 {
     double cos_beta = sin(phy) * sin(r_phy) + cos(phy) * cos(r_phy) * cos(delta_numda);
@@ -34,7 +33,7 @@ void silly_radar_earth::geo2polar(double phy, double delta_numda, double& beta, 
     theta = asin(sin_theta);
     double lat90 = asin(cos_beta * sin(r_phy));
 
-    //方位判断
+    // 方位判断
     if (phy < lat90)
         theta = PI - theta;
     else if (delta_numda < 0)
@@ -129,11 +128,10 @@ silly_radar_proj::silly_radar_proj(double lon, double lat, double h)
     r_h = h * 0.001;
 }
 
-
-void silly_radar_proj::Initialized(double dNdz,  //线性梯度 N/Km
-                           int x0,
-                           int y0,  //雷达站参考坐标
-                           int res  // 格点分辨率（米）
+void silly_radar_proj::Initialized(double dNdz,  // 线性梯度 N/Km
+                                   int x0,
+                                   int y0,  // 雷达站参考坐标
+                                   int res  // 格点分辨率（米）
 )
 {
     r_res = res * 0.001;  // Unit:Kilometer
@@ -143,13 +141,13 @@ void silly_radar_proj::Initialized(double dNdz,  //线性梯度 N/Km
     Km = 4.0 / 3.0;
 }
 
-//根据雷达回波坐标计算目标物的地理坐标
+// 根据雷达回波坐标计算目标物的地理坐标
 
-//根据雷达回波坐标计算目标物的地理坐标
-void silly_radar_proj::tilt_of_gps(double e,    //仰角度数
-                           double dl,   //雷达探测距离（千米）
-                           double& dh,  //拔海高度返回值（千米）
-                           double& dS   //水平距离
+// 根据雷达回波坐标计算目标物的地理坐标
+void silly_radar_proj::tilt_of_gps(double e,    // 仰角度数
+                                   double dl,   // 雷达探测距离（千米）
+                                   double& dh,  // 拔海高度返回值（千米）
+                                   double& dS   // 水平距离
 )
 {
     if (dl < r_res)
@@ -159,23 +157,23 @@ void silly_radar_proj::tilt_of_gps(double e,    //仰角度数
         return;
     }
 
-    double Rm = Km * EarthRadius;  //等效地球半径
+    double Rm = Km * EarthRadius;  // 等效地球半径
     double alpha = e * PI / 180.0;
     double beta = Km * atan(dl * cos(alpha) / (Rm + r_h + dl * sin(alpha)));
 
-    dS = EarthRadius * beta;                                                               //水平距离
-    dh = sqrt((Rm + r_h) * (Rm + r_h) + dl * dl + 2 * (Rm + r_h) * dl * sin(alpha)) - Rm;  //高度
+    dS = EarthRadius * beta;                                                               // 水平距离
+    dh = sqrt((Rm + r_h) * (Rm + r_h) + dl * dl + 2 * (Rm + r_h) * dl * sin(alpha)) - Rm;  // 高度
 
     return;
 }
 
-void silly_radar_proj::tilt_of_gps(double e,     //仰角度数
-                           double az,    //雷达方位度数
-                           double dl,    //雷达探测距离（千米）
-                           double& lon,  //经度返回值
-                           double& lat,  //纬度返回值
-                           double& dh,   //拔海高度返回值（千米）
-                           double& dS    //水平距离
+void silly_radar_proj::tilt_of_gps(double e,     // 仰角度数
+                                   double az,    // 雷达方位度数
+                                   double dl,    // 雷达探测距离（千米）
+                                   double& lon,  // 经度返回值
+                                   double& lat,  // 纬度返回值
+                                   double& dh,   // 拔海高度返回值（千米）
+                                   double& dS    // 水平距离
 )
 {
     tilt_of_gps(e, dl, dh, dS);
@@ -192,14 +190,14 @@ void silly_radar_proj::tilt_of_gps(double e,     //仰角度数
     return;
 }
 
-//根据回波格点坐标计算目标物的地理坐标
-void silly_radar_proj::tilt_of_gps(double e,     //仰角度数
-                           int i,        //东西向格点坐标
-                           int j,        //南北向格点坐标
-                           double& lon,  //经度返回值
-                           double& lat,  //纬度返回值
-                           double& dh,   //拔海高度返回值
-                           double& dS    //经度返回值
+// 根据回波格点坐标计算目标物的地理坐标
+void silly_radar_proj::tilt_of_gps(double e,     // 仰角度数
+                                   int i,        // 东西向格点坐标
+                                   int j,        // 南北向格点坐标
+                                   double& lon,  // 经度返回值
+                                   double& lat,  // 纬度返回值
+                                   double& dh,   // 拔海高度返回值
+                                   double& dS    // 经度返回值
 )
 
 {
@@ -216,10 +214,10 @@ void silly_radar_proj::tilt_of_gps(double e,     //仰角度数
     tilt_of_gps(e, az, dl, lon, lat, dh, dS);
 }
 
-//根据地面距离计算波束高度
+// 根据地面距离计算波束高度
 void silly_radar_proj::ES_of_H(double e,   // elevation angle
-                       double dS,  //经度返回值
-                       double& dh  // return value og height
+                               double dS,  // 经度返回值
+                               double& dh  // return value og height
 )
 {
     if (dS <= r_res)
@@ -229,11 +227,11 @@ void silly_radar_proj::ES_of_H(double e,   // elevation angle
         double alpha = e * PI / 180.0;
         double Rm = EarthRadius * Km;
         double betam = dS / Rm;
-        dh = (Rm + r_h) * cos(alpha) / cos(alpha + betam) - Rm;  //高度
+        dh = (Rm + r_h) * cos(alpha) / cos(alpha + betam) - Rm;  // 高度
     }
 }
 
-//根据水平距离和高度计算仰角
+// 根据水平距离和高度计算仰角
 void silly_radar_proj::HS_of_E(double H, double dS, double& ele)
 {
     double Rm = EarthRadius * Km;
@@ -251,13 +249,13 @@ void silly_radar_proj::HS_of_E(double H, double dS, double& ele)
     return;
 }
 
-//根据经纬度值和仰角来计算方位、距离
-void silly_radar_proj::gps_to_tilt(double lon,  //经度值
-                           double lat,  //纬度值
-                           double e,    //仰角度数
-                           double& Az,  //雷达方位度数返回值
-                           double& L,   //雷达探测距离返回值(千米)
-                           double& H    //高度返回值(千米)
+// 根据经纬度值和仰角来计算方位、距离
+void silly_radar_proj::gps_to_tilt(double lon,  // 经度值
+                                   double lat,  // 纬度值
+                                   double e,    // 仰角度数
+                                   double& Az,  // 雷达方位度数返回值
+                                   double& L,   // 雷达探测距离返回值(千米)
+                                   double& H    // 高度返回值(千米)
 )
 {
     double beta0;
@@ -268,15 +266,15 @@ void silly_radar_proj::gps_to_tilt(double lon,  //经度值
     L = (Km * EarthRadius + r_h) * sin(beta0) / cos(alpha + beta0);
 
     double Rm = EarthRadius * Km;
-    H = sqrt((Rm + r_h) * (Rm + r_h) + L * L + 2 * (Rm + r_h) * L * sin(alpha)) - Rm;  //高度
+    H = sqrt((Rm + r_h) * (Rm + r_h) + L * L + 2 * (Rm + r_h) * L * sin(alpha)) - Rm;  // 高度
     // H=r_h+L*sin(alpha)+L*L*cos(alpha)*cos(alpha)/(2*Rm) ;
 }
 
-void silly_radar_proj::gps_to_tilt(double lon,  //经度值
-                           double lat,  //纬度值
-                           double e,    //仰角度数
-                           double& x,
-                           double& y  //返回的格点坐标
+void silly_radar_proj::gps_to_tilt(double lon,  // 经度值
+                                   double lat,  // 纬度值
+                                   double e,    // 仰角度数
+                                   double& x,
+                                   double& y  // 返回的格点坐标
 )
 {
     double Az, L, H;
@@ -289,20 +287,20 @@ void silly_radar_proj::gps_to_tilt(double lon,  //经度值
     y = L * cos_az / r_res;
 }
 
-//根据经纬度和拔海高度计算仰角、方位和距离；
-void silly_radar_proj::DEM_to_tilt(double lon,  //经度值
-                           double lat,  //纬度值
-                           double H,    //高度值(千米)
-                           double& e,   //仰角返回度数
-                           double& Az,  //雷达方位度数返回值
-                           double& L,   //雷达探测距离返回值(千米)
-                           double& S    //水平距离返回值(千米)
+// 根据经纬度和拔海高度计算仰角、方位和距离；
+void silly_radar_proj::DEM_to_tilt(double lon,  // 经度值
+                                   double lat,  // 纬度值
+                                   double H,    // 高度值(千米)
+                                   double& e,   // 仰角返回度数
+                                   double& Az,  // 雷达方位度数返回值
+                                   double& L,   // 雷达探测距离返回值(千米)
+                                   double& S    // 水平距离返回值(千米)
 )
 {
     double beta;
     gps_to_Azimuth(lon, lat, Az, beta);
     S = beta * EarthRadius;
-    if (H <= r_h)  //没有遮挡
+    if (H <= r_h)  // 没有遮挡
     {
         e = 0;
         L = S;
@@ -323,14 +321,14 @@ void silly_radar_proj::DEM_to_tilt(double lon,  //经度值
     e = e * 180.0 / PI;
 }
 
-//根据计算波束高度
+// 根据计算波束高度
 void silly_radar_proj::RayPath_of_SH(double e,  // elevation angle
-                             int Bins,  // total numbers of range gates
-                             short* S,
-                             short* H)  // return value og height
+                                     int Bins,  // total numbers of range gates
+                                     short* S,
+                                     short* H)  // return value og height
 {
     double dh, dS;
-    double dl = 0;  //雷达探测距离（千米）
+    double dl = 0;  // 雷达探测距离（千米）
     for (int i = 0; i < Bins; ++i)
     {
         tilt_of_gps(e, dl, dh, dS);

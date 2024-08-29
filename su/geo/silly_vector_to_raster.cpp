@@ -248,7 +248,7 @@ void xscan_line_raster::image(const std::string& path)
 {
 #ifndef NDEBUG
     png_data png = png_utils::create_empty(m_height, m_width, PNG_COLOR_TYPE_RGB_ALPHA);
-//#pragma omp parallel for num_threads(8)
+    // #pragma omp parallel for num_threads(8)
     for (int r = 0; r < m_height; ++r)
     {
         int old = 0;
@@ -291,13 +291,13 @@ void xscan_line_raster::slim()
     std::map<int, std::map<int, int>> r_c_i;
     for (auto [r, cs] : m_row_pairs)
     {
-        if(r< 0 || r >= m_height)
+        if (r < 0 || r >= m_height)
         {
             continue;
         }
         for (auto c : cs)
         {
-            if(c.beg < 0 || c.beg >= m_width)
+            if (c.beg < 0 || c.beg >= m_width)
             {
                 continue;
             }

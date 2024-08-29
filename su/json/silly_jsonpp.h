@@ -16,7 +16,7 @@ class silly_jsonpp_opt
 {
   public:
     bool utf8{true};
-    size_t precision{0}; // 小数精度, 为0则不处理
+    size_t precision{0};  // 小数精度, 为0则不处理
 };
 
 class silly_jsonpp
@@ -37,7 +37,7 @@ class silly_jsonpp
     static Json::Value loads(const std::string& content);
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <param name="root"></param>
     /// <param name="utf8"></param>
@@ -55,7 +55,7 @@ class silly_jsonpp
     static bool check_member_double(const Json::Value& root, const std::string& key, double& val);
     static bool check_member_bool(const Json::Value& root, const std::string& key, bool& val);
     static bool check_member_array(const Json::Value& root, const std::string& key, Json::Value& jv_arr);
-    static bool check_member_object(const Json::Value& root, const std::string& key, Json::Value& jv_obj );
+    static bool check_member_object(const Json::Value& root, const std::string& key, Json::Value& jv_obj);
 };
 
 #endif  // SILLY_UTILS_SILLY_JSONPP_H

@@ -97,7 +97,7 @@ class silly_iso_line
 {
     enum class enum_iso_type
     {
-        eitLine = 0,  //等值线
+        eitLine = 0,  // 等值线
         eitArea = 1   // 等值面
     };
 
@@ -133,16 +133,16 @@ class silly_iso_line
     enum_iso_type m_Type;
 
   private:
-    double XXMax = -999., YYMax = -999., XXMin = 999., YYMin = 999.;  //数值点的x，y最大值
+    double XXMax = -999., YYMax = -999., XXMin = 999., YYMin = 999.;  // 数值点的x，y最大值
 
     // 视口范围
-    double dMinLGTD{1e6};   //最小经度
-    double dMaxLGTD{-1e6};  //最大经度
-    double dMinLTTD{1e6};   //最小纬度
-    double dMaxLTTD{-1e6};  //最大纬度
+    double dMinLGTD{1e6};   // 最小经度
+    double dMaxLGTD{-1e6};  // 最大经度
+    double dMinLTTD{1e6};   // 最小纬度
+    double dMaxLTTD{-1e6};  // 最大纬度
 
     enum_clip_type nClipType{0};
-    //三角形信息
+    // 三角形信息
     size_t m_tri_num;
     double* m_tax{nullptr};
     double* m_tay{nullptr};
@@ -152,16 +152,16 @@ class silly_iso_line
     double* m_tcy{nullptr};
     double* m_taz{nullptr};
     double* m_tbz{nullptr};
-    double* m_tcz{nullptr};  //三角形数据结构
+    double* m_tcz{nullptr};  // 三角形数据结构
 
-    //数据点信息
+    // 数据点信息
     size_t m_data_num;
     double* m_ddx{nullptr};
     double* m_ddy{nullptr};
     double* m_ddz{nullptr};
     double m_max_dz{-999999.};
-    double m_min_dz{999999.};  //数据点坐标(ddx,ddy)及取值(ddz)
-                         // SF1 showF[ARR];
+    double m_min_dz{999999.};  // 数据点坐标(ddx,ddy)及取值(ddz)
+                               //  SF1 showF[ARR];
 
   public:
     /// <summary>
@@ -222,7 +222,7 @@ class silly_iso_line
     void clear();
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <returns></returns>
     std::string geojson(const std::string& path);

@@ -289,7 +289,7 @@
 ////		pV0 = p1;
 ////		pV1 = p0;
 ////	}
-////		
+////
 ////	// Insert a normalized edge. If it's already in edges, insertion will fail,
 ////	// thus leaving only unique edges.
 ////	edges.insert(edge(pV0, pV1));

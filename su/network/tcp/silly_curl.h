@@ -31,53 +31,49 @@ class silly_http_response
 
 namespace silly_curl
 {
-  class http
-  {
+class http
+{
   public:
-  };
-
-  class ftp
-  {
-    public:
-
-  };
-
-  class websocket
-  {
-    public:
-  };
-
-  /// 代理
-  class proxy
-  {
-    public:
-  };
-
-  class smtp_req
-  {
-
-    public:
-      std::string server;
-      std::string sender;
-      std::string user;
-      std::string pwd;
-      std::map<std::string, std::string> nick_receivers;
-      std::string subject;
-      std::string content;
-
-      bool ssl{false};
-      std::map<std::string, std::string> name_files;
-  };
-
-  /// 邮件
-  class smtp
-  {
-    public:
-
-      bool send(const smtp_req& req);
-  };
-
-
 };
+
+class ftp
+{
+  public:
+};
+
+class websocket
+{
+  public:
+};
+
+/// 代理
+class proxy
+{
+  public:
+};
+
+class smtp_req
+{
+  public:
+    std::string server;
+    std::string sender;
+    std::string user;
+    std::string pwd;
+    std::map<std::string, std::string> nick_receivers;
+    std::string subject;
+    std::string content;
+
+    bool ssl{false};
+    std::map<std::string, std::string> name_files;
+};
+
+/// 邮件
+class smtp
+{
+  public:
+    bool send(const smtp_req& req);
+};
+
+};  // namespace silly_curl
 
 #endif  // SILLY_UTILS_SILLY_CURL_H

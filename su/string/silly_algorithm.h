@@ -14,13 +14,12 @@
 
 class silly_string_algo
 {
-public:
-
-    static std::vector<std::string> split(const std::string& str, const char& c );
-    static std::vector<std::string> split(const std::string& str, const std::string& s );
+  public:
+    static std::vector<std::string> split(const std::string& str, const char& c);
+    static std::vector<std::string> split(const std::string& str, const std::string& s);
     static std::string replace(const std::string& src, const std::string& find, const std::string rep);
 
     static size_t count_with_chinese_character(const std::string& u8str);
 };
 
-#endif //SILLY_UTILS_SILLY_ALGORITHM_H
+#endif  // SILLY_UTILS_SILLY_ALGORITHM_H

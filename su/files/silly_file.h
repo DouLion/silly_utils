@@ -38,7 +38,7 @@ class silly_file
 
     static size_t read(const std::string &path, unsigned char **content, const size_t &offset = 0, const size_t &len = SIZE_MAX);
 
-    static bool read(const std::string& path, std::vector<std::string>& lines);
+    static bool read(const std::string &path, std::vector<std::string> &lines);
 
     /// <summary>
     /// 将内容写入文件
@@ -48,7 +48,7 @@ class silly_file
     /// <returns></returns>
     static size_t write(const std::string &path, const std::string &content);
 
-    static size_t write(const std::string& path, const std::vector<std::string>& lines);
+    static size_t write(const std::string &path, const std::vector<std::string> &lines);
 
     /// <summary>
     /// 列出(仅)当前文件夹下所有包含filter的文件
@@ -67,22 +67,19 @@ class silly_file
     /// <returns></returns>
     static std::vector<std::string> list_all_recurse(const std::string &path, const std::string &filter = SILLY_FILE_MATCH_ALL_WILDCHAR);
 
+    /// <summary>
+    /// 最新更新时间
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    static size_t last_modify_stamp_sec(const std::string &path);
 
     /// <summary>
     /// 最新更新时间
     /// </summary>
     /// <param name="path"></param>
     /// <returns></returns>
-    static size_t last_modify_stamp_sec(const std::string& path);
-
-    /// <summary>
-    /// 最新更新时间
-    /// </summary>
-    /// <param name="path"></param>
-    /// <returns></returns>
-    static size_t last_modify_stamp_ms(const std::string& path);
-
-
+    static size_t last_modify_stamp_ms(const std::string &path);
 
   private:
     static std::string file_filter_regex(const std::string &filter);

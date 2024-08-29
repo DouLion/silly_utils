@@ -17,7 +17,6 @@
 
 namespace silly_format = fmt;
 
-
 #ifndef SFP_DEBUG
 #ifndef NDEBUG
 #define SFP_DEBUG(s, ...)                                                                                            \
@@ -56,6 +55,5 @@ namespace silly_format = fmt;
 #endif
 
 #define SFP_TZX fmt::print(fg(fmt::color::light_sky_blue) | fmt::emphasis::bold, "\n ____  ____  _  _ \n(_  _)(__  )( \\/ )\n  )(   / _/  )  ( \n (__) (____)(_/\\_)\n");
-
 
 #endif  // SILLY_UTILS_SILLY_FORMAT_H

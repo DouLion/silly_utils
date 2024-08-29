@@ -4,4 +4,3 @@
 
 #include "silly_matrix.h"
 using namespace silly_math;
-

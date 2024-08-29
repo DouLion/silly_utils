@@ -7,7 +7,8 @@
 
 typedef spdlog::sinks::rotating_file_sink_mt su_rotate_log;
 
-const static char* SILLY_TZX_LOG_CHAR = " \n _________\n|  _   _  |               \n|_/ | | \\_|____   _   __  \n    | |   [_   ] [ \\ [  ] \n   _| |_   .' /_  > '  <  \n  |_____| [_____][__]`\\_]\nBeijing TianZhiXiang Information Technology Co., Ltd. All rights\n";
+const static char* SILLY_TZX_LOG_CHAR =
+    " \n _________\n|  _   _  |               \n|_/ | | \\_|____   _   __  \n    | |   [_   ] [ \\ [  ] \n   _| |_   .' /_  > '  <  \n  |_____| [_____][__]`\\_]\nBeijing TianZhiXiang Information Technology Co., Ltd. All rights\n";
 
 const static std::string SU_SINK_NAME_DEBUG = "debug";
 const static std::string SU_SINK_NAME_INFO = "info";
@@ -54,7 +55,6 @@ silly_log::silly_log()
 
 bool silly_log::init(const option& opt)
 {
-
     bool status = true;
 
     register_spdlog(opt);
@@ -78,7 +78,8 @@ bool silly_log::init(int argc, char** argv)
     opt.name = std::filesystem::path(argv[0]).stem().string();
     return init(opt);
 }
-bool silly_log::init(const std::string& path){
+bool silly_log::init(const std::string& path)
+{
     option opt;
 
     // TODO: 从配置文件加载
@@ -172,4 +173,3 @@ void silly_log::register_glog(const option& opt)
     m_spdlog_warn = nullptr;
     m_spdlog_error = nullptr;
 }
-

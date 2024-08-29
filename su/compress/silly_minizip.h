@@ -26,7 +26,7 @@ class MiniZip
     /// <param name="s_dst">生成解压文件路径</param>
     /// <returns></returns>
     /// 注: 测试压缩3G以上ios文件有问题
-    static CPS_ERR compress(const std::string& s_src, const std::string& s_dst = "", const bool& append= false);
+    static CPS_ERR compress(const std::string& s_src, const std::string& s_dst = "", const bool& append = false);
 
     /// <summary>
     /// 解压zip文件,解压单独文件和目录文件

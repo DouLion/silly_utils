@@ -20,7 +20,7 @@
 // Change to use Qt's d_l_point instead of PointF
 //
 #ifndef REAL_EPSILON
-#define REAL_EPSILON 1.192092896e-07F  
+#define REAL_EPSILON 1.192092896e-07F
 #endif
 ///////////////////
 // vertex
@@ -36,8 +36,14 @@ struct d_l_point
         return abs(t.m_x - m_x) < REAL_EPSILON && abs(t.m_y - m_y);
     }
 
-    double x() const  { return m_x; }
-    double y() const  { return m_y; }
+    double x() const
+    {
+        return m_x;
+    }
+    double y() const
+    {
+        return m_y;
+    }
     double m_x;
     double m_y;
 };

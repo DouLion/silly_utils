@@ -60,7 +60,6 @@ bool silly_mmap::open_m(const std::string& file, const silly_mmap::enum_mmap_ope
     m_h_file = nullptr;
     if (mode == enum_mmap_open_mode::emomRead)
     {
-        
         status = windows_open_read();
     }
     else if (mode == enum_mmap_open_mode::emomWrite || mode == enum_mmap_open_mode::emomRdWrt)
@@ -93,7 +92,7 @@ bool silly_mmap::read_m(mmap_cur* dst, const size_t& size, const size_t& offset)
 bool silly_mmap::write_m(mmap_cur* src, const size_t& size, const size_t& offset)
 {
     bool status = false;
-    if(m_mmap)
+    if (m_mmap)
     {
         std::unique_lock lock(m_w_mutex);
         // if (!strcpy_s(m_mmap + offset, size, src))
@@ -124,7 +123,6 @@ void silly_mmap::increase()
 #define SILLY_MMAP_MAX_SIZE 0xFFFF
 bool silly_mmap::windows_open_read()
 {
-
     bool status = false;
 #if IS_WIN32
     m_h_file = CreateFile(s2ws(m_file).c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
@@ -179,7 +177,6 @@ bool silly_mmap::windows_open_write()
         CloseHandle(m_h_file);
         return status;
     }
-
 
     m_mmap = static_cast<char*>(MapViewOfFile(m_h_map_file, FILE_MAP_WRITE, 0, 0, SILLY_MMAP_MAX_SIZE));
     if (m_mmap == NULL)

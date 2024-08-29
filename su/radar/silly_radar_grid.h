@@ -14,14 +14,21 @@
 #include <math/silly_matrix.h>
 #include <vector>
 using namespace silly_math;
-#define SILLY_RADAR_GRID_FILE_SUFFIX  ".rgrid"
+#define SILLY_RADAR_GRID_FILE_SUFFIX ".rgrid"
 
-#define SILLY_RADAR_GRID_MALLOC(l)  malloc(l);
+#define SILLY_RADAR_GRID_MALLOC(l) malloc(l);
 
-#define SILLY_RADAR_GRID_FREE(p) {if(p){free(p); p = nullptr;}}
-class silly_radar_grid {
-
-public:
+#define SILLY_RADAR_GRID_FREE(p) \
+    {                            \
+        if (p)                   \
+        {                        \
+            free(p);             \
+            p = nullptr;         \
+        }                        \
+    }
+class silly_radar_grid
+{
+  public:
     silly_radar_grid();
 
     /// <summary>
@@ -51,7 +58,6 @@ public:
 
     silly_radar_grid operator=(silly_radar_grid other)
     {
-
         this->total = other.total;
         this->left = other.left;
         this->right = other.right;
@@ -74,8 +80,7 @@ public:
         return *this;
     }
 
-
-public:
+  public:
     /*
     _TZX
     总大小
@@ -93,25 +98,24 @@ public:
     x轴以 0-E180为正  y轴以 N90-S90为正方向
     顺序,从左到右,从上到下
     */
-    size_t total{ 0 };
-    float left{ 0. };
-    float right{ 0. };
-    float top{ 0. };
-    float bottom{ 0. };
+    size_t total{0};
+    float left{0.};
+    float right{0.};
+    float top{0.};
+    float bottom{0.};
 
-    float xdelta{ 0. };
-    float ydelta{ 0. };
+    float xdelta{0.};
+    float ydelta{0.};
 
-    char name[32]{ 0 };
-    char units[32]{ 0 };
-
+    char name[32]{0};
+    char units[32]{0};
 
     size_t row;
     size_t col;
     FMatrix grid;
-private:
-    char m_prefix[4];
 
+  private:
+    char m_prefix[4];
 };
 
-#endif //SILLY_UTILS_SILLY_RADAR_GRID_H
+#endif  // SILLY_UTILS_SILLY_RADAR_GRID_H

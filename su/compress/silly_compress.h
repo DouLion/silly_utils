@@ -43,9 +43,4 @@ enum class CPS_ERR
 };
 }
 
-
-
-
-
-
-#endif //SILLY_COMPRESS_H
+#endif  // SILLY_COMPRESS_H

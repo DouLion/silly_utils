@@ -1,17 +1,17 @@
-//#pragma once
+// #pragma once
 //
-//#include <iostream>
-//#include <filesystem>
-//#include <vector>
+// #include <iostream>
+// #include <filesystem>
+// #include <vector>
 //
-//#define DIRENT_SEARCH_SUFFIX "*"
+// #define DIRENT_SEARCH_SUFFIX "*"
 //
 ///** @class TFF_FileUtils
 //        @brief The tool class of file operations.
 //        @note
 //        @attention
 //*/
-//class FileUtils
+// class FileUtils
 //{
 //  public:
 //    /// Whether is directory.

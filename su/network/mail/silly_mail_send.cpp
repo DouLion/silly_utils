@@ -66,33 +66,33 @@ bool silly_mail_send::send()
         curl_easy_setopt(curl, CURLOPT_MAIL_RCPT, recipients);
 
         // 发送内容
-       /*curl_easy_setopt(curl, CURLOPT_READFUNCTION, [payload_content](char* ptr, size_t size, size_t nmemb, void* userp) -> size_t {
-            {
-                struct silly_mail_send_upload_status* upload_ctx_bi = (struct silly_mail_send_upload_status*)userp;
-                const char* data;
-                size_t room = size * nmemb;
+        /*curl_easy_setopt(curl, CURLOPT_READFUNCTION, [payload_content](char* ptr, size_t size, size_t nmemb, void* userp) -> size_t {
+             {
+                 struct silly_mail_send_upload_status* upload_ctx_bi = (struct silly_mail_send_upload_status*)userp;
+                 const char* data;
+                 size_t room = size * nmemb;
 
-                if ((size == 0) || (nmemb == 0) || ((size * nmemb) < 1))
-                {
-                    return 0;
-                }
+                 if ((size == 0) || (nmemb == 0) || ((size * nmemb) < 1))
+                 {
+                     return 0;
+                 }
 
-                data = &payload_content[upload_ctx_bi->bytes_read];
+                 data = &payload_content[upload_ctx_bi->bytes_read];
 
-                if (data)
-                {
-                    size_t len = strlen(data);
-                    if (room < len)
-                        len = room;
-                    memcpy(ptr, data, len);
-                    upload_ctx_bi->bytes_read += len;
+                 if (data)
+                 {
+                     size_t len = strlen(data);
+                     if (room < len)
+                         len = room;
+                     memcpy(ptr, data, len);
+                     upload_ctx_bi->bytes_read += len;
 
-                    return len;
-                }
+                     return len;
+                 }
 
-                return 0;
-            }
-        });*/
+                 return 0;
+             }
+         });*/
         curl_easy_setopt(curl, CURLOPT_READFUNCTION, NULL);
         curl_easy_setopt(curl, CURLOPT_READDATA, &m_content);
 
@@ -127,7 +127,6 @@ bool silly_mail_send::send()
         {
             status = true;
         }
-            
 
         /* Free the list of recipients */
         curl_slist_free_all(recipients);

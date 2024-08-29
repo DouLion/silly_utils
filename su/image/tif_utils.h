@@ -15,7 +15,6 @@
 
 class tif_utils
 {
-
 };
 
-#endif //SILLY_UTILS_TIF_UTILS_H
+#endif  // SILLY_UTILS_TIF_UTILS_H

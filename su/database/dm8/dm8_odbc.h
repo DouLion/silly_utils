@@ -15,7 +15,6 @@
 
 class dm8_odbc
 {
-
 };
 
-#endif //SILLY_UTILS_DM8_ODBC_H
+#endif  // SILLY_UTILS_DM8_ODBC_H

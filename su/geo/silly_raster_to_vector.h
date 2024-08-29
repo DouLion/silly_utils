@@ -66,7 +66,6 @@ class silly_vectorizer
     silly_vectorizer(const silly_vectorizer& right);
     silly_vectorizer& operator=(const silly_vectorizer& right);
 
-
     /// <summary>
     /// 矢量化所有面
     /// </summary>
@@ -81,7 +80,6 @@ class silly_vectorizer
     /// <param name="points"></param>
     /// <returns></returns>
     void set(const trace_grid_info& info);
-
 
     /// <summary>
     /// 设置矢量化参数信息
@@ -102,10 +100,10 @@ class silly_vectorizer
     // useless
     void set(const std::vector<trace_square_point>& points, const double& low, const double& high);
 
-    std::vector<silly_poly> smooth_poly(const std::vector<silly_poly> &polys);
-    std::vector<silly_poly> simplify_poly_less_angle(const std::vector<silly_poly> &polys, const double &angle);
-    std::vector<silly_poly> simplify_poly_same_slope(const std::vector<silly_poly> &polys);
-    std::vector<silly_poly> simplify_poly_mid_point(const std::vector<silly_poly> &polys);
+    std::vector<silly_poly> smooth_poly(const std::vector<silly_poly>& polys);
+    std::vector<silly_poly> simplify_poly_less_angle(const std::vector<silly_poly>& polys, const double& angle);
+    std::vector<silly_poly> simplify_poly_same_slope(const std::vector<silly_poly>& polys);
+    std::vector<silly_poly> simplify_poly_mid_point(const std::vector<silly_poly>& polys);
 
     /// <summary>
     /// 消除斜率相同的连续点, 以简化环

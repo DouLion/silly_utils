@@ -41,8 +41,7 @@ int write_into_zip_handle(const zipFile& zip_handle, const std::string& file)
     }
     size_t predicte = 100 * 1024 * 1024;
 
-   
-    size_t total  = 0;
+    size_t total = 0;
     while (input)
     {
         std::vector<char> buffer(predicte);
@@ -58,7 +57,7 @@ int write_into_zip_handle(const zipFile& zip_handle, const std::string& file)
             break;
         }
         total += read_size;
-        SLOG_DEBUG("已处理{}M", total*100/predicte)
+        SLOG_DEBUG("已处理{}M", total * 100 / predicte)
     }
     if (input.eof())
     {
@@ -122,7 +121,7 @@ int minizip_compress_dir(const zipFile& zip_handle, const std::string& root)
         // 首先处理目录
         if (is_dir)
         {
-            tmp_relate.append("/"); // 添加尾随斜线并在ZIP中创建条目
+            tmp_relate.append("/");  // 添加尾随斜线并在ZIP中创建条目
             zip_fileinfo tmp_zinfo = {};
             int ret = zipOpenNewFileInZip3_64(zip_handle, tmp_relate.c_str(), &tmp_zinfo, nullptr, 0, nullptr, 0, nullptr, Z_DEFLATED, Z_DEFAULT_COMPRESSION, 0, -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY, nullptr, 0, 1);
             if (ret != ZIP_OK)
@@ -130,7 +129,7 @@ int minizip_compress_dir(const zipFile& zip_handle, const std::string& root)
                 SLOG_ERROR("创建ZIP目录条目失败: {}", path);
                 return ret;
             }
-            continue; 
+            continue;
         }
 
         // 处理文件
@@ -260,8 +259,8 @@ CPS_ERR MiniZip::decompress(const std::string& s_src, const std::string& s_dst)
             nameLen = file_info.size_filename;
             uncompressed_size = file_info.uncompressed_size;
         }
-        char* filename = (char*)malloc(nameLen+1); // 文件名
-        if (unzGetCurrentFileInfo64(zipFile, &file_info, filename, nameLen+1, nullptr, 0, nullptr, 0) != UNZ_OK)
+        char* filename = (char*)malloc(nameLen + 1);  // 文件名
+        if (unzGetCurrentFileInfo64(zipFile, &file_info, filename, nameLen + 1, nullptr, 0, nullptr, 0) != UNZ_OK)
         {
             SU_MEM_FREE(filename);
             return CPS_ERR::MiniZGetInforErr;  // 获取文件信息失败
@@ -271,7 +270,6 @@ CPS_ERR MiniZip::decompress(const std::string& s_src, const std::string& s_dst)
         {
             SU_MEM_FREE(filename);
             continue;
-
         }
         one_file.append(filename);
         if (filename[nameLen - 1] == '/' || filename[nameLen - 1] == '\\')  // 压缩分支为目录
@@ -313,7 +311,6 @@ CPS_ERR MiniZip::decompress(const std::string& s_src, const std::string& s_dst)
                     outFile.write(buffer, readSize);
                     currentUncompressedSize += readSize;  // 更新已解压的总大小
                     SLOG_DEBUG("已处理{}M", currentUncompressedSize / predicte)
-
                 }
                 outFile.close();
                 SU_MEM_FREE(buffer);
@@ -326,7 +323,7 @@ CPS_ERR MiniZip::decompress(const std::string& s_src, const std::string& s_dst)
     return CPS_ERR::Ok;
 }
 
- CPS_ERR MiniZip::compress(const char* c_in_val, const size_t& i_in_len, char** c_out_val, size_t& i_out_len)
+CPS_ERR MiniZip::compress(const char* c_in_val, const size_t& i_in_len, char** c_out_val, size_t& i_out_len)
 {
     if (c_in_val == nullptr || i_in_len == 0)
     {
@@ -357,7 +354,7 @@ CPS_ERR MiniZip::decompress(const std::string& s_src, const std::string& s_dst)
     return CPS_ERR::Ok;
 }
 
- CPS_ERR MiniZip::decompress(const char* c_in_val, const size_t& i_in_len, char** c_out_val, size_t& i_out_len)
+CPS_ERR MiniZip::decompress(const char* c_in_val, const size_t& i_in_len, char** c_out_val, size_t& i_out_len)
 {
     // 检查输入参数
     if (c_in_val == nullptr || i_in_len == 0)

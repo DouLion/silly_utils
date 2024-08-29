@@ -192,7 +192,8 @@ void otl_conn_opt::help()
 {
     SLOG_INFO(
         "OTL 连接串帮助信息:\nSQL Server:\n\tDRIVER={驱动名称};SERVER=IP;PORT=端口;UID=账号;PWD=密码;DATABASE=数据库;\nMySQL:\n\tDriver={MySQL ODBC 8.0 ANSI "
-        "Driver};Server=IP;Port=端口;Database=数据库;User=账号;Password=密码;Option=3;charset=UTF8;\nOracle:\n\tDriver={ODBC驱动名称};DBQ=IP:端口/表空间名称;UID=用户;PWD=密码;Oracle需要另外设置环境变量NLS_LANG=SIMPLIFIED CHINESE_CHINA.UTF8,以支持中文编码utf8传递;\n达梦(DM8):\n\t达梦数据库目前只能使用DSN的方式  "
+        "Driver};Server=IP;Port=端口;Database=数据库;User=账号;Password=密码;Option=3;charset=UTF8;\nOracle:\n\tDriver={ODBC驱动名称};DBQ=IP:端口/表空间名称;UID=用户;PWD=密码;Oracle需要另外设置环境变量NLS_LANG=SIMPLIFIED "
+        "CHINESE_CHINA.UTF8,以支持中文编码utf8传递;\n达梦(DM8):\n\t达梦数据库目前只能使用DSN的方式  "
         "UID=用户;PWD=密码;DSN=DSN名称;\n")
 }
 

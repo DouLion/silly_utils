@@ -15,7 +15,6 @@
 #include "tzx/pyramid/silly_pyramid_base.h"
 class silly_pyramid_full_text : public silly_pyramid_base
 {
-
 };
 
-#endif //SILLY_UTILS_SILLY_PYRAMID_FULL_TEXT_H
+#endif  // SILLY_UTILS_SILLY_PYRAMID_FULL_TEXT_H

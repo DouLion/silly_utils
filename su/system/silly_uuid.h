@@ -28,8 +28,8 @@
 
 class silly_uuid
 {
-public:
+  public:
     static std::string random_uuid();
 };
 
-#endif //SILLY_UTILS_SILLY_UUID_H
+#endif  // SILLY_UTILS_SILLY_UUID_H

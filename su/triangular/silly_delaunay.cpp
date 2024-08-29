@@ -6,7 +6,6 @@
 
 bool silly_delaunay::set_data(const std::vector<d_point>& points)
 {
-    
     size_t pnum = points.size();
     if (pnum < 3)
     {
@@ -27,7 +26,6 @@ bool silly_delaunay::set_data(const std::vector<d_point>& points)
     const auto dx = xmax - xmin;
     const auto dy = ymax - ymin;
 
-
     xmin -= (xmax - xmin) / 10.;  // 外扩1/10;
     ymin -= (ymax - ymin) / 10.;
     xmax += (xmax - xmin) / 10.;
@@ -35,10 +33,10 @@ bool silly_delaunay::set_data(const std::vector<d_point>& points)
 
     /* Init d_delaunay triangulation. */
 
-    const auto p0 = d_point{ xmin, ymin, 0, pnum };      // 左下
-    const auto p1 = d_point{ xmin, ymax, 0, pnum + 1 };  // 左上
-    const auto p2 = d_point{ xmax, ymin, 0, pnum + 2 };  // 右下
-    const auto p3 = d_point{ xmax, ymax, 0, pnum + 3 };  // 右上
+    const auto p0 = d_point{xmin, ymin, 0, pnum};      // 左下
+    const auto p1 = d_point{xmin, ymax, 0, pnum + 1};  // 左上
+    const auto p2 = d_point{xmax, ymin, 0, pnum + 2};  // 右下
+    const auto p3 = d_point{xmax, ymax, 0, pnum + 3};  // 右上
     std::vector<d_point> n_points = points;
     n_points.push_back(p0);
     n_points.push_back(p1);
@@ -46,8 +44,8 @@ bool silly_delaunay::set_data(const std::vector<d_point>& points)
     n_points.push_back(p3);
 
     // 左上 右下 以及其中一条对角线构建成的2个初始三角形
-    d.triangles.emplace_back(d_triangle{ p0, p1, p2 });
-    d.triangles.emplace_back(d_triangle{ p3, p1, p2 });
+    d.triangles.emplace_back(d_triangle{p0, p1, p2});
+    d.triangles.emplace_back(d_triangle{p3, p1, p2});
     // int iii = 0;
     for (auto const& pt : points)
     {
@@ -83,22 +81,21 @@ bool silly_delaunay::set_data(const std::vector<d_point>& points)
                 if (1 == c)
                 {
                     edge_num++;
-                    d_triangle ttt{ n_points[i0], n_points[i1], {pt.x, pt.y, pt.v, pt.i} };
+                    d_triangle ttt{n_points[i0], n_points[i1], {pt.x, pt.y, pt.v, pt.i}};
                     if (ttt.circle.radius == 0)  // 外接圆半径过小的就不处理了,可能点坐标就有问题
                     {
                         continue;
                         ignore_radius_cnt++;
                     }
-                    tmps.push_back({ ttt });
+                    tmps.push_back({ttt});
                 }
             }
         }
-        //std::cout << pt.i << "," << tri_num << "," << edge_num << std::endl;
+        // std::cout << pt.i << "," << tri_num << "," << edge_num << std::endl;
         d.triangles = tmps;
     }
     return false;
 }
-
 
 bool silly_delaunay::triangulate()
 {

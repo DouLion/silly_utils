@@ -83,7 +83,7 @@ class silly_encode
     enum class enum_encode
     {
         Unknown = 0,
-        ANSI = 1,    //
+        ANSI = 1,  //
         UTF16_LE = 2,
         UTF16_BE = 3,
         UTF8_BOM = 4,
@@ -93,7 +93,7 @@ class silly_encode
         GBK = 8
     };
 
-    static bool is_utf8(const std::string& str);
+    static bool is_utf8(const std::string &str);
 
     static enum_encode system_encode();
 
@@ -103,7 +103,6 @@ class silly_encode
     /// <param name="path"></param>
     /// <returns></returns>
     static enum_encode check_file_encode(const std::string &path);
-
 
     /// <summary>
     /// URL编码
@@ -127,7 +126,6 @@ class silly_encode
     /// <param name="text">源字符串</param>
     /// <returns></returns>
     static bool iconv_convert(const std::string &from, const std::string &to, const std::string &text, std::string &ret);
-
 
     /// <summary>
     /// 一常用的编码转化

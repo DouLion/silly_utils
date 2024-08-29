@@ -8,23 +8,23 @@
 // * @software: silly_utils
 // * @description:
 // */
-//#pragma once
+// #pragma once
 //
-//#ifndef SILLY_VECTORIZER_HPP
-//#define SILLY_VECTORIZER_HPP
+// #ifndef SILLY_VECTORIZER_HPP
+// #define SILLY_VECTORIZER_HPP
 //
-//#include <iostream>
-//#include <vector>
-//#include <map>
-//#include <json/json.h>
-//#include <geo/silly_geo.h>
-//
-//
-//
-//#define POS_MAX_VALUE    1e10
+// #include <iostream>
+// #include <vector>
+// #include <map>
+// #include <json/json.h>
+// #include <geo/silly_geo.h>
 //
 //
-//struct silly_segment
+//
+// #define POS_MAX_VALUE    1e10
+//
+//
+// struct silly_segment
 //{
 //	silly_point from_p;            // 预设计一个方向
 //	silly_point to_p;
@@ -33,7 +33,7 @@
 //
 //
 //
-//struct silly_p_value : public silly_point
+// struct silly_p_value : public silly_point
 //{
 //	double value{ 0 };
 //	silly_p_value operator=(const silly_p_value& spv)
@@ -47,7 +47,7 @@
 //};
 //
 //
-//struct ceil_mark
+// struct ceil_mark
 //{
 //	int cv{ 0 };    // 特征值 characteristic value
 //	int is_white{ 0 };// 是否大于阈值
@@ -56,7 +56,7 @@
 //	std::vector<silly_segment> segments; // 可能有多条线段
 //};
 //
-//struct black_white_mat
+// struct black_white_mat
 //{
 //	std::vector<std::vector<ceil_mark>> mat;
 //	int height{ 0 };
@@ -75,7 +75,7 @@
 //
 //};
 //
-//#define RECURSION_TRACE_LINE(r, c)\
+//   #define RECURSION_TRACE_LINE(r, c)\
 //if (r > -1 && c > -1 && r < b_w_mat->height && c < b_w_mat->width) {\
 //    for (auto& segment : b_w_mat->mat[r][c].segments)\
 //    {\
@@ -99,13 +99,13 @@
 //    }\
 //}
 //
-//#define CALC_LINE_0_INTER(m, r, c, t, p)  interpolation(m[r][c].pv, m[r][c + 1].pv, threshold, p)
-//#define CALC_LINE_1_INTER(m, r, c, t, p)  interpolation(m[r][c + 1].pv, m[r + 1][c + 1].pv, threshold, p)
-//#define CALC_LINE_2_INTER(m, r, c, t, p)  interpolation(m[r + 1][c].pv, m[r + 1][c + 1].pv, threshold, p)
-//#define CALC_LINE_3_INTER(m, r, c, t, p)  interpolation(m[r][c].pv, m[r + 1][c].pv, threshold, p)
+// #define CALC_LINE_0_INTER(m, r, c, t, p)  interpolation(m[r][c].pv, m[r][c + 1].pv, threshold, p)
+// #define CALC_LINE_1_INTER(m, r, c, t, p)  interpolation(m[r][c + 1].pv, m[r + 1][c + 1].pv, threshold, p)
+// #define CALC_LINE_2_INTER(m, r, c, t, p)  interpolation(m[r + 1][c].pv, m[r + 1][c + 1].pv, threshold, p)
+// #define CALC_LINE_3_INTER(m, r, c, t, p)  interpolation(m[r][c].pv, m[r + 1][c].pv, threshold, p)
 //
 //
-//struct silly_grid_record
+// struct silly_grid_record
 //{
 //	size_t num{ 0 };
 //	double* lgtd{ nullptr };
@@ -145,10 +145,10 @@
 //	}
 //};
 //
-//class silly_vectorizer
+// class silly_vectorizer
 //{
 //
-//public:
+// public:
 //	int m_width{ 0 };
 //	int m_height{ 0 };
 //
@@ -483,7 +483,7 @@
 //		return smooth_poly(simple_polys);
 //	}
 //
-//private:
+// private:
 //
 //	static double bezier(const double& t, double x1, double x2, double x3)
 //	{
@@ -632,7 +632,7 @@
 //		return simple_polys;
 //	}
 //
-//#ifndef NDEBUG
+// #ifndef NDEBUG
 //
 //	std::string trans_poly_to_geojson(const std::vector<silly_poly>& polys)
 //	{
@@ -704,7 +704,7 @@
 //		return Json::FastWriter().write(geoJson);
 //	}
 //
-//#endif
+// #endif
 //
 //	void trace_one_line(black_white_mat* b_w_mat, int r0l, int c0l, silly_ring& ring)
 //	{
@@ -846,4 +846,4 @@
 //};
 //
 //
-//#endif //SILLY_VECTORIZER_HPP
+// #endif //SILLY_VECTORIZER_HPP

@@ -13,7 +13,15 @@
 
 enum class storage_unit
 {
-    esuByte = 0, esuKiloByte = 1, esuMegabits = 2, esuGigabits = 3, esuTerabyte = 4, esuPebibyte = 5, esuExbibyte = 6, esuZebibyte = 7, esuYobibyte = 8
+    esuByte = 0,
+    esuKiloByte = 1,
+    esuMegabits = 2,
+    esuGigabits = 3,
+    esuTerabyte = 4,
+    esuPebibyte = 5,
+    esuExbibyte = 6,
+    esuZebibyte = 7,
+    esuYobibyte = 8
 };
 
 class silly_disk
@@ -48,15 +56,13 @@ class silly_disk
     /// <returns></returns>
     static double space_available_percent(const std::string& path);
 
-     /// <summary>
+    /// <summary>
     /// 磁盘已用空间百分比
     /// </summary>
     /// <param name="path"></param>
     /// <param name="unit"></param>
     /// <returns></returns>
     static double space_used_percent(const std::string& path);
-
 };
 
 #endif  // SILLY_UTILS_SILLY_DISK_H
-

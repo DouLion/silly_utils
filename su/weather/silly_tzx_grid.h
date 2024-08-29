@@ -12,7 +12,7 @@
 
 #include <su_marco.h>
 #include <math/silly_matrix.h>
-using namespace  silly_math;
+using namespace silly_math;
 
 #define SILLY_TZX_GRID_FILE_SUFFIX ".rgrid"
 
@@ -79,7 +79,6 @@ class silly_tzx_grid
 
     bool read(const std::string& path);
     bool save(const std::string& path);
-
 
     void release();
 

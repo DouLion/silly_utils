@@ -8,21 +8,21 @@
 // * @software: silly_utils
 // * @description:
 // */
-//#pragma once
+// #pragma once
 //
-//#ifndef SILLY_UTILS_SILLY_VECTOR_TILE_H
-//#define SILLY_UTILS_SILLY_VECTOR_TILE_H
+// #ifndef SILLY_UTILS_SILLY_VECTOR_TILE_H
+// #define SILLY_UTILS_SILLY_VECTOR_TILE_H
 //
-//#include <sqlite3.h>
-//#include <string>
-//#include <map>
-//#include <vector>
+// #include <sqlite3.h>
+// #include <string>
+// #include <map>
+// #include <vector>
 //
-//typedef std::vector<std::vector<unsigned int> > TileInfoRows;
+// typedef std::vector<std::vector<unsigned int> > TileInfoRows;
 //
-//class MBTileReader
+// class MBTileReader
 //{
-//public:
+// public:
 //	MBTileReader(const char *filename);
 //	virtual ~MBTileReader();
 //
@@ -34,7 +34,7 @@
 //			unsigned int tileRow,
 //			std::string &blobOut);
 //
-//protected:
+// protected:
 //	sqlite3 *db;
 //	std::map<std::string, std::string> metadata;
 //
@@ -44,4 +44,4 @@
 //	static int ListTilesCallbackStatic(void *obj, int argc, char **argv, char **azColName);
 //};
 //
-//#endif //SILLY_UTILS_SILLY_VECTOR_TILE_H
+// #endif //SILLY_UTILS_SILLY_VECTOR_TILE_H

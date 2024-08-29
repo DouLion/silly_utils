@@ -8,9 +8,11 @@
 #include <log/silly_log.h>
 using namespace netCDF;
 using namespace netCDF::exceptions;
-static void convertToLower(std::string &str) {
-    for (size_t i = 0; i < str.length(); i++) {
-        str[i] = std::tolower(str[i]); // 将每个字符转换为小写
+static void convertToLower(std::string& str)
+{
+    for (size_t i = 0; i < str.length(); i++)
+    {
+        str[i] = std::tolower(str[i]);  // 将每个字符转换为小写
     }
 }
 bool netcdf_utils::read_netcdf(const std::string& path, const std::string& group, std::map<int, DMatrix>& data, nc_info& info)
@@ -33,12 +35,12 @@ bool netcdf_utils::read_netcdf(const std::string& path, const std::string& group
         auto allVars = nc_group.getVars(netCDF::NcGroup::All);
 
         bool found = false;
-        for(auto  [k, v]: allVars)
+        for (auto [k, v] : allVars)
         {
             std::string nnk = k;
             convertToLower(nnk);
             size_t pos = nnk.find("lon");
-            if(pos != std::string::npos)
+            if (pos != std::string::npos)
             {
                 SLOG_INFO("{} YES {}", k, path)
                 found = true;
@@ -49,138 +51,136 @@ bool netcdf_utils::read_netcdf(const std::string& path, const std::string& group
                 found = true;
             }
         }
-        if(!found)
+        if (!found)
         {
             SLOG_ERROR("{}", path);
-            for(auto  [k, v]: allVars)
+            for (auto [k, v] : allVars)
             {
-
-               // std::cout << "\t" << k << std::endl;
+                // std::cout << "\t" << k << std::endl;
             }
         }
 
+        // NcVar value_var = nc_group.getVar(group);
 
-        //NcVar value_var = nc_group.getVar(group);
+        /* std::vector<NcDim> ncDimVector = value_var.getDims();
+         std::map<std::string, int> name_ii;
+         for (auto& nd : ncDimVector)
+         {
+             std::cout << nd.getName() << std::endl;
+             name_ii[nd.getName()] = 1;
+         }
 
-       /* std::vector<NcDim> ncDimVector = value_var.getDims();
-        std::map<std::string, int> name_ii;
-        for (auto& nd : ncDimVector)
-        {
-            std::cout << nd.getName() << std::endl;
-            name_ii[nd.getName()] = 1;
-        }
+         if(name_ii.find("lon") == name_ii.end())
+         {
+             throw "lon not found";
+         }
 
-        if(name_ii.find("lon") == name_ii.end())
-        {
-            throw "lon not found";
-        }
+         if(name_ii.find("lon") == name_ii.end())
+         {
+             throw "lon not found";
+         }
 
-        if(name_ii.find("lon") == name_ii.end())
-        {
-            throw "lon not found";
-        }
+         std::string time_name, lan_name, lon_name;
+         size_t time_len = 1;
+         if (ncDimVector.size() == 2)
+         {
+             lan_name = ncDimVector[0].getName();
+             lon_name = ncDimVector[1].getName();
+             info.geo.y_size = ncDimVector[0].getSize();
+             info.geo.x_size = ncDimVector[1].getSize();
+         }
+         if (ncDimVector.size() == 3)
+         {
+             time_name = ncDimVector[0].getName();
+             lan_name = ncDimVector[1].getName();
+             lon_name = ncDimVector[2].getName();
+             time_len = ncDimVector[0].getSize();
+             info.geo.y_size = ncDimVector[1].getSize();
+             info.geo.x_size = ncDimVector[2].getSize();
+         }
+         if (ncDimVector.size() == 4)
+         {
+             time_name = ncDimVector[0].getName();
+             lan_name = ncDimVector[2].getName();
+             lon_name = ncDimVector[3].getName();
+             time_len = ncDimVector[0].getSize();
+             info.geo.y_size = ncDimVector[2].getSize();
+             info.geo.x_size = ncDimVector[3].getSize();
+         }
+         float addOffset = 0;
+         float scaleFactor = 1.0;
+         float invalid_data = 0;*/
+        /* std::map<std::string, NcVarAtt> extra_vars = value_var.getAtts();
+         for (auto [key_, attr_] : extra_vars)
+         {
+             if (key_ == "_FillValue")
+             {
+                 attr_.getValues(&invalid_data);
+             }
+             else if (key_ == "add_offset")
+             {
+                 attr_.getValues(&addOffset);
+             }
+             else if (key_ == "scale_factor")
+             {
+                 attr_.getValues(&scaleFactor);
+             }
+         }
 
-        std::string time_name, lan_name, lon_name;
-        size_t time_len = 1;
-        if (ncDimVector.size() == 2)
-        {
-            lan_name = ncDimVector[0].getName();
-            lon_name = ncDimVector[1].getName();
-            info.geo.y_size = ncDimVector[0].getSize();
-            info.geo.x_size = ncDimVector[1].getSize();
-        }
-        if (ncDimVector.size() == 3)
-        {
-            time_name = ncDimVector[0].getName();
-            lan_name = ncDimVector[1].getName();
-            lon_name = ncDimVector[2].getName();
-            time_len = ncDimVector[0].getSize();
-            info.geo.y_size = ncDimVector[1].getSize();
-            info.geo.x_size = ncDimVector[2].getSize();
-        }
-        if (ncDimVector.size() == 4)
-        {
-            time_name = ncDimVector[0].getName();
-            lan_name = ncDimVector[2].getName();
-            lon_name = ncDimVector[3].getName();
-            time_len = ncDimVector[0].getSize();
-            info.geo.y_size = ncDimVector[2].getSize();
-            info.geo.x_size = ncDimVector[3].getSize();
-        }
-        float addOffset = 0;
-        float scaleFactor = 1.0;
-        float invalid_data = 0;*/
-       /* std::map<std::string, NcVarAtt> extra_vars = value_var.getAtts();
-        for (auto [key_, attr_] : extra_vars)
-        {
-            if (key_ == "_FillValue")
-            {
-                attr_.getValues(&invalid_data);
-            }
-            else if (key_ == "add_offset")
-            {
-                attr_.getValues(&addOffset);
-            }
-            else if (key_ == "scale_factor")
-            {
-                attr_.getValues(&scaleFactor);
-            }
-        }
+         NcVar time_var, lat_var, lon_var;
+         lat_var = nc_group.getVar(lan_name);
+         if (lat_var.isNull())
+         {
+             return false;
+         }
+         lon_var = nc_group.getVar(lon_name);
+         if (lon_var.isNull())
+         {
+             return false;
+         }
+         nc_val_data = (float*)malloc(time_len * info.geo.y_size * info.geo.x_size * sizeof(float));
+         nc_lon_data = (float*)malloc(info.geo.x_size * sizeof(float));
+         nc_lat_data = (float*)malloc(info.geo.y_size * sizeof(float));
 
-        NcVar time_var, lat_var, lon_var;
-        lat_var = nc_group.getVar(lan_name);
-        if (lat_var.isNull())
-        {
-            return false;
-        }
-        lon_var = nc_group.getVar(lon_name);
-        if (lon_var.isNull())
-        {
-            return false;
-        }
-        nc_val_data = (float*)malloc(time_len * info.geo.y_size * info.geo.x_size * sizeof(float));
-        nc_lon_data = (float*)malloc(info.geo.x_size * sizeof(float));
-        nc_lat_data = (float*)malloc(info.geo.y_size * sizeof(float));
+         lon_var.getVar(nc_lon_data);
+         lat_var.getVar(nc_lat_data);
 
-        lon_var.getVar(nc_lon_data);
-        lat_var.getVar(nc_lat_data);
+         for (auto j = 0; j < info.geo.y_size; ++j)
+         {
+             info.geo.rect.g_bottom = std::min(info.geo.rect.g_bottom, (double)nc_lat_data[j]);
+             info.geo.rect.g_top = std::max(info.geo.rect.g_top, (double)nc_lat_data[j]);
+         }
+         for (auto i = 0; i < info.geo.x_size; ++i)
+         {
+             info.geo.rect.g_left = std::min(info.geo.rect.g_left, (double)nc_lon_data[i]);
+             info.geo.rect.g_right = std::max(info.geo.rect.g_right, (double)nc_lon_data[i]);
+         }
+         info.geo.x_delta = (info.geo.rect.g_right - info.geo.rect.g_left) / info.geo.x_size;
+         info.geo.y_delta = (info.geo.rect.g_top - info.geo.rect.g_bottom) / info.geo.y_size;
 
-        for (auto j = 0; j < info.geo.y_size; ++j)
-        {
-            info.geo.rect.g_bottom = std::min(info.geo.rect.g_bottom, (double)nc_lat_data[j]);
-            info.geo.rect.g_top = std::max(info.geo.rect.g_top, (double)nc_lat_data[j]);
-        }
-        for (auto i = 0; i < info.geo.x_size; ++i)
-        {
-            info.geo.rect.g_left = std::min(info.geo.rect.g_left, (double)nc_lon_data[i]);
-            info.geo.rect.g_right = std::max(info.geo.rect.g_right, (double)nc_lon_data[i]);
-        }
-        info.geo.x_delta = (info.geo.rect.g_right - info.geo.rect.g_left) / info.geo.x_size;
-        info.geo.y_delta = (info.geo.rect.g_top - info.geo.rect.g_bottom) / info.geo.y_size;
-
-        value_var.getVar(nc_val_data);
-        for (int lvl = 0; lvl < time_len; lvl++)
-        {
-            DMatrix mtx;
-            mtx.create(info.geo.y_size, info.geo.x_size);
-            size_t lvlStart = lvl * info.geo.y_size * info.geo.x_size;
-            for (int lat = 0; lat < info.geo.y_size; lat++)
-            {
-                for (int lon = 0; lon < info.geo.x_size; lon++)
-                {
-                    float tval = nc_val_data[lvlStart + info.geo.x_size * lat + lon];
-                    if (invalid_data == tval)
-                    {
-                        mtx.at(info.geo.y_size - lat - 1, lon) = invalid_data;
-                    }
-                    else
-                    {
-                        mtx.at(info.geo.y_size - lat - 1, lon) = tval * scaleFactor + addOffset;
-                    }
-                }
-            }
-            data.insert({lvl, mtx});
-        }*/
+         value_var.getVar(nc_val_data);
+         for (int lvl = 0; lvl < time_len; lvl++)
+         {
+             DMatrix mtx;
+             mtx.create(info.geo.y_size, info.geo.x_size);
+             size_t lvlStart = lvl * info.geo.y_size * info.geo.x_size;
+             for (int lat = 0; lat < info.geo.y_size; lat++)
+             {
+                 for (int lon = 0; lon < info.geo.x_size; lon++)
+                 {
+                     float tval = nc_val_data[lvlStart + info.geo.x_size * lat + lon];
+                     if (invalid_data == tval)
+                     {
+                         mtx.at(info.geo.y_size - lat - 1, lon) = invalid_data;
+                     }
+                     else
+                     {
+                         mtx.at(info.geo.y_size - lat - 1, lon) = tval * scaleFactor + addOffset;
+                     }
+                 }
+             }
+             data.insert({lvl, mtx});
+         }*/
         ret_status = true;
     }
     catch (NcException& e)

@@ -168,19 +168,19 @@ bool grib_utils::read(const std::string& grib_file, std::vector<DMatrix>& matrix
         }
         grib_keys_iterator_delete(kiter);
 
-        // 
+        //
         if (m_geo_info.rows * m_geo_info.cols != m_geo_info.dnum || 0 == m_geo_info.rows || 0 == m_geo_info.cols)
         {
             grib_handle_delete(gh);
             continue;
         }
-		
+
         double* data = (double*)malloc(m_geo_info.dnum * sizeof(double));
         size_t tmp_size = m_geo_info.dnum;
         size_t aa = 0;
         grib_get_size(gh, "values", &aa);
         grib_get_double_array(gh, "values", data, &tmp_size);
-		
+
         DMatrix matrix;
         matrix.create(m_geo_info.rows, m_geo_info.cols);
         for (std::uint16_t r = 0; r < m_geo_info.rows; ++r)

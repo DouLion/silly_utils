@@ -5,7 +5,9 @@
 #include "silly_radar_polar.h"
 #include <files/silly_file.h>
 
-#define TZX_RADAR_POLAR_MEMCPY_TYPE(buff, val) memcpy(buff, &val, sizeof(val)); buff += sizeof(val);
+#define TZX_RADAR_POLAR_MEMCPY_TYPE(buff, val) \
+    memcpy(buff, &val, sizeof(val));           \
+    buff += sizeof(val);
 
 bool silly_radar_polar::serialize(char** buff, size_t& len)
 {
@@ -33,34 +35,42 @@ bool silly_radar_polar::serialize(char** buff, size_t& len)
     len = total;
     status = true;
     return status;
-
 }
 
 bool silly_radar_polar::unserialize(const char* buff, const size_t& len)
 {
     bool status = false;
     char* p = (char*)buff;
-    total = ((size_t*)p)[0]; p += sizeof(total);
+    total = ((size_t*)p)[0];
+    p += sizeof(total);
 
-    if (total != len) // 文件大小检查需要一致
+    if (total != len)  // 文件大小检查需要一致
     {
         return status;
     }
 
-    r_size = ((size_t*)p)[0]; p += sizeof(total);
-    az_size = ((size_t*)p)[0]; p += sizeof(az_size);
-    meters = ((float*)p)[0]; p += sizeof(meters);
-    az_start = ((float*)p)[0]; p += sizeof(az_start);
-    center_x = ((float*)p)[0]; p += sizeof(center_x);
-    center_y = ((float*)p)[0]; p += sizeof(center_y);
-    memcpy(name, p, sizeof(name)); p += sizeof(name);
-    memcpy(units, p, sizeof(units)); p += sizeof(units);
+    r_size = ((size_t*)p)[0];
+    p += sizeof(total);
+    az_size = ((size_t*)p)[0];
+    p += sizeof(az_size);
+    meters = ((float*)p)[0];
+    p += sizeof(meters);
+    az_start = ((float*)p)[0];
+    p += sizeof(az_start);
+    center_x = ((float*)p)[0];
+    p += sizeof(center_x);
+    center_y = ((float*)p)[0];
+    p += sizeof(center_y);
+    memcpy(name, p, sizeof(name));
+    p += sizeof(name);
+    memcpy(units, p, sizeof(units));
+    p += sizeof(units);
 
     size_t i = 0;
     size_t all = az_size * r_size;
 
     size_t check = (total - (p - buff)) / sizeof(float);
-    if (all != check)	// 网格点数量不一致
+    if (all != check)  // 网格点数量不一致
     {
         return status;
     }

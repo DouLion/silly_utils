@@ -15,6 +15,7 @@
 class silly_captcha : public silly_singleton<silly_captcha>
 {
     friend class silly_singleton<silly_captcha>;
+
   public:
     /// <summary>
     /// 添加字体
@@ -32,7 +33,7 @@ class silly_captcha : public silly_singleton<silly_captcha>
     /// <param name="letter_len">指定字母长度</param>
     /// <param name="font_path">指定字体文件位置</param>
     /// <returns></returns>
-    bool get_letter_captcha(std::string& answer, std::string& image, const size_t& letter_len = 4, const std::string font_name="");
+    bool get_letter_captcha(std::string& answer, std::string& image, const size_t& letter_len = 4, const std::string font_name = "");
 
     /// <summary>
     /// 获取一个简单10以内加减乘计算的验证码
@@ -58,7 +59,6 @@ class silly_captcha : public silly_singleton<silly_captcha>
   private:
     std::string generate_letter_captcha(const size_t& letter_len = 4);
     std::string generate_math_calc_captcha(std::string& result);
-
 };
 
 #endif  // SILLY_UTILS_SILLY_CAPTCHA_H

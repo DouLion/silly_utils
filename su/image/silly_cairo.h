@@ -22,7 +22,7 @@ using namespace silly_image;
 
 enum enum_silly_cairo_align
 {
-    Middle = 1, // 居中对齐
+    Middle = 1,  // 居中对齐
     LeftTop = 2,
     LeftBottom = 3,
     RightTop = 4,
@@ -86,7 +86,6 @@ class silly_cairo
     /// </summary>
     /// <param name="sct"></param>
     void draw_text(silly_cairo_text sct);
-
 
     void draw_point(const silly_point& p, const double& size, const silly_geo_rect& rect);
 

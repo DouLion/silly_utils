@@ -24,8 +24,6 @@ static OGRSpatialReference spc_build_srs(const spc_srs_param& ssp)
     }
 
     return res_srs;
-
-
 }
 silly_proj_convert::~silly_proj_convert()
 {
@@ -46,7 +44,7 @@ bool silly_proj_convert::begin(const silly_proj_param& p)
 bool silly_proj_convert::convert(const double& fromX, const double& fromY, double& toX, double& toY)
 {
     bool status = false;
-    if(m_poTransform)
+    if (m_poTransform)
     {
         double tmpX = fromX, tmpY = fromY;
         if (m_poTransform->Transform(1, &tmpX, &tmpY))
@@ -66,9 +64,8 @@ bool silly_proj_convert::convert(const double& fromX, const double& fromY, doubl
 bool silly_proj_convert::convert(const std::vector<double>& fromX, const std::vector<double>& fromY, std::vector<double>& toX, std::vector<double>& toY)
 {
     bool status = false;
-    if(m_poTransform)
+    if (m_poTransform)
     {
-
         std::vector<double> tmpX = fromX;
         std::vector<double> tmpY = fromY;
         int num = SU_MIN(tmpX.size(), fromY.size());
@@ -90,11 +87,10 @@ bool silly_proj_convert::convert(const std::vector<double>& fromX, const std::ve
 }
 bool silly_proj_convert::close()
 {
-    if(m_poTransform)
+    if (m_poTransform)
     {
         OCTDestroyCoordinateTransformation(m_poTransform);
     }
 
     return true;
 }
-

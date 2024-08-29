@@ -150,16 +150,16 @@ struct d_delaunay
 
 class silly_delaunay
 {
-
     bool set_data(const std::vector<d_point>& points);
 
     bool triangulate();
-public:
-    d_delaunay  d;
-public:
+
+  public:
+    d_delaunay d;
+
+  public:
     double xmin, xmax, ymin, ymax;
     std::vector<d_point> n_points;
-   
 };
 
 #endif  // SILLY_UTILS_SILLY_DELAUNAY_H
