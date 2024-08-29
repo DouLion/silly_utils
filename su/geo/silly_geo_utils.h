@@ -134,12 +134,28 @@ class silly_geo_utils
     static std::vector<silly_poly> intersection(const silly_multi_poly& mpoly1, const silly_multi_poly& mpoly2);
 
     /// <summary>
+    /// 两个相交面的 不相交部分, 必须是相交的
+    /// </summary>
+    /// <param name="mpoly1"></param>
+    /// <param name="mpoly2"></param>
+    /// <returns></returns>
+    static std::vector<silly_poly> trans_intersection(const silly_multi_poly& mpoly1, const silly_multi_poly& mpoly2);
+
+    /// <summary>
     /// 线相交面的部分
     /// </summary>
     /// <param name="mpoly1"></param>
     /// <param name="line"></param>
     /// <returns></returns>
     static std::vector<silly_line> intersection(const silly_multi_poly& mpoly, const silly_line& line);
+
+    /// <summary>
+    /// 穿过面的线, 不再面内的部分
+    /// </summary>
+    /// <param name="mpoly1"></param>
+    /// <param name="mpoly2"></param>
+    /// <returns></returns>
+    static std::vector<silly_line> trans_intersection(const silly_multi_poly& mpoly1, const silly_line& line);
 
     /// <summary>
     /// 面积
@@ -166,7 +182,7 @@ class silly_geo_utils
     /// <returns></returns>
     template <typename T>
     // typename std::enable_if<std::is_arithmetic<T>::value, T>::type
-    static double area(const int& pnum, const T* xs,const  T* ys);
+    static double area(const int& pnum, const T* xs, const T* ys);
 
     /// <summary>
     /// 面积
@@ -178,39 +194,41 @@ class silly_geo_utils
     static double area(const int& pnum, const T* points);
 
     /// <summary>
-    /// 计算面的经纬度面积
+    /// 面积
     /// </summary>
     /// <param name="mpoly"></param>
     /// <returns></returns>
-    static double area_degree(const silly_poly& poly);
-
+    static double area(const silly_poly& poly);
 
     /// <summary>
     /// 计算面积平方公里
     /// </summary>
-    /// <param name="mpoly"></param>
+    /// <param name="points">经纬度点</param>
+    /// <returns></returns>
+    static double area_sqkm(const std::vector<silly_point>& points);
+
+    /// <summary>
+    /// 计算面积平方公里
+    /// </summary>
+    /// <param name="mpoly">经纬度面</param>
     /// <returns></returns>
     static double area_sqkm(const silly_poly& poly);
 
-
     /// <summary>
-    /// 计算面的经纬度面积
+    /// 面积
     /// </summary>
     /// <param name="mpoly"></param>
     /// <returns></returns>
-    static double area_degree(const silly_multi_poly& mpoly);
-
+    static double area(const silly_multi_poly& mpoly);
 
     /// <summary>
     /// 计算面积平方公里
     /// </summary>
-    /// <param name="mpoly"></param>
+    /// <param name="mpoly">经纬度面</param>
     /// <returns></returns>
     static double area_sqkm(const silly_multi_poly& mpoly);
 
-
     /// ================ gdal中矢量与silly utils中矢量互转 ================
-
 
     /// ================ 单点 ================
 
@@ -292,7 +310,6 @@ class silly_geo_utils
     /// <returns></returns>
     static OGRLinearRing silly_ring_to_ogr(const silly_ring& ring);
 
-
     /// ================ 单面 ================
 
     /// <summary>
@@ -327,5 +344,67 @@ class silly_geo_utils
 };
 
 typedef silly_geo_utils geo_utils;  // 兼容之前的写法
+
+
+template <typename T>
+double silly_geo_utils::area(const std::vector<T>& xs, const std::vector<T>& ys)
+{
+    double result = 0.0;
+    if (xs.size() != ys.size())
+    {
+        return result;
+    }
+    size_t pnum = xs.size();
+    // 确保至少有3个点才能构成一个多边形
+    if (pnum < 3)
+    {
+        return result;
+    }
+
+    for (size_t i = 0; i < pnum; ++i)
+    {
+        size_t j = (i + 1) % pnum;
+        result += xs[i] * ys[j];
+        result -= xs[j] * ys[i];
+    }
+    return std::abs(result) / 2.0;
+}
+template <typename T>
+double silly_geo_utils::area(const int& pnum, const T* points)
+{
+    double result = 0.0;
+    // 确保至少有3个点才能构成一个多边形
+    if (pnum < 3)
+    {
+        return result;
+    }
+
+    for (size_t n = 0; n < pnum; ++n)
+    {
+        int i = n * 2;
+        int j = ((n + 1) % pnum) * 2;
+        result += points[i] * points[j + 1];
+        result -= points[j] * points[i + 1];
+    }
+    return std::abs(result) / 2.0;
+}
+template <typename T>
+double silly_geo_utils::area(const int& pnum, const T* xs, const T* ys)
+{
+    double result = 0.0;
+    // 确保至少有3个点才能构成一个多边形
+    if (pnum < 3)
+    {
+        return result;
+    }
+
+    for (size_t i = 0; i < pnum; ++i)
+    {
+        size_t j = (i + 1) % pnum;
+        result += xs[i] * ys[j];
+        result -= xs[j] * ys[i];
+    }
+    return std::abs(result) / 2.0;
+}
 
 #endif  // SILLY_UTILS_SILLY_GEO_OPERATION_H

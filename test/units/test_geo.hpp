@@ -592,7 +592,7 @@ BOOST_AUTO_TEST_CASE(CENTER)
         {
             std::cout << "n:" << n << "  size: " << xian.m_poly.inner_rings.size() << std::endl;
             silly_point temp_point = geo_utils::poly_centroid(xian.m_poly);
-            OGRPolygon* onePoly = geo_utils::SillyPolyToOGRPoly(xian.m_poly);
+            OGRPolygon* onePoly = geo_utils::silly_poly_to_ogr(xian.m_poly);
             OGRPoint te_point;
             onePoly->Centroid(&te_point);
             OGRGeometry* inter = IntersectArea(onePoly, &polygon);

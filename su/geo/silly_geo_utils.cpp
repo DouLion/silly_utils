@@ -28,7 +28,6 @@ silly_point geo_utils::poly_centroid(const silly_poly& poly)
     return center_point;
 }
 
-
 double geo_utils::azimuth(silly_point from, silly_point to)
 {
     double theta = atan2(to.lgtd - from.lgtd, to.lttd - from.lttd);
@@ -226,19 +225,19 @@ silly_poly geo_utils::silly_poly_from_ogr(const OGRPolygon* polygon)
 // 将 silly_poly 转换为 OGRPolygon(单面)
 OGRPolygon geo_utils::silly_poly_to_ogr(const silly_poly& poly)
 {
-    OGRPolygon ogrPolygon;
+    OGRPolygon org;
     // 设置外环
     OGRLinearRing outerRing = silly_ring_to_ogr(poly.outer_ring);
-
-    ogrPolygon.addRingDirectly(&outerRing);
+    // double a = outerRing.get_Area();
+    org.addRing(&outerRing);
     // 设置内环
     for (const silly_ring& innerRing : poly.inner_rings)
     {
         OGRLinearRing innerOGRRing = silly_ring_to_ogr(innerRing);
-        ogrPolygon.addRingDirectly(&innerOGRRing);
+        org.addRing(&innerOGRRing);
+        org.closeRings();
     }
-    ogrPolygon.closeRings();
-    return ogrPolygon;
+    return org;
 }
 
 // 多面的OGRMultiPolygon对象转换为silly_multi_poly(多面)
@@ -589,10 +588,10 @@ bool geo_utils::read_geo_coll(const std::string& file, std::vector<silly_geo_col
             silly_geo_coll temp_geo_coll;
             OGRGeometry* geometry = feature->GetGeometryRef();  // 获取矢量数据
             enum_geometry_type feature_type = (enum_geometry_type)wkbFlatten(geometry->getGeometryType());
-            temp_geo_coll.m_type = feature_type;                                  // 添加矢量数据类型
-            if(ignore_prop)
+            temp_geo_coll.m_type = feature_type;  // 添加矢量数据类型
+            if (ignore_prop)
             {
-                read_property(feature, properties, temp_geo_coll.m_props);            // 读取属性数据
+                read_property(feature, properties, temp_geo_coll.m_props);  // 读取属性数据
             }
             status = read_all_types_data(feature_type, geometry, temp_geo_coll);  // 添加所有数据类型,如果是复合数据类型会递归的调用
             OGRFeature::DestroyFeature(feature);
@@ -784,14 +783,12 @@ static bool wire_all_types_data(const enum_geometry_type coll_type, OGRLayer* ou
         {
             OGRPoint ogrPoint(geo_coll.m_point.lgtd, geo_coll.m_point.lttd);
             feature->SetGeometry(&ogrPoint);
-
         }
         break;
         case enum_geometry_type::egtLineString:
         {
             OGRLineString orgLine = silly_geo_utils::silly_line_to_ogr(geo_coll.m_line);
             feature->SetGeometry(&orgLine);
-
         }
         break;
         case enum_geometry_type::egtPolygon:
@@ -826,7 +823,6 @@ static bool wire_all_types_data(const enum_geometry_type coll_type, OGRLayer* ou
                 status = process_composite_data(type, geometry, &geomCollection, geo_coll);
             }
             feature->SetGeometry(&geomCollection);
-
         }
         break;
         default:
@@ -981,29 +977,31 @@ std::vector<silly_line> silly_geo_utils::intersection(const silly_multi_poly& mp
 }
 double silly_geo_utils::area(const std::vector<silly_point>& points)
 {
-    size_t n = points.size();
+    double result = 0.0;
+    size_t pnum = points.size();
     // 确保至少有3个点才能构成一个多边形
-    if (n < 3) {
+    if (pnum < 3)
+    {
         return 0.0;
     }
 
-    double area = 0.0;
-    for (size_t i = 0; i < n; ++i) {
-        size_t j = (i + 1) % n;
-        area += points[i].lgtd * points[j].lttd;
-        area -= points[j].lgtd * points[i].lttd;
+    for (size_t i = 0; i < pnum; ++i)
+    {
+        size_t j = (i + 1) % pnum;
+        result += points[i].lgtd * points[j].lttd;
+        result -= points[j].lgtd * points[i].lttd;
     }
-    return std::abs(area) / 2.0;
+    return std::abs(result) / 2.0;
 }
-double silly_geo_utils::area_degree(const silly_poly& poly)
+double silly_geo_utils::area(const silly_poly& poly)
 {
     double total_area = area(poly.outer_ring.points);
-    if(total_area < 1.E-15)
+    if (total_area < 1.E-15)
     {
         return total_area;
     }
 
-    for(auto inner_ring : poly.inner_rings)
+    for (auto inner_ring : poly.inner_rings)
     {
         total_area -= area(inner_ring.points);
     }
@@ -1014,11 +1012,25 @@ double silly_geo_utils::area_sqkm(const silly_poly& poly)
 {
     return 0;
 }
-double silly_geo_utils::area_degree(const silly_multi_poly& mpoly)
+double silly_geo_utils::area(const silly_multi_poly& mpoly)
 {
     return 0;
 }
 double silly_geo_utils::area_sqkm(const silly_multi_poly& mpoly)
+{
+    return 0;
+}
+std::vector<silly_poly> silly_geo_utils::trans_intersection(const silly_multi_poly& mpoly1, const silly_multi_poly& mpoly2)
+{
+    std::vector<silly_poly> result;
+
+    return result;
+}
+std::vector<silly_line> silly_geo_utils::trans_intersection(const silly_multi_poly& mpoly1, const silly_line& line)
+{
+    return std::vector<silly_line>();
+}
+double silly_geo_utils::area_sqkm(const std::vector<silly_point>& points)
 {
     return 0;
 }
