@@ -10,21 +10,19 @@
  */
 #pragma once
 
-#ifndef SILLY_UTILS_TEST_SYSTEM_HPP
-#define SILLY_UTILS_TEST_SYSTEM_HPP
+#if I_NEED_TEST
+#include <catch2/catch_test_macros.hpp>
+#include "system/silly_uuid.h"
 
-#define BOOST_TEST_INCLUDED
-#include <boost/test/unit_test.hpp>
-#include "system/silly_uuid.hpp"
-
-BOOST_AUTO_TEST_SUITE(TestSystem)
-
-BOOST_AUTO_TEST_CASE(CREATE_UUID)      // BZ2压缩文件
+TEST_CASE("TestSystem")
+{
+SECTION("CREATE_UUID")      // BZ2压缩文件
 {
 	std::cout << "\r\n\r\n****************" << "CREATE_UUID" << "****************" << std::endl;
 	std::cout << silly_uuid::random_uuid() << std::endl;
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+}
+
 
 #endif //SILLY_UTILS_TEST_SYSTEM_HPP

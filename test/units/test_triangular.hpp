@@ -10,67 +10,66 @@
  */
 #pragma once
 
-#ifndef SILLY_UTILS_TEST_TRIANGULAR_H
-#define SILLY_UTILS_TEST_TRIANGULAR_H
-
-#define BOOST_TEST_INCLUDED
+#if I_NEED_TEST
+#include <catch2/catch_test_macros.hpp>
 #include "triangular/TFF_Delaunay.h"
 #include "triangular/silly_delaunay.hpp"
-#include "files/TFF_FileUtils.h"
+#include "files/silly_file.h"
 #include "geo/silly_geo.h"
-#include <boost/test/unit_test.hpp>
-#include <filesystem>
-
-BOOST_AUTO_TEST_SUITE(TestTriangular)
-
+#include "geo/silly_geo_utils.h"
+#include "geo/silly_geojson.h"
 static char* GetDouble(char* q, double& v)
 {
-	char d[100] = { 0 };
+    char d[100] = { 0 };
 
-	int i = 0;
-	while ((*q) != ',')
-	{
-		d[i++] = *q;
-		q++;
-	}
-	q++;
-	d[i] = '\0';
-	v = std::stod(d);
-	return q;
+    int i = 0;
+    while ((*q) != ',')
+    {
+        d[i++] = *q;
+        q++;
+    }
+    q++;
+    d[i] = '\0';
+    v = std::stod(d);
+    return q;
 }
 
 std::vector<delaunay::d_point> get_points(const std::string& data)
 {
-	std::vector<delaunay::d_point> ret;
-	std::vector<double> cvts;
-	char* p = (char*)data.c_str();
-	char* q = p;
-	while (*q)
-	{
-		double tova;
-		q = GetDouble(q, tova);
-		cvts.push_back(tova);
-	}
+    std::vector<delaunay::d_point> ret;
+    std::vector<double> cvts;
+    char* p = (char*)data.c_str();
+    char* q = p;
+    while (*q)
+    {
+        double tova;
+        q = GetDouble(q, tova);
+        cvts.push_back(tova);
+    }
 
-	int valNum = cvts.size();
-	int nPNum = valNum / 3;
+    int valNum = cvts.size();
+    int nPNum = valNum / 3;
 
-	for (size_t i = 0; i < nPNum; ++i)
-	{
-		ret.push_back({cvts[3 * i], cvts[3 * i + 1],cvts[3 * i + 2], i});
+    for (size_t i = 0; i < nPNum; ++i)
+    {
+        ret.push_back({cvts[3 * i], cvts[3 * i + 1],cvts[3 * i + 2], i});
 
-	}
+    }
 
-	return ret;
+    return ret;
 }
 
-BOOST_AUTO_TEST_CASE(LAWSON_TRI)      // Delaunay 劳森算法
+TEST_CASE("TestTriangular")
+{
+
+
+SECTION("LAWSON_TRI")      // Delaunay 劳森算法
 {
 	std::string content;
 	std::filesystem::path data_root(DEFAULT_SU_DATA_DIR);
 	auto hebei_drp_data_path = data_root;
 	hebei_drp_data_path.append("hebei_station.txt");
-	FileUtils::ReadAll(hebei_drp_data_path.string(), content);
+	silly_file::read(hebei_drp_data_path.string(), content);
 	content.append(",\0");
 
 	auto points = get_points(content);
@@ -92,12 +91,12 @@ BOOST_AUTO_TEST_CASE(LAWSON_TRI)      // Delaunay 劳森算法
 		poly.outer_ring.points.push_back({ tri.GetVertex(0)->GetX(), tri.GetVertex(0)->GetY() });
 		polys.push_back(poly);
 	}
-	std::string geojson = silly_geo::dump_geojson(polys);
+	std::string geojson = silly_geojson::dump_geojson(polys);
 	auto tri_geojson_path = data_root;
 	tri_geojson_path.append("hebei_tri.geojson");
-	FileUtils::WriteAll(tri_geojson_path.string(), geojson);
+        silly_file::write(tri_geojson_path.string(), geojson);
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+}
 
 #endif //SILLY_UTILS_TEST_TRIANGULAR_H

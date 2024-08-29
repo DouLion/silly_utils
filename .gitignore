@@ -1,10 +1,9 @@
 /out
 /.vs
 /.idea
-/cmake-build-debug-visual-studio-x64
+/cmake-build-*
 /Bin
-/data/hebei_station.txt.bz2
-/data/hebei_tri.geojson
+/data
 /CMakeSettings.json
 /third_party
 /cmake-*

@@ -10,12 +10,7 @@
  */
 #pragma once
 
-#ifndef SILLY_UTILS_TEST_LOG_HPP
-#define SILLY_UTILS_TEST_LOG_HPP
-
-class test_log
-{
-
-};
+#if I_NEED_TEST
+#include <catch2/catch_test_macros.hpp>
 
 #endif //SILLY_UTILS_TEST_LOG_HPP

@@ -8,19 +8,12 @@ foreach(dirname ${CMAKE_CURRENT_SOURCE_DIR})
             "${dirname}/*.c"
             "${dirname}/*.cpp"
             )
-   
 endforeach()
 
-
-find_package(Boost REQUIRED COMPONENTS unit_test_framework )
+# add_executable(${PROJECT_NAME} test.cpp)
+MESSAGE("${SU_TEST_SRC_FILES}")
 add_executable(${PROJECT_NAME} ${SU_TEST_SRC_FILES})
-target_link_libraries(${PROJECT_NAME} PUBLIC sutils)
-# TODO: 准备添加boost 或者 google test模块以测试所有功能
-if(Boost_FOUND)
-    message(STATUS "Found Boost version ${Boost_VERSION}")
-    include_directories(${Boost_INCLUDE_DIRS})
-    target_link_libraries(${PROJECT_NAME} PUBLIC ${Boost_LIBRARIES})
-endif()
 
-find_package(httplib CONFIG REQUIRED)
-target_link_libraries(${PROJECT_NAME} PUBLIC httplib::httplib)
+find_package(Catch2 CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC Catch2::Catch2 Catch2::Catch2WithMain)
+target_link_libraries(${PROJECT_NAME} PUBLIC sutils)

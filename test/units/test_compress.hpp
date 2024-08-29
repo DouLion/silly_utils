@@ -10,19 +10,18 @@
  */
 #pragma once
 
-#ifndef SILLY_UTILS_TEST_COMPRESS_HPP
-#define SILLY_UTILS_TEST_COMPRESS_HPP
-#include "files/TFF_FileUtils.h"
+#if I_NEED_TEST
+#include <catch2/catch_test_macros.hpp>
+#include "files/silly_file.h"
 #include "compress/silly_bz2.h"
 #include "compress/silly_minizip.h"
-#include <boost/test/unit_test.hpp>
-#include <boost/timer.hpp>  // 计时函数
-
-BOOST_AUTO_TEST_SUITE(TestCompress)
+TEST_CASE("TestCompress")
+{
 
 
 
-BOOST_AUTO_TEST_CASE(BIG_FILE_DECOMPRESS)  // 大文件解压缩
+
+SECTION("BIG_FILE_DECOMPRESS")  // 大文件解压缩
 {
     std::cout << "\r\n\r\n****************"
               << "BIG_FILE_DECOMPRESS"
@@ -49,7 +48,7 @@ BOOST_AUTO_TEST_CASE(BIG_FILE_DECOMPRESS)  // 大文件解压缩
     int f = 0;
 };
 
-BOOST_AUTO_TEST_CASE(BIG_FILE_COMRESS)  // 大文件压缩
+SECTION("BIG_FILE_COMRESS")  // 大文件压缩
 {
     std::cout << "\r\n\r\n****************"
               << "BIG_FILE_COMRESS"
@@ -91,7 +90,7 @@ BOOST_AUTO_TEST_CASE(BIG_FILE_COMRESS)  // 大文件压缩
 
 
 
-BOOST_AUTO_TEST_CASE(MINIZIP_INHERIT)  // 修改继承
+SECTION("MINIZIP_INHERIT")  // 修改继承
 {
     std::cout << "\r\n\r\n****************"
               << "MINIZIP_INHERIT"
@@ -151,7 +150,7 @@ BOOST_AUTO_TEST_CASE(MINIZIP_INHERIT)  // 修改继承
     int f = 0;
 };
 
-BOOST_AUTO_TEST_CASE(MINIZIP_DECOMPRESS_DIR)  // minizip解压缩文件夹
+SECTION("MINIZIP_DECOMPRESS_DIR")  // minizip解压缩文件夹
 {
     std::cout << "\r\n\r\n****************"
               << "MINIZIP_DECOMPRESS_DIR"
@@ -172,7 +171,7 @@ BOOST_AUTO_TEST_CASE(MINIZIP_DECOMPRESS_DIR)  // minizip解压缩文件夹
 };
 
 
-BOOST_AUTO_TEST_CASE(MINIZIP_DATA)  // 压缩解压缩字符串数据
+SECTION("MINIZIP_DATA")  // 压缩解压缩字符串数据
 {
     std::cout << "\r\n\r\n****************"
               << "MINIZIP_DATA"
@@ -208,7 +207,7 @@ BOOST_AUTO_TEST_CASE(MINIZIP_DATA)  // 压缩解压缩字符串数据
     int f = 0;
 };
 
-BOOST_AUTO_TEST_CASE(BZ2_COMPRESS_FILE)  // BZ2压缩文件
+SECTION("BZ2_COMPRESS_FILE")  // BZ2压缩文件
 {
     std::cout << "\r\n\r\n****************"
               << "BZ2_COMPRESS_FILE"
@@ -220,7 +219,7 @@ BOOST_AUTO_TEST_CASE(BZ2_COMPRESS_FILE)  // BZ2压缩文件
     // std::cout << "Compress to " << dst << std::endl;
 };
 
-BOOST_AUTO_TEST_CASE(BZ2_COMPRESS_DATA)  // BZ2压缩数据
+SECTION("BZ2_COMPRESS_DATA")  // BZ2压缩数据
 {
     std::cout << "\r\n\r\n****************"
               << "BZ2_COMPRESS_DATA"
@@ -246,7 +245,7 @@ BOOST_AUTO_TEST_CASE(BZ2_COMPRESS_DATA)  // BZ2压缩数据
     // }
 };
 
-BOOST_AUTO_TEST_CASE(BZ2_DECOMPRESS_FILE)  // BZ2解压缩文件
+SECTION("BZ2_DECOMPRESS_FILE")  // BZ2解压缩文件
 {
     std::cout << "\r\n\r\n****************"
               << "BZ2_DECOMPRESS_FILE"
@@ -255,13 +254,14 @@ BOOST_AUTO_TEST_CASE(BZ2_DECOMPRESS_FILE)  // BZ2解压缩文件
     // upoad_file.append("compress").append("R_RADR_I_S2400_20230721115441_O_DOR_YLD4-D_CAP_FMT.bin.bz2");
 };
 
-BOOST_AUTO_TEST_CASE(BZ2_DECOMPRESS_DATA)  // BZ2解压缩数据
+SECTION("BZ2_DECOMPRESS_DATA")  // BZ2解压缩数据
 {
     std::cout << "\r\n\r\n****************"
               << "BZ2_DECOMPRESS_DATA"
               << "****************" << std::endl;
 };
 
-BOOST_AUTO_TEST_SUITE_END()
+}
+
 
 #endif  // SILLY_UTILS_TEST_COMPRESS_HPP

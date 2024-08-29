@@ -10,20 +10,18 @@
  */
 #pragma once
 
-#ifndef SILLY_UTILS_TEST_DEMO_HPP
-#define SILLY_UTILS_TEST_DEMO_HPP
+#if I_NEED_TEST
+#include <catch2/catch_test_macros.hpp>
 
-#define BOOST_TEST_INCLUDED
-#include <boost/test/unit_test.hpp>
-
-BOOST_AUTO_TEST_SUITE(TestDemo)
-
-BOOST_AUTO_TEST_CASE(DEMO)
+TEST_CASE("TEST_CASE")
 {
-	std::cout << "\r\n\r\n****************" << "DEMO" << "****************" << std::endl;
-};
-
-
-BOOST_AUTO_TEST_SUITE_END()
+    CHECK(true);
+    CHECK(false);
+    SECTION("SECTION")
+    {
+        CHECK(true);
+        CHECK(false);
+    }
+}
 
 #endif //SILLY_UTILS_TEST_DEMO_HPP

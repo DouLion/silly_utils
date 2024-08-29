@@ -10,37 +10,31 @@
  */
 #pragma once
 
-#ifndef SILLY_UTILS_TEST_FILE_HPP
-#define SILLY_UTILS_TEST_FILE_HPP
-
-#define BOOST_TEST_INCLUDED
-#include <boost/test/unit_test.hpp>
+#if I_NEED_TEST
+#include <catch2/catch_test_macros.hpp>
 #include "files/silly_file.h"
 #include "files/silly_mmap.h"
 
-BOOST_AUTO_TEST_SUITE(TestFiles)
-
-BOOST_AUTO_TEST_CASE(MMAP_READ)		// mmap文件读取
+TEST_CASE("TestFiles")
 {
-	std::cout << "\r\n\r\n****************" << "MMAP_READ" << "****************" << std::endl;
-	std::filesystem::path p(DEFAULT_SU_DATA_DIR);
-	p.append("compress").append("R_RADR_I_S2400_20230721115441_O_DOR_YLD4-D_CAP_FMT.bin.bz2");
+    SECTION("MMAP_READ")  // mmap文件读取
+    {
+        std::cout << "\r\n\r\n****************" << "MMAP_READ" << "****************" << std::endl;
+        std::filesystem::path p(DEFAULT_SU_DATA_DIR);
+        p.append("compress").append("R_RADR_I_S2400_20230721115441_O_DOR_YLD4-D_CAP_FMT.bin.bz2");
 
-	std::string rar = "D:/1_wangyingjie/readfile/split/HN2.rar";
+        std::string rar = "D:/1_wangyingjie/readfile/split/HN2.rar";
 
-	silly_mmap test;
-	if (test.open_m(rar))
-	{
-		std::cout << "success" << std::endl;
-	}
-	else
-	{
-		std::cout << "failed" << std::endl;
-	}
+        silly_mmap test;
+        if (test.open_m(rar))
+        {
+            std::cout << "success" << std::endl;
+        }
+        else
+        {
+            std::cout << "failed" << std::endl;
+        }
+    };
+}
 
-};
-
-
-BOOST_AUTO_TEST_SUITE_END()
-
-#endif //SILLY_UTILS_TEST_FILE_HPP
+#endif  // SILLY_UTILS_TEST_FILE_HPP

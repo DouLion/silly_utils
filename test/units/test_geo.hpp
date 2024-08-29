@@ -10,16 +10,11 @@
  */
 #pragma once
 
-#ifndef SILLY_UTILS_TEST_GEO_HPP
-#define SILLY_UTILS_TEST_GEO_HPP
-
-#define BOOST_TEST_INCLUDED
-#include <boost/test/unit_test.hpp>
-#include <iostream>
+#if I_NEED_TEST
+#include <catch2/catch_test_macros.hpp>
 #include "geo/silly_geo_utils.h"
 #include "geo/silly_projection.h"
 #include "geo/silly_geo_convert.h"
-#include <filesystem>
 #include <sqlite3.h>
 #include "gdal_priv.h"
 #include "ogrsf_frmts.h"
@@ -31,181 +26,10 @@
 #include <fstream>
 #include "geo/silly_vector_to_raster.h"
 
-/// <summary>
-/// 仅作为测试查看使用
-/// 读取一个shp文件,将多个坐标点绘制在读取的shp文件中的位置,并生成一个新的shp文件
-/// </summary>
-/// <param name="points">需要绘制的坐标点</param>
-/// <param name="outputShpFilePath">写入SHP文件地址</param>
-static bool points_to_shp(std::vector<silly_point>& points, const char* outputShpFilePath);
-
-/// <summary>
-/// 将多条线段绘制在shp文件中
-/// </summary>
-/// <param name="lines"></param>
-/// <param name="outputShpFilePath"></param>
-/// <returns></returns>
-static bool lines_to_shp(const std::vector<silly_line>& lines, const char* outputShpFilePath);
-
-/// <summary>
-/// 在shp文件中绘制封闭图形
-/// </summary>
-/// <param name="rings">多个多边形数组</param>
-/// <param name="outputShpFilePath">写入SHP文件地址</param>
-/// <returns></returns>
-static bool rings_to_shp(const std::vector<std::vector<silly_point>>& rings, const char* outputShpFilePath);
-
-
-
-OGRGeometry* IntersectArea(const OGRPolygon* poly1, const OGRPolygon* poly2)
+TEST_CASE("TestGEO")
 {
-    //std::vector<OGRPolygon* rings;
-    //std::vector<OGRGeometry*> polys;
-    OGRGeometry* intersection = poly1->Intersection(poly2);
-    return intersection;
-    //OGRwkbGeometryType geometryType = intersection->getGeometryType();
-    //// 处理不同几何类型的情况
-    //switch (geometryType)
-    //{
-    //        // 单环多边形
-    //    case wkbPolygon:
-    //    case wkbPolygon25D:
-    //    {
-    //        OGRPolygon* intersect = dynamic_cast<OGRPolygon*>(intersection);
-    //        polys.push_back(intersect);
-    //        //// 获取外环
-    //        //OGRLinearRing* exteriorRing = intersect->getExteriorRing();
-    //        //rings.push_back(dynamic_cast<OGRPolygon*>(OGRGeometryFactory::createGeometry(wkbPolygon)));
-    //        //rings.back()->addRing(exteriorRing);
-    //        //// 获取内环数量
-    //        //int numInteriorRings = intersect->getNumInteriorRings();
-    //        //for (int k = 0; k < numInteriorRings; k++)
-    //        //{
-    //        //    OGRLinearRing* interiorRing = intersect->getInteriorRing(k);
-    //        //    rings.push_back(dynamic_cast<OGRPolygon*>(OGRGeometryFactory::createGeometry(wkbPolygon)));
-    //        //    rings.back()->addRing(interiorRing);
-    //        //}
-    //    }
-    //    break;
-    //    // 多个多边形
-    //    case wkbMultiPolygon:
-    //    case wkbMultiPolygon25D:
-    //    {
-    //        OGRMultiPolygon* intersectMulti = dynamic_cast<OGRMultiPolygon*>(intersection);
-    //        // 获取多边形集合中的各个多边形
-    //        int numPolygons = intersectMulti->getNumGeometries();
-    //        for (int i = 0; i < numPolygons; i++)
-    //        {
-    //            OGRPolygon* polygon = dynamic_cast<OGRPolygon*>(intersectMulti->getGeometryRef(i));
-    //            // 获取外环
-    //            OGRLinearRing* exteriorRing = polygon->getExteriorRing();
-    //            rings.push_back(dynamic_cast<OGRPolygon*>(OGRGeometryFactory::createGeometry(wkbPolygon)));
-    //            rings.back()->addRing(exteriorRing);
-    //            // 获取内环数量
-    //            int numInteriorRings = polygon->getNumInteriorRings();
-    //            for (int k = 0; k < numInteriorRings; k++)
-    //            {
-    //                OGRLinearRing* interiorRing = polygon->getInteriorRing(k);
-    //                rings.push_back(dynamic_cast<OGRPolygon*>(OGRGeometryFactory::createGeometry(wkbPolygon)));
-    //                rings.back()->addRing(interiorRing);
-    //            }
-    //        }
-    //    }
-    //    break;
-    //    default:
-    //        std::cout << "getGeometryType() : " << geometryType << "unable to process ";
-    //        break;
-    //}
-    //return rings;
-}
-struct TopoVectorCenter
-{
-    double x;
-    double y;
-};
-/// 获取一个polygon的形心
-TopoVectorCenter GetShapeCenter(const OGRGeometry* poly)
-{
-    OGRPoint point;
 
-    auto a = poly->Centroid(&point);
-    TopoVectorCenter center_point;
-    center_point.x = point.getX();
-    center_point.y = point.getY();
-
-    return center_point;
-}
-
-
-
-// 创建一个网格矢量
-OGRPolygon* createGridCell(double left, double bottom, double cell_size)
-{
-    OGRPolygon* polygon = new OGRPolygon();
-    OGRLinearRing* ring = new OGRLinearRing();
-    ring->addPoint(left, bottom);
-    ring->addPoint(left + cell_size, bottom);
-    ring->addPoint(left + cell_size, bottom + cell_size);
-    ring->addPoint(left, bottom + cell_size);
-    ring->addPoint(left, bottom);
-
-    polygon->addRing(ring);
-    return polygon;
-}
-
-// 生成网格文件 geojson 文件
-void generateGridAndSave(const char* filename, const double src_top, const double src_bottom, const double src_left, const double src_right, const double cell_size)
-{
-    GDALDriver* driver = GetGDALDriverManager()->GetDriverByName("GeoJSON");
-    if (driver == nullptr)
-    {
-        std::cerr << "GeoJSON driver not available." << std::endl;
-        return;
-    }
-    GDALDataset* dataset = driver->Create(filename, 0, 0, 0, GDT_Unknown, nullptr);
-    if (dataset == nullptr)
-    {
-        std::cerr << "Failed to create output file." << std::endl;
-        return;
-    }
-    OGRSpatialReference srs;
-    srs.SetWellKnownGeogCS("WGS84");
-    OGRLayer* layer = dataset->CreateLayer("grid", &srs, wkbPolygon, nullptr);
-    if (layer == nullptr)
-    {
-        std::cerr << "Failed to create layer." << std::endl;
-        return;
-    }
-    OGRFieldDefn fieldDefn("ID", OFTInteger);
-    layer->CreateField(&fieldDefn);
-    int id = 0;
-
-
-    double left = std::floor(src_left / cell_size) * cell_size;
-    double right = std::ceil(src_right / cell_size) * cell_size;
-    double top = std::ceil(src_top / cell_size) * cell_size;
-    double bottom = std::floor(src_bottom / cell_size) * cell_size;
-
-
-    for (double y = bottom; y < top; y += cell_size)
-    {
-        for (double x = left; x < right; x += cell_size)
-        {
-            OGRPolygon* gridCell = createGridCell(x, y, cell_size);
-            OGRFeature* feature = OGRFeature::CreateFeature(layer->GetLayerDefn());
-            feature->SetField("ID", id++);
-            feature->SetGeometry(gridCell);
-            layer->CreateFeature(feature);
-            OGRFeature::DestroyFeature(feature);
-            delete gridCell;
-        }
-    }
-    GDALClose(dataset);
-}
-
-
-
-BOOST_AUTO_TEST_CASE(SCANNING_LINE)
+SECTION("SCANNING_LINE")
 {
     std::cout << "\r\n\r\n****************"
               << "SCANNING_LINE"
@@ -251,26 +75,27 @@ BOOST_AUTO_TEST_CASE(SCANNING_LINE)
     silly_point point9 = silly_point(113.38745, 29.51329);
     silly_point point10 = silly_point(113.41417, 29.51212);
     //multiPolygonData.m_type = enum_geometry_type::egtMultiPoint;
-    multiPolygonData.m_m_points = {point1, point2, point3, point4, point5, point6, point7, point8, point9, point10};
+    std::vector<silly_point> ppxa {point1, point2, point3, point4, point5, point6, point7, point8, point9, point10};
+    multiPolygonData.m_m_points = silly_multi_point(ppxa);
     
     // 创建第一条线
-    silly_line line1 = 
+    silly_line line1 = silly_line(
     {
         silly_point(113.31176,29.51434), 
         silly_point(113.35944,29.51494), 
         silly_point(113.36510,29.49211), 
         silly_point(113.36409,29.48140), 
         silly_point(113.38672,29.46403)
-    };
+    });
 
     // 创建第二条线
-    silly_line line2 = 
+    silly_line line2(
     {
         silly_point(113.28711,29.43998), 
         silly_point(113.31236,29.43958), 
         silly_point(113.41096,29.48747), 
         silly_point(113.41319,29.44140) 
-    };
+    });
 
     // ============ 单线 ==================
     multiPolygonData.m_line = line2;
@@ -319,11 +144,11 @@ BOOST_AUTO_TEST_CASE(SCANNING_LINE)
     //silly_geo_utils::write_geo_coll(m_m_lines.string(), multiPolygonDataVec);
 
     xscan_line_raster xlr;
-    xlr.top = 29.54244;
+ /*   xlr.top = 29.54244;
     xlr.bottom = 29.40021;
     xlr.left = 113.25921;
     xlr.right = 113.44758;
-    xlr.cell_size = 0.025;
+    xlr.cell_size = 0.025;*/
     xlr.rasterization(multiPolygonData);
 
 
@@ -340,20 +165,7 @@ BOOST_AUTO_TEST_CASE(SCANNING_LINE)
 };
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-BOOST_AUTO_TEST_CASE(READ_TEST_GEO_COLL)
+SECTION("READ_TEST_GEO_COLL")
 {
     std::cout << "\r\n\r\n****************"
               << "READ_TEST_GEO_COLL"
@@ -402,7 +214,7 @@ BOOST_AUTO_TEST_CASE(READ_TEST_GEO_COLL)
 
 
 
-//BOOST_AUTO_TEST_CASE(INTERSECTION_AREA)
+//SECTION("INTERSECTION_AREA)
 //{
 //    std::cout << "\r\n\r\n****************"
 //              << "INTERSECTION_AREA"
@@ -473,7 +285,7 @@ BOOST_AUTO_TEST_CASE(READ_TEST_GEO_COLL)
 //    int g = 8;
 //};
 
-BOOST_AUTO_TEST_CASE(READ_WRITE_SHP_SILLY_GEO_COLL)
+SECTION("READ_WRITE_SHP_SILLY_GEO_COLL")
 {
     std::cout << "\r\n\r\n****************"
               << "READ_WRITE_SHP_SILLY_GEO_COLL"
@@ -546,7 +358,7 @@ BOOST_AUTO_TEST_CASE(READ_WRITE_SHP_SILLY_GEO_COLL)
 };
 
 
-BOOST_AUTO_TEST_CASE(CENTER)
+SECTION("CENTER")
 {
     std::cout << "\r\n\r\n****************"
               << "CENTER"
@@ -566,7 +378,7 @@ BOOST_AUTO_TEST_CASE(CENTER)
     // 添加第一个线性环到多边形
     polygon.addRing(&ring1);
     silly_geo_coll sgc_creat;
-    sgc_creat.m_poly = geo_utils::OGRPolyToSillyPoly(&polygon);
+    sgc_creat.m_poly = geo_utils::silly_poly_from_ogr(&polygon);
     sgc_creat.m_type = enum_geometry_type::egtPolygon;
     std::filesystem::path creat_poly(DEFAULT_SU_DATA_DIR);
     creat_poly += "/shp/creat.shp";
@@ -590,11 +402,11 @@ BOOST_AUTO_TEST_CASE(CENTER)
     {
         if (xian.m_poly.inner_rings.size() > 0)
         {
-            std::cout << "n:" << n << "  size: " << xian.m_poly.inner_rings.size() << std::endl;
+           /* std::cout << "n:" << n << "  size: " << xian.m_poly.inner_rings.size() << std::endl;
             silly_point temp_point = geo_utils::poly_centroid(xian.m_poly);
-            OGRPolygon* onePoly = geo_utils::silly_poly_to_ogr(xian.m_poly);
+            OGRPolygon onePoly = geo_utils::silly_poly_to_ogr(xian.m_poly);
             OGRPoint te_point;
-            onePoly->Centroid(&te_point);
+            onePoly.Centroid(&te_point);
             OGRGeometry* inter = IntersectArea(onePoly, &polygon);
             {
                 OGRwkbGeometryType geometryType = inter->getGeometryType();
@@ -637,7 +449,7 @@ BOOST_AUTO_TEST_CASE(CENTER)
             s_point.m_point.lttd = point.getY();
             out_xian.push_back(xian);
             out_center.push_back(s_point);
-            break;
+            break;*/
         }
         n++;
     }
@@ -688,19 +500,10 @@ class AA
     int b;
 };
 
-// int main() {
-//	AA a;
-//	SU_INFO_PRINT("Construct");
-//	AA b = a;
-//	SU_INFO_PRINT("=");
-//	b = a;
-//
-//
-//	return 0;
-//
-// }
 
-BOOST_AUTO_TEST_CASE(READ_WIRTE_JSON_GEO_COLL)
+
+
+SECTION("READ_WIRTE_JSON_GEO_COLL")
 {
     std::cout << "\r\n\r\n****************"
               << "READ_WIRTE_JSON_GEO_COLL"
@@ -782,7 +585,7 @@ BOOST_AUTO_TEST_CASE(READ_WIRTE_JSON_GEO_COLL)
     int g = 8;
 };
 
-BOOST_AUTO_TEST_CASE(READ_VECTOR_POINT_LINE)
+SECTION("READ_VECTOR_POINT_LINE")
 {
     std::cout << "\r\n\r\n****************"
               << "READ_VECTOR_POINT_LINE"
@@ -853,311 +656,10 @@ BOOST_AUTO_TEST_CASE(READ_VECTOR_POINT_LINE)
     int c = 8;
 };
 
-/// <summary>
-/// 打印查看gaiaGeomCollPtr类型对象的类型和坐标点
-/// </summary>
-/// <param name="geom"></param>
-static void geometry_printout(gaiaGeomCollPtr geom)
-{
-#if IS_WIN32
-    gaiaPointPtr pt;
-    gaiaLinestringPtr ln;
-    gaiaPolygonPtr pg;
-    gaiaRingPtr rng;
-    int n_pts = 0, n_lns = 0, n_pgs = 0;
-    int cnt, iv, ir;
-    double x = 0.0, y = 0.0;
-    // 计算点数
-    pt = geom->FirstPoint;
-    while (pt)
-    {
-        n_pts++;
-        pt = pt->Next;
-    }
-    // 计算线串数
-    ln = geom->FirstLinestring;
-    while (ln)
-    {
-        n_lns++;
-        ln = ln->Next;
-    }
-    // 计算多边形数
-    pg = geom->FirstPolygon;
-    while (pg)
-    {
-        n_pgs++;
-        pg = pg->Next;
-    }
-    // 打印点坐标
-    if (n_pts)
-    {
-        cnt = 0;
-        pt = geom->FirstPoint;
-        while (pt)
-        {
-            // 扫描POINT的链接列表
-            std::cout << "\t\t\tPOINT " << cnt << "/" << n_pts << " x=" << pt->X << " y=" << pt->Y << std::endl;
-            cnt++;
-            pt = pt->Next;
-        }
-    }
-    // 打印线串坐标
-    if (n_lns)
-    {
-        cnt = 0;
-        ln = geom->FirstLinestring;
-        while (ln)
-        {
-            // 扫描线串的链接列表
-            std::cout << "\t\t\tLINESTRING " << cnt << "/" << n_lns << " has " << ln->Points << " vertices" << std::endl;
-            for (iv = 0; iv < ln->Points; iv++)
-            {
-                // 检索每个顶点的坐标
-                gaiaGetPoint(ln->Coords, iv, &x, &y);
-                std::cout << "\t\t\t\tvertex " << iv << "/" << ln->Points << " x=" << x << " y=" << y << std::endl;
-            }
-            cnt++;
-            ln = ln->Next;
-        }
-    }
-    // 打印多边形坐标
-    if (n_pgs)
-    {
-        cnt = 0;
-        pg = geom->FirstPolygon;
-        while (pg)
-        {
-            // 扫描多边形的链接列表
-            std::cout << "\t\t\tPOLYGON " << cnt << "/" << n_pgs << " has " << pg->NumInteriors << " hole";
-            if (pg->NumInteriors != 1)
-            {
-                std::cout << "s";
-            }
-            std::cout << std::endl;
-            // 打印外环
-            rng = pg->Exterior;
-            std::cout << "\t\t\t\tExteriorRing has " << rng->Points << " vertices" << std::endl;
-            for (iv = 0; iv < rng->Points; iv++)
-            {
-                // 检索每个顶点的坐标
-                gaiaGetPoint(rng->Coords, iv, &x, &y);
-                std::cout << "\t\t\t\t\tvertex " << iv << "/" << rng->Points << " x=" << x << " y=" << y << std::endl;
-            }
-            for (ir = 0; ir < pg->NumInteriors; ir++)
-            {
-                // 多边形可以包含任意数量的内环（包括零）
-                rng = pg->Interiors + ir;
-                std::cout << "\t\t\t\tInteriorRing " << ir << "/" << pg->NumInteriors << " has " << rng->Points << " vertices" << std::endl;
-                for (iv = 0; iv < rng->Points; iv++)
-                {
-                    // 检索每个顶点的坐标
-                    gaiaGetPoint(rng->Coords, iv, &x, &y);
-                    std::cout << "\t\t\t\t\tvertex " << iv << "/" << rng->Points << " x=" << x << " y=" << y << std::endl;
-                }
-            }
-            cnt++;
-            pg = pg->Next;
-        }
-    }
-#endif
-}
 
-/// <summary>
-/// std::vector<geo_collection>假数据
-/// </summary>
-/// <param name="data"></param>
-// void createFakeData(std::vector<geo_collection>& data)
-//{
-//	// 创建多点数据
-//	geo_collection multiPointData;
-//	multiPointData.m_type = enum_geometry_type::eMultiPoint;
-//	multiPointData.m_m_points.push_back(silly_point(1.0, 1.0));
-//	multiPointData.m_m_points.push_back(silly_point(2.0, 2.0));
-//	multiPointData.m_m_points.push_back(silly_point(3.0, 3.0));
-//	multiPointData.m_m_points.push_back(silly_point(4.0, 4.0));
-//	data.push_back(multiPointData);
-//
-//	// 创建单线数据
-//	geo_collection singleLineData;
-//	singleLineData.m_type = enum_geometry_type::eLineString;
-//	singleLineData.m_line.push_back(silly_point(1.0, 1.0));
-//	singleLineData.m_line.push_back(silly_point(2.0, 2.0));
-//	singleLineData.m_line.push_back(silly_point(3.0, 3.0));
-//	singleLineData.m_line.push_back(silly_point(4.0, 4.0));
-//	data.push_back(singleLineData);
-//
-//	// 创建多线数据
-//	geo_collection multiLineData;
-//	multiLineData.m_type = enum_geometry_type::eMultiLineString;
-//	silly_line line1;
-//	line1.push_back(silly_point(1.0, 1.0));
-//	line1.push_back(silly_point(2.0, 2.0));
-//	line1.push_back(silly_point(3.0, 3.0));
-//	silly_line line2;
-//	line2.push_back(silly_point(4.0, 4.0));
-//	line2.push_back(silly_point(5.0, 5.0));
-//	line2.push_back(silly_point(6.0, 6.0));
-//	multiLineData.m_m_lines.push_back(line1);
-//	multiLineData.m_m_lines.push_back(line2);
-//	data.push_back(multiLineData);
-//
-//	// 创建单面数据
-//	geo_collection singlePolygonData;
-//	singlePolygonData.m_type = enum_geometry_type::ePolygon;
-//	singlePolygonData.m_poly.outer_ring.points.push_back(silly_point(1.0, 1.0));
-//	singlePolygonData.m_poly.outer_ring.points.push_back(silly_point(2.0, 2.0));
-//	singlePolygonData.m_poly.outer_ring.points.push_back(silly_point(3.0, 3.0));
-//	singlePolygonData.m_poly.inner_rings.push_back(silly_ring());
-//	singlePolygonData.m_poly.inner_rings[0].points.push_back(silly_point(4.0, 4.0));
-//	singlePolygonData.m_poly.inner_rings[0].points.push_back(silly_point(5.0, 5.0));
-//	singlePolygonData.m_poly.inner_rings[0].points.push_back(silly_point(6.0, 6.0));
-//	data.push_back(singlePolygonData);
-//
-//	// 创建多面数据
-//	geo_collection multiPolygonData;
-//	multiPolygonData.m_type = enum_geometry_type::eMultiPolygon;
-//
-//	// 第一个面
-//	silly_poly poly1;
-//	poly1.outer_ring.points.push_back(silly_point(1.0, 1.0));
-//	poly1.outer_ring.points.push_back(silly_point(2.0, 2.0));
-//	poly1.outer_ring.points.push_back(silly_point(3.0, 3.0));
-//	poly1.inner_rings.push_back(silly_ring());  // 第一个内环
-//	poly1.inner_rings[0].points.push_back(silly_point(4.0, 4.0));
-//	poly1.inner_rings[0].points.push_back(silly_point(5.0, 5.0));
-//	poly1.inner_rings[0].points.push_back(silly_point(6.0, 6.0));
-//	poly1.inner_rings.push_back(silly_ring());  // 第二个内环
-//	poly1.inner_rings[1].points.push_back(silly_point(7.0, 7.0));
-//	poly1.inner_rings[1].points.push_back(silly_point(8.0, 8.0));
-//	poly1.inner_rings[1].points.push_back(silly_point(9.0, 9.0));
-//
-//	// 第二个面
-//	silly_poly poly2;
-//	poly2.outer_ring.points.push_back(silly_point(10.0, 10.0));
-//	poly2.outer_ring.points.push_back(silly_point(11.0, 11.0));
-//	poly2.outer_ring.points.push_back(silly_point(12.0, 12.0));
-//	poly2.inner_rings.push_back(silly_ring());  // 第一个内环
-//	poly2.inner_rings[0].points.push_back(silly_point(13.0, 13.0));
-//	poly2.inner_rings[0].points.push_back(silly_point(14.0, 14.0));
-//	poly2.inner_rings[0].points.push_back(silly_point(15.0, 15.0));
-//	poly2.inner_rings.push_back(silly_ring());  // 第二个内环
-//	poly2.inner_rings[1].points.push_back(silly_point(16.0, 16.0));
-//	poly2.inner_rings[1].points.push_back(silly_point(17.0, 17.0));
-//	poly2.inner_rings[1].points.push_back(silly_point(18.0, 18.0));
-//
-//	// 添加到多面数据中
-//	multiPolygonData.m_m_polys.push_back(poly1);
-//	multiPolygonData.m_m_polys.push_back(poly2);
-//
-//	data.push_back(multiPolygonData);
-//
-// }
 
-class GeoJSONAttributeStorage
-{
-  public:
-    std::unordered_map<std::string, std::variant<std::string, int, double>> attributes;
 
-    // 添加属性
-    void AddAttribute(const std::string& name, const std::variant<std::string, int, double>& value)
-    {
-        attributes[name] = value;
-    }
-
-    // 获取属性值
-    std::variant<std::string, int, double> GetAttributeValue(const std::string& name)
-    {
-        if (attributes.find(name) != attributes.end())
-        {
-            return attributes[name];
-        }
-        return std::variant<std::string, int, double>();
-    }
-};
-
-int test(std::string filename, GeoJSONAttributeStorage& attributeStorage)
-{
-    // 初始化GDAL
-    GDALAllRegister();
-
-    // 打开GeoJSON文件
-    // const char* filename = "path_to_your_geojson_file.geojson";
-    GDALDataset* dataset = (GDALDataset*)GDALOpenEx(filename.c_str(), GDAL_OF_VECTOR, NULL, NULL, NULL);
-
-    if (dataset != NULL)
-    {
-        // 获取第一个图层（layer）
-        OGRLayer* layer = dataset->GetLayer(0);
-        if (layer != NULL)
-        {
-            // 创建存储对象
-            // GeoJSONAttributeStorage attributeStorage;
-
-            // 遍历所有要素（feature）
-            layer->ResetReading();
-            OGRFeature* feature;
-            while ((feature = layer->GetNextFeature()) != NULL)
-            {
-                int fieldCount = feature->GetFieldCount();
-                for (int i = 0; i < fieldCount; i++)
-                {
-                    // 获取属性名和属性值
-                    OGRFieldDefn* fieldDef = feature->GetFieldDefnRef(i);
-                    std::string attributeName = fieldDef->GetNameRef();
-                    OGRFieldType fieldType = fieldDef->GetType();
-
-                    if (fieldType == OFTString)
-                    {
-                        const char* attributeValue = feature->GetFieldAsString(i);
-                        attributeStorage.AddAttribute(attributeName, attributeValue);
-                    }
-                    else if (fieldType == OFTInteger)
-                    {
-                        int attributeValue = feature->GetFieldAsInteger(i);
-                        attributeStorage.AddAttribute(attributeName, attributeValue);
-                    }
-                    else if (fieldType == OFTReal)
-                    {
-                        double attributeValue = feature->GetFieldAsDouble(i);
-                        attributeStorage.AddAttribute(attributeName, attributeValue);
-                    }
-                    // 处理其他属性类型...
-                }
-
-                OGRFeature::DestroyFeature(feature);
-            }
-
-            // 使用存储对象中的属性信息
-            std::variant<std::string, int, double> attributeValue = attributeStorage.GetAttributeValue("name_of_attribute");
-            if (std::holds_alternative<std::string>(attributeValue))
-            {
-                std::string stringValue = std::get<std::string>(attributeValue);
-                // 处理字符串属性值
-            }
-            else if (std::holds_alternative<int>(attributeValue))
-            {
-                int intValue = std::get<int>(attributeValue);
-                // 处理整型属性值
-            }
-            else if (std::holds_alternative<double>(attributeValue))
-            {
-                double doubleValue = std::get<double>(attributeValue);
-                // 处理浮点型属性值
-            }
-        }
-
-        GDALClose(dataset);
-    }
-    else
-    {
-        printf("Failed to open GeoJSON file\n");
-    }
-
-    return 0;
-}
-BOOST_AUTO_TEST_SUITE(TestGeo)
-
-BOOST_AUTO_TEST_CASE(ATTRIBUTE_STORAGE)
+SECTION("ATTRIBUTE_STORAGE")
 {
     std::cout << "\r\n\r\n****************"
               << "ATTRIBUTE_STORAGE"
@@ -1174,7 +676,7 @@ BOOST_AUTO_TEST_CASE(ATTRIBUTE_STORAGE)
     int a = 0;
 };
 
-// BOOST_AUTO_TEST_CASE(SPATIALITE_DB)
+// SECTION("SPATIALITE_DB")
 //{
 //	std::cout << "\r\n\r\n****************" << "SPATIALITE" << "****************" << std::endl;
 //
@@ -1224,7 +726,7 @@ BOOST_AUTO_TEST_CASE(ATTRIBUTE_STORAGE)
 //
 // };
 
-BOOST_AUTO_TEST_CASE(SILLY_TO_SPATIALITE)
+SECTION("SILLY_TO_SPATIALITE")
 {
     std::cout << "\r\n\r\n****************"
               << "SILLY_TO_SPATIALITE"
@@ -1366,9 +868,9 @@ BOOST_AUTO_TEST_CASE(SILLY_TO_SPATIALITE)
     // gaiaFreeGeomColl(gaia_multi_polygons);
 
     // int e = 0;
-};
+}
 
-BOOST_AUTO_TEST_CASE(READ_GEOJSON_RINGS)
+SECTION("READ_GEOJSON_RINGS")
 {
     std::cout << "\r\n\r\n****************"
               << "READ_GEOJSON_RINGS"
@@ -1434,7 +936,7 @@ BOOST_AUTO_TEST_CASE(READ_GEOJSON_RINGS)
     // int a = 0;
 };
 
-// BOOST_AUTO_TEST_CASE(GEO_INTERSECTION_CENTROID)
+// SECTION("GEO_INTERSECTION_CENTROID)
 //{
 //	std::cout << "\r\n\r\n****************" << "GEO_INTERSECTION_CENTROID" << "****************" << std::endl;
 //
@@ -1548,7 +1050,7 @@ BOOST_AUTO_TEST_CASE(READ_GEOJSON_RINGS)
 //	int a = 0;
 // };
 //
-// BOOST_AUTO_TEST_CASE(GEO_AZIMUTH)
+// SECTION("GEO_AZIMUTH)
 //{
 //	std::cout << "\r\n\r\n****************" << "GEO_AZIMUTH" << "****************" << std::endl;
 //
@@ -1621,7 +1123,7 @@ BOOST_AUTO_TEST_CASE(READ_GEOJSON_RINGS)
 //	int a = 0;
 // };
 
-BOOST_AUTO_TEST_CASE(GEO_SHP_GEOJSON)
+SECTION("GEO_SHP_GEOJSON")
 {
     std::cout << "\r\n\r\n****************"
               << "GEO_SHP_GEOJSON"
@@ -1639,9 +1141,9 @@ BOOST_AUTO_TEST_CASE(GEO_SHP_GEOJSON)
     // bool gts2 = silly_geo_convert::shp_to_geojson(shp_save.string().c_str() , geojson_2_save.string().c_str());
 
     int a = 0;
-};
+}
 
-BOOST_AUTO_TEST_CASE(GEO_PROJECTION)
+SECTION("GEO_PROJECTION")
 {
     std::cout << "\r\n\r\n****************"
               << "GEO_PROJECTION"
@@ -1651,355 +1153,8 @@ BOOST_AUTO_TEST_CASE(GEO_PROJECTION)
     // silly_projection::geo_to_mercator(x1, y1, mx1, my1);
     // silly_projection::geo_to_mercator(x2, y2, mx2, my2);
     // std::cout << "Distance: " << sqrt((mx1 - mx2) * (mx1 - mx2) + (my1 - my2) * (my1 - my2)) / 1000.0 << "km" << std::endl;
-};
-
-BOOST_AUTO_TEST_SUITE_END()
-
-#endif  // SILLY_UTILS_TEST_GEO_HPP
-
-bool points_to_shp(std::vector<silly_point>& points, const char* outputShpFilePath)
-{
-    // 创建新的输出 shp 文件
-    GDALDriver* outDriver = GetGDALDriverManager()->GetDriverByName("ESRI Shapefile");
-    GDALDataset* outputDataset = outDriver->Create(outputShpFilePath, 0, 0, 0, GDT_Unknown, nullptr);
-    if (outputDataset == nullptr)
-    {
-        // 处理输出文件创建失败的情况
-        std::cout << "Failed to create output shapefile." << std::endl;
-        return false;
-    }
-
-    // 创建新的图层
-    OGRLayer* outputLayer = outputDataset->CreateLayer("points", nullptr, wkbPoint, nullptr);
-    if (outputLayer == nullptr)
-    {
-        // 处理图层创建失败的情况
-        std::cout << "Failed to create output layer." << std::endl;
-        GDALClose(outputDataset);
-        return false;
-    }
-
-    // 定义并创建字段
-    OGRFieldDefn fieldSize("Size", OFTReal);
-    if (outputLayer->CreateField(&fieldSize) != OGRERR_NONE)
-    {
-        // 处理字段创建失败的情况
-        std::cout << "Failed to create size field." << std::endl;
-        GDALClose(outputDataset);
-        return false;
-    }
-
-    OGRFieldDefn fieldColor("Color", OFTString);
-    if (outputLayer->CreateField(&fieldColor) != OGRERR_NONE)
-    {
-        // 处理字段创建失败的情况
-        std::cout << "Failed to create color field." << std::endl;
-        GDALClose(outputDataset);
-        return false;
-    }
-
-    // 创建要素并进行设置
-    for (const auto& point : points)
-    {
-        OGRFeature* feature = OGRFeature::CreateFeature(outputLayer->GetLayerDefn());
-
-        // 创建点对象
-        OGRPoint ogrPoint;
-        ogrPoint.setX(point.lgtd);
-        ogrPoint.setY(point.lttd);
-
-        // 设置点要素的几何对象
-        feature->SetGeometry(&ogrPoint);
-
-        // 将要素添加到图层
-        if (outputLayer->CreateFeature(feature) != OGRERR_NONE)
-        {
-            // 处理要素添加失败的情况
-            std::cout << "Failed to add feature." << std::endl;
-            OGRFeature::DestroyFeature(feature);
-            GDALClose(outputDataset);
-            return false;
-        }
-
-        // 释放要素
-        OGRFeature::DestroyFeature(feature);
-    }
-
-    // 关闭数据集
-    GDALClose(outputDataset);
-
-    std::cout << "Points added to shapefile and saved successfully." << std::endl;
-
-    return true;
 }
 
-bool lines_to_shp(const std::vector<silly_line>& lines, const char* outputShpFilePath)
-{
-    // 创建新的输出 shp 文件
-    GDALDriver* outDriver = GetGDALDriverManager()->GetDriverByName("ESRI Shapefile");
-    GDALDataset* outputDataset = outDriver->Create(outputShpFilePath, 0, 0, 0, GDT_Unknown, nullptr);
-    if (outputDataset == nullptr)
-    {
-        // 处理输出文件创建失败的情况
-        std::cout << "Failed to create output shapefile." << std::endl;
-        return false;
-    }
-
-    // 创建新的图层
-    OGRLayer* outputLayer = outputDataset->CreateLayer("lines", nullptr, wkbLineString, nullptr);
-    if (outputLayer == nullptr)
-    {
-        // 处理图层创建失败的情况
-        std::cout << "Failed to create output layer." << std::endl;
-        GDALClose(outputDataset);
-        return false;
-    }
-
-    // 定义并创建字段
-    OGRFieldDefn fieldSize("Size", OFTReal);
-    if (outputLayer->CreateField(&fieldSize) != OGRERR_NONE)
-    {
-        // 处理字段创建失败的情况
-        std::cout << "Failed to create size field." << std::endl;
-        GDALClose(outputDataset);
-        return false;
-    }
-
-    OGRFieldDefn fieldColor("Color", OFTString);
-    if (outputLayer->CreateField(&fieldColor) != OGRERR_NONE)
-    {
-        // 处理字段创建失败的情况
-        std::cout << "Failed to create color field." << std::endl;
-        GDALClose(outputDataset);
-        return false;
-    }
-
-    // 创建要素并进行设置
-    for (const auto& line : lines)
-    {
-        OGRFeature* feature = OGRFeature::CreateFeature(outputLayer->GetLayerDefn());
-
-        // 创建线对象
-        OGRLineString ogrLine;
-        for (const auto& point : line)
-        {
-            ogrLine.addPoint(point.lgtd, point.lttd);
-        }
-
-        // 设置线要素的几何对象
-        feature->SetGeometry(&ogrLine);
-        // 将要素添加到图层
-        if (outputLayer->CreateFeature(feature) != OGRERR_NONE)
-        {
-            // 处理要素添加失败的情况
-            std::cout << "Failed to add feature." << std::endl;
-            OGRFeature::DestroyFeature(feature);
-            GDALClose(outputDataset);
-            return false;
-        }
-
-        // 释放要素
-        OGRFeature::DestroyFeature(feature);
-    }
-
-    // 关闭数据集
-    GDALClose(outputDataset);
-
-    std::cout << "Lines added to shapefile and saved successfully." << std::endl;
-
-    return true;
 }
 
-bool rings_to_shp(const std::vector<std::vector<silly_point>>& rings, const char* outputShpFilePath)
-{
-    // 创建新的输出 shp 文件
-    GDALAllRegister();  // Register all GDAL drivers
-    GDALDriver* outDriver = GetGDALDriverManager()->GetDriverByName("ESRI Shapefile");
-    GDALDataset* outputDataset = outDriver->Create(outputShpFilePath, 0, 0, 0, GDT_Unknown, nullptr);
-    if (outputDataset == nullptr)
-    {
-        // 处理输出文件创建失败的情况
-        std::cout << "Failed to create output shapefile." << std::endl;
-        return false;
-    }
-
-    // 创建新的图层
-    OGRLayer* outputLayer = outputDataset->CreateLayer("polygon", nullptr, wkbPolygon, nullptr);
-    if (outputLayer == nullptr)
-    {
-        // 处理图层创建失败的情况
-        std::cout << "Failed to create output layer." << std::endl;
-        GDALClose(outputDataset);
-        return false;
-    }
-
-    // 定义并创建字段
-    OGRFieldDefn fieldSize("Size", OFTReal);
-    if (outputLayer->CreateField(&fieldSize) != OGRERR_NONE)
-    {
-        // 处理字段创建失败的情况
-        std::cout << "Failed to create size field." << std::endl;
-        GDALClose(outputDataset);
-        return false;
-    }
-
-    OGRFieldDefn fieldColor("Color", OFTString);
-    if (outputLayer->CreateField(&fieldColor) != OGRERR_NONE)
-    {
-        // 处理字段创建失败的情况
-        std::cout << "Failed to create color field." << std::endl;
-        GDALClose(outputDataset);
-        return false;
-    }
-
-    // Iterate over each line and create a polygon for each
-    for (const auto& ring : rings)
-    {
-        // 创建要素并进行设置
-        OGRFeature* feature = OGRFeature::CreateFeature(outputLayer->GetLayerDefn());
-        OGRGeometry* geometry = OGRGeometryFactory::createGeometry(wkbPolygon);
-
-        // 创建环
-        OGRLinearRing linearRing;
-        for (const auto& point : ring)
-        {
-            linearRing.addPoint(point.lgtd, point.lttd);
-        }
-
-        // 设置环为闭合
-        linearRing.closeRings();
-
-        // 添加环到多边形
-        ((OGRPolygon*)geometry)->addRing(&linearRing);
-
-        // 设置要素的几何对象
-        feature->SetGeometry(geometry);
-
-        // 将要素添加到图层
-        if (outputLayer->CreateFeature(feature) != OGRERR_NONE)
-        {
-            // 处理要素添加失败的情况
-            std::cout << "Failed to add feature." << std::endl;
-            OGRFeature::DestroyFeature(feature);
-            OGRGeometryFactory::destroyGeometry(geometry);
-            GDALClose(outputDataset);
-            return false;
-        }
-
-        // 释放要素
-        OGRFeature::DestroyFeature(feature);
-        OGRGeometryFactory::destroyGeometry(geometry);
-    }
-
-    // 关闭数据集
-    GDALClose(outputDataset);
-
-    std::cout << "Polygons added to shapefile and saved successfully." << std::endl;
-
-    return true;
-}
-
-// bool points_to_shp(std::vector<silly_point>& points, const char* shpFilePath, const char* outputShpFilePath)
-//{
-// #if IS_WIN32
-//
-//	// 打开现有 shp 文件
-//	GDALDataset* dataset = static_cast<GDALDataset*>(GDALOpenEx(shpFilePath, GDAL_OF_VECTOR | GDAL_OF_UPDATE, nullptr, nullptr, nullptr));
-//	if (dataset == nullptr)
-//	{
-//		// 处理文件打开失败的情况
-//		std::cout << "Failed to open shapefile." << std::endl;
-//		return false;
-//	}
-//
-//	// 获取第一个图层
-//	OGRLayer* layer = dataset->GetLayer(0);
-//	if (layer == nullptr)
-//	{
-//		// 处理图层获取失败的情况
-//		std::cout << "Failed to get layer." << std::endl;
-//		GDALClose(dataset);
-//		return false;
-//	}
-//
-//	// 创建新的输出 shp 文件
-//	GDALDriver* outDriver = GetGDALDriverManager()->GetDriverByName("ESRI Shapefile");
-//	GDALDataset* outputDataset = outDriver->Create(outputShpFilePath, 0, 0, 0, GDT_Unknown, nullptr);
-//	if (outputDataset == nullptr)
-//	{
-//		// 处理输出文件创建失败的情况
-//		std::cout << "Failed to create output shapefile." << std::endl;
-//		GDALClose(dataset);
-//		return false;
-//	}
-//
-//	// 创建新的图层
-//	OGRLayer* outputLayer = outputDataset->CreateLayer("points", layer->GetSpatialRef(), wkbPoint, nullptr);
-//	if (outputLayer == nullptr)
-//	{
-//		// 处理图层创建失败的情况
-//		std::cout << "Failed to create output layer." << std::endl;
-//		GDALClose(dataset);
-//		GDALClose(outputDataset);
-//		return false;
-//	}
-//
-//	// 定义并创建字段
-//	OGRFieldDefn fieldSize("Size", OFTReal);
-//	if (outputLayer->CreateField(&fieldSize) != OGRERR_NONE)
-//	{
-//		// 处理字段创建失败的情况
-//		std::cout << "Failed to create size field." << std::endl;
-//		GDALClose(dataset);
-//		GDALClose(outputDataset);
-//		return false;
-//	}
-//
-//	OGRFieldDefn fieldColor("Color", OFTString);
-//	if (outputLayer->CreateField(&fieldColor) != OGRERR_NONE)
-//	{
-//		// 处理字段创建失败的情况
-//		std::cout << "Failed to create color field." << std::endl;
-//		GDALClose(dataset);
-//		GDALClose(outputDataset);
-//		return false;
-//	}
-//
-//	// 创建要素并进行设置
-//	for (const auto& point : points)
-//	{
-//		OGRFeature* feature = OGRFeature::CreateFeature(outputLayer->GetLayerDefn());
-//
-//		// 创建点对象
-//		OGRPoint ogrPoint;
-//		ogrPoint.setX(point.lgtd);
-//		ogrPoint.setY(point.lttd);
-//
-//		// 设置点要素的几何对象
-//		feature->SetGeometry(&ogrPoint);
-//
-//
-//		// 将要素添加到图层
-//		if (outputLayer->CreateFeature(feature) != OGRERR_NONE)
-//		{
-//			// 处理要素添加失败的情况
-//			std::cout << "Failed to add feature." << std::endl;
-//			OGRFeature::DestroyFeature(feature);
-//			GDALClose(dataset);
-//			GDALClose(outputDataset);
-//			return false;
-//		}
-//
-//		// 释放要素
-//		OGRFeature::DestroyFeature(feature);
-//	}
-//
-//	// 关闭数据集
-//	GDALClose(dataset);
-//	GDALClose(outputDataset);
-//
-//	std::cout << "Points added to shapefile and saved successfully." << std::endl;
-// #endif
-//
-//	return true;
-// }
+#endif

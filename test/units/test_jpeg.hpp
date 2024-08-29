@@ -10,19 +10,14 @@
  */
 #pragma once
 
-#ifndef SILLY_UTILS_TEST_JPEG_HPP
-#define SILLY_UTILS_TEST_JPEG_HPP
-
-#define BOOST_TEST_INCLUDED
+#if I_NEED_TEST
+#include <catch2/catch_test_macros.hpp>
 #include "image/jpeg_utils.h"
-#include <boost/test/unit_test.hpp>
-#include <filesystem>
-#include <fstream>
 
-BOOST_AUTO_TEST_SUITE(TestJPEG)
+TEST_CASE("TestJPEG")
+{
 
-
-BOOST_AUTO_TEST_CASE(encode_to_memory)      // 根据二维数组value 创建一个jpeg图片
+SECTION("encode_to_memory")      // 根据二维数组value 创建一个jpeg图片
 {
 	std::cout << "\r\n\r\n****************" << "encode_to_memory" << "****************" << std::endl;
 	// 对边读一张图片，并另存
@@ -69,7 +64,7 @@ BOOST_AUTO_TEST_CASE(encode_to_memory)      // 根据二维数组value 创建一
 
 
 
-BOOST_AUTO_TEST_CASE(JPEG_READ)      // 根据二维数组value 创建一个jpeg图片
+SECTION("JPEG_READ")      // 根据二维数组value 创建一个jpeg图片
 {
 	std::cout << "\r\n\r\n****************" << "JPEG_READ" << "****************" << std::endl;
 	// 对边读一张图片，并另存
@@ -87,7 +82,7 @@ BOOST_AUTO_TEST_CASE(JPEG_READ)      // 根据二维数组value 创建一个jpeg
 }
 
 
-BOOST_AUTO_TEST_CASE(WRITE_JPEG)      // 写入 JPEG
+SECTION("WRITE_JPEG")      // 写入 JPEG
 {
 	std::cout << "\r\n\r\n****************" << "WRITE_JPEG" << "****************" << std::endl;
 	// 创建空白图片并写入
@@ -101,7 +96,7 @@ BOOST_AUTO_TEST_CASE(WRITE_JPEG)      // 写入 JPEG
 }
 
 
-BOOST_AUTO_TEST_CASE(SET_PIXEL_COLOR)      // 设置像素点颜色
+SECTION("SET_PIXEL_COLOR")      // 设置像素点颜色
 {
 	std::cout << "\r\n\r\n****************" << "SET_PIXEL_COLOR" << "****************" << std::endl;
 	// 改变某像素点坐标
@@ -120,40 +115,7 @@ BOOST_AUTO_TEST_CASE(SET_PIXEL_COLOR)      // 设置像素点颜色
 	temp_jpeg_8.release();
 }
 
-BOOST_AUTO_TEST_CASE(MATRIX_TO_JPEG)      // 将二维矩阵转化为jpeg
-{
-	std::cout << "\r\n\r\n****************" << "MATRIX_TO_JPEG" << "****************" << std::endl;
-	jpeg_utils ju;
-	// 创建一个unsigned char类型的二维矩阵 并为他虚拟出逐列递增的值
-	matrix_2d<unsigned char> matrix;
-	int width = 300;
-	int height = 400;
-	matrix.create(height, width);
-	unsigned char** data = matrix.get_data();
-	for (int r = 0; r < height; r++)
-	{
-		for (int c = 0; c < width; c++)
-		{
-			data[r][c] = (unsigned char)(c / 401.0 * 255);
-		}
-
-	}
-
-	std::vector<unsigned char> threshold{ (unsigned char)0,(unsigned char)5,(unsigned char)15,(unsigned char)25,(unsigned char)50,(unsigned char)100 };
-
-	std::vector<jpeg_pixel> pixel_colors{ {jpeg_pixel((char)0xc9, (char)0xec, (char)0xc9)}, {jpeg_pixel((char)0x9b, (char)0xdd, (char)0xa9)}, {jpeg_pixel((char)0x7e, (char)0xcc, (char)0x7b)}, {jpeg_pixel((char)0x89, (char)0x99, (char)0x00)},{ jpeg_pixel((char)0x8f, (char)0x3a, (char)0x00)}, {jpeg_pixel((char)0xFA, (char)0x00, (char)0xFA)} };
-
-
-	jpeg_data jd;
-	std::filesystem::path data_root_6(DEFAULT_SU_DATA_DIR);
-	data_root_6+="/jpeg/matrix_to_color_1.jpeg";
-	jd.matrix2d_to_rgb_jpeg<unsigned char>(matrix, threshold, pixel_colors);
-	ju.write_jpeg_data(data_root_6.string().c_str(), jd);
-	jd.release();
-	matrix.destroy();
 }
-
-BOOST_AUTO_TEST_SUITE_END()
 
 
 #endif //SILLY_UTILS_TEST_JPEG_HPP

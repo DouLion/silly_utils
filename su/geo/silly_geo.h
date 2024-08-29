@@ -149,32 +149,50 @@ struct silly_geo_rect  // 普通坐标点
 
 class silly_multi_point : public std::vector<silly_point>
 {
+  public:
+    silly_multi_point() = default;
+    silly_multi_point(std::vector<silly_point> points)
+    {
+        for (auto& p : points)
+            push_back(p);
+    }
 };
 
 /// 线
 class silly_line : public std::vector<silly_point>
 {
+  public:
+    silly_line() = default;
+    silly_line(std::vector<silly_point> points)
+    {
+        for (auto& p : points)
+            push_back(p);
+    }
 };
 
 class silly_multi_silly_line : public std::vector<silly_line>
 {
+  public:
 };
 
 /// 环
-struct silly_ring
+class silly_ring
 {
+  public:
     std::vector<silly_point> points;
     int is_outer{1};
 };
 
-struct silly_poly  // 普通面
+class silly_poly  // 普通面
 {
+  public:
     silly_ring outer_ring;                // 外环
     std::vector<silly_ring> inner_rings;  // 内环
 };
 
 class silly_multi_poly : public std::vector<silly_poly>
 {
+  public:
 };
 
 #endif  // SILLY_UTILS_SILLY_GEO_H

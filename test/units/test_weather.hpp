@@ -9,16 +9,14 @@
  * @description:
  */
 
-#define BOOST_TEST_INCLUDED
-#include <boost/test/unit_test.hpp>
-#include <filesystem>
+#if I_NEED_TEST
+#include <catch2/catch_test_macros.hpp>
 #include "weather/geotiff_utils.h"
 #include "weather/grib_utils.h"
 #include "image/png_utils.h"
 #include "image/silly_color.h"
 #include "weather/silly_tzx_grid.h"
 #include "render/silly_grid_render.h"
-#include <boost/timer.hpp> // 计时函数
 
 //template <typename T>
 
@@ -95,10 +93,10 @@ silly_image::png_data generatePNGFromMatrix(matrix_2d<double>& elevation, std::m
 }
 
 
-BOOST_AUTO_TEST_SUITE(Test)
+TEST_CASE("Test")
+{
 
-
-BOOST_AUTO_TEST_CASE(READ_RGRIB)
+SECTION("READ_RGRIB")
 {
     std::cout << "\r\n\r\n****************"
               << "READ_RGRIB"
@@ -182,10 +180,10 @@ BOOST_AUTO_TEST_CASE(READ_RGRIB)
         std::cout << "PNG image generated successfully." << grib_png.string() << std::endl;
     }
     render_param.pd.release();
-    render_param.mtx.destroy();
+    render_param.mtx.release();
 }
 
-BOOST_AUTO_TEST_CASE(GRID_TO_RGRID)
+SECTION("GRID_TO_RGRID")
 {
     std::cout << "\r\n\r\n****************"
               << "GRID_TO_RGRID"
@@ -256,11 +254,11 @@ BOOST_AUTO_TEST_CASE(GRID_TO_RGRID)
     //{
     //    std::cout << "success write: " << rgrib_data_path.string() << std::endl;
     //}
-    stg.grid.destroy();
+    stg.grid.release();
 
     for (auto& l : lists)
     {
-        l.destroy();
+        l.release();
     }
 }
 
@@ -278,7 +276,7 @@ BOOST_AUTO_TEST_CASE(GRID_TO_RGRID)
 
 
 
-//BOOST_AUTO_TEST_CASE(GRID_TO_RGRID)
+//SECTION("GRID_TO_RGRID")
 //{
 //     std::cout << "\r\n\r\n****************"<< "GRID_TO_RGRID" << "****************" << std::endl;
 //    // std::filesystem::path grib_data_path(DEFAULT_SU_DATA_DIR);
@@ -351,7 +349,7 @@ BOOST_AUTO_TEST_CASE(GRID_TO_RGRID)
 
 
 
-//BOOST_AUTO_TEST_CASE(READ_GRID)
+//SECTION("READ_GRID")
 //{
 //    std::cout << "\r\n\r\n****************"
 //              << "READ_GRID"
@@ -403,7 +401,7 @@ BOOST_AUTO_TEST_CASE(GRID_TO_RGRID)
 //}
 
 
-//BOOST_AUTO_TEST_CASE(writeGeoTiff)
+//SECTION("writeGeoTiff")
 //{
 //    std::cout << "\r\n\r\n****************" << "写入一个随机的tif" << "****************" << std::endl;
 //    std::string t = "D:/1_wangyingjie/code/2_hill_shading/世界/地图/ETOPO_2022_v1_60s_N90W180_bed.tif";
@@ -461,7 +459,7 @@ BOOST_AUTO_TEST_CASE(GRID_TO_RGRID)
 //
 //}
 //
-//BOOST_AUTO_TEST_CASE(readGeoTiff)
+//SECTION("readGeoTiff")
 //{
 //    std::cout << "\r\n\r\n****************" << "读取tif" << "****************" << std::endl;
 //    std::filesystem::path tif_data_path(DEFAULT_SU_DATA_DIR);
@@ -485,7 +483,7 @@ BOOST_AUTO_TEST_CASE(GRID_TO_RGRID)
 //
 //}
 
-//BOOST_AUTO_TEST_CASE(READ_GRID2_DATA)
+//SECTION("READ_GRID2_DATA")
 //{
 //    std::cout << "\r\n\r\n****************" << "READ_GRID2_DATA" << "****************" << std::endl;
 //    std::filesystem::path grib_data_path(DEFAULT_SU_DATA_DIR);
@@ -504,5 +502,6 @@ BOOST_AUTO_TEST_CASE(GRID_TO_RGRID)
 //    
 //
 //}
+}
 
-BOOST_AUTO_TEST_SUITE_END()
+#endif

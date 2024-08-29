@@ -10,28 +10,25 @@
  */
 #pragma once
 
-#ifndef SILLY_UTILS_TEST_TCP_HPP
-#define SILLY_UTILS_TEST_TCP_HPP
+#if I_NEED_TEST
+#include <catch2/catch_test_macros.hpp>
 
-#define BOOST_TEST_INCLUDED
-#include <boost/test/unit_test.hpp>
-
-#include "tcp/ftp_utils.h"
-#include "tcp/silly_ftp.h"
+#include "network/tcp/ftp_utils.h"
+#include "network/tcp/silly_ftp.h"
 #include "files/silly_file.h"
 
-BOOST_AUTO_TEST_SUITE(TestTCP)
+TEST_CASE("TestTCP")
 
-
-BOOST_AUTO_TEST_CASE(FTP_UPLOATE)      // FTP�ϴ�
+{
+SECTION("FTP_UPLOATE")      // FTP�ϴ�
 {
 	std::cout << "\r\n\r\n****************" << "FTP_UPLOATE" << "****************" << std::endl;
 	std::filesystem::path upoad_file(DEFAULT_SU_DATA_DIR);
 	upoad_file.append("hebei_station.txt");
-	BOOST_CHECK(ftp_utils::ftp_upload(upoad_file.string(), "ftp://192.168.0.202:21/240/hebei_station.txt", "radar", "3edc9ijn", 10, false));
-};
+	CHECK(ftp_utils::ftp_upload(upoad_file.string(), "ftp://192.168.0.202:21/240/hebei_station.txt", "radar", "3edc9ijn", 10, false));
+}
 
-BOOST_AUTO_TEST_CASE(SILLY_FTP_UPLOATE) // silly_ftp �ϴ�
+SECTION("SILLY_FTP_UPLOATE") // silly_ftp �ϴ�
 {
 	//std::cout << "\r\n\r\n****************" << "FTP_UPLOATE" << "****************" << std::endl;
 	//std::filesystem::path upoad_file(DEFAULT_SU_DATA_DIR);
@@ -43,8 +40,8 @@ BOOST_AUTO_TEST_CASE(SILLY_FTP_UPLOATE) // silly_ftp �ϴ�
 	//// ret = ftp->Get("text.txt", "text.txt", silly_ftp::image);
 	//ret = ftp->Put(upoad_file.string().c_str(), "ftp://192.168.0.202:21/240/aa.txt", silly_ftp::ascii);
 	//ftp->Quit();
-};
+}
+}
 
-BOOST_AUTO_TEST_SUITE_END()
 
 #endif //SILLY_UTILS_TEST_TCP_HPP

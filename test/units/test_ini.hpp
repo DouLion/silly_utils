@@ -1,21 +1,16 @@
 
-#ifndef SILLY_UTILS_TEST_INI_HPP
-#define SILLY_UTILS_TEST_INI_HPP
-
-#define BOOST_TEST_INCLUDED
-
-#include <boost/test/unit_test.hpp>
+#if I_NEED_TEST
+#include <catch2/catch_test_macros.hpp>
 #include "ini/silly_boost_ini_parser.h"
-#include <filesystem>
 
 #include "ini/silly_boost_ini_parser.h"
 #include "ini/silly_simple_ini_parser.h"
 
-BOOST_AUTO_TEST_SUITE(TestFiles)
+TEST_CASE("TestINI")
 
+{
 
-
-BOOST_AUTO_TEST_CASE(SIMPLE_INI)		// mmap文件读取
+SECTION("SIMPLE_INI")		// mmap文件读取
 {
 	std::cout << "\r\n\r\n****************" << "SIMPLE_INI" << "****************" << std::endl;
 
@@ -59,11 +54,11 @@ BOOST_AUTO_TEST_CASE(SIMPLE_INI)		// mmap文件读取
 	int f = 0;
 	int g = 0;
 
-};
+}
 
 
 
-BOOST_AUTO_TEST_CASE(BOOST_INI)		// mmap文件读取
+SECTION("BOOST_INI")		// mmap文件读取
 {
 	std::cout << "\r\n\r\n****************" << "BOOST_INI" << "****************" << std::endl;
 	
@@ -128,28 +123,8 @@ BOOST_AUTO_TEST_CASE(BOOST_INI)		// mmap文件读取
 	int f = 0;
 	int g = 0;
 
-};
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-BOOST_AUTO_TEST_SUITE_END()
+}
+}
 
 #endif //SILLY_UTILS_TEST_INI_HPP
 
