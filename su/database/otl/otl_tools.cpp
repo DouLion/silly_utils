@@ -66,7 +66,7 @@ otl_datetime otl_tools::otl_time_from_string(const std::string &str)
 {
     otl_datetime odt;
     silly_posix_time spt;
-    spt = spt.from_string(str);
+    spt.from_string(str);
     odt.year = spt.year();
     odt.month = spt.month();
     odt.day = spt.day();
