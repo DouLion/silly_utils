@@ -544,14 +544,14 @@ bool geo_utils::read_geo_coll(const std::string& file, std::vector<silly_geo_col
 #endif
     if (!std::filesystem::exists(std::filesystem::path(nfpath)))
     {
-        SFP_ERROR("文件[{}]不存在\n", file);
+        SLOG_ERROR("文件[{}]不存在\n", file);
         return status;
     }
     enum_geometry_type type;
     std::map<std::string, silly_geo_prop::enum_prop_type> properties;
     if (!check_shp_info(nfpath, type, properties))
     {
-        SFP_ERROR("检查矢量[{}]信息失败\n", file);
+        SLOG_ERROR("检查矢量[{}]信息失败\n", file);
         return status;
     }
     // 打开现有 shp 文件
@@ -857,7 +857,7 @@ bool geo_utils::write_geo_coll(const std::string& file, const std::vector<silly_
     std::string driverName;
     if (!get_driver_name(file, driverName))
     {
-        SFP_ERROR("Error: Unable to obtain storage method for this type: %s\n", file);
+        SLOG_ERROR("Error: Unable to obtain storage method for this type: %s\n", file);
         return status;
     }
     std::string LayerName = std::filesystem::path(file).filename().stem().string();

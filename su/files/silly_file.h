@@ -81,8 +81,6 @@ class silly_file
     /// <returns></returns>
     static size_t last_modify_stamp_ms(const std::string &path);
 
-
-
   private:
     static std::string file_filter_regex(const std::string &filter);
 };

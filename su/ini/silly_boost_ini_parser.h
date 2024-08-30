@@ -10,6 +10,7 @@
 #ifndef SILLY_UTILS_SILLY_BOOST_INI_PARSER_H
 #define SILLY_UTILS_SILLY_BOOST_INI_PARSER_H
 
+#ifdef SILLY_UTILS_BOOST_ENABLE
 #include <ini/silly_ini_parser_base.h>
 #include "boost/property_tree/ptree.hpp"
 
@@ -98,5 +99,5 @@ class silly_boost_ini_parser : public silly_ini_parser
   private:
     boost::property_tree::ptree m_tree;
 };
-
+#endif
 #endif  // SILLY_UTILS_SILLY_BOOST_INI_PARSER_H

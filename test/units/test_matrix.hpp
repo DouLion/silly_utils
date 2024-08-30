@@ -1,4 +1,4 @@
-#if I_NEED_TEST
+#ifdef CATCH2_UNIT_TEST
 #include <catch2/catch_test_macros.hpp>
 #include "math/silly_matrix.h"
 

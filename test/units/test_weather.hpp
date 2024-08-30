@@ -9,7 +9,7 @@
  * @description:
  */
 
-#if I_NEED_TEST
+#ifdef CATCH2_UNIT_TEST
 #include <catch2/catch_test_macros.hpp>
 #include "weather/geotiff_utils.h"
 #include "weather/grib_utils.h"

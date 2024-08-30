@@ -12,14 +12,7 @@ foreach(dirname ${CMAKE_CURRENT_SOURCE_DIR})
 
 endforeach()
 
-# set(SU_STATIC_LIB 1)
-if(SU_SHARE_LIB)
-    message("构建动态库")
-    add_library(${PROJECT_NAME} SHARED ${SU_SRC_FILES})
-else()
-    message("构建静态库")
-    add_library(${PROJECT_NAME} STATIC ${SU_SRC_FILES})
-endif()
+add_library(${PROJECT_NAME} STATIC ${SU_SRC_FILES})
 
 find_package(cryptopp CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC cryptopp::cryptopp)
@@ -106,7 +99,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC spdlog::spdlog spdlog::spdlog_heade
 find_package(lz4 CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC lz4::lz4)
 
-
 if(IS_LINUX)
 
     find_package(unofficial-libuuid CONFIG REQUIRED)
@@ -144,11 +136,5 @@ if(IS_LINUX)
     target_link_libraries(${PROJECT_NAME} PUBLIC PNG::PNG)
     find_library(PIXMAN_LIBRARY NAMES pixman-1)
     target_link_libraries(${PROJECT_NAME} PUBLIC ${PIXMAN_LIBRARY})
-    
-    find_package(unixodbc QUIET)
-    if(unixodbc_FOUND)
-        target_link_libraries(${PROJECT_NAME} PUBLIC UNIX::odbc)
-    else()
-        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lodbc ")
-    endif()
+
 endif()

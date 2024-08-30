@@ -9,7 +9,7 @@
  * @description:
  */
 #pragma once
-#if I_NEED_TEST
+#ifdef CATCH2_UNIT_TEST
 #include <catch2/catch_test_macros.hpp>
 
 #endif //SILLY_UTILS_TEST_CONVERT_HPP

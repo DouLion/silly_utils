@@ -4,8 +4,8 @@
 #include <vld.h>
 #endif
 
-#define I_NEED_TEST 1
-#if I_NEED_TEST
+#define CATCH2_UNIT_TEST 1
+#ifdef CATCH2_UNIT_TEST
 #include "units/test_demo.hpp"
 #include "units/test_cairo.hpp"
 #include "units/test_compress.hpp"
@@ -31,7 +31,7 @@
 
 void catch2_test()
 {
-#if I_NEED_TEST
+#ifdef CATCH2_UNIT_TEST
     std::vector<std::string> args{/*"-?", "-n",*/ "-d=yes", "-v=high"};
     int argc = args.size() + 1;
     char** argv = new char*[argc];

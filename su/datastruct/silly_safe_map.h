@@ -1,33 +1,26 @@
-//////////////////////////////////////////////////////////////////////////
-//
-//	@file		TFF_ThreadSafeMap.h
-//	@brief	TFF_ThreadSafeMap header file
-//	@author		gaoyang
-//  @version    1.0
-//	@date		2017-03-01
-//
-//////////////////////////////////////////////////////////////////////////
-
-#pragma once
-
-#include <map>
-#include <vector>
-#include <mutex>
-
-/** @class ThreadSafeMap
-        @brief The class of thread safe map.
-        @remark
-*/
+/*
+ * @copyright: Beijing TianZhiXiang Information Technology Co., Ltd. All rights
+ * reserved. 北京天智祥信息科技有限公司版权所有
+ * @website: http://www.tianzhixiang.com.cn/
+ * @author: dou li yang
+ * @date: 2024-08-30
+ * @file: silly_safe_map.h
+ * @description: silly_safe_map 类声明
+ * @version: v1.0.1 2024-08-30 dou li yang
+ */
+#ifndef SILLY_UTILS_SILLY_SAFE_MAP_H
+#define SILLY_UTILS_SILLY_SAFE_MAP_H
+#include <su_marco.h>
 template <typename K, typename V>
-class ThreadSafeMap
+class silly_safe_map
 {
     typedef std::map<K, V> MapType;
 
   public:
     /// Default constructor.
-    ThreadSafeMap(void){};
+    silly_safe_map(void){};
     /// Destructor.
-    virtual ~ThreadSafeMap(void){};
+    virtual ~silly_safe_map(void){};
 
     /// Add item.
     void AddItem(const K& key, const V& value)
@@ -101,3 +94,5 @@ class ThreadSafeMap
     /// Map structure.
     MapType m_map;
 };
+
+#endif  // SILLY_UTILS_SILLY_SAFE_MAP_H

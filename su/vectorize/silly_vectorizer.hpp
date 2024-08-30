@@ -75,7 +75,7 @@
 //
 //};
 //
-//   #define RECURSION_TRACE_LINE(r, c)\
+//    #define RECURSION_TRACE_LINE(r, c)\
 //if (r > -1 && c > -1 && r < b_w_mat->height && c < b_w_mat->width) {\
 //    for (auto& segment : b_w_mat->mat[r][c].segments)\
 //    {\

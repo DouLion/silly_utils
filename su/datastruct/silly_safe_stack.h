@@ -1,32 +1,27 @@
-//////////////////////////////////////////////////////////////////////////
-//
-//	@file		TFF_ThreadSafeStack.h
-//	@brief	TFF_ThreadSafeStack header file
-//	@author		gaoyang
-//  @version    1.0
-//	@date		2017-03-01
-//
-//////////////////////////////////////////////////////////////////////////
+/*
+ * @copyright: Beijing TianZhiXiang Information Technology Co., Ltd. All rights
+ * reserved. 北京天智祥信息科技有限公司版权所有
+ * @website: http://www.tianzhixiang.com.cn/
+ * @author: dou li yang
+ * @date: 2024-08-30
+ * @file: silly_safe_stack.h
+ * @description: silly_safe_stack 类声明
+ * @version: v1.0.1 2024-08-30 dou li yang
+ */
+#ifndef SILLY_UTILS_SILLY_SAFE_STACK_H
+#define SILLY_UTILS_SILLY_SAFE_STACK_H
 
-#pragma once
-
-#include <stack>
-#include <mutex>
-
-/** @class ThreadSafeStack
-        @brief The class of thread safe stack.
-        @remark
-*/
+#include <su_marco.h>
 template <typename V>
-class ThreadSafeStack
+class silly_safe_stack
 {
     typedef std::stack<V> StackType;
 
   public:
     /// Default Constructor.
-    ThreadSafeStack(void){};
+    silly_safe_stack(void){};
     /// Destructor.
-    virtual ~ThreadSafeStack(void){};
+    virtual ~silly_safe_stack(void){};
 
     /// Push stack.
     bool Push(const V& value)
@@ -84,3 +79,5 @@ class ThreadSafeStack
     /// Stack structure.
     StackType m_stack;
 };
+
+#endif  // SILLY_UTILS_SILLY_SAFE_STACK_H

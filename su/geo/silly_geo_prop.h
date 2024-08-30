@@ -29,11 +29,9 @@ class silly_geo_prop
 
   public:
     silly_geo_prop() = default;
-    silly_geo_prop(const unsigned char* d, const size_t& l, const enum_prop_type& t);
     silly_geo_prop(const std::string& s);
     silly_geo_prop(const int& i);
     silly_geo_prop(const double& d);
-    silly_geo_prop(const char* c, const size_t& l);
     silly_geo_prop(const long long& ll);
     silly_geo_prop(const std::vector<unsigned char>& bs);
 
@@ -46,7 +44,7 @@ class silly_geo_prop
     std::string as_string() const;
     int as_int() const;
     double as_double() const;
-    unsigned char* as_binary(size_t& l) const;
+    std::vector<unsigned char> as_binary() const;
     long long as_longlong() const;
 
   private:

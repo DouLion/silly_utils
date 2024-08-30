@@ -1,5 +1,6 @@
 #pragma once
-#include <iostream>
+#include <datetime/silly_posix_time.h>
+#ifdef SILLY_UTILS_BOOST_ENABLE
 #include <boost/date_time/posix_time/ptime.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/date_time/c_local_time_adjustor.hpp>
@@ -9,16 +10,6 @@ namespace simple_time
 {
 typedef boost::posix_time::ptime PosixTime;
 typedef boost::posix_time::time_duration TimeDuration;
-
-const static char* DATE_FORMAT_1 = "%Y-%m-%d %H:%M:%S";
-const static char* DATE_FORMAT_2 = "%Y%m%d%H";
-const static char* DATE_FORMAT_3 = "%H";
-const static char* DATE_FORMAT_4 = "%Y%m%d%H%M";
-const static char* DATE_FORMAT_5 = "%Y-%m-%d %H:%M";
-const static char* DATE_FORMAT_6 = "%Y%m%d";
-const static char* DATE_FORMAT_7 = "%Y-%m-%d-%H-%M-%S";
-const static char* DATE_FORMAT_8 = "%Y-%m-%d %H:00";
-const static char* DATE_FORMAT_10 = "%Y%m%f%h00";
 
 static PosixTime NowPosixTime()
 {
@@ -59,3 +50,5 @@ static std::string TimeToFormatString(const PosixTime& time, const std::string& 
 }  // namespace simple_time
 
 using namespace simple_time;
+
+#endif

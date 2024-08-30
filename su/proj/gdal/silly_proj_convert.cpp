@@ -12,7 +12,7 @@
 //
 
 #include "silly_proj_convert.h"
-
+#include <log/silly_log.h>
 static OGRSpatialReference spc_build_srs(const spc_srs_param& ssp)
 {
     bool status = false;
@@ -20,7 +20,7 @@ static OGRSpatialReference spc_build_srs(const spc_srs_param& ssp)
     OGRSpatialReference res_srs;
     if (!(res_srs.importFromWkt(silly_projection_define::get(ssp.wk_num)) == OGRERR_NONE))
     {
-        SFP_ERROR("\n地理坐标系统: {} , 参数设置错误\n", static_cast<int>(ssp.wk_num))
+        SLOG_ERROR("\n地理坐标系统: {} , 参数设置错误\n", static_cast<int>(ssp.wk_num))
     }
 
     return res_srs;
@@ -37,7 +37,7 @@ bool silly_proj_convert::begin(const silly_proj_param& p)
     m_poTransform = OGRCreateCoordinateTransformation(&src_srs, &dst_srs);
     if (status = (m_poTransform == nullptr))
     {
-        SFP_ERROR("\n地理坐标系统转换: {} -> {}, 构建错误错误\n", static_cast<int>(p.from.wk_num), static_cast<int>(p.to.wk_num))
+        SLOG_ERROR("\n地理坐标系统转换: {} -> {}, 构建错误错误\n", static_cast<int>(p.from.wk_num), static_cast<int>(p.to.wk_num))
     }
     return status;
 }
@@ -55,7 +55,7 @@ bool silly_proj_convert::convert(const double& fromX, const double& fromY, doubl
         }
         else
         {
-            SFP_ERROR("坐标转换失败")
+            SLOG_ERROR("坐标转换失败")
         }
     }
     return status;
@@ -80,7 +80,7 @@ bool silly_proj_convert::convert(const std::vector<double>& fromX, const std::ve
         }
         else
         {
-            SFP_ERROR("坐标转换失败")
+            SLOG_ERROR("坐标转换失败")
         }
     }
     return status;

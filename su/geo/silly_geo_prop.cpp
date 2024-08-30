@@ -4,10 +4,6 @@
 
 #include "silly_geo_prop.h"
 
-silly_geo_prop::silly_geo_prop(const unsigned char *d, const size_t &l, const silly_geo_prop::enum_prop_type &t)
-{
-}
-
 silly_geo_prop::silly_geo_prop(const std::string &s)
 {
     m_data = s;
@@ -74,9 +70,13 @@ double silly_geo_prop::as_double() const
     return 0.0;
 }
 
-unsigned char *silly_geo_prop::as_binary(size_t &l) const
+std::vector<unsigned char> silly_geo_prop::as_binary() const
 {
-    return nullptr;
+    if (m_data.has_value())
+    {
+        return std::any_cast<std::vector<unsigned char>>(m_data);
+    }
+    return {};
 }
 
 long long silly_geo_prop::as_longlong() const

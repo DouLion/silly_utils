@@ -4,7 +4,6 @@
 
 #include "silly_iso_line.h"
 #include <su_marco.h>
-#include <triangular/TFF_Delaunay.h>
 #include <triangular/silly_delaunay_bowyer.h>
 #include <malloc.h>
 #include <memory>
@@ -101,9 +100,9 @@ void silly_iso_line::set_level(const std::vector<double>& thresholds)
 void silly_iso_line::make_tri_net()
 {
 #if S11
-    Delaunay DelaunayTri;
+    /*Delaunay DelaunayTri;
     //// ddx, ddy, m_ddz  生成三角形,每个三角形 a b c 三个边, z 值为?
-    m_tri_num = DelaunayTri.Triangulate(m_data_num, m_ddx, m_ddy, m_ddz, m_tax, m_tay, m_taz, m_tbx, m_tby, m_tbz, m_tcx, m_tcy, m_tcz);
+    m_tri_num = DelaunayTri.Triangulate(m_data_num, m_ddx, m_ddy, m_ddz, m_tax, m_tay, m_taz, m_tbx, m_tby, m_tbz, m_tcx, m_tcy, m_tcz);*/
 #else
     /* std::vector<delaunay::Point<double>> nps;
      for (int i = 0; i < m_data_num; ++i)

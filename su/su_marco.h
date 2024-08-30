@@ -65,7 +65,6 @@
 #include <signal.h>  // 信号处理库
 #include <regex>
 //
-#include <string/silly_format.h>
 
 #if WIN32
 #include <Windows.h>
@@ -141,9 +140,9 @@
 #define SEC_IN_MIN 60
 #define MIN_IN_HOUR 60
 #define HOUR_IN_DAY 24
-#define SEC_IN_HOUR (60 * 60)
-#define MIN_IN_DAY (60 * 24)
-#define SEC_IN_DAY (60 * 60 * 24)
+#define SEC_IN_HOUR (SEC_IN_MIN * MIN_IN_HOUR)
+#define MIN_IN_DAY (MIN_IN_HOUR * HOUR_IN_DAY)
+#define SEC_IN_DAY (SEC_IN_MIN * MIN_IN_HOUR * HOUR_IN_DAY)
 #endif
 
 /** earth radius */

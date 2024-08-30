@@ -4,6 +4,7 @@
 #define SILLY_UTILS_SILLY_GEO_OPERATION_H
 
 #include <geo/silly_geo_coll.h>
+#include <log/silly_log.h>
 #include "gdal_priv.h"
 
 // 矢量文件后缀名
@@ -227,6 +228,40 @@ class silly_geo_utils
     /// <param name="mpoly">经纬度面</param>
     /// <returns></returns>
     static double area_sqkm(const silly_multi_poly& mpoly);
+
+    /// <summary>
+    /// 平滑线
+    /// </summary>
+    /// <param name="line"></param>
+    /// <param name="mod">二次贝塞尔 或者 三次贝塞尔</param>
+    /// <param name="interp">插值</param>
+    /// <returns></returns>
+    static std::vector<silly_point> smooth_line(const std::vector<silly_point>& line, const int& mod, const int& interp);
+
+    /// <summary>
+    /// 平滑闭合环
+    /// </summary>
+    /// <param name="line"></param>
+    /// <param name="mod">二次贝塞尔 或者 三次贝塞尔 或者其他</param>
+    /// <param name="interp">插值</param>
+    /// <returns></returns>
+    static std::vector<silly_point> smooth_ring(const std::vector<silly_point>& ring, const int& mod, const int& interp);
+
+    /// <summary>
+    /// 简化线,使用的道格拉斯抽稀算法,可以尽量保持矢量特征
+    /// </summary>
+    /// <param name="line"></param>
+    /// <param name="dist">距离容差</param>
+    /// <returns></returns>
+    static std::vector<silly_point> simplify_line(const std::vector<silly_point>& line, const double& dist);
+
+    /// <summary>
+    /// 简化闭合环
+    /// </summary>
+    /// <param name="line"></param>
+    /// <param name="dist">距离容差</param>
+    /// <returns></returns>
+    static std::vector<silly_point> simplify_ring(const std::vector<silly_point>& ring, const double& dist);
 
     /// ================ gdal中矢量与silly utils中矢量互转 ================
 

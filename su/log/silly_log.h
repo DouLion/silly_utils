@@ -1,8 +1,9 @@
 #pragma once
 #ifndef SILLY_UTILS_SILLY_LOG_H
 #define SILLY_UTILS_SILLY_LOG_H
-#include "singleton/silly_singleton.h"
+#include <singleton/silly_singleton.h>
 #include <su_marco.h>
+#include <string/silly_format.h>
 #include <spdlog/spdlog.h>
 
 class silly_log : public silly_singleton<silly_log>

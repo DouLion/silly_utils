@@ -1,32 +1,26 @@
-//////////////////////////////////////////////////////////////////////////
-//
-//	@file		TFF_ThreadSafeList.h
-//	@brief	TFF_ThreadSafeList header file
-//	@author		gaoyang
-//  @version    1.0
-//	@date		2017-03-01
-//
-//////////////////////////////////////////////////////////////////////////
-
-#pragma once
-
-#include <list>
-#include <mutex>
-
-/** @class ThreadSafeList
-        @brief The class of thread safe list.
-        @remark
-*/
+/*
+ * @copyright: Beijing TianZhiXiang Information Technology Co., Ltd. All rights
+ * reserved. 北京天智祥信息科技有限公司版权所有
+ * @website: http://www.tianzhixiang.com.cn/
+ * @author: dou li yang
+ * @date: 2024-08-30
+ * @file: silly_safe_list.h
+ * @description: silly_safe_list 类声明
+ * @version: v1.0.1 2024-08-30 dou li yang
+ */
+#ifndef SILLY_UTILS_SILLY_SAFE_LIST_H
+#define SILLY_UTILS_SILLY_SAFE_LIST_H
+#include <su_marco.h>
 template <typename V>
-class ThreadSafeList
+class silly_safe_list
 {
     typedef std::list<V> ListType;
 
   public:
     /// Default constructor.
-    ThreadSafeList(void){};
+    silly_safe_list(void){};
     /// Destructor.
-    virtual ~ThreadSafeList(void){};
+    virtual ~silly_safe_list(void){};
 
     /// Add item.
     bool AddItem(const V& value)
@@ -75,3 +69,5 @@ class ThreadSafeList
     /// List structure.
     ListType m_list;
 };
+
+#endif  // SILLY_UTILS_SILLY_SAFE_LIST_H

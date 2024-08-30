@@ -3,6 +3,7 @@
 //
 
 #include "silly_boost_ini_parser.h"
+#ifdef SILLY_UTILS_BOOST_ENABLE
 #include "boost/property_tree/ini_parser.hpp"
 #include "su_marco.h"
 #include <boost/algorithm/string.hpp>
@@ -258,3 +259,5 @@ std::string silly_boost_ini_parser::read(const std::string& section, const std::
     }
     return res;
 }
+
+#endif

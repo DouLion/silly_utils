@@ -6,6 +6,7 @@
 #include "minizip/zip.h"
 #include "minizip/unzip.h"
 #include "su_marco.h"
+#include <log/silly_log.h>
 using namespace silly_compress;
 
 //  压缩使用的最大内存 500M

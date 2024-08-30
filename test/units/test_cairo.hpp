@@ -9,7 +9,7 @@
  * @version: v1.0.1 2024-08-29 dou li yang
  */
 #pragma once
-#if I_NEED_TEST
+#ifdef CATCH2_UNIT_TEST
 #include <catch2/catch_test_macros.hpp>
 #include <image/silly_cairo.h>
 

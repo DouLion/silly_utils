@@ -19,24 +19,12 @@ endif ()
 if (SU_AS_PROJECT)
     MESSAGE(STATUS "作为单个工程编译")
     # 设置默认程序根目录,程序中所有路径均参照此路径,方便调试和发布
-    ADD_DEFINITIONS("-DDEFAULT_SU_ROOT_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}\"")
+    add_definitions("-DDEFAULT_SU_ROOT_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}\"")
 
-    ADD_DEFINITIONS("-DDEFAULT_SU_DATA_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/data\"")
+    add_definitions("-DDEFAULT_SU_DATA_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/data\"")
 elseif()
     MESSAGE(STATUS "作为嵌入库编译")
 endif ()
-if(DISABLE_CATCH2_TEST)
-
-else()
-
-#add_definitions("")
-endif()
-
-
-
-
-
-
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/su)
 
 ##########################################

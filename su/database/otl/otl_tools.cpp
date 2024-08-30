@@ -2,8 +2,8 @@
 // Created by dly on 2023/5/17.
 //
 
-#include <boost/date_time/posix_time/posix_time.hpp>
 #include "otl_tools.h"
+#include <datetime/silly_posix_time.h>
 
 otl_conn_opt otl_tools::conn_opt_from_json(const Json::Value &root)
 {
@@ -65,16 +65,15 @@ otl_conn_opt otl_tools::conn_opt_from_json(const Json::Value &root)
 otl_datetime otl_tools::otl_time_from_string(const std::string &str)
 {
     otl_datetime odt;
-    auto datetime = boost::posix_time::time_from_string(str);
-    auto date = datetime.date();
-    odt.year = date.year();
-    odt.month = date.month();
-    odt.day = date.day();
-    auto time = datetime.time_of_day();
-    odt.hour = time.hours();
-    odt.minute = time.minutes();
-    odt.second = time.seconds();
-    odt.fraction = time.fractional_seconds();
+    silly_posix_time spt;
+    spt = spt.from_string(str);
+    odt.year = spt.year();
+    odt.month = spt.month();
+    odt.day = spt.day();
+    odt.hour = spt.hour();
+    odt.minute = spt.minute();
+    odt.second = spt.second();
+    odt.fraction = 0;
     return odt;
 }
 

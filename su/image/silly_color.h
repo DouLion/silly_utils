@@ -11,6 +11,7 @@
 #define SILLY_UTILS_SILLY_COLOR_H
 
 #include <su_marco.h>
+#include <string/silly_format.h>
 
 class silly_color
 {

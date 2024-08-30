@@ -1,32 +1,26 @@
-//////////////////////////////////////////////////////////////////////////
-//
-//	@file		TFF_ThreadSafeDeque.h
-//	@brief	TFF_ThreadSafeDeque header file
-//	@author		gaoyang
-//  @version    1.0
-//	@date		2017-03-01
-//
-//////////////////////////////////////////////////////////////////////////
-
-#pragma once
-
-#include <mutex>
-#include <deque>
-
-/** @class ThreadSafeDeque
-        @brief The class of thread safe deque.
-        @remark
-*/
+/*
+ * @copyright: Beijing TianZhiXiang Information Technology Co., Ltd. All rights
+ * reserved. 北京天智祥信息科技有限公司版权所有
+ * @website: http://www.tianzhixiang.com.cn/
+ * @author: dou li yang
+ * @date: 2024-08-30
+ * @file: silly_safe_deque.h
+ * @description: silly_safe_deque 类声明
+ * @version: v1.0.1 2024-08-30 dou li yang
+ */
+#ifndef SILLY_UTILS_SILLY_SAFE_DEQUE_H
+#define SILLY_UTILS_SILLY_SAFE_DEQUE_H
+#include <su_marco.h>
 template <typename V>
-class ThreadSafeDeque
+class silly_safe_deque
 {
     typedef std::deque<V> DequeType;
 
   public:
     /// Default Constructor.
-    ThreadSafeDeque(void){};
+    silly_safe_deque(void){};
     /// Destructor.
-    virtual ~ThreadSafeDeque(void){};
+    virtual ~silly_safe_deque(void){};
 
     /// Push item to deque tail.
     bool PushItem(const V& value)
@@ -90,3 +84,5 @@ class ThreadSafeDeque
     /// Deque structure.
     DequeType m_deque;
 };
+
+#endif  // SILLY_UTILS_SILLY_SAFE_DEQUE_H
