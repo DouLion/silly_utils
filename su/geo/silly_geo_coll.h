@@ -17,6 +17,20 @@ class silly_geo_coll
   public:
     silly_geo_coll() = default;
 
+    silly_geo_coll(silly_point p);
+    silly_geo_coll(silly_multi_point mp);
+    silly_geo_coll(silly_line l);
+    silly_geo_coll(silly_multi_silly_line ml);
+    silly_geo_coll(silly_multi_poly mp);
+    silly_geo_coll(silly_poly p);
+
+    void add(silly_point p);
+    void add(silly_multi_point mp);
+    void add(silly_line l);
+    void add(silly_multi_silly_line ml);
+    void add(silly_multi_poly mp);
+    void add(silly_poly p);
+
   public:
     // 类型
     enum_geometry_type m_type{enum_geometry_type::egtInvalid};

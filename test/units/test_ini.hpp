@@ -65,27 +65,6 @@ SECTION("BOOST_INI")		// mmap文件读取
 	std::filesystem::path ini(DEFAULT_SU_DATA_DIR);
 	ini += "/ini/IsoInfo.Ini";
 
-
-
-	//try
-	//{
-	//	boost::property_tree::ptree pt;
-	//	boost::property_tree::ini_parser::read_ini(ini.string(), pt);
-	//	for (const auto& section : pt) {
-	//		std::cout << "[" << section.first << "]\n";
-	//		for (const auto& key : section.second) {
-	//			std::cout << key.first << " = " << key.second.get_value<std::string>() << "\n";
-	//		}
-	//	}
-	//}
-	//catch (const boost::property_tree::ini_parser_error& e)
-	//{
-	//	std::cout << "error: " << e.what() << std::endl;
-	//}
-
-
-
-
 	std::string section_1 = "BASE";
 	std::string section_2 = "DynamicLayer.dbsource";
 	std::string section_3 = "SXWeather";
@@ -100,7 +79,7 @@ SECTION("BOOST_INI")		// mmap文件读取
 	std::string property_str_2 = "boundary_db_conn_str";
 	std::string property_i_2 = "boundary_db_type";
 	std::string property_s_3 = "url";
-
+#ifdef SILLY_UTILS_BOOST_ENABLE
 	silly_boost_ini_parser su_boot_ini;
 
 	su_boot_ini.load(ini.string());
@@ -117,7 +96,7 @@ SECTION("BOOST_INI")		// mmap文件读取
 
 	su_boot_ini.write(section_4, property_s_4, "abcd");
 	su_boot_ini.save();
-
+#endif
 
 	int e = 0;
 	int f = 0;

@@ -537,25 +537,20 @@ bool geo_utils::read_geo_coll(const std::string& file, std::vector<silly_geo_col
 {
     bool status = false;
 
-#if IS_WIN32
-    std::string nfpath = silly_encode::utf8_gbk(file);
-#else
-    std::string nfpath = file;
-#endif
-    if (!std::filesystem::exists(std::filesystem::path(nfpath)))
+    if (!std::filesystem::exists(std::filesystem::path(file)))
     {
         SLOG_ERROR("文件[{}]不存在\n", file);
         return status;
     }
     enum_geometry_type type;
     std::map<std::string, silly_geo_prop::enum_prop_type> properties;
-    if (!check_shp_info(nfpath, type, properties))
+    if (!check_shp_info(file, type, properties))
     {
         SLOG_ERROR("检查矢量[{}]信息失败\n", file);
         return status;
     }
     // 打开现有 shp 文件
-    auto dataset = static_cast<GDALDataset*>(GDALOpenEx(nfpath.c_str(), GDAL_OF_ALL | GDAL_OF_READONLY, nullptr, nullptr, nullptr));
+    auto dataset = static_cast<GDALDataset*>(GDALOpenEx(file.c_str(), GDAL_OF_ALL | GDAL_OF_READONLY, nullptr, nullptr, nullptr));
     if (dataset == nullptr)
     {
         // 处理文件打开失败的情况
