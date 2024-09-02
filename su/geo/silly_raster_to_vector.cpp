@@ -741,7 +741,8 @@ static double bezier_In(const double &t, double x1, double x2, double x3)
 
     return finalPoint;
 }
-
+#include <math/spline/silly_b_spline.h>
+#include <math/silly_bezier_curve.h>
 std::vector<silly_poly> silly_vectorizer::smooth_poly(const std::vector<silly_poly> &polys)
 
 {
@@ -749,13 +750,14 @@ std::vector<silly_poly> silly_vectorizer::smooth_poly(const std::vector<silly_po
     for (auto poly : polys)
     {
         silly_poly tmp;
-        tmp.outer_ring = smooth_ring(poly.outer_ring);
+        /*tmp.outer_ring.points = silly_bezier_curve::bezier_smooth(poly.outer_ring.points, poly.outer_ring.points.size() * 5); //smooth_ring(poly.outer_ring);
 
         for (auto ring : poly.inner_rings)
         {
-            tmp.inner_rings.push_back(smooth_ring(ring));
-        }
+            // tmp.inner_rings.push_back(smooth_ring(ring));
 
+            tmp.inner_rings.push_back({silly_b_spline::cubic_interpolation(ring.points, ring.points.size() * 5)});
+        }*/
         smooth_polys.push_back(tmp);
     }
     return smooth_polys;

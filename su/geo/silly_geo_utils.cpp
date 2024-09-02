@@ -863,7 +863,12 @@ bool geo_utils::write_geo_coll(const std::string& u8file, const std::vector<sill
     }
     GDALDriver* outDriver = GetGDALDriverManager()->GetDriverByName(driver_name.c_str());
 #if IS_WIN32
-    GDALDataset* outputData = outDriver->Create(silly_encode::utf8_gbk(u8file).c_str(), 0, 0, 0, GDT_Unknown, nullptr);
+    std::string _file_name = u8file;
+    if(silly_encode::is_utf8(_file_name))
+    {
+        _file_name = silly_encode::utf8_gbk(_file_name);
+    }
+    GDALDataset* outputData = outDriver->Create(_file_name.c_str(), 0, 0, 0, GDT_Unknown, nullptr);
 #else
     GDALDataset* outputData = outDriver->Create(u8file.c_str(), 0, 0, 0, GDT_Unknown, nullptr);
 #endif
@@ -1082,4 +1087,20 @@ double silly_geo_utils::area_sqkm(const std::vector<silly_point>& points)
         gpoints.push_back(tmp);
     }
     return area(gpoints) / 1e6;
+}
+std::vector<silly_point> silly_geo_utils::smooth_line(const std::vector<silly_point>& line, const int& mod, const int& interp)
+{
+    return std::vector<silly_point>();
+}
+std::vector<silly_point> silly_geo_utils::smooth_ring(const std::vector<silly_point>& ring, const int& mod, const int& interp)
+{
+    return std::vector<silly_point>();
+}
+std::vector<silly_point> silly_geo_utils::simplify_line(const std::vector<silly_point>& line, const double& dist)
+{
+    return std::vector<silly_point>();
+}
+std::vector<silly_point> silly_geo_utils::simplify_ring(const std::vector<silly_point>& ring, const double& dist)
+{
+    return std::vector<silly_point>();
 }
