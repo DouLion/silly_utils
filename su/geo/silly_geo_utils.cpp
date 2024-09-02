@@ -282,9 +282,9 @@ void geo_utils::destroy_gdal_env()
     OGRCleanupAll();
 }
 
-bool geo_utils::is_valid_shp(const std::string& shp_file)
+bool geo_utils::is_valid_shp(const std::string& u8file)
 {
-    auto poDSr = (GDALDataset*)GDALOpenEx(shp_file.c_str(), GDAL_OF_ALL | GDAL_OF_READONLY, nullptr, nullptr, nullptr);
+    auto poDSr = (GDALDataset*)GDALOpenEx(u8file.c_str(), GDAL_OF_ALL | GDAL_OF_READONLY, nullptr, nullptr, nullptr);
     if (nullptr == poDSr)
     {
         return false;
@@ -293,12 +293,12 @@ bool geo_utils::is_valid_shp(const std::string& shp_file)
     return true;
 }
 
-bool geo_utils::check_shp_info(const std::string& shp_file, enum_geometry_type& type, std::map<std::string, silly_geo_prop::enum_prop_type>& properties)
+bool geo_utils::check_shp_info(const std::string& u8file, enum_geometry_type& type, std::map<std::string, silly_geo_prop::enum_prop_type>& properties)
 {
     bool status = false;
     std::map<std::string, std::string> result;
 
-    auto poDSr = (GDALDataset*)GDALOpenEx(shp_file.c_str(), GDAL_OF_ALL | GDAL_OF_READONLY, nullptr, nullptr, nullptr);
+    auto poDSr = (GDALDataset*)GDALOpenEx(u8file.c_str(), GDAL_OF_ALL | GDAL_OF_READONLY, nullptr, nullptr, nullptr);
     if (nullptr == poDSr)
     {
         return status;
@@ -525,7 +525,7 @@ bool read_all_types_data(const enum_geometry_type& feature_type, const OGRGeomet
         break;
         default:
         {
-            SU_ERROR_PRINT("Unprocessable data types: %d\n", feature_type);
+            SLOG_ERROR("Unprocessable data types: {}\n", static_cast<int>(feature_type));
         }
         break;
     }
@@ -533,28 +533,28 @@ bool read_all_types_data(const enum_geometry_type& feature_type, const OGRGeomet
     return status;
 }
 
-bool geo_utils::read_geo_coll(const std::string& file, std::vector<silly_geo_coll>& collections, const bool& ignore_prop)
+bool geo_utils::read_geo_coll(const std::string& u8file, std::vector<silly_geo_coll>& collections, const bool& ignore_prop)
 {
     bool status = false;
 
-    if (!std::filesystem::exists(std::filesystem::path(file)))
+    if (!std::filesystem::exists(std::filesystem::path(u8file)))
     {
-        SLOG_ERROR("文件[{}]不存在\n", file);
+        SLOG_ERROR("文件[{}]不存在\n", u8file);
         return status;
     }
     enum_geometry_type type;
     std::map<std::string, silly_geo_prop::enum_prop_type> properties;
-    if (!check_shp_info(file, type, properties))
+    if (!check_shp_info(u8file, type, properties))
     {
-        SLOG_ERROR("检查矢量[{}]信息失败\n", file);
+        SLOG_ERROR("检查矢量[{}]信息失败\n", u8file);
         return status;
     }
     // 打开现有 shp 文件
-    auto dataset = static_cast<GDALDataset*>(GDALOpenEx(file.c_str(), GDAL_OF_ALL | GDAL_OF_READONLY, nullptr, nullptr, nullptr));
+    auto dataset = static_cast<GDALDataset*>(GDALOpenEx(u8file.c_str(), GDAL_OF_ALL | GDAL_OF_READONLY, nullptr, nullptr, nullptr));
     if (dataset == nullptr)
     {
         // 处理文件打开失败的情况
-        SU_ERROR_PRINT("Error: Failed to open shapefile\n");
+        SLOG_ERROR("Error: Failed to open shapefile\n");
         return status;
     }
     // 获得数据集中图层数
@@ -565,7 +565,7 @@ bool geo_utils::read_geo_coll(const std::string& file, std::vector<silly_geo_col
         if (layer == nullptr)
         {
             // 处理图层获取失败的情况
-            SU_ERROR_PRINT("Error: Failed to get layer\n");
+            SLOG_ERROR("Error: Failed to get layer\n");
             GDALClose(dataset);
             return status;
         }
@@ -599,53 +599,53 @@ bool geo_utils::read_geo_coll(const std::string& file, std::vector<silly_geo_col
 }
 
 // 根据文件拓展得到对应的存储格式 TODO :
-bool geo_utils::get_driver_name(const std::string& file, std::string& driverName)
+bool geo_utils::get_driver_name(const std::string& u8file, std::string& driver_name)
 {
     bool status = true;
-    // if (!std::filesystem::exists(std::filesystem::path(file)))
+    // if (!std::filesystem::exists(std::filesystem::path(u8file)))
     //{
-    //     SU_ERROR_PRINT("Error: file does not exist %s ", file);
+    //     SLOG_ERROR("Error: u8file does not exist %s ", u8file);
     //     return status;
     // }
     //  获取文件扩展名
-    std::string lowerExtension = std::filesystem::path(file.c_str()).extension().string();
+    std::string lowerExtension = std::filesystem::path(u8file.c_str()).extension().string();
     // 将文件扩展名转换为小写
     std::transform(lowerExtension.begin(), lowerExtension.end(), lowerExtension.begin(), ::tolower);
     if (lowerExtension == SILLY_SHP_SUFFIX)
     {  // shp
-        driverName = SILLY_SHP_DRIVER_NAME;
+        driver_name = SILLY_SHP_DRIVER_NAME;
     }
     else if (lowerExtension == SILLY_TAB_SUFFIX)
     {  // tab
-        driverName = SILLY_TAB_DRIVER_NAME;
+        driver_name = SILLY_TAB_DRIVER_NAME;
     }
     else if (lowerExtension == SILLY_GEOJSON_SUFFIX)
     {  // geojson
-        driverName = SILLY_GEOJSON_DRIVER_NAME;
+        driver_name = SILLY_GEOJSON_DRIVER_NAME;
     }
     else if (lowerExtension == SILLY_SQLITE_SUFFIX)
     {  // sqlite
-        driverName = SILLY_SQLITE_DRIVER_NAME;
+        driver_name = SILLY_SQLITE_DRIVER_NAME;
     }
     else if (lowerExtension == SILLY_CSV_SUFFIX)
     {  // csv
-        driverName = SILLY_CSV_DRIVER_NAME;
+        driver_name = SILLY_CSV_DRIVER_NAME;
     }
     else if (lowerExtension == SILLY_KML_SUFFIX)
     {  // kml
-        driverName = SILLY_KML_DRIVER_NAME;
+        driver_name = SILLY_KML_DRIVER_NAME;
     }
     else if (lowerExtension == SILLY_GML_SUFFIX)
     {  // gml
-        driverName = SILLY_GML_DRIVER_NAME;
+        driver_name = SILLY_GML_DRIVER_NAME;
     }
     else if (lowerExtension == SILLY_XLSX_SUFFIX)
     {  // xlsx
-        driverName = SILLY_XLSX_DRIVER_NAME;
+        driver_name = SILLY_XLSX_DRIVER_NAME;
     }
     else
     {
-        driverName = "";
+        driver_name = "";
         status = false;
     }
     return status;
@@ -841,7 +841,7 @@ static bool wire_all_types_data(const enum_geometry_type coll_type, OGRLayer* ou
     return status;
 }
 
-bool geo_utils::write_geo_coll(const std::string& file, const std::vector<silly_geo_coll>& collections)
+bool geo_utils::write_geo_coll(const std::string& u8file, const std::vector<silly_geo_coll>& collections)
 {
     bool status = false;
     if (collections.empty())
@@ -849,30 +849,34 @@ bool geo_utils::write_geo_coll(const std::string& file, const std::vector<silly_
         return status;
     }
     // 根据拓展名得到存储格式
-    std::string driverName;
-    if (!get_driver_name(file, driverName))
+    std::string driver_name;
+    if (!get_driver_name(u8file, driver_name))
     {
-        SLOG_ERROR("Error: Unable to obtain storage method for this type: %s\n", file);
+        SLOG_ERROR("Error: Unable to obtain storage method for this type: %s\n", u8file);
         return status;
     }
-    std::string LayerName = std::filesystem::path(file).filename().stem().string();
+    std::string LayerName = std::filesystem::path(u8file).filename().stem().string();
     if (collections.empty())
     {
-        SU_ERROR_PRINT("Error: Vector data is empty\n");
+        SLOG_ERROR("Error: Vector data is empty\n");
         return status;
     }
-    GDALDriver* outDriver = GetGDALDriverManager()->GetDriverByName(driverName.c_str());
-    GDALDataset* outputData = outDriver->Create(file.c_str(), 0, 0, 0, GDT_Unknown, nullptr);
+    GDALDriver* outDriver = GetGDALDriverManager()->GetDriverByName(driver_name.c_str());
+#if IS_WIN32
+    GDALDataset* outputData = outDriver->Create(silly_encode::utf8_gbk(u8file).c_str(), 0, 0, 0, GDT_Unknown, nullptr);
+#else
+    GDALDataset* outputData = outDriver->Create(u8file.c_str(), 0, 0, 0, GDT_Unknown, nullptr);
+#endif
     if (outputData == nullptr)
     {
-        SU_ERROR_PRINT("Error: Failed to create output shapefile\n");
+        SLOG_ERROR("Error: Failed to create output shapefile\n");
         return false;
     }
     OGRLayer* outputLayer = outputData->CreateLayer(LayerName.c_str(), nullptr, wkbUnknown, nullptr);
     if (outputLayer == nullptr)
     {
         // 处理图层创建失败的情况
-        SU_ERROR_PRINT("Failed to create output layer\n")
+        SLOG_ERROR("Failed to create output layer\n")
         GDALClose(outputData);
         return false;
     }
@@ -884,7 +888,7 @@ bool geo_utils::write_geo_coll(const std::string& file, const std::vector<silly_
         OGRFieldDefn fieldDef(k.c_str(), ogrType);
         if (outputLayer->CreateField(&fieldDef) != OGRERR_NONE)
         {
-            SU_ERROR_PRINT("Error: Failed to create color field\n");
+            SLOG_ERROR("Error: Failed to create color field\n");
         }
     }
     for (const auto& coll : collections)
@@ -897,7 +901,7 @@ bool geo_utils::write_geo_coll(const std::string& file, const std::vector<silly_
         {
             if (!writePropertiesToGeometry(feature, coll.m_props))  // 添加属性
             {
-                SU_ERROR_PRINT("Add attribute fail\n")
+                SLOG_ERROR("Add attribute fail\n")
             }
         }
         // 添加矢量数据

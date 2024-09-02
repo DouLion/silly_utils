@@ -45,7 +45,7 @@ void silly_geo_prop::release()
 
 std::string silly_geo_prop::as_string() const
 {
-    if (m_data.has_value())
+    if (m_data.has_value() && m_type == enum_prop_type::eptString)
     {
         return std::any_cast<std::string>(m_data);
     }
@@ -54,7 +54,7 @@ std::string silly_geo_prop::as_string() const
 
 int silly_geo_prop::as_int() const
 {
-    if (m_data.has_value())
+    if (m_data.has_value() && m_type == enum_prop_type::eptInt)
     {
         return std::any_cast<int>(m_data);
     }
@@ -63,7 +63,7 @@ int silly_geo_prop::as_int() const
 
 double silly_geo_prop::as_double() const
 {
-    if (m_data.has_value())
+    if (m_data.has_value() && m_type == enum_prop_type::eptNumeric)
     {
         return std::any_cast<double>(m_data);
     }
@@ -72,7 +72,7 @@ double silly_geo_prop::as_double() const
 
 std::vector<unsigned char> silly_geo_prop::as_binary() const
 {
-    if (m_data.has_value())
+    if (m_data.has_value() && m_type == enum_prop_type::eptBinary)
     {
         return std::any_cast<std::vector<unsigned char>>(m_data);
     }
@@ -81,7 +81,7 @@ std::vector<unsigned char> silly_geo_prop::as_binary() const
 
 long long silly_geo_prop::as_longlong() const
 {
-    if (m_data.has_value())
+    if (m_data.has_value() && m_type == enum_prop_type::eptLong)
     {
         return std::any_cast<long long>(m_data);
     }

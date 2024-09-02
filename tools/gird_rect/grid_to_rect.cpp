@@ -51,7 +51,7 @@ int main(int argc, char** argv)
         new_colls.push_back(tmp_gc);
     }
 
-    silly_geo_utils::write_geo_coll("grid_poly.shp", new_colls);
+    silly_geo_utils::write_geo_coll("结果.geojson", new_colls);
 
     silly_geo_utils::destroy_gdal_env();
     return 0;

@@ -65,45 +65,45 @@ class silly_geo_utils
     /// <summary>
     /// 读取矢量文件中的数据存储到silly_geo_coll数据结构中
     /// </summary>
-    /// <param name="file"></param>
+    /// <param name="u8file">utf8</param>
     /// <param name="collection"></param>
     /// <returns></returns>
     /// 注:读取 shp , geojson 类型文件中可以实现
-    static bool read_geo_coll(const std::string& file, std::vector<silly_geo_coll>& collections, const bool& ignore_prop = false);
+    static bool read_geo_coll(const std::string& u8file, std::vector<silly_geo_coll>& collections, const bool& ignore_prop = false);
 
     /// <summary>
     /// 将silly_geo_coll数据结构写入矢量文件(如shp文件)
     /// </summary>
-    /// <param name="file"></param>
+    /// <param name="u8file">utf8</param>
     /// <param name="collection"></param>
     /// <returns></returns>
     /// 注:写入 shp , geojson 类型文件中经测试可以实现
-    static bool write_geo_coll(const std::string& file, const std::vector<silly_geo_coll>& collections);
+    static bool write_geo_coll(const std::string& u8file, const std::vector<silly_geo_coll>& collections);
 
     /// <summary>
     /// 是否为一个标准的shp文件
     /// </summary>
-    /// <param name="shp_file"></param>
+    /// <param name="u8file">utf8</param>
     /// <returns></returns>
-    static bool is_valid_shp(const std::string& shp_file);
+    static bool is_valid_shp(const std::string& u8file);
 
     /// <summary>
     /// 加载shp文件中的属性信息
     /// </summary>
-    /// <param name="shp_file"></param>
+    /// <param name="u8file">utf8</param>
     /// <param name="type"></param>
     /// <param name="properties"></param>
     /// <returns></returns>
-    static bool check_shp_info(const std::string& shp_file, enum_geometry_type& type, std::map<std::string, silly_geo_prop::enum_prop_type>& properties);
+    static bool check_shp_info(const std::string& u8file, enum_geometry_type& type, std::map<std::string, silly_geo_prop::enum_prop_type>& properties);
 
     /// <summary>
     /// 根据文件类型得到对应的 gdal 中的存储格式
     /// 支持的文件格式对应的存储类型: shp tab geojson sqlite csv kml gml xlsx
     /// </summary>
-    /// <param name="file">文件名</param>
+    /// <param name="u8file">文件名</param>
     /// <param name="driverName">存储类型</param>
     /// <returns></returns>
-    static bool get_driver_name(const std::string& file, std::string& driverName);
+    static bool get_driver_name(const std::string& u8file, std::string& driverName);
 
     /// <summary>
     /// 矢量与面是否相交
