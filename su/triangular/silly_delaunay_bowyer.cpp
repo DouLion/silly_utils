@@ -16,6 +16,7 @@ void silly_delaunay_bowyer::points(std::vector<silly_dt_point>& pts)
 void silly_delaunay_bowyer::triangulate()
 {
     init_super_triangle();
+    int step = 0;
     for (auto const& pt : m_points)
     {
         // 每次加入一个新点时,之前的三角形都有可能被破坏
@@ -60,6 +61,8 @@ void silly_delaunay_bowyer::triangulate()
         {
             m_tris.emplace_back(silly_dt_tri(edge.p0, edge.p1, pt));
         }
+       /* step++;
+        draw("step_" + std::to_string(step)+".png");*/
     }
 
     // 略微收缩辅助窗口

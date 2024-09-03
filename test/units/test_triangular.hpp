@@ -14,7 +14,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <datetime/silly_timer.h>
 // #include "triangular/TFF_Delaunay.h"
-#include "triangular/silly_delaunay.hpp"
+// #include "triangular/silly_delaunay.hpp"
 #include "triangular/silly_delaunay_sweep_line.h"
 #include "triangular/silly_delaunay_bowyer.h"
 #include "files/silly_file.h"
