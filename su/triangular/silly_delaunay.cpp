@@ -3,7 +3,6 @@
 //
 
 #include "silly_delaunay.h"
-#include <image/silly_cairo.h>
 
 void silly_dt_tri::calc_circle()
 {
@@ -100,14 +99,16 @@ double silly_delaunay_utils::sq_dist(const silly_dt_point& p0, const silly_dt_po
 {
     return (p0.lgtd - p1.lgtd) * (p0.lgtd - p1.lgtd) + (p0.lttd - p1.lttd) * (p0.lttd - p1.lttd);
 }
+#ifndef NDEBUG
+#include <image/silly_cairo.h>
 void silly_delaunay::draw(const std::string& path)
 {
     silly_cairo sc;
     sc.create(2000, 2000);
-    silly_geo_rect rect{xmin, ymax, xmax, ymin  };
+    silly_geo_rect rect{xmin, ymax, xmax, ymin};
     rect.correct();
     sc.set_color({0, 180, 255, 230});
-    for(auto tri : m_tris)
+    for (auto tri : m_tris)
     {
         sc.draw_line({tri.p0, tri.p1}, rect);
         sc.draw_line({tri.p1, tri.p2}, rect);
@@ -115,5 +116,9 @@ void silly_delaunay::draw(const std::string& path)
     }
     sc.write(path);
     sc.release();
-
 }
+#else
+void silly_delaunay::draw(const std::string& path)
+{
+}
+#endif
