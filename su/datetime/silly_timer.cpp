@@ -19,3 +19,4 @@ double silly_timer::elapsed_ms()
     auto tmp = std::chrono::system_clock::now();
     return static_cast<double>(std::chrono::duration_cast<std::chrono::milliseconds>(tmp - m_start).count());
 }
+

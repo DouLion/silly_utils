@@ -771,11 +771,11 @@ bool is_less_than_slope(const silly_point &p1, const silly_point &p2, const sill
     double y2_diff = p3.lttd - p1.lttd;
     double angle1 = 90.0f, angle2 = 90.0f;
     // 检查分母是否接近零，避免除以零的情况
-    if (std::abs(x1_diff) > SILLY_GEO_FLOAT_IGNORE_DIFF)
+    if (std::abs(x1_diff) > SU_EPSILON)
     {
         angle1 = std::atan2(y1_diff, x1_diff) * 180.0 / PI;
     }
-    if (std::abs(x2_diff) > SILLY_GEO_FLOAT_IGNORE_DIFF)
+    if (std::abs(x2_diff) > SU_EPSILON)
     {
         angle2 = std::atan2(y2_diff, x2_diff) * 180.0 / PI;
     }
@@ -902,16 +902,16 @@ silly_ring silly_vectorizer::simplify_ring_same_slope(const silly_ring &ring)
         double dy2 = ring.points[n2].lttd - ring.points[n1].lttd;
 
         double slope1 = 1.0e10, slope2 = 1.0e10;
-        if (std::abs(dx1) > SILLY_GEO_FLOAT_IGNORE_DIFF)
+        if (std::abs(dx1) > SU_EPSILON)
         {
             slope1 = dy1 / dx1;
         }
-        if (std::abs(dx2) > SILLY_GEO_FLOAT_IGNORE_DIFF)
+        if (std::abs(dx2) > SU_EPSILON)
         {
             slope2 = dy2 / dx2;
         }
 
-        if (std::abs(slope1 - slope2) < SILLY_GEO_FLOAT_IGNORE_DIFF)
+        if (std::abs(slope1 - slope2) < SU_EPSILON)
         {
             continue;
         }

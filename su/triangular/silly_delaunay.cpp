@@ -3,101 +3,117 @@
 //
 
 #include "silly_delaunay.h"
+#include <image/silly_cairo.h>
 
-bool silly_delaunay::set_data(const std::vector<d_point>& points)
+void silly_dt_tri::calc_circle()
 {
-    size_t pnum = points.size();
-    if (pnum < 3)
+    if (sq_radius > SU_EPSILON)  // 认为已经计算过
     {
-        return false;
-    }
-    xmin = points[0].x;
-    xmax = xmin;
-    ymin = points[0].y;
-    ymax = ymin;
-    for (auto const& pt : points)
-    {
-        xmin = std::min(xmin, pt.x);
-        xmax = std::max(xmax, pt.x);
-        ymin = std::min(ymin, pt.y);
-        ymax = std::max(ymax, pt.y);
+        return;
     }
 
-    const auto dx = xmax - xmin;
-    const auto dy = ymax - ymin;
+    // 圆心坐标公式
+    // x = ((C1*B2)-(C2*B1))/((A1*B2)-(A2*B1))
+    // y = ((A1*C2)-(A2*C1))/((A1*B2)-(A2*B1))
 
-    xmin -= (xmax - xmin) / 10.;  // 外扩1/10;
-    ymin -= (ymax - ymin) / 10.;
-    xmax += (xmax - xmin) / 10.;
-    ymax += (ymax - ymin) / 10.;
+    const auto ax = p1.lgtd - p0.lgtd;
+    const auto ay = p1.lttd - p0.lttd;
+    const auto bx = p2.lgtd - p0.lgtd;
+    const auto by = p2.lttd - p0.lttd;
 
-    /* Init d_delaunay triangulation. */
-
-    const auto p0 = d_point{xmin, ymin, 0, pnum};      // 左下
-    const auto p1 = d_point{xmin, ymax, 0, pnum + 1};  // 左上
-    const auto p2 = d_point{xmax, ymin, 0, pnum + 2};  // 右下
-    const auto p3 = d_point{xmax, ymax, 0, pnum + 3};  // 右上
-    std::vector<d_point> n_points = points;
-    n_points.push_back(p0);
-    n_points.push_back(p1);
-    n_points.push_back(p2);
-    n_points.push_back(p3);
-
-    // 左上 右下 以及其中一条对角线构建成的2个初始三角形
-    d.triangles.emplace_back(d_triangle{p0, p1, p2});
-    d.triangles.emplace_back(d_triangle{p3, p1, p2});
-    // int iii = 0;
-    for (auto const& pt : points)
+    // 检查分母是否接近于零
+    const double denominator = ax * by - ay * bx;
+    if (fabs(denominator) < SU_EPSILON)
     {
-        // std::vector<d_edge> edges;
-        std::map<int, std::map<int, int>> bad_edge_records;
-        std::vector<d_triangle> tmps;
-        int edge_num = 0;
-        // 当前点在现有三角形外接圆的位置关系
-        for (auto const& tri : d.triangles)
-        {
-            /* Check if the point is inside the triangle circum circle. */
-            const double dist = (tri.circle.x - pt.x) * (tri.circle.x - pt.x) + (tri.circle.y - pt.y) * (tri.circle.y - pt.y);
-            if (dist < tri.circle.radius)
-            {  // 四点共圆, 不符合准则
-                bad_edge_records[tri.e0.i0][tri.e0.i1]++;
-                bad_edge_records[tri.e1.i0][tri.e1.i1]++;
-                bad_edge_records[tri.e2.i0][tri.e2.i1]++;
-                //// p1 p2和 p2 p1 是同一个边
-                // edge_records[tri.e0.]
-            }
-            else
-            {
-                tmps.push_back(tri);
-            }
-        }
-        int tri_num = tmps.size();
-
-        int ignore_radius_cnt = 0;
-        for (auto [i0, i1_c] : bad_edge_records)
-        {
-            for (auto [i1, c] : i1_c)
-            {
-                if (1 == c)
-                {
-                    edge_num++;
-                    d_triangle ttt{n_points[i0], n_points[i1], {pt.x, pt.y, pt.v, pt.i}};
-                    if (ttt.circle.radius == 0)  // 外接圆半径过小的就不处理了,可能点坐标就有问题
-                    {
-                        continue;
-                        ignore_radius_cnt++;
-                    }
-                    tmps.push_back({ttt});
-                }
-            }
-        }
-        // std::cout << pt.i << "," << tri_num << "," << edge_num << std::endl;
-        d.triangles = tmps;
+        sq_radius = 0;
+        return;
     }
-    return false;
+
+    const auto m = p1.lgtd * p1.lgtd - p0.lgtd * p0.lgtd + p1.lttd * p1.lttd - p0.lttd * p0.lttd;
+    const auto u = p2.lgtd * p2.lgtd - p0.lgtd * p0.lgtd + p2.lttd * p2.lttd - p0.lttd * p0.lttd;
+    const auto s = 1. / (2. * denominator);
+
+    center.lgtd = ((p2.lttd - p0.lttd) * m + (p0.lttd - p1.lttd) * u) * s;
+    center.lttd = ((p0.lgtd - p2.lgtd) * m + (p1.lgtd - p0.lgtd) * u) * s;
+
+    const auto dx = p0.lgtd - center.lgtd;
+    const auto dy = p0.lttd - center.lttd;
+    sq_radius = dx * dx + dy * dy;
+}
+bool silly_dt_tri::in_circle(const silly_dt_point& p) const
+{
+    return silly_delaunay_utils::sq_dist(p, center) < sq_radius;
 }
 
-bool silly_delaunay::triangulate()
+double silly_delaunay_utils::get_double(const std::string& str, const size_t& limit, size_t& i)
 {
-    return false;
+    char d[100] = {0};
+
+    int z = 0;
+    while (i < limit && str[i] != ',')
+    {
+        if (str[i] == '\n')
+            break;
+        d[z] = str[i];
+        i++;
+        z++;
+    }
+    i++;
+    return std::stod(d);
+}
+
+std::vector<silly_dt_point> silly_delaunay_utils::read(const std::string& file)
+{
+    std::vector<silly_dt_point> points;
+    std::string content;
+    if (!silly_file::read(file, content))
+    {
+        return points;
+    }
+    return parse(content);
+}
+
+std::vector<silly_dt_point> silly_delaunay_utils::parse(const std::string& content)
+{
+    std::vector<silly_dt_point> points;
+    std::string ncontent = content;
+    ncontent.append("\n");
+    size_t size = ncontent.size();
+    size_t i = 0;
+    while (i < size)
+    {
+        silly_dt_point tmp;
+        tmp.lgtd = get_double(content, size, i);
+        tmp.lttd = get_double(content, size, i);
+        tmp.val = get_double(content, size, i);
+        points.push_back(tmp);
+    }
+    return points;
+}
+
+double silly_delaunay_utils::dist(const silly_dt_point& p0, const silly_dt_point& p1)
+{
+    return sqrt(sq_dist(p0, p1));
+}
+
+double silly_delaunay_utils::sq_dist(const silly_dt_point& p0, const silly_dt_point& p1)
+{
+    return (p0.lgtd - p1.lgtd) * (p0.lgtd - p1.lgtd) + (p0.lttd - p1.lttd) * (p0.lttd - p1.lttd);
+}
+void silly_delaunay::draw(const std::string& path)
+{
+    silly_cairo sc;
+    sc.create(2000, 2000);
+    silly_geo_rect rect{xmin, ymax, xmax, ymin  };
+    rect.correct();
+    sc.set_color({0, 180, 255, 230});
+    for(auto tri : m_tris)
+    {
+        sc.draw_line({tri.p0, tri.p1}, rect);
+        sc.draw_line({tri.p1, tri.p2}, rect);
+        sc.draw_line({tri.p2, tri.p0}, rect);
+    }
+    sc.write(path);
+    sc.release();
+
 }

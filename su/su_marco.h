@@ -101,7 +101,7 @@
 #define SU_STD_TIME_FORMAT1 "%04d-%02d-%02d %02d:%02d:%02d"
 
 #ifndef PI
-#define PI (3.1415926535897932384626433832795028841971693993751f)
+#define PI (3.1415926535897932384626433832795028841971693993751)
 #endif
 
 #define SU_PI PI
@@ -126,13 +126,13 @@
 #define SU_BASE_E BASE_E
 
 #ifndef TINY
-#define TINY (0.0000001f)
+#define TINY (1e-18)
 #endif
 #define SU_TINY TINY
 
 // 一个极小的浮点数, 用于浮点数比较		EPS 与opencv的冲突
 #ifndef SU_EPSILON
-#define SU_EPSILON (.1e-12f)
+#define SU_EPSILON (.1e-18)
 #endif
 
 #ifndef SU_TIME
@@ -147,7 +147,7 @@
 
 /** earth radius */
 #ifndef EARTH_RADIUS
-#define EARTH_RADIUS (6378.137f)
+#define EARTH_RADIUS (6378.137)
 #endif
 #define SU_EARTH_RADIUS (6378.137f)
 

@@ -12,7 +12,6 @@
 
 #ifndef SILLY_UTILS_SILLY_PYRAMID_H
 #define SILLY_UTILS_SILLY_PYRAMID_H
-#include <cmath>
 #include "geo/silly_geo.h"
 
 #define SILLY_GLOBAL_LEFT -180.0

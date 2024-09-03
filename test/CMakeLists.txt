@@ -15,8 +15,9 @@ if(CATCH2_UNITS_DISABLED)
 else()
     add_executable(${PROJECT_NAME} ${SU_TEST_SRC_FILES})
     add_definitions("-DCATCH2_UNIT_TEST")
-    find_package(Catch2 CONFIG REQUIRED)
-    target_link_libraries(${PROJECT_NAME} PUBLIC Catch2::Catch2 Catch2::Catch2WithMain)
+
 endif()
 
 target_link_libraries(${PROJECT_NAME} PUBLIC sutils)
+find_package(Catch2 CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC Catch2::Catch2 Catch2::Catch2WithMain)

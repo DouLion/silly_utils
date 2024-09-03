@@ -11,7 +11,6 @@
 #ifndef SILLY_UTILS_SILLY_RASTER_TO_VECTOR_H
 #define SILLY_UTILS_SILLY_RASTER_TO_VECTOR_H
 
-#include <su_marco.h>
 #include <geo/silly_geo.h>
 
 /// 线段

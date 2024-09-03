@@ -12,13 +12,9 @@
 
 #ifndef SILLY_UTILS_SILLY_GEO_H
 #define SILLY_UTILS_SILLY_GEO_H
-#include <vector>
-#include <iostream>
-#include <map>
-#include <cstring>
+#include <su_marco.h>
 
 // 小于这个值就认为是同一个值,经纬度小数后8位约1cm精确度
-#define SILLY_GEO_FLOAT_IGNORE_DIFF 1e-3
 
 // geometry types
 // 点
@@ -74,12 +70,17 @@ struct silly_point  // 普通坐标点
 
     bool operator==(const silly_point& point) const
     {
-        return std::abs(point.lgtd - this->lgtd) <= SILLY_GEO_FLOAT_IGNORE_DIFF && std::abs(point.lttd - this->lttd) <= SILLY_GEO_FLOAT_IGNORE_DIFF;
+        return std::abs(point.lgtd - this->lgtd) <= SU_EPSILON && std::abs(point.lttd - this->lttd) <= SU_EPSILON;
+    }
+
+    inline bool operator<(const silly_point& point) const
+    {
+        return point.lttd < lttd || (point.lttd == lttd && point.lgtd < lgtd);
     }
 
     bool operator!=(const silly_point& point) const
     {
-        return std::abs(point.lgtd - this->lgtd) > SILLY_GEO_FLOAT_IGNORE_DIFF || std::abs(point.lttd - this->lttd) > SILLY_GEO_FLOAT_IGNORE_DIFF;
+        return std::abs(point.lgtd - this->lgtd) > SU_EPSILON || std::abs(point.lttd - this->lttd) > SU_EPSILON;
     }
 };
 
@@ -120,14 +121,14 @@ struct silly_geo_rect  // 普通坐标点
 
     bool operator==(const silly_geo_rect& rect) const
     {
-        return std::abs(rect.left - this->left) <= SILLY_GEO_FLOAT_IGNORE_DIFF && std::abs(rect.top - this->top) <= SILLY_GEO_FLOAT_IGNORE_DIFF && std::abs(rect.right - this->right) <= SILLY_GEO_FLOAT_IGNORE_DIFF &&
-               std::abs(rect.bottom - this->bottom) <= SILLY_GEO_FLOAT_IGNORE_DIFF;
+        return std::abs(rect.left - this->left) <= SU_EPSILON && std::abs(rect.top - this->top) <= SU_EPSILON && std::abs(rect.right - this->right) <= SU_EPSILON &&
+               std::abs(rect.bottom - this->bottom) <= SU_EPSILON;
     }
 
     bool operator!=(const silly_geo_rect& rect) const
     {
-        return std::abs(rect.left - this->left) > SILLY_GEO_FLOAT_IGNORE_DIFF || std::abs(rect.top - this->top) > SILLY_GEO_FLOAT_IGNORE_DIFF || std::abs(rect.right - this->right) > SILLY_GEO_FLOAT_IGNORE_DIFF ||
-               std::abs(rect.bottom - this->bottom) > SILLY_GEO_FLOAT_IGNORE_DIFF;
+        return std::abs(rect.left - this->left) > SU_EPSILON || std::abs(rect.top - this->top) > SU_EPSILON || std::abs(rect.right - this->right) > SU_EPSILON ||
+               std::abs(rect.bottom - this->bottom) > SU_EPSILON;
     }
 
     bool intersect(const silly_geo_rect& rect)

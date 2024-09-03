@@ -9,7 +9,7 @@
  */
 #ifndef SILLY_UTILS_SILLY_TIMER_H
 #define SILLY_UTILS_SILLY_TIMER_H
-#include <chrono>
+#include <su_marco.h>
 
 class silly_timer
 {
@@ -34,4 +34,6 @@ class silly_timer
     std::chrono::time_point<std::chrono::system_clock> m_start;
     std::chrono::time_point<std::chrono::system_clock> m_end;
 };
+#define SILLY_TIMER_COST_MS(timer) std::cout << SU_FILE_NAME <<":"<<  __LINE__ << "\t" << timer.elapsed_ms() << " ms" << std::endl;
+#define SILLY_TIMER_COST_SEC(timer) std::cout << SU_FILE_NAME <<":"<<  __LINE__ << "\t" << timer.elapsed_ms() / 1000 << " sec" << std::endl;
 #endif  // SILLY_UTILS_SILLY_TIMER_H

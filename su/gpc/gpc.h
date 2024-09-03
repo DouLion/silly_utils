@@ -13,7 +13,8 @@
 #include <Windows.h>
 #include <Shlwapi.h>
 #include <minwindef.h>
-
+/// https://github.com/rdpeng/gpclib.git
+/// https://github.com/rdpeng/gpclib/tree/master
 #endif
 /* Increase GPC_EPSILON to encourage merging of near coincident edges    */
 

@@ -12,60 +12,58 @@
 
 #ifdef CATCH2_UNIT_TEST
 #include <catch2/catch_test_macros.hpp>
-#include "triangular/TFF_Delaunay.h"
+#include <datetime/silly_timer.h>
+// #include "triangular/TFF_Delaunay.h"
 #include "triangular/silly_delaunay.hpp"
+#include "triangular/silly_delaunay_sweep_line.h"
+#include "triangular/silly_delaunay_bowyer.h"
 #include "files/silly_file.h"
 #include "geo/silly_geo.h"
 #include "geo/silly_geo_utils.h"
 #include "geo/silly_geojson.h"
-static char* GetDouble(char* q, double& v)
-{
-    char d[100] = { 0 };
-
-    int i = 0;
-    while ((*q) != ',')
-    {
-        d[i++] = *q;
-        q++;
-    }
-    q++;
-    d[i] = '\0';
-    v = std::stod(d);
-    return q;
-}
-
-std::vector<delaunay::d_point> get_points(const std::string& data)
-{
-    std::vector<delaunay::d_point> ret;
-    std::vector<double> cvts;
-    char* p = (char*)data.c_str();
-    char* q = p;
-    while (*q)
-    {
-        double tova;
-        q = GetDouble(q, tova);
-        cvts.push_back(tova);
-    }
-
-    int valNum = cvts.size();
-    int nPNum = valNum / 3;
-
-    for (size_t i = 0; i < nPNum; ++i)
-    {
-        ret.push_back({cvts[3 * i], cvts[3 * i + 1],cvts[3 * i + 2], i});
-
-    }
-
-    return ret;
-}
-
+std::vector<silly_dt_point>  points;
 TEST_CASE("TestTriangular")
 {
+
+    SECTION("READ POINTS")
+    {
+        silly_timer timer;
+        std::filesystem::path data_root(DEFAULT_SU_DATA_DIR);
+        auto hebei_drp_data_path = data_root;
+        hebei_drp_data_path.append("hebei_station.txt");
+        points = silly_delaunay_utils::read(hebei_drp_data_path.string());
+        SILLY_TIMER_COST_SEC(timer)
+    }
+    SECTION("SWEEP LINE")      // Delaunay 扫描线算法
+    {
+
+        silly_timer timer;
+        /*silly_delaunay_sweep_line sdsl;
+        sdsl.points(points);*/
+
+        SILLY_TIMER_COST_SEC(timer)
+
+    }
+
+    SECTION("LAWSON BOWYER")      // Delaunay 劳森算法
+    {
+
+        silly_timer timer;
+        silly_delaunay_bowyer sdd;
+        sdd.points(points);
+        sdd.triangulate();
+        SILLY_TIMER_COST_SEC(timer)
+        sdd.draw("LAWSON BOWYER.png");
+        SILLY_TIMER_COST_SEC(timer)
+
+
+
+    }
 
 
 SECTION("LAWSON_TRI")      // Delaunay 劳森算法
 {
-	std::string content;
+	/*std::string content;
 	std::filesystem::path data_root(DEFAULT_SU_DATA_DIR);
 	auto hebei_drp_data_path = data_root;
 	hebei_drp_data_path.append("hebei_station.txt");
@@ -94,7 +92,7 @@ SECTION("LAWSON_TRI")      // Delaunay 劳森算法
 	std::string geojson = silly_geojson::dump_geojson(polys);
 	auto tri_geojson_path = data_root;
 	tri_geojson_path.append("hebei_tri.geojson");
-        silly_file::write(tri_geojson_path.string(), geojson);
+        silly_file::write(tri_geojson_path.string(), geojson);*/
 }
 
 }

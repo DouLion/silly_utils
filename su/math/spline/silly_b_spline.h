@@ -14,74 +14,21 @@
 class silly_b_spline
 {
   public:
-    // 计算二项式系数
-    static double binom(int n, int k)
-    {
-        if (k == 0 || k == n)
-            return 1.0;
-        double r = 1.0;
-        for (int i = 1; i <= k; ++i)
-        {
-            r *= (n + 1 - i) / i;
-        }
-        return r;
+    double b2(int i, double t, const std::vector<double>& knots) {
+        if (i < 0 || i >= knots.size() - 2) return 0.0;
+        if (knots[i] <= t && t < knots[i + 1]) return (t - knots[i]) / (knots[i + 1] - knots[i]);
+        if (knots[i + 1] <= t && t < knots[i + 2]) return (knots[i + 2] - t) / (knots[i + 2] - knots[i + 1]);
+        return 0.0;
     }
 
-    // 计算B样条基函数
-    static double basisFunc(int i, int k, const std::vector<double>& U, double u)
-    {
-        if (k == 0)
-        {  // 当k=0时，N(i,k)(u)=1如果U[i]<=u<U[i+1],否则为0
-            return (U[i] < U[i + 1]) ? (U[i] <= u && u < U[i + 1]) : (U[i] == u);
+    // 二次 B 样条插值
+    silly_point quadratic_b_Spline(double t, const std::vector<silly_point>& controlPoints, const std::vector<double>& knots) {
+        silly_point result = {0.0, 0.0};
+        for (size_t i = 0; i < controlPoints.size(); ++i) {
+            double b = b2(i, t, knots);
+            result.lgtd += b * controlPoints[i].lgtd;
+            result.lttd += b * controlPoints[i].lttd;
         }
-        else
-        {
-            double leftTerm = (u - U[i]) * basisFunc(i, k - 1, U, u) / (U[i + k] - U[i]);
-            double rightTerm = (U[i + k + 1] - u) * basisFunc(i + 1, k - 1, U, u) / (U[i + k + 1] - U[i + 1]);
-            return leftTerm + rightTerm;
-        }
-    }
-
-    // 计算B样条曲线上的点
-    static silly_point splinePoint(const std::vector<silly_point>& controlPoints, int k, const std::vector<double>& U, double u)
-    {
-        double x = 0.0, y = 0.0;
-        for (int i = 0; i < controlPoints.size(); ++i)
-        {
-            double N_i_k = basisFunc(i, k, U, u);
-            x += controlPoints[i].lgtd * N_i_k;
-            y += controlPoints[i].lttd * N_i_k;
-        }
-        return silly_point(x, y);
-    }
-
-    // 计算三次B样条插值点
-    static std::vector<silly_point> cubic_interpolation(const std::vector<silly_point>& controlPoints, int numPoints)
-    {
-        if (controlPoints.size() < 5)  // 少于四个控制点直接不处理
-        {
-            return controlPoints;
-        }
-
-        int n = controlPoints.size();
-        int degree = 3;                             // 三次B样条
-        std::vector<double> knots(n + degree + 1);  // 结点向量
-
-        // 构造均匀结点向量
-        for (int i = 0; i <= degree; ++i)
-            knots[i] = 0.0;
-        for (int i = degree + 1; i < n + degree + 1; ++i)
-            knots[i] = i - degree;
-
-        std::vector<silly_point> result(numPoints);
-
-        // 插值计算
-        for (int j = 0; j < numPoints; ++j)
-        {
-            double t = static_cast<double>(j) / (numPoints - 1);  // 参数t在[0, 1]之间变化
-            result[j] = splinePoint(controlPoints, degree, knots, t);
-        }
-
         return result;
     }
 };
