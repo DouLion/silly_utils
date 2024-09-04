@@ -245,7 +245,9 @@ void silly_cairo::draw_ring(const silly_ring &ring, const silly_geo_rect &rect)
     cairo_move_to(m_cr, (ring.points[0].lgtd - rect.left) * x_pixel_per_degree, (rect.top - ring.points[0].lttd) * y_pixel_per_degree);
     for (int i = 1; i < ring.points.size(); ++i)
     {
-        cairo_line_to(m_cr, (ring.points[i].lgtd - rect.left) * x_pixel_per_degree, (rect.top - ring.points[i].lttd) * y_pixel_per_degree);
+        double x = (ring.points[i].lgtd - rect.left) * x_pixel_per_degree;
+        double y = (rect.top - ring.points[i].lttd) * y_pixel_per_degree;
+        cairo_line_to(m_cr, x, y);
     }
     cairo_close_path(m_cr);
 }
