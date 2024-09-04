@@ -71,6 +71,11 @@ class silly_geo_utils
     /// 注:读取 shp , geojson 类型文件中可以实现
     static bool read_geo_coll(const std::string& u8file, std::vector<silly_geo_coll>& collections, const bool& ignore_prop = false);
 
+    /// 等值面切割使用的矢量文件格式
+    static bool read_iso_polygon(const std::string& u8file, silly_multi_poly& mpoly);
+
+    static bool write_iso_polygon(const std::string& u8file, const silly_multi_poly& mpoly, const int& precision=10);
+
     /// <summary>
     /// 将silly_geo_coll数据结构写入矢量文件(如shp文件)
     /// </summary>
@@ -116,6 +121,8 @@ class silly_geo_utils
     static bool intersect(const silly_multi_poly& mpoly, const silly_point& point);
 
     static bool intersect(const silly_multi_poly& mpoly, const silly_line& line);
+
+    static bool intersect(const silly_point& point, const std::vector<silly_point>& points);
 
     /// <summary>
     /// 点距离线在一定范围内

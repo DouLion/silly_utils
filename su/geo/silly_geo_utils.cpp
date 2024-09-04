@@ -11,6 +11,7 @@
 #include <polyclipping/clipper.hpp>
 #include <encode/silly_encode.h>
 #include "su_marco.h"
+#include "files/silly_file.h"
 #include <proj/silly_proj.h>
 
 using namespace ClipperLib;
@@ -864,7 +865,7 @@ bool geo_utils::write_geo_coll(const std::string& u8file, const std::vector<sill
     GDALDriver* outDriver = GetGDALDriverManager()->GetDriverByName(driver_name.c_str());
 #if IS_WIN32
     std::string _file_name = u8file;
-    if(silly_encode::is_utf8(_file_name))
+    if (silly_encode::is_utf8(_file_name))
     {
         _file_name = silly_encode::utf8_gbk(_file_name);
     }
@@ -1103,4 +1104,141 @@ std::vector<silly_point> silly_geo_utils::simplify_line(const std::vector<silly_
 std::vector<silly_point> silly_geo_utils::simplify_ring(const std::vector<silly_point>& ring, const double& dist)
 {
     return std::vector<silly_point>();
+}
+bool silly_geo_utils::read_iso_polygon(const std::string& u8file, silly_multi_poly& mpoly)
+{
+    bool status = false;
+    try
+    {
+        std::string content;
+        if (0 == silly_file::read(u8file, content))
+        {
+            return status;
+        }
+        std::stringstream sstream(content);
+        int part_num = 0;
+        int point_num = 0;
+        sstream >> part_num;
+
+        if (part_num <= 0)
+        {
+            return status;
+        }
+        std::vector<silly_ring> rings;
+
+        for (int i = 0; i < part_num; ++i)
+        {
+            sstream >> point_num;
+            silly_ring ring;
+            while (point_num && !sstream.eof())
+            {
+                double x, y;
+                sstream >> x >> y;
+                ring.points.emplace_back(x, y);
+                point_num--;
+            }
+
+            if (point_num)
+            {
+                return status;
+            }
+            rings.push_back(ring);
+        }
+
+        if (rings.empty())
+        {
+            return status;
+        }
+
+        // 检查内外环
+        silly_multi_poly tmp;
+        tmp.resize(200);
+        tmp[0].outer_ring = rings[0];
+        int poly_num = 1;
+        for (int i = 1; i < rings.size(); ++i)
+        {
+            if (rings[i].points.empty())
+            {
+                continue;
+            }
+            bool is_outer = true;
+            for (auto& poly : tmp)
+            {
+                if (intersect(rings[i].points.front(), poly.outer_ring.points))
+                {
+                    poly.inner_rings.push_back(rings[i]);
+                    is_outer = false;
+                    break;
+                }
+            }
+            if (is_outer)
+            {
+                tmp[poly_num].outer_ring = rings[i];
+                poly_num++;
+            }
+        }
+        for (int i = 0; i < poly_num; ++i)
+        {
+            mpoly.push_back(tmp[i]);
+        }
+
+        status = true;
+    }
+    catch (std::exception& e)
+    {
+        std::cout << e.what() << std::endl;
+        return status;
+    }
+
+    return status;
+}
+bool silly_geo_utils::write_iso_polygon(const std::string& u8file, const silly_multi_poly& mpoly, const int& precision)
+{
+    bool status = false;
+    int part_num = mpoly.size();
+    try
+    {
+        std::ofstream ofs(u8file);
+        if (!ofs.is_open())
+        {
+            return false;
+        }
+        ofs << part_num;
+        for (auto& poly : mpoly)
+        {
+            ofs << " " << poly.outer_ring.points.size();
+            for (auto& p : poly.outer_ring.points)
+            {
+                ofs << " " << std::fixed << std::setprecision(precision) << p.lgtd;
+                ofs << " " << std::fixed << std::setprecision(precision) << p.lttd;
+            }
+        }
+    }
+    catch (std::exception& e)
+    {
+        std::cout << e.what() << std::endl;
+        return status;
+    }
+    return status;
+}
+bool silly_geo_utils::intersect(const silly_point& point, const std::vector<silly_point>& points)
+{
+    int i, j;
+    double d;
+    int num = points.size();
+    bool c = false;
+    for (i = 0, j = num - 1; i < num; j = i++)
+    {
+        d = (points[j].lgtd - points[i].lgtd) * (point.lttd - points[i].lttd) / (points[j].lttd - points[i].lttd) + points[i].lgtd;
+        if (point.lgtd == d)
+        {
+            return false;
+        }
+
+        if ((((points[i].lttd <= point.lttd) && (point.lttd < points[j].lttd) || ((points[j].lttd <= point.lttd) && (point.lttd < points[i].lttd))) && (point.lgtd < d)))
+        {
+            c = !c;
+        }
+    }
+    return c;
 }
