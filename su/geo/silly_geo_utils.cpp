@@ -1130,8 +1130,16 @@ bool silly_geo_utils::intersect(const silly_poly& mpoly, const silly_point& poin
 
 bool silly_geo_utils::intersect(const silly_multi_poly& mpoly, const silly_point& point)
 {
-    // TODO:
-    return false;
+    bool is_in = false;
+    for (const auto& poly : mpoly)
+    {
+        if (intersect(poly, point)) 
+        {
+            is_in = true; // 如果点在任何一个多边形内,则认为在面内,即相交
+            break;
+        }
+    }
+    return is_in;
 }
 bool silly_geo_utils::intersect(const silly_multi_poly& mpoly, const silly_line& line)
 {
