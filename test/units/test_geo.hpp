@@ -29,186 +29,304 @@
 TEST_CASE("TestGEO")
 {
 
-SECTION("SCANNING_LINE")
-{
-    std::cout << "\r\n\r\n****************"
-              << "SCANNING_LINE"
-              << "****************" << std::endl;
-    geo_utils::init_gdal_env();
-    std::filesystem::path geo_path(DEFAULT_SU_DATA_DIR);
-    std::filesystem::path grid = geo_path;
-    std::filesystem::path m_m_lines = geo_path;
-    std::filesystem::path point_one = geo_path;
-    std::filesystem::path point_more = geo_path;
-    std::filesystem::path geo_line1 = geo_path;
-    std::filesystem::path geo_line2 = geo_path;
-    std::filesystem::path geo_poly1 = geo_path;
-    std::filesystem::path geo_poly2 = geo_path;
-    grid += "/geojson/grid.geojson";
-    m_m_lines+="/geojson/src_mmlines.geojson";
-    point_one += "/geojson/src_point.geojson";
-    point_more += "/geojson/src_points.geojson";
-    geo_line1 += "/geojson/src_line1.geojson";
-    geo_line2 += "/geojson/src_line2.geojson";
-    geo_poly1 += "/geojson/src_poly1.geojson";
-    geo_poly2 += "/geojson/src_poly2.geojson";
-    silly_geo_coll multiPolygonData;
-
-
-    silly_multi_poly multi_poly;
-    std::vector<silly_geo_coll> multiPolygonDataVec;
-
-    // ============ 单点 ==================
-    silly_point point0 = silly_point(113.32007, 29.51516);
-    //multiPolygonData.m_type = enum_geometry_type::egtPoint;
-    multiPolygonData.m_point = point0;
-
-    // ============ 多点 ==================
-    silly_point point1 = silly_point(113.34245, 29.51446);
-    silly_point point2 = silly_point(113.38534, 29.49290);
-    silly_point point3 = silly_point(113.38909, 29.46805);
-    silly_point point4 = silly_point(113.36683, 29.45751);
-    silly_point point5 = silly_point(113.33683, 29.46102);
-    silly_point point6 = silly_point(113.28784, 29.49055);
-    silly_point point7 = silly_point(113.28784, 29.51540);
-    silly_point point8 = silly_point(113.41417, 29.46360);
-    silly_point point9 = silly_point(113.38745, 29.51329);
-    silly_point point10 = silly_point(113.41417, 29.51212);
-    //multiPolygonData.m_type = enum_geometry_type::egtMultiPoint;
-    std::vector<silly_point> ppxa {point1, point2, point3, point4, point5, point6, point7, point8, point9, point10};
-    multiPolygonData.m_m_points = silly_multi_point(ppxa);
-    
-    // 创建第一条线
-    silly_line line1 = silly_line(
+    SECTION("INTERSECTION_ALGORITHM")
     {
-        silly_point(113.31176,29.51434), 
-        silly_point(113.35944,29.51494), 
-        silly_point(113.36510,29.49211), 
-        silly_point(113.36409,29.48140), 
-        silly_point(113.38672,29.46403)
-    });
+        std::cout << "\r\n\r\n****************"
+                    << "INTERSECT_POLYGON_RECTANGLE"
+                    << "****************" << std::endl;
+        geo_utils::init_gdal_env();
+        std::filesystem::path geo_path(DEFAULT_SU_DATA_DIR);
+        std::filesystem::path polyp = geo_path;
+        std::filesystem::path point1 = geo_path;
+        polyp += "/geojson/polyp.geojson";
+        point1 += "/geojson/point1.geojson";
+        //silly_point ipoint(113.29056, 29.50031); // 外部
 
-    // 创建第二条线
-    silly_line line2(
+        silly_point ipoint(113.336583, 29.486892);
+
+        silly_poly first_poly;
+        first_poly.outer_ring.points = 
+        {
+            silly_point(113.31300, 29.50031),
+            silly_point(113.33942, 29.50031),
+            silly_point(113.35944, 29.51434), 
+            silly_point(113.36510, 29.49211), 
+            silly_point(113.36409, 29.48140), 
+            silly_point(113.38672, 29.46403),
+            silly_point(113.38672, 29.44801),
+            silly_point(113.31424, 29.46497),
+            silly_point(113.31300, 29.50031)
+        };
+        silly_geo_coll multiPolygonData;
+        multiPolygonData.m_poly = first_poly;
+
+        multiPolygonData.m_point = ipoint;
+        std::vector<silly_geo_coll> multiPolygonDataVec;
+        multiPolygonData.m_type = enum_geometry_type::egtPoint;
+        multiPolygonDataVec.push_back(multiPolygonData);
+
+        //silly_geo_utils::write_geo_coll(point1.string(), multiPolygonDataVec);
+
+        bool is_intersect = silly_geo_utils::intersect(first_poly, ipoint);
+        if (is_intersect)
+        {
+            std::cout << "相交" << std::endl;
+        }
+        else
+        {
+            std::cout << "不相交" << std::endl;
+        }
+
+        geo_utils::destroy_gdal_env();
+        int a = 0;
+        int b = 0;
+    }
+
+
+    //SECTION("INTERSECT_POLYGON_RECTANGLE")
+    //{
+    //    std::cout << "\r\n\r\n****************"
+    //              << "INTERSECT_POLYGON_RECTANGLE"
+    //              << "****************" << std::endl;
+    //    geo_utils::init_gdal_env();
+
+    //    std::filesystem::path geo_path(DEFAULT_SU_DATA_DIR);
+    //    std::filesystem::path rect = geo_path;
+    //    std::filesystem::path rect4 = geo_path;
+    //    std::filesystem::path poly = geo_path;
+    //    std::filesystem::path result_intersect = geo_path;
+    //    std::filesystem::path result_intersect_wa = geo_path;
+
+    //    rect += "/geojson/rect.geojson";
+    //    rect4 += "/geojson/rect4.geojson";
+    //    poly += "/geojson/poly.geojson";
+    //    result_intersect += "/geojson/result_intersect.geojson";
+    //    result_intersect_wa += "/geojson/result_intersect_wa.geojson";
+
+    //    // 多边形数据
+    //    silly_poly polygon;
+    //    polygon.outer_ring.points = {silly_point(113.313136, 29.454240), silly_point(113.321927, 29.480330), silly_point(113.343102, 29.482221), silly_point(113.352366, 29.464071), silly_point(113.332711, 29.475509), silly_point(113.313136, 29.454240)};
+    //    polygon.outer_ring.is_outer = 1;
+
+    //    //        // 矩形数据
+    //    //        silly_poly rectangle;
+    //    //        rectangle.outer_ring.points =
+    //    //        {
+    //    // silly_point(113.34110, 29.47770),
+    //    // silly_point(113.39760, 29.47770),
+    //    // silly_point(113.39760, 29.45472),
+    //    // silly_point(113.34110, 29.45472),
+    //    // silly_point(113.34110, 29.47770)
+    //    //        };
+
+    //    // 四边形数据
+    //    silly_poly rectangle;
+    //    rectangle.outer_ring.points = {silly_point(113.31086, 29.47107), silly_point(113.35565, 29.47374), silly_point(113.35454, 29.46203), silly_point(113.31208, 29.45671), silly_point(113.31086, 29.47107)};
+
+    //    silly_geo_coll Polygon_coll;
+    //    Polygon_coll.m_poly = polygon;
+    //    Polygon_coll.m_type = enum_geometry_type::egtPolygon;
+    //    std::vector<silly_geo_coll> poly_colls;
+    //    poly_colls.push_back(Polygon_coll);
+    //    // silly_geo_utils::write_geo_coll(poly.string(), poly_colls);
+
+    //    silly_geo_coll Rectangle_coll;
+    //    Rectangle_coll.m_poly = rectangle;
+    //    Rectangle_coll.m_type = enum_geometry_type::egtPolygon;
+    //    std::vector<silly_geo_coll> rect_colls;
+    //    rect_colls.push_back(Rectangle_coll);
+    //    // silly_geo_utils::write_geo_coll(rect4.string(), rect_colls);
+
+    //    // silly_poly result;
+    //    // if (geo_utils::intersect_polygon_rectangle_sh(polygon, rectangle, result))
+    //    //{
+    //    //     std::cout << "Intersection found.\n";
+    //    //     silly_geo_coll result_coll;
+    //    //     result_coll.m_poly = result;
+    //    //     result_coll.m_type = enum_geometry_type::egtPolygon;
+    //    //     std::vector<silly_geo_coll> result_colls;
+    //    //     result_colls.push_back(result_coll);
+    //    //     silly_geo_utils::write_geo_coll(result_intersect.string(), result_colls);
+    //    // }
+    //    // else
+    //    //{
+    //    //     std::cout << "No intersection.\n";
+    //    // }
+
+    //    std::vector<silly_poly> intersections;
+    //    if (geo_utils::intersect_polygon_rectangle_wa(polygon, rectangle, intersections))
+    //    {
+    //        std::cout << "Intersection polys:" << intersections.size() << std::endl;
+    //        silly_geo_coll result_coll;
+    //        for (auto& intersection : intersections)
+    //        {
+    //            result_coll.m_m_polys.push_back(intersection);
+    //        }
+    //        result_coll.m_type = enum_geometry_type::egtMultiPolygon;
+    //        std::vector<silly_geo_coll> result_colls;
+    //        result_colls.push_back(result_coll);
+    //        silly_geo_utils::write_geo_coll(result_intersect_wa.string(), result_colls);
+    //    }
+    //    else
+    //    {
+    //        std::cout << "No intersection.\n";
+    //    }
+
+    //    geo_utils::destroy_gdal_env();
+
+    //    int a = 0;
+    //    int b = 0;
+    //}
+
+
+
+
+
+
+       SECTION("SCANNING_LINE")
     {
-        silly_point(113.28711,29.43998), 
-        silly_point(113.31236,29.43958), 
-        silly_point(113.41096,29.48747), 
-        silly_point(113.41319,29.44140) 
-    });
+        std::cout << "\r\n\r\n****************"
+                  << "SCANNING_LINE"
+                  << "****************" << std::endl;
+        geo_utils::init_gdal_env();
+        std::filesystem::path geo_path(DEFAULT_SU_DATA_DIR);
+        std::filesystem::path grid = geo_path;
+        std::filesystem::path m_m_lines = geo_path;
+        std::filesystem::path point_one = geo_path;
+        std::filesystem::path point_more = geo_path;
+        std::filesystem::path geo_line1 = geo_path;
+        std::filesystem::path geo_line2 = geo_path;
+        std::filesystem::path geo_poly1 = geo_path;
+        std::filesystem::path geo_poly2 = geo_path;
+        grid += "/geojson/grid.geojson";
+        m_m_lines += "/geojson/src_mmlines.geojson";
+        point_one += "/geojson/src_point.geojson";
+        point_more += "/geojson/src_points.geojson";
+        geo_line1 += "/geojson/src_line1.geojson";
+        geo_line2 += "/geojson/src_line2.geojson";
+        geo_poly1 += "/geojson/src_poly1.geojson";
+        geo_poly2 += "/geojson/src_poly2.geojson";
+        silly_geo_coll multiPolygonData;
 
-    // ============ 单线 ==================
-    multiPolygonData.m_line = line2;
+        silly_multi_poly multi_poly;
+        std::vector<silly_geo_coll> multiPolygonDataVec;
 
-    // ============ 多线 ==================
-    multiPolygonData.m_m_lines.push_back(line1);
-    multiPolygonData.m_m_lines.push_back(line2);
+        // ============ 单点 ==================
+        silly_point point0 = silly_point(113.32007, 29.51516);
+        // multiPolygonData.m_type = enum_geometry_type::egtPoint;
+        multiPolygonData.m_point = point0;
 
+        // ============ 多点 ==================
+        silly_point point1 = silly_point(113.34245, 29.51446);
+        silly_point point2 = silly_point(113.38534, 29.49290);
+        silly_point point3 = silly_point(113.38909, 29.46805);
+        silly_point point4 = silly_point(113.36683, 29.45751);
+        silly_point point5 = silly_point(113.33683, 29.46102);
+        silly_point point6 = silly_point(113.28784, 29.49055);
+        silly_point point7 = silly_point(113.28784, 29.51540);
+        silly_point point8 = silly_point(113.41417, 29.46360);
+        silly_point point9 = silly_point(113.38745, 29.51329);
+        silly_point point10 = silly_point(113.41417, 29.51212);
+        // multiPolygonData.m_type = enum_geometry_type::egtMultiPoint;
+        std::vector<silly_point> ppxa{point1, point2, point3, point4, point5, point6, point7, point8, point9, point10};
+        multiPolygonData.m_m_points = silly_multi_point(ppxa);
 
-    // 第一个面
-    silly_poly first_poly;
-    first_poly.outer_ring.points = 
-    {
-        silly_point(113.30624, 29.48780), 
-        silly_point(113.36182, 29.51534), 
-        silly_point(113.41794, 29.49356), 
-        silly_point(113.36582, 29.43773),
-        silly_point(113.30624, 29.48780)
+        // 创建第一条线
+        silly_line line1 = silly_line({silly_point(113.31176, 29.51434), silly_point(113.35944, 29.51494), silly_point(113.36510, 29.49211), silly_point(113.36409, 29.48140), silly_point(113.38672, 29.46403)});
+
+        // 创建第二条线
+        silly_line line2({silly_point(113.28711, 29.43998), silly_point(113.31236, 29.43958), silly_point(113.41096, 29.48747), silly_point(113.41319, 29.44140)});
+
+        // ============ 单线 ==================
+        multiPolygonData.m_line = line2;
+
+        // ============ 多线 ==================
+        multiPolygonData.m_m_lines.push_back(line1);
+        multiPolygonData.m_m_lines.push_back(line2);
+
+        // 第一个面
+        silly_poly first_poly;
+        first_poly.outer_ring.points = {silly_point(113.30624, 29.48780), silly_point(113.36182, 29.51534), silly_point(113.41794, 29.49356), silly_point(113.36582, 29.43773), silly_point(113.30624, 29.48780)};
+        first_poly.outer_ring.is_outer = 1;
+
+        // 第二个面
+        silly_poly second_poly;
+        second_poly.outer_ring.points = {silly_point(113.28985, 29.44375), silly_point(113.41716, 29.43845), silly_point(113.43422, 29.41111), silly_point(113.29779, 29.40876), silly_point(113.28985, 29.44375)};
+        second_poly.outer_ring.is_outer = 1;
+
+        // ============ 单面 ==================
+        multiPolygonData.m_poly = first_poly;
+
+        // ============ 多面 ==================
+        multiPolygonData.m_m_polys.push_back(first_poly);
+        multiPolygonData.m_m_polys.push_back(second_poly);
+
+        multiPolygonData.m_type = enum_geometry_type::egtMultiLineString;
+
+        multiPolygonDataVec.push_back(multiPolygonData);
+        silly_geo_utils::write_geo_coll(point_one.string(), multiPolygonDataVec);
+
+        xscan_line_raster xlr;
+        // xlr.top = 29.54244;
+        // xlr.bottom = 29.40021;
+        // xlr.left = 113.25921;
+        // xlr.right = 113.44758;
+        // xlr.cell_size = 0.025;
+        silly_geo_rect rect(113.25921, 29.54244, 113.44758, 29.40021);
+        xlr.set(rect, 0.025);
+        xlr.rasterization(multiPolygonData);
+
+        int mml = 0;
+
+        // generateGridAndSave(grid.string().c_str(), xlr_mp.top, xlr_mp.bottom, xlr_mp.left, xlr_mp.right, xlr_mp.cell_size);
+
+        geo_utils::destroy_gdal_env();
+
+        int e = 0;
+        int f = 9;
+        int g = 8;
     };
-    first_poly.outer_ring.is_outer = 1;
 
-    // 第二个面
-    silly_poly second_poly;
-    second_poly.outer_ring.points = 
+
+
+
+
+        SECTION("READ_TEST_GEO_COLL")
     {
-        silly_point(113.28985, 29.44375), 
-        silly_point(113.41716, 29.43845), 
-        silly_point(113.43422, 29.41111), 
-        silly_point(113.29779, 29.40876), 
-        silly_point(113.28985, 29.44375)
+        std::cout << "\r\n\r\n****************"
+                  << "READ_TEST_GEO_COLL"
+                  << "****************" << std::endl;
+        geo_utils::init_gdal_env();
+
+        // // 读点
+        std::filesystem::path geo_points(DEFAULT_SU_DATA_DIR);
+        geo_points += "/geojson/xian_point.geojson";
+        std::filesystem::path geo_pPoint(DEFAULT_SU_DATA_DIR);
+        geo_pPoint += "/geojson/ppoint.geojson";
+
+        // // 读线
+        std::filesystem::path geo_lines(DEFAULT_SU_DATA_DIR);
+        geo_lines += "/geojson/river_line.geojson";
+        std::filesystem::path geo_pLine(DEFAULT_SU_DATA_DIR);
+        geo_pLine += "/geojson/plines.geojson";
+
+        // // 读面
+        std::filesystem::path geo_polys(DEFAULT_SU_DATA_DIR);
+        geo_polys += "/geojson/xian_poly.geojson";
+        std::filesystem::path geo_ppolys(DEFAULT_SU_DATA_DIR);
+        geo_ppolys += "/geojson/ppoly.geojson";
+
+        std::vector<silly_geo_coll> collection_xian;
+        geo_utils::read_geo_coll(geo_polys.string().c_str(), collection_xian);
+
+        // geo_utils::write_geo_coll(writ_coll_Polygon.string().c_str(), collection_xian);
+
+        geo_utils::destroy_gdal_env();
+
+        int e = 0;
+        int f = 9;
+        int g = 8;
     };
-    second_poly.outer_ring.is_outer = 1;
-
-    // ============ 单面 ==================
-    multiPolygonData.m_poly = first_poly;
-
-    // ============ 多面 ==================
-     multiPolygonData.m_m_polys.push_back(first_poly);
-     multiPolygonData.m_m_polys.push_back(second_poly);
-
-
-    multiPolygonData.m_type = enum_geometry_type::egtMultiLineString;
-    
-
-    multiPolygonDataVec.push_back(multiPolygonData);
-    //silly_geo_utils::write_geo_coll(m_m_lines.string(), multiPolygonDataVec);
-
-    xscan_line_raster xlr;
- /*   xlr.top = 29.54244;
-    xlr.bottom = 29.40021;
-    xlr.left = 113.25921;
-    xlr.right = 113.44758;
-    xlr.cell_size = 0.025;*/
-    xlr.rasterization(multiPolygonData);
-
-
-
-    int mml = 0;
-
-    //generateGridAndSave(grid.string().c_str(), xlr_mp.top, xlr_mp.bottom, xlr_mp.left, xlr_mp.right, xlr_mp.cell_size);
-
-    geo_utils::destroy_gdal_env();
-
-    int e = 0;
-    int f = 9;
-    int g = 8;
-};
-
-
-SECTION("READ_TEST_GEO_COLL")
-{
-    std::cout << "\r\n\r\n****************"
-              << "READ_TEST_GEO_COLL"
-              << "****************" << std::endl;
-    geo_utils::init_gdal_env();
-
-    // // 读点
-    std::filesystem::path geo_points(DEFAULT_SU_DATA_DIR);
-    geo_points += "/geojson/xian_point.geojson";
-    std::filesystem::path geo_pPoint(DEFAULT_SU_DATA_DIR);
-    geo_pPoint += "/geojson/ppoint.geojson";
-
-    // // 读线
-    std::filesystem::path geo_lines(DEFAULT_SU_DATA_DIR);
-    geo_lines += "/geojson/river_line.geojson";
-    std::filesystem::path geo_pLine(DEFAULT_SU_DATA_DIR);
-    geo_pLine += "/geojson/plines.geojson";
-
-    // // 读面
-    std::filesystem::path geo_polys(DEFAULT_SU_DATA_DIR);
-    geo_polys += "/geojson/xian_poly.geojson";
-    std::filesystem::path geo_ppolys(DEFAULT_SU_DATA_DIR);
-    geo_ppolys += "/geojson/ppoly.geojson";
-
-    std::vector<silly_geo_coll> collection_xian;
-    geo_utils::read_geo_coll(geo_polys.string().c_str(), collection_xian);
-
-    // geo_utils::write_geo_coll(writ_coll_Polygon.string().c_str(), collection_xian);
-
-    geo_utils::destroy_gdal_env();
-
-    int e = 0;
-    int f = 9;
-    int g = 8;
-};
-
-
-
-
-
-
-
-
 
 
 
