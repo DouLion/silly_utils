@@ -587,7 +587,7 @@ void silly_iso_line::clip_iso_ring(iso_ring* ring, gpc* gpc1, gpc_polygon* clip)
 // mode  0 闭合 1 线  ni 输入点  poc 坐标  num 输出  buff 输出点  bMultiPoint 一直false
 bool silly_iso_line::cubic_b_spline(size_t mode, size_t ni, double* poc, size_t* num, double* buff, const bool bMultiPoint)
 {
-    double* pp;
+    /*double* pp;
     double* p;
     double* b;
     double* c;
@@ -749,7 +749,7 @@ bool silly_iso_line::cubic_b_spline(size_t mode, size_t ni, double* poc, size_t*
     // GlobalUnlock(hp);
     // GlobalSU_MEM_FREE(hp);
     SU_MEM_FREE(pp);
-    pp = nullptr;
+    pp = nullptr;*/
     return true;
 }
 

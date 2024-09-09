@@ -4,7 +4,7 @@
 
 #include "dm8_dpi.h"
 
-#if DM8_ENABLED
+#if SU_DM8_DPI_ENABLED
 
 bool dm8_dpi::login(const char *server, const char *user, const char *pwd)
 {

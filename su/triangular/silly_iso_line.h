@@ -13,8 +13,9 @@
 #include <gpc/gpc.h>
 #include <geo/silly_geo_utils.h>
 
-struct iso_point
+class iso_point
 {
+  public:
     iso_point() = default;
     iso_point(double xx, double yy)
     {
@@ -35,8 +36,9 @@ struct iso_point
         return std::abs(x - ip.x) < distance && std::abs(y - ip.y) < distance;
     }
 };
-struct iso_ring  // 闭合环
+class iso_ring  // 闭合环
 {
+  public:
     size_t outer{0};                // 0 内环  1 外环
     size_t marked{0};               // 如果是内环的话,有没有找到他的外环 0表示没有
     std::vector<iso_point> cpoint;  // 控制点
@@ -75,19 +77,22 @@ struct iso_ring  // 闭合环
     }
 };
 
-struct iso_polygon  // 普通面
+class iso_polygon  // 普通面
 {
+  public:
     iso_ring outer;
     std::vector<iso_ring> inners;
 };
 
-struct iso_polygon_m  // 多面
+class iso_polygon_m  // 多面
 {
+  public:
     std::vector<iso_polygon> polys;
 };
 
-struct iso_panels  //
+class iso_panels  //
 {
+  public:
     size_t num{0};
     size_t color[64]{0};
     iso_polygon_m mpolys[64];
@@ -95,6 +100,7 @@ struct iso_panels  //
 
 class silly_iso_line
 {
+  public:
     enum class enum_iso_type
     {
         eitLine = 0,  // 等值线

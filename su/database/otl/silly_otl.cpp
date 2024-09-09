@@ -6,6 +6,14 @@
 #include "su_marco.h"
 #include "json/silly_jsonpp.h"
 
+
+const static std::string SILLY_OTL_MYSQL_ODBC_FORMAT = "Driver={%s};Server=%s;Port=%d;Database=%s;User=%s;Password=%s;Option=3;charset=UTF8;";
+const static std::string SILLY_OTL_MSSQL_ODBC_FORMAT = "Driver={%s};Server=%s;Port:%d;Database=%s;UID=%s;PWD=%s;";
+const static std::string SILLY_OTL_ORACLE_ODBC_FORMAT = "Driver={%s};DBQ=%s:%d/%s;Uid=%s;Pwd=%s;";
+const static std::string SILLY_OTL_DM8_ODBC_FORMAT = "Driver={%s};Server=%s;TCP_PORT:%d;UID=%s;PWD=%s;";
+const static std::string SILLY_OTL_POSTGRE_ODBC_FORMAT = "Driver={%s};Server=%s;Port=%d;Database=%s;Uid=%s;Pwd=%s;";
+const static std::string SILLY_OTL_DSN_FORMAT = "UID=%s;PWD=%s;DSN=%s;CHARSET=UTF8;";
+
 bool otl_conn_opt::load(const std::string& s_opt)
 {
     clean();
@@ -123,7 +131,7 @@ std::string otl_conn_opt::dump_odbc(const bool& rebuild)
         char buff[SILLY_OTL_ODBC_MAX_LEN] = {0};
         if (!m_dsn.empty())  // 如果ODBC连接串不好使,设置DSN,并且优先使用DSN链接方式
         {
-            sprintf(buff, SILLY_OTL_DSN_FORMAT, m_user.c_str(), m_password.c_str(), m_dsn.c_str());
+            sprintf(buff, SILLY_OTL_DSN_FORMAT.c_str(), m_user.c_str(), m_password.c_str(), m_dsn.c_str());
             m_conn = buff;
         }
         else if (!m_driver.empty())
@@ -131,16 +139,19 @@ std::string otl_conn_opt::dump_odbc(const bool& rebuild)
             switch (m_type)  // 使用ODBC连接串
             {
                 case enum_database_type::dbMYSQL:
-                    sprintf(buff, SILLY_OTL_MYSQL_ODBC_FORMAT, m_driver.c_str(), m_ip.c_str(), m_port, m_schema.c_str(), m_user.c_str(), m_password.c_str());
+                    sprintf(buff, SILLY_OTL_MYSQL_ODBC_FORMAT.c_str(), m_driver.c_str(), m_ip.c_str(), m_port, m_schema.c_str(), m_user.c_str(), m_password.c_str());
                     break;
                 case enum_database_type::dbSQLSERVER:
-                    sprintf(buff, SILLY_OTL_MSSQL_ODBC_FORMAT, m_driver.c_str(), m_ip.c_str(), m_port, m_schema.c_str(), m_user.c_str(), m_password.c_str());
+                    sprintf(buff, SILLY_OTL_MSSQL_ODBC_FORMAT.c_str(), m_driver.c_str(), m_ip.c_str(), m_port, m_schema.c_str(), m_user.c_str(), m_password.c_str());
                     break;
                 case enum_database_type::dbORACLE:
-                    sprintf(buff, SILLY_OTL_ORACLE_ODBC_FORMAT, m_driver.c_str(), m_ip.c_str(), m_port, m_schema.c_str(), m_user.c_str(), m_password.c_str());
+                    sprintf(buff, SILLY_OTL_ORACLE_ODBC_FORMAT.c_str(), m_driver.c_str(), m_ip.c_str(), m_port, m_schema.c_str(), m_user.c_str(), m_password.c_str());
                     break;
                 case enum_database_type::dbPG:
-                    sprintf(buff, SILLY_OTL_POSTGRE_ODBC_FORMAT, m_driver.c_str(), m_ip.c_str(), m_port, m_schema.c_str(), m_user.c_str(), m_password.c_str());
+                    sprintf(buff, SILLY_OTL_POSTGRE_ODBC_FORMAT.c_str(), m_driver.c_str(), m_ip.c_str(), m_port, m_schema.c_str(), m_user.c_str(), m_password.c_str());
+                    break;
+                case enum_database_type::dbDM8:
+                    sprintf(buff, SILLY_OTL_DM8_ODBC_FORMAT.c_str(), m_driver.c_str(), m_ip.c_str(), m_port, m_user.c_str(), m_password.c_str());
                     break;
                 default:
                     break;

@@ -10,7 +10,7 @@
  */
 #pragma once
 
-#if DM8_ENABLED
+#if SU_DM8_DPI_ENABLED
 #ifndef DM8_DPI_H
 #define DM8_DPI_H
 

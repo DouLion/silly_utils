@@ -123,12 +123,6 @@ static std::string db_type_to_str(const enum_database_type& type)
     return s_ret;
 }
 
-const static char* SILLY_OTL_MYSQL_ODBC_FORMAT = "Driver={%s};Server=%s;Port=%d;Database=%s;User=%s;Password=%s;Option=3;charset=UTF8;";
-const static char* SILLY_OTL_MSSQL_ODBC_FORMAT = "Driver={%s};Server=%s;Port:%d;Database=%s;UID=%s;PWD=%s;";
-const static char* SILLY_OTL_ORACLE_ODBC_FORMAT = "Driver={%s};DBQ=%s:%d/%s;Uid=%s;Pwd=%s;";
-const static char* SILLY_OTL_POSTGRE_ODBC_FORMAT = "Driver={%s};Server=%s;Port=%d;Database=%s;Uid=%s;Pwd=%s;";
-const static char* SILLY_OTL_DSN_FORMAT = "UID=%s;PWD=%s;DSN=%s;CHARSET=UTF8;";
-
 #define SILLY_OTL_OPT_S_IP "ip"
 #define SILLY_OTL_OPT_S_PORT "port"
 #define SILLY_OTL_OPT_S_TYPE "type"

@@ -124,6 +124,7 @@ std::string silly_posix_time::to_string(const std::string& fmt) const
     }
     catch (const std::exception& e)
     {
+        std::cerr << e.what() << std::endl;
     }
     return result;
 }
