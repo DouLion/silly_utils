@@ -143,7 +143,8 @@ OGRMultiPoint geo_utils::silly_multi_point_to_ogr(const silly_multi_point& mulit
     for (const silly_point& point : mulitPoint)
     {
         OGRPoint ogrPoint = silly_point_to_ogr(point);
-        orgMultiPoint.addGeometryDirectly(ogrPoint.clone());
+        // orgMultiPoint.addGeometryDirectly(ogrPoint.clone());
+        orgMultiPoint.addGeometry(&ogrPoint);
     }
     return orgMultiPoint;
 }
@@ -200,7 +201,7 @@ OGRMultiLineString geo_utils::silly_multi_line_to_ogr(const silly_multi_silly_li
     for (const silly_line& line : multiLine)
     {
         OGRLineString ogrLineString = silly_line_to_ogr(line);
-        ogrMultiLineString.addGeometryDirectly(ogrLineString.clone());
+        ogrMultiLineString.addGeometry(&ogrLineString);
     }
 
     return ogrMultiLineString;
