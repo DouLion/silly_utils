@@ -118,6 +118,20 @@ class silly_geo_utils
     /// <returns></returns>
     static bool intersect(const silly_multi_poly& mpoly1, const silly_multi_poly& mpoly2);
 
+    /// <summary>
+    /// 点是否与矢量面相交(射线算法),点的相交在面内或者在边界上都算是相交
+    /// </summary>
+    /// <param name="mpoly"></param>
+    /// <param name="point"></param>
+    /// <returns></returns>
+    static bool intersect(const silly_poly& mpoly, const silly_point& point);
+
+    /// <summary>
+    /// 点是否与矢量多面是否相交(射线算法),点的相交在面内或者在边界上都算是相交
+    /// </summary>
+    /// <param name="mpoly"></param>
+    /// <param name="point"></param>
+    /// <returns></returns>
     static bool intersect(const silly_multi_poly& mpoly, const silly_point& point);
 
     static bool intersect(const silly_multi_poly& mpoly, const silly_line& line);

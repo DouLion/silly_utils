@@ -143,7 +143,7 @@ OGRMultiPoint geo_utils::silly_multi_point_to_ogr(const silly_multi_point& mulit
     for (const silly_point& point : mulitPoint)
     {
         OGRPoint ogrPoint = silly_point_to_ogr(point);
-        orgMultiPoint.addGeometryDirectly(&ogrPoint);
+        orgMultiPoint.addGeometryDirectly(ogrPoint.clone());
     }
     return orgMultiPoint;
 }
@@ -200,7 +200,7 @@ OGRMultiLineString geo_utils::silly_multi_line_to_ogr(const silly_multi_silly_li
     for (const silly_line& line : multiLine)
     {
         OGRLineString ogrLineString = silly_line_to_ogr(line);
-        ogrMultiLineString.addGeometryDirectly(&ogrLineString);
+        ogrMultiLineString.addGeometryDirectly(ogrLineString.clone());
     }
 
     return ogrMultiLineString;
@@ -975,10 +975,171 @@ std::vector<silly_poly> silly_geo_utils::intersection(const silly_multi_poly& mp
 
     return result;
 }
+
+
+// 判断点是否在线段上
+bool on_segment(const silly_point& point, const silly_point& l_beg, const silly_point& l_end)
+{
+    return std::min(l_beg.lgtd, l_end.lgtd) <= point.lgtd && point.lgtd <= std::max(l_beg.lgtd, l_end.lgtd) && std::min(l_beg.lttd, l_end.lttd) <= point.lttd && point.lttd <= std::max(l_beg.lttd, l_end.lttd);
+}
+
+// 计算两条线段相交点
+silly_point line_intersection(const silly_point& p1, const silly_point& p2, const silly_point& q1, const silly_point& q2)
+{
+    // 利用直线方程求解交点
+    double a1 = p2.lttd - p1.lttd;
+    double b1 = p1.lgtd - p2.lgtd;
+    double c1 = a1 * p1.lgtd + b1 * p1.lttd;
+    double a2 = q2.lttd - q1.lttd;
+    double b2 = q1.lgtd - q2.lgtd;
+    double c2 = a2 * q1.lgtd + b2 * q1.lttd;
+    double determinant = a1 * b2 - a2 * b1;
+    if (fabs(determinant) < 1e-6)
+    {
+        return silly_point();  // 没有交点或线段重叠
+    }
+    double x = (b2 * c1 - b1 * c2) / determinant;
+    double y = (a1 * c2 - a2 * c1) / determinant;
+    if (on_segment(silly_point(x, y), p1, p2) && on_segment(silly_point(x, y), q1, q2))
+    {
+        return silly_point(x, y);
+    }
+    return silly_point();
+}
+
+
+// 两条线段所在的区域是否有重叠部分
+bool segments_overlap(double xa, double xb, double ya, double yb)
+{
+    return std::max(xa, xb) >= std::min(ya, yb) && std::max(ya, yb) >= std::min(xa, xb);
+}
+
+// 计算线段是否相交
+bool segments_intersect(silly_point a1, silly_point a2, silly_point b1, silly_point b2)
+{
+    // 快速排斥测试
+    // 两条线段的覆盖入去要有重叠部分, a线段最大的x要大于b线段最小的x, a线段最小的x要小于b线段最大的x,y轴同理
+    if (!segments_overlap(a1.lgtd, a2.lgtd, b1.lgtd, b2.lgtd) || !segments_overlap(a1.lttd, a2.lttd, b1.lttd, b2.lttd))
+    {
+        return false;
+    }
+
+    // 计算方向
+    //d1 计算了线段 b1-b2 的方向相对于点 a1 的位置
+    //d2 计算了线段 b1-b2 的方向相对于点 a2 的位置
+    //d3 计算了线段 a1-a2 的方向相对于点 b1 的位置
+    //d4 计算了线段 a1-a2 的方向相对于点 b2 的位置
+    double d1 = (b2.lttd - b1.lttd) * (a1.lgtd - b1.lgtd) - (b2.lgtd - b1.lgtd) * (a1.lttd - b1.lttd);
+    double d2 = (b2.lttd - b1.lttd) * (a2.lgtd - b1.lgtd) - (b2.lgtd - b1.lgtd) * (a2.lttd - b1.lttd);
+    double d3 = (a2.lttd - a1.lttd) * (b1.lgtd - a1.lgtd) - (a2.lgtd - a1.lgtd) * (b1.lttd - a1.lttd);
+    double d4 = (a2.lttd - a1.lttd) * (b2.lgtd - a1.lgtd) - (a2.lgtd - a1.lgtd) * (b2.lttd - a1.lttd);
+
+    // 当 d1 * d2 < 0 时，意味着点 a1 和 a2 在线段 b1-b2 的两侧
+    // 当 d3 * d4 < 0 时，意味着点 b1 和 b2 在线段 a1-a2 的两侧 
+    // 如果两个条件都满足，那么线段 a1-a2 和 b1-b2 是相交的,但是如果有一个满足可能是有一点重合,
+
+    // 平行或共线的情况
+    if (d1 * d2 == 0 && d3 * d4 == 0)
+    {
+        // 判断点是否在线段上 a1 是否在 b1-b2 上
+        if (on_segment(a1, b1, b2))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    else if ((d1 * d2 < 0) && (d3 * d4 < 0)) // 相交
+    {
+        return true;
+    }
+    else // 线段a上的一个点在线段b上,或者线段b的延长线上
+    {
+        // 求相交点,如果相交点为线段的起点返回true
+        silly_point intersect = line_intersection(a1, a2, b1, b2);
+        // 如果交点为线段b的起始点
+        if ((std::abs(intersect.lgtd - b1.lgtd) <= 1e-8) && (std::abs(intersect.lttd - b1.lttd) <= 1e-8))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+
+        int a = 0;
+
+    }
+    
+}
+
+// 判断点是否在环内
+bool isPointInRing(const silly_point& point, const silly_ring& ring)
+{
+    int intersections = 0;
+    silly_point ray_end(point.lgtd + 10000, point.lttd);  // 向右引一条射线  假设地图宽度不超过10000单位
+
+    // 外环
+    for (size_t i = 0, n = ring.points.size(); i < n; ++i)
+    {
+        const silly_point& start = ring.points[i];
+        const silly_point& end = ring.points[(i + 1) % n];
+        if (start == end)
+        {
+            continue;
+        }
+        if (point == start || point == end)
+        {
+            return true;
+        }
+        if (segments_intersect(point, ray_end, start, end))
+        {
+            intersections++;
+        }
+    }
+
+    return intersections % 2 != 0;
+}
+
+bool silly_geo_utils::intersect(const silly_poly& mpoly, const silly_point& point)
+{
+    int intersections = 0;
+    silly_point ray_end(point.lgtd + 1000, point.lttd);  // 向右引一条射线 1000单位
+
+    // 外环
+    bool is_in_outer_ring = isPointInRing(point, mpoly.outer_ring);
+    if (is_in_outer_ring)
+    {
+        // 内环
+        for (const auto& inner : mpoly.inner_rings)
+        {
+            if (isPointInRing(point, inner)) // 在内环内
+            {
+                return false; // 如果这个点在一个内环内就属于在面外
+            }
+        }
+        return true; // 点在外环内,且不在任何一个内环内
+    }
+    else
+    {
+        return false;
+    }
+}
+
 bool silly_geo_utils::intersect(const silly_multi_poly& mpoly, const silly_point& point)
 {
-    // TODO:
-    return false;
+    bool is_in = false;
+    for (const auto& poly : mpoly)
+    {
+        if (intersect(poly, point)) 
+        {
+            is_in = true; // 如果点在任何一个多边形内,则认为在面内,即相交
+            break;
+        }
+    }
+    return is_in;
 }
 bool silly_geo_utils::intersect(const silly_multi_poly& mpoly, const silly_line& line)
 {
