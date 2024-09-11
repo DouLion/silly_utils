@@ -18,20 +18,35 @@ class silly_dt_point : public silly_point
   public:
     silly_dt_point() = default;
 
-    silly_dt_point(double x, double y)
+    silly_dt_point(double x, double y, uint32_t i)
     {
         lgtd = x;
         lttd = y;
+        index = i;
     }
-    silly_dt_point(double x, double y, double v)
+    silly_dt_point(double x, double y, double v, uint32_t i)
     {
         lgtd = x;
         lttd = y;
         val = v;
+        index = i;
     }
+
+    /*    silly_dt_point(double x, double y)
+        {
+            lgtd = x;
+            lttd = y;
+        }
+        silly_dt_point(double x, double y, double v)
+        {
+            lgtd = x;
+            lttd = y;
+            val = v;
+        }*/
 
   public:
     double val{0.};
+    uint32_t index;
 };
 
 /*namespace std
@@ -53,6 +68,18 @@ class silly_dt_edge
     silly_dt_edge() = default;
     silly_dt_edge(silly_dt_point _p0, silly_dt_point _p1) : p0(_p0), p1(_p1)
     {
+        if (p0.index > p1.index)
+        {
+            hash |= p0.index;
+            hash = hash << 32;
+            hash |= p1.index;
+        }
+        else
+        {
+            hash |= p1.index;
+            hash = hash << 32;
+            hash |= p0.index;
+        }
     }
     silly_dt_edge operator=(const silly_dt_edge& e)
     {
@@ -62,10 +89,20 @@ class silly_dt_edge
     }
     bool operator==(const silly_dt_edge& e) const
     {
-        return (p0 == e.p0 && p1 == e.p1) || (p0 == e.p1 && p1 == e.p0);
+        return hash == e.hash;//(p0 == e.p0 && p1 == e.p1) || (p0 == e.p1 && p1 == e.p0);
+    }
+    bool operator>(const silly_dt_edge& e) const
+    {
+        return hash > e.hash;
+    }
+
+    bool operator<(const silly_dt_edge& e) const
+    {
+        return hash < e.hash;
     }
 
     silly_dt_point p0, p1;
+    uint64_t hash{0};
 };
 
 // 自定义哈希函数
@@ -105,8 +142,6 @@ class silly_dt_tri
     double sq_radius{0};    // 半径平方
     silly_dt_point center;  // 外接圆心
 };
-
-
 
 class silly_delaunay_utils
 {

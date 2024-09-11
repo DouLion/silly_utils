@@ -85,6 +85,7 @@ std::vector<silly_dt_point> silly_delaunay_utils::parse(const std::string& conte
         tmp.lgtd = get_double(content, size, i);
         tmp.lttd = get_double(content, size, i);
         tmp.val = get_double(content, size, i);
+        tmp.index = static_cast<uint32_t>(i);
         points.push_back(tmp);
     }
     return points;

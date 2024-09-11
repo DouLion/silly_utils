@@ -128,7 +128,15 @@ if(IS_LINUX)
     find_library(RTTOPO_LIB NAMES "rttopo")
     target_link_libraries(${PROJECT_NAME} PUBLIC ${RTTOPO_LIB})
 
+    find_package(unofficial-minizip CONFIG REQUIRED)
+    target_link_libraries(${PROJECT_NAME} PUBLIC unofficial::minizip::minizip)
+
     # Cairo图像
+
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(cairo REQUIRED IMPORTED_TARGET cairo)
+    target_link_libraries(${PROJECT_NAME} PUBLIC PkgConfig::cairo)
+
     find_package(Fontconfig REQUIRED) # since CMake 3.14
     target_link_libraries(${PROJECT_NAME} PUBLIC Fontconfig::Fontconfig)
 

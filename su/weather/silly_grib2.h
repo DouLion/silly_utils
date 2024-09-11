@@ -47,7 +47,7 @@ class silly_grib2_utils
   private:
     static bool open_grib2_handle(const std::string& path, void** file_h, void** grb2_c, void** grb2_h);
 
-    static bool load_grib2_frame(void* file_h, void** grb2_c, void** grb2_h, silly_grib2_frame& grb, const bool& skip = true);
+    static bool load_grib2_frame(const void* grb2_h, silly_grib2_frame& grb, const bool& skip = true);
 
     static bool close_grib2_handle(void* file_h, void* grb2_c, void* grb2_h);
 };

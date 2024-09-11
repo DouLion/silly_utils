@@ -10,7 +10,7 @@
 #ifndef SILLY_UTILS_SILLY_SIMPLE_INI_PARSER_H
 #define SILLY_UTILS_SILLY_SIMPLE_INI_PARSER_H
 
-#include <ini/silly_ini_parser_base.h>
+#include <parser/ini/silly_ini_parser_base.h>
 
 #include <SimpleIni.h>
 

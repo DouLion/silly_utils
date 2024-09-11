@@ -1,10 +1,10 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.15)
-PROJECT(silly_utils)
+project(silly_utils)
 
 SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
-INCLUDE(env_check)
-INCLUDE(dm8_check)
-INCLUDE(grib_api_check)
+include(env_check)
+include(dm8_check)
+include(grib_api_check)
 
 # 判断当前目录是否为 cmake的根目录,如果不是,则是被其他项目引用的,不需要编译测试,工具模块
 if ("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_SOURCE_DIR}")

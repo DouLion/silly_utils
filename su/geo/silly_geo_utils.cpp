@@ -1076,33 +1076,6 @@ bool segments_intersect(silly_point a1, silly_point a2, silly_point b1, silly_po
     
 }
 
-// 判断点是否在环内
-bool isPointInRing(const silly_point& point, const silly_ring& ring)
-{
-    int intersections = 0;
-    silly_point ray_end(point.lgtd + 10000, point.lttd);  // 向右引一条射线  假设地图宽度不超过10000单位
-
-    // 外环
-    for (size_t i = 0, n = ring.points.size(); i < n; ++i)
-    {
-        const silly_point& start = ring.points[i];
-        const silly_point& end = ring.points[(i + 1) % n];
-        if (start == end)
-        {
-            continue;
-        }
-        if (point == start || point == end)
-        {
-            return true;
-        }
-        if (segments_intersect(point, ray_end, start, end))
-        {
-            intersections++;
-        }
-    }
-
-    return intersections % 2 != 0;
-}
 
 bool silly_geo_utils::intersect(const silly_poly& mpoly, const silly_point& point)
 {
@@ -1110,13 +1083,13 @@ bool silly_geo_utils::intersect(const silly_poly& mpoly, const silly_point& poin
     silly_point ray_end(point.lgtd + 1000, point.lttd);  // 向右引一条射线 1000单位
 
     // 外环
-    bool is_in_outer_ring = isPointInRing(point, mpoly.outer_ring);
+    bool is_in_outer_ring = intersect(point, mpoly.outer_ring.points);
     if (is_in_outer_ring)
     {
         // 内环
         for (const auto& inner : mpoly.inner_rings)
         {
-            if (isPointInRing(point, inner)) // 在内环内
+            if (intersect(point, inner.points)) // 在内环内
             {
                 return false; // 如果这个点在一个内环内就属于在面外
             }
