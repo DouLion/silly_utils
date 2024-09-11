@@ -25,7 +25,7 @@
 #define SU_OLD_HTTP_JSON_RESPONSE_RET_CODE "return_code"
 #define SU_OLD_HTTP_JSON_RESPONSE_RET_MESSAGE "return_msg"
 
-#define SU_CREAT_JSON_DEFAULT_RESPONSE                                       \
+#define SU_CREATE_JSON_DEFAULT_RESPONSE                                       \
     auto resp = HttpResponse::newHttpResponse();                             \
     resp->setStatusCode(k200OK);                                             \
     resp->setContentTypeCode(CT_APPLICATION_JSON);                           \
@@ -37,7 +37,7 @@
     respJson[SU_HTTP_JSON_RESPONSE_STATUS] = 0;                              \
     respJson[SU_HTTP_JSON_RESPONSE_MESSAGE] = "not implement.";
 
-#define SU_OLD_CREAT_JSON_DEFAULT_RESPONSE(type)                                        \
+#define SU_OLD_CREATE_JSON_DEFAULT_RESPONSE(type)                                        \
     auto resp = HttpResponse::newHttpResponse();                                        \
     resp->setStatusCode(k200OK);                                                        \
     resp->setContentTypeCode(CT_APPLICATION_JSON);                                      \

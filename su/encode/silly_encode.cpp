@@ -351,10 +351,6 @@ void silly_encode::from_hex(const char *str, unsigned char *Hstr)
     Hstr[Len] = 0;
 }
 
-#include <codecvt>
-#include <string>
-#include <cstring>
-#include <locale>
 // c++17 已经将wstring_convert废弃了,但是目前还能用
 std::wstring silly_encode::cxx11_string_wstring(const std::string &str)
 {

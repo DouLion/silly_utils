@@ -73,9 +73,8 @@
 
 #ifndef SILLY_UTILS_SILLY_ENCODE_H
 #define SILLY_UTILS_SILLY_ENCODE_H
-#include <su_marco.h>
-
 #define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
+#include <su_marco.h>
 
 class silly_encode
 {

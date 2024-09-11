@@ -66,6 +66,12 @@
 #include <regex>
 //
 
+#include <clocale>
+
+#include <codecvt>
+#include <cstring>
+#include <locale>
+
 #if WIN32
 #include <Windows.h>
 #include <winsock2.h>
