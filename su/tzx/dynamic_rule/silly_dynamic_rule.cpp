@@ -25,6 +25,11 @@ bool dynamic_rule_code_index::load(const std::string& path)
             std::string code;
             size_t index;
             iss >> code >> index;
+
+            if(index > max_index)
+            {
+                max_index = index;
+            }
             add(code, index);
         }
     }
@@ -87,6 +92,11 @@ std::string dynamic_rule_code_index::code(const size_t index) const
     if (iterator != end_value())
         return iterator->second;
     return "";
+}
+bool dynamic_rule_code_index::add(const std::string& code)
+{
+    size_t tmp = ++max_index;
+    return add(code, tmp);
 }
 std::string dynamic_rule_record::serialize() const
 {
@@ -159,7 +169,7 @@ bool dynamic_rule_record::deserialize(const std::string& data)
     char* p = (char*)data.data();
     uint8_t fmt = static_cast<uint8_t>(p[0]);
     p++;
-    if (fmt > DRFMT_CODE_LENLEN)
+    if (fmt > DRFMT_CODE_LENGTH)
     {
         uint8_t len = static_cast<uint8_t>(p[0]) & 0b00011111;
         code = data.substr(1, len);
@@ -274,7 +284,10 @@ bool silly_dynamic_rule::write_with_code_index(const std::string& path, const st
     file.close();
     return false;
 }
-void silly_dynamic_rule::add_code_index(const std::string& code, const size_t index)
+void silly_dynamic_rule::add_code_index(const std::string& code,  size_t& index)
 {
-    m_index.add(code, index);
+    if(m_index.add(code))
+    {
+        index = m_index.index(code);
+    }
 }
