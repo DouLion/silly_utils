@@ -19,13 +19,17 @@ class soil_moisture_record
     float moisture{0.};
     float moisture_percent{0.};
     float precipitation; // 过去一小时实测降雨
+
+    std::string serialize() const;
+    bool deserialize(const std::string& data);
+    const static size_t serialized_size = 4 + 4 + 4 + 4 + 1;
 };
 
 class silly_moisture
 {
   public:
-    silly_moisture();
-    ~silly_moisture();
+    silly_moisture() = default;
+    ~silly_moisture() = default;
     /// 将同一个时间段的数据,序列化到一个文件中
     void serialize_by_time(const std::string& file, std::vector<soil_moisture_record>& records);
 
