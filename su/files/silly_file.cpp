@@ -103,6 +103,7 @@ size_t silly_file::write(const std::string &path, const std::string &content)
 #else
     std::ofstream ofs_w(path);
 #endif
+
     if (!ofs_w.is_open())
     {
         return write_len;

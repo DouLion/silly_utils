@@ -32,57 +32,72 @@ bool silly_ascii_grid::read(const std::string& path)
     }
     return status;
 }
+
+std::string to_lower(const std::string& str)
+{
+    std::string lower_str = str;
+    std::transform(lower_str.begin(), lower_str.end(), lower_str.begin(), ::tolower);
+    return lower_str;
+}
 bool silly_ascii_grid::read_asc(const std::string& path)
 {
     bool status = false;
-    std::ifstream inFile(path);
-    if (!inFile)
-    {
-        std::cerr << "Unable to open file: " << path << std::endl;
-        return false;
+    std::string content;
+    if (silly_file::read(path, content))
+    {  // 假设 silly_file::read 返回 true 表示成功
+        status = true;
     }
-    std::string line;
-    std::stringstream linestream;
-    std::string key;
-    while (std::getline(inFile, line))
+    else
     {
-        linestream.clear();
-        linestream.str(line);
+        std::cerr << "Failed to read file: " << path << std::endl;
+        return status;
+    }
+
+    std::stringstream linestream(content);
+    std::string key;
+    while (!linestream.eof())
+    {
         linestream >> key;
-        if (key == "ncols")
+        if (to_lower(key) == "ncols")
         {
             linestream >> ncols;
         }
-        else if (key == "nrows")
+        else if (to_lower(key) == "nrows")
         {
             linestream >> nrows;
         }
-        else if (key == "xllcorner")
+        else if (to_lower(key) == "xllcorner")
         {
             linestream >> xllcorner;
         }
-        else if (key == "yllcorner")
+        else if (to_lower(key) == "yllcorner")
         {
             linestream >> yllcorner;
         }
-        else if (key == "cellsize")
+        else if (to_lower(key) == "cellsize")
         {
             linestream >> cellsize;
         }
-        else if (key == "nodata_value")
+        else if (to_lower(key) == "nodata_value")
         {
             linestream >> NODATA;
         }
-        if (key == "nodata_value")
+        else
+        {
+            std::cerr << "Invalid key: " << key << std::endl;
+            return false;
+        }
+
+        if (to_lower(key) == "nodata_value")
             break;  // header section ends after NODATA_value
     }
 
     m_data.create(nrows, ncols);
 
     double value;
-    for (int r = 0; r < nrows; ++r)
+    for (int r = 0; r < nrows&& linestream.good(); ++r)
     {
-        for (int c = 0; c < ncols; ++c)
+        for (int c = 0; c < ncols && linestream.good(); ++c)
         {
             linestream >> value;
             // data[r * ncols + c];
@@ -90,7 +105,6 @@ bool silly_ascii_grid::read_asc(const std::string& path)
         }
     }
 
-    inFile.close();
     return true;
 }
 bool silly_ascii_grid::read_bin()

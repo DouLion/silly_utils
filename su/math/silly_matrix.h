@@ -118,6 +118,15 @@ class matrix_2d
         return nullptr;
     }
 
+    T *operator[](size_t r) const
+    {
+        if (m_data)
+        {
+            return m_data + (r * m_col);
+        }
+        return nullptr;
+    }
+
     matrix_2d<T> operator*(const matrix_2d<T> &m2)
     {
         return matrix_2d<T>();

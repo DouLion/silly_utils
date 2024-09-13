@@ -14,6 +14,17 @@
 #pragma once
 #include "silly_proj.h"
 
+// 函数：将度数转换为弧度
+double deg_rad(double deg)
+{
+    return deg * SU_PI / 180.0;
+}
+// 弧度转度函数
+double rad_deg(double rad)
+{
+    return rad * 180.0 / SU_PI;
+}
+
 void silly_proj::gauss_to_lonlat(const double& gx, const double& gy, double& lon, double& lat, const silly_guass_param& p)
 {
     double centralMeridian = p.central;
@@ -68,11 +79,11 @@ void silly_proj::gauss_to_lonlat(const double& central, const double& gx, const 
     // 经纬度计算
     double phi = phi1 - (N1 * tan(phi1) / R1) * (D * D / 2 - (5 + 3 * T1 + 10 * C1 - 4 * C1 * C1 - 9 * e1) * D * D * D * D / 24 + (61 + 90 * T1 + 298 * C1 + 45 * T1 * T1 - 252 * e1 - 3 * C1 * C1) * D * D * D * D * D * D / 720);
 
-    double lambda = central * SU_PI / 180 + (D - (1 + 2 * T1 + C1) * D * D * D / 6 + (5 - 2 * C1 + 28 * T1 - 3 * C1 * C1 + 8 * e1 + 24 * T1 * T1) * D * D * D * D * D / 120) / cos(phi1);
+    double lambda = central * SU_PI / 180.0 + (D - (1 + 2 * T1 + C1) * D * D * D / 6 + (5 - 2 * C1 + 28 * T1 - 3 * C1 * C1 + 8 * e1 + 24 * T1 * T1) * D * D * D * D * D / 120) / cos(phi1);
 
     // 转换为度
-    lat = phi * 180 / SU_PI;
-    lon = lambda * 180 / SU_PI;
+    lat = phi * 180.0 / SU_PI;
+    lon = lambda * 180.0 / SU_PI;
 }
 
 void silly_proj::lonlat_to_gauss(const double& lon, const double& lat, double& gx, double& gy, const silly_guass_param& p)
@@ -138,16 +149,18 @@ void silly_proj::lonlat_to_gauss(const double& central, const double& lon, const
 
 void silly_proj::mercator_to_lonlat(const double& mctx, const double& mcty, double& lon, double& lat)
 {
-    lon = mctx / WGS84_SEMI_MAJOR_AXIS * SU_PI * 180;
-    lat = mcty / WGS84_SEMI_MAJOR_AXIS * SU_PI * 180;
-    lat = 180 / SU_PI * (2 * std::atan(std::exp(lat * SU_PI / 180)) - SU_PI / 2);
+    lon = rad_deg(mctx/WGS84_SEMI_MAJOR_AXIS);
+    lat = rad_deg(2 * atan(exp(mcty / WGS84_SEMI_MAJOR_AXIS)) - SU_PI / 2);
 }
 
 void silly_proj::lonlat_to_mercator(const double& lon, const double& lat, double& mctx, double& mcty)
 {
-    mctx = lon * WGS84_SEMI_MAJOR_AXIS * SU_PI / 180;
-    mcty = std::log(std::tan((90 + lat) * SU_PI / 360)) / (SU_PI / 180);
-    mcty = mcty * 20037508.34 / 180;
+    double latRad = deg_rad(lat);
+    double lonRad = deg_rad(lon);
+
+    // 墨卡托投影公式
+    mctx = WGS84_SEMI_MAJOR_AXIS * lonRad;
+    mcty = WGS84_SEMI_MAJOR_AXIS * log(tan(SU_PI / 4 + latRad / 2));
 }
 
 void silly_proj::mercator_to_gauss(const double& mctx, const double& mcty, double& gx, double& gy, const silly_guass_param& p)
