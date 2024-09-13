@@ -84,7 +84,7 @@ bool silly_ascii_grid::read_asc(const std::string& path)
     {
         for (int c = 0; c < ncols; ++c)
         {
-            inFile >> value;
+            linestream >> value;
             // data[r * ncols + c];
             m_data[r][c] = value;
         }

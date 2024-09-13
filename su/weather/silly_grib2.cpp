@@ -17,6 +17,7 @@
 bool silly_grib2_utils::read(const std::string& path, silly_grib2_frame& grb, const size_t& fidx)
 {
     bool status = false;
+#if SU_GRIB_ENABLED
     int i = 0;
     FILE* file_h = nullptr;
     grib_context* grb2_c = nullptr;
@@ -44,12 +45,14 @@ bool silly_grib2_utils::read(const std::string& path, silly_grib2_frame& grb, co
         }
     }
     silly_grib2_utils::close_grib2_handle(file_h, grb2_c, grb2_h);
+#endif
     return status;
 }
 
 bool silly_grib2_utils::read(const std::string& path, std::map<size_t, silly_grib2_frame>& msgf_grb)
 {
     bool status = false;
+#if SU_GRIB_ENABLED
     int i = 0;
     FILE* file_h = nullptr;
     grib_context* grb2_c = nullptr;
@@ -70,19 +73,21 @@ bool silly_grib2_utils::read(const std::string& path, std::map<size_t, silly_gri
         i++;
     }
     silly_grib2_utils::close_grib2_handle(file_h, grb2_c, grb2_h);
+#endif
     return status;
 }
 
 bool silly_grib2_utils::open_grib2_handle(const std::string& path, void** file_h, void** grb2_c, void** grb2_h)
 {
     bool status = false;
+#if SU_GRIB_ENABLED
     char* grib_def_path = std::getenv(SILL_GRIB2_ENV_DEFINITION_PATH);
     if (!grib_def_path || !strlen(grib_def_path))
     {
         SU_ERROR_PRINT("需要GRIB2的definition目录,并且设置到系统环境变量<GRIB_DEFINITION_PATH>(Windows) 或者 <ECCODES_DEFINITION_PATH>(LINUX)中.");
         return status;
     }
-#if SU_GRIB_ENABLED
+
     // TODO: 检查这个grib_context是否可以为null
     *grb2_c = grib_context_get_default();
 

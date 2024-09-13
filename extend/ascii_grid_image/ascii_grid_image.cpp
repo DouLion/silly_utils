@@ -298,7 +298,9 @@ void convert_image(double ncols, double nrows, double xllcorner, double yllcorne
     memcpy(&pd2_data[0] + sizeof(int) * 3, &iUMin, sizeof(iUMin));
     memcpy(&pd2_data[0] + sizeof(int) * 4, &iVMax, sizeof(iVMax));
     memcpy(&pd2_data[0] + sizeof(int) * 5, &iVMin, sizeof(iVMin));
-    pd2_data.append(png_utils::encode_to_memory(pd2));
+    std::string png_data;
+    png_utils::memory_encode(pd2, png_data);
+    pd2_data.append(png_data);
     silly_file::write(pd2_path, pd2_data);
     pd2.release();
 }
