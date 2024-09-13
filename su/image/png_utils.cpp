@@ -127,7 +127,7 @@ bool png_utils::write(const std::string &path, const png_data &data)
 {
     if (!data.height || !data.width || !data.data)
     {
-        SLOG_DEBUG("invalid png data.");
+        // SLOG_DEBUG("invalid png data.");
         return false;
     }
 
@@ -137,13 +137,13 @@ bool png_utils::write(const std::string &path, const png_data &data)
     png_structp png_write_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, 0, 0, 0);
     if (nullptr == png_write_ptr)
     {
-        SLOG_DEBUG("png_create_write_struct failed.");
+        // SLOG_DEBUG("png_create_write_struct failed.");
         return false;
     }
     png_infop png_w_info = png_create_info_struct(png_write_ptr);
     if (nullptr == png_write_info)
     {
-        SLOG_DEBUG("png_create_info_struct failed.");
+        // SLOG_DEBUG("png_create_info_struct failed.");
         return false;
     }
     if (setjmp(png_jmpbuf(png_write_ptr)))
@@ -318,7 +318,7 @@ void png_data::set_pixel(const size_t &r, const size_t &c, const silly_color &sp
 {
     if (!(r < height && c < width))
     {
-        // SLOG_DEBUG("invalid %zu < %u and %zu < %u.", r, height, c, width);
+        // // SLOG_DEBUG("invalid %zu < %u and %zu < %u.", r, height, c, width);
         return;
     }
     size_t col_pos = c * pixel_size;

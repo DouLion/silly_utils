@@ -15,7 +15,6 @@
 
 #include <png.h>
 #include <setjmp.h>
-#include <log/silly_log.h>
 #include <math/silly_matrix.h>
 #include <image/silly_color.h>
 

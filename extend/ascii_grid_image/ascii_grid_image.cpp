@@ -117,44 +117,8 @@ void mercator_gauss(double mx, double my, double& gaussx, double& gaussy, double
 
 void convert_image(double ncols, double nrows, double xllcorner, double yllcorner, double cellsize, double mid, double* data, double* qx, double* qy, char* img_path)
 {
-#ifndef NDEBUG
-    /* std::cout << "ncols: " << ncols << std::endl;
-     std::cout << "nrows: " << nrows << std::endl;
-     std::cout << "xllcorner: " << xllcorner << std::endl;
-     std::cout << "yllcorner: " << yllcorner << std::endl;
-     std::cout << "cellsize: " << cellsize << std::endl;
-     std::cout << "mid: " << mid << std::endl;
-     std::cout << "img" << img_path << std::endl;
-     std::vector<std::string> lines;
-     lines.resize(nrows);
-
-     int i = 0, r = 0, t = 0;
-     while (i < ncols * nrows)
-     {
-         char buff[10] = {0};
-         sprintf(buff, "%0.4f ", data[i]);
-         lines[r].append(buff);
-         i++;
-         t++;
-         if (t == ncols)
-         {
-             lines[r].append("\n");
-             r++;
-             t = 0;
-         }
-     }
-     std::string wp(img_path);
-     wp.append(".asc");
-     silly_file::write(wp, lines);*/
-
-#endif
-
-    /*  silly_proj_convert mct_to_gauss;
-      mct_to_gauss.begin({{silly_proj_def_enum::PCS_WGS_1984_WEB_MERCATOR, mid}, {silly_proj_def_enum::PCS_WGS_1984_WEB_MERCATOR}});
-      silly_proj_convert gauss_to_geo;
-      silly_proj_convert geo_to_mct;*/
-
     double uMax = -99999.0, uMin = 99999.0, vMax = -99999.0, vMin = 99999.0;
+    double hMax = -99999.0, hMin = 99999.0;
     if (data)
     {
         for (size_t r = 0; r < nrows; ++r)
@@ -163,10 +127,8 @@ void convert_image(double ncols, double nrows, double xllcorner, double yllcorne
             {
                 int pos = SU_MAX(0, SU_MIN(r * ncols + c, nrows * ncols));
                 double h = data[pos];
-                if (h < 0.00001)
-                {
-                    continue;
-                }
+                hMax = SU_MAX(hMax, h);
+                hMin = SU_MIN(hMin, h);
                 double u = qx[pos] / h;
                 double v = qy[pos] / h;
 
@@ -178,20 +140,6 @@ void convert_image(double ncols, double nrows, double xllcorner, double yllcorne
         }
     }
 
-    unsigned char alpha = 200;
-    struct render
-    {
-        double v;
-        silly_color c;
-    };
-    std::vector<render> renders;
-    renders.push_back({-9999.0, silly_color(0, 0, 0, 0)});
-    renders.push_back({0.06, silly_color(179, 204, 255, alpha)});
-    renders.push_back({0.5, silly_color(128, 153, 255, alpha)});
-    renders.push_back({1., silly_color(89, 128, 255, alpha)});
-    renders.push_back({2., silly_color(38, 115, 242, alpha)});
-    renders.push_back({3., silly_color(0, 77, 204, alpha)});
-    renders.push_back({99999., silly_color(0, 77, 204, alpha)});
     double mct_letf = 0, mct_right = 0, mct_top = 0, mct_bottom = 0;
     const double gauss_left = xllcorner, gauss_right = xllcorner + cellsize * (ncols - 2), gauss_top = yllcorner + cellsize * (nrows - 2), gauss_bottom = yllcorner;
     // std::cout << mid << std::endl;
@@ -228,6 +176,7 @@ void convert_image(double ncols, double nrows, double xllcorner, double yllcorne
     double mct_y_step = (mct_top - mct_bottom) / (nrows - 2);
     png_data pd = silly_image::png_utils::create_empty((nrows - 2), (ncols - 2));
     png_data pd2 = silly_image::png_utils::create_empty((nrows - 2), (ncols - 2), PNG_COLOR_TYPE_RGB);
+    double hstep = (hMax - hMin) / 255;
     for (size_t r = 0; r < nrows - 2; ++r)
     {
         for (size_t c = 0; c < ncols - 2; ++c)
@@ -259,15 +208,9 @@ void convert_image(double ncols, double nrows, double xllcorner, double yllcorne
                 }
 
                 pd2.set_pixel(r, c, tmp);
-                int i = 1;
-                for (; i < renders.size(); ++i)
-                {
-                    if (v < renders[i].v)
-                    {
-                        break;
-                    }
-                }
-                pd.set_pixel(r, c, renders[i - 1].c);
+                silly_color sc;
+                sc.red = static_cast<unsigned char>(std::min(255., (v - hMin) / hstep));
+                pd.set_pixel(r, c, sc);
             }
             else
             {
@@ -278,7 +221,24 @@ void convert_image(double ncols, double nrows, double xllcorner, double yllcorne
             }
         }
     }
-    png_utils::write(img_path, pd);
+    // png_utils::write(img_path, pd);
+    std::string h_pd_data;
+    {
+        h_pd_data.resize(24);
+        int ihMax = static_cast<int>(hMax * 100);
+        int ihMin = static_cast<int>(hMin * 100);
+        int iRow = static_cast<int>(nrows);
+        int iCol = static_cast<int>(ncols);
+        memcpy(&h_pd_data[0], &iRow, sizeof(iRow));
+        memcpy(&h_pd_data[0] + sizeof(int) * 1, &iCol, sizeof(iCol));
+        memcpy(&h_pd_data[0] + sizeof(int) * 2, &ihMax, sizeof(ihMax));
+        memcpy(&h_pd_data[0] + sizeof(int) * 3, &ihMin, sizeof(ihMin));
+    }
+    std::string h_png_data;
+    png_utils::memory_encode(pd, h_png_data);
+    h_pd_data.append(h_png_data);
+    silly_file::write(img_path, h_pd_data);
+
     pd.release();
     std::string filename = std::filesystem::path(img_path).filename().string();
     filename[0] = 'Q';
@@ -286,18 +246,21 @@ void convert_image(double ncols, double nrows, double xllcorner, double yllcorne
     std::string pd2_data;
 
     pd2_data.resize(24);
-    int iUMax = static_cast<int>(uMax * 100);
-    int iVMax = static_cast<int>(vMax * 100);
-    int iUMin = static_cast<int>(uMin * 100);
-    int iVMin = static_cast<int>(vMin * 100);
-    int iRow = static_cast<int>(nrows);
-    int iCol = static_cast<int>(ncols);
-    memcpy(&pd2_data[0], &iRow, sizeof(iRow));
-    memcpy(&pd2_data[0] + sizeof(int) * 1, &iCol, sizeof(iCol));
-    memcpy(&pd2_data[0] + sizeof(int) * 2, &iUMax, sizeof(iUMax));
-    memcpy(&pd2_data[0] + sizeof(int) * 3, &iUMin, sizeof(iUMin));
-    memcpy(&pd2_data[0] + sizeof(int) * 4, &iVMax, sizeof(iVMax));
-    memcpy(&pd2_data[0] + sizeof(int) * 5, &iVMin, sizeof(iVMin));
+    {
+        int iUMax = static_cast<int>(uMax * 100);
+        int iVMax = static_cast<int>(vMax * 100);
+        int iUMin = static_cast<int>(uMin * 100);
+        int iVMin = static_cast<int>(vMin * 100);
+        int iRow = static_cast<int>(nrows);
+        int iCol = static_cast<int>(ncols);
+        memcpy(&pd2_data[0], &iRow, sizeof(iRow));
+        memcpy(&pd2_data[0] + sizeof(int) * 1, &iCol, sizeof(iCol));
+        memcpy(&pd2_data[0] + sizeof(int) * 2, &iUMax, sizeof(iUMax));
+        memcpy(&pd2_data[0] + sizeof(int) * 3, &iUMin, sizeof(iUMin));
+        memcpy(&pd2_data[0] + sizeof(int) * 4, &iVMax, sizeof(iVMax));
+        memcpy(&pd2_data[0] + sizeof(int) * 5, &iVMin, sizeof(iVMin));
+    }
+
     std::string png_data;
     png_utils::memory_encode(pd2, png_data);
     pd2_data.append(png_data);
