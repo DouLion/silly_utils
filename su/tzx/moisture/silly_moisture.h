@@ -31,7 +31,7 @@ class silly_moisture
     silly_moisture() = default;
     ~silly_moisture() = default;
     /// 将同一个时间段的数据,序列化到一个文件中
-    void serialize_by_time(const std::string& file, std::vector<soil_moisture_record>& records);
+    void serialize_by_time(const std::string& file, const std::vector<soil_moisture_record>& records);
 
     /// 从序列化文件读取一个时间段的数据
     void deserialize_by_time(const std::string& file, std::vector<soil_moisture_record>& records);

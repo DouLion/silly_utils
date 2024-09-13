@@ -44,7 +44,7 @@ bool soil_moisture_record::deserialize(const std::string& data)
     memcpy(&precipitation, &data[index], sizeof(precipitation));
     return true;
 }
-void silly_moisture::serialize_by_time(const std::string& file, std::vector<soil_moisture_record>& records)
+void silly_moisture::serialize_by_time(const std::string& file, const std::vector<soil_moisture_record>& records)
 {
     std::string result ="\0\0\0\0";
     int len = 0;
