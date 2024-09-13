@@ -1,38 +1,37 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.15)
+cmake_minimum_required(VERSION 3.15)
 project(silly_utils)
 
-SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
 include(env_check)
 include(dm8_check)
 include(grib_api_check)
 
 # 判断当前目录是否为 cmake的根目录,如果不是,则是被其他项目引用的,不需要编译测试,工具模块
-if ("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_SOURCE_DIR}")
-    SET(SU_AS_PROJECT TRUE)
-    SET(SU_AS_LIB FALSE)
-else ()
-    SET(SU_AS_PROJECT FALSE)
-    SET(SU_AS_LIB TRUE)
-endif ()
+if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_SOURCE_DIR}")
+  set(SU_AS_PROJECT TRUE)
+  set(SU_AS_LIB FALSE)
+else()
+  set(SU_AS_PROJECT FALSE)
+  set(SU_AS_LIB TRUE)
+endif()
 
+if(SU_AS_PROJECT)
+  message(STATUS "作为单个工程编译")
+  # 设置默认程序根目录,程序中所有路径均参照此路径,方便调试和发布
+  add_definitions("-DDEFAULT_SU_ROOT_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}\"")
 
-if (SU_AS_PROJECT)
-    MESSAGE(STATUS "作为单个工程编译")
-    # 设置默认程序根目录,程序中所有路径均参照此路径,方便调试和发布
-    add_definitions("-DDEFAULT_SU_ROOT_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}\"")
-
-    add_definitions("-DDEFAULT_SU_DATA_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/data\"")
+  add_definitions("-DDEFAULT_SU_DATA_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/data\"")
 elseif()
-    MESSAGE(STATUS "作为嵌入库编译")
-endif ()
+  message(STATUS "作为嵌入库编译")
+endif()
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/su)
 
-##########################################
+# ##############################################################################
 # Add sub dirs.
-##########################################
+# ##############################################################################
 add_subdirectory(su)
-if (SU_AS_PROJECT)
-    add_subdirectory(test)
-    add_subdirectory(tools)
-    add_subdirectory(extend)
-endif ()
+if(SU_AS_PROJECT)
+  add_subdirectory(test)
+  add_subdirectory(tools)
+  add_subdirectory(extend)
+endif()

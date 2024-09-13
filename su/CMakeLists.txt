@@ -3,12 +3,10 @@ cmake_minimum_required(VERSION 3.15)
 project(sutils CXX)
 
 foreach(dirname ${CMAKE_CURRENT_SOURCE_DIR})
-    file(GLOB_RECURSE SU_SRC_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
-            "${dirname}/*.h"
-            "${dirname}/*.hpp"
-            "${dirname}/*.c"
-            "${dirname}/*.cpp"
-            )
+  file(
+    GLOB_RECURSE SU_SRC_FILES
+    RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
+    "${dirname}/*.h" "${dirname}/*.hpp" "${dirname}/*.c" "${dirname}/*.cpp")
 
 endforeach()
 
@@ -80,10 +78,8 @@ target_link_libraries(${PROJECT_NAME} PUBLIC hiredis::hiredis)
 find_package(fmt CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC fmt::fmt)
 
-# 硬件信息
-#find_package(infoware CONFIG REQUIRED)
-# target_link_libraries(${PROJECT_NAME} PUBLIC infoware)
-# Cairo
+# 硬件信息 find_package(infoware CONFIG REQUIRED)
+# target_link_libraries(${PROJECT_NAME} PUBLIC infoware) Cairo
 find_path(CAIRO_INCLUDE_DIR cairo/cairo.h)
 set(CAIRO_NAMES ${JRTPLIB_NAMES} cairo)
 message("# ${CAIRO_NAMES}")
@@ -91,58 +87,60 @@ find_library(CAIRO_LIBRARY NAMES ${CAIRO_NAMES})
 target_link_libraries(${PROJECT_NAME} PUBLIC ${CAIRO_LIBRARY})
 
 find_package(Freetype REQUIRED)
-target_link_libraries(${PROJECT_NAME} PUBLIC Freetype::Freetype) # since CMake 3.10
+target_link_libraries(${PROJECT_NAME} PUBLIC Freetype::Freetype) # since CMake
+                                                                 # 3.10
 
 find_package(spdlog CONFIG REQUIRED)
-target_link_libraries(${PROJECT_NAME} PUBLIC spdlog::spdlog spdlog::spdlog_header_only)
+target_link_libraries(${PROJECT_NAME} PUBLIC spdlog::spdlog
+                                             spdlog::spdlog_header_only)
 
 find_package(lz4 CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC lz4::lz4)
 
 if(IS_LINUX)
 
-    find_package(unofficial-libuuid CONFIG REQUIRED)
-    target_link_libraries(${PROJECT_NAME} PUBLIC unofficial::UUID::uuid)
+  find_package(unofficial-libuuid CONFIG REQUIRED)
+  target_link_libraries(${PROJECT_NAME} PUBLIC unofficial::UUID::uuid)
 
-    find_package(GEOS CONFIG REQUIRED)
-    target_link_libraries(${PROJECT_NAME} PUBLIC GEOS::geos_c)
+  find_package(GEOS CONFIG REQUIRED)
+  target_link_libraries(${PROJECT_NAME} PUBLIC GEOS::geos_c)
 
-    find_package(GEOS CONFIG REQUIRED)
-    target_link_libraries(${PROJECT_NAME} PUBLIC  GEOS::geos)
+  find_package(GEOS CONFIG REQUIRED)
+  target_link_libraries(${PROJECT_NAME} PUBLIC GEOS::geos)
 
-    find_library(FREEXL_LIB NAMES "freexl")
-    target_link_libraries(${PROJECT_NAME} PUBLIC ${FREEXL_LIB})
+  find_library(FREEXL_LIB NAMES "freexl")
+  target_link_libraries(${PROJECT_NAME} PUBLIC ${FREEXL_LIB})
 
-    find_library(PROJ_LIB NAMES "proj")
-    target_link_libraries(${PROJECT_NAME} PUBLIC ${PROJ_LIB})
+  find_library(PROJ_LIB NAMES "proj")
+  target_link_libraries(${PROJECT_NAME} PUBLIC ${PROJ_LIB})
 
-    find_package(CURL CONFIG REQUIRED)
-    target_link_libraries(${PROJECT_NAME} PUBLIC CURL::libcurl)
+  find_package(CURL CONFIG REQUIRED)
+  target_link_libraries(${PROJECT_NAME} PUBLIC CURL::libcurl)
 
-    find_library(TIFF_LIB NAMES "tiff")
-    target_link_libraries(${PROJECT_NAME} PUBLIC ${TIFF_LIB})
+  find_library(TIFF_LIB NAMES "tiff")
+  target_link_libraries(${PROJECT_NAME} PUBLIC ${TIFF_LIB})
 
-    find_package(LibXml2 REQUIRED)
-    target_link_libraries(${PROJECT_NAME} PUBLIC  LibXml2::LibXml2)
+  find_package(LibXml2 REQUIRED)
+  target_link_libraries(${PROJECT_NAME} PUBLIC LibXml2::LibXml2)
 
-    find_library(RTTOPO_LIB NAMES "rttopo")
-    target_link_libraries(${PROJECT_NAME} PUBLIC ${RTTOPO_LIB})
+  find_library(RTTOPO_LIB NAMES "rttopo")
+  target_link_libraries(${PROJECT_NAME} PUBLIC ${RTTOPO_LIB})
 
-    find_package(unofficial-minizip CONFIG REQUIRED)
-    target_link_libraries(${PROJECT_NAME} PUBLIC unofficial::minizip::minizip)
+  find_package(unofficial-minizip CONFIG REQUIRED)
+  target_link_libraries(${PROJECT_NAME} PUBLIC unofficial::minizip::minizip)
 
-    # Cairo图像
+  # Cairo图像
 
-    find_package(PkgConfig REQUIRED)
-    pkg_check_modules(cairo REQUIRED IMPORTED_TARGET cairo)
-    target_link_libraries(${PROJECT_NAME} PUBLIC PkgConfig::cairo)
+  find_package(PkgConfig REQUIRED)
+  pkg_check_modules(cairo REQUIRED IMPORTED_TARGET cairo)
+  target_link_libraries(${PROJECT_NAME} PUBLIC PkgConfig::cairo)
 
-    find_package(Fontconfig REQUIRED) # since CMake 3.14
-    target_link_libraries(${PROJECT_NAME} PUBLIC Fontconfig::Fontconfig)
+  find_package(Fontconfig REQUIRED) # since CMake 3.14
+  target_link_libraries(${PROJECT_NAME} PUBLIC Fontconfig::Fontconfig)
 
-    find_package(PNG REQUIRED)
-    target_link_libraries(${PROJECT_NAME} PUBLIC PNG::PNG)
-    find_library(PIXMAN_LIBRARY NAMES pixman-1)
-    target_link_libraries(${PROJECT_NAME} PUBLIC ${PIXMAN_LIBRARY})
+  find_package(PNG REQUIRED)
+  target_link_libraries(${PROJECT_NAME} PUBLIC PNG::PNG)
+  find_library(PIXMAN_LIBRARY NAMES pixman-1)
+  target_link_libraries(${PROJECT_NAME} PUBLIC ${PIXMAN_LIBRARY})
 
 endif()
