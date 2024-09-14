@@ -16,10 +16,10 @@
 using namespace silly_image;
 
 std::string root = "//192.168.0.9/webs/dem/server/projects";
-int threads = 16;
+int threads = 32;
 
 void write_depth_png(double mid, const silly_ascii_grid& sag, std::string dst);
-void write_q_png(double mid, const silly_ascii_grid& dgrid, const silly_ascii_grid&ugrd, const silly_ascii_grid&vgrid, std::string dst);
+void write_q_png(double mid, const silly_ascii_grid& dgrid, const silly_ascii_grid& ugrd, const silly_ascii_grid& vgrid, std::string dst);
 
 double center_x(const std::string& prj);
 
@@ -65,10 +65,10 @@ int main(int argc, char** argv)
         {
             auto sfp_tmp = iter1.path();
             std::string proj_name = iter1.path().stem().string();
-            if(proj_name != "test2")
+            /*if (proj_name != "test2")
             {
                 continue;
-            }
+            }*/
             std::string prj = std::filesystem::path(iter1.path()).append(proj_name.append(".prj")).string();
             double l0 = center_x(prj);
 
@@ -77,11 +77,11 @@ int main(int argc, char** argv)
                 continue;
             for (auto iter2 : std::filesystem::directory_iterator(sfp_output))
             {
-                // convert_by_plan(iter2.path().string(), l0);
+                //convert_q_by_plan(iter2.path().string(), l0);
 #if 1
                 pools.enqueue(convert_by_plan, iter2.path().string(), l0);
 #else
-                convert_q_by_plan(iter2.path().string(), l0);
+                pools.enqueue(convert_q_by_plan, iter2.path().string(), l0);
 #endif
             }
         }
@@ -94,13 +94,12 @@ void convert_by_plan(const std::string& path, double mid)
 {
     auto sfp_bin = std::filesystem::path(path).append("asc");
     auto sfp_image = std::filesystem::path(path).append("image");
-
     if (!std::filesystem::exists(sfp_bin))
         return;
     for (auto iter2 : std::filesystem::directory_iterator(sfp_bin))
     {
         std::string dd = iter2.path().stem().string();
-        bool valid = (dd[0] == 'H' );
+        bool valid = (dd[0] == 'H');
         valid &= (dd[1] == '_');
         valid &= (dd.size() == 7);
         valid &= (iter2.path().extension() == ".asc");
@@ -108,12 +107,10 @@ void convert_by_plan(const std::string& path, double mid)
         {
             continue;
         }
-        std::cout << iter2.path().string() << std::endl;
-        //continue;
         silly_ascii_grid sag;
         if (!sag.read(iter2.path().string()))
         {
-            std::cout << "read " << iter2.path().string() << " failed" << std::endl;
+            std::cerr << "read " << iter2.path().string() << " failed" << std::endl;
             continue;
         }
         std::string dst_png = std::filesystem::path(sfp_image).append(dd + ".png").string();
@@ -127,13 +124,13 @@ void convert_q_by_plan(const std::string& path, double mid)
 {
     auto sfp_bin = std::filesystem::path(path).append("asc");
     auto sfp_image = std::filesystem::path(path).append("image");
-
+    std::cout << sfp_bin.string() << std::endl;
     if (!std::filesystem::exists(sfp_bin))
         return;
     for (auto iter2 : std::filesystem::directory_iterator(sfp_bin))
     {
         std::string dd = iter2.path().stem().string();
-        bool valid = (dd[0] == 'H' );
+        bool valid = (dd[0] == 'H');
         valid &= (dd[1] == '_');
         valid &= (dd.size() == 7);
         valid &= (iter2.path().extension() == ".asc");
@@ -144,17 +141,37 @@ void convert_q_by_plan(const std::string& path, double mid)
         std::cout << iter2.path().string() << std::endl;
 
         silly_ascii_grid dgrd, xgrd, ygrd;
+        std::string qxname ="QX", qyname = "QY";
+        std::string suffix = iter2.path().filename().string().substr(1);
+        qxname.append(suffix);
+        qyname.append(suffix);
         if (!dgrd.read(iter2.path().string()))
         {
             std::cout << "read " << iter2.path().string() << " failed" << std::endl;
             continue;
         }
-        std::string dst_png = std::filesystem::path(sfp_image).append(dd + ".png").string();
+        std::string qxpath = iter2.path().parent_path().append(qxname).string();
+        if (!xgrd.read(qxpath))
+        {
+            std::cout << "read " << iter2.path().string() << " failed" << std::endl;
+            continue;
+        }
+        std::string qypath = iter2.path().parent_path().append(qyname).string();
+        if (!ygrd.read(qypath))
+        {
+            std::cout << "read " << iter2.path().string() << " failed" << std::endl;
+            continue;
+        }
+        dd[0] = 'Q';
+        std::string dst_png = std::filesystem::path(sfp_image).append(dd + "_bak.png").string();
         std::cout << dst_png << std::endl;
+#if 1
         write_q_png(mid, dgrd, xgrd, ygrd, dst_png);
+#endif
         dgrd.m_data.release();
         xgrd.m_data.release();
         ygrd.m_data.release();
+        break;
     }
 }
 
@@ -196,11 +213,12 @@ void write_depth_png(double mid, const silly_ascii_grid& sag, std::string dst)
             double tmp_mct_y = mct_top - r * mct_y_step;
             double tmp_gauss_x, tmp_gauss_y;
             silly_proj::mercator_to_gauss(mid, tmp_mct_x, tmp_mct_y, tmp_gauss_x, tmp_gauss_y);
-            double v = sag.m_data[r][c];
+
             int gcol = std::round((tmp_gauss_x - gauss_left) / cellsize + 1);
             int grol = std::round((gauss_top - tmp_gauss_y) / cellsize);
             if (gcol >= 0 && grol > 0 && gcol < ncols && grol < nrows)
             {
+                double v = sag.m_data[grol][gcol];
                 silly_color sc;
                 sc.red = static_cast<unsigned char>(std::min(255., (v - sag.MINV) / hstep));
                 pd.set_pixel(r, c, sc);
@@ -241,17 +259,21 @@ void write_q_png(double mid, const silly_ascii_grid& dgrid, const silly_ascii_gr
             {
                 int pos = SU_MAX(0, SU_MIN(r * ncols + c, nrows * ncols));
                 double h = dgrid.m_data[r][c];
-                double u = ugrd.m_data[r][c] / h;
-                double v = vgrd.m_data[r][c] / h;
+                if(h> 0.0001)
+                {
+                    double u = ugrd.m_data[r][c] / h;
+                    double v = vgrd.m_data[r][c] / h;
 
-                uMax = SU_MAX(uMax, u);
-                uMin = SU_MIN(uMin, u);
-                vMax = SU_MAX(vMax, v);
-                vMin = SU_MIN(vMin, v);
+                    uMax = SU_MAX(uMax, u);
+                    uMin = SU_MIN(uMin, u);
+                    vMax = SU_MAX(vMax, v);
+                    vMin = SU_MIN(vMin, v);
+                }
+
+
             }
         }
     }
-
 
     double mct_letf = 0, mct_right = 0, mct_top = 0, mct_bottom = 0;
     const double gauss_left = xllcorner, gauss_right = xllcorner + cellsize * ncols, gauss_top = yllcorner + cellsize * nrows, gauss_bottom = yllcorner;
@@ -288,9 +310,9 @@ void write_q_png(double mid, const silly_ascii_grid& dgrid, const silly_ascii_gr
             int grol = std::round((gauss_top - tmp_gauss_y) / cellsize);
             if (gcol >= 0 && grol > 0 && gcol < ncols && grol < nrows)
             {
-                double d = dgrid.m_data[r][c];
-                double u = ugrd.m_data[r][c];
-                double v = ugrd.m_data[r][c];
+                double d = dgrid.m_data[grol][gcol];
+                double u = ugrd.m_data[grol][gcol];
+                double v = ugrd.m_data[grol][gcol];
                 silly_color tmp(0, 0, 0);
                 if (d < 0.00001)
                 {
@@ -306,7 +328,6 @@ void write_q_png(double mid, const silly_ascii_grid& dgrid, const silly_ascii_gr
                     tmp.green = 255.0 * (qv - vMin) / (vMax - vMin);
                 }
                 pd2.set_pixel(r, c, tmp);
-
             }
         }
     }
