@@ -65,10 +65,10 @@ int main(int argc, char** argv)
         {
             auto sfp_tmp = iter1.path();
             std::string proj_name = iter1.path().stem().string();
-            /*if (proj_name != "test2")
+            if (proj_name != "rgp")
             {
                 continue;
-            }*/
+            }
             std::string prj = std::filesystem::path(iter1.path()).append(proj_name.append(".prj")).string();
             double l0 = center_x(prj);
 
@@ -77,9 +77,10 @@ int main(int argc, char** argv)
                 continue;
             for (auto iter2 : std::filesystem::directory_iterator(sfp_output))
             {
-                //convert_q_by_plan(iter2.path().string(), l0);
+                // convert_q_by_plan(iter2.path().string(), l0);
+                convert_q_by_plan(iter2.path().string(), l0);
 #if 1
-                pools.enqueue(convert_by_plan, iter2.path().string(), l0);
+                // pools.enqueue(convert_by_plan, iter2.path().string(), l0);
 #else
                 pools.enqueue(convert_q_by_plan, iter2.path().string(), l0);
 #endif
@@ -141,7 +142,7 @@ void convert_q_by_plan(const std::string& path, double mid)
         std::cout << iter2.path().string() << std::endl;
 
         silly_ascii_grid dgrd, xgrd, ygrd;
-        std::string qxname ="QX", qyname = "QY";
+        std::string qxname = "QX", qyname = "QY";
         std::string suffix = iter2.path().filename().string().substr(1);
         qxname.append(suffix);
         qyname.append(suffix);
@@ -163,7 +164,7 @@ void convert_q_by_plan(const std::string& path, double mid)
             continue;
         }
         dd[0] = 'Q';
-        std::string dst_png = std::filesystem::path(sfp_image).append(dd + "_bak.png").string();
+        std::string dst_png = std::filesystem::path(sfp_image).append(dd + ".png").string();
         std::cout << dst_png << std::endl;
 #if 1
         write_q_png(mid, dgrd, xgrd, ygrd, dst_png);
@@ -171,7 +172,7 @@ void convert_q_by_plan(const std::string& path, double mid)
         dgrd.m_data.release();
         xgrd.m_data.release();
         ygrd.m_data.release();
-        break;
+        // break;
     }
 }
 
@@ -259,7 +260,7 @@ void write_q_png(double mid, const silly_ascii_grid& dgrid, const silly_ascii_gr
             {
                 int pos = SU_MAX(0, SU_MIN(r * ncols + c, nrows * ncols));
                 double h = dgrid.m_data[r][c];
-                if(h> 0.0001)
+                if (h > SILLY_IGNORE_WATER_DEPTH_METER)
                 {
                     double u = ugrd.m_data[r][c] / h;
                     double v = vgrd.m_data[r][c] / h;
@@ -269,8 +270,6 @@ void write_q_png(double mid, const silly_ascii_grid& dgrid, const silly_ascii_gr
                     vMax = SU_MAX(vMax, v);
                     vMin = SU_MIN(vMin, v);
                 }
-
-
             }
         }
     }
@@ -314,7 +313,7 @@ void write_q_png(double mid, const silly_ascii_grid& dgrid, const silly_ascii_gr
                 double u = ugrd.m_data[grol][gcol];
                 double v = ugrd.m_data[grol][gcol];
                 silly_color tmp(0, 0, 0);
-                if (d < 0.00001)
+                if (d < SILLY_IGNORE_WATER_DEPTH_METER)
                 {
                     tmp.red = 255.0 * (0 - uMin) / (uMax - uMin);
                     tmp.green = 255.0 * (0 - vMin) / (vMax - vMin);
@@ -331,7 +330,6 @@ void write_q_png(double mid, const silly_ascii_grid& dgrid, const silly_ascii_gr
             }
         }
     }
-    // png_utils::write(img_path, pd);
     std::string pd2_data;
 
     {

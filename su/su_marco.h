@@ -298,3 +298,5 @@
         (p) = nullptr;     \
     }
 #endif
+
+#define SILLY_IGNORE_WATER_DEPTH_METER 0.001
