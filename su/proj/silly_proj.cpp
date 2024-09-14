@@ -14,7 +14,7 @@
 #pragma once
 #include "silly_proj.h"
 
-// 函数：将度数转换为弧度
+//将度数转换为弧度
 double deg_rad(double deg)
 {
     return deg * SU_PI / 180.0;
@@ -25,7 +25,7 @@ double rad_deg(double rad)
     return rad * 180.0 / SU_PI;
 }
 
-void silly_proj::gauss_to_lonlat(const double& gx, const double& gy, double& lon, double& lat, const silly_guass_param& p)
+void silly_proj::gauss_to_lonlat(const double& gx, const double& gy, double& lon, double& lat, const silly_gauss_param& p)
 {
     double centralMeridian = p.central;
 
@@ -86,7 +86,7 @@ void silly_proj::gauss_to_lonlat(const double& central, const double& gx, const 
     lon = lambda * 180.0 / SU_PI;
 }
 
-void silly_proj::lonlat_to_gauss(const double& lon, const double& lat, double& gx, double& gy, const silly_guass_param& p)
+void silly_proj::lonlat_to_gauss(const double& lon, const double& lat, double& gx, double& gy, const silly_gauss_param& p)
 {
     // 中央经线
     double L0 = p.central;
@@ -163,12 +163,18 @@ void silly_proj::lonlat_to_mercator(const double& lon, const double& lat, double
     mcty = WGS84_SEMI_MAJOR_AXIS * log(tan(SU_PI / 4 + latRad / 2));
 }
 
-void silly_proj::mercator_to_gauss(const double& mctx, const double& mcty, double& gx, double& gy, const silly_guass_param& p)
+void silly_proj::mercator_to_gauss(const double& mctx, const double& mcty, double& gx, double& gy, const silly_gauss_param& p)
 {
+    double lon, lat;
+    mercator_to_lonlat(mctx, mcty, lon, lat);
+    lonlat_to_gauss(lon, lat, gx, gy, p);
 }
 
-void silly_proj::gauss_to_mercator(const double& gx, const double& gy, double& mctx, double& mcty, const silly_guass_param& p)
+void silly_proj::gauss_to_mercator(const double& gx, const double& gy, double& mctx, double& mcty, const silly_gauss_param& p)
 {
+    double lon, lat;
+    gauss_to_lonlat(gx, gy, lon, lat, p);
+    lonlat_to_mercator(lon, lat, mctx, mcty);
 }
 
 void silly_proj::mercator_to_gauss(const double& central, const double& mctx, const double& mcty, double& gx, double& gy)

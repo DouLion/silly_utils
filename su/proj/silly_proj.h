@@ -24,7 +24,20 @@
 
 #define WGS84_E2 (2 * WGS84_FLATTENING_R - WGS84_FLATTENING_R * WGS84_FLATTENING_R)
 
-struct silly_guass_param
+// 54年北京坐标系参数
+#define ELLIPSOID_54_BJ_A 6378245.0f
+#define ELLIPSOID_54_BJ_F 0.0033523298692591f
+
+// 80年西安坐标系参数
+#define ELLIPSOID_80_XA_A 6378140.0f
+#define ELLIPSOID_80_XA_F 0.0033528131778969f
+
+// WGS84坐标系参数
+#define ELLIPSOID_84_WGS_A 6378137.0f
+#define ELLIPSOID_84_WGS_F 0.0033528106647475f
+
+
+struct silly_gauss_param
 {
     // 中央经度线
     double central{117.0};
@@ -32,6 +45,7 @@ struct silly_guass_param
     double easting{500000.0};  // 东偏移
     // 长半轴
     double major_axis{WGS84_SEMI_MAJOR_AXIS};
+    // 扁率
     double flatten{WGS84_FLATTENING_R};
 };
 
@@ -46,7 +60,7 @@ class silly_proj
     /// <param name="lon"></param>
     /// <param name="lat"></param>
     /// <param name="p"></param>
-    static void gauss_to_lonlat(const double& gx, const double& gy, double& lon, double& lat, const silly_guass_param& p);
+    static void gauss_to_lonlat(const double& gx, const double& gy, double& lon, double& lat, const silly_gauss_param& p);
 
     /// <summary>
     /// 高斯投影反算经纬度,使用静态值速度会更快
@@ -65,7 +79,7 @@ class silly_proj
     /// <param name="gx"></param>
     /// <param name="gy"></param>
     /// <param name="p"></param>
-    static void lonlat_to_gauss(const double& lon, const double& lat, double& gx, double& gy, const silly_guass_param& p);
+    static void lonlat_to_gauss(const double& lon, const double& lat, double& gx, double& gy, const silly_gauss_param& p);
 
     /// <summary>
     /// 经纬度转高斯投影,使用静态值速度会更快
@@ -102,7 +116,7 @@ class silly_proj
     /// <param name="gx"></param>
     /// <param name="gy"></param>
     /// <param name="p"></param>
-    static void mercator_to_gauss(const double& mctx, const double& mcty, double& gx, double& gy, const silly_guass_param& p = silly_guass_param());
+    static void mercator_to_gauss(const double& mctx, const double& mcty, double& gx, double& gy, const silly_gauss_param& p = silly_gauss_param());
 
     /// <summary>
     /// 高斯投影转墨卡托
@@ -112,7 +126,7 @@ class silly_proj
     /// <param name="mctx"></param>
     /// <param name="mcty"></param>
     /// <param name="p"></param>
-    static void gauss_to_mercator(const double& gx, const double& gy, double& mctx, double& mcty, const silly_guass_param& p = silly_guass_param());
+    static void gauss_to_mercator(const double& gx, const double& gy, double& mctx, double& mcty, const silly_gauss_param& p = silly_gauss_param());
 
     /// <summary>
     /// 墨卡托转高斯投影,使用静态值速度会更快
