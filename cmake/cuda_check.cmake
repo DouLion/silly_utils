@@ -1,4 +1,4 @@
-if(NOT ENABLE_CUDA)
+if(ENABLE_CUDA)
 set(CMAKE_CUDA_ARCHITECTURES "70")
 set(CMAKE_CXX_STANDARD 17)
 # 设置CUDA Toolkit路径（如果自动检测不工作）
