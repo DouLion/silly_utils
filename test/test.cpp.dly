@@ -1,13 +1,18 @@
-// 测试
+
+
+/// 测试
 #pragma once
 #if IS_WIN32
-#include <vld.h>
+#//include <vld.h>
 #endif
-
-#define CATCH2_UNIT_TEST 1
+#undef CATCH2_UNIT_TEST
 #ifdef CATCH2_UNIT_TEST
-#include "units/test_demo.hpp"
+// #include "units/test_demo.hpp"
+
+#include "units/test_triangular.hpp"
+#include <catch2/catch_session.hpp>
 #include "units/test_cairo.hpp"
+#include "units/test_posix_time.hpp"
 #include "units/test_compress.hpp"
 #include "units/test_convert.hpp"
 #include "units/test_database.hpp"
@@ -16,42 +21,409 @@
 #include "units/test_file.hpp"
 #include "units/test_geo.hpp"
 #include "units/test_ini.hpp"
-// 有内存泄漏
-//#include "units/test_jpeg.hpp"
+#include "units/test_jpeg.hpp"
 #include "units/test_log.hpp"
 #include "units/test_matrix.hpp"
 #include "units/test_proj.hpp"
 #include "units/test_pyramid.hpp"
 #include "units/test_system.hpp"
 #include "units/test_tcp.hpp"
-#include "units/test_triangular.hpp"
+
 #include "units/test_weather.hpp"
-#include <catch2/catch_session.hpp>
-#endif
 
-void catch2_test()
-{
+
+#endif
+//
+#include <datetime/silly_posix_time.h>
+#include <database/otl/otl_tools.h>
+#include <database/dm8/dm8_dpi.h>
+#include <log/silly_log.h>
+#include <weather/silly_tzx_grid.h>
+#include <geo/silly_raster_to_vector.h>
+#include <image/silly_cairo.h>
+#include <geo/silly_geojson.h>
+#include <geo/silly_geo_utils.h>
+#include <files/silly_file.h>
+#include <geo/silly_vector_to_raster.h>
+#include <math/silly_matrix.h>
+#include <render/silly_grid_render.h>
+#include <proj/silly_proj.h>
+#include "weather/silly_grib2.h"
+#include "weather/silly_netcdf.h"
+#include "datetime/silly_timer.h"
+#include "weather/silly_ascii_grid.h"
+#include "triangular/silly_delaunay_bowyer.h"
+#include "encode/silly_encode.h"
+#include "tzx/pyramid/silly_pyramid_tools.h"
 #ifdef CATCH2_UNIT_TEST
-    std::vector<std::string> args{/*"-?", "-n",*/ "-d=yes", "-v=high"};
-    int argc = args.size() + 1;
-    char** argv = new char*[argc];
-    argv[0] = "test";
-    for (int i = 0; i < args.size(); ++i)
-    {
-        argv[i + 1] = (char*)args[i].c_str();
-    }
-    Catch::Session().run(argc, argv);
-    delete[] argv;
-#endif
-}
-
 int main(int argc, char** argv)
 {
-    SLOG_INFO("开始运行")
-    /// Catch::Session().
-    // Catch::Session().
+#ifdef CATCH2_UNIT_TEST
+    std::vector<std::string> args{
+        "-?", "-n",
+        "-d=yes", "-v=high"};
+    int argc1 = args.size() + 1;
+    char** argv1 = new char*[argc1];
+    argv1[0] = "test";
+    for (int i = 0; i < args.size(); ++i)
+    {
+        argv1[i + 1] = (char*)args[i].c_str();
+    }
+    Catch::Session().run(argc1, argv1);
+    delete[] argv1;
+#endif
+    return 0;
+}
+#else
+#include <locale>
+#include <codecvt>
+int main(int argc, char** argv)
+{
+
+    silly_ascii_grid sag;
+    sag.read("Z:\\tmp\\H_48_00.bin");
+    double maxv = -99999999.0, minv = 99999999.0;
+    for (int r = 0; r < sag.nrows; ++r)
+    {
+        for (int c = 0; c < sag.ncols; ++c)
+        {
+            double v = sag.m_data[r][c];
+            maxv = std::max(maxv, v);
+            minv = std::min(minv, v);
+        }
+    }
+    png_data pd2 = png_utils::create_empty(sag.nrows, sag.ncols, PNG_COLOR_TYPE_RGB);
+    double step = (maxv - minv)/255;
+    for (int r = 0; r < sag.nrows; ++r)
+    {
+        for (int c = 0; c < sag.ncols; ++c)
+        {
+            double v = sag.m_data[r][c];
+
+            silly_color sc;
+            sc.red = static_cast<unsigned char>(std::min(255., (v - minv)/step));
+            pd2.set_pixel(r, c, sc);
+        }
+    }
+    std::string pd2_data;
+    pd2_data.resize(24);
+    int iUMax = static_cast<int>(maxv * 100);
+    int iVMax = 0;//static_cast<int>(vMax * 100);
+    int iUMin = static_cast<int>(minv * 100);
+    int iVMin = 0;//static_cast<int>(vMin * 100);
+    int iRow = static_cast<int>(sag.nrows);
+    int iCol = static_cast<int>(sag.ncols);
+    memcpy(&pd2_data[0], &iRow, sizeof(iRow));
+    memcpy(&pd2_data[0] + sizeof(int) * 1, &iCol, sizeof(iCol));
+    memcpy(&pd2_data[0] + sizeof(int) * 2, &iUMax, sizeof(iUMax));
+    memcpy(&pd2_data[0] + sizeof(int) * 3, &iUMin, sizeof(iUMin));
+    memcpy(&pd2_data[0] + sizeof(int) * 4, &iVMax, sizeof(iVMax));
+    memcpy(&pd2_data[0] + sizeof(int) * 5, &iVMin, sizeof(iVMin));
+    std::string pd_buf;
+    png_utils::memory_encode(pd2, pd_buf);
+    pd2_data.append(pd_buf);
+    sag.m_data.release();
+    pd2.release();
+    silly_file::write("Z://tmp//test.png", pd2_data);
+    return 0;
+
+
+    // 使用空标识符创建一个本地化的std::locale对象
+    std::locale loc("");
+
+    char* currentLocale = setlocale(LC_ALL, "");
+    std::cout << "Current locale: " << currentLocale << std::endl;
+
+    // 输出当前区域设置的名称
+    std::cout << "Locale name: " << loc.name() << std::endl;
+
+
+    std::cout << "Decimal point separator: " << std::use_facet<std::numpunct<char>>(loc).decimal_point() << std::endl;
+
+    // 获取千位分隔符
+    std::cout << "Thousands separator: " << std::use_facet<std::numpunct<char>>(loc).thousands_sep() << std::endl;
+
+    // 获取货币符号
+
+    // 获取货币正数格式
+    std::cout << "Positive currency format: " << std::use_facet<std::moneypunct<char>>(loc).positive_sign() << std::endl;
+
+    // 获取货币负数格式
+    std::cout << "Negative currency format: " << std::use_facet<std::moneypunct<char>>(loc).negative_sign() << std::endl;
+
+
+
+    std::string code = "13681207282";
+
+
+    uint8_t fmt = (0b111 << 5) | static_cast<uint8_t>(code.size());
+    uint8_t len2 = static_cast<uint8_t>(fmt) & 0b00011111;
+    std::string content;
+    content.resize(100);
+    memset(content.data(), 98, 100);
+    for (int i = 0; i < 100; i+=5)
+    {
+        content[i] = 0;
+    }
+    silly_file::write("Z://tmp//test.txt", content);
+
+    return 0;
+
+    std::vector<silly_dt_point>  npoints;
+    silly_multi_poly mpolyz;
+    bool status = silly_geo_utils::read_iso_polygon("Z://tmp//hebei_out.txt", mpolyz);
+    silly_geo_utils::write_iso_polygon("Z://tmp//hebei_out2.txt", mpolyz);
+    silly_cairo scz;
+    scz.create(512, 512);
+    scz.set_color(silly_color(255, 255, 0, 255));
+    for(auto p : mpolyz)
+    {
+        scz.draw_poly(p, {113, 43, 120, 36});
+    }
+    scz.write("Z://tmp//test.png");
+    scz.release();
+    return 0;
+
+    uint64_t  aaaa = 0;
+    uint32_t  bbbb = UINT32_MAX;
+    uint32_t cccc =UINT32_MAX-1;
+    std::cout << std::hex << aaaa << std::endl;
+    aaaa|= bbbb;
+    std::cout << std::hex << aaaa << std::endl;
+    aaaa = aaaa << 32;
+    std::cout << std::hex << aaaa << std::endl;
+    aaaa |= cccc;
+    std::cout << std::hex << aaaa << std::endl;
+
+    return 0;
+
+    silly_grib2_utils sss;
+    std::map<size_t, silly_grib2_frame> msgf_grb;
+    sss.read("Z://tmp//2024081920_045.grib2", msgf_grb);
+    for(auto& it : msgf_grb)
+    {
+        std::cout << it.first << " : " << it.second.data.size() << std::endl;
+    }
+    return 0;
+
+
+    std::vector<silly_dt_point> npoints = silly_delaunay_utils::read("hebei_station.txt");
+    int i = 10;
+    silly_timer timer;
+    silly_delaunay_bowyer sdd;
+    // while(i--)
+    {
+        sdd.points(npoints);
+        sdd.triangulate();
+    }
+    sdd.draw("LAWSON BOWYER.png");
+
+    SILLY_TIMER_COST_SEC(timer)
+    return 0;
+    silly_ascii_grid grid;
+    grid.read("//192.168.0.9/TzxProject/Webs/dem/server/projects/xyz/output/plan1/bin/H_45_00.bin");
+
+    png_data pd1 = png_utils::create_empty(grid.nrows, grid.ncols, PNG_COLOR_TYPE_GRAY);
+    for (int r = 0; r < grid.nrows; ++r)
+    {
+        for (int c = 0; c < grid.ncols; ++c)
+        {
+            double v = grid.m_data[r][c];
+            if(v < 0.01)
+            {
+                pd1.set_pixel(r, c, silly_color(0));
+            }
+            else
+            {
+                pd1.set_pixel(r, c, silly_color(static_cast<unsigned char>(std::min(254., v/10*250+ 5))));
+            }
+
+        }
+    }
+    png_utils::write("Z://tmp//H_45_00_gray.png", pd1);
+    pd1.release();
+    grid.m_data.release();
+    return 0;
+
+
+    silly_geo_utils::init_gdal_env();
+    std::string input = "Z:/tmp/filter.shp";
+    double left = 74.0, top = 54.0, right =135.0, bottom = 3.0;
+    double cell_size = 0.05;
+    std::vector<silly_geo_coll> collections;
+    silly_geo_utils::read_geo_coll(input, collections);
+    std::vector<silly_geo_coll> new_colls;
+    int width = (right - left)/cell_size;
+    int height = (top - bottom)/cell_size;
+
+    for(const auto& coll : collections)
+    {
+        double lgtd, lttd;
+        if(coll.m_type == enum_geometry_type::egtPolygon)
+        {
+            lgtd = coll.m_poly.outer_ring.points[0].lgtd;
+            lttd = coll.m_poly.outer_ring.points[0].lttd;
+        }
+        else if(coll.m_type == enum_geometry_type::egtMultiPolygon)
+        {
+
+            lgtd = coll.m_m_polys[0].outer_ring.points[0].lgtd;
+            lttd = coll.m_m_polys[0].outer_ring.points[0].lttd;
+        }
+
+        int col = std::floor((lgtd - (left -cell_size/2))/cell_size);
+        int row = std::floor((lttd - (bottom - cell_size/2))/cell_size);
+
+
+    }
+
+    return 0;
+
+
+    SLOG_INFO("开始测试")
     catch2_test();
+    SLOG_INFO("测试完成")
+    return 0;
+
+    silly_log::instance().init(argc, argv);
+    geo_utils::init_gdal_env();
+
+    auto ls = silly_file::list_all("C:\\Users\\dell\\Desktop");
+    std::string content;
+    silly_file::read("C:\\Users\\dell\\Desktop\\mysql自动分表.sql", content);
+    for (auto l : ls)
+    {
+        SLOG_INFO(l);
+    }
+
+    std::string g = "Z://tmp//poly_sheng_s5000.shp";
+    xscan_line_raster xlr;
+    xlr.set({108, 30, 114, 25}, 0.005);
+    std::vector<silly_geo_coll> gcs;
+    geo_utils::read_geo_coll(g, gcs, false);
+
+    std::cout << " : " << silly_geo_utils::area(gcs.front().m_poly) << std::endl;
+
+    OGRPolygon org = silly_geo_utils::silly_poly_to_ogr(gcs.front().m_poly);
+    std::cout << " : " << org.get_Area() << std::endl;
+    int num = gcs.front().m_poly.outer_ring.points.size();
+    std::vector<double> xs(num), ys(num);
+    std::vector<double> xypoints(num * 2);
+    for (int i = 0; i < num; ++i)
+    {
+        xs[i] = gcs.front().m_poly.outer_ring.points[i].lgtd;
+        ys[i] = gcs.front().m_poly.outer_ring.points[i].lttd;
+        xypoints[i * 2] = xs[i];
+        xypoints[i * 2 + 1] = ys[i];
+    }
+    std::cout << " : " << silly_geo_utils::area<double>(xs, ys) << std::endl;
+
+    std::cout << " : " << silly_geo_utils::area<double>(num, &xs[0], &ys[0]) << std::endl;
+
+    std::cout << " : " << silly_geo_utils::area<double>(num, &xypoints[0]) << std::endl;
+
+    SLOG_DEBUG("{:08f}", silly_geo_utils::area_sqkm(gcs.front().m_poly.outer_ring.points));
+    std::cout << " : " << silly_geo_utils::area_sqkm(gcs.front().m_poly.outer_ring.points) / 1e6 << std::endl;
+    return 0;
+    for (auto gc : gcs)
+    {
+        // xlr.rasterization(gc);
+    }
+
+    xlr.image("Z://tmp//test.png");
+
+    return 0;
+
+
+    png_data pd = png_utils::read("Z://tmp//head-orig3 (1).png");
+    trace_grid_info tgi;
+    tgi.xdelta = 1.0;
+    tgi.ydelta = 1.0;
+    tgi.left = 0;
+    tgi.right = pd.width;
+    tgi.top = pd.height;
+    tgi.bottom = 0;
+    trace_algo_info tai;
+    tai.ignore_count = 0;
+    tai.interpolation_mode = 2;
+    silly_vectorizer vc;
+    // vc.m_interpolation_mode = 1;
+    vc.set(tgi);
+    vc.set(tai);
+    std::vector<trace_square_point> points;
+    for (int r = 0; r < pd.height; ++r)
+    {
+        for (int c = 0; c < pd.width; ++c)
+        {
+            points.push_back({silly_point(c, pd.height - r - 1), 255.0 - static_cast<double>(pd.data[r][c * 4])});
+        }
+    }
+    auto polys1 = vc.vectorize(points, 1);
+    // auto polys = vc.simplify_poly(polys1, 10);
+    // auto polys2 = vc.smooth_poly(polys1);
+    auto polys2 = vc.simplify_poly_same_slope(polys1);
+    auto polys3 = vc.simplify_poly_less_angle(polys2, 2.0);
+    auto polys4 = vc.simplify_poly_less_angle(polys3, 5);
+
+    // auto polys5 = vc.simplify_poly_mid_point(polys2);
+
+    // auto polys5 = vc.simplify_poly(polys4, 2);
+    auto polys = vc.smooth_poly(polys3);
+    silly_cairo sc;
+    sc.create(pd.width * 30, pd.height * 30);
+    sc.set_color({0, 0, 255, 255});
+    for(int r = 0; r < vc.m_mat.size();++r)
+    {
+        std::cout << r<< std::endl;
+        for(int c = 0; c < vc.m_mat[r].size(); ++c)
+        {
+            for(auto s : vc.m_mat[r][c].segments)
+            {
+                sc.draw_line({s.f, s.t}, silly_geo_rect(0, tgi.height, tgi.width, 0));
+            }
+        }
+    }
+
+    for (auto poly : polys)
+    {
+        sc.draw_poly(poly, silly_geo_rect(0, pd.height, pd.width, 0));
+        // sc.draw_line(poly.outer_ring.points, silly_geo_rect(0, tgi.height, tgi.width, 0));
+        //  break;
+    }
+    sc.set_color({255, 255, 0, 255});
+    int i = 0;
+    for (auto poly : polys2)
+    {
+
+        for (auto p : poly.outer_ring.points)
+        {
+            double x = p.lgtd/pd.width * sc.width();
+            double y = (pd.height - p.lttd)/pd.height * sc.height();
+            sc.draw_text({x+5, y+5, std::to_string(i), 10 });
+            i++;
+            sc.draw_point(p, 5, silly_geo_rect(0, pd.height, pd.width, 0));
+        }
+
+        // sc.draw_line(poly.outer_ring.points, silly_geo_rect(0, tgi.height, tgi.width, 0));
+        //  break;
+    }
+
+    sc.set_color({255, 0, 0, 255});
+    for (auto poly : polys3)
+    {
+        for (auto p : poly.outer_ring.points)
+        {
+            sc.draw_point(p, 3, silly_geo_rect(0, pd.height, pd.width, 0));
+        }
+
+        // sc.draw_line(poly.outer_ring.points, silly_geo_rect(0, tgi.height, tgi.width, 0));
+        //  break;
+    }
+    sc.write("Z://fff.png");
+    sc.release();
+    pd.release();
 
     return 0;
 }
 
+#endif

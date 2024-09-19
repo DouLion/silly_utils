@@ -16,6 +16,9 @@ else()
   set(SU_AS_LIB TRUE)
 endif()
 
+message(STATUS "1123 ${CMAKE_CONFIGURATION_TYPES}")
+message(STATUS "${CMAKE_BUILD_TYPE}")
+
 if(SU_AS_PROJECT)
   message(STATUS "作为单个工程编译")
   # 设置默认程序根目录,程序中所有路径均参照此路径,方便调试和发布
@@ -30,7 +33,14 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/su)
 # ##############################################################################
 # Add sub dirs.
 # ##############################################################################
+
+if(ENABLE_LUCENEPP)
+  add_subdirectory(lucenepp)
+  add_compile_options(-DENABLE_LUCENEPP)
+endif()
 add_subdirectory(su)
+add_compile_options(-DDISABLE_LUCENEPP)
+
 if(SU_AS_PROJECT)
   add_subdirectory(test)
   add_subdirectory(tools)

@@ -38,7 +38,7 @@ freely, subject to the following restrictions:
 class silly_thread_pool
 {
   public:
-    silly_thread_pool(size_t);
+    silly_thread_pool(size_t threads = std::thread::hardware_concurrency());
     template <class F, class... Args>
     auto enqueue(F&& f, Args&&... args) -> std::future<typename std::result_of<F(Args...)>::type>;
     ~silly_thread_pool();

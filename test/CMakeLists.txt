@@ -17,6 +17,9 @@ else()
 endif()
 
 target_link_libraries(${PROJECT_NAME} PUBLIC sutils)
+if(ENABLE_LUCENEPP)
+  target_link_libraries(${PROJECT_NAME} PUBLIC lucenepp lucenepp-contrib)
+endif()
 find_package(Catch2 CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC Catch2::Catch2
                                              Catch2::Catch2WithMain)

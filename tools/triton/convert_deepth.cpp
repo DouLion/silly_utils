@@ -176,6 +176,33 @@ void convert_q_by_plan(const std::string& path, double mid)
     }
 }
 
+
+void cuda_depth_cvt(const silly_ascii_grid& sag)
+{
+    size_t nrows = sag.nrows, ncols = sag.ncols;
+    /*double cellsize = sag.cellsize;
+    double hstep = std::max(0.0001, (sag.MAXV - sag.MINV) / 255);
+    for (size_t r = 0; r < nrows; ++r)
+    {
+        for (size_t c = 0; c < ncols; ++c)
+        {
+            double tmp_mct_x = mct_letf + c * mct_x_step;
+            double tmp_mct_y = mct_top - r * mct_y_step;
+            double tmp_gauss_x, tmp_gauss_y;
+            silly_proj::mercator_to_gauss(mid, tmp_mct_x, tmp_mct_y, tmp_gauss_x, tmp_gauss_y);
+
+            int gcol = std::round((tmp_gauss_x - gauss_left) / cellsize + 1);
+            int grol = std::round((gauss_top - tmp_gauss_y) / cellsize);
+            if (gcol >= 0 && grol > 0 && gcol < ncols && grol < nrows)
+            {
+                double v = sag.m_data[grol][gcol];
+                silly_color sc;
+                sc.red = static_cast<unsigned char>(std::min(255., (v - sag.MINV) / hstep));
+                pd.set_pixel(r, c, sc);
+            }
+        }
+    }*/
+}
 void write_depth_png(double mid, const silly_ascii_grid& sag, std::string dst)
 {
     size_t nrows = sag.nrows, ncols = sag.ncols;
