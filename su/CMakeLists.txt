@@ -21,6 +21,7 @@ target_precompile_headers(
         database/otl/silly_otl.h
         datetime/silly_posix_time.h
         json/silly_jsonpp.h
+        image/png_utils.h
 )
 
 find_package(cryptopp CONFIG REQUIRED)
