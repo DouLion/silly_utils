@@ -1,3 +1,4 @@
+/*
 //
 // Created by dly on 2023/8/2.
 //
@@ -63,17 +64,23 @@ typedef int socklen_t;
 
 using namespace std;
 
-/* socket values */
+*/
+/* socket values *//*
+
 // #define SETSOCKOPT_OPTVAL_TYPE (void *)
 #define silly_ftp_BUFSIZ 1024
 #define ACCEPT_TIMEOUT 30
 
-/* io types */
+*/
+/* io types *//*
+
 #define silly_ftp_CONTROL 0
 #define silly_ftp_READ 1
 #define silly_ftp_WRITE 2
 
-/* win32 dll initializer */
+*/
+/* win32 dll initializer *//*
+
 
 #if defined(_WIN32)
 BOOL APIENTRY DllMain(HINSTANCE hInst, DWORD reason, LPVOID reserved)
@@ -90,14 +97,18 @@ BOOL APIENTRY DllMain(HINSTANCE hInst, DWORD reason, LPVOID reserved)
             break;
     }
 
-    /* Returns TRUE on success, FALSE on failure */
+    */
+/* Returns TRUE on success, FALSE on failure *//*
+
     return TRUE;
 }
 #endif
 
+*/
 /*
  * Constructor
- */
+ *//*
+
 
 silly_ftp::silly_ftp()
 {
@@ -130,9 +141,11 @@ silly_ftp::silly_ftp()
     ClearHandle();
 }
 
+*/
 /*
  * Destructor
- */
+ *//*
+
 
 silly_ftp::~silly_ftp()
 {
@@ -153,12 +166,14 @@ void silly_ftp::sprint_rest(char* buf, off64_t offset)
 #endif
 }
 
+*/
 /*
  * socket_wait - wait for socket to receive or flush data
  *
  * return 1 if no user callback, otherwise, return value returned by
  * user callback
- */
+ *//*
+
 int silly_ftp::socket_wait(ftphandle* ctl)
 {
     fd_set fd, *rfd = NULL, *wfd = NULL;
@@ -168,11 +183,13 @@ int silly_ftp::socket_wait(ftphandle* ctl)
     if (ctl->idlecb == NULL)
         return 1;
 
-    /*if ((ctl->dir == silly_ftp_CONTROL)
+    */
+/*if ((ctl->dir == silly_ftp_CONTROL)
             || (ctl->idlecb == NULL)
             || ((ctl->idletime.tv_sec == 0)
             && //(ctl->idletime.tv_usec 0))
-    return 1;*/
+    return 1;*//*
+
 
     if (ctl->dir == silly_ftp_WRITE)
         wfd = &fd;
@@ -201,11 +218,13 @@ int silly_ftp::socket_wait(ftphandle* ctl)
     return rv;
 }
 
+*/
 /*
  * read a line of text
  *
  * return -1 on error or bytecount
- */
+ *//*
+
 int silly_ftp::readline(char* buf, int max, ftphandle* ctl)
 {
     int x, retval = 0;
@@ -300,11 +319,13 @@ int silly_ftp::readline(char* buf, int max, ftphandle* ctl)
     return retval;
 }
 
+*/
 /*
  * write lines of text
  *
  * return -1 on error or bytecount
- */
+ *//*
+
 int silly_ftp::writeline(char* buf, int len, ftphandle* nData)
 {
     int x, nb = 0, w;
@@ -381,12 +402,14 @@ int silly_ftp::writeline(char* buf, int len, ftphandle* nData)
     return len;
 }
 
+*/
 /*
  * read a response from the server
  *
  * return 0 if first char doesn't match
  * return 1 if first char matches
- */
+ *//*
+
 int silly_ftp::readresp(char c, ftphandle* nControl)
 {
     char match[5];
@@ -416,9 +439,11 @@ int silly_ftp::readresp(char c, ftphandle* nControl)
     return 0;
 }
 
+*/
 /*
  * FtpLastResponse - return a pointer to the last response received
- */
+ *//*
+
 char* silly_ftp::LastResponse()
 {
     if ((mp_ftphandle) && (mp_ftphandle->dir == silly_ftp_CONTROL))
@@ -426,11 +451,13 @@ char* silly_ftp::LastResponse()
     return NULL;
 }
 
+*/
 /*
  * silly_ftp::Connect - connect to remote server
  *
  * return 1 if connected, 0 if not
- */
+ *//*
+
 int silly_ftp::Connect(const char* host)
 {
     int sControl;
@@ -529,11 +556,13 @@ int silly_ftp::Connect(const char* host)
     return 1;
 }
 
+*/
 /*
  * FtpSendCmd - send a command and wait for expected response
  *
  * return 1 if proper response received, 0 otherwise
- */
+ *//*
+
 int silly_ftp::FtpSendCmd(const char* cmd, char expresp, ftphandle* nControl)
 {
     char buf[256];
@@ -566,11 +595,13 @@ int silly_ftp::FtpSendCmd(const char* cmd, char expresp, ftphandle* nControl)
     return readresp(expresp, nControl);
 }
 
+*/
 /*
  * FtpLogin - log in to remote server
  *
  * return 1 if logged in, 0 otherwise
- */
+ *//*
+
 int silly_ftp::Login(const char* user, const char* pass)
 {
     char tempbuf[64];
@@ -590,11 +621,13 @@ int silly_ftp::Login(const char* user, const char* pass)
     return FtpSendCmd(tempbuf, '2', mp_ftphandle);
 }
 
+*/
 /*
  * FtpAcceptConnection - accept connection from server
  *
  * return 1 if successful, 0 otherwise
- */
+ *//*
+
 int silly_ftp::FtpAcceptConnection(ftphandle* nData, ftphandle* nControl)
 {
     int sData;
@@ -661,11 +694,13 @@ int silly_ftp::FtpAcceptConnection(ftphandle* nData, ftphandle* nControl)
     return rv;
 }
 
+*/
 /*
  * FtpAccess - return a handle for a data stream
  *
  * return 1 if successful, 0 otherwise
- */
+ *//*
+
 int silly_ftp::FtpAccess(const char* path, accesstype type, transfermode mode, ftphandle* nControl, ftphandle** nData)
 {
     char buf[256];
@@ -746,11 +781,13 @@ int silly_ftp::FtpAccess(const char* path, accesstype type, transfermode mode, f
     return 1;
 }
 
+*/
 /*
  * FtpOpenPort - Establishes a PORT connection for data transfer
  *
  * return 1 if successful, -1 otherwise
- */
+ *//*
+
 int silly_ftp::FtpOpenPort(ftphandle* nControl, ftphandle** nData, transfermode mode, int dir, char* cmd)
 {
     int sData;
@@ -881,11 +918,13 @@ int silly_ftp::FtpOpenPort(ftphandle* nControl, ftphandle** nData, transfermode 
     return 1;
 }
 
+*/
 /*
  * FtpOpenPasv - Establishes a PASV connection for data transfer
  *
  * return 1 if successful, -1 otherwise
- */
+ *//*
+
 int silly_ftp::FtpOpenPasv(ftphandle* nControl, ftphandle** nData, transfermode mode, int dir, char* cmd)
 {
     int sData;
@@ -1032,9 +1071,11 @@ int silly_ftp::FtpOpenPasv(ftphandle* nControl, ftphandle** nData, transfermode 
     return 1;
 }
 
+*/
 /*
  * FtpClose - close a data connection
- */
+ *//*
+
 int silly_ftp::FtpClose(ftphandle* nData)
 {
     ftphandle* ctrl;
@@ -1061,9 +1102,11 @@ int silly_ftp::FtpClose(ftphandle* nData)
     return 1;
 }
 
+*/
 /*
  * FtpRead - read from a data connection
- */
+ *//*
+
 int silly_ftp::FtpRead(void* buf, int max, ftphandle* nData)
 {
     int i;
@@ -1102,9 +1145,11 @@ int silly_ftp::FtpRead(void* buf, int max, ftphandle* nData)
     return i;
 }
 
+*/
 /*
  * FtpWrite - write to a data connection
- */
+ *//*
+
 int silly_ftp::FtpWrite(void* buf, int len, ftphandle* nData)
 {
     int i;
@@ -1142,11 +1187,13 @@ int silly_ftp::FtpWrite(void* buf, int len, ftphandle* nData)
     return i;
 }
 
+*/
 /*
  * FtpSite - send a SITE command
  *
  * return 1 if command successful, 0 otherwise
- */
+ *//*
+
 int silly_ftp::Site(const char* cmd)
 {
     char buf[256];
@@ -1159,11 +1206,13 @@ int silly_ftp::Site(const char* cmd)
     return 1;
 }
 
+*/
 /*
  * FtpRaw - send a raw string string
  *
  * return 1 if command successful, 0 otherwise
- */
+ *//*
+
 
 int silly_ftp::Raw(const char* cmd)
 {
@@ -1174,6 +1223,7 @@ int silly_ftp::Raw(const char* cmd)
     return 1;
 }
 
+*/
 /*
  * FtpSysType - send a SYST command
  *
@@ -1182,7 +1232,8 @@ int silly_ftp::Raw(const char* cmd)
  * it out of the response buffer returned by FtpLastResponse().
  *
  * return 1 if command successful, 0 otherwise
- */
+ *//*
+
 int silly_ftp::SysType(char* buf, int max)
 {
     int l = max;
@@ -1197,11 +1248,13 @@ int silly_ftp::SysType(char* buf, int max)
     return 1;
 }
 
+*/
 /*
  * FtpMkdir - create a directory at server
  *
  * return 1 if successful, 0 otherwise
- */
+ *//*
+
 int silly_ftp::Mkdir(const char* path)
 {
     char buf[256];
@@ -1214,11 +1267,13 @@ int silly_ftp::Mkdir(const char* path)
     return 1;
 }
 
+*/
 /*
  * FtpChdir - change path at remote
  *
  * return 1 if successful, 0 otherwise
- */
+ *//*
+
 int silly_ftp::Chdir(const char* path)
 {
     char buf[256];
@@ -1231,11 +1286,13 @@ int silly_ftp::Chdir(const char* path)
     return 1;
 }
 
+*/
 /*
  * FtpCDUp - move to parent directory at remote
  *
  * return 1 if successful, 0 otherwise
- */
+ *//*
+
 int silly_ftp::Cdup()
 {
     if (!FtpSendCmd("CDUP", '2', mp_ftphandle))
@@ -1243,11 +1300,13 @@ int silly_ftp::Cdup()
     return 1;
 }
 
+*/
 /*
  * FtpRmdir - remove directory at remote
  *
  * return 1 if successful, 0 otherwise
- */
+ *//*
+
 int silly_ftp::Rmdir(const char* path)
 {
     char buf[256];
@@ -1260,11 +1319,13 @@ int silly_ftp::Rmdir(const char* path)
     return 1;
 }
 
+*/
 /*
  * FtpPwd - get working directory at remote
  *
  * return 1 if successful, 0 otherwise
- */
+ *//*
+
 int silly_ftp::Pwd(char* path, int max)
 {
     int l = max;
@@ -1283,11 +1344,13 @@ int silly_ftp::Pwd(char* path, int max)
     return 1;
 }
 
+*/
 /*
  * FtpXfer - issue a command and transfer data
  *
  * return 1 if successful, 0 otherwise
- */
+ *//*
+
 int silly_ftp::FtpXfer(const char* localfile, const char* path, ftphandle* nControl, accesstype type, transfermode mode)
 {
     int l, c;
@@ -1374,33 +1437,39 @@ int silly_ftp::FtpXfer(const char* localfile, const char* path, ftphandle* nCont
     return FtpClose(nData);
 }
 
+*/
 /*
  * FtpNlst - issue an NLST command and write response to output
  *
  * return 1 if successful, 0 otherwise
- */
+ *//*
+
 int silly_ftp::Nlst(const char* outputfile, const char* path)
 {
     mp_ftphandle->offset = 0;
     return FtpXfer(outputfile, path, mp_ftphandle, silly_ftp::dir, silly_ftp::ascii);
 }
 
+*/
 /*
  * FtpDir - issue a LIST command and write response to output
  *
  * return 1 if successful, 0 otherwise
- */
+ *//*
+
 int silly_ftp::Dir(const char* outputfile, const char* path)
 {
     mp_ftphandle->offset = 0;
     return FtpXfer(outputfile, path, mp_ftphandle, silly_ftp::dirverbose, silly_ftp::ascii);
 }
 
+*/
 /*
  * FtpSize - determine the size of a remote file
  *
  * return 1 if successful, 0 otherwise
- */
+ *//*
+
 int silly_ftp::Size(const char* path, int* size, transfermode mode)
 {
     char cmd[256];
@@ -1426,11 +1495,13 @@ int silly_ftp::Size(const char* path, int* size, transfermode mode)
     return rv;
 }
 
+*/
 /*
  * FtpModDate - determine the modification date of a remote file
  *
  * return 1 if successful, 0 otherwise
- */
+ *//*
+
 int silly_ftp::ModDate(const char* path, char* dt, int max)
 {
     char buf[256];
@@ -1446,11 +1517,13 @@ int silly_ftp::ModDate(const char* path, char* dt, int max)
     return rv;
 }
 
+*/
 /*
  * FtpGet - issue a GET command and write received data to output
  *
  * return 1 if successful, 0 otherwise
- */
+ *//*
+
 
 int silly_ftp::Get(const char* outputfile, const char* path, transfermode mode, off64_t offset)
 {
@@ -1461,11 +1534,13 @@ int silly_ftp::Get(const char* outputfile, const char* path, transfermode mode, 
         return FtpXfer(outputfile, path, mp_ftphandle, silly_ftp::filereadappend, mode);
 }
 
+*/
 /*
  * FtpPut - issue a PUT command and send data from input
  *
  * return 1 if successful, 0 otherwise
- */
+ *//*
+
 
 int silly_ftp::Put(const char* inputfile, const char* path, transfermode mode, off64_t offset)
 {
@@ -1504,11 +1579,13 @@ int silly_ftp::Delete(const char* path)
     return 1;
 }
 
+*/
 /*
  * FtpQuit - disconnect from remote
  *
  * return 1 if successful, 0 otherwise
- */
+ *//*
+
 int silly_ftp::Quit()
 {
     if (mp_ftphandle->dir != silly_ftp_CONTROL)
@@ -1598,11 +1675,13 @@ int silly_ftp::Fxp(silly_ftp* src, silly_ftp* dst, const char* pathSrc, const ch
         }
         if (!dst->FtpSendCmd(buf, '1', dst->mp_ftphandle))
         {
-            /* this closes the data connection, to abort the RETR on
+            */
+/* this closes the data connection, to abort the RETR on
             the source ftp. all hail pftp, it took me several
             hours and i was absolutely clueless, playing around with
             ABOR and whatever, when i desperately checked the pftp
-            source which gave me this final hint. thanks dude(s). */
+            source which gave me this final hint. thanks dude(s). *//*
+
 
             dst->FtpSendCmd("PASV", '2', dst->mp_ftphandle);
             src->readresp('4', src->mp_ftphandle);
@@ -1849,4 +1928,4 @@ int silly_ftp::RawWrite(void* buf, int len, ftphandle* handle)
 int silly_ftp::RawRead(void* buf, int max, ftphandle* handle)
 {
     return FtpRead(buf, max, handle);
-}
+}*/

@@ -12,6 +12,17 @@ endforeach()
 
 add_library(${PROJECT_NAME} STATIC ${SU_SRC_FILES})
 
+target_precompile_headers(
+        ${PROJECT_NAME} PUBLIC
+        su_marco.h
+        geo/silly_geo.h
+        log/silly_log.h
+        string/silly_format.h
+        database/otl/silly_otl.h
+        datetime/silly_posix_time.h
+        json/silly_jsonpp.h
+)
+
 find_package(cryptopp CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC cryptopp::cryptopp)
 
