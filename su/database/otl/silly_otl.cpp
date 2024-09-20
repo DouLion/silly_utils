@@ -12,7 +12,7 @@ const static std::string SILLY_OTL_MSSQL_ODBC_FORMAT = "Driver={%s};Server=%s;Po
 const static std::string SILLY_OTL_ORACLE_ODBC_FORMAT = "Driver={%s};DBQ=%s:%d/%s;Uid=%s;Pwd=%s;";
 const static std::string SILLY_OTL_DM8_ODBC_FORMAT = "Driver={%s};Server=%s;TCP_PORT:%d;UID=%s;PWD=%s;";
 const static std::string SILLY_OTL_POSTGRE_ODBC_FORMAT = "Driver={%s};Server=%s;Port=%d;Database=%s;Uid=%s;Pwd=%s;";
-const static std::string SILLY_OTL_DSN_FORMAT = "UID=%s;PWD=%s;DSN=%s;CHARSET=UTF8;";
+const static std::string SILLY_OTL_DSN_FORMAT = "UID=%s;PWD=%s;DSN=%s;";
 
 bool otl_conn_opt::load(const std::string& s_opt)
 {
@@ -87,6 +87,9 @@ bool otl_conn_opt::load(const std::string& s_opt)
                         break;
                     case enum_database_type::dbPG:
                         m_port = 5432;
+                        break;
+                    case enum_database_type::dbDM8:
+                        m_port = 5236;
                         break;
                     default:
                         break;
@@ -202,10 +205,10 @@ void otl_conn_opt::clean()
 void otl_conn_opt::help()
 {
     SLOG_INFO(
-        "OTL 连接串帮助信息:\nSQL Server:\n\tDRIVER={驱动名称};SERVER=IP;PORT=端口;UID=账号;PWD=密码;DATABASE=数据库;\nMySQL:\n\tDriver={MySQL ODBC 8.0 ANSI "
+        "\nOTL 连接串帮助信息:\n >>> 账号和密码中不要出现 [ ] { } ( ) , ; ? * = ! @ | 这些特殊字符 <<<\nSQL Server:\n\tDRIVER={驱动名称};SERVER=IP;PORT=端口;UID=账号;PWD=密码;DATABASE=数据库;\nMySQL:\n\tDriver={MySQL ODBC 8.0 ANSI "
         "Driver};Server=IP;Port=端口;Database=数据库;User=账号;Password=密码;Option=3;charset=UTF8;\nOracle:\n\tDriver={ODBC驱动名称};DBQ=IP:端口/表空间名称;UID=用户;PWD=密码;Oracle需要另外设置环境变量NLS_LANG=SIMPLIFIED "
-        "CHINESE_CHINA.UTF8,以支持中文编码utf8传递;\n达梦(DM8):\n\t达梦数据库目前只能使用DSN的方式  "
-        "UID=用户;PWD=密码;DSN=DSN名称;\n")
+        "CHINESE_CHINA.UTF8,以支持中文编码utf8传递;\n达梦(DM8):\n\tDriver={驱动名称};Server=IP;TCP_PORT:端口;UID=账号;PWD=密码; \n\t即使数据库编码为UTF8, 数据在插入时也需要时GBK编码, 否则会乱码;"
+        "\n不能正常使用ODBC时,考虑使用DSN方式:\n\tUID=账号;PWD=密码;DSN=DNS名称;\n")
 }
 
 static char* sqlserver_code_sql = "SELECT COLLATIONPROPERTY('Chinese_PRC_Stroke_CI_AI_KS_WS', 'CodePage');";
