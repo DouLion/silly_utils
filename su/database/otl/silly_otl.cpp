@@ -10,7 +10,7 @@
 const static std::string SILLY_OTL_MYSQL_ODBC_FORMAT = "Driver={%s};Server=%s;Port=%d;Database=%s;User=%s;Password=%s;Option=3;charset=UTF8;";
 const static std::string SILLY_OTL_MSSQL_ODBC_FORMAT = "Driver={%s};Server=%s;Port:%d;Database=%s;UID=%s;PWD=%s;";
 const static std::string SILLY_OTL_ORACLE_ODBC_FORMAT = "Driver={%s};DBQ=%s:%d/%s;Uid=%s;Pwd=%s;";
-const static std::string SILLY_OTL_DM8_ODBC_FORMAT = "Driver={%s};Server=%s;TCP_PORT:%d;UID=%s;PWD=%s;";
+const static std::string SILLY_OTL_DM8_ODBC_FORMAT = "Driver={%s};Server=%s;TCP_PORT=%d;UID=%s;PWD=%s;";
 const static std::string SILLY_OTL_POSTGRE_ODBC_FORMAT = "Driver={%s};Server=%s;Port=%d;Database=%s;Uid=%s;Pwd=%s;";
 const static std::string SILLY_OTL_DSN_FORMAT = "UID=%s;PWD=%s;DSN=%s;";
 
@@ -209,6 +209,13 @@ void otl_conn_opt::help()
         "Driver};Server=IP;Port=端口;Database=数据库;User=账号;Password=密码;Option=3;charset=UTF8;\nOracle:\n\tDriver={ODBC驱动名称};DBQ=IP:端口/表空间名称;UID=用户;PWD=密码;Oracle需要另外设置环境变量NLS_LANG=SIMPLIFIED "
         "CHINESE_CHINA.UTF8,以支持中文编码utf8传递;\n达梦(DM8):\n\tDriver={驱动名称};Server=IP;TCP_PORT:端口;UID=账号;PWD=密码; \n\t即使数据库编码为UTF8, 数据在插入时也需要时GBK编码, 否则会乱码;"
         "\n不能正常使用ODBC时,考虑使用DSN方式:\n\tUID=账号;PWD=密码;DSN=DNS名称;\n")
+    std::string content = "\n\n当前机器支持的ODBC驱动:\n";
+    for( auto d: drivers())
+    {
+        content += d + "\n";
+    }
+
+    SLOG_INFO(content)
 }
 
 static char* sqlserver_code_sql = "SELECT COLLATIONPROPERTY('Chinese_PRC_Stroke_CI_AI_KS_WS', 'CodePage');";
@@ -325,4 +332,46 @@ void otl_conn_opt::pwd(std::string p)
 void otl_conn_opt::timeout(int to)
 {
     m_timeout = to;
+}
+#ifdef IS_WIN32
+#include <odbcinst.h>
+#include <cstring>
+#pragma  comment(lib, "odbccp32.lib")
+#pragma  comment(lib, "legacy_stdio_definitions.lib")
+#endif
+std::vector<std::string> otl_conn_opt::drivers()
+{
+    std::vector<std::string> retVec;
+#ifdef IS_WIN32
+
+    WCHAR szBuf[10240] = { 0 };
+    WORD cbBufMax = 10239;
+    WORD cbBufOut;
+    WCHAR* pszBuf = szBuf;
+    using convert_typeX = std::codecvt_utf8<wchar_t>;
+    std::wstring_convert<convert_typeX, wchar_t> converterX;
+    if (SQLGetInstalledDrivers(szBuf, cbBufMax, &cbBufOut))
+    {
+        do
+        {
+            pszBuf = wcschr(pszBuf, '\0') + 1;
+            retVec.push_back(converterX.to_bytes(pszBuf));
+        } while (pszBuf[1] != '\0');
+    }
+#else
+    FILE* fp;
+    char buffer[4096];
+    fp = popen("odbcinst -q -d", "r");
+    while (nullptr != fgets(buffer, 4096, fp))
+    {
+        // printf("%s", buffer);
+        std::string tmp_odbc_driver(buffer);
+        tmp_odbc_driver = tmp_odbc_driver.substr(1, tmp_odbc_driver.size() - 3); // 每一行的结果 [MySQL ODBC 8.0 Unicode Driver]\r    最后有个换行符,所以是 -3
+        retVec.push_back(tmp_odbc_driver);
+        memset(buffer, 0, 4096);
+    }
+
+    pclose(fp);
+#endif
+    return retVec;
 }

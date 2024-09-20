@@ -190,6 +190,12 @@ class otl_conn_opt
     void timeout(int to);
 
     /// <summary>
+    /// 列举本机的所有ODBC驱动
+    /// </summary>
+    /// <returns></returns>
+    static std::vector<std::string> drivers();
+
+    /// <summary>
     /// 检查是否能够正常联通
     /// </summary>
     /// <returns></returns>
@@ -203,7 +209,7 @@ class otl_conn_opt
     /// <summary>
     /// 打印提示信息
     /// </summary>
-    void help();
+    static void help();
 
     /// <summary>
     /// 非session执行sql的模板函数
