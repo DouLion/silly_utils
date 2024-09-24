@@ -12,6 +12,7 @@
 
 bool silly_file_lock::lock(const std::string& u8file)
 {
+#if WIN32
     auto wsfile = std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t>().from_bytes(u8file).c_str();
     hFile = CreateFile(wsfile, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 
@@ -21,9 +22,14 @@ bool silly_file_lock::lock(const std::string& u8file)
         return false;
     }
     return true;
+#else
+
+    return false;
+#endif
 }
 void silly_file_lock::unlock()
 {
+#if WIN32
     if (hFile)
     {
         OVERLAPPED overlapped = {0};
@@ -36,8 +42,11 @@ void silly_file_lock::unlock()
 
         CloseHandle(overlapped.hEvent);
     }
+#else
+
+#endif
 }
 std::string silly_file_lock::err()
 {
-    return std::string();
+    return m_err;
 }
