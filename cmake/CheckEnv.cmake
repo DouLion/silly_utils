@@ -137,7 +137,7 @@ endif()
 if (${CMAKE_VERSION} VERSION_LESS 3.30)
   find_package(Boost COMPONENTS program_options date_time)
 else ()
-  find_package(Boost REQUIRED)
+  find_package(Boost COMPONENTS program_options date_time)
 endif ()
 
 if(Boost_FOUND)

@@ -85,8 +85,9 @@ bool silly_grib2_utils::open_grib2_handle(const std::string& path, void** file_h
 
     // TODO: 检查这个codes_context是否可以为null
     // *grb2_c = codes_context_get_default();
-
-    codes_grib_multi_support_on(nullptr);  // 多波段读取支持
+    /* turn off support for GRIB2 multi-field messages */
+    //codes_grib_multi_support_off(NULL);
+    //codes_grib_multi_support_on(NULL);  // 多波段读取支持
     int err_code = 0;
     FILE* in = fopen(path.c_str(), "rb");
     if (nullptr == in)
@@ -95,16 +96,16 @@ bool silly_grib2_utils::open_grib2_handle(const std::string& path, void** file_h
         fclose(in);
         return status;
     }
-    int mcount           = 0;
+   /* int mcount           = 0;
     CODES_CHECK(codes_count_in_file(NULL, in, &mcount), 0);
     assert(mcount == 56);
-    printf("count_in_file counted %d messages\n", mcount);
+    printf("count_in_file counted %d messages\n", mcount);*/
 
-    *grb2_h = codes_handle_new_from_file(nullptr, (FILE*)file_h, PRODUCT_GRIB, &err_code);
-    if (grb2_h && in)
+    codes_handle* handle = codes_handle_new_from_file(nullptr, in, PRODUCT_GRIB, &err_code);
+    if (handle && in)
     {
         *file_h = in;
-        *grb2_h = (codes_handle*)grb2_h;
+        *grb2_h = (codes_handle*)handle;
         status = true;
     }
 #endif

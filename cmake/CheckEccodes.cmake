@@ -1,4 +1,4 @@
-find_package(eccodes REQUIRED)
+find_package(eccodes CONFIG REQUIRED)
 message("\n检查ECCODES")
 if (NOT "" STREQUAL "${eccodes_BASE_DIR}")
   message(STATUS ">>>>>>>>>>>>>>>> ECCODES <<<<<<<<<<<<<<<<")
