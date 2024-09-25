@@ -1,6 +1,5 @@
-# 检查达梦数据库的一些信息
-
-if(NOT DISABLE_DM8)
+if(ENABLE_DM8_DPI)
+  message("\n检查DM8环境, 运行DM8以DPI的方式访问数据库")
   if(DEFINED ENV{DM_HOME})
     set(DM8_DPI_ROOT $ENV{DM_HOME}/drivers/dpi)
     if(EXISTS "${DM8_DPI_ROOT}")
@@ -22,9 +21,9 @@ if(NOT DISABLE_DM8)
         execute_process(COMMAND ${CMAKE_COMMAND} -E copy "${dlf}"
                                 "${EXECUTABLE_OUTPUT_PATH}")
       endforeach()
-      add_definitions("-DSU_DM8_DPI_ENABLED")
+      add_compile_options(-SU_DM8_DPI_ENABLED)
     endif()
   else()
-    message(STATUS "FOUND DM_HOME ENV.")
+    message(STATUS "NOT FOUND DM_HOME ENV.")
   endif()
 endif()

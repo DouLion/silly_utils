@@ -1,0 +1,27 @@
+if(ENABLE_CUDA)
+    message("\n检查CUDA环境, 非必须...")
+    set(CMAKE_CUDA_ARCHITECTURES "70")
+    set(CMAKE_CXX_STANDARD 17)
+    if("" STREQUAL "$ENV{CUDA_PATH}")
+        MESSAGE(WARNING "需要添加环境变量 CUDA_PATH  如 `C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.5`")
+    else()
+        # 从环境变量中取 CUDA的根目录
+        set(TMP_CUDA_ROOT "$ENV{CUDA_PATH}")
+        string(REPLACE "\\" "/" LOCAL_CUDA_ROOT "${TMP_CUDA_ROOT}")
+        set(CMAKE_CUDA_COMPILER "${CUDAToolkit_NVCC_EXECUTABLE}")
+        set(CMAKE_CUDA_COMPILER_WORKS TRUE) # 跳过检查
+        # 查找CUDA Toolkit
+        find_package(CUDAToolkit REQUIRED)
+        if(CUDAToolkit_FOUND)
+            message(STATUS ">>>>>>>>>>>>>>>> CUDA <<<<<<<<<<<<<<<<")
+            message(STATUS "CUDA ROOT ${LOCAL_CUDA_ROOT}.")
+            message(STATUS "CUDAToolkit Include ${CUDAToolkit_INCLUDE_DIRS}.")
+            message(STATUS "CUDAToolkit libs ${CUDAToolkit_LIBRARY_DIR}.")
+            message(STATUS "CUDAToolkit_NVCC_EXECUTABLE ${CUDAToolkit_NVCC_EXECUTABLE}.")
+            message(STATUS ">>>>>>>>>>>>>>>> CUDA <<<<<<<<<<<<<<<<\n")
+            add_compile_options(-DSU_CUDA_ENABLED)
+            include_directories(${CUDAToolkit_INCLUDE_DIRS})
+        endif()
+
+    endif()
+endif()

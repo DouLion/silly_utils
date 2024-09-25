@@ -27,6 +27,8 @@ target_precompile_headers(
 find_package(cryptopp CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC cryptopp::cryptopp)
 
+target_link_libraries(${PROJECT_NAME} PUBLIC eccodes)
+
 find_package(Iconv)
 target_link_libraries(${PROJECT_NAME} PUBLIC Iconv::Iconv)
 

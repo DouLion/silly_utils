@@ -43,16 +43,16 @@
   IF(NOT EXISTS "${CMAKE_SOURCE_DIR}/su_cmake")
       FILE(MAKE_DIRECTORY "${CMAKE_SOURCE_DIR}/su_cmake")
   ENDIF()
-  execute_process(COMMAND ${CMAKE_COMMAND} -E  copy "${SILLY_UTILS_FETCH_ROOT}/silly_utils/cmake/env_check.cmake" "${CMAKE_SOURCE_DIR}/su_cmake/env_check.cmake")
+  execute_process(COMMAND ${CMAKE_COMMAND} -E  copy "${SILLY_UTILS_FETCH_ROOT}/silly_utils/cmake/CheckEnv.cmake" "${CMAKE_SOURCE_DIR}/su_cmake/CheckEnv.cmake")
   execute_process(COMMAND ${CMAKE_COMMAND} -E  copy "${SILLY_UTILS_FETCH_ROOT}/silly_utils/.clang-format" "${CMAKE_SOURCE_DIR}/.clang-format")
   # 下面这两行需要确认一下是否可以删除
   execute_process(COMMAND ${CMAKE_COMMAND} -E  copy "${SILLY_UTILS_FETCH_ROOT}/silly_utils/cmake/dm8_check.cmake" "${CMAKE_SOURCE_DIR}/su_cmake/dm8_check.cmake")
-  execute_process(COMMAND ${CMAKE_COMMAND} -E  copy "${SILLY_UTILS_FETCH_ROOT}/silly_utils/cmake/grib_api_check.cmake" "${CMAKE_SOURCE_DIR}/su_cmake/grib_api_check.cmake")
+  execute_process(COMMAND ${CMAKE_COMMAND} -E  copy "${SILLY_UTILS_FETCH_ROOT}/silly_utils/cmake/eccodes_check.cmake" "${CMAKE_SOURCE_DIR}/su_cmake/eccodes_check.cmake")
   
   set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/su_cmake;${CMAKE_MODULE_PATH}")
-  include(env_check)
+  include(CheckEnv)
   include(dm8_check)
-  include(grib_api_check)
+  include(eccodes_check)
   
   include_directories("${SILLY_UTILS_FETCH_ROOT}/silly_utils/su")
   

@@ -2,10 +2,11 @@ cmake_minimum_required(VERSION 3.15)
 project(silly_utils)
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
-include(env_check)
-include(dm8_check)
-include(grib_api_check)
-include(cuda_check)
+include(CheckEnv)
+include(CheckOSEndian)
+include(CheckDM8)
+include(CheckEccodes)
+include(CheckCUDA)
 
 # 判断当前目录是否为 cmake的根目录,如果不是,则是被其他项目引用的,不需要编译测试,工具模块
 if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_SOURCE_DIR}")
@@ -15,9 +16,6 @@ else()
   set(SU_AS_PROJECT FALSE)
   set(SU_AS_LIB TRUE)
 endif()
-
-message(STATUS "1123 ${CMAKE_CONFIGURATION_TYPES}")
-message(STATUS "${CMAKE_BUILD_TYPE}")
 
 if(SU_AS_PROJECT)
   message(STATUS "作为单个工程编译")

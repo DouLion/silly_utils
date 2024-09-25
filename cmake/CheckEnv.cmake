@@ -133,14 +133,13 @@ elseif(CMAKE_HOST_SYSTEM_NAME MATCHES "Windows")
   endif(MSVC)
 
 endif()
-message(STATUS "CMAKE_CXX_FLAGS: ${CMAKE_VERSION}")
+
 if (${CMAKE_VERSION} VERSION_LESS 3.30)
-  message(STATUS "-----------")
   find_package(Boost COMPONENTS program_options date_time)
 else ()
-  message(STATUS "+++++++++++++++")
   find_package(Boost REQUIRED)
 endif ()
+
 if(Boost_FOUND)
   # 如果找到了 Boost 库
   include_directories(${Boost_INCLUDE_DIRS})
