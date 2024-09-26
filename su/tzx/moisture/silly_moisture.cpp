@@ -46,23 +46,29 @@ bool soil_moisture_record::deserialize(const std::string& data)
 }
 void silly_moisture::serialize_by_time(const std::string& file, const std::vector<soil_moisture_record>& records)
 {
-    std::string result ="\0\0\0\0";
+    std::string result;
+    result.resize(4);
     int len = 0;
     for (auto& record : records)
     {
         std::string tmp = record.serialize();
         if(tmp.size() == soil_moisture_record::serialized_size)
         {
-            result +=   tmp;
+            assert(!tmp.empty());
+            result.append(tmp);
             len++;
         }
     }
+
     if(len * soil_moisture_record::serialized_size + 4 == result.size())
     {
         memcpy(&result[0], &len, sizeof(len));
         silly_file::write(file, result);
     }
-    throw std::runtime_error("serialize_by_time error");
+    else
+    {
+        throw std::runtime_error("serialize_by_time error");
+    }
 }
 void silly_moisture::deserialize_by_time(const std::string& file, std::vector<soil_moisture_record>& records)
 {
