@@ -19,6 +19,12 @@ if("${CMAKE_BUILD_TYPE}" STREQUAL "")
   message("AUTO SET CMAKE_BUILD_TYPE : Debug")
 endif()
 
+string(TOUPPER "${CMAKE_BUILD_TYPE}" UPPER_CMAKE_BUILD_TYPE)
+if("DEBUG" STREQUAL "${UPPER_CMAKE_BUILD_TYPE}")
+set(DEBUG_MODE 1)
+  message(STATUS "Debug 模式")
+endif()
+
 # 系统信息
 if(CMAKE_HOST_SYSTEM_NAME MATCHES "Linux")
   message(STATUS "This is Linux")
