@@ -49,6 +49,7 @@ class silly_posix_time
 {
   public:
     silly_posix_time();
+    silly_posix_time(const std::string& str, const std::string& fmt= DATE_FORMAT_1);
     silly_posix_time(const silly_posix_time& time);
     // silly_posix_time(const silly_posix_time& other) = default;
     ~silly_posix_time() = default;

@@ -76,6 +76,12 @@ silly_posix_time::silly_posix_time()
     m_time_point = std::chrono::system_clock::now();
 }
 
+
+silly_posix_time::silly_posix_time(const std::string& str, const std::string& fmt)
+{
+    from_string(str, fmt);
+}
+
 silly_posix_time::silly_posix_time(const silly_posix_time& time)
 {
     m_tm = time.m_tm;
