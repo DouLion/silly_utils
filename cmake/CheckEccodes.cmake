@@ -1,5 +1,9 @@
 find_package(eccodes CONFIG REQUIRED)
 message("\n检查ECCODES")
+if(DEFINED ENV{ECCODES_ROOT})
+    set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH};$ENV{ECCODES_ROOT}")
+    message(STATUS "检测到环境变量ECCODES_ROOT: $ENV{ECCODES_ROOT}")
+endif()
 if (NOT "" STREQUAL "${eccodes_BASE_DIR}")
 
   message(STATUS ">>>>>>>>>>>>>>>> ECCODES <<<<<<<<<<<<<<<<")
