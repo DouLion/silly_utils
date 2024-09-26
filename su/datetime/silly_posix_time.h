@@ -45,11 +45,15 @@ class silly_time_duration
 
 static void check_std_tm(std::tm stm);
 
+// 时间戳为标准时间戳精确到秒;
+// 事件以北京时间为准,间fix_tm的实现;
 class silly_posix_time
 {
   public:
+    static silly_posix_time now();
+    static silly_posix_time time_from_string(const std::string& str, const std::string& fmt = DATE_FORMAT_1);
+    static std::string time_to_string(const silly_posix_time& pt, const std::string& fmt = DATE_FORMAT_1);
     silly_posix_time();
-    silly_posix_time(const std::string& str, const std::string& fmt= DATE_FORMAT_1);
     silly_posix_time(const silly_posix_time& time);
     // silly_posix_time(const silly_posix_time& other) = default;
     ~silly_posix_time() = default;
@@ -58,8 +62,6 @@ class silly_posix_time
     std::string to_string(const std::string& fmt = DATE_FORMAT_1) const;
 
     silly_posix_time(const silly_time_stamp& stamp);
-
-    void now(const bool& local = true);
 
     bool operator>(const silly_posix_time& other) const;
     bool operator==(const silly_posix_time& other) const;

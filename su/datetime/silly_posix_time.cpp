@@ -73,13 +73,6 @@ void check_std_tm(std::tm stm)
 
 silly_posix_time::silly_posix_time()
 {
-    m_time_point = std::chrono::system_clock::now();
-}
-
-
-silly_posix_time::silly_posix_time(const std::string& str, const std::string& fmt)
-{
-    from_string(str, fmt);
 }
 
 silly_posix_time::silly_posix_time(const silly_posix_time& time)
@@ -94,13 +87,15 @@ bool silly_posix_time::from_string(const std::string& str, const std::string& fm
     try
     {
         std::istringstream ss(str);
-        ss >> std::get_time(&m_tm, fmt.c_str());
-        check_std_tm(m_tm);
+        std::tm tmp;
+        ss >> std::get_time(&tmp, fmt.c_str());
+        check_std_tm(tmp);
         // 检查是否成功解析
         if (!ss.fail())
         {
-            std::time_t stamp = std::mktime(&m_tm);
+            std::time_t stamp = std::mktime(&tmp);
             m_time_point = std::chrono::system_clock::from_time_t(stamp);
+            m_tm = tmp;
             status = true;
         }
         else
@@ -138,12 +133,6 @@ silly_posix_time::silly_posix_time(const silly_time_stamp& stamp)
 {
     std::scoped_lock lock(m_mutex);
     m_time_point = std::chrono::system_clock::from_time_t(stamp);
-    fix_tm();
-}
-void silly_posix_time::now(const bool& local)
-{
-    std::scoped_lock lock(m_mutex);
-    m_time_point = std::chrono::system_clock::now();
     fix_tm();
 }
 
@@ -242,8 +231,9 @@ int silly_posix_time::wday() const
 void silly_posix_time::fix_tm()
 {
     std::time_t stt = std::chrono::system_clock::to_time_t(m_time_point);
+    stt += 8 * SEC_IN_HOUR;
     // 将 time_t 转换为 tm 结构
-    m_tm = *std::localtime(&stt);
+    m_tm = *std::gmtime(&stt);
 }
 
 bool silly_posix_time::operator>(const silly_posix_time& other) const
@@ -277,4 +267,21 @@ silly_posix_time silly_posix_time::operator=(const silly_posix_time& other)
     m_time_point = other.m_time_point;
     m_tm = other.m_tm;
     return *this;
+}
+silly_posix_time silly_posix_time::now()
+{
+    silly_posix_time result;
+    result.m_time_point = std::chrono::system_clock::now();
+    result.fix_tm();
+    return result;
+}
+silly_posix_time silly_posix_time::time_from_string(const std::string& str, const std::string& fmt)
+{
+    silly_posix_time result;
+    result.from_string(str, fmt);
+    return result;
+}
+std::string silly_posix_time::time_to_string(const silly_posix_time& pt, const std::string& fmt)
+{
+    return pt.to_string(fmt);
 }
