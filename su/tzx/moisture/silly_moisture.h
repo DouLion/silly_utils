@@ -11,6 +11,16 @@
 #ifndef SILLY_UTILS_SILLY_MOISTURE_H
 #define SILLY_UTILS_SILLY_MOISTURE_H
 #include <su_marco.h>
+
+struct moisture_index_info
+{
+    int pid;
+    uint32_t index;
+    float lgtd;
+    float lttd;
+};
+using moisture_index_cache = std::map<int, moisture_index_info> ;
+
 class soil_moisture_record
 {
   public:
@@ -25,16 +35,27 @@ class soil_moisture_record
     const static size_t serialized_size = 4 + 4 + 4 + 4 + 1;
 };
 
+class silly_moisture_index
+{
+  public:
+    bool read(const std::string& file);
+    bool write(const std::string& file, const moisture_index_cache& cache);
+    moisture_index_cache cache;
+};
+
 class silly_moisture
 {
   public:
     silly_moisture() = default;
     ~silly_moisture() = default;
     /// 将同一个时间段的数据,序列化到一个文件中
-    void serialize_by_time(const std::string& file, const std::vector<soil_moisture_record>& records);
+    void serialize(const std::string& file, const std::vector<soil_moisture_record>& records);
 
     /// 从序列化文件读取一个时间段的数据
-    void deserialize_by_time(const std::string& file, std::vector<soil_moisture_record>& records);
+    void deserialize(const std::string& file, std::vector<soil_moisture_record>& records);
+
+    /// 根据偏移位置读取一个
+    bool deserialize(const std::string& file, const moisture_index_cache& cache, const int& pid, soil_moisture_record& record);
 
   private:
 };

@@ -44,7 +44,7 @@ bool soil_moisture_record::deserialize(const std::string& data)
     memcpy(&precipitation, &data[index], sizeof(precipitation));
     return true;
 }
-void silly_moisture::serialize_by_time(const std::string& file, const std::vector<soil_moisture_record>& records)
+void silly_moisture::serialize(const std::string& file, const std::vector<soil_moisture_record>& records)
 {
     std::string result;
     result.resize(4);
@@ -52,7 +52,7 @@ void silly_moisture::serialize_by_time(const std::string& file, const std::vecto
     for (auto& record : records)
     {
         std::string tmp = record.serialize();
-        if(tmp.size() == soil_moisture_record::serialized_size)
+        if (tmp.size() == soil_moisture_record::serialized_size)
         {
             assert(!tmp.empty());
             result.append(tmp);
@@ -60,7 +60,7 @@ void silly_moisture::serialize_by_time(const std::string& file, const std::vecto
         }
     }
 
-    if(len * soil_moisture_record::serialized_size + 4 == result.size())
+    if (len * soil_moisture_record::serialized_size + 4 == result.size())
     {
         memcpy(&result[0], &len, sizeof(len));
         silly_file::write(file, result);
@@ -70,17 +70,17 @@ void silly_moisture::serialize_by_time(const std::string& file, const std::vecto
         throw std::runtime_error("serialize_by_time error");
     }
 }
-void silly_moisture::deserialize_by_time(const std::string& file, std::vector<soil_moisture_record>& records)
+void silly_moisture::deserialize(const std::string& file, std::vector<soil_moisture_record>& records)
 {
     std::string data;
-    if(0 == silly_file::read(file, data))
+    if (0 == silly_file::read(file, data))
     {
-        return ;
+        return;
     }
 
     int len = 0;
     memcpy(&len, &data[0], sizeof(len));
-    if(len * soil_moisture_record::serialized_size + 4 != data.size())
+    if (len * soil_moisture_record::serialized_size + 4 != data.size())
     {
         return;
     }
@@ -90,5 +90,86 @@ void silly_moisture::deserialize_by_time(const std::string& file, std::vector<so
         record.deserialize(data.substr(4 + i * soil_moisture_record::serialized_size, soil_moisture_record::serialized_size));
         records.push_back(record);
     }
+}
+bool silly_moisture::deserialize(const std::string& file, const moisture_index_cache& cache, const int& pid, soil_moisture_record& record)
+{
+    auto iter = cache.find(pid);
+    if (iter != cache.end())
+    {
+        size_t offset = iter->second.index;
+        std::string content;
+        silly_file::read(file, content, offset, soil_moisture_record::serialized_size);
+        record.deserialize(content);
+        if (record.pid == pid)
+        {
+            return true;
+        }
+    }
+    // 缓存中没有
+    std::cerr << "pid:" << pid << " not found" << std::endl;
+    std::string data;
+    if (0 == silly_file::read(file, data))
+    {
+        return false;
+    }
 
+    int len = 0;
+    memcpy(&len, &data[0], sizeof(len));
+    if (len * soil_moisture_record::serialized_size + 4 != data.size())
+    {
+        return false;
+    }
+    for (int i = 0; i < len; i++)
+    {
+        std::string content = data.substr(4 + i * soil_moisture_record::serialized_size, soil_moisture_record::serialized_size);
+        // soil_moisture_record record;
+        // record.deserialize();
+        if (content.size() == soil_moisture_record::serialized_size && ((int*)(content.data() + 1))[0] == pid)
+        {
+            record.deserialize(content);
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool silly_moisture_index::read(const std::string& file)
+{
+    std::string content;
+    silly_file::read(file, content);
+    // assert();
+    if (0 != content.size() % sizeof(moisture_index_info))
+    {
+        return false;
+    }
+    int num = content.size() / sizeof(moisture_index_info);
+    for (int i = 0; i < num; i++)
+    {
+        moisture_index_info mi;
+        memcpy(&mi, content.data() + i * sizeof(moisture_index_info), sizeof(moisture_index_info));
+        cache[mi.pid] = mi;
+    }
+
+    return !cache.empty();
+}
+
+bool silly_moisture_index::write(const std::string& file, const moisture_index_cache& cache)
+{
+    std::string out;
+    for (auto [_, mi] : cache)
+    {
+        std::string tmp;
+        tmp.resize(sizeof(moisture_index_info));
+        memcpy(tmp.data(), &mi, sizeof(moisture_index_info));
+        out.append(tmp);
+    }
+
+    if (out.size() == cache.size() * sizeof(moisture_index_info))
+    {
+        silly_file::write(file, out);
+        return std::filesystem::exists(file);
+    }
+
+    return false;
 }
