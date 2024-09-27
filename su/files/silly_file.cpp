@@ -38,7 +38,7 @@ size_t silly_file::read(const std::string &path, std::string &content, const siz
         return ret_read_size;
     }
     input.seekg(0, std::ios::beg);
-    ret_read_size = SU_MIN(len, file_size) - offset;
+    ret_read_size = SU_MIN(len, file_size - offset);
     content.resize(ret_read_size);
 
     input.seekg(offset, std::ios::beg);
