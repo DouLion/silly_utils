@@ -11,7 +11,7 @@
  */
 #ifndef SILLY_UTILS_SILLY_DELAUNAY_BOWYER_H
 #define SILLY_UTILS_SILLY_DELAUNAY_BOWYER_H
-#include <triangular/silly_delaunay.h>
+#include <geo/triangular/silly_delaunay.h>
 
 /// <summary>
 /// Bowyer-Watson 算法实现的三角化,目前效率有点问题

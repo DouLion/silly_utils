@@ -10,8 +10,7 @@
  */
 #ifndef SILLY_UTILS_SILLY_DELAUNAY_SWEEP_LINE_H
 #define SILLY_UTILS_SILLY_DELAUNAY_SWEEP_LINE_H
-#include <triangular/silly_delaunay.h>
-
+#include <geo/triangular/silly_delaunay.h>
 
 class silly_delaunay_sweep_line
 {

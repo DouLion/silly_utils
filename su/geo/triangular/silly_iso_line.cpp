@@ -4,7 +4,7 @@
 
 #include "silly_iso_line.h"
 #include <su_marco.h>
-#include <triangular/silly_delaunay_bowyer.h>
+#include <geo/triangular/silly_delaunay_bowyer.h>
 #include <malloc.h>
 #include <memory>
 #include <thread>

@@ -15,7 +15,7 @@
 #include <iostream>
 #include <vector>
 
-#include <thiessen/thiessen_creator.h>
+#include <geo/thiessen/thiessen_creator.h>
 
 struct station_info
 {

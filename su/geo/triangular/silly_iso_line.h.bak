@@ -10,7 +10,7 @@
 #ifndef SILLY_UTILS_SILLY_ISO_LINE_H
 #define SILLY_UTILS_SILLY_ISO_LINE_H
 
-#include <gpc/gpc.h>
+#include "gpc/gpc.h"
 
 struct iso_point
 {

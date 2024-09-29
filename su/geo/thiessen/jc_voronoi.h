@@ -4,7 +4,7 @@
 #ifndef JC_VORONOI_H
 #define JC_VORONOI_H
 
-#include <thiessen/jvc_struct.h>
+#include <geo/thiessen/jvc_struct.h>
 
 /**
  * Uses malloc

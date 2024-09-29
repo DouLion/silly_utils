@@ -10,12 +10,12 @@
  */
 #include "silly_vacuate.h"
 
-#include "vacuate/psimpl.h"
+#include "psimpl.h"
 
 using namespace psimpl;
 
 #include <iterator>
-#include "vacuate/silly_vacuate.h"
+#include "silly_vacuate.h"
 
 bool silly_vacuate::n_point(const int& n, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
 {

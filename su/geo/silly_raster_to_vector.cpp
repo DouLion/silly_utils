@@ -4,7 +4,7 @@
 
 #include "silly_raster_to_vector.h"
 #include <log/silly_log.h>
-#include <vacuate/silly_vacuate.h>
+#include <geo/vacuate/silly_vacuate.h>
 
 #define RECURSION_TRACE_LINE(r, c)                               \
     if (r > -1 && c > -1 && r < m_height + 2 && c < m_width + 2) \
