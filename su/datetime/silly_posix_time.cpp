@@ -67,7 +67,7 @@ void check_std_tm(std::tm stm)
         throw std::runtime_error(std::string("日(day) ").append(std::to_string(stm.tm_mday)).append(" 需要 1 - 31"));
     if (stm.tm_mon < 0 || stm.tm_mon > 11)
         throw std::runtime_error(std::string("月(mon) ").append(std::to_string(stm.tm_mon)).append(" 需要 0 - 11"));
-    if (stm.tm_year < 0)
+    if (stm.tm_year <= 0)
         throw std::runtime_error(std::string("年(year) ").append(std::to_string(stm.tm_year)).append(" + 1900"));
 }
 
@@ -284,4 +284,17 @@ silly_posix_time silly_posix_time::time_from_string(const std::string& str, cons
 std::string silly_posix_time::time_to_string(const silly_posix_time& pt, const std::string& fmt)
 {
     return pt.to_string(fmt);
+}
+bool silly_posix_time::is_not_a_date_time() const
+{
+    try
+    {
+        check_std_tm(m_tm);
+    }
+    catch (...)
+    {
+        return true;
+    }
+
+    return  false;
 }

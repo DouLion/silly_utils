@@ -50,14 +50,18 @@ static void check_std_tm(std::tm stm);
 class silly_posix_time
 {
   public:
-    static silly_posix_time now();
-    static silly_posix_time time_from_string(const std::string& str, const std::string& fmt = DATE_FORMAT_1);
-    static std::string time_to_string(const silly_posix_time& pt, const std::string& fmt = DATE_FORMAT_1);
     silly_posix_time();
     silly_posix_time(const silly_posix_time& time);
     // silly_posix_time(const silly_posix_time& other) = default;
     ~silly_posix_time() = default;
 
+    static silly_posix_time now();
+    static silly_posix_time time_from_string(const std::string& str, const std::string& fmt = DATE_FORMAT_1);
+    static std::string time_to_string(const silly_posix_time& pt, const std::string& fmt = DATE_FORMAT_1);
+
+
+
+    bool is_not_a_date_time() const;
     bool from_string(const std::string& str, const std::string& fmt = DATE_FORMAT_1);
     std::string to_string(const std::string& fmt = DATE_FORMAT_1) const;
 
