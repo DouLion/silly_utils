@@ -91,8 +91,8 @@ std::string silly_geojson::dump_geojson(const std::vector<silly_poly> polys)
         for (auto point : poly.outer_ring.points)
         {
             Json::Value point_arr = Json::arrayValue;
-            point_arr.append(point.lgtd);
-            point_arr.append(point.lttd);
+            point_arr.append(point.x);
+            point_arr.append(point.y);
             outer_arr.append(point_arr);
         }
         o[GEOJSON_KEY_GEOMETRY][GEOJSON_KEY_COORDINATES].append(outer_arr);
@@ -103,8 +103,8 @@ std::string silly_geojson::dump_geojson(const std::vector<silly_poly> polys)
             for (auto point : ring.points)
             {
                 Json::Value point_arr = Json::arrayValue;
-                point_arr.append(point.lgtd);
-                point_arr.append(point.lttd);
+                point_arr.append(point.x);
+                point_arr.append(point.y);
                 ring_arr.append(point_arr);
             }
             o[GEOJSON_KEY_GEOMETRY][GEOJSON_KEY_COORDINATES].append(ring_arr);
@@ -156,8 +156,8 @@ std::vector<silly_poly> silly_geojson::load_geojson(const std::string& geojson)
                                 for (auto& pnt : poly[i])
                                 {
                                     silly_point s_point;
-                                    s_point.lgtd = pnt[0].asDouble();
-                                    s_point.lttd = pnt[1].asDouble();
+                                    s_point.x = pnt[0].asDouble();
+                                    s_point.y = pnt[1].asDouble();
                                     ring.points.push_back(s_point);
                                 }
                                 if (0 == i)
@@ -195,8 +195,8 @@ bool read_point(const Json::Value& root, silly_geo_coll& coll)
         size_t numRing = coordinates.size();
         double lon = coordinates[0].asDouble();
         double lat = coordinates[1].asDouble();
-        coll.m_point.lgtd = lon;
-        coll.m_point.lttd = lat;
+        coll.m_point.x = lon;
+        coll.m_point.y = lat;
         status = true;
     }
     return status;
@@ -475,8 +475,8 @@ silly_geo_coll silly_geojson::load_geo_coll(const std::string& content)
 // 写入单点
 bool write_point(const silly_geo_coll& coll, Json::Value& coordinates)
 {
-    coordinates[0] = coll.m_point.lgtd;
-    coordinates[1] = coll.m_point.lttd;
+    coordinates[0] = coll.m_point.x;
+    coordinates[1] = coll.m_point.y;
     return true;
 }
 
@@ -486,8 +486,8 @@ bool write_multi_point(const silly_geo_coll& coll, Json::Value& root)
     for (const auto& point : coll.m_m_points)
     {
         Json::Value coord;
-        coord[0] = point.lgtd;
-        coord[1] = point.lttd;
+        coord[0] = point.x;
+        coord[1] = point.y;
         root.append(coord);
     }
 
@@ -502,8 +502,8 @@ bool write_line(const silly_line& coll_line, Json::Value& root)
     for (const auto& point : coll_line)
     {
         Json::Value coord;
-        coord[0] = point.lgtd;
-        coord[1] = point.lttd;
+        coord[0] = point.x;
+        coord[1] = point.y;
         root.append(coord);
     }
     return true;
@@ -528,8 +528,8 @@ bool write_rings(const silly_ring& ring, Json::Value& coords)
     for (const auto& point : ring.points)
     {
         Json::Value coord;
-        coord[0] = point.lgtd;
-        coord[1] = point.lttd;
+        coord[0] = point.x;
+        coord[1] = point.y;
         coords.append(coord);
     }
     return true;

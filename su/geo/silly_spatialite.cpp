@@ -23,7 +23,7 @@ static bool silly_point_to_gaiageo(const silly_point &point, gaiaGeomCollPtr &gg
 {
     ggcp = gaiaAllocGeomColl();
     ggcp->DimensionModel = GAIA_XY;
-    gaiaAddPointToGeomColl(ggcp, point.lgtd, point.lttd);
+    gaiaAddPointToGeomColl(ggcp, point.x, point.y);
     return true;
 }
 
@@ -41,7 +41,7 @@ static bool silly_multi_point_to_gaiageo(const silly_multi_point &mpoint, gaiaGe
         ggcp->DimensionModel = GAIA_XY;
         for (const auto &point : mpoint)
         {
-            gaiaAddPointToGeomColl(ggcp, point.lgtd, point.lttd);
+            gaiaAddPointToGeomColl(ggcp, point.x, point.y);
         }
         return true;
     }
@@ -64,7 +64,7 @@ static bool silly_line_to_gaiageo(const silly_line &line, gaiaGeomCollPtr &ggcp)
         gaiaLinestringPtr gaiaLine = gaiaAddLinestringToGeomColl(ggcp, line.size());
         for (int i = 0; i < line.size(); i++)
         {
-            gaiaSetPoint(gaiaLine->Coords, i, line[i].lgtd, line[i].lttd);
+            gaiaSetPoint(gaiaLine->Coords, i, line[i].x, line[i].y);
         }
         return true;
     }
@@ -88,7 +88,7 @@ static bool silly_multi_silly_line_to_gaiageo(const silly_multi_silly_line &mlin
             gaiaLinestringPtr gaiaLine = gaiaAddLinestringToGeomColl(ggcp, line.size());
             for (size_t i = 0; i < line.size(); i++)
             {
-                gaiaSetPoint(gaiaLine->Coords, i, line[i].lgtd, line[i].lttd);
+                gaiaSetPoint(gaiaLine->Coords, i, line[i].x, line[i].y);
             }
         }
         return true;
@@ -114,7 +114,7 @@ static bool silly_poly_to_gaiageo(const silly_poly &poly, gaiaGeomCollPtr &ggcp)
         int exteriorPointNum = 0;
         for (const auto &point : poly.outer_ring.points)
         {
-            gaiaSetPoint(exteriorRing->Coords, exteriorPointNum, point.lgtd, point.lttd);
+            gaiaSetPoint(exteriorRing->Coords, exteriorPointNum, point.x, point.y);
             exteriorPointNum++;
         }
         // 添加内环
@@ -125,7 +125,7 @@ static bool silly_poly_to_gaiageo(const silly_poly &poly, gaiaGeomCollPtr &ggcp)
             int interPointNum = 0;
             for (const auto &point : innerRing.points)
             {
-                gaiaSetPoint(interiorRing->Coords, interPointNum, point.lgtd, point.lttd);
+                gaiaSetPoint(interiorRing->Coords, interPointNum, point.x, point.y);
                 interPointNum++;
             }
             inner_num++;
@@ -155,7 +155,7 @@ static bool silly_multi_poly_to_gaiageo(const silly_multi_poly &mpoly, gaiaGeomC
             int exteriorPointNum = 0;
             for (const auto &point : poly.outer_ring.points)
             {
-                gaiaSetPoint(exteriorRing->Coords, exteriorPointNum, point.lgtd, point.lttd);
+                gaiaSetPoint(exteriorRing->Coords, exteriorPointNum, point.x, point.y);
                 exteriorPointNum++;
             }
             // 添加内环
@@ -166,7 +166,7 @@ static bool silly_multi_poly_to_gaiageo(const silly_multi_poly &mpoly, gaiaGeomC
                 int interPointNum = 0;
                 for (const auto &point : innerRing.points)
                 {
-                    gaiaSetPoint(interiorRing->Coords, interPointNum, point.lgtd, point.lttd);
+                    gaiaSetPoint(interiorRing->Coords, interPointNum, point.x, point.y);
                     interPointNum++;
                 }
                 inner_num++;

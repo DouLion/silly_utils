@@ -69,16 +69,16 @@ bool silly_geo_convert::matrix_geo_to_mercator(silly_math::matrix_2d<T> src, con
         return false;
     }
     double m_left{0}, m_top{0}, m_right{0}, m_bottom{0};
-    silly_projection::geo_to_mercator(rect.right, rect.bottom, m_right, m_bottom);
-    silly_projection::geo_to_mercator(rect.left, rect.top, m_left, m_top);
+    silly_projection::geo_to_mercator(rect.max.x, rect.min.y, m_right, m_bottom);
+    silly_projection::geo_to_mercator(rect.min.x, rect.max.y, m_left, m_top);
     double mc_xdelta = (m_right - m_left) / tmp.col();
     double mc_ydelta = (m_top - m_bottom) / tmp.row();
 
-    double geo_xdelta = (rect.right - rect.left) / tmp.col();
-    double geo_ydelta = (rect.top - rect.bottom) / tmp.row();
+    double geo_xdelta = (rect.max.x - rect.min.x) / tmp.col();
+    double geo_ydelta = (rect.max.y - rect.min.y) / tmp.row();
 
-    /*   T g_width = rect.right - rect.left;
-       T g_height = rect.top - rect.bottom;*/
+    /*   T g_width = rect.max.x - rect.min.x;
+       T g_height = rect.max.y - rect.min.y;*/
     int max_r = tmp.row() - 1;
     int max_c = tmp.col() - 1;
     // 为dst即墨卡托上每个位置找到geo上对应的位置, 然后取值, 防止图片有撕裂的情况
@@ -90,8 +90,8 @@ bool silly_geo_convert::matrix_geo_to_mercator(silly_math::matrix_2d<T> src, con
             double m_y = m_top - r * mc_ydelta;
             double lgtd, lttd;
             silly_projection::mercator_to_geo(m_x, m_y, lgtd, lttd);
-            int dst_c = std::round((lgtd - rect.left) / geo_xdelta);
-            int dst_r = std::round((rect.top - lttd) / geo_ydelta);
+            int dst_c = std::round((lgtd - rect.min.x) / geo_xdelta);
+            int dst_r = std::round((rect.max.y - lttd) / geo_ydelta);
             // TODO: 这一步是不是有问题,是否是必须的,防止访问溢出
             dst_c = std::min(std::max(0, dst_c), max_c);
             dst_r = std::min(std::max(0, dst_r), max_r);
@@ -125,8 +125,8 @@ bool silly_geo_convert::matrix_geo_to_mercator_ez(silly_math::matrix_2d<T> src, 
     T m_width = m_right - m_left;
     T m_height = m_top - m_bottom;
 
-    T g_width = rect.right - rect.left;
-    T g_height = rect.top - rect.bottom;
+    T g_width = rect.max.x - rect.min.x;
+    T g_height = rect.max.y - rect.min.y;
     int max_r = tmp.row() - 1;
     int max_c = tmp.col() - 1;
     // 为dst即墨卡托上每个位置找到geo上对应的位置, 然后取值, 防止图片有撕裂的情况
@@ -138,8 +138,8 @@ bool silly_geo_convert::matrix_geo_to_mercator_ez(silly_math::matrix_2d<T> src, 
             T m_y = m_top - j * m_height / tmp.row();
             T lgtd = m_x, lttd = m_y / scale;
             // silly_projection::mercator_to_geo(m_x, m_y, lgtd, lttd);
-            int dst_c = std::round((lgtd - rect.left) / g_width * tmp.col());
-            int dst_r = std::round((rect.top - lttd) / g_height * tmp.row());
+            int dst_c = std::round((lgtd - rect.min.x) / g_width * tmp.col());
+            int dst_r = std::round((rect.max.y - lttd) / g_height * tmp.row());
             // TODO: 这一步是不是有问题,是否是必须的,防止访问溢出
             dst_c = std::min(std::max(0, dst_c), max_c);
             dst_r = std::min(std::max(0, dst_r), max_r);

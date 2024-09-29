@@ -43,39 +43,39 @@ void silly_vectorizer::interpolation(const silly_trace_node &n1, const silly_tra
         case 1:  // 线性插值
                  ///  !!!! 经度和纬度一定有一个相等 !!!!
 #ifndef NDEBUG
-            if (n1.p.lgtd == n2.p.lgtd)
+            if (n1.p.x == n2.p.x)
             {
-                point.lgtd = n1.p.lgtd;
+                point.x = n1.p.x;
 
-                point.lttd = n1.p.lttd + m_ydelta * (m_threshold_l - n1.val) / (n2.val - n1.val);
+                point.y = n1.p.y + m_ydelta * (m_threshold_l - n1.val) / (n2.val - n1.val);
             }
-            else if (n1.p.lttd == n2.p.lttd)
+            else if (n1.p.y == n2.p.y)
             {
-                point.lttd = n1.p.lttd;
-                point.lgtd = n1.p.lgtd + m_xdelta * (m_threshold_l - n1.val) / (n2.val - n1.val);
+                point.y = n1.p.y;
+                point.x = n1.p.x + m_xdelta * (m_threshold_l - n1.val) / (n2.val - n1.val);
             }
             else
             {
-                SLOG_ERROR("\n{:02f}, {:02f}\n{:02f}, {:02f}", n1.p.lgtd, n1.p.lttd, n2.p.lgtd, n2.p.lttd)
+                SLOG_ERROR("\n{:02f}, {:02f}\n{:02f}, {:02f}", n1.p.x, n1.p.y, n2.p.x, n2.p.y)
                 throw std::runtime_error("经纬度必须相等");
             }
 #else
-            if (n1.p.lgtd == n2.p.lgtd)
+            if (n1.p.x == n2.p.x)
             {
-                point.lgtd = n1.p.lgtd;
+                point.x = n1.p.x;
 
-                point.lttd = n1.p.lttd + m_ydelta * (m_threshold_l - n1.val) / (n2.val - n1.val);
+                point.y = n1.p.y + m_ydelta * (m_threshold_l - n1.val) / (n2.val - n1.val);
             }
             else
             {
-                point.lttd = n1.p.lttd;
-                point.lgtd = n1.p.lgtd + m_xdelta * (m_threshold_l - n1.val) / (n2.val - n1.val);
+                point.y = n1.p.y;
+                point.x = n1.p.x + m_xdelta * (m_threshold_l - n1.val) / (n2.val - n1.val);
             }
 #endif
             break;
         case 2:  // 直接取中点
-            point.lgtd = (n1.p.lgtd + n2.p.lgtd) / 2.;
-            point.lttd = (n1.p.lttd + n2.p.lttd) / 2.;
+            point.x = (n1.p.x + n2.p.x) / 2.;
+            point.y = (n1.p.y + n2.p.y) / 2.;
 
         default:
             break;
@@ -195,7 +195,7 @@ bool silly_vectorizer::point_in_ring(const silly_point &p, const silly_ring &rin
         const silly_point &b = ring.points[j];
 
         // 检查线段 (a, b) 是否与射线交叉
-        if ((a.lttd > p.lttd) != (b.lttd > p.lttd) && (p.lgtd < (b.lgtd - a.lgtd) * (p.lttd - a.lttd) / (b.lttd - a.lttd) + a.lgtd))
+        if ((a.y > p.y) != (b.y > p.y) && (p.x < (b.x - a.x) * (p.y - a.y) / (b.y - a.y) + a.x))
         {
             inside = !inside;  // 每次交点切换inside状态
         }
@@ -230,7 +230,7 @@ std::vector<silly_poly> silly_vectorizer::trace_all_polys()
                         {
                             if (!segment.traced)
                             {
-                                // SLOG_DEBUG("起始点\n{},{}\n{},{}", segment.f.lgtd, segment.f.lttd, segment.t.lgtd, segment.t.lttd)
+                                // SLOG_DEBUG("起始点\n{},{}\n{},{}", segment.f.x, segment.f.y, segment.t.x, segment.t.y)
                                 ring.points.push_back(segment.f);
                                 ring.points.push_back(segment.t);
                                 segment.traced = 1;
@@ -241,62 +241,62 @@ std::vector<silly_poly> silly_vectorizer::trace_all_polys()
                                 switch (tmp.cv)
                                 {
                                     case 1:
-                                        mark_point.lgtd = (tmp.p.lgtd + segment.f.lgtd + segment.t.lgtd) / 3.0;
-                                        mark_point.lttd = (tmp.p.lttd - m_ydelta + segment.f.lttd + segment.t.lttd) / 3.0;
+                                        mark_point.x = (tmp.p.x + segment.f.x + segment.t.x) / 3.0;
+                                        mark_point.y = (tmp.p.y - m_ydelta + segment.f.y + segment.t.y) / 3.0;
                                         break;
                                     case 2:
-                                        mark_point.lgtd = (tmp.p.lgtd + m_xdelta + segment.f.lgtd + segment.t.lgtd) / 3.0;
-                                        mark_point.lttd = (tmp.p.lttd - m_ydelta + segment.f.lttd + segment.t.lttd) / 3.0;
+                                        mark_point.x = (tmp.p.x + m_xdelta + segment.f.x + segment.t.x) / 3.0;
+                                        mark_point.y = (tmp.p.y - m_ydelta + segment.f.y + segment.t.y) / 3.0;
                                         break;
                                     case 3:
-                                        mark_point.lgtd = (tmp.p.lgtd * 2 + m_xdelta + segment.f.lgtd + segment.t.lgtd) / 4.0;
-                                        mark_point.lttd = (tmp.p.lttd * 2 - m_ydelta * 2 + segment.f.lttd + segment.t.lttd) / 4.0;
+                                        mark_point.x = (tmp.p.x * 2 + m_xdelta + segment.f.x + segment.t.x) / 4.0;
+                                        mark_point.y = (tmp.p.y * 2 - m_ydelta * 2 + segment.f.y + segment.t.y) / 4.0;
                                         break;
                                     case 4:
-                                        mark_point.lgtd = (tmp.p.lgtd + m_xdelta + segment.f.lgtd + segment.t.lgtd) / 3.0;
-                                        mark_point.lttd = (tmp.p.lttd + segment.f.lttd + segment.t.lttd) / 3.0;
+                                        mark_point.x = (tmp.p.x + m_xdelta + segment.f.x + segment.t.x) / 3.0;
+                                        mark_point.y = (tmp.p.y + segment.f.y + segment.t.y) / 3.0;
                                         break;
                                     case 5:
                                         //
-                                        mark_point.lgtd = (tmp.p.lgtd * 2 + m_xdelta + tmp.segments[0].f.lgtd + tmp.segments[0].t.lgtd + tmp.segments[1].f.lgtd + tmp.segments[1].t.lgtd) / 6.0;
-                                        mark_point.lttd = (tmp.p.lttd * 2 - m_ydelta + tmp.segments[0].f.lttd + tmp.segments[0].t.lttd + tmp.segments[1].f.lttd + tmp.segments[1].t.lttd) / 6.0;
+                                        mark_point.x = (tmp.p.x * 2 + m_xdelta + tmp.segments[0].f.x + tmp.segments[0].t.x + tmp.segments[1].f.x + tmp.segments[1].t.x) / 6.0;
+                                        mark_point.y = (tmp.p.y * 2 - m_ydelta + tmp.segments[0].f.y + tmp.segments[0].t.y + tmp.segments[1].f.y + tmp.segments[1].t.y) / 6.0;
                                         break;
                                     case 6:
-                                        mark_point.lgtd = (tmp.p.lgtd * 2 + m_xdelta * 2 + segment.f.lgtd + segment.t.lgtd) / 4.0;
-                                        mark_point.lttd = (tmp.p.lttd * 2 - m_ydelta + segment.f.lttd + segment.t.lttd) / 4.0;
+                                        mark_point.x = (tmp.p.x * 2 + m_xdelta * 2 + segment.f.x + segment.t.x) / 4.0;
+                                        mark_point.y = (tmp.p.y * 2 - m_ydelta + segment.f.y + segment.t.y) / 4.0;
                                         break;
                                     case 7:
-                                        mark_point.lgtd = (tmp.p.lgtd * 3 + m_xdelta * 2 + segment.f.lgtd + segment.t.lgtd) / 5.0;
-                                        mark_point.lttd = (tmp.p.lttd * 3 - m_ydelta * 2 + segment.f.lttd + segment.t.lttd) / 5.0;
+                                        mark_point.x = (tmp.p.x * 3 + m_xdelta * 2 + segment.f.x + segment.t.x) / 5.0;
+                                        mark_point.y = (tmp.p.y * 3 - m_ydelta * 2 + segment.f.y + segment.t.y) / 5.0;
                                         break;
                                     case 8:
-                                        mark_point.lgtd = (tmp.p.lgtd + segment.f.lgtd + segment.t.lgtd) / 3.0;
-                                        mark_point.lttd = (tmp.p.lttd + segment.f.lttd + segment.t.lttd) / 3.0;
+                                        mark_point.x = (tmp.p.x + segment.f.x + segment.t.x) / 3.0;
+                                        mark_point.y = (tmp.p.y + segment.f.y + segment.t.y) / 3.0;
                                         break;
                                     case 9:
-                                        mark_point.lgtd = (tmp.p.lgtd * 2 + segment.f.lgtd + segment.t.lgtd) / 4.0;
-                                        mark_point.lttd = (tmp.p.lttd * 2 - m_ydelta + segment.f.lttd + segment.t.lttd) / 4.0;
+                                        mark_point.x = (tmp.p.x * 2 + segment.f.x + segment.t.x) / 4.0;
+                                        mark_point.y = (tmp.p.y * 2 - m_ydelta + segment.f.y + segment.t.y) / 4.0;
                                         break;
                                     case 10:
                                         //
-                                        mark_point.lgtd = (tmp.p.lgtd * 2 + m_xdelta + tmp.segments[0].f.lgtd + tmp.segments[0].t.lgtd + tmp.segments[1].f.lgtd + tmp.segments[1].t.lgtd) / 6.0;
-                                        mark_point.lttd = (tmp.p.lttd * 2 - m_ydelta + tmp.segments[0].f.lttd + tmp.segments[0].t.lttd + tmp.segments[1].f.lttd + tmp.segments[1].t.lttd) / 6.0;
+                                        mark_point.x = (tmp.p.x * 2 + m_xdelta + tmp.segments[0].f.x + tmp.segments[0].t.x + tmp.segments[1].f.x + tmp.segments[1].t.x) / 6.0;
+                                        mark_point.y = (tmp.p.y * 2 - m_ydelta + tmp.segments[0].f.y + tmp.segments[0].t.y + tmp.segments[1].f.y + tmp.segments[1].t.y) / 6.0;
                                         break;
                                     case 11:
-                                        mark_point.lgtd = (tmp.p.lgtd * 3 + m_xdelta + segment.f.lgtd + segment.t.lgtd) / 5.0;
-                                        mark_point.lttd = (tmp.p.lttd * 3 - m_ydelta * 2 + segment.f.lttd + segment.t.lttd) / 5.0;
+                                        mark_point.x = (tmp.p.x * 3 + m_xdelta + segment.f.x + segment.t.x) / 5.0;
+                                        mark_point.y = (tmp.p.y * 3 - m_ydelta * 2 + segment.f.y + segment.t.y) / 5.0;
                                         break;
                                     case 12:
-                                        mark_point.lgtd = (tmp.p.lgtd * 2 + segment.f.lgtd + segment.t.lgtd) / 4.0;
-                                        mark_point.lttd = (tmp.p.lttd * 2 + segment.f.lttd + segment.t.lttd) / 4.0;
+                                        mark_point.x = (tmp.p.x * 2 + segment.f.x + segment.t.x) / 4.0;
+                                        mark_point.y = (tmp.p.y * 2 + segment.f.y + segment.t.y) / 4.0;
                                         break;
                                     case 13:
-                                        mark_point.lgtd = (tmp.p.lgtd * 3 + m_xdelta + segment.f.lgtd + segment.t.lgtd) / 5.0;
-                                        mark_point.lttd = (tmp.p.lttd * 3 - m_ydelta + segment.f.lttd + segment.t.lttd) / 5.0;
+                                        mark_point.x = (tmp.p.x * 3 + m_xdelta + segment.f.x + segment.t.x) / 5.0;
+                                        mark_point.y = (tmp.p.y * 3 - m_ydelta + segment.f.y + segment.t.y) / 5.0;
                                         break;
                                     case 14:
-                                        mark_point.lgtd = (tmp.p.lgtd * 3 + 2 * m_xdelta + segment.f.lgtd + segment.t.lgtd) / 5.0;
-                                        mark_point.lttd = (tmp.p.lttd * 3 - m_ydelta + segment.f.lttd + segment.t.lttd) / 5.0;
+                                        mark_point.x = (tmp.p.x * 3 + 2 * m_xdelta + segment.f.x + segment.t.x) / 5.0;
+                                        mark_point.y = (tmp.p.y * 3 - m_ydelta + segment.f.y + segment.t.y) / 5.0;
                                         break;
                                 }
                                 has_not_traced = true;
@@ -318,7 +318,7 @@ std::vector<silly_poly> silly_vectorizer::trace_all_polys()
                 // throw std::runtime_error("没有正确闭合");
             }
             // 点在面内判断
-            SLOG_DEBUG("{},{}", mark_point.lgtd, mark_point.lttd);
+            SLOG_DEBUG("{},{}", mark_point.x, mark_point.y);
             if (point_in_ring(mark_point, ring))
             {
                 ring.is_outer = 1;  // 外环
@@ -383,12 +383,12 @@ void silly_vectorizer::set(const std::vector<trace_square_point> &points)
     for (int i = 0; i < points.size(); ++i)
     {
         const auto &p = points[i];
-        if (p.p.lgtd < m_left || p.p.lgtd > m_right || p.p.lttd < m_bottom || p.p.lttd > m_top)
+        if (p.p.x < m_left || p.p.x > m_right || p.p.y < m_bottom || p.p.y > m_top)
         {
             continue;
         }
-        int c = std::round((p.p.lgtd - m_left) / m_xdelta) + 1;
-        int r = std::round((m_top - p.p.lttd) / m_ydelta) + 1;
+        int c = std::round((p.p.x - m_left) / m_xdelta) + 1;
+        int r = std::round((m_top - p.p.y) / m_ydelta) + 1;
         if (p.v > m_threshold_l)
         {
             m_mat[r][c].val = p.v;
@@ -616,12 +616,12 @@ void silly_vectorizer::set(const std::vector<trace_square_point> &points, const 
     for (int i = 0; i < points.size(); ++i)
     {
         const auto &p = points[i];
-        if (p.p.lgtd < m_left || p.p.lgtd > m_right || p.p.lttd < m_bottom || p.p.lttd > m_top)
+        if (p.p.x < m_left || p.p.x > m_right || p.p.y < m_bottom || p.p.y > m_top)
         {
             continue;
         }
-        int c = std::round((p.p.lgtd - m_left) / m_xdelta) + 1;
-        int r = std::round((m_top - p.p.lttd) / m_ydelta) + 1;
+        int c = std::round((p.p.x - m_left) / m_xdelta) + 1;
+        int r = std::round((m_top - p.p.y) / m_ydelta) + 1;
         if (p.v >= m_threshold_l && p.v <= m_threshold_h)
         {
             m_mat[r][c].great = 1;
@@ -651,18 +651,18 @@ void silly_vectorizer::fill_mat()
     // 填充边
     for (int i = 0; i < m_height + 2; ++i)
     {
-        m_mat[i][0].p.lgtd = m_left - m_xdelta;
-        m_mat[i][0].p.lttd = m_top - i * m_ydelta + m_ydelta;
-        m_mat[i][m_width + 1].p.lgtd = m_right + m_ydelta;
-        m_mat[i][m_width + 1].p.lttd = m_top - i * m_ydelta + m_ydelta;
+        m_mat[i][0].p.x = m_left - m_xdelta;
+        m_mat[i][0].p.y = m_top - i * m_ydelta + m_ydelta;
+        m_mat[i][m_width + 1].p.x = m_right + m_ydelta;
+        m_mat[i][m_width + 1].p.y = m_top - i * m_ydelta + m_ydelta;
     }
 
     for (int i = 0; i < m_width + 2; ++i)
     {
-        m_mat[0][i].p.lttd = m_top + m_ydelta;
-        m_mat[0][i].p.lgtd = m_left + i * m_xdelta - m_xdelta;
-        m_mat[m_height + 1][i].p.lttd = m_bottom - m_ydelta;
-        m_mat[m_height + 1][i].p.lgtd = m_left + i * m_xdelta - m_xdelta;
+        m_mat[0][i].p.y = m_top + m_ydelta;
+        m_mat[0][i].p.x = m_left + i * m_xdelta - m_xdelta;
+        m_mat[m_height + 1][i].p.y = m_bottom - m_ydelta;
+        m_mat[m_height + 1][i].p.x = m_left + i * m_xdelta - m_xdelta;
     }
 }
 std::vector<silly_poly> silly_vectorizer::vectorize(const std::vector<trace_square_point> &points, const double &t)
@@ -674,10 +674,10 @@ std::vector<silly_poly> silly_vectorizer::vectorize(const std::vector<trace_squa
 }
 void silly_vectorizer::set(const trace_grid_info &info)
 {
-    m_left = info.left;
-    m_right = info.right;
-    m_top = info.top;
-    m_bottom = info.bottom;
+    m_left = info.min.x;
+    m_right = info.max.x;
+    m_top = info.max.y;
+    m_bottom = info.min.y;
     m_xdelta = info.xdelta;
     m_ydelta = info.ydelta;
     m_width = std::round((m_right - m_left) / m_xdelta);
@@ -765,10 +765,10 @@ std::vector<silly_poly> silly_vectorizer::smooth_poly(const std::vector<silly_po
 
 bool is_less_than_slope(const silly_point &p1, const silly_point &p2, const silly_point &p3, const double angle)
 {
-    double x1_diff = p2.lgtd - p1.lgtd;
-    double y1_diff = p2.lttd - p1.lttd;
-    double x2_diff = p3.lgtd - p1.lgtd;
-    double y2_diff = p3.lttd - p1.lttd;
+    double x1_diff = p2.x - p1.x;
+    double y1_diff = p2.y - p1.y;
+    double x2_diff = p3.x - p1.x;
+    double y2_diff = p3.y - p1.y;
     double angle1 = 90.0f, angle2 = 90.0f;
     // 检查分母是否接近零，避免除以零的情况
     if (std::abs(x1_diff) > SU_EPSILON)
@@ -821,12 +821,12 @@ std::vector<silly_poly> silly_vectorizer::simplify_poly_mid_point(const std::vec
         int j = 0;
         for (; j < poly.outer_ring.points.size() - 1; j++)
         {
-            x = (poly.outer_ring.points[j].lgtd + poly.outer_ring.points[j + 1].lgtd) / 2;
-            y = (poly.outer_ring.points[j].lttd + poly.outer_ring.points[j + 1].lttd) / 2;
+            x = (poly.outer_ring.points[j].x + poly.outer_ring.points[j + 1].x) / 2;
+            y = (poly.outer_ring.points[j].y + poly.outer_ring.points[j + 1].y) / 2;
             simple_poly.outer_ring.points.push_back({x, y});
         }
-        x = (poly.outer_ring.points[j].lgtd + poly.outer_ring.points[0].lgtd) / 2;
-        y = (poly.outer_ring.points[j].lttd + poly.outer_ring.points[0].lttd) / 2;
+        x = (poly.outer_ring.points[j].x + poly.outer_ring.points[0].x) / 2;
+        y = (poly.outer_ring.points[j].y + poly.outer_ring.points[0].y) / 2;
         simple_poly.outer_ring.points.push_back({x, y});
         simple_poly.outer_ring.points.push_back(poly.outer_ring.points[0]);
 
@@ -842,12 +842,12 @@ std::vector<silly_poly> silly_vectorizer::simplify_poly_mid_point(const std::vec
             for (j = 0; j < ring.points.size() - 1; j++)
             {
                 // 取中点作为控制点
-                x = (ring.points[j].lgtd + ring.points[j + 1].lgtd) / 2;
-                y = (ring.points[j].lttd + ring.points[j + 1].lttd) / 2;
+                x = (ring.points[j].x + ring.points[j + 1].x) / 2;
+                y = (ring.points[j].y + ring.points[j + 1].y) / 2;
                 simple_ring.points.push_back({x, y});
             }
-            x = (ring.points[j].lgtd + ring.points[0].lgtd) / 2;
-            y = (ring.points[j].lttd + ring.points[0].lttd) / 2;
+            x = (ring.points[j].x + ring.points[0].x) / 2;
+            y = (ring.points[j].y + ring.points[0].y) / 2;
             simple_ring.points.push_back({x, y});
             simple_ring.points.push_back(simple_ring.points[0]);
             simple_poly.inner_rings.emplace_back(simple_ring);
@@ -896,10 +896,10 @@ silly_ring silly_vectorizer::simplify_ring_same_slope(const silly_ring &ring)
     for (; i < num; ++i)
     {
         int n1 = (i + 1) % num, n2 = (i + 2) % num;
-        double dx1 = ring.points[n1].lgtd - ring.points[i].lgtd;
-        double dy1 = ring.points[n1].lttd - ring.points[i].lttd;
-        double dx2 = ring.points[n2].lgtd - ring.points[n1].lgtd;
-        double dy2 = ring.points[n2].lttd - ring.points[n1].lttd;
+        double dx1 = ring.points[n1].x - ring.points[i].x;
+        double dy1 = ring.points[n1].y - ring.points[i].y;
+        double dx2 = ring.points[n2].x - ring.points[n1].x;
+        double dy2 = ring.points[n2].y - ring.points[n1].y;
 
         double slope1 = 1.0e10, slope2 = 1.0e10;
         if (std::abs(dx1) > SU_EPSILON)
@@ -965,16 +965,16 @@ silly_ring silly_vectorizer::smooth_ring(const silly_ring &ring)
         size_t m1 = j + 1, m2 = j + 2;
         m1 = m1 < p_size ? m1 : m1 - p_size;
         m2 = m2 < p_size ? m2 : m2 - p_size;
-        double x0 = (ring.points[j].lgtd + ring.points[m1].lgtd) / 2;
-        double y0 = (ring.points[j].lttd + ring.points[m1].lttd) / 2;
-        double x2 = (ring.points[m2].lgtd + ring.points[m1].lgtd) / 2;
-        double y2 = (ring.points[m2].lttd + ring.points[m1].lttd) / 2;
+        double x0 = (ring.points[j].x + ring.points[m1].x) / 2;
+        double y0 = (ring.points[j].y + ring.points[m1].y) / 2;
+        double x2 = (ring.points[m2].x + ring.points[m1].x) / 2;
+        double y2 = (ring.points[m2].y + ring.points[m1].y) / 2;
 
         result.points.emplace_back(x0, y0);
         for (int k = 0; k < m_smooth; k++)
         {
-            x = bezier_In(t, x0, ring.points[m1].lgtd, x2);
-            y = bezier_In(t, y0, ring.points[m1].lttd, y2);
+            x = bezier_In(t, x0, ring.points[m1].x, x2);
+            y = bezier_In(t, y0, ring.points[m1].y, y2);
             result.points.emplace_back(x, y);
             t += bzr_step;
         }
@@ -1024,8 +1024,8 @@ silly_ring silly_vectorizer::simplify_ring_douglas(const silly_ring &ring, doubl
     std::vector<double> inputs;
     for (auto p : ring.points)
     {
-        inputs.emplace_back(p.lgtd);
-        inputs.emplace_back(p.lttd);
+        inputs.emplace_back(p.x);
+        inputs.emplace_back(p.y);
     }
     std::vector<double> outputs;
     silly_vacuate::douglas_peucker(dist, inputs, outputs);

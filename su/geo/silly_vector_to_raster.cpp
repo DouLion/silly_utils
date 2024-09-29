@@ -7,8 +7,8 @@
 void xscan_line_raster::check_line_point(silly_point point, std::vector<raster_point>& vct, int& last_x, int& last_y)
 {
     // m_row_pairs.clear();
-    int tmp_x = std::round((point.lgtd - m_rect.left) / m_cell_size);
-    int tmp_y = std::round((m_rect.top - point.lttd) / m_cell_size);
+    int tmp_x = std::round((point.x - m_rect.min.x) / m_cell_size);
+    int tmp_y = std::round((m_rect.max.y - point.y) / m_cell_size);
     if (last_x != tmp_x || last_y != tmp_y)
     {
         vct.push_back(raster_point(tmp_x, tmp_y));
@@ -19,8 +19,8 @@ void xscan_line_raster::check_line_point(silly_point point, std::vector<raster_p
 
 bool xscan_line_raster::rasterization(const silly_point& point)
 {
-    int raster_x = std::round((point.lgtd - m_rect.left) / m_cell_size);
-    int raster_y = std::round((m_rect.top - point.lttd) / m_cell_size);
+    int raster_x = std::round((point.x - m_rect.min.x) / m_cell_size);
+    int raster_y = std::round((m_rect.max.y - point.y) / m_cell_size);
     if (raster_x >= 0 && raster_x <= m_width && raster_y >= 0 && raster_y <= m_height)
     {
         m_row_pairs[raster_y].push_back({raster_x, raster_x});
@@ -49,12 +49,12 @@ bool xscan_line_raster::rasterization(const silly_line& line)
     }
     // 遍历线段中的每一对点
     std::map<int, std::map<int, int>> row_col;
-    int last_x = std::round((line.front().lgtd - m_rect.left) / m_cell_size);
-    int last_y = std::round((m_rect.top - line.front().lttd) / m_cell_size);
+    int last_x = std::round((line.front().x - m_rect.min.x) / m_cell_size);
+    int last_y = std::round((m_rect.max.y - line.front().y) / m_cell_size);
     for (auto& point : line)
     {
-        int x = std::round((point.lgtd - m_rect.left) / m_cell_size);
-        int y = std::round((m_rect.top - point.lttd) / m_cell_size);
+        int x = std::round((point.x - m_rect.min.x) / m_cell_size);
+        int y = std::round((m_rect.max.y - point.y) / m_cell_size);
         if (x != last_x || y != last_y)
         {
             row_col[y][x] = 0;
@@ -271,8 +271,8 @@ void xscan_line_raster::set(const silly_geo_rect& rect, const double& cell_size)
     m_rect = rect;
     m_rect.correct();
     m_cell_size = cell_size;
-    m_width = static_cast<int>(std::ceil((m_rect.right - m_rect.left) / m_cell_size));
-    m_height = static_cast<int>(std::ceil((m_rect.top - m_rect.bottom) / m_cell_size));
+    m_width = static_cast<int>(std::ceil((m_rect.max.x - m_rect.min.x) / m_cell_size));
+    m_height = static_cast<int>(std::ceil((m_rect.max.y - m_rect.min.y) / m_cell_size));
 }
 int xscan_line_raster::width() const
 {

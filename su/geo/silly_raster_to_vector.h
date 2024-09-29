@@ -42,10 +42,7 @@ struct trace_grid_info
 {
     double xdelta{0.05};
     double ydelta{0.05};
-    double left{74.};
-    double top{54.};
-    double right{135};
-    double bottom{18.};
+    silly_rect rect{74.0, 54., 135., 18.};
 };
 
 struct trace_algo_info

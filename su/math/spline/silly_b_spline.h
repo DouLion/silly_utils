@@ -26,8 +26,8 @@ class silly_b_spline
         silly_point result = {0.0, 0.0};
         for (size_t i = 0; i < controlPoints.size(); ++i) {
             double b = b2(i, t, knots);
-            result.lgtd += b * controlPoints[i].lgtd;
-            result.lttd += b * controlPoints[i].lttd;
+            result.x += b * controlPoints[i].x;
+            result.y += b * controlPoints[i].y;
         }
         return result;
     }

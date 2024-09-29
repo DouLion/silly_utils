@@ -24,15 +24,15 @@ silly_point geo_utils::poly_centroid(const silly_poly& poly)
     int err = orgPloy.Centroid(&point);
     if (0 == err)
     {
-        center_point.lgtd = point.getX();
-        center_point.lttd = point.getY();
+        center_point.x = point.getX();
+        center_point.y = point.getY();
     }
     return center_point;
 }
 
 double geo_utils::azimuth(silly_point from, silly_point to)
 {
-    double theta = atan2(to.lgtd - from.lgtd, to.lttd - from.lttd);
+    double theta = atan2(to.x - from.x, to.y - from.y);
     theta = theta * 180.0 / SU_PI;
     return theta;
 }
@@ -87,8 +87,8 @@ OGRLinearRing geo_utils::silly_ring_to_ogr(const silly_ring& ring)
     std::vector<double> ys(ring.points.size());
     for (int i = 0; i < ring.points.size(); i++)
     {
-        xs[i] = ring.points[i].lgtd;
-        ys[i] = ring.points[i].lttd;
+        xs[i] = ring.points[i].x;
+        ys[i] = ring.points[i].y;
     }
     result.setPoints(static_cast<int>(ring.points.size()), &xs[0], &ys[0]);
     result.closeRings();
@@ -119,7 +119,7 @@ silly_point geo_utils::silly_point_from_ogr(const OGRPoint* ogrPoint)
 // 将 silly_point(单点) 转换为 OGRPoint(单点) 类型
 OGRPoint geo_utils::silly_point_to_ogr(const silly_point& point)
 {
-    OGRPoint ogrPoint(point.lgtd, point.lttd);
+    OGRPoint ogrPoint(point.x, point.y);
     return ogrPoint;
 }
 
@@ -169,8 +169,8 @@ OGRLineString geo_utils::silly_line_to_ogr(const silly_line& line)
     std::vector<double> ys(line.size());
     for (int i = 0; i < line.size(); i++)
     {
-        xs[i] = line[i].lgtd;
-        ys[i] = line[i].lttd;
+        xs[i] = line[i].x;
+        ys[i] = line[i].y;
     }
     ogrLineString.setPoints((int)line.size(), &xs[0], &ys[0]);
     return ogrLineString;
@@ -739,7 +739,7 @@ bool process_composite_data(const enum_geometry_type coll_type, OGRGeometry* geo
     {
         case enum_geometry_type::egtPoint:
         {
-            OGRPoint ogrPoint(geo_coll.m_point.lgtd, geo_coll.m_point.lttd);
+            OGRPoint ogrPoint(geo_coll.m_point.x, geo_coll.m_point.y);
             geomCollection->addGeometry(&ogrPoint);
         }
         break;
@@ -788,7 +788,7 @@ static bool wire_all_types_data(const enum_geometry_type coll_type, OGRLayer* ou
     {
         case enum_geometry_type::egtPoint:
         {
-            OGRPoint ogrPoint(geo_coll.m_point.lgtd, geo_coll.m_point.lttd);
+            OGRPoint ogrPoint(geo_coll.m_point.x, geo_coll.m_point.y);
             feature->SetGeometry(&ogrPoint);
         }
         break;
@@ -981,19 +981,19 @@ std::vector<silly_poly> silly_geo_utils::intersection(const silly_multi_poly& mp
 // 判断点是否在线段上
 bool on_segment(const silly_point& point, const silly_point& l_beg, const silly_point& l_end)
 {
-    return std::min(l_beg.lgtd, l_end.lgtd) <= point.lgtd && point.lgtd <= std::max(l_beg.lgtd, l_end.lgtd) && std::min(l_beg.lttd, l_end.lttd) <= point.lttd && point.lttd <= std::max(l_beg.lttd, l_end.lttd);
+    return std::min(l_beg.x, l_end.x) <= point.x && point.x <= std::max(l_beg.x, l_end.x) && std::min(l_beg.y, l_end.y) <= point.y && point.y <= std::max(l_beg.y, l_end.y);
 }
 
 // 计算两条线段相交点
 silly_point line_intersection(const silly_point& p1, const silly_point& p2, const silly_point& q1, const silly_point& q2)
 {
     // 利用直线方程求解交点
-    double a1 = p2.lttd - p1.lttd;
-    double b1 = p1.lgtd - p2.lgtd;
-    double c1 = a1 * p1.lgtd + b1 * p1.lttd;
-    double a2 = q2.lttd - q1.lttd;
-    double b2 = q1.lgtd - q2.lgtd;
-    double c2 = a2 * q1.lgtd + b2 * q1.lttd;
+    double a1 = p2.y - p1.y;
+    double b1 = p1.x - p2.x;
+    double c1 = a1 * p1.x + b1 * p1.y;
+    double a2 = q2.y - q1.y;
+    double b2 = q1.x - q2.x;
+    double c2 = a2 * q1.x + b2 * q1.y;
     double determinant = a1 * b2 - a2 * b1;
     if (fabs(determinant) < 1e-6)
     {
@@ -1020,7 +1020,7 @@ bool segments_intersect(silly_point a1, silly_point a2, silly_point b1, silly_po
 {
     // 快速排斥测试
     // 两条线段的覆盖入去要有重叠部分, a线段最大的x要大于b线段最小的x, a线段最小的x要小于b线段最大的x,y轴同理
-    if (!segments_overlap(a1.lgtd, a2.lgtd, b1.lgtd, b2.lgtd) || !segments_overlap(a1.lttd, a2.lttd, b1.lttd, b2.lttd))
+    if (!segments_overlap(a1.x, a2.x, b1.x, b2.x) || !segments_overlap(a1.y, a2.y, b1.y, b2.y))
     {
         return false;
     }
@@ -1030,10 +1030,10 @@ bool segments_intersect(silly_point a1, silly_point a2, silly_point b1, silly_po
     //d2 计算了线段 b1-b2 的方向相对于点 a2 的位置
     //d3 计算了线段 a1-a2 的方向相对于点 b1 的位置
     //d4 计算了线段 a1-a2 的方向相对于点 b2 的位置
-    double d1 = (b2.lttd - b1.lttd) * (a1.lgtd - b1.lgtd) - (b2.lgtd - b1.lgtd) * (a1.lttd - b1.lttd);
-    double d2 = (b2.lttd - b1.lttd) * (a2.lgtd - b1.lgtd) - (b2.lgtd - b1.lgtd) * (a2.lttd - b1.lttd);
-    double d3 = (a2.lttd - a1.lttd) * (b1.lgtd - a1.lgtd) - (a2.lgtd - a1.lgtd) * (b1.lttd - a1.lttd);
-    double d4 = (a2.lttd - a1.lttd) * (b2.lgtd - a1.lgtd) - (a2.lgtd - a1.lgtd) * (b2.lttd - a1.lttd);
+    double d1 = (b2.y - b1.y) * (a1.x - b1.x) - (b2.x - b1.x) * (a1.y - b1.y);
+    double d2 = (b2.y - b1.y) * (a2.x - b1.x) - (b2.x - b1.x) * (a2.y - b1.y);
+    double d3 = (a2.y - a1.y) * (b1.x - a1.x) - (a2.x - a1.x) * (b1.y - a1.y);
+    double d4 = (a2.y - a1.y) * (b2.x - a1.x) - (a2.x - a1.x) * (b2.y - a1.y);
 
     // 当 d1 * d2 < 0 时，意味着点 a1 和 a2 在线段 b1-b2 的两侧
     // 当 d3 * d4 < 0 时，意味着点 b1 和 b2 在线段 a1-a2 的两侧 
@@ -1061,7 +1061,7 @@ bool segments_intersect(silly_point a1, silly_point a2, silly_point b1, silly_po
         // 求相交点,如果相交点为线段的起点返回true
         silly_point intersect = line_intersection(a1, a2, b1, b2);
         // 如果交点为线段b的起始点
-        if ((std::abs(intersect.lgtd - b1.lgtd) <= 1e-8) && (std::abs(intersect.lttd - b1.lttd) <= 1e-8))
+        if ((std::abs(intersect.x - b1.x) <= 1e-8) && (std::abs(intersect.y - b1.y) <= 1e-8))
         {
             return true;
         }
@@ -1080,7 +1080,7 @@ bool segments_intersect(silly_point a1, silly_point a2, silly_point b1, silly_po
 bool silly_geo_utils::intersect(const silly_poly& mpoly, const silly_point& point)
 {
     int intersections = 0;
-    silly_point ray_end(point.lgtd + 1000, point.lttd);  // 向右引一条射线 1000单位
+    silly_point ray_end(point.x + 1000, point.y);  // 向右引一条射线 1000单位
 
     // 外环
     bool is_in_outer_ring = intersect(point, mpoly.outer_ring.points);
@@ -1143,8 +1143,8 @@ double silly_geo_utils::area(const std::vector<silly_point>& points)
     for (size_t i = 0; i < pnum; ++i)
     {
         size_t j = (i + 1) % pnum;
-        result += points[i].lgtd * points[j].lttd;
-        result -= points[j].lgtd * points[i].lttd;
+        result += points[i].x * points[j].y;
+        result -= points[j].x * points[i].y;
     }
     return std::abs(result) / 2.0;
 }
@@ -1211,15 +1211,15 @@ double silly_geo_utils::area_sqkm(const std::vector<silly_point>& points)
     double maxx = -1e10, minx = 1e10;
     for (auto p : points)
     {
-        maxx = std::max(maxx, p.lgtd);
-        minx = std::min(minx, p.lgtd);
+        maxx = std::max(maxx, p.x);
+        minx = std::min(minx, p.x);
     }
     std::vector<silly_point> gpoints;
     auto central = SU_GAUSS6_L0(SU_GAUSS6_NO((minx + maxx) / 2));
     for (auto p : points)
     {
         silly_point tmp;
-        silly_proj::lonlat_to_gauss(central, p.lgtd, p.lttd, tmp.lttd, tmp.lgtd);
+        silly_proj::lonlat_to_gauss(central, p.x, p.y, tmp.y, tmp.x);
         gpoints.push_back(tmp);
     }
     return area(gpoints) / 1e6;
@@ -1344,8 +1344,8 @@ bool silly_geo_utils::write_iso_polygon(const std::string& u8file, const silly_m
             ofs << " " << poly.outer_ring.points.size();
             for (auto& p : poly.outer_ring.points)
             {
-                ofs << " " << std::fixed << std::setprecision(precision) << p.lgtd;
-                ofs << " " << std::fixed << std::setprecision(precision) << p.lttd;
+                ofs << " " << std::fixed << std::setprecision(precision) << p.x;
+                ofs << " " << std::fixed << std::setprecision(precision) << p.y;
             }
         }
     }
@@ -1364,13 +1364,13 @@ bool silly_geo_utils::intersect(const silly_point& point, const std::vector<sill
     bool c = false;
     for (i = 0, j = num - 1; i < num; j = i++)
     {
-        d = (points[j].lgtd - points[i].lgtd) * (point.lttd - points[i].lttd) / (points[j].lttd - points[i].lttd) + points[i].lgtd;
-        if (point.lgtd == d)
+        d = (points[j].x - points[i].x) * (point.y - points[i].y) / (points[j].y - points[i].y) + points[i].x;
+        if (point.x == d)
         {
             return false;
         }
 
-        if ((((points[i].lttd <= point.lttd) && (point.lttd < points[j].lttd) || ((points[j].lttd <= point.lttd) && (point.lttd < points[i].lttd))) && (point.lgtd < d)))
+        if ((((points[i].y <= point.y) && (point.y < points[j].y) || ((points[j].y <= point.y) && (point.y < points[i].y))) && (point.x < d)))
         {
             c = !c;
         }

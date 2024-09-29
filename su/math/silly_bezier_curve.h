@@ -23,8 +23,8 @@ class silly_bezier_curve
     static silly_point bezier_interpolation_base(const silly_point& p1, const silly_point& p2, double sc)
     {
         silly_point result;
-        result.lgtd = p1.lgtd + sc * (p2.lgtd - p1.lgtd);
-        result.lttd = p1.lttd + sc * (p2.lttd - p1.lttd);
+        result.x = p1.x + sc * (p2.x - p1.x);
+        result.y = p1.y + sc * (p2.y - p1.y);
         return result;
     }
     /// <summary>

@@ -34,8 +34,8 @@ std::vector<silly_point> silly_b_spline::interpolation(const std::vector<silly_p
         for (int i = 0; i < n; ++i)
         {
             double basis = N_i_p(i, degree, t, knots);
-            x += basis * points[i].lgtd;
-            y += basis * points[i].lttd;
+            x += basis * points[i].x;
+            y += basis * points[i].y;
         }
         result[j] = {x, y};
     }
