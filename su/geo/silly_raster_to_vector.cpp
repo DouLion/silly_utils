@@ -674,10 +674,10 @@ std::vector<silly_poly> silly_vectorizer::vectorize(const std::vector<trace_squa
 }
 void silly_vectorizer::set(const trace_grid_info &info)
 {
-    m_left = info.min.x;
-    m_right = info.max.x;
-    m_top = info.max.y;
-    m_bottom = info.min.y;
+    m_left = info.rect.min.x;
+    m_right = info.rect.max.x;
+    m_top = info.rect.max.y;
+    m_bottom = info.rect.min.y;
     m_xdelta = info.xdelta;
     m_ydelta = info.ydelta;
     m_width = std::round((m_right - m_left) / m_xdelta);

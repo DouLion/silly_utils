@@ -25,10 +25,10 @@ silly_iso_line::~silly_iso_line()
 
 void silly_iso_line::set_rect(const silly_geo_rect& rect)
 {
-    dMinLGTD = rect.left;
-    dMaxLTTD = rect.top;
-    dMaxLGTD = rect.right;
-    dMinLTTD = rect.bottom;
+    dMinLGTD = rect.min.x;
+    dMaxLTTD = rect.max.y;
+    dMaxLGTD = rect.max.x;
+    dMinLTTD = rect.min.y;
 }
 
 void silly_iso_line::set_data(const size_t& num, const double* lgtd, const double* lttd, const double* data)

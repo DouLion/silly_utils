@@ -94,10 +94,10 @@ void silly_delaunay_bowyer::init_super_triangle()
     // 最大矩形
     for (auto p : m_points)
     {
-        xmax = std::max(xmax, p.lgtd);
-        ymax = std::max(ymax, p.lttd);
-        xmin = std::min(xmin, p.lgtd);
-        ymin = std::min(ymin, p.lttd);
+        xmax = std::max(xmax, p.x);
+        ymax = std::max(ymax, p.y);
+        xmin = std::min(xmin, p.x);
+        ymin = std::min(ymin, p.y);
     }
     ddx = xmax - xmin;
     ddy = ymax - ymin;
@@ -111,11 +111,11 @@ void silly_delaunay_bowyer::init_super_triangle()
 }
 bool silly_delaunay_bowyer::contains_super_tri(const silly_dt_tri& tri) const
 {
-    if (tri.p0.lgtd < xmin || tri.p0.lgtd > xmax || tri.p0.lttd < ymin || tri.p0.lttd > ymax)
+    if (tri.p0.x < xmin || tri.p0.x > xmax || tri.p0.y < ymin || tri.p0.y > ymax)
         return true;
-    if (tri.p1.lgtd < xmin || tri.p1.lgtd > xmax || tri.p1.lttd < ymin || tri.p1.lttd > ymax)
+    if (tri.p1.x < xmin || tri.p1.x > xmax || tri.p1.y < ymin || tri.p1.y > ymax)
         return true;
-    if (tri.p2.lgtd < xmin || tri.p2.lgtd > xmax || tri.p2.lttd < ymin || tri.p2.lttd > ymax)
+    if (tri.p2.x < xmin || tri.p2.x > xmax || tri.p2.y < ymin || tri.p2.y > ymax)
         return true;
     return false;
 }

@@ -15,10 +15,10 @@ void silly_dt_tri::calc_circle()
     // x = ((C1*B2)-(C2*B1))/((A1*B2)-(A2*B1))
     // y = ((A1*C2)-(A2*C1))/((A1*B2)-(A2*B1))
 
-    const auto ax = p1.lgtd - p0.lgtd;
-    const auto ay = p1.lttd - p0.lttd;
-    const auto bx = p2.lgtd - p0.lgtd;
-    const auto by = p2.lttd - p0.lttd;
+    const auto ax = p1.x - p0.x;
+    const auto ay = p1.y - p0.y;
+    const auto bx = p2.x - p0.x;
+    const auto by = p2.y - p0.y;
 
     // 检查分母是否接近于零
     const double denominator = ax * by - ay * bx;
@@ -28,15 +28,15 @@ void silly_dt_tri::calc_circle()
         return;
     }
 
-    const auto m = p1.lgtd * p1.lgtd - p0.lgtd * p0.lgtd + p1.lttd * p1.lttd - p0.lttd * p0.lttd;
-    const auto u = p2.lgtd * p2.lgtd - p0.lgtd * p0.lgtd + p2.lttd * p2.lttd - p0.lttd * p0.lttd;
+    const auto m = p1.x * p1.x - p0.x * p0.x + p1.y * p1.y - p0.y * p0.y;
+    const auto u = p2.x * p2.x - p0.x * p0.x + p2.y * p2.y - p0.y * p0.y;
     const auto s = 1. / (2. * denominator);
 
-    center.lgtd = ((p2.lttd - p0.lttd) * m + (p0.lttd - p1.lttd) * u) * s;
-    center.lttd = ((p0.lgtd - p2.lgtd) * m + (p1.lgtd - p0.lgtd) * u) * s;
+    center.x = ((p2.y - p0.y) * m + (p0.y - p1.y) * u) * s;
+    center.y = ((p0.x - p2.x) * m + (p1.x - p0.x) * u) * s;
 
-    const auto dx = p0.lgtd - center.lgtd;
-    const auto dy = p0.lttd - center.lttd;
+    const auto dx = p0.x - center.x;
+    const auto dy = p0.y - center.y;
     sq_radius = dx * dx + dy * dy;
 }
 bool silly_dt_tri::in_circle(const silly_dt_point& p) const
@@ -82,8 +82,8 @@ std::vector<silly_dt_point> silly_delaunay_utils::parse(const std::string& conte
     while (i < size)
     {
         silly_dt_point tmp;
-        tmp.lgtd = get_double(content, size, i);
-        tmp.lttd = get_double(content, size, i);
+        tmp.x = get_double(content, size, i);
+        tmp.y = get_double(content, size, i);
         tmp.val = get_double(content, size, i);
         tmp.index = static_cast<uint32_t>(i);
         points.push_back(tmp);
@@ -98,7 +98,7 @@ double silly_delaunay_utils::dist(const silly_dt_point& p0, const silly_dt_point
 
 double silly_delaunay_utils::sq_dist(const silly_dt_point& p0, const silly_dt_point& p1)
 {
-    return (p0.lgtd - p1.lgtd) * (p0.lgtd - p1.lgtd) + (p0.lttd - p1.lttd) * (p0.lttd - p1.lttd);
+    return (p0.x - p1.x) * (p0.x - p1.x) + (p0.y - p1.y) * (p0.y - p1.y);
 }
 #ifndef NDEBUG
 #include <image/silly_cairo.h>

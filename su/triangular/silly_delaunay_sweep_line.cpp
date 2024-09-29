@@ -12,5 +12,5 @@
 void silly_delaunay_sweep_line::points(std::vector<silly_dt_point>& pts)
 {
     m_points = pts;
-    std::sort(m_points.begin(), m_points.end(), [](silly_dt_point& lhs, silly_dt_point& rhs) -> bool {  return lhs.lttd < rhs.lttd || (lhs.lttd == rhs.lttd && lhs.lgtd < rhs.lgtd);});
+    std::sort(m_points.begin(), m_points.end(), [](silly_dt_point& lhs, silly_dt_point& rhs) -> bool {  return lhs.y < rhs.y || (lhs.y == rhs.y && lhs.x < rhs.x);});
 }

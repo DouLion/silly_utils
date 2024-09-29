@@ -18,16 +18,16 @@ class silly_dt_point : public silly_point
   public:
     silly_dt_point() = default;
 
-    silly_dt_point(double x, double y, uint32_t i)
+    silly_dt_point(double xx, double yy, uint32_t i)
     {
-        lgtd = x;
-        lttd = y;
+        x = xx;
+        y = yy;
         index = i;
     }
-    silly_dt_point(double x, double y, double v, uint32_t i)
+    silly_dt_point(double xx, double yy, double v, uint32_t i)
     {
-        lgtd = x;
-        lttd = y;
+        x = xx;
+        y = yy;
         val = v;
         index = i;
     }
@@ -56,7 +56,7 @@ struct hash<silly_dt_point>
 {
     size_t operator()(const silly_dt_point& point) const
     {
-        return hash<double>()(point.lgtd) ^ hash<double>()(point.lttd);
+        return hash<double>()(point.x) ^ hash<double>()(point.y);
     }
 };
 }  // namespace std

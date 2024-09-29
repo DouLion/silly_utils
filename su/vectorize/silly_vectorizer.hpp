@@ -39,8 +39,8 @@
 //	silly_p_value operator=(const silly_p_value& spv)
 //	{
 //		this->value = spv.value;
-//		this->lgtd = spv.lgtd;
-//		this->lttd = spv.lttd;
+//		this->lgtd = spv.x;
+//		this->lttd = spv.y;
 //		return *this;
 //	}
 //
@@ -174,8 +174,8 @@
 //			for (size_t c = 0; c < m_width + 1; ++c)
 //			{
 //				// 新疆有些网格点有缺省
-//				b_w_mat.mat[r][c].pv.lgtd = m_left - m_x_step + c * m_x_step;
-//				b_w_mat.mat[r][c].pv.lttd = m_top + m_y_step - r * m_y_step;
+//				b_w_mat.mat[r][c].pv.x = m_left - m_x_step + c * m_x_step;
+//				b_w_mat.mat[r][c].pv.y = m_top + m_y_step - r * m_y_step;
 //				b_w_mat.mat[r][c].cv = (b_w_mat.mat[r][c].is_white << 3) | (b_w_mat.mat[r][c + 1].is_white << 2) | (b_w_mat.mat[r + 1][c + 1].is_white << 1) | b_w_mat.mat[r + 1][c].is_white;
 //			}
 //		}
@@ -362,18 +362,18 @@
 //			// 填充上下两个边界,
 //			for (int i = 0; i < m_width + 2; ++i)
 //			{
-//				b_w_mat.mat[0][i].pv.lgtd = m_left + (i - 1) * m_x_step;
-//				b_w_mat.mat[0][i].pv.lttd = m_top + m_y_step;
-//				b_w_mat.mat[m_height + 1][i].pv.lgtd = m_left + (i - 1) * m_x_step;
-//				b_w_mat.mat[m_height + 1][i].pv.lttd = m_bottom - m_y_step;
+//				b_w_mat.mat[0][i].pv.x = m_left + (i - 1) * m_x_step;
+//				b_w_mat.mat[0][i].pv.y = m_top + m_y_step;
+//				b_w_mat.mat[m_height + 1][i].pv.x = m_left + (i - 1) * m_x_step;
+//				b_w_mat.mat[m_height + 1][i].pv.y = m_bottom - m_y_step;
 //			}
 //			// 填充左右两个边界
 //			for (int i = 0; i < m_height + 2; ++i)
 //			{
-//				b_w_mat.mat[i][0].pv.lgtd = m_left - m_x_step;
-//				b_w_mat.mat[i][0].pv.lttd = m_top - (i - 1) * m_y_step;
-//				b_w_mat.mat[i][m_width + 1].pv.lgtd = m_right + m_x_step;
-//				b_w_mat.mat[i][m_width + 1].pv.lttd = m_top - (i - 1) * m_y_step;
+//				b_w_mat.mat[i][0].pv.x = m_left - m_x_step;
+//				b_w_mat.mat[i][0].pv.y = m_top - (i - 1) * m_y_step;
+//				b_w_mat.mat[i][m_width + 1].pv.x = m_right + m_x_step;
+//				b_w_mat.mat[i][m_width + 1].pv.y = m_top - (i - 1) * m_y_step;
 //			}
 //
 //
@@ -382,8 +382,8 @@
 //			{
 //				int x = std::round((record->lgtd[i] - m_left) / m_x_step) + 1;
 //				int y = std::round((m_top - record->lttd[i]) / m_y_step) + 1;
-//				b_w_mat.mat[y][x].pv.lgtd = record->lgtd[i];
-//				b_w_mat.mat[y][x].pv.lttd = record->lttd[i];
+//				b_w_mat.mat[y][x].pv.x = record->lgtd[i];
+//				b_w_mat.mat[y][x].pv.y = record->lttd[i];
 //				b_w_mat.mat[y][x].pv.value = record->value[i];
 //				//				b_w_mat.mat[y][x].pv.x = x;
 //				//				b_w_mat.mat[y][x].pv.y = y;
@@ -399,18 +399,18 @@
 //			// 填充上下两个边界,
 //			for (int i = 0; i < m_width + 2; ++i)
 //			{
-//				b_w_mat.mat[0][i].pv.lgtd = m_left + (i - 1) * m_x_step;
-//				b_w_mat.mat[0][i].pv.lttd = m_top + m_y_step;
-//				b_w_mat.mat[m_height + 1][i].pv.lgtd = m_left + (i - 1) * m_x_step;
-//				b_w_mat.mat[m_height + 1][i].pv.lttd = m_bottom - m_y_step;
+//				b_w_mat.mat[0][i].pv.x = m_left + (i - 1) * m_x_step;
+//				b_w_mat.mat[0][i].pv.y = m_top + m_y_step;
+//				b_w_mat.mat[m_height + 1][i].pv.x = m_left + (i - 1) * m_x_step;
+//				b_w_mat.mat[m_height + 1][i].pv.y = m_bottom - m_y_step;
 //			}
 //			// 填充左右两个边界
 //			for (int i = 0; i < m_height + 2; ++i)
 //			{
-//				b_w_mat.mat[i][0].pv.lgtd = m_left - m_x_step;
-//				b_w_mat.mat[i][0].pv.lttd = m_top - (i - 1) * m_y_step;
-//				b_w_mat.mat[i][m_width + 1].pv.lgtd = m_right + m_x_step;
-//				b_w_mat.mat[i][m_width + 1].pv.lttd = m_top - (i - 1) * m_y_step;
+//				b_w_mat.mat[i][0].pv.x = m_left - m_x_step;
+//				b_w_mat.mat[i][0].pv.y = m_top - (i - 1) * m_y_step;
+//				b_w_mat.mat[i][m_width + 1].pv.x = m_right + m_x_step;
+//				b_w_mat.mat[i][m_width + 1].pv.y = m_top - (i - 1) * m_y_step;
 //			}
 //
 //
@@ -419,8 +419,8 @@
 //			{
 //				int x = std::round((record->lgtd[i] - m_left) / m_x_step) + 1;
 //				int y = std::round((m_top - record->lttd[i]) / m_y_step) + 1;
-//				b_w_mat.mat[y][x].pv.lgtd = record->lgtd[i];
-//				b_w_mat.mat[y][x].pv.lttd = record->lttd[i];
+//				b_w_mat.mat[y][x].pv.x = record->lgtd[i];
+//				b_w_mat.mat[y][x].pv.y = record->lttd[i];
 //				b_w_mat.mat[y][x].pv.value = record->value[i];
 //				//				b_w_mat.mat[y][x].pv.x = x;
 //				//				b_w_mat.mat[y][x].pv.y = y;
@@ -459,7 +459,7 @@
 //			{
 //				for (auto& poly: valid_polys)
 //				{
-//					if (point_in_ring(ring.points[0].lgtd, ring.points[0].lttd, poly.rings[0]))
+//					if (point_in_ring(ring.points[0].x, ring.points[0].y, poly.rings[0]))
 //					{
 //						poly.rings.emplace_back(ring);
 //						break;
@@ -498,10 +498,10 @@
 //	static void interpolation(const silly_p_value& pv1, const silly_p_value& pv2, const double& threshold, silly_point& point)
 //	{
 //		// 这个地方被除数一定不会等于0, 如果等于0,一定是前面有些步骤做法不对,或者阈值划分有问题
-//		point.lgtd = (threshold - pv1.value) * (pv2.lgtd - pv1.lgtd) / (pv2.value - pv1.value) + pv1.lgtd;
-//		point.lttd = (threshold - pv1.value) * (pv2.lttd - pv1.lttd) / (pv2.value - pv1.value) + pv1.lttd;
+//		point.x = (threshold - pv1.value) * (pv2.x - pv1.x) / (pv2.value - pv1.value) + pv1.x;
+//		point.y = (threshold - pv1.value) * (pv2.y - pv1.y) / (pv2.value - pv1.value) + pv1.y;
 //
-//		if (point.lgtd < 10 || point.lttd < 10)
+//		if (point.x < 10 || point.y < 10)
 //		{
 //			int a = 0;
 //		}
@@ -536,16 +536,16 @@
 //					size_t m1 = j + 1, m2 = j + 2;
 //					m1 = m1 < p_size ? m1 : m1 - p_size;
 //					m2 = m2 < p_size ? m2 : m2 - p_size;
-//					double x0 = (ring.points[j].lgtd + ring.points[m1].lgtd) / 2;
-//					double y0 = (ring.points[j].lttd + ring.points[m1].lttd) / 2;
-//					double x2 = (ring.points[m2].lgtd + ring.points[m1].lgtd) / 2;
-//					double y2 = (ring.points[m2].lttd + ring.points[m1].lttd) / 2;
+//					double x0 = (ring.points[j].x + ring.points[m1].x) / 2;
+//					double y0 = (ring.points[j].y + ring.points[m1].y) / 2;
+//					double x2 = (ring.points[m2].x + ring.points[m1].x) / 2;
+//					double y2 = (ring.points[m2].y + ring.points[m1].y) / 2;
 //
 //					smooth_ring.points.emplace_back(x0, y0);
 //					for (int k = 0; k < m_smooth; k++)
 //					{
-//						x = bezier(t, x0, ring.points[m1].lgtd, x2);
-//						y = bezier(t, y0, ring.points[m1].lttd, y2);
+//						x = bezier(t, x0, ring.points[m1].x, x2);
+//						y = bezier(t, y0, ring.points[m1].y, y2);
 //						smooth_ring.points.emplace_back(x, y);
 //						t += bzr_step;
 //					}
@@ -571,10 +571,10 @@
 //	{
 //		// double slope = 0.1;// std::tan(std::abs(angle));
 //		// (y1-y0)*(x2-x1) - (y2-y1)*(x1-x0) < slope * (x1-x0)*(x2-x1)
-//		double x1_diff = p2.lgtd - p1.lgtd;
-//		double x2_diff = p3.lgtd - p2.lgtd;
-//		double y1_diff = p2.lttd - p1.lttd;
-//		double y2_diff = p3.lttd - p2.lttd;
+//		double x1_diff = p2.x - p1.x;
+//		double x2_diff = p3.x - p2.x;
+//		double y1_diff = p2.y - p1.y;
+//		double y2_diff = p3.y - p2.y;
 //		if (std::abs(x1_diff) < 1e-6 || std::abs(x2_diff) < 1e-6)
 //		{
 //			if (std::abs(x1_diff - x2_diff) < 1e-6)
@@ -671,10 +671,10 @@
 //					size_t m1 = j + 1, m2 = j + 2;
 //					m1 = m1 < p_size ? m1 : m1 - p_size;
 //					m2 = m2 < p_size ? m2 : m2 - p_size;
-//					double x0 = (ring.points[j].lgtd + ring.points[m1].lgtd) / 2;
-//					double y0 = (ring.points[j].lttd + ring.points[m1].lttd) / 2;
-//					double x2 = (ring.points[m2].lgtd + ring.points[m1].lgtd) / 2;
-//					double y2 = (ring.points[m2].lttd + ring.points[m1].lttd) / 2;
+//					double x0 = (ring.points[j].x + ring.points[m1].x) / 2;
+//					double y0 = (ring.points[j].y + ring.points[m1].y) / 2;
+//					double x2 = (ring.points[m2].x + ring.points[m1].x) / 2;
+//					double y2 = (ring.points[m2].y + ring.points[m1].y) / 2;
 //					Json::Value head_point = Json::arrayValue;
 //					head_point.append(x0);
 //					head_point.append(y0);
@@ -683,8 +683,8 @@
 //					{
 //						double x = 0, y = 0;
 //
-//						x = bezier(t, x0, ring.points[m1].lgtd, x2);
-//						y = bezier(t, y0, ring.points[m1].lttd, y2);
+//						x = bezier(t, x0, ring.points[m1].x, x2);
+//						y = bezier(t, y0, ring.points[m1].y, y2);
 //
 //						Json::Value bezier_point = Json::arrayValue;
 //						bezier_point.append(x);
@@ -734,11 +734,11 @@
 //		size_t num = r.points.size();
 //		for (i = 0, j = num - 1; i < num; j = i++)
 //		{
-//			d = (r.points[j].lgtd - r.points[i].lgtd) * (y - r.points[i].lttd)
-//				/ (r.points[j].lttd - r.points[i].lttd) + r.points[i].lgtd;
+//			d = (r.points[j].x - r.points[i].x) * (y - r.points[i].y)
+//				/ (r.points[j].y - r.points[i].y) + r.points[i].x;
 //			if (x == d)return 0;
-//			if ((((r.points[i].lttd <= y) && (y < r.points[j].lttd) ||
-//				  ((r.points[j].lttd <= y) && (y < r.points[i].lttd))) &&
+//			if ((((r.points[i].y <= y) && (y < r.points[j].y) ||
+//				  ((r.points[j].y <= y) && (y < r.points[i].y))) &&
 //				 (x < d)))
 //				c = !c;
 //		}
@@ -833,7 +833,7 @@
 //					ring.points.push_back(ring.points.front());
 //				}
 //				// 点在面内判断
-//				if (!point_in_ring(first_w_point.lgtd, first_w_point.lttd, ring))
+//				if (!point_in_ring(first_w_point.x, first_w_point.y, ring))
 //				{
 //					ring.is_outer = 0;
 //				}

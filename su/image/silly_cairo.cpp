@@ -240,13 +240,13 @@ void silly_cairo::draw_ring(const silly_ring &ring, const silly_geo_rect &rect)
 {
     cairo_new_sub_path(m_cr);
 
-    double x_pixel_per_degree = m_width / (rect.right - rect.left);
-    double y_pixel_per_degree = m_height / (rect.top - rect.bottom);
-    cairo_move_to(m_cr, (ring.points[0].lgtd - rect.left) * x_pixel_per_degree, (rect.top - ring.points[0].lttd) * y_pixel_per_degree);
+    double x_pixel_per_degree = m_width / (rect.max.x - rect.min.x);
+    double y_pixel_per_degree = m_height / (rect.max.y - rect.min.y);
+    cairo_move_to(m_cr, (ring.points[0].x - rect.min.x) * x_pixel_per_degree, (rect.max.y - ring.points[0].y) * y_pixel_per_degree);
     for (int i = 1; i < ring.points.size(); ++i)
     {
-        double x = (ring.points[i].lgtd - rect.left) * x_pixel_per_degree;
-        double y = (rect.top - ring.points[i].lttd) * y_pixel_per_degree;
+        double x = (ring.points[i].x - rect.min.x) * x_pixel_per_degree;
+        double y = (rect.max.y - ring.points[i].y) * y_pixel_per_degree;
         cairo_line_to(m_cr, x, y);
     }
     cairo_close_path(m_cr);
@@ -255,19 +255,19 @@ void silly_cairo::draw_ring(const silly_ring &ring, const silly_geo_rect &rect)
 void silly_cairo::draw_ring_web_mercator(const silly_ring &ring, const silly_geo_rect &rect)
 {
     double mc_left, mc_top, mc_right, mc_bottom;  // 多内环的情况这几个变量会重复计算,但是开销很小,可以暂时忽略
-    silly_projection::geo_to_mercator(rect.left, rect.top, mc_left, mc_top);
-    silly_projection::geo_to_mercator(rect.right, rect.bottom, mc_right, mc_bottom);
+    silly_projection::geo_to_mercator(rect.min.x, rect.max.y, mc_left, mc_top);
+    silly_projection::geo_to_mercator(rect.max.x, rect.min.y, mc_right, mc_bottom);
 
     cairo_new_sub_path(m_cr);
     double mcx, mcy;
 
     double x_pixel_per_degree = m_width / (mc_right - mc_left);
     double y_pixel_per_degree = m_height / (mc_top - mc_bottom);
-    silly_projection::geo_to_mercator(ring.points[0].lgtd, ring.points[0].lttd, mcx, mcy);
+    silly_projection::geo_to_mercator(ring.points[0].x, ring.points[0].y, mcx, mcy);
     cairo_move_to(m_cr, (mcx - mc_left) * x_pixel_per_degree, (mc_top - mcy) * y_pixel_per_degree);
     for (int i = 1; i < ring.points.size(); ++i)
     {
-        silly_projection::geo_to_mercator(ring.points[i].lgtd, ring.points[i].lttd, mcx, mcy);
+        silly_projection::geo_to_mercator(ring.points[i].x, ring.points[i].y, mcx, mcy);
         cairo_line_to(m_cr, (mcx - mc_left) * x_pixel_per_degree, (mc_top - mcy) * y_pixel_per_degree);
     }
     cairo_close_path(m_cr);
@@ -357,12 +357,12 @@ void silly_cairo::set_operator(const int &opt)
 }
 void silly_cairo::draw_line(const std::vector<silly_point> &line, const silly_geo_rect &rect)
 {
-    double x_pixel_per_degree = m_width / (rect.right - rect.left);
-    double y_pixel_per_degree = m_height / (rect.top - rect.bottom);
-    cairo_move_to(m_cr, (line[0].lgtd - rect.left) * x_pixel_per_degree, (rect.top - line[0].lttd) * y_pixel_per_degree);
+    double x_pixel_per_degree = m_width / (rect.max.x - rect.min.x);
+    double y_pixel_per_degree = m_height / (rect.max.y - rect.min.y);
+    cairo_move_to(m_cr, (line[0].x - rect.min.x) * x_pixel_per_degree, (rect.max.y - line[0].y) * y_pixel_per_degree);
     for (int i = 1; i < line.size(); ++i)
     {
-        cairo_line_to(m_cr, (line[i].lgtd - rect.left) * x_pixel_per_degree, (rect.top - line[i].lttd) * y_pixel_per_degree);
+        cairo_line_to(m_cr, (line[i].x - rect.min.x) * x_pixel_per_degree, (rect.max.y - line[i].y) * y_pixel_per_degree);
     }
     // 实际绘制线条
     cairo_stroke(m_cr);
@@ -370,18 +370,18 @@ void silly_cairo::draw_line(const std::vector<silly_point> &line, const silly_ge
 void silly_cairo::draw_line_web_mercator(const std::vector<silly_point> &line, const silly_geo_rect &rect)
 {
     double mc_left, mc_top, mc_right, mc_bottom;  // 多内环的情况这几个变量会重复计算,但是开销很小,可以暂时忽略
-    silly_projection::geo_to_mercator(rect.left, rect.top, mc_left, mc_top);
-    silly_projection::geo_to_mercator(rect.right, rect.bottom, mc_right, mc_bottom);
+    silly_projection::geo_to_mercator(rect.min.x, rect.max.y, mc_left, mc_top);
+    silly_projection::geo_to_mercator(rect.max.x, rect.min.y, mc_right, mc_bottom);
 
     double mcx, mcy;
 
     double x_pixel_per_degree = m_width / (mc_right - mc_left);
     double y_pixel_per_degree = m_height / (mc_top - mc_bottom);
-    silly_projection::geo_to_mercator(line[0].lgtd, line[0].lttd, mcx, mcy);
+    silly_projection::geo_to_mercator(line[0].x, line[0].y, mcx, mcy);
     cairo_move_to(m_cr, (mcx - mc_left) * x_pixel_per_degree, (mc_top - mcy) * y_pixel_per_degree);
     for (int i = 1; i < line.size(); ++i)
     {
-        silly_projection::geo_to_mercator(line[i].lgtd, line[i].lttd, mcx, mcy);
+        silly_projection::geo_to_mercator(line[i].x, line[i].y, mcx, mcy);
         cairo_line_to(m_cr, (mcx - mc_left) * x_pixel_per_degree, (mc_top - mcy) * y_pixel_per_degree);
     }
     cairo_stroke(m_cr);
@@ -390,8 +390,8 @@ void silly_cairo::draw_point(const silly_point &p, const double &size, const sil
 {
     cairo_set_line_width(m_cr, size);  // 圆点的直径
 
-    double x = (p.lgtd - rect.left) / (rect.right - rect.left) * m_width;
-    double y = (rect.top - p.lttd) / (rect.top - rect.bottom) * m_height;
+    double x = (p.x - rect.min.x) / (rect.max.x - rect.min.x) * m_width;
+    double y = (rect.max.y - p.y) / (rect.max.y - rect.min.y) * m_height;
 
     // 绘制圆点
     cairo_arc(m_cr, x, y, size / 2., 0, 2 * M_PI);  // 圆心位置 (100, 100), 半径 5
