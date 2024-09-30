@@ -324,3 +324,11 @@ void silly_dynamic_rule::add_code_index(const std::string& code,  size_t& index)
         index = m_index.index(code);
     }
 }
+void silly_dynamic_rule::set_index(const dynamic_rule_code_index& code_index)
+{
+    m_index.clear();
+    for(auto [code, idx] : code_index)
+    {
+        m_index.add(code, idx);
+    }
+}

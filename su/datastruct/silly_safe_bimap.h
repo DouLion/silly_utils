@@ -127,6 +127,16 @@ class silly_safe_bimap
         }
     }
 
+    size_t size() const
+    {
+        return m_key_map.size();
+    }
+
+    bool check() const
+    {
+        return m_key_map.size() == m_value_map.size();
+    }
+
     const_key_iterator end() const
     {
         return m_key_map.end();
