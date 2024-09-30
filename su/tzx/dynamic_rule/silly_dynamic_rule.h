@@ -18,9 +18,9 @@ static uint8_t DRFMT_CODE_LENGTH = 0b11100000;  // 前三个bit表示类型, 5�
 class dynamic_rule_record
 {
   public:
-    int32_t index;
+    int32_t index{0};
     std::string code;
-    int64_t atm;
+    int64_t atm{0};
     float moisture_percent;
     std::map<uint8_t, std::map<uint8_t, float>> intv_grade_threshold;
 

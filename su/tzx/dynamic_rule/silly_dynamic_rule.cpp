@@ -46,6 +46,7 @@ bool dynamic_rule_code_index::save(const std::string& path)
         std::stringstream ss;
         for (const auto [k, v] : *this)
         {
+            //std::cout << "code:" << k << " index:" << v << std::endl;
             ss << " " << k << " " << v << std::endl;
         }
         silly_file::write(path, ss.str());
@@ -142,9 +143,16 @@ std::string dynamic_rule_record::serialize(const int& code_index) const
     total += sizeof(code_index);
     memcpy(buff.data() + total, &moisture_percent, sizeof(moisture_percent));
     total += sizeof(moisture_percent);
-    uint8_t len = static_cast<uint8_t>(intv_grade_threshold.size());
+    uint8_t len = 0;
+    for (const auto& [intv, grade_th] : intv_grade_threshold)
+    {
+        for (const auto& [grade, th] : grade_th)
+        {
+            len++;
+        }
+    }
     memcpy(buff.data() + total, &len, sizeof(len));
-    total++;
+    total+=sizeof(len);
     for (const auto& [intv, grade_th] : intv_grade_threshold)
     {
         for (const auto& [grade, th] : grade_th)
@@ -154,11 +162,12 @@ std::string dynamic_rule_record::serialize(const int& code_index) const
             memcpy(buff.data() + total, &grade, sizeof(grade));
             total += sizeof(grade);
             memcpy(buff.data() + total, &th, sizeof(th));
+            total += sizeof(th);
         }
     }
     std::string result;
     result.resize(total);
-    memcpy(result.data(), buff.data(), total);
+    memcpy(&result[0], &buff[0], total);
 
     return result;
 }
@@ -178,8 +187,8 @@ bool dynamic_rule_record::deserialize(const std::string& data)
     }
     else if (fmt == DRFMT_CODE_INDEX)
     {
-        index = *(int*)(p + 1);
-        p += sizeof(int);
+        index = ((int32_t*)p)[0];
+        p += sizeof(int32_t);
     }
     moisture_percent = *(float*)(p);
     p += sizeof(moisture_percent);
@@ -226,24 +235,32 @@ bool silly_dynamic_rule::read_with_code_index(const std::string& path, std::map<
         return false;
     }
     uint8_t* p = (uint8_t*)content.data();
+    /*p++;
+    int total = int(*p);
+    p+=sizeof (total);*/
     while (*p == 0x5F)
     {
         p++;
-        int len = *(int*)(p);
+        int len = int(*p);
         if (len == 0)
         {
             // 最后一个完成
             return true;
         }
+        p+=sizeof(len);
 
         std::string tmp;
         tmp.resize(len);
         memcpy(tmp.data(), p, len);
-        p += sizeof(len) + len;
+        p +=len;
         dynamic_rule_record record;
         record.deserialize(tmp);
-        // record.code = m_index
-        records[record.code] = record;
+        if(m_index.contains_value(record.index))
+        {
+            record.code = m_index.code(record.index);
+            records[record.code] = record;
+        }
+
     }
     return false;
 }
@@ -251,6 +268,8 @@ bool silly_dynamic_rule::read_with_code_index(const std::string& path, std::map<
 bool silly_dynamic_rule::write_with_code_index(const std::string& path, const std::map<std::string, dynamic_rule_record>& records) const
 {
     std::filesystem::create_directories(std::filesystem::path(path).parent_path());
+    std::map<std::string, int> index_map;
+    std::map<int, std::string> code_map;
     for (const auto& [code, record] : records)
     {
         if (!m_index.contains(code))
@@ -258,7 +277,14 @@ bool silly_dynamic_rule::write_with_code_index(const std::string& path, const st
             std::cerr << "Invalid code: " << code << std::endl;
             //return false;
         }
+        index_map[code] = record.index;
+
     }
+    std::string end_flag = std::string(5, 0x5f);
+    end_flag[1] = 0;
+    end_flag[2] = 0;
+    end_flag[3] = 0;
+    end_flag[4] = 0;
     std::string content;
     int total = 0;
     for (const auto& [code, record] : records)
@@ -268,27 +294,27 @@ bool silly_dynamic_rule::write_with_code_index(const std::string& path, const st
         {
             continue;
         }
+        code_map[index] = code;
         std::string data = record.serialize(index);
         int len = data.size();
-        char buff[5] = {0x5F, 0x00, 0x00, 0x00, 0x00};
-        memcpy(buff + 1, &len, sizeof(len));
+
         total += (len + 5);
-        std::string row(buff);
+        std::string row(5, 0x5f);
+        memcpy(row.data() + 1, &len, sizeof(len));
         row.append(data);
         content.append(row);
+        // break;
     }
 
-    content.append(std::string({0x5F, 0x00, 0x00, 0x00, 0x00}));
+    content.append(end_flag);
     total += 5;
-    std::ofstream file(path);
-    if (!file.is_open())
+
+    /*int  fff = content.size();
+    for(int i =0; i < total; i++)
     {
-        std::cerr << "Failed to open file for writing." << std::endl;
-        return false;
-    }
-    file.write(content.c_str(), total);
-    // 关闭文件
-    file.close();
+        std::cout << std::hex << std::setfill('0') << std::setw(2) << static_cast<int>((unsigned char)(content.data()[i]))<< " ";
+    }*/
+    silly_file::write(path, content);
     return true;
 }
 void silly_dynamic_rule::add_code_index(const std::string& code,  size_t& index)
