@@ -20,7 +20,7 @@ bool dynamic_rule_code_index::load(const std::string& path)
             return false;
         }
         std::istringstream iss(content);
-        while (iss.eof())
+        while (!iss.eof())
         {
             std::string code;
             size_t index;
@@ -46,7 +46,7 @@ bool dynamic_rule_code_index::save(const std::string& path)
         std::stringstream ss;
         for (const auto [k, v] : *this)
         {
-            ss << " " << k << "" << v << std::endl;
+            ss << " " << k << " " << v << std::endl;
         }
         silly_file::write(path, ss.str());
     }
@@ -59,17 +59,12 @@ bool dynamic_rule_code_index::save(const std::string& path)
 }
 bool dynamic_rule_code_index::add(const std::string& code, const size_t index)
 {
-    if (code.empty())
-        return false;
-    if (find(code) == end())
-    {
-        insert(code, index);
-        return true;
-    }
-    return false;
+    insert(code, index);
+    return true;
 }
 bool dynamic_rule_code_index::remove(const std::string& code)
 {
+    std::lock_guard<std::mutex> lock(m_mutex);
     if (find(code) != end())
     {
         erase(code);
@@ -95,14 +90,19 @@ std::string dynamic_rule_code_index::code(const size_t index) const
 }
 bool dynamic_rule_code_index::add(const std::string& code)
 {
-    size_t tmp = ++max_index;
-    return add(code, tmp);
+    std::lock_guard<std::mutex> lock(m_mutex);
+    if (find(code) == end())
+    {
+        size_t tmp = ++max_index;
+        return add(code, tmp);
+    }
+    return false;
 }
 std::string dynamic_rule_record::serialize() const
 {
-    uint8_t fmt = (0b111 << 5) | static_cast<uint8_t>(code.size());
-    int total = 0;
     std::vector<uint8_t> buff(10240);
+    short total = 0;
+    uint8_t fmt = (0b111 << 5) | static_cast<uint8_t>(code.size());
     buff[total] = fmt;
     total++;
     memcpy(buff.data() + total, code.data(), code.size());
@@ -132,9 +132,10 @@ std::string dynamic_rule_record::serialize() const
 }
 std::string dynamic_rule_record::serialize(const int& code_index) const
 {
-    uint8_t fmt = DRFMT_CODE_INDEX;
-    int total = 0;
+    short total = 0;
     std::vector<uint8_t> buff(10240);
+    uint8_t fmt = DRFMT_CODE_INDEX;
+
     buff[total] = fmt;
     total++;
     memcpy(buff.data() + total, &code_index, sizeof(code_index));
@@ -155,7 +156,6 @@ std::string dynamic_rule_record::serialize(const int& code_index) const
             memcpy(buff.data() + total, &th, sizeof(th));
         }
     }
-
     std::string result;
     result.resize(total);
     memcpy(result.data(), buff.data(), total);
@@ -166,6 +166,7 @@ bool dynamic_rule_record::deserialize(const std::string& data)
 {
     if (data.empty())
         return false;
+
     char* p = (char*)data.data();
     uint8_t fmt = static_cast<uint8_t>(p[0]);
     p++;
@@ -183,6 +184,11 @@ bool dynamic_rule_record::deserialize(const std::string& data)
     moisture_percent = *(float*)(p);
     p += sizeof(moisture_percent);
     uint8_t len = static_cast<uint8_t>(p[0]);
+    if(len > 100)
+    {
+        SLOG_WARN("数据可能有误,引起程序异常");
+        return false;
+    }
     p += sizeof(len);
     for (uint8_t i = 0; i < len; i++)
     {
@@ -244,12 +250,13 @@ bool silly_dynamic_rule::read_with_code_index(const std::string& path, std::map<
 
 bool silly_dynamic_rule::write_with_code_index(const std::string& path, const std::map<std::string, dynamic_rule_record>& records) const
 {
+    std::filesystem::create_directories(std::filesystem::path(path).parent_path());
     for (const auto& [code, record] : records)
     {
         if (!m_index.contains(code))
         {
             std::cerr << "Invalid code: " << code << std::endl;
-            return false;
+            //return false;
         }
     }
     std::string content;
@@ -282,7 +289,7 @@ bool silly_dynamic_rule::write_with_code_index(const std::string& path, const st
     file.write(content.c_str(), total);
     // 关闭文件
     file.close();
-    return false;
+    return true;
 }
 void silly_dynamic_rule::add_code_index(const std::string& code,  size_t& index)
 {

@@ -104,7 +104,4 @@ class silly_posix_time
     std::tm m_tm{};
     std::mutex m_mutex;
 };
-
-static silly_posix_time time_from_string(const std::string& str, const std::string& fmt = DATE_FORMAT_1);
-static std::string time_to_string(const silly_posix_time& pt, const std::string& fmt = DATE_FORMAT_1);
 #endif  // SILLY_UTILS_SILLY_POSIX_TIME_H

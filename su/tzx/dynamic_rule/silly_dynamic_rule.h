@@ -47,7 +47,8 @@ class dynamic_rule_code_index : public silly_safe_bimap<std::string, size_t>
     bool add(const std::string& code, const size_t index);
 
   private:
-    std::atomic<size_t> max_index = 0;
+    std::mutex m_mutex;
+    size_t max_index = 0;
 };
 
 class silly_dynamic_rule
@@ -65,7 +66,7 @@ class silly_dynamic_rule
     void add_code_index(const std::string& code,  size_t& index);
 
   private:
-    dynamic_rule_code_index m_index;
+    dynamic_rule_code_index m_index{};
 };
 
 #endif  // SILLY_UTILS_SILLY_DYNAMIC_RULE_H

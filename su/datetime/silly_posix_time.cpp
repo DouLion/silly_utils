@@ -71,6 +71,7 @@ void check_std_tm(std::tm stm)
         throw std::runtime_error(std::string("年(year) ").append(std::to_string(stm.tm_year)).append(" + 1900"));
 }
 
+
 silly_posix_time::silly_posix_time()
 {
 }
@@ -87,7 +88,7 @@ bool silly_posix_time::from_string(const std::string& str, const std::string& fm
     try
     {
         std::istringstream ss(str);
-        std::tm tmp;
+        std::tm tmp={};
         ss >> std::get_time(&tmp, fmt.c_str());
         check_std_tm(tmp);
         // 检查是否成功解析
