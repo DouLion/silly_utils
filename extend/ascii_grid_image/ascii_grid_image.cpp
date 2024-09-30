@@ -11,24 +11,24 @@ using namespace silly_image;
 #include <cmath>  // 引入标准数学库
 
 // 定义椭球参数
-#define a 6378136.6            // 地球长半轴
-#define f 1.0 / 298.257223563  // 扁率
-#define e2 (2 * f - f * f)     // 第一偏心率的平方
+#define AXIS 6378136.6                                       // 地球长半轴
+#define FLATTENING_R 1.0 / 298.257223563                     // 扁率
+#define E2 (2 * FLATTENING_R - FLATTENING_R * FLATTENING_R)  // 第一偏心率的平方
 // #define SU_PI 3.14159265358979323846
 
 // 高斯投影坐标转经纬度坐标
 void GaussToBL(double L0, double X, double Y, double* longitude, double* latitude)
 {
     Y -= 500000;
-    double e1 = (1 - sqrt(1 - e2)) / (1 + sqrt(1 - e2));
+    double e1 = (1 - sqrt(1 - E2)) / (1 + sqrt(1 - E2));
     double M = X;
-    double mu = M / (a * (1 - e2 / 4.0 - 3 * e2 * e2 / 64.0 - 5 * e2 * e2 * e2 / 256.0));
+    double mu = M / (AXIS * (1 - E2 / 4.0 - 3 * E2 * E2 / 64.0 - 5 * E2 * E2 * E2 / 256.0));
     double phi1 = mu + (3 * e1 / 2 - 27 * e1 * e1 * e1 / 32) * sin(2 * mu) + (21 * e1 * e1 / 16 - 55 * e1 * e1 * e1 * e1 / 32) * sin(4 * mu) + (151 * e1 * e1 * e1 / 96) * sin(6 * mu) + (1097 * e1 * e1 * e1 * e1 / 512) * sin(8 * mu);
 
-    double C1 = e2 * cos(phi1) * cos(phi1) / (1 - e2);
+    double C1 = E2 * cos(phi1) * cos(phi1) / (1 - E2);
     double T1 = tan(phi1) * tan(phi1);
-    double N1 = a / sqrt(1 - e2 * sin(phi1) * sin(phi1));
-    double R1 = a * (1 - e2) / pow(1 - e2 * sin(phi1) * sin(phi1), 1.5);
+    double N1 = AXIS / sqrt(1 - E2 * sin(phi1) * sin(phi1));
+    double R1 = AXIS * (1 - E2) / pow(1 - E2 * sin(phi1) * sin(phi1), 1.5);
     double D = Y / N1;
 
     // 经纬度计算
@@ -59,8 +59,8 @@ void latLonToMercator(double lat, double lon, double* x, double* y)
     double lonRad = degToRad(lon);
 
     // 墨卡托投影公式
-    *x = a * lonRad;
-    *y = a * log(tan(SU_PI / 4 + latRad / 2));
+    *x = AXIS * lonRad;
+    *y = AXIS * log(tan(SU_PI / 4 + latRad / 2));
 }
 // 经纬度转高斯-克吕格投影坐标（3度带）
 void latLonToGauss(double L0, double lat, double lon, double* X, double* Y)
@@ -76,17 +76,17 @@ void latLonToGauss(double L0, double lat, double lon, double* X, double* Y)
     double centralMeridianRad = degToRad(centralMeridian);
 
     // 计算高斯-克吕格投影公式中的参数
-    double N = R / sqrt(1 - e2 * sin(latRad) * sin(latRad));
+    double N = R / sqrt(1 - E2 * sin(latRad) * sin(latRad));
     double T = tan(latRad) * tan(latRad);
-    double C = e2 * cos(latRad) * cos(latRad) / (1 - e2);
+    double C = E2 * cos(latRad) * cos(latRad) / (1 - E2);
     double A = (lonRad - centralMeridianRad) * cos(latRad);
 
-    double M = R * ((1 - e2 / 4.0 - 3.0 * e2 * e2 / 64.0 - 5.0 * e2 * e2 * e2 / 256.0) * latRad - (3.0 * e2 / 8.0 + 3.0 * e2 * e2 / 32.0 + 45.0 * e2 * e2 * e2 / 1024.0) * sin(2.0 * latRad) +
-                    (15.0 * e2 * e2 / 256.0 + 45.0 * e2 * e2 * e2 / 1024.0) * sin(4.0 * latRad) - (35.0 * e2 * e2 * e2 / 3072.0) * sin(6.0 * latRad));
+    double M = R * ((1 - E2 / 4.0 - 3.0 * E2 * E2 / 64.0 - 5.0 * E2 * E2 * E2 / 256.0) * latRad - (3.0 * E2 / 8.0 + 3.0 * E2 * E2 / 32.0 + 45.0 * E2 * E2 * E2 / 1024.0) * sin(2.0 * latRad) +
+                    (15.0 * E2 * E2 / 256.0 + 45.0 * E2 * E2 * E2 / 1024.0) * sin(4.0 * latRad) - (35.0 * E2 * E2 * E2 / 3072.0) * sin(6.0 * latRad));
 
     // 计算 X, Y 坐标
-    *X = M + N * tan(latRad) * (A * A / 2.0 + (5.0 - T + 9.0 * C + 4.0 * C * C) * A * A * A * A / 24.0 + (61.0 - 58.0 * T + T * T + 600.0 * C - 330.0 * e2) * A * A * A * A * A * A / 720.0);
-    *Y = N * (A + (1.0 - T + C) * A * A * A / 6.0 + (5.0 - 18.0 * T + T * T + 72.0 * C - 58.0 * e2) * A * A * A * A * A / 120.0) + 500000.0;  // 中央子午线偏移+500000.0
+    *X = M + N * tan(latRad) * (A * A / 2.0 + (5.0 - T + 9.0 * C + 4.0 * C * C) * A * A * A * A / 24.0 + (61.0 - 58.0 * T + T * T + 600.0 * C - 330.0 * E2) * A * A * A * A * A * A / 720.0);
+    *Y = N * (A + (1.0 - T + C) * A * A * A / 6.0 + (5.0 - 18.0 * T + T * T + 72.0 * C - 58.0 * E2) * A * A * A * A * A / 120.0) + 500000.0;  // 中央子午线偏移+500000.0
 }
 // 墨卡托投影坐标转经纬度
 void mercatorToLatLon(double x, double y, double* lat, double* lon)
@@ -114,46 +114,10 @@ void mercator_gauss(double mx, double my, double& gaussx, double& gaussy, double
 
     latLonToGauss(mid, lat, lon, &gaussy, &gaussx);
 }
+#define DEPTH_TINY 1e-2
 
 void convert_image(double ncols, double nrows, double xllcorner, double yllcorner, double cellsize, double mid, double* data, double* qx, double* qy, char* img_path)
 {
-#ifndef NDEBUG
-    /* std::cout << "ncols: " << ncols << std::endl;
-     std::cout << "nrows: " << nrows << std::endl;
-     std::cout << "xllcorner: " << xllcorner << std::endl;
-     std::cout << "yllcorner: " << yllcorner << std::endl;
-     std::cout << "cellsize: " << cellsize << std::endl;
-     std::cout << "mid: " << mid << std::endl;
-     std::cout << "img" << img_path << std::endl;
-     std::vector<std::string> lines;
-     lines.resize(nrows);
-
-     int i = 0, r = 0, t = 0;
-     while (i < ncols * nrows)
-     {
-         char buff[10] = {0};
-         sprintf(buff, "%0.4f ", data[i]);
-         lines[r].append(buff);
-         i++;
-         t++;
-         if (t == ncols)
-         {
-             lines[r].append("\n");
-             r++;
-             t = 0;
-         }
-     }
-     std::string wp(img_path);
-     wp.append(".asc");
-     silly_file::write(wp, lines);*/
-
-#endif
-
-    /*  silly_proj_convert mct_to_gauss;
-      mct_to_gauss.begin({{silly_proj_def_enum::PCS_WGS_1984_WEB_MERCATOR, mid}, {silly_proj_def_enum::PCS_WGS_1984_WEB_MERCATOR}});
-      silly_proj_convert gauss_to_geo;
-      silly_proj_convert geo_to_mct;*/
-
     double uMax = -99999.0, uMin = 99999.0, vMax = -99999.0, vMin = 99999.0;
     double hMax = -99999.0, hMin = 99999.0;
     if (data)
@@ -164,37 +128,37 @@ void convert_image(double ncols, double nrows, double xllcorner, double yllcorne
             {
                 int pos = SU_MAX(0, SU_MIN(r * ncols + c, nrows * ncols));
                 double h = data[pos];
-                hMax = SU_MAX(hMax, h);
-                hMin = SU_MIN(hMin, h);
-                if (h < 0.00001)
+                if (h < DEPTH_TINY)
                 {
                     continue;
                 }
+                hMax = SU_MAX(hMax, h);
+                hMin = SU_MIN(hMin, h);
+
                 double u = qx[pos] / h;
                 double v = qy[pos] / h;
 
-                uMax = SU_MAX(uMax, u);
-                uMin = SU_MIN(uMin, u);
-                vMax = SU_MAX(vMax, v);
-                vMin = SU_MIN(vMin, v);
+                if (u > DEPTH_TINY)
+                {
+                    uMax = SU_MAX(uMax, u);
+                    uMin = SU_MIN(uMin, u);
+                }
+                if (v > DEPTH_TINY)
+                {
+                    vMax = SU_MAX(vMax, v);
+                    vMin = SU_MIN(vMin, v);
+                }
             }
         }
     }
 
-    unsigned char alpha = 200;
-    struct render
-    {
-        double v;
-        silly_color c;
-    };
-    std::vector<render> renders;
-    renders.push_back({-9999.0, silly_color(0, 0, 0, 0)});
-    renders.push_back({0.06, silly_color(179, 204, 255, alpha)});
-    renders.push_back({0.5, silly_color(128, 153, 255, alpha)});
-    renders.push_back({1., silly_color(89, 128, 255, alpha)});
-    renders.push_back({2., silly_color(38, 115, 242, alpha)});
-    renders.push_back({3., silly_color(0, 77, 204, alpha)});
-    renders.push_back({99999., silly_color(0, 77, 204, alpha)});
+    /*hMax = SU_MAX(0., hMax);
+    hMin = SU_MIN(0., hMin);
+    uMax = SU_MAX(0., uMax);
+    uMin = SU_MIN(0., uMin);
+    vMax = SU_MAX(0., vMax);
+    vMin = SU_MIN(0., vMin);*/
+
     double mct_letf = 0, mct_right = 0, mct_top = 0, mct_bottom = 0;
     const double gauss_left = xllcorner, gauss_right = xllcorner + cellsize * (ncols - 2), gauss_top = yllcorner + cellsize * (nrows - 2), gauss_bottom = yllcorner;
     // std::cout << mid << std::endl;
@@ -232,6 +196,9 @@ void convert_image(double ncols, double nrows, double xllcorner, double yllcorne
     png_data pd = silly_image::png_utils::create_empty((nrows - 2), (ncols - 2), PNG_COLOR_TYPE_RGB);
     png_data pd2 = silly_image::png_utils::create_empty((nrows - 2), (ncols - 2), PNG_COLOR_TYPE_RGB);
     double hstep = (hMax - hMin) / 255;
+    double ustep = (uMax - uMin) / 255;
+    double vstep = (vMax - vMin) / 255;
+
     for (size_t r = 0; r < nrows - 2; ++r)
     {
         for (size_t c = 0; c < ncols - 2; ++c)
@@ -248,39 +215,34 @@ void convert_image(double ncols, double nrows, double xllcorner, double yllcorne
                 int pos = SU_MAX(0, SU_MIN(grol * ncols + gcol, nrows * ncols));
                 double v = data[pos];
                 silly_color tmp(0, 0, 0);
-                if (v < 0.00001)
+                if (v < DEPTH_TINY)
                 {
-                    tmp.red = 255.0 * (0 - uMin) / (uMax - uMin);
-                    tmp.green = 255.0 * (0 - vMin) / (vMax - vMin);
+                    tmp.red = (0 - uMin) / ustep;
+                    tmp.green = (0 - vMin) / vstep;
                 }
                 else
                 {
                     double qu = qx[pos] / v;
                     double qv = qy[pos] / v;
 
-                    tmp.red = 255.0 * (qu - uMin) / (uMax - uMin);
-                    tmp.green = 255.0 * (qv - vMin) / (vMax - vMin);
+                    tmp.red = (qu - uMin) / ustep;
+                    tmp.green = (qv - vMin) / vstep;
                 }
-
                 pd2.set_pixel(r, c, tmp);
-                /*int i = 1;
-                for (; i < renders.size(); ++i)
+
+                // 写入深度数据
+                if (v > DEPTH_TINY)
                 {
-                    if (v < renders[i].v)
-                    {
-                        break;
-                    }
+                    silly_color sc;
+                    sc.red = static_cast<unsigned char>(std::min(255., (v - hMin) / hstep));
+                    pd.set_pixel(r, c, sc);
                 }
-                pd.set_pixel(r, c, renders[i - 1].c);*/
-                silly_color sc;
-                sc.red = static_cast<unsigned char>(std::min(255., (v - hMin) / hstep));
-                pd.set_pixel(r, c, sc);
             }
             else
             {
                 silly_color tmp(0, 0, 0);
-                tmp.red = 255.0 * (0 - uMin) / (uMax - uMin);
-                tmp.green = 255.0 * (0 - vMin) / (vMax - vMin);
+                tmp.red = 255.0 * (0 - uMin) / ustep;
+                tmp.green = 255.0 * (0 - vMin) / vstep;
                 pd2.set_pixel(r, c, tmp);
             }
         }
@@ -288,8 +250,8 @@ void convert_image(double ncols, double nrows, double xllcorner, double yllcorne
     std::string h_pd_data;
     {
         h_pd_data.resize(24);
-        int ihMax = static_cast<int>(hMax * 100);
-        int ihMin = static_cast<int>(hMin * 100);
+        int ihMax = static_cast<int>(hMax / DEPTH_TINY);
+        int ihMin = static_cast<int>(hMin / DEPTH_TINY);
         int iRow = static_cast<int>(nrows);
         int iCol = static_cast<int>(ncols);
         memcpy(&h_pd_data[0], &iRow, sizeof(iRow));
@@ -308,10 +270,10 @@ void convert_image(double ncols, double nrows, double xllcorner, double yllcorne
     std::string pd2_data;
 
     pd2_data.resize(24);
-    int iUMax = static_cast<int>(uMax * 100);
-    int iVMax = static_cast<int>(vMax * 100);
-    int iUMin = static_cast<int>(uMin * 100);
-    int iVMin = static_cast<int>(vMin * 100);
+    int iUMax = static_cast<int>(uMax / DEPTH_TINY);
+    int iVMax = static_cast<int>(vMax / DEPTH_TINY);
+    int iUMin = static_cast<int>(uMin / DEPTH_TINY);
+    int iVMin = static_cast<int>(vMin / DEPTH_TINY);
     int iRow = static_cast<int>(nrows);
     int iCol = static_cast<int>(ncols);
     memcpy(&pd2_data[0], &iRow, sizeof(iRow));

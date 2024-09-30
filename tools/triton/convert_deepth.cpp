@@ -18,12 +18,14 @@ using namespace silly_image;
 std::string root = "//192.168.0.9/webs/dem/server/projects";
 int threads = 32;
 
+#define TRITON_DEPTH_TINY   1e-2
+
 void write_depth_png(double mid, const silly_ascii_grid& sag, std::string dst);
 void write_q_png(double mid, const silly_ascii_grid& dgrid, const silly_ascii_grid& ugrd, const silly_ascii_grid& vgrid, std::string dst);
 
 double center_x(const std::string& prj);
 
-void convert_by_plan(const std::string& path, double mid);
+void convert_depth_by_plan(const std::string& path, double mid);
 void convert_q_by_plan(const std::string& path, double mid);
 
 int main(int argc, char** argv)
@@ -65,7 +67,7 @@ int main(int argc, char** argv)
         {
             auto sfp_tmp = iter1.path();
             std::string proj_name = iter1.path().stem().string();
-            if (proj_name != "rgp")
+            if (proj_name != "tjhd")
             {
                 continue;
             }
@@ -78,9 +80,9 @@ int main(int argc, char** argv)
             for (auto iter2 : std::filesystem::directory_iterator(sfp_output))
             {
                 // convert_q_by_plan(iter2.path().string(), l0);
-                convert_q_by_plan(iter2.path().string(), l0);
+                convert_depth_by_plan(iter2.path().string(), l0);
 #if 1
-                // pools.enqueue(convert_by_plan, iter2.path().string(), l0);
+                // pools.enqueue(convert_depth_by_plan, iter2.path().string(), l0);
 #else
                 pools.enqueue(convert_q_by_plan, iter2.path().string(), l0);
 #endif
@@ -91,7 +93,7 @@ int main(int argc, char** argv)
     return 0;
 }
 
-void convert_by_plan(const std::string& path, double mid)
+void convert_depth_by_plan(const std::string& path, double mid)
 {
     auto sfp_bin = std::filesystem::path(path).append("asc");
     auto sfp_image = std::filesystem::path(path).append("image");
@@ -108,8 +110,14 @@ void convert_by_plan(const std::string& path, double mid)
         {
             continue;
         }
+        if("H_07_00" != iter2.path().stem().string())
+        {
+            //continue;
+        }
         silly_ascii_grid sag;
-        if (!sag.read(iter2.path().string()))
+        auto tmp_file = std::filesystem::path(path).append("bin").append(iter2.path().stem().string().append(".bin"));
+        tmp_file = iter2.path().string();
+        if (!sag.read(tmp_file.string()))
         {
             std::cerr << "read " << iter2.path().string() << " failed" << std::endl;
             continue;
@@ -232,7 +240,7 @@ void write_depth_png(double mid, const silly_ascii_grid& sag, std::string dst)
     double mct_x_step = (mct_right - mct_letf) / ncols;
     double mct_y_step = (mct_top - mct_bottom) / nrows;
     png_data pd = silly_image::png_utils::create_empty(nrows, ncols, PNG_COLOR_TYPE_RGB);
-    double hstep = std::max(0.0001, (sag.MAXV - sag.MINV) / 255);
+    double hstep = (sag.MAXV - sag.MINV) / 255.;
     for (size_t r = 0; r < nrows; ++r)
     {
         for (size_t c = 0; c < ncols; ++c)
@@ -247,18 +255,22 @@ void write_depth_png(double mid, const silly_ascii_grid& sag, std::string dst)
             if (gcol >= 0 && grol > 0 && gcol < ncols && grol < nrows)
             {
                 double v = sag.m_data[grol][gcol];
-                silly_color sc;
-                sc.red = static_cast<unsigned char>(std::min(255., (v - sag.MINV) / hstep));
-                pd.set_pixel(r, c, sc);
+                if(v > TRITON_DEPTH_TINY)
+                {
+                    silly_color sc;
+                    sc.red = static_cast<uint8_t>(std::floor(std::min(255., (v - sag.MINV) / hstep)));
+                    pd.set_pixel(r, c, sc);
+                }
+
             }
         }
     }
-    // png_utils::write(img_path, pd);
+
     std::string h_pd_data;
     {
         h_pd_data.resize(24);
-        int ihMax = static_cast<int>(sag.MAXV * 100);
-        int ihMin = static_cast<int>(sag.MINV * 100);
+        int ihMax = static_cast<int>(sag.MAXV / TRITON_DEPTH_TINY);
+        int ihMin = static_cast<int>(sag.MINV / TRITON_DEPTH_TINY);
         int iRow = static_cast<int>(nrows);
         int iCol = static_cast<int>(ncols);
         memcpy(&h_pd_data[0], &iRow, sizeof(iRow));
@@ -270,7 +282,7 @@ void write_depth_png(double mid, const silly_ascii_grid& sag, std::string dst)
     png_utils::memory_encode(pd, h_png_data);
     h_pd_data.append(h_png_data);
     silly_file::write(dst, h_pd_data);
-
+    png_utils::write(dst.append(".png"), pd);
     pd.release();
 }
 
@@ -361,10 +373,10 @@ void write_q_png(double mid, const silly_ascii_grid& dgrid, const silly_ascii_gr
 
     {
         pd2_data.resize(24);
-        int iUMax = static_cast<int>(uMax * 100);
-        int iVMax = static_cast<int>(vMax * 100);
-        int iUMin = static_cast<int>(uMin * 100);
-        int iVMin = static_cast<int>(vMin * 100);
+        int iUMax = static_cast<int>(uMax * TRITON_DEPTH_TINY);
+        int iVMax = static_cast<int>(vMax * TRITON_DEPTH_TINY);
+        int iUMin = static_cast<int>(uMin * TRITON_DEPTH_TINY);
+        int iVMin = static_cast<int>(vMin * TRITON_DEPTH_TINY);
         int iRow = static_cast<int>(nrows);
         int iCol = static_cast<int>(ncols);
         memcpy(&pd2_data[0], &iRow, sizeof(iRow));
