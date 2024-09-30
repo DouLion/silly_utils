@@ -275,7 +275,7 @@ bool silly_dynamic_rule::write_with_code_index(const std::string& path, const st
         if (!m_index.contains(code))
         {
             std::cerr << "Invalid code: " << code << std::endl;
-            //return false;
+            return false;
         }
         index_map[code] = record.index;
 
