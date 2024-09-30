@@ -128,12 +128,12 @@ void convert_image(double ncols, double nrows, double xllcorner, double yllcorne
             {
                 int pos = SU_MAX(0, SU_MIN(r * ncols + c, nrows * ncols));
                 double h = data[pos];
+                hMax = SU_MAX(hMax, h);
+                hMin = SU_MIN(hMin, h);
                 if (h < DEPTH_TINY)
                 {
                     continue;
                 }
-                hMax = SU_MAX(hMax, h);
-                hMin = SU_MIN(hMin, h);
 
                 double u = qx[pos] / h;
                 double v = qy[pos] / h;

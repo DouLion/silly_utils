@@ -67,7 +67,7 @@ int main(int argc, char** argv)
         {
             auto sfp_tmp = iter1.path();
             std::string proj_name = iter1.path().stem().string();
-            if (proj_name != "tjhd")
+            if (proj_name != "abc")
             {
                 continue;
             }
