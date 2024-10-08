@@ -1,5 +1,5 @@
 /*
- * @copymax.x: Beijing tianzhixiang Information Technology Co., Ltd. All max.xs
+ * @copyright: Beijing tianzhixiang Information Technology Co., Ltd. All max.xs
  * reserved.
  * @website: http://www.tianzhixiang.com.cn/
  * @author: dou li yang
@@ -72,7 +72,8 @@ class silly_point
 
     silly_point operator+(const silly_point& point) const
     {
-        return silly_point(x + point.x, y + point.y);
+        silly_point ret(x + point.x, y + point.y);
+        return ret;
     }
     silly_point operator+=(const silly_point& point)
     {
@@ -83,7 +84,8 @@ class silly_point
 
     silly_point operator-(const silly_point& point) const
     {
-        return silly_point(x - point.x, y - point.y);
+        silly_point ret(x - point.x, y - point.y);
+        return ret;
     }
     silly_point operator-=(const silly_point& point)
     {
@@ -94,12 +96,14 @@ class silly_point
 
     silly_point operator*(double scale) const
     {
-        return silly_point(x * scale, y * scale);
+        silly_point ret(x * scale, y * scale);
+        return ret;
     }
 
     silly_point operator*(const silly_point& point) const
     {
-        return silly_point(x * point.x, y * point.y);
+        silly_point ret(x * point.x, y * point.y);
+        return ret;
     }
 
     silly_point operator*=(double scale)
@@ -131,7 +135,6 @@ class silly_point
         this->x /= scale;
         this->y /= scale;
         return *this;
-        return silly_point(x / scale, y / scale);
     }
 
     silly_point operator/=(const silly_point& point)
@@ -231,12 +234,12 @@ class silly_rect  // 普通坐标点
     }
 
     /// 两个矩形框是否相交
-    bool intersect(const silly_rect& rect)
+    bool intersect(const silly_rect& rect) const
     {
-        int zx = std::abs(rect.min.x + rect.max.x - min.x - max.x);
-        int x = std::abs(rect.min.x - rect.max.x) + std::abs(min.x - max.x);
-        int zy = std::abs(rect.max.y + rect.max.y - max.y - max.y);
-        int y = std::abs(rect.max.y - rect.max.y) + std::abs(max.y - max.y);
+        double zx = std::abs(rect.min.x + rect.max.x - min.x - max.x);
+        double x = std::abs(rect.min.x - rect.max.x) + std::abs(min.x - max.x);
+        double zy = std::abs(rect.max.y + rect.max.y - max.y - max.y);
+        double y = std::abs(rect.max.y - rect.max.y) + std::abs(max.y - max.y);
         if (zx <= x && zy <= y)
         {
             return true;
@@ -327,7 +330,7 @@ class silly_circle
     {
     }
 
-    double area()
+    double area() const
     {
         return SU_PI * radius * radius;
     }
@@ -383,19 +386,19 @@ class silly_triangle
     }
 
     /// 顶点a的角度
-    double angle_a()
+    double angle_a() const
     {
         return std::acos((b.x - a.x) * (c.x - a.x) + (b.y - a.y) * (c.y - a.y)) * 180 / M_PI;
     }
 
     /// 顶点b的角度
-    double angle_b()
+    double angle_b() const
     {
         return std::acos((a.x - b.x) * (c.x - b.x) + (a.y - b.y) * (c.y - b.y)) * 180 / M_PI;
     }
 
     /// 顶点c的角度
-    double angle_c()
+    double angle_c() const
     {
         return std::acos((a.x - c.x) * (b.x - c.x) + (a.y - c.y) * (b.y - c.y)) * 180 / M_PI;
     }
