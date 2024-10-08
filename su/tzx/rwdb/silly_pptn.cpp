@@ -13,11 +13,11 @@
 #define P2INT8(x) ((int8_t*)((x)))[0]
 #define P2INT16(x) ((int16_t*)((x)))[0]
 #define P2INT32(x) ((int32_t*)((x)))[0]
-#define P2INT64(x) ((int24_t*)((x)))[0]
+#define P2INT64(x) ((int64_t*)((x)))[0]
 #define P2UINT8(x) ((int8_t*)((x)))[0]
 #define P2UINT16(x) ((int16_t*)((x)))[0]
 #define P2UINT32(x) ((int32_t*)((x)))[0]
-#define P2UINT64(x) ((int24_t*)((x)))[0]
+#define P2UINT64(x) ((int64_t*)((x)))[0]
 #define P2FLOAT(x) ((float*)((x)))[0]
 #define P2DOUBLE(x) ((double*)((x))[0]
 
@@ -75,17 +75,19 @@ std::string silly_pptn::serialize_v1()
     p += 2;
     memcpy(p, &index, sizeof(index));
     p += sizeof(index);
+    memcpy(p, stcd.c_str(), sizeof(int64_t));
+    p += sizeof(int64_t);
     uint32_t stamp_sec = static_cast<uint32_t>(stamp);
     memcpy(p, &stamp_sec, sizeof(stamp_sec));
     p += sizeof(stamp_sec);
-    memcpy(p, &drp, sizeof(drp));
-    int intv_i = 0;
-    float intv_f = 0;
+    int intv_i = static_cast<int>(intv);  // 整数部分
+    float intv_f = 0; // 小数部分
     intv_f = std::fmod(intv, intv_i);
-    uint8_t intv_min = intv_i * 60 + intv_f * 100;
+    int intv_min = intv_i * 60 + intv_f * 100;
     memcpy(p, &intv_min, sizeof(intv_min));
     p += sizeof(intv_min);
     memcpy(p, &drp, sizeof(drp));
+    p+= sizeof(drp);
     return result;
 }
 
@@ -98,13 +100,15 @@ bool silly_pptn::deserialize_v1(const std::string& data)
     }
     char* p = (char*)data.data();
     p += 2;
-    uint32_t index = P2UINT32(p);
+    index = P2UINT32(p);
     p += sizeof(index);
-    ;
+    int64_t i64_stcd = P2INT64(p);
+    p += sizeof(int64_t);
+    memcpy(&stcd[0], &i64_stcd, sizeof(int64_t));
     uint32_t stamp_sec = P2UINT32(p);
     p += sizeof(stamp_sec);
     stamp = static_cast<std::time_t>(stamp_sec);
-    char intv_min = P2INT8(p);
+    int intv_min = P2INT32(p);
     p += sizeof(intv_min);
     intv = intv_min / 60 + (intv_min % 60) / 100.;
     drp = P2FLOAT(p);
