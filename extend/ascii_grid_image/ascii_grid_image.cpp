@@ -138,12 +138,12 @@ void convert_image(double ncols, double nrows, double xllcorner, double yllcorne
                 double u = qx[pos] / h;
                 double v = qy[pos] / h;
 
-                if (u > DEPTH_TINY)
+                // if (u > DEPTH_TINY)
                 {
                     uMax = SU_MAX(uMax, u);
                     uMin = SU_MIN(uMin, u);
                 }
-                if (v > DEPTH_TINY)
+                // if (v > DEPTH_TINY)
                 {
                     vMax = SU_MAX(vMax, v);
                     vMin = SU_MIN(vMin, v);
@@ -152,12 +152,6 @@ void convert_image(double ncols, double nrows, double xllcorner, double yllcorne
         }
     }
 
-    /*hMax = SU_MAX(0., hMax);
-    hMin = SU_MIN(0., hMin);
-    uMax = SU_MAX(0., uMax);
-    uMin = SU_MIN(0., uMin);
-    vMax = SU_MAX(0., vMax);
-    vMin = SU_MIN(0., vMin);*/
 
     double mct_letf = 0, mct_right = 0, mct_top = 0, mct_bottom = 0;
     const double gauss_left = xllcorner, gauss_right = xllcorner + cellsize * (ncols - 2), gauss_top = yllcorner + cellsize * (nrows - 2), gauss_bottom = yllcorner;
@@ -198,7 +192,13 @@ void convert_image(double ncols, double nrows, double xllcorner, double yllcorne
     double hstep = (hMax - hMin) / 255;
     double ustep = (uMax - uMin) / 255;
     double vstep = (vMax - vMin) / 255;
+#if 0
 
+    std::cout << hMax << " " << hMin << std::endl;
+    std::cout << uMax << " " << uMin << std::endl;
+    std::cout << vMax << " " << vMin << std::endl;
+    std::cout << hstep << " " << ustep << " " << vstep << std::endl;
+#endif
     for (size_t r = 0; r < nrows - 2; ++r)
     {
         for (size_t c = 0; c < ncols - 2; ++c)
@@ -210,41 +210,30 @@ void convert_image(double ncols, double nrows, double xllcorner, double yllcorne
 
             int gcol = std::round((tmp_gauss_x - gauss_left) / cellsize + 1);
             int grol = std::round((gauss_top - tmp_gauss_y) / cellsize);
+            double v = 0., qu = 0., qv = 0.;
             if (gcol >= 0 && grol > 0 && gcol < ncols && grol < nrows)
             {
                 int pos = SU_MAX(0, SU_MIN(grol * ncols + gcol, nrows * ncols));
-                double v = data[pos];
-                silly_color tmp(0, 0, 0);
-                if (v < DEPTH_TINY)
+                v = data[pos];
+                if(v> DEPTH_TINY)
                 {
-                    tmp.red = (0 - uMin) / ustep;
-                    tmp.green = (0 - vMin) / vstep;
+                    qu = qx[pos] / v;
+                    qv = qy[pos] / v;
                 }
                 else
                 {
-                    double qu = qx[pos] / v;
-                    double qv = qy[pos] / v;
-
-                    tmp.red = (qu - uMin) / ustep;
-                    tmp.green = (qv - vMin) / vstep;
+                    v = 0.;
                 }
-                pd2.set_pixel(r, c, tmp);
 
-                // 写入深度数据
-                if (v > DEPTH_TINY)
-                {
-                    silly_color sc;
-                    sc.red = static_cast<unsigned char>(std::min(255., (v - hMin) / hstep));
-                    pd.set_pixel(r, c, sc);
-                }
             }
-            else
-            {
-                silly_color tmp(0, 0, 0);
-                tmp.red = 255.0 * (0 - uMin) / ustep;
-                tmp.green = 255.0 * (0 - vMin) / vstep;
-                pd2.set_pixel(r, c, tmp);
-            }
+            silly_color cXY,cH;
+            cXY.red = (qu - uMin) / ustep;
+            cXY.green = (qv - vMin) / vstep;
+            pd2.set_pixel(r, c, cXY);
+            // 写入深度数据
+            cH.red = static_cast<unsigned char>(std::min(255., (v - hMin) / hstep));
+            pd.set_pixel(r, c, cH);
+
         }
     }
     std::string h_pd_data;
