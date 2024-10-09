@@ -46,14 +46,16 @@ static size_t silly_curl_write_file_callback(void* ptr, size_t size, size_t nmem
     return written;
 }
 
-static size_t silly_curl_resp_header_callback(char* buffer, size_t size, size_t nitems, void* userdata) {
+static size_t silly_curl_resp_header_callback(char* buffer, size_t size, size_t nitems, void* userdata)
+{
     size_t total_size = size * nitems;
     std::unordered_map<std::string, std::string>* headers = static_cast<std::unordered_map<std::string, std::string>*>(userdata);
 
     // 解析响应头
     std::string header(buffer, total_size);
     size_t colon_pos = header.find(':');
-    if (colon_pos != std::string::npos) {
+    if (colon_pos != std::string::npos)
+    {
         std::string key = header.substr(0, colon_pos);
         std::string value = header.substr(colon_pos + 1);
         // 去除前后的空白字符
@@ -163,7 +165,15 @@ bool silly_http_client::download(const std::string& url, const std::string& file
         SILLY_CURL_ERR_BREAK(curl_easy_setopt(hnd, CURLOPT_HEADERFUNCTION, silly_curl_resp_header_callback))
         SILLY_CURL_ERR_BREAK(curl_easy_setopt(hnd, CURLOPT_HEADERDATA, &m_resp_headers))
 
-        // 执行请求.
+        if (m_max_recv_speed > 0)
+        {
+            curl_off_t mrs = m_max_recv_speed * 1024;  // 10 KB/s
+            SILLY_CURL_ERR_BREAK(curl_easy_setopt(hnd, CURLOPT_MAX_RECV_SPEED_LARGE, mrs))
+        }
+
+        ////////////////////////////////////
+        /// 执行请求, 请求设置在此之前设置完成
+        ////////////////////////////////////
         SILLY_CURL_ERR_BREAK(curl_easy_perform(hnd))
 
         // Get response code.
@@ -261,4 +271,8 @@ double silly_http_client::total_seconds() const
 void silly_http_client::verbose(const bool& vb)
 {
     m_verbose = vb;
+}
+void silly_http_client::max_recv_speed(const size_t& mrs)
+{
+    m_max_recv_speed = mrs;
 }

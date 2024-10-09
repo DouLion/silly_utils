@@ -133,6 +133,8 @@ class silly_http_client
 
     void verbose(const bool& vb);
 
+    /// 设置最大下载速度
+    void max_recv_speed(const size_t& kb_per_sec);
 
 
   private:
@@ -147,6 +149,8 @@ class silly_http_client
     double m_speed_mps{0};// 传输速度Mb/s
     double m_total_seconds{0};
     bool m_verbose{0};
+    size_t m_max_recv_speed{0}; // kb/s   0为不做设置
+
 };
 
 #endif  // SILLY_UTILS_SILLY_HTTP_CLIENT_H
