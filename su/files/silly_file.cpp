@@ -14,15 +14,15 @@ namespace sfs = std::filesystem;
 // 为什么用notepad++ 打开时 有些是中文编码(GBK23..)有些是ANSI
 //
 
-size_t silly_file::read(const std::string &path, std::string &content, const size_t &offset, const size_t &len)
+size_t silly_file::read(const std::string &u8path, std::string &content, const size_t &offset, const size_t &len)
 {
     size_t ret_read_size = 0;
     content.clear();
     std::fstream input;
 #if IS_WIN32
-    input.open(silly_encode::cxx11_string_wstring(path), std::ios::binary | std::ios::in);
+    input.open(silly_encode::cxx11_string_wstring(u8path), std::ios::binary | std::ios::in);
 #else
-    input.open(path, std::ios::binary | std::ios::in);
+    input.open(u8path, std::ios::binary | std::ios::in);
 #endif
     if (!input.is_open())
     {
@@ -47,7 +47,7 @@ size_t silly_file::read(const std::string &path, std::string &content, const siz
     return ret_read_size;
 }
 
-size_t silly_file::read(const std::string &path, unsigned char **content, const size_t &offset, const size_t &len)
+size_t silly_file::read(const std::string &u8path, unsigned char **content, const size_t &offset, const size_t &len)
 {
     size_t read_size = 0;
     if ((*content))  // content 不能有内容
@@ -55,7 +55,7 @@ size_t silly_file::read(const std::string &path, unsigned char **content, const 
         return read_size;
     }
     std::string s_cont;
-    read_size = silly_file::read(path, s_cont, offset, len);
+    read_size = silly_file::read(u8path, s_cont, offset, len);
     if (read_size)
     {
         *content = (unsigned char *)malloc(read_size);
@@ -71,13 +71,13 @@ size_t silly_file::read(const std::string &path, unsigned char **content, const 
     return read_size;
 }
 
-bool silly_file::read(const std::string &path, std::vector<std::string> &lines)
+bool silly_file::read(const std::string &u8path, std::vector<std::string> &lines)
 {
     std::fstream input;
 #if IS_WIN32
-    input.open(silly_encode::cxx11_string_wstring(path), std::ios::binary | std::ios::in);
+    input.open(silly_encode::cxx11_string_wstring(u8path), std::ios::binary | std::ios::in);
 #else
-    input.open(path, std::ios::binary | std::ios::in);
+    input.open(u8path, std::ios::binary | std::ios::in);
 #endif
     if (input.is_open())
     {
@@ -95,13 +95,13 @@ bool silly_file::read(const std::string &path, std::vector<std::string> &lines)
     return true;
 }
 
-size_t silly_file::write(const std::string &path, const std::string &content)
+size_t silly_file::write(const std::string &u8path, const std::string &content)
 {
     size_t write_len = 0;
 #if IS_WIN32
-    std::ofstream ofs_w(silly_encode::cxx11_string_wstring(path), std::ios::out | std::ios::binary);
+    std::ofstream ofs_w(silly_encode::cxx11_string_wstring(u8path), std::ios::out | std::ios::binary);
 #else
-    std::ofstream ofs_w(path);
+    std::ofstream ofs_w(u8path);
 #endif
 
     if (!ofs_w.is_open())
@@ -112,13 +112,13 @@ size_t silly_file::write(const std::string &path, const std::string &content)
     return content.size();
 }
 
-size_t silly_file::write(const std::string &path, const std::vector<std::string> &lines)
+size_t silly_file::write(const std::string &u8path, const std::vector<std::string> &lines)
 {
     size_t write_len = 0;
 #if IS_WIN32
-    std::ofstream ofs_w(silly_encode::cxx11_string_wstring(path));
+    std::ofstream ofs_w(silly_encode::cxx11_string_wstring(u8path));
 #else
-    std::ofstream ofs_w(path);
+    std::ofstream ofs_w(u8path);
 #endif
     if (!ofs_w.is_open())
     {
@@ -132,10 +132,10 @@ size_t silly_file::write(const std::string &path, const std::vector<std::string>
     return write_len;
 }
 
-std::vector<std::string> silly_file::list_all(const std::string &path, const std::string &filter)
+std::vector<std::string> silly_file::list_all(const std::string &u8path, const std::string &filter)
 {
     std::vector<std::string> vs_ret_list;
-    sfs::path sfp_root(silly_encode::cxx11_string_wstring(path));
+    sfs::path sfp_root(silly_encode::cxx11_string_wstring(u8path));
     if (!sfs::exists(sfp_root))
     {
         return vs_ret_list;
@@ -171,10 +171,10 @@ std::vector<std::string> silly_file::list_all(const std::string &path, const std
     return vs_ret_list;
 }
 
-std::vector<std::string> silly_file::list_all_recurse(const std::string &path, const std::string &filter)
+std::vector<std::string> silly_file::list_all_recurse(const std::string &u8path, const std::string &filter)
 {
     std::vector<std::string> vs_ret_list;
-    sfs::path sfp_root(path);
+    sfs::path sfp_root(u8path);
     if (!sfs::exists(sfp_root))
     {
         return vs_ret_list;
@@ -229,16 +229,16 @@ std::string silly_file::file_filter_regex(const std::string &filter)
     }
     return s_result;
 }
-size_t silly_file::last_modify_stamp_sec(const std::string &path)
+size_t silly_file::last_modify_stamp_sec(const std::string &u8path)
 {
     size_t stamp = 0;
     try
     {
         // 检查文件是否存在
-        if (std::filesystem::exists(path))
+        if (std::filesystem::exists(u8path))
         {
             // 获取文件的最后修改时间
-            auto ftime = std::filesystem::last_write_time(path);
+            auto ftime = std::filesystem::last_write_time(u8path);
 
             // 转换为系统时间点
             auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(ftime - std::filesystem::file_time_type::clock::now() + std::chrono::system_clock::now());
@@ -249,7 +249,7 @@ size_t silly_file::last_modify_stamp_sec(const std::string &path)
         }
         else
         {
-            std::cerr << "文件 " << path << " 不存在。" << std::endl;
+            std::cerr << "文件 " << u8path << " 不存在。" << std::endl;
         }
     }
     catch (const std::filesystem::filesystem_error &e)
@@ -259,16 +259,16 @@ size_t silly_file::last_modify_stamp_sec(const std::string &path)
 
     return stamp;
 }
-size_t silly_file::last_modify_stamp_ms(const std::string &path)
+size_t silly_file::last_modify_stamp_ms(const std::string &u8path)
 {
     size_t stamp = 0;
     try
     {
         // 检查文件是否存在
-        if (std::filesystem::exists(path))
+        if (std::filesystem::exists(u8path))
         {
             // 获取文件的最后修改时间
-            auto ftime = std::filesystem::last_write_time(path);
+            auto ftime = std::filesystem::last_write_time(u8path);
 
             // 转换为系统时间点
             auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(ftime - std::filesystem::file_time_type::clock::now() + std::chrono::system_clock::now());
@@ -281,7 +281,7 @@ size_t silly_file::last_modify_stamp_ms(const std::string &path)
         }
         else
         {
-            std::cerr << "文件 " << path << " 不存在。" << std::endl;
+            std::cerr << "文件 " << u8path << " 不存在。" << std::endl;
         }
     }
     catch (const std::filesystem::filesystem_error &e)
@@ -290,4 +290,21 @@ size_t silly_file::last_modify_stamp_ms(const std::string &path)
     }
 
     return stamp;
+}
+size_t silly_file::size(const std::string &u8path)
+{
+    size_t file_size = 0;
+    std::fstream input;
+#if IS_WIN32
+    input.open(silly_encode::cxx11_string_wstring(u8path), std::ios::binary | std::ios::in);
+#else
+    input.open(u8path, std::ios::binary | std::ios::in);
+#endif
+    if (!input.is_open())
+    {
+        return file_size;
+    }
+    input.ignore(std::numeric_limits<std::streamsize>::max());
+    file_size = input.gcount();
+    return file_size;
 }
