@@ -25,6 +25,12 @@ struct silly_curl_progress
     CURL* hnd;
 };
 
+struct silly_curl_memory
+{
+    char* memory{nullptr};
+    size_t size{0};
+};
+
 static int silly_curl_xferinfo_callback(void* clientp, curl_off_t dltotal, curl_off_t dlnow, curl_off_t ultotal, curl_off_t ulnow)
 {
     if (dltotal > 0)
@@ -44,6 +50,28 @@ static size_t silly_curl_write_file_callback(void* ptr, size_t size, size_t nmem
 {
     size_t written = fwrite(ptr, size, nmemb, (FILE*)stream);
     return written;
+}
+
+static size_t silly_curl_write_memory_callback(void* contents, size_t size, size_t nmemb, void* userp)
+{
+    size_t realsize = size * nmemb;
+    struct silly_curl_memory* mem = (struct silly_curl_memory*)userp;
+
+    // 注意这里根据每次被调用获得的数据重新动态分配缓存区的大小
+    char* ptr = (char*)realloc(mem->memory, mem->size + realsize + 1);
+    if (ptr == NULL)
+    {
+        /* out of memory! */
+        printf("not enough memory (realloc returned NULL)\n");
+        return 0;
+    }
+
+    mem->memory = ptr;
+    memcpy(&(mem->memory[mem->size]), contents, realsize);
+    mem->size += realsize;
+    mem->memory[mem->size] = 0;
+
+    return realsize;
 }
 
 static size_t silly_curl_resp_header_callback(char* buffer, size_t size, size_t nitems, void* userdata)
@@ -83,7 +111,85 @@ silly_http_client::silly_http_client(const silly_http_client::req_type& type)
 
 bool silly_http_client::get(const std::string& url, std::string& resp)
 {
-    bool status = false;
+    bool status = false;   m_err.clear();
+    m_err.resize(CURL_ERROR_SIZE);
+
+    CURL* hnd = curl_easy_init();
+    if (nullptr == hnd)
+    {
+        m_err = "初始化curl错误";
+        return status;
+    }
+    char err_buffer[CURL_ERROR_SIZE] = {0};
+    struct silly_curl_memory chunk;
+    do
+    {
+        SILLY_CURL_ERR_BREAK(curl_easy_setopt(hnd, CURLOPT_URL, url.c_str()))
+        SILLY_CURL_ERR_BREAK(curl_easy_setopt(hnd, CURLOPT_ERRORBUFFER, err_buffer))
+        if (m_verbose)
+        {
+            /* Switch on full protocol/debug output while testing */
+            SILLY_CURL_ERR_BREAK(curl_easy_setopt(hnd, CURLOPT_VERBOSE, 1L))
+        }
+
+        if (!m_agent.empty())
+        {
+            SILLY_CURL_ERR_BREAK(curl_easy_setopt(hnd, CURLOPT_USERAGENT, m_agent.c_str()))
+        }
+
+        /* send all data to this function  */
+        curl_easy_setopt(hnd, CURLOPT_WRITEFUNCTION, silly_curl_write_memory_callback);
+
+        /* we pass our 'chunk' struct to the callback function */
+        curl_easy_setopt(hnd, CURLOPT_WRITEDATA, (void*)&chunk);
+
+        // 设置重定向的最大次数.
+        SILLY_CURL_ERR_BREAK(curl_easy_setopt(hnd, CURLOPT_MAXREDIRS, 20L))
+        // 设置301、302跳转跟随location.
+        SILLY_CURL_ERR_BREAK(curl_easy_setopt(hnd, CURLOPT_FOLLOWLOCATION, 1L))
+
+        SILLY_CURL_ERR_BREAK(curl_easy_setopt(hnd, CURLOPT_SSL_VERIFYPEER, 0L))
+        // 验证服务器端发送的证书，默认是 2(高)，1（中），0（禁用）.
+        SILLY_CURL_ERR_BREAK(curl_easy_setopt(hnd, CURLOPT_SSL_VERIFYHOST, 0L))
+        // 设置cURL允许执行的最长秒数.
+        SILLY_CURL_ERR_BREAK(curl_easy_setopt(hnd, CURLOPT_TIMEOUT, m_timeout))
+        //
+
+
+        // Set progress callback.
+        SILLY_CURL_ERR_BREAK(curl_easy_setopt(hnd, CURLOPT_NOPROGRESS, 1L))
+        // 设置响应头回调函数
+        SILLY_CURL_ERR_BREAK(curl_easy_setopt(hnd, CURLOPT_HEADERFUNCTION, silly_curl_resp_header_callback))
+        SILLY_CURL_ERR_BREAK(curl_easy_setopt(hnd, CURLOPT_HEADERDATA, &m_resp_headers))
+
+        ////////////////////////////////////
+        /// 执行请求, 请求设置在此之前设置完成
+        ////////////////////////////////////
+        SILLY_CURL_ERR_BREAK(curl_easy_perform(hnd))
+
+        // Get response code.
+        int resp_code = 0;
+        SILLY_CURL_ERR_BREAK(curl_easy_getinfo(hnd, CURLINFO_RESPONSE_CODE, &resp_code))
+
+        if (resp_code != silly_resp_code::OK_200)
+        {
+            memcpy(&m_err[0], err_buffer, CURL_ERROR_SIZE);
+            break;
+        }
+        curl_off_t microseconds;
+
+        // check for total download time
+        SILLY_CURL_ERR_BREAK(curl_easy_getinfo(hnd, CURLINFO_TOTAL_TIME_T, &microseconds))
+        m_total_seconds = microseconds / 1.e6;
+        curl_off_t p_file_len = 0;
+        SILLY_CURL_ERR_BREAK(curl_easy_getinfo(hnd, CURLINFO_CONTENT_LENGTH_DOWNLOAD, &p_file_len))
+        resp.resize(chunk.size);
+        memcpy(&resp[0], chunk.memory, chunk.size);
+
+        status = true;
+        break;
+    } while (0);
+    curl_easy_cleanup(hnd);
     return status;
 }
 bool silly_http_client::post(const std::string& url, std::string& resp)
