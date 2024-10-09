@@ -163,4 +163,11 @@ void silly_log::error(Args&&... s)
 
 #define SLOG_ERROR(s, ...) silly_log::instance().error(silly_format::format("<{}:{}> ", SU_FILE_NAME, __LINE__).append(s), ##__VA_ARGS__);
 
+#define SU_MAIN_WITH_LOG(...) \
+int main(int argc, char** argv) { \
+    if(!silly_log::instance().init(argc, argv)){ std::cerr << "日志模块初始化失败" << std::endl; return -1;} \
+        __VA_ARGS__ \
+    return 0; \
+}
+
 #endif  // SILLY_UTILS_SILLY_LOG_H

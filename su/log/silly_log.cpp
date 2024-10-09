@@ -8,7 +8,7 @@
 typedef spdlog::sinks::rotating_file_sink_mt su_rotate_log;
 
 const static char* SILLY_TZX_LOG_CHAR =
-    " \n _________\n|  _   _  |               \n|_/ | | \\_|____   _   __  \n    | |   [_   ] [ \\ [  ] \n   _| |_   .' /_  > '  <  \n  |_____| [_____][__]`\\_]\nBeijing TianZhiXiang Information Technology Co., Ltd. All rights\n";
+    " \n _________\n|  _   _  |               \n|_/ | | \\_|____   _   __  \n    | |   [_   ] [ \\ [  ] \n   _| |_   .' /_  > '  <  \n  |_____| [_____][__]`\\_]\nBeijing TianZhiXiang Information Technology Co., Ltd.\n北京天智祥信息科技有限公司\n";
 
 const static std::string SU_SINK_NAME_DEBUG = "debug";
 const static std::string SU_SINK_NAME_INFO = "info";
