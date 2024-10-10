@@ -65,6 +65,8 @@ bool silly_pptn::deserialize(const std::string& data)
 
     return status;
 }
+
+
 std::string silly_pptn::serialize_v1()
 {
     std::string result;
@@ -75,19 +77,22 @@ std::string silly_pptn::serialize_v1()
     p += 2;
     memcpy(p, &index, sizeof(index));
     p += sizeof(index);
-    memcpy(p, stcd.c_str(), sizeof(int64_t));
-    p += sizeof(int64_t);
+
+    //memcpy(p, stcd.c_str(), sizeof(int64_t));
+    //p += sizeof(int64_t);
+
     uint32_t stamp_sec = static_cast<uint32_t>(stamp);
     memcpy(p, &stamp_sec, sizeof(stamp_sec));
     p += sizeof(stamp_sec);
+    
     int intv_i = static_cast<int>(intv);  // 整数部分
-    float intv_f = 0; // 小数部分
-    intv_f = std::fmod(intv, intv_i);
+    float intv_f = intv - intv_i;         // 小数部分
     int intv_min = intv_i * 60 + intv_f * 100;
     memcpy(p, &intv_min, sizeof(intv_min));
     p += sizeof(intv_min);
+
     memcpy(p, &drp, sizeof(drp));
-    p+= sizeof(drp);
+
     return result;
 }
 
@@ -102,9 +107,11 @@ bool silly_pptn::deserialize_v1(const std::string& data)
     p += 2;
     index = P2UINT32(p);
     p += sizeof(index);
-    int64_t i64_stcd = P2INT64(p);
-    p += sizeof(int64_t);
-    memcpy(&stcd[0], &i64_stcd, sizeof(int64_t));
+
+    //int64_t i64_stcd = P2INT64(p);
+    //p += sizeof(int64_t);
+    //memcpy(&stcd[0], &i64_stcd, sizeof(int64_t));
+
     uint32_t stamp_sec = P2UINT32(p);
     p += sizeof(stamp_sec);
     stamp = static_cast<std::time_t>(stamp_sec);
@@ -112,6 +119,7 @@ bool silly_pptn::deserialize_v1(const std::string& data)
     p += sizeof(intv_min);
     intv = intv_min / 60 + (intv_min % 60) / 100.;
     drp = P2FLOAT(p);
+    p += sizeof(drp);
     status = true;
     return status;
 }

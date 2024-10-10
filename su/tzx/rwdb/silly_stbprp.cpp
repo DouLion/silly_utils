@@ -53,7 +53,8 @@ std::string str2bin(std::string str)
 std::string bin2str(const char* str)
 {
     uint8_t size = str[0];
-    std::string result(8, ' ');
+    std::string result;
+    result.resize(size);
     memcpy(&result[0], &str[1], size);
     return result;
 }
@@ -108,11 +109,11 @@ bool silly_stbprp::deserialize(const std::string& data)
     uint32_t size;
     memcpy(&size, &data[0], 4);
 
-    if (data.size() != size + 4)
-    {
-        // 数据长度与头部记录的大小不符
-        return false;
-    }
+    //if (data.size() != size + 4)
+    //{
+    //    // 数据长度与头部记录的大小不符
+    //    return false;
+    //}
 
     // 解析数据
     const char* ptr = &data[4];
@@ -211,11 +212,11 @@ bool silly_stbprp::deserialize(const std::string& data)
     ADDVCD1 = bin2str(ptr);
     ptr += 1 + ADDVCD1.size();
 
-    // 检查是否解析完成
-    if (ptr != &data[size])
-    {
-        return false;
-    }
+    //// 检查是否解析完成
+    //if (ptr != &data[size])
+    //{
+    //    return false;
+    //}
 
     return true;
 }
