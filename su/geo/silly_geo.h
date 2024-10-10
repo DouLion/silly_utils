@@ -196,7 +196,7 @@ class silly_rect  // 普通坐标点
         min.x = l;
         max.y = t;
         max.x = r;
-        max.y = b;
+        min.y = b;
     }
 
     void correct()
