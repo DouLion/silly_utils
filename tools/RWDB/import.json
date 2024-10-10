@@ -1,0 +1,33 @@
+{
+  "src_db": {
+    "type": "oracle",
+    "ip": "192.168.0.71",
+    "port": 1521,
+    "driver": "Oracle in instantclient_12_2",
+    "schema": "ORCL",
+    "user": "RWDB_HN",
+    "password": "RWDB_HN"
+  },
+  "des_db": {
+    "type": "mysql",
+    "ip": "192.168.0.237",
+    "port": 13307,
+    "driver": "Mysql ODBC 8.0 UNICODE Driver",
+    "schema": "TZX_TEST",
+    "user": "root",
+    "password": "123456"
+  },
+  "sql": {
+    "ppnt_select_sql": "SELECT STCD, TM, DRP, INTV FROM ST_PPTN_R WHERE TM > TO_DATE(:f1<char[32]>, 'YYYY-MM-DD HH24:MI:SS') AND TM <= TO_DATE(:f2<char[32]>, 'YYYY-MM-DD HH24:MI:SS');",
+    "stbprp_select_sql": "SELECT  STCD, STNM, RVNM, HNNM, BSNM, LGTD, LTTD, STLC, ADDVCD, DTMNM, DTMEL, DTPR, STTP, FRGRD, ESSTYM, BGFRYM, ATCUNIT, ADMAUTH, LOCALITY, STBK, STAzt, DSTRVM, DRNA, PHCD, USFL, COMMENTS, MODITIME, HNNM0, ADCD, ADDVCD1 FROM ST_STBPRP_B;",
+    "insert_pptn_sql": "insert into ST_PPTN_R (STCD, TM, DRP, INTV) values (:f1<char[9]>, :f2<timestamp>, :f3<float>, :f4<float>) ON DUPLICATE KEY UPDATE STCD = STCD;",
+    "inster_stbprp_sql": "INSERT INTO ST_STBPRP_B (STCD, STNM, RVNM, HNNM, BSNM, LGTD, LTTD, STLC, ADDVCD, DTMNM, DTMEL, DTPR, STTP, FRGRD, ESSTYM, BGFRYM, ATCUNIT, ADMAUTH, LOCALITY, STBK, STAZT, DSTRVM, DRNA, PHCD, USFL, COMMENTS, MODITIME, HNNM0, ADCD, ADDVCD1) VALUES (:f1<char[9]>, :f2<char[30]>, :f3<char[50]>, :f4<char[30]>, :f5<char[30]>, :f6<float>, :f7<float>, :f8<char[80]>, :f9<char[7]>, :f10<char[30]>, :f11<float>, :f12<float>, :f13<char[4]>, :f14<char[2]>, :f15<char[7]>, :f16<char[7]>, :f17<char[40]>, :f18<char[40]>, :f19<char[20]>, :f20<char[2]>, :f21<int>, :f22<float>, :f23<int>, :f24<char[10]>, :f25<char[2]>,:f26<char[200]>, :f27<timestamp>, :f28<char[30]>, :f29<char[30]>, :f30<char[7]>) ON DUPLICATE KEY UPDATE STCD = STCD;",
+    "delete_sql": ""
+  },
+  "pptn_file_path": "D:/1_wangyingjie/readfile/sync_data/20241010095951_PPTN.dat",
+  "stcd_index_file": "D:/1_wangyingjie/readfile/sync_data/20241010095951_stcd_index.txt",
+  "stbprp_file_path": "D:/1_wangyingjie/readfile/sync_data/20241010095951_STBPRP.dat"
+
+}
+  
+  
