@@ -258,7 +258,7 @@ bool silly_export_stbprp::export_stbprp(const std::string& str_now_tm)
 
     serialize_stcd_index(stcd_index_file_path.string(), stcd_index);
 
-    SLOG_INFO("{} 导出完成", silly_stbprp::FILE_NAME);
+    SLOG_INFO("{} 导出完成", stcd_index_file_path.string());
 
     return true;
 
@@ -307,10 +307,11 @@ bool silly_export_pptn::export_pptn(const std::string& btm, const std::string& e
         ofs << pptn.serialize();
     }
     ofs.close();
-    SLOG_INFO("{} 导出完成", silly_pptn::FILE_NAME);
+    SLOG_INFO("{} 导出完成", ppth_file_path.string());
 
 
     return true;
+
 
 }
 void export_rsvr()
