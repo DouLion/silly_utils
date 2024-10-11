@@ -15,6 +15,8 @@
 #include <tzx/rwdb/silly_stbprp.h>
 #include <tzx/rwdb/silly_rsvr.h>
 #include <tzx/rwdb/silly_river.h>
+#include "encode/silly_encode.h"
+
 
 // 读取stcd对应的索引
 std::map<uint32_t, std::string> deserialize_stcd_index(const std::string& filepath)
@@ -70,8 +72,8 @@ bool silly_import_pptn::init(const std::string& file)
         SFP_ERROR("配置文件读取失败: {}", file);
         return status;
     }
-    otl_conn_opt src_opt = otl_tools::conn_opt_from_json(jv_root["des_db"]);
-    des_odbc = src_opt.dump_odbc();
+    otl = otl_tools::conn_opt_from_json(jv_root["des_db"]);
+    des_odbc = otl.dump_odbc();
     insert_pptn_sql = jv_root["sql"]["insert_pptn_sql"].asString();
 
     pptn_file_path = jv_root["pptn_file_path"].asString();
@@ -132,7 +134,6 @@ bool silly_import_pptn::import_pptn()
     }
 
     // 插入数据
-
     if (!otl.insert(insert_pptn_sql, [&des_pptns](otl_stream* stream) {
             // 循环插入每条数据
             for (const auto& entry : des_pptns)
@@ -185,8 +186,9 @@ bool silly_import_stbprp::init(const std::string& file)
         SFP_ERROR("配置文件读取失败: {}", file);
         return status;
     }
-    otl_conn_opt src_opt = otl_tools::conn_opt_from_json(jv_root["des_db"]);
-    des_odbc = src_opt.dump_odbc();
+    otl = otl_tools::conn_opt_from_json(jv_root["des_db"]);
+    des_odbc = otl.dump_odbc();
+
     inster_stbprp_sql = jv_root["sql"]["inster_stbprp_sql"].asString();
     stbprp_file_path = jv_root["stbprp_file_path"].asString();
     status = true;
@@ -226,40 +228,46 @@ bool silly_import_stbprp::import_stbprp()
     ifs.close();  // 关闭文件
 
     // 插入数据库
-
-    if (!otl.insert(inster_stbprp_sql, [&des_stbprps](otl_stream* stream) {
+    bool isDm8 = false;
+    if (otl.type() == enum_database_type::dbDM8)
+    {
+        isDm8 = true; // 如果是达梦数据库，需要将中文字段转为gbk
+    }
+    if (!otl.insert(inster_stbprp_sql, [&des_stbprps, &isDm8](otl_stream* stream) {
             for (const auto& entry : des_stbprps)
             {
-                otl_value<std::string> STCD(entry.STCD);
-                otl_value<std::string> STNM(entry.STNM);
-                otl_value<std::string> RVNM(entry.RVNM);
-                otl_value<std::string> HNNM(entry.HNNM);
-                otl_value<std::string> BSNM(entry.BSNM);
+                otl_value<std::string> STCD(isDm8 ? silly_encode::utf8_gbk(entry.STCD) : entry.STCD);
+                otl_value<std::string> STNM(isDm8 ? silly_encode::utf8_gbk(entry.STNM) : entry.STNM);
+                otl_value<std::string> RVNM(isDm8 ? silly_encode::utf8_gbk(entry.RVNM) : entry.RVNM);
+                otl_value<std::string> HNNM(isDm8 ? silly_encode::utf8_gbk(entry.HNNM) : entry.HNNM);
+                otl_value<std::string> BSNM(isDm8 ? silly_encode::utf8_gbk(entry.BSNM) : entry.BSNM);
                 otl_value<float> LGTD(entry.LGTD);
                 otl_value<float> LTTD(entry.LTTD);
-                otl_value<std::string> STLC(entry.STLC);
-                otl_value<std::string> ADDVCD(entry.ADDVCD);
-                otl_value<std::string> DTMNM(entry.DTMNM);
+                otl_value<std::string> STLC(isDm8 ? silly_encode::utf8_gbk(entry.STLC) : entry.STLC);
+                otl_value<std::string> ADDVCD(isDm8 ? silly_encode::utf8_gbk(entry.ADDVCD) : entry.ADDVCD);
+                otl_value<std::string> DTMNM(isDm8 ? silly_encode::utf8_gbk(entry.DTMNM) : entry.DTMNM);
                 otl_value<float> DTMEL(entry.DTMEL);
                 otl_value<float> DTPR(entry.DTPR);
-                otl_value<std::string> STTP(entry.STTP);
-                otl_value<std::string> FRGRD(entry.FRGRD);
-                otl_value<std::string> ESSTYM(entry.ESSTYM);
-                otl_value<std::string> BGFRYM(entry.BGFRYM);
-                otl_value<std::string> ATCUNIT(entry.ATCUNIT);
-                otl_value<std::string> ADMAUTH(entry.ADMAUTH);
-                otl_value<std::string> LOCALITY(entry.LOCALITY);
-                otl_value<std::string> STBK(entry.STBK);
+                otl_value<std::string> STTP(isDm8 ? silly_encode::utf8_gbk(entry.STTP) : entry.STTP);
+                otl_value<std::string> FRGRD(isDm8 ? silly_encode::utf8_gbk(entry.FRGRD) : entry.FRGRD);
+                otl_value<std::string> ESSTYM(isDm8 ? silly_encode::utf8_gbk(entry.ESSTYM) : entry.ESSTYM);
+                otl_value<std::string> BGFRYM(isDm8 ? silly_encode::utf8_gbk(entry.BGFRYM) : entry.BGFRYM);
+                otl_value<std::string> ATCUNIT(isDm8 ? silly_encode::utf8_gbk(entry.ATCUNIT) : entry.ATCUNIT);
+                otl_value<std::string> ADMAUTH(isDm8 ? silly_encode::utf8_gbk(entry.ADMAUTH) : entry.ADMAUTH);
+                otl_value<std::string> LOCALITY(isDm8 ? silly_encode::utf8_gbk(entry.LOCALITY) : entry.LOCALITY);
+                otl_value<std::string> STBK(isDm8 ? silly_encode::utf8_gbk(entry.STBK) : entry.STBK);
                 otl_value<int> STAzt(entry.STAzt);
                 otl_value<float> DSTRVM(entry.DSTRVM);
                 otl_value<int> DRNA(entry.DRNA);
-                otl_value<std::string> PHCD(entry.PHCD);
-                otl_value<std::string> USFL(entry.USFL);
-                otl_value<std::string> COMMENTS(entry.COMMENTS);
+                otl_value<std::string> PHCD(isDm8 ? silly_encode::utf8_gbk(entry.PHCD) : entry.PHCD);
+                otl_value<std::string> USFL(isDm8 ? silly_encode::utf8_gbk(entry.USFL) : entry.USFL);
+                otl_value<std::string> COMMENTS(isDm8 ? silly_encode::utf8_gbk(entry.COMMENTS) : entry.COMMENTS);
+
                 otl_datetime MODITIME = otl_tools::otl_time_from_string(entry.MODITIME);
-                otl_value<std::string> HNNM0(entry.HNNM0);
-                otl_value<std::string> ADCD(entry.ADCD);
-                otl_value<std::string> ADDVCD1(entry.ADDVCD1);
+                otl_value<std::string> HNNM0(isDm8 ? silly_encode::utf8_gbk(entry.HNNM0) : entry.HNNM0);
+                otl_value<std::string> ADCD(isDm8 ? silly_encode::utf8_gbk(entry.ADCD) : entry.ADCD);
+                otl_value<std::string> ADDVCD1(isDm8 ? silly_encode::utf8_gbk(entry.ADDVCD1) : entry.ADDVCD1);
+
 
                 otl_write_row(*stream, STCD, STNM, RVNM, HNNM, BSNM, LGTD, LTTD, STLC, ADDVCD, DTMNM, DTMEL, DTPR, STTP, FRGRD, ESSTYM, BGFRYM, ATCUNIT, ADMAUTH, LOCALITY, STBK, STAzt, DSTRVM, DRNA, PHCD, USFL, COMMENTS, MODITIME, HNNM0, ADCD, ADDVCD1);
             }
@@ -274,14 +282,12 @@ bool silly_import_stbprp::import_stbprp()
 
 int main(int argc, char** argv)
 {
+
     silly_import_pptn pptn;
     pptn.init("../../../../tools/RWDB/import.json");
-    pptn.otl.load(pptn.des_odbc);
 
     silly_import_stbprp stbprp;
-
     stbprp.init("../../../../tools/RWDB/import.json");
-    stbprp.otl.load(stbprp.des_odbc);
 
     pptn.import_pptn();
 
