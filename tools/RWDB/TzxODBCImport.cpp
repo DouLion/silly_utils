@@ -28,6 +28,8 @@ silly_otl otl;
 std::map<uint32_t, std::string> index_stcd;
 
 
+std::string truncateAtFirstNull(std::string str);
+
 // 读取配置文件
 bool init(const std::string& file);
 // 导入stbprp
@@ -131,27 +133,49 @@ bool import_stbprp()
         for (auto& entry : des_stbprps)
         {
             entry.STCD = silly_encode::utf8_gbk(entry.STCD);
+            entry.STCD = truncateAtFirstNull(entry.STCD);
             entry.STNM = silly_encode::utf8_gbk(entry.STNM);
+            entry.STNM = truncateAtFirstNull(entry.STNM);
             entry.RVNM = silly_encode::utf8_gbk(entry.RVNM);
+            entry.RVNM = truncateAtFirstNull(entry.RVNM);
             entry.HNNM = silly_encode::utf8_gbk(entry.HNNM);
+            entry.HNNM = truncateAtFirstNull(entry.HNNM);
             entry.BSNM = silly_encode::utf8_gbk(entry.BSNM);
+            entry.BSNM = truncateAtFirstNull(entry.BSNM);
             entry.STLC = silly_encode::utf8_gbk(entry.STLC);
+            entry.STLC = truncateAtFirstNull(entry.STLC);
             entry.ADDVCD = silly_encode::utf8_gbk(entry.ADDVCD);
+            entry.ADDVCD = truncateAtFirstNull(entry.ADDVCD);
             entry.DTMNM = silly_encode::utf8_gbk(entry.DTMNM);
+            entry.DTMNM = truncateAtFirstNull(entry.DTMNM);
             entry.STTP = silly_encode::utf8_gbk(entry.STTP);
+            entry.STTP = truncateAtFirstNull(entry.STTP);
             entry.FRGRD = silly_encode::utf8_gbk(entry.FRGRD);
+            entry.FRGRD = truncateAtFirstNull(entry.FRGRD);
             entry.ESSTYM = silly_encode::utf8_gbk(entry.ESSTYM);
+            entry.ESSTYM = truncateAtFirstNull(entry.ESSTYM);
             entry.BGFRYM = silly_encode::utf8_gbk(entry.BGFRYM);
+            entry.BGFRYM = truncateAtFirstNull(entry.BGFRYM);
             entry.ATCUNIT = silly_encode::utf8_gbk(entry.ATCUNIT);
+            entry.ATCUNIT = truncateAtFirstNull(entry.ATCUNIT);
             entry.ADMAUTH = silly_encode::utf8_gbk(entry.ADMAUTH);
+            entry.ADMAUTH = truncateAtFirstNull(entry.ADMAUTH);
             entry.LOCALITY = silly_encode::utf8_gbk(entry.LOCALITY);
+            entry.LOCALITY = truncateAtFirstNull(entry.LOCALITY);
             entry.STBK = silly_encode::utf8_gbk(entry.STBK);
+            entry.STBK = truncateAtFirstNull(entry.STBK);
             entry.PHCD = silly_encode::utf8_gbk(entry.PHCD);
+            entry.PHCD = truncateAtFirstNull(entry.PHCD);
             entry.USFL = silly_encode::utf8_gbk(entry.USFL);
+            entry.USFL = truncateAtFirstNull(entry.USFL);
             entry.COMMENTS = silly_encode::utf8_gbk(entry.COMMENTS);
+            entry.COMMENTS = truncateAtFirstNull(entry.COMMENTS);
             entry.HNNM0 = silly_encode::utf8_gbk(entry.HNNM0);
+            entry.HNNM0 = truncateAtFirstNull(entry.HNNM0);
             entry.ADCD = silly_encode::utf8_gbk(entry.ADCD);
+            entry.ADCD = truncateAtFirstNull(entry.ADCD);
             entry.ADDVCD1 = silly_encode::utf8_gbk(entry.ADDVCD1);
+            entry.ADDVCD1 = truncateAtFirstNull(entry.ADDVCD1);
         }
     }
 
@@ -289,7 +313,18 @@ bool import_pptn()
 
 
 
-
+std::string truncateAtFirstNull(std::string str)
+{
+    // 查找第一个 '\0' 字符的位置
+    size_t pos = str.find('\0');
+    if (pos != std::string::npos)
+    {
+        // 如果找到 '\0'，截取子串
+        return str.substr(0, pos);
+    }
+    // 如果没有找到 '\0'，返回原字符串
+    return str;
+}
 
 
 
