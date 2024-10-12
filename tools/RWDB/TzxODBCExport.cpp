@@ -14,6 +14,7 @@
 #include <tzx/rwdb/silly_stbprp.h>
 #include <tzx/rwdb/silly_rsvr.h>
 #include <tzx/rwdb/silly_river.h>
+#include "encode/silly_encode.h"
 
 // 全局变量
 silly_otl otl;
@@ -24,6 +25,7 @@ std::string etm;
 std::string fpath = "./";  // 文件根路径
 std::map<std::string, uint32_t> stcd_index;
 
+std::string truncateAtFirstNull(std::string str);
 
 bool init(const std::string& file);
 
@@ -55,7 +57,7 @@ int main(int argc, char** argv)
     }
 #else
 #endif
-
+    otl.help();
     std::string str_now_tm = silly_posix_time::now().to_string("%Y%m%d%H%M%S");
  
     // 导入导入stbprp
@@ -158,6 +160,64 @@ bool export_stbprp(const std::string& str_now_tm)
         index++;
     }
 
+    // 判断是否需要转编码
+    bool trans = false;
+    if (otl.type() == enum_database_type::dbDM8)
+    {
+        trans = true;  // 如果是达梦数据库，将gbk编码转为utf8编码
+    }
+    if (trans)
+    {
+        for (auto& entry : stbprps)
+        {
+            entry.STCD = silly_encode::gbk_utf8(entry.STCD);
+            entry.STCD = truncateAtFirstNull(entry.STCD);
+            entry.STNM = silly_encode::gbk_utf8(entry.STNM);
+            entry.STNM = truncateAtFirstNull(entry.STNM);
+            entry.RVNM = silly_encode::gbk_utf8(entry.RVNM);
+            entry.RVNM = truncateAtFirstNull(entry.RVNM);
+            entry.HNNM = silly_encode::gbk_utf8(entry.HNNM);
+            entry.HNNM = truncateAtFirstNull(entry.HNNM);
+            entry.BSNM = silly_encode::gbk_utf8(entry.BSNM);
+            entry.BSNM = truncateAtFirstNull(entry.BSNM);
+            entry.STLC = silly_encode::gbk_utf8(entry.STLC);
+            entry.STLC = truncateAtFirstNull(entry.STLC);
+            entry.ADDVCD = silly_encode::gbk_utf8(entry.ADDVCD);
+            entry.ADDVCD = truncateAtFirstNull(entry.ADDVCD);
+            entry.DTMNM = silly_encode::gbk_utf8(entry.DTMNM);
+            entry.DTMNM = truncateAtFirstNull(entry.DTMNM);
+            entry.STTP = silly_encode::gbk_utf8(entry.STTP);
+            entry.STTP = truncateAtFirstNull(entry.STTP);
+            entry.FRGRD = silly_encode::gbk_utf8(entry.FRGRD);
+            entry.FRGRD = truncateAtFirstNull(entry.FRGRD);
+            entry.ESSTYM = silly_encode::gbk_utf8(entry.ESSTYM);
+            entry.ESSTYM = truncateAtFirstNull(entry.ESSTYM);
+            entry.BGFRYM = silly_encode::gbk_utf8(entry.BGFRYM);
+            entry.BGFRYM = truncateAtFirstNull(entry.BGFRYM);
+            entry.ATCUNIT = silly_encode::gbk_utf8(entry.ATCUNIT);
+            entry.ATCUNIT = truncateAtFirstNull(entry.ATCUNIT);
+            entry.ADMAUTH = silly_encode::gbk_utf8(entry.ADMAUTH);
+            entry.ADMAUTH = truncateAtFirstNull(entry.ADMAUTH);
+            entry.LOCALITY = silly_encode::gbk_utf8(entry.LOCALITY);
+            entry.LOCALITY = truncateAtFirstNull(entry.LOCALITY);
+            entry.STBK = silly_encode::gbk_utf8(entry.STBK);
+            entry.STBK = truncateAtFirstNull(entry.STBK);
+            entry.PHCD = silly_encode::gbk_utf8(entry.PHCD);
+            entry.PHCD = truncateAtFirstNull(entry.PHCD);
+            entry.USFL = silly_encode::gbk_utf8(entry.USFL);
+            entry.USFL = truncateAtFirstNull(entry.USFL);
+            entry.COMMENTS = silly_encode::gbk_utf8(entry.COMMENTS);
+            entry.COMMENTS = truncateAtFirstNull(entry.COMMENTS);
+            entry.HNNM0 = silly_encode::gbk_utf8(entry.HNNM0);
+            entry.HNNM0 = truncateAtFirstNull(entry.HNNM0);
+            entry.ADCD = silly_encode::gbk_utf8(entry.ADCD);
+            entry.ADCD = truncateAtFirstNull(entry.ADCD);
+            entry.ADDVCD1 = silly_encode::gbk_utf8(entry.ADDVCD1);
+            entry.ADDVCD1 = truncateAtFirstNull(entry.ADDVCD1);
+        }
+    }
+
+
     std::filesystem::path stbprp_file_path(fpath);
     if (!std::filesystem::exists(stbprp_file_path.parent_path()))
     {
@@ -227,7 +287,18 @@ bool export_pptn(const std::string& btm, const std::string& etm, const std::stri
 }
 
 
-
+std::string truncateAtFirstNull(std::string str)
+{
+    // 查找第一个 '\0' 字符的位置
+    size_t pos = str.find('\0');
+    if (pos != std::string::npos)
+    {
+        // 如果找到 '\0'，截取子串
+        return str.substr(0, pos);
+    }
+    // 如果没有找到 '\0'，返回原字符串
+    return str;
+}
 
 
 
