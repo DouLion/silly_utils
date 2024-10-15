@@ -86,13 +86,14 @@ bool silly_encode::iconv_convert(const std::string &from, const std::string &to,
 
     size_t src_len = text.length();
     // 准备输出缓冲区
-    ret.resize(src_len * 4);  // 假设每个字符最多需要 4 个字节
+    std::string str_out;
+    str_out.resize(src_len * 4);  // 假设每个字符最多需要 4 个字节
 
     // 进行转换
     size_t inBytesLeft = src_len;
     char *in = (char *)&text[0];
     size_t outBytesLeft = src_len * 4;
-    char *out = (char *)&ret[0];
+    char *out = (char *)&str_out[0];
 
     size_t result = iconv(cd, &in, &inBytesLeft, &out, &outBytesLeft);
     if (result == (size_t)-1)
@@ -110,6 +111,8 @@ bool silly_encode::iconv_convert(const std::string &from, const std::string &to,
     {
         status = true;
     }
+    ret.resize(result);
+    memcpy(&ret[0], out, result);
     // 关闭 iconv 描述符
     iconv_close(cd);
     return status;
