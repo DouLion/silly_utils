@@ -20,7 +20,7 @@
 
 silly_otl otl;
 std::string insert_pptn_sql;
-std::string inster_stbprp_sql;
+std::string insert_stbprp_sql;
 std::string stbprp_file_path;
 std::string pptn_file_path;
 std::string btm;
@@ -43,7 +43,7 @@ int main(int argc, char** argv)
 {
 
 #ifndef NDEBUG
-    std::string configPath = std::filesystem::path(DEFAULT_SU_ROOT_DIR).append("tools").append("RWDB").append("export.json").string();
+    std::string configPath = std::filesystem::path(DEFAULT_SU_ROOT_DIR).append("tools").append("RWDB").append("import.json").string();
 #else
     std::string configPath = "./config/import.json";
 #endif
@@ -75,7 +75,7 @@ bool init(const std::string& file)
     otl.dump_odbc();
 
     insert_pptn_sql = jv_root["sql"]["insert_pptn_sql"].asString();
-    inster_stbprp_sql = jv_root["sql"]["inster_stbprp_sql"].asString();
+    insert_stbprp_sql = jv_root["sql"]["insert_stbprp_sql"].asString();
 
     stbprp_file_path = jv_root["stbprp_file_path"].asString();
     pptn_file_path = jv_root["pptn_file_path"].asString();
@@ -96,7 +96,7 @@ bool import_stbprp()
     std::ifstream ifs(stbprp_file_path, std::ios::binary);
     if (!ifs.is_open())
     {
-        SLOG_ERROR("stbprp_file_path open failed");
+        SLOG_ERROR("stbprp_file_path open failed: {}", stbprp_file_path);
         return false;
     }
     while (!ifs.eof())  // 当文件没有到达末尾时
@@ -138,7 +138,7 @@ bool import_stbprp()
     }
 
     // --------------插入数据库--------------
-    if (!otl.insert(inster_stbprp_sql, [&des_stbprps](otl_stream* stream) {
+    if (!otl.insert(insert_stbprp_sql, [&des_stbprps](otl_stream* stream) {
             for (const auto& entry : des_stbprps)
             {
                 otl_value<std::string> STCD(entry.STCD);
@@ -201,7 +201,7 @@ bool import_pptn()
     std::ifstream ifs(pptn_file_path, std::ios::binary);  // 以二进制方式打开文件
     if (!ifs.is_open())
     {
-        std::cout << "Failed to open file for reading." << std::endl;
+        SLOG_ERROR("pptn_file_path open failed: {}", pptn_file_path);
         return false;
     }
     while (!ifs.eof())

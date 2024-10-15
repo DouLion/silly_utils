@@ -20,4 +20,4 @@
   }
 }
 
-// encode：GBK,UTF-8,EUC-CN, 如果为空，则不进行编码转换
+// encode：GBK,UTF-8,EUC-CN, 如果为空，则不进行编码转换,如果是从达梦数据库导出需要将编码从GBK转换为UTF-8
