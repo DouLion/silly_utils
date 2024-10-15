@@ -75,3 +75,32 @@ std::pair<double, double> silly_grid_index::checked_point(const int64_t& index, 
 
     return std::pair<double, double>(x, y);
 }
+int64_t silly_grid_index::customize_index(const double& lgtd, const double& lttd, const double& step, std::pair<double, double> minp, std::pair<double, double> maxp, const int64_t& bidx)
+{
+    double left = minp.first;
+    double right = maxp.first;
+    double bottom = minp.second;
+    double top = maxp.second;
+    if(lgtd >= left && lgtd <= right && lttd >= bottom && lttd <= top)
+    {
+        int64_t col = (int64_t)(right - left) / step + 1;
+        return (int64_t)((lttd - bottom) / step) * col + (int64_t)((lgtd - left) / step) + bidx;
+    }
+    return 0;
+}
+std::pair<double, double> silly_grid_index::customize_point(const int64_t& index, const double& step, std::pair<double, double> minp, std::pair<double, double> maxp, const int64_t& bidx)
+{
+    double left = minp.first;
+    double right = maxp.first;
+    double bottom = minp.second;
+    double top = maxp.second;
+    if (index == 0)
+    {
+        throw std::runtime_error("序号从1开始");
+    }
+    int64_t row = (int64_t)(right - left) / step + 1;
+    double x = (index - bidx) % row * step + left;
+    double y = (index - bidx) / row * step + bottom;
+
+    return std::pair<double, double>(x, y);
+}
