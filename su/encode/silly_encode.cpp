@@ -92,8 +92,10 @@ bool silly_encode::iconv_convert(const std::string &from, const std::string &to,
     // 进行转换
     size_t inBytesLeft = src_len;
     char *in = (char *)&text[0];
-    size_t outBytesLeft = src_len * 4;
+    size_t out_len = src_len * 4; 
+    size_t outBytesLeft = out_len;
     char *out = (char *)&str_out[0];
+    size_t converted_size = 0;
 
     size_t result = iconv(cd, &in, &inBytesLeft, &out, &outBytesLeft);
     if (result == (size_t)-1)
@@ -109,10 +111,14 @@ bool silly_encode::iconv_convert(const std::string &from, const std::string &to,
     }
     else
     {
+        // 计算有效输出字节数
+        converted_size = out_len - outBytesLeft;  // 有效字节数
+        ret.resize(converted_size);                      // 更新 ret 字符串大小以去除多余的 '\0'
+        status = true;
         status = true;
     }
-    ret.resize(result);
-    memcpy(&ret[0], out, result);
+
+    memcpy(&ret[0], (char *)&str_out[0], converted_size);
     // 关闭 iconv 描述符
     iconv_close(cd);
     return status;
