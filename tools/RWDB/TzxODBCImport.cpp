@@ -132,6 +132,9 @@ bool import_stbprp()
     {
         for (auto& entry : des_stbprps)
         {
+
+
+
             entry.STCD = silly_encode::utf8_gbk(entry.STCD);
             entry.STCD = truncateAtFirstNull(entry.STCD);
             entry.STNM = silly_encode::utf8_gbk(entry.STNM);

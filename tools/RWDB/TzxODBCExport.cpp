@@ -299,16 +299,3 @@ std::string truncateAtFirstNull(std::string str)
     // 如果没有找到 '\0'，返回原字符串
     return str;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
