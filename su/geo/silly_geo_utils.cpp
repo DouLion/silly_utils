@@ -977,7 +977,6 @@ std::vector<silly_poly> silly_geo_utils::intersection(const silly_multi_poly& mp
     return result;
 }
 
-
 // 判断点是否在线段上
 bool on_segment(const silly_point& point, const silly_point& l_beg, const silly_point& l_end)
 {
@@ -1008,7 +1007,6 @@ silly_point line_intersection(const silly_point& p1, const silly_point& p2, cons
     return silly_point();
 }
 
-
 // 两条线段所在的区域是否有重叠部分
 bool segments_overlap(double xa, double xb, double ya, double yb)
 {
@@ -1026,17 +1024,17 @@ bool segments_intersect(silly_point a1, silly_point a2, silly_point b1, silly_po
     }
 
     // 计算方向
-    //d1 计算了线段 b1-b2 的方向相对于点 a1 的位置
-    //d2 计算了线段 b1-b2 的方向相对于点 a2 的位置
-    //d3 计算了线段 a1-a2 的方向相对于点 b1 的位置
-    //d4 计算了线段 a1-a2 的方向相对于点 b2 的位置
+    // d1 计算了线段 b1-b2 的方向相对于点 a1 的位置
+    // d2 计算了线段 b1-b2 的方向相对于点 a2 的位置
+    // d3 计算了线段 a1-a2 的方向相对于点 b1 的位置
+    // d4 计算了线段 a1-a2 的方向相对于点 b2 的位置
     double d1 = (b2.y - b1.y) * (a1.x - b1.x) - (b2.x - b1.x) * (a1.y - b1.y);
     double d2 = (b2.y - b1.y) * (a2.x - b1.x) - (b2.x - b1.x) * (a2.y - b1.y);
     double d3 = (a2.y - a1.y) * (b1.x - a1.x) - (a2.x - a1.x) * (b1.y - a1.y);
     double d4 = (a2.y - a1.y) * (b2.x - a1.x) - (a2.x - a1.x) * (b2.y - a1.y);
 
     // 当 d1 * d2 < 0 时，意味着点 a1 和 a2 在线段 b1-b2 的两侧
-    // 当 d3 * d4 < 0 时，意味着点 b1 和 b2 在线段 a1-a2 的两侧 
+    // 当 d3 * d4 < 0 时，意味着点 b1 和 b2 在线段 a1-a2 的两侧
     // 如果两个条件都满足，那么线段 a1-a2 和 b1-b2 是相交的,但是如果有一个满足可能是有一点重合,
 
     // 平行或共线的情况
@@ -1052,11 +1050,11 @@ bool segments_intersect(silly_point a1, silly_point a2, silly_point b1, silly_po
             return false;
         }
     }
-    else if ((d1 * d2 < 0) && (d3 * d4 < 0)) // 相交
+    else if ((d1 * d2 < 0) && (d3 * d4 < 0))  // 相交
     {
         return true;
     }
-    else // 线段a上的一个点在线段b上,或者线段b的延长线上
+    else  // 线段a上的一个点在线段b上,或者线段b的延长线上
     {
         // 求相交点,如果相交点为线段的起点返回true
         silly_point intersect = line_intersection(a1, a2, b1, b2);
@@ -1071,11 +1069,8 @@ bool segments_intersect(silly_point a1, silly_point a2, silly_point b1, silly_po
         }
 
         int a = 0;
-
     }
-    
 }
-
 
 bool silly_geo_utils::intersect(const silly_poly& mpoly, const silly_point& point)
 {
@@ -1089,12 +1084,12 @@ bool silly_geo_utils::intersect(const silly_poly& mpoly, const silly_point& poin
         // 内环
         for (const auto& inner : mpoly.inner_rings)
         {
-            if (intersect(point, inner.points)) // 在内环内
+            if (intersect(point, inner.points))  // 在内环内
             {
-                return false; // 如果这个点在一个内环内就属于在面外
+                return false;  // 如果这个点在一个内环内就属于在面外
             }
         }
-        return true; // 点在外环内,且不在任何一个内环内
+        return true;  // 点在外环内,且不在任何一个内环内
     }
     else
     {
@@ -1107,9 +1102,9 @@ bool silly_geo_utils::intersect(const silly_multi_poly& mpoly, const silly_point
     bool is_in = false;
     for (const auto& poly : mpoly)
     {
-        if (intersect(poly, point)) 
+        if (intersect(poly, point))
         {
-            is_in = true; // 如果点在任何一个多边形内,则认为在面内,即相交
+            is_in = true;  // 如果点在任何一个多边形内,则认为在面内,即相交
             break;
         }
     }
@@ -1376,4 +1371,81 @@ bool silly_geo_utils::intersect(const silly_point& point, const std::vector<sill
         }
     }
     return c;
+}
+double silly_geo_utils::distance(const silly_point& p1, const silly_point& p2)
+{
+    return std::sqrt(distance_sq(p1, p2));
+}
+double silly_geo_utils::distance_km(const silly_point& p1, const silly_point& p2)
+{
+    /// https://github.com/atychang/geo-distance/blob/master/vincenty/cpp/CalcDistance.cc
+    const double a = 6378137.0;            // WGS-84 Earth semi-major axis (m)
+    const double f = 1.0 / 298.257223563;  // WGS-84 flattening factor of the Earth
+    const double b = a * (1 - f);          // WGS-84 Earth semi-minor axis (m)
+
+    double lat1 = p1.y * SU_PI / 180;
+    double lon1 = p1.x * SU_PI / 180;
+    double lat2 = p2.y * SU_PI / 180;
+    double lon2 = p2.x * SU_PI / 180;
+    double U1 = atan((1 - f) * tan(lat1));
+    double U2 = atan((1 - f) * tan(lat2));
+    double sinU1 = sin(U1), cosU1 = cos(U1);
+    double sinU2 = sin(U2), cosU2 = cos(U2);
+    double L = (lon2 - lon1) * SU_PI / 180;
+
+    double sinLambda;
+    double cosLambda;
+    double sinSigma;
+    double cosSigma;
+    double sigma;
+    double cosSqAlpha;
+    double cos2SigmaM;
+
+    double lambda = L, prevLambda;
+    int iterationLimit = 100;
+
+    do
+    {
+        sinLambda = sin(lambda);
+        cosLambda = cos(lambda);
+        ;
+        sinSigma = sqrt(pow(cosU2 * sinLambda, 2) + pow(cosU1 * sinU2 - sinU1 * cosU2 * cosLambda, 2));
+
+        if (sinSigma == 0)  // coincident points
+            return 0;
+
+        cosSigma = sinU1 * sinU2 + cosU1 * cosU2 * cosLambda;
+        sigma = atan(sinSigma / cosSigma);
+        double sinAlpha = cosU1 * cosU2 * sinLambda / sinSigma;
+        cosSqAlpha = 1 - pow(sinAlpha, 2);
+
+        if (cosSqAlpha == 0)  // equatorial line: cosSqAlpha = 0
+            cos2SigmaM = 0;
+        else
+            cos2SigmaM = cosSigma - 2 * sinU1 * sinU2 / cosSqAlpha;
+
+        double C = f / 16 * cosSqAlpha * (4 + f * (4 - 3 * cosSqAlpha));
+        prevLambda = lambda;
+        lambda = L + (1 - C) * f * sinAlpha * (sigma + C * sinSigma * (cos2SigmaM + C * cosSigma * (-1 + 2 * pow(cos2SigmaM, 2))));
+    } while (std::abs(lambda - prevLambda) > 1e-12 && --iterationLimit > 0);
+
+    if (iterationLimit == 0)  // formula failed to converge
+        return 0;
+
+    double uSq = cosSqAlpha * (pow(a, 2) - pow(b, 2)) / pow(b, 2);
+    double A = 1 + uSq / 16384 * (4096 + uSq * (-768 + uSq * (320 - 175 * uSq)));
+    double B = uSq / 1024 * (256 + uSq * (-128 + uSq * (74 - 47 * uSq)));
+    double deltaSigma = B * sinSigma * (cos2SigmaM + B / 4 * (cosSigma * (-1 + 2 * pow(cos2SigmaM, 2)) - B / 6 * cos2SigmaM * (-3 + 4 * pow(sinSigma, 2)) * (-3 + 4 * pow(cos2SigmaM, 2))));
+
+    double s = b * A * (sigma - deltaSigma);  // in the same units as a and b
+
+    // bearing (direction) in radius
+    // degree = radius * 180 / pi
+    double revAz = atan2(cosU1 * sinLambda, -sinU1 * cosU2 + cosU1 * sinU2 * cosLambda);
+
+    return s / 1000.0;
+}
+double silly_geo_utils::distance_sq(const silly_point& p1, const silly_point& p2)
+{
+    return (p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y);
 }

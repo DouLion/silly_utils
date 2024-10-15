@@ -179,6 +179,36 @@ class silly_geo_utils
     /// <returns></returns>
     static std::vector<silly_line> trans_intersection(const silly_multi_poly& mpoly1, const silly_line& line);
 
+
+    /// <summary>
+    /// 距离,直接数值计算
+    /// </summary>
+    /// <param name="p1"></param>
+    /// <param name="p2"></param>
+    /// <returns></returns>
+    static double distance(const silly_point& p1, const silly_point& p2);
+
+    /// <summary>
+    /// 距离的平方,直接数值计算
+    /// </summary>
+    /// <param name="p1"></param>
+    /// <param name="p2"></param>
+    /// <returns></returns>
+    static double distance_sq(const silly_point& p1, const silly_point& p2);
+
+    /// <summary>
+    /// 距离,经纬度转换为千米计算,Vincenty公式,
+    /// 相较于墨卡托投影方法, 跨带也能正常使用
+    /// https://github.com/atychang/geo-distance/blob/master/vincenty/cpp/CalcDistance.cc
+    /// http://www.movable-type.co.uk/scripts/latlong-vincenty.html
+    /// https://en.wikipedia.org/wiki/Vincenty's_formulae
+    /// </summary>
+    /// <param name="p1"></param>
+    /// <param name="p2"></param>
+    /// <returns></returns>
+    static double distance_km(const silly_point& p1, const silly_point& p2);
+
+
     /// <summary>
     /// 面积
     /// </summary>
