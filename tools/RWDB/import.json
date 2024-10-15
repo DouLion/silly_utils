@@ -1,5 +1,5 @@
 {
-  "des_db": {
+  "db": {
     "type": "dm8",
     "ip": "192.168.0.237",
     "port": 13309,
@@ -8,11 +8,11 @@
     "password": "123456789"
   },
   "sql": {
-    "insert_pptn_sql": "insert into \"TEST\".\"ST_PPTN_R\" (STCD, TM, DRP, INTV) values (:f1<char[9]>, :f2<timestamp>, :f3<float>, :f4<float>);",
-    "inster_stbprp_sql": "INSERT INTO \"TEST\".\"ST_STBPRP_B\" (STCD, STNM, RVNM, HNNM, BSNM, LGTD, LTTD, STLC, ADDVCD, DTMNM, DTMEL, DTPR, STTP, FRGRD, ESSTYM, BGFRYM, ATCUNIT, ADMAUTH, LOCALITY, STBK, STAZT, DSTRVM, DRNA, PHCD, USFL, COMMENTS, MODITIME, HNNM0, ADCD, ADDVCD1) VALUES (:f1<char[40]>, :f2<char[80]>, :f3<char[80]>, :f4<char[80]>, :f5<char[80]>, :f6<float>, :f7<float>, :f8<char[300]>, :f9<char[30]>, :f10<char[120]>, :f11<float>, :f12<float>, :f13<char[20]>, :f14<char[10]>, :f15<char[30]>, :f16<char[30]>, :f17<char[100]>, :f18<char[100]>, :f19<char[100]>, :f20<char[20]>, :f21<int>, :f22<float>, :f23<int>, :f24<char[30]>, :f25<char[20]>,:f26<char[300]>, :f27<timestamp>, :f28<char[100]>, :f29<char[100]>, :f30<char[30]>) ;"
+    "insert_pptn_sql": "insert into TEST.ST_PPTN_R (STCD, TM, DRP, INTV) values (:f1<char[9]>, :f2<timestamp>, :f3<float>, :f4<float>);",
+    "insert_stbprp_sql": "INSERT INTO TEST.ST_STBPRP_B (STCD, STNM, RVNM, HNNM, BSNM, LGTD, LTTD, STLC, ADDVCD, DTMNM, DTMEL, DTPR, STTP, FRGRD, ESSTYM, BGFRYM, ATCUNIT, ADMAUTH, LOCALITY, STBK, STAZT, DSTRVM, DRNA, PHCD, USFL, COMMENTS, MODITIME, HNNM0, ADCD, ADDVCD1) VALUES (:f1<char[40]>, :f2<char[80]>, :f3<char[80]>, :f4<char[80]>, :f5<char[80]>, :f6<float>, :f7<float>, :f8<char[300]>, :f9<char[30]>, :f10<char[120]>, :f11<float>, :f12<float>, :f13<char[20]>, :f14<char[10]>, :f15<char[30]>, :f16<char[30]>, :f17<char[100]>, :f18<char[100]>, :f19<char[100]>, :f20<char[20]>, :f21<int>, :f22<float>, :f23<int>, :f24<char[30]>, :f25<char[20]>,:f26<char[300]>, :f27<timestamp>, :f28<char[100]>, :f29<char[100]>, :f30<char[30]>) ;"
   },
-  "stbprp_file_path": "D:/1_wangyingjie/readfile/sync_data/20241015111104_STBPRP.dat",
-  "pptn_file_path": "D:/1_wangyingjie/readfile/sync_data/20241015111104_PPTN.dat",
+  "stbprp_file_path": "./sync_data/20241015111104_STBPRP.dat",
+  "pptn_file_path": "./sync_data/20241015111104_PPTN.dat",
   "encode": {
     "src": "UTF-8",
     "dst": "GBK"

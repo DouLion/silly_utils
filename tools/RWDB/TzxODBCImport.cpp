@@ -43,7 +43,7 @@ int main(int argc, char** argv)
 {
 
 #ifndef NDEBUG
-    std::string configPath = "../../../../tools/RWDB/import.json";
+    std::string configPath = std::filesystem::path(DEFAULT_SU_ROOT_DIR).append("tools").append("RWDB").append("export.json").string();
 #else
     std::string configPath = "./config/import.json";
 #endif

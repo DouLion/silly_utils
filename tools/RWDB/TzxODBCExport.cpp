@@ -17,34 +17,37 @@
 #include "export_tool.h"
 
 // 全局变量
+struct encode
+{
+    std::string src;
+    std::string dst;
+};
 silly_otl otl;
 std::string stbprp_select_sql;
 std::string pptn_select_sql;
 std::string btm;
 std::string etm;
-std::string fpath = "./";  // 文件根路径
-std::string src_encode;
-std::string dst_encode;
-std::map<std::string, uint32_t> stcd_index;
-
+std::string root = "./";  // 文件根路径
+struct encode cvt;
+std::unordered_map<std::string, uint32_t> stcd_index;
+// std::map<uint32_t, std::string> index_stcd;
+std::string str_now_tm = silly_posix_time::now().to_string("%Y%m%d%H%M%S");
 
 bool init(const std::string& file);
 
-
 // 导出测站基本信息
-bool export_stbprp(const std::string& str_now_tm);
+bool export_stbprp();
 
 // 导出降雨记录
-bool export_pptn(const std::string& btm, const std::string& etm, const std::string& str_now_tm);
-
+bool export_pptn();
 
 int main(int argc, char** argv)
 {
-
 #ifndef NDEBUG
-    std::string configPath = "../../../../tools/RWDB/export.json";
+
+    std::string configPath = std::filesystem::path(DEFAULT_SU_ROOT_DIR).append("tools").append("RWDB").append("export.json").string();
 #else
-    std::string configPath = "./config/export.json";
+    std::string configPath = "./export.json";
 #endif
 
     if (!init(configPath))
@@ -60,20 +63,18 @@ int main(int argc, char** argv)
 #else
 #endif
     otl.help();
-    std::string str_now_tm = silly_posix_time::now().to_string("%Y%m%d%H%M%S");
- 
+
     // 导入导入stbprp
-    export_stbprp(str_now_tm);
+    export_stbprp();
 
     // 导入导入pptn
-    export_pptn(btm, etm, str_now_tm);
+    export_pptn();
 
-    //export_rsvr(btm, etm);
-    //export_river(btm, etm);
+    // export_rsvr(btm, etm);
+    // export_river(btm, etm);
 
     return 0;
 }
-
 
 bool init(const std::string& file)
 {
@@ -92,16 +93,14 @@ bool init(const std::string& file)
     btm = jv_root["btm"].asString();
     etm = jv_root["etm"].asString();
 
-    src_encode = jv_root["encode"]["src"].asString();
-    dst_encode = jv_root["encode"]["dst"].asString();
+    cvt.src = jv_root["encode"]["src"].asString();
+    cvt.dst = jv_root["encode"]["dst"].asString();
 
     status = true;
     return status;
 }
 
-
-
-bool export_stbprp(const std::string& str_now_tm)
+bool export_stbprp()
 {
     std::vector<silly_stbprp> stbprps;
     // ---------查询数据库-----------
@@ -163,25 +162,26 @@ bool export_stbprp(const std::string& str_now_tm)
         stcd_index[stbprp.STCD] = index;
         index++;
     }
+/*
+    for(auto [stcd, index]: stcd_index)
+    {
+        index_stcd[index] = stcd;
+    }*/
 
     // -----------转编码--------------
-    if (!src_encode.empty() && !dst_encode.empty())
+    if (!cvt.src.empty() && !cvt.dst.empty())
     {
         for (auto& stbprp : stbprps)
         {
-            encode(stbprp, src_encode, dst_encode);
+            encode(stbprp, cvt.src, cvt.dst);
         }
     }
 
     // -----------导出stbprp文件------------
-    std::filesystem::path stbprp_file_path(fpath);
-    if (!std::filesystem::exists(stbprp_file_path.parent_path()))
-    {
-        std::filesystem::create_directories(stbprp_file_path.parent_path());
-    }
+    std::filesystem::path stbprp_file_path(root);
     std::string fileName = str_now_tm + "_" + silly_stbprp::FILE_NAME;
     stbprp_file_path.append(fileName);
-
+    std::filesystem::create_directories(stbprp_file_path.parent_path());
     std::ofstream ofs(stbprp_file_path.string(), std::ios::binary);
     for (auto& stbprp : stbprps)
     {
@@ -194,14 +194,12 @@ bool export_stbprp(const std::string& str_now_tm)
     return true;
 }
 
-
-bool export_pptn(const std::string& btm, const std::string& etm, const std::string& str_now_tm)
+bool export_pptn()
 {
     std::vector<silly_pptn> pptns;
 
-    if (!otl.select(pptn_select_sql, [&pptns, &btm, &etm](otl_stream* stream) {
-            otl_write_row(*stream, btm.c_str(), etm.c_str());  // 传入参数
-            uint32_t index = 0;
+    if (!otl.select(pptn_select_sql, [&pptns](otl_stream* stream) {
+            otl_write_row(*stream, btm, etm);  // 传入参数
             while (!stream->eof())
             {
                 std::string stcd;
@@ -211,11 +209,7 @@ bool export_pptn(const std::string& btm, const std::string& etm, const std::stri
                 std::tm t{tm.second, tm.minute, tm.hour, tm.day, tm.month - 1, tm.year - 1900};
                 std::time_t stamp = std::mktime(&t);
                 silly_pptn pptn(stcd, stamp, intv, drp);
-                pptn.index = index;
-                stcd_index[stcd] = pptn.index;
                 pptns.push_back(pptn);
-
-                index++;
             }
         }))
     {
@@ -223,13 +217,17 @@ bool export_pptn(const std::string& btm, const std::string& etm, const std::stri
         return false;
     }
 
-    std::filesystem::path ppth_file_path(fpath);
-    if (!std::filesystem::exists(ppth_file_path.parent_path()))
+    for(auto& pptn : pptns)
     {
-        std::filesystem::create_directories(ppth_file_path.parent_path());
+        if(stcd_index.find(pptn.stcd) == std::end(stcd_index))
+            continue;
+        pptn.index = stcd_index[pptn.stcd];
     }
+
+    std::filesystem::path ppth_file_path(root);
     std::string fileName = str_now_tm + "_" + silly_pptn::FILE_NAME;
     ppth_file_path.append(fileName);
+    std::filesystem::create_directories(ppth_file_path.parent_path());
 
     std::ofstream ofs(ppth_file_path.string(), std::ios::binary);
     for (auto& pptn : pptns)
@@ -241,6 +239,3 @@ bool export_pptn(const std::string& btm, const std::string& etm, const std::stri
 
     return true;
 }
-
-
-
