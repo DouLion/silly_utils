@@ -23,14 +23,13 @@ struct encode
     std::string dst;
 };
 silly_otl otl;
-std::string stbprp_select_sql;
-std::string pptn_select_sql;
+std::string select_stbprp_sql;
+std::string select_pptn_sql;
 std::string btm;
 std::string etm;
 std::string root = "./";  // 文件根路径
 struct encode cvt;
 std::unordered_map<std::string, uint32_t> stcd_index;
-// std::map<uint32_t, std::string> index_stcd;
 std::string str_now_tm = silly_posix_time::now().to_string("%Y%m%d%H%M%S");
 
 bool init(const std::string& file);
@@ -87,8 +86,8 @@ bool init(const std::string& file)
     }
     otl = otl_tools::conn_opt_from_json(jv_root["db"]);
     otl.dump_odbc();
-    pptn_select_sql = jv_root["sql"]["pptn_select_sql"].asString();
-    stbprp_select_sql = jv_root["sql"]["stbprp_select_sql"].asString();
+    select_stbprp_sql = jv_root["sql"]["select_stbprp_sql"].asString();
+    select_pptn_sql = jv_root["sql"]["select_pptn_sql"].asString();
 
     btm = jv_root["btm"].asString();
     etm = jv_root["etm"].asString();
@@ -104,7 +103,7 @@ bool export_stbprp()
 {
     std::vector<silly_stbprp> stbprps;
     // ---------查询数据库-----------
-    if (!otl.select(stbprp_select_sql, [&stbprps](otl_stream* stream) {
+    if (!otl.select(select_stbprp_sql, [&stbprps](otl_stream* stream) {
             while (!stream->eof())
             {
                 otl_value<std::string> STCD, STNM, RVNM, HNNM, BSNM, STLC, ADDVCD, DTMNM, STTP, FRGRD, ESSTYM, BGFRYM, ATCUNIT, ADMAUTH, LOCALITY, STBK, PHCD, USFL, COMMENTS, HNNM0, ADCD, ADDVCD1;
@@ -162,11 +161,6 @@ bool export_stbprp()
         stcd_index[stbprp.STCD] = index;
         index++;
     }
-/*
-    for(auto [stcd, index]: stcd_index)
-    {
-        index_stcd[index] = stcd;
-    }*/
 
     // -----------转编码--------------
     if (!cvt.src.empty() && !cvt.dst.empty())
@@ -198,7 +192,7 @@ bool export_pptn()
 {
     std::vector<silly_pptn> pptns;
 
-    if (!otl.select(pptn_select_sql, [&pptns](otl_stream* stream) {
+    if (!otl.select(select_pptn_sql, [&pptns](otl_stream* stream) {
             otl_write_row(*stream, btm, etm);  // 传入参数
             while (!stream->eof())
             {
@@ -220,7 +214,9 @@ bool export_pptn()
     for(auto& pptn : pptns)
     {
         if(stcd_index.find(pptn.stcd) == std::end(stcd_index))
+        {
             continue;
+        }
         pptn.index = stcd_index[pptn.stcd];
     }
 
