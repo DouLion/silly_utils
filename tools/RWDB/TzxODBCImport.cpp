@@ -15,20 +15,20 @@
 #include <tzx/rwdb/silly_stbprp.h>
 #include <tzx/rwdb/silly_rsvr.h>
 #include <tzx/rwdb/silly_river.h>
-#include "encode/silly_encode.h"
+#include "export_tool.h"
 
 
+silly_otl otl;
 std::string insert_pptn_sql;
 std::string inster_stbprp_sql;
 std::string stbprp_file_path;
 std::string pptn_file_path;
 std::string btm;
 std::string etm;
-silly_otl otl;
+std::string src_encode;
+std::string dst_encode;
 std::map<uint32_t, std::string> index_stcd;
 
-
-std::string truncateAtFirstNull(std::string str);
 
 // 读取配置文件
 bool init(const std::string& file);
@@ -80,6 +80,9 @@ bool init(const std::string& file)
     stbprp_file_path = jv_root["stbprp_file_path"].asString();
     pptn_file_path = jv_root["pptn_file_path"].asString();
 
+    src_encode = jv_root["encode"]["src"].asString();
+    dst_encode = jv_root["encode"]["dst"].asString();
+
     status = true;
     return status;
 }
@@ -88,6 +91,8 @@ bool init(const std::string& file)
 bool import_stbprp()
 {
     std::vector<silly_stbprp> des_stbprps;
+
+    // -------------文件读取-----------------
     std::ifstream ifs(stbprp_file_path, std::ios::binary);
     if (!ifs.is_open())
     {
@@ -117,72 +122,22 @@ bool import_stbprp()
     }
     ifs.close();  // 关闭文件
 
-    // 读取stcd对应的index,是否需要转码
+    // --------------index 找 stcd--------------
     for (const auto& entry : des_stbprps)
     {
         index_stcd[entry.index] = entry.STCD;
     }
 
-    bool trans = false;
-    if (otl.type() == enum_database_type::dbDM8)
-    {
-        trans = true;  // 如果是达梦数据库，需要将中文字段转为gbk
-    }
-    if (trans)
+    // --------------转编码-----------------
+    if (!src_encode.empty() && !dst_encode.empty())
     {
         for (auto& entry : des_stbprps)
         {
-
-
-
-            entry.STCD = silly_encode::utf8_gbk(entry.STCD);
-            entry.STCD = truncateAtFirstNull(entry.STCD);
-            entry.STNM = silly_encode::utf8_gbk(entry.STNM);
-            entry.STNM = truncateAtFirstNull(entry.STNM);
-            entry.RVNM = silly_encode::utf8_gbk(entry.RVNM);
-            entry.RVNM = truncateAtFirstNull(entry.RVNM);
-            entry.HNNM = silly_encode::utf8_gbk(entry.HNNM);
-            entry.HNNM = truncateAtFirstNull(entry.HNNM);
-            entry.BSNM = silly_encode::utf8_gbk(entry.BSNM);
-            entry.BSNM = truncateAtFirstNull(entry.BSNM);
-            entry.STLC = silly_encode::utf8_gbk(entry.STLC);
-            entry.STLC = truncateAtFirstNull(entry.STLC);
-            entry.ADDVCD = silly_encode::utf8_gbk(entry.ADDVCD);
-            entry.ADDVCD = truncateAtFirstNull(entry.ADDVCD);
-            entry.DTMNM = silly_encode::utf8_gbk(entry.DTMNM);
-            entry.DTMNM = truncateAtFirstNull(entry.DTMNM);
-            entry.STTP = silly_encode::utf8_gbk(entry.STTP);
-            entry.STTP = truncateAtFirstNull(entry.STTP);
-            entry.FRGRD = silly_encode::utf8_gbk(entry.FRGRD);
-            entry.FRGRD = truncateAtFirstNull(entry.FRGRD);
-            entry.ESSTYM = silly_encode::utf8_gbk(entry.ESSTYM);
-            entry.ESSTYM = truncateAtFirstNull(entry.ESSTYM);
-            entry.BGFRYM = silly_encode::utf8_gbk(entry.BGFRYM);
-            entry.BGFRYM = truncateAtFirstNull(entry.BGFRYM);
-            entry.ATCUNIT = silly_encode::utf8_gbk(entry.ATCUNIT);
-            entry.ATCUNIT = truncateAtFirstNull(entry.ATCUNIT);
-            entry.ADMAUTH = silly_encode::utf8_gbk(entry.ADMAUTH);
-            entry.ADMAUTH = truncateAtFirstNull(entry.ADMAUTH);
-            entry.LOCALITY = silly_encode::utf8_gbk(entry.LOCALITY);
-            entry.LOCALITY = truncateAtFirstNull(entry.LOCALITY);
-            entry.STBK = silly_encode::utf8_gbk(entry.STBK);
-            entry.STBK = truncateAtFirstNull(entry.STBK);
-            entry.PHCD = silly_encode::utf8_gbk(entry.PHCD);
-            entry.PHCD = truncateAtFirstNull(entry.PHCD);
-            entry.USFL = silly_encode::utf8_gbk(entry.USFL);
-            entry.USFL = truncateAtFirstNull(entry.USFL);
-            entry.COMMENTS = silly_encode::utf8_gbk(entry.COMMENTS);
-            entry.COMMENTS = truncateAtFirstNull(entry.COMMENTS);
-            entry.HNNM0 = silly_encode::utf8_gbk(entry.HNNM0);
-            entry.HNNM0 = truncateAtFirstNull(entry.HNNM0);
-            entry.ADCD = silly_encode::utf8_gbk(entry.ADCD);
-            entry.ADCD = truncateAtFirstNull(entry.ADCD);
-            entry.ADDVCD1 = silly_encode::utf8_gbk(entry.ADDVCD1);
-            entry.ADDVCD1 = truncateAtFirstNull(entry.ADDVCD1);
+            encode(entry, src_encode, dst_encode);
         }
     }
 
-    // 插入数据库
+    // --------------插入数据库--------------
     if (!otl.insert(inster_stbprp_sql, [&des_stbprps](otl_stream* stream) {
             for (const auto& entry : des_stbprps)
             {
@@ -241,6 +196,8 @@ bool import_pptn()
     }
 
     std::vector<silly_pptn> des_pptns;                    // 用于存储反序列化后的对象
+
+    // -----------文件读取-------------
     std::ifstream ifs(pptn_file_path, std::ios::binary);  // 以二进制方式打开文件
     if (!ifs.is_open())
     {
@@ -249,15 +206,13 @@ bool import_pptn()
     }
     while (!ifs.eof())
     {
-        std::string buffer;                  // 存储每次读取的数据
-        buffer.resize(silly_pptn::SIZE_V1);  // 为每个对象分配大小
-                                             // 读取数据到 buffer
+        std::string buffer;               
+        buffer.resize(silly_pptn::SIZE_V1);  
         ifs.read(&buffer[0], silly_pptn::SIZE_V1);
         if (ifs.gcount() == 0)
-        {           // 检查是否读取结束
-            break;  // 到达文件末尾
+        {
+            break;  // 检查是否读取结束到达文件末尾
         }
-        // 创建一个新的 silly_pptn 对象
         silly_pptn pptn;
         // 反序列化
         silly_pptn temp;
@@ -271,7 +226,8 @@ bool import_pptn()
         }
     }
     ifs.close();
-
+    
+    // -----------index 找 stcd-------------
     for (auto& pptn : des_pptns)
     {
         uint32_t t_index = pptn.index;
@@ -282,7 +238,7 @@ bool import_pptn()
         }
     }
 
-    // 插入数据
+    // -----------数据插入-------------
     if (!otl.insert(insert_pptn_sql, [&des_pptns](otl_stream* stream) {
             for (const auto& entry : des_pptns)
             {
@@ -316,18 +272,7 @@ bool import_pptn()
 
 
 
-std::string truncateAtFirstNull(std::string str)
-{
-    // 查找第一个 '\0' 字符的位置
-    size_t pos = str.find('\0');
-    if (pos != std::string::npos)
-    {
-        // 如果找到 '\0'，截取子串
-        return str.substr(0, pos);
-    }
-    // 如果没有找到 '\0'，返回原字符串
-    return str;
-}
+
 
 
 
