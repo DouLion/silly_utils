@@ -71,7 +71,7 @@ bool init(const std::string& file)
         SFP_ERROR("配置文件读取失败: {}", file);
         return status;
     }
-    otl = otl_tools::conn_opt_from_json(jv_root["des_db"]);
+    otl = otl_tools::conn_opt_from_json(jv_root["db"]);
     otl.dump_odbc();
 
     insert_pptn_sql = jv_root["sql"]["insert_pptn_sql"].asString();
