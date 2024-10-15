@@ -112,6 +112,11 @@ target_link_libraries(${PROJECT_NAME} PUBLIC spdlog::spdlog
 find_package(lz4 CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC lz4::lz4)
 
+find_package(websocketpp CONFIG REQUIRED)
+target_include_directories(${PROJECT_NAME} PUBLIC websocketpp::websocketpp)
+#[[find_package(Boost REQUIRED random)
+target_link_libraries(${PROJECT_NAME} PUBLIC  Boost::random)]]
+
 if(IS_LINUX)
 
   find_package(unofficial-libuuid CONFIG REQUIRED)
