@@ -17,7 +17,7 @@ class silly_websocket_server
     silly_websocket_server();
     ~silly_websocket_server();
 
-  private:
+
 };
 
 #endif  // SILLY_UTILS_SILLY_WEBSOCKET_SERVER_H
