@@ -18,52 +18,51 @@
 #include "encode/silly_encode.h"
 
 
-// 读取stcd对应的索引
-std::map<uint32_t, std::string> deserialize_stcd_index(const std::string& filepath)
+std::string insert_pptn_sql;
+std::string inster_stbprp_sql;
+std::string stbprp_file_path;
+std::string pptn_file_path;
+std::string btm;
+std::string etm;
+silly_otl otl;
+std::map<uint32_t, std::string> index_stcd;
+
+
+std::string truncateAtFirstNull(std::string str);
+
+// 读取配置文件
+bool init(const std::string& file);
+// 导入stbprp
+bool import_stbprp();
+// 导入pptn
+bool import_pptn();
+
+
+
+int main(int argc, char** argv)
 {
-    // std::map<std::string, uint32_t> des_stcd_index;
-    std::map<uint32_t, std::string> des_index_stcd;
-    std::ifstream file(filepath);
-    if (!file.is_open())
+
+#ifndef NDEBUG
+    std::string configPath = "../../../../tools/RWDB/import.json";
+#else
+    std::string configPath = "./config/import.json";
+#endif
+
+    if (!init(configPath))
     {
-        SFP_ERROR("Failed to open file: {}", filepath);
-        return des_index_stcd;
+        return -1;
     }
 
-    std::string line;
-    while (std::getline(file, line))
-    {
-        std::istringstream iss(line);
-        std::string stcd;
-        uint32_t index;
-        if (!(iss >> stcd >> index))
-        {
-            continue;
-        }
+    // 导入stbprp
+    import_stbprp();
+    // 导入pptn
+    import_pptn();
 
-        des_index_stcd[index] = stcd;
-    }
-
-    file.close();
-    return des_index_stcd;
+    return 0;
 }
 
-class silly_import_pptn
-{
-  public:
-    bool init(const std::string& file);
-    bool import_pptn();
 
-    std::string des_odbc;
-    std::string insert_pptn_sql;
-
-    std::string pptn_file_path;
-    std::string stcd_index_file;
-
-    silly_otl otl;
-};
-
-bool silly_import_pptn::init(const std::string& file)
+bool init(const std::string& file)
 {
     bool status = false;
     Json::Value jv_root = silly_jsonpp::loadf(file);
@@ -73,20 +72,167 @@ bool silly_import_pptn::init(const std::string& file)
         return status;
     }
     otl = otl_tools::conn_opt_from_json(jv_root["des_db"]);
-    des_odbc = otl.dump_odbc();
-    insert_pptn_sql = jv_root["sql"]["insert_pptn_sql"].asString();
+    otl.dump_odbc();
 
+    insert_pptn_sql = jv_root["sql"]["insert_pptn_sql"].asString();
+    inster_stbprp_sql = jv_root["sql"]["inster_stbprp_sql"].asString();
+
+    stbprp_file_path = jv_root["stbprp_file_path"].asString();
     pptn_file_path = jv_root["pptn_file_path"].asString();
-    stcd_index_file = jv_root["stcd_index_file"].asString();
 
     status = true;
     return status;
 }
 
-bool silly_import_pptn::import_pptn()
+
+bool import_stbprp()
 {
-    std::map<uint32_t, std::string> des_index_stcd = deserialize_stcd_index(stcd_index_file);
-    if (des_index_stcd.empty())
+    std::vector<silly_stbprp> des_stbprps;
+    std::ifstream ifs(stbprp_file_path, std::ios::binary);
+    if (!ifs.is_open())
+    {
+        SLOG_ERROR("stbprp_file_path open failed");
+        return false;
+    }
+    while (!ifs.eof())  // 当文件没有到达末尾时
+    {
+        // 获取当前的文件位置指示器
+        std::streampos beforPosition = ifs.tellg();
+        uint32_t once_size;
+        ifs.read(reinterpret_cast<char*>(&once_size), sizeof(once_size));  // 读取4个字节
+        ifs.seekg(beforPosition);
+        std::string once_data;
+        once_data.resize(once_size);
+        ifs.read(&once_data[0], once_size);
+        // 检查读取是否成功
+        if (ifs.fail())
+        {
+            break;  // 如果读取失败，退出循环
+        }
+        silly_stbprp stbprp;
+        if (stbprp.deserialize(once_data))  // 反序列化解析文件中的数据
+        {
+            des_stbprps.push_back(stbprp); 
+        }
+    }
+    ifs.close();  // 关闭文件
+
+    // 读取stcd对应的index,是否需要转码
+    for (const auto& entry : des_stbprps)
+    {
+        index_stcd[entry.index] = entry.STCD;
+    }
+
+    bool trans = false;
+    if (otl.type() == enum_database_type::dbDM8)
+    {
+        trans = true;  // 如果是达梦数据库，需要将中文字段转为gbk
+    }
+    if (trans)
+    {
+        for (auto& entry : des_stbprps)
+        {
+            entry.STCD = silly_encode::utf8_gbk(entry.STCD);
+            entry.STCD = truncateAtFirstNull(entry.STCD);
+            entry.STNM = silly_encode::utf8_gbk(entry.STNM);
+            entry.STNM = truncateAtFirstNull(entry.STNM);
+            entry.RVNM = silly_encode::utf8_gbk(entry.RVNM);
+            entry.RVNM = truncateAtFirstNull(entry.RVNM);
+            entry.HNNM = silly_encode::utf8_gbk(entry.HNNM);
+            entry.HNNM = truncateAtFirstNull(entry.HNNM);
+            entry.BSNM = silly_encode::utf8_gbk(entry.BSNM);
+            entry.BSNM = truncateAtFirstNull(entry.BSNM);
+            entry.STLC = silly_encode::utf8_gbk(entry.STLC);
+            entry.STLC = truncateAtFirstNull(entry.STLC);
+            entry.ADDVCD = silly_encode::utf8_gbk(entry.ADDVCD);
+            entry.ADDVCD = truncateAtFirstNull(entry.ADDVCD);
+            entry.DTMNM = silly_encode::utf8_gbk(entry.DTMNM);
+            entry.DTMNM = truncateAtFirstNull(entry.DTMNM);
+            entry.STTP = silly_encode::utf8_gbk(entry.STTP);
+            entry.STTP = truncateAtFirstNull(entry.STTP);
+            entry.FRGRD = silly_encode::utf8_gbk(entry.FRGRD);
+            entry.FRGRD = truncateAtFirstNull(entry.FRGRD);
+            entry.ESSTYM = silly_encode::utf8_gbk(entry.ESSTYM);
+            entry.ESSTYM = truncateAtFirstNull(entry.ESSTYM);
+            entry.BGFRYM = silly_encode::utf8_gbk(entry.BGFRYM);
+            entry.BGFRYM = truncateAtFirstNull(entry.BGFRYM);
+            entry.ATCUNIT = silly_encode::utf8_gbk(entry.ATCUNIT);
+            entry.ATCUNIT = truncateAtFirstNull(entry.ATCUNIT);
+            entry.ADMAUTH = silly_encode::utf8_gbk(entry.ADMAUTH);
+            entry.ADMAUTH = truncateAtFirstNull(entry.ADMAUTH);
+            entry.LOCALITY = silly_encode::utf8_gbk(entry.LOCALITY);
+            entry.LOCALITY = truncateAtFirstNull(entry.LOCALITY);
+            entry.STBK = silly_encode::utf8_gbk(entry.STBK);
+            entry.STBK = truncateAtFirstNull(entry.STBK);
+            entry.PHCD = silly_encode::utf8_gbk(entry.PHCD);
+            entry.PHCD = truncateAtFirstNull(entry.PHCD);
+            entry.USFL = silly_encode::utf8_gbk(entry.USFL);
+            entry.USFL = truncateAtFirstNull(entry.USFL);
+            entry.COMMENTS = silly_encode::utf8_gbk(entry.COMMENTS);
+            entry.COMMENTS = truncateAtFirstNull(entry.COMMENTS);
+            entry.HNNM0 = silly_encode::utf8_gbk(entry.HNNM0);
+            entry.HNNM0 = truncateAtFirstNull(entry.HNNM0);
+            entry.ADCD = silly_encode::utf8_gbk(entry.ADCD);
+            entry.ADCD = truncateAtFirstNull(entry.ADCD);
+            entry.ADDVCD1 = silly_encode::utf8_gbk(entry.ADDVCD1);
+            entry.ADDVCD1 = truncateAtFirstNull(entry.ADDVCD1);
+        }
+    }
+
+    // 插入数据库
+    if (!otl.insert(inster_stbprp_sql, [&des_stbprps](otl_stream* stream) {
+            for (const auto& entry : des_stbprps)
+            {
+                otl_value<std::string> STCD(entry.STCD);
+                otl_value<std::string> STNM(entry.STNM);
+                otl_value<std::string> RVNM(entry.RVNM);
+                otl_value<std::string> HNNM(entry.HNNM);
+                otl_value<std::string> BSNM(entry.BSNM);
+                otl_value<float> LGTD(entry.LGTD);
+                otl_value<float> LTTD(entry.LTTD);
+                otl_value<std::string> STLC(entry.STLC);
+                otl_value<std::string> ADDVCD(entry.ADDVCD);
+                otl_value<std::string> DTMNM(entry.DTMNM);
+                otl_value<float> DTMEL(entry.DTMEL);
+                otl_value<float> DTPR(entry.DTPR);
+                otl_value<std::string> STTP(entry.STTP);
+                otl_value<std::string> FRGRD(entry.FRGRD);
+                otl_value<std::string> ESSTYM(entry.ESSTYM);
+                otl_value<std::string> BGFRYM(entry.BGFRYM);
+                otl_value<std::string> ATCUNIT(entry.ATCUNIT);
+                otl_value<std::string> ADMAUTH(entry.ADMAUTH);
+                otl_value<std::string> LOCALITY(entry.LOCALITY);
+                otl_value<std::string> STBK(entry.STBK);
+                otl_value<int> STAzt(entry.STAzt);
+                otl_value<float> DSTRVM(entry.DSTRVM);
+                otl_value<int> DRNA(entry.DRNA);
+                otl_value<std::string> PHCD(entry.PHCD);
+                otl_value<std::string> USFL(entry.USFL);
+                otl_value<std::string> COMMENTS(entry.COMMENTS);
+                otl_datetime MODITIME = otl_tools::otl_time_from_string(entry.MODITIME);
+                otl_value<std::string> HNNM0(entry.HNNM0);
+                otl_value<std::string> ADCD(entry.ADCD);
+                otl_value<std::string> ADDVCD1(entry.ADDVCD1);
+
+                otl_write_row(*stream, STCD, STNM, RVNM, HNNM, BSNM, LGTD, LTTD, STLC, ADDVCD, DTMNM, DTMEL, DTPR, STTP, FRGRD, ESSTYM, BGFRYM, ATCUNIT, ADMAUTH, LOCALITY, STBK, STAzt, DSTRVM, DRNA, PHCD, USFL, COMMENTS, MODITIME, HNNM0, ADCD, ADDVCD1);
+            }
+        }))
+    {
+        SLOG_ERROR(otl.err());
+        return false;
+    }
+
+    SLOG_INFO("{} 导入完成", stbprp_file_path);
+
+    return true;
+}
+
+
+
+
+bool import_pptn()
+{
+    if (index_stcd.empty())
     {
         return false;
     }
@@ -114,7 +260,7 @@ bool silly_import_pptn::import_pptn()
         silly_pptn temp;
         if (temp.deserialize(buffer))
         {
-            des_pptns.push_back(temp);  // 将反序列化后的对象添加到 vector 中
+            des_pptns.push_back(temp); 
         }
         else
         {
@@ -126,26 +272,29 @@ bool silly_import_pptn::import_pptn()
     for (auto& pptn : des_pptns)
     {
         uint32_t t_index = pptn.index;
-        if (des_index_stcd.find(t_index) != des_index_stcd.end())
+        if (index_stcd.find(t_index) != index_stcd.end())
         {
-            std::string t_stcd = des_index_stcd[t_index];
+            std::string t_stcd = index_stcd[t_index];
             pptn.stcd = t_stcd;
         }
     }
 
     // 插入数据
     if (!otl.insert(insert_pptn_sql, [&des_pptns](otl_stream* stream) {
-            // 循环插入每条数据
             for (const auto& entry : des_pptns)
             {
                 otl_value<std::string> stcd(entry.stcd.c_str());
 
                 struct tm* timeinfo;
-                char buffer[20];
                 timeinfo = localtime(&entry.stamp);
-                strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", timeinfo);
+                otl_datetime tm;
+                tm.year = (timeinfo->tm_year + 1900);
+                tm.month = timeinfo->tm_mon + 1;
+                tm.day = timeinfo->tm_mday;
+                tm.hour = timeinfo->tm_hour;
+                tm.minute = timeinfo->tm_min;
+                tm.second = timeinfo->tm_sec;
 
-                otl_datetime tm = otl_tools::otl_time_from_string(buffer);
                 otl_value<float> intv(entry.intv);
                 otl_value<float> drp(entry.drp);
 
@@ -157,142 +306,41 @@ bool silly_import_pptn::import_pptn()
         return false;
     }
 
+    SLOG_INFO("{} 导入完成", pptn_file_path);
+    
     return true;
 }
 
-class silly_import_stbprp
+
+
+std::string truncateAtFirstNull(std::string str)
 {
-  public:
-    // 初始化
-    bool init(const std::string& file);
-
-    // 导出测站基本信息
-    bool import_stbprp();
-
-    std::string des_odbc;
-    std::string inster_stbprp_sql;
-
-    std::string stbprp_file_path;
-
-    silly_otl otl;
-};
-
-bool silly_import_stbprp::init(const std::string& file)
-{
-    bool status = false;
-    Json::Value jv_root = silly_jsonpp::loadf(file);
-    if (jv_root.isNull())
+    // 查找第一个 '\0' 字符的位置
+    size_t pos = str.find('\0');
+    if (pos != std::string::npos)
     {
-        SFP_ERROR("配置文件读取失败: {}", file);
-        return status;
+        // 如果找到 '\0'，截取子串
+        return str.substr(0, pos);
     }
-    otl = otl_tools::conn_opt_from_json(jv_root["des_db"]);
-    des_odbc = otl.dump_odbc();
-
-    inster_stbprp_sql = jv_root["sql"]["inster_stbprp_sql"].asString();
-    stbprp_file_path = jv_root["stbprp_file_path"].asString();
-    status = true;
-    return status;
+    // 如果没有找到 '\0'，返回原字符串
+    return str;
 }
 
-bool silly_import_stbprp::import_stbprp()
-{
-    std::vector<silly_stbprp> des_stbprps;
-    std::ifstream ifs(stbprp_file_path, std::ios::binary);
-    if (!ifs.is_open())
-    {
-        SLOG_ERROR("stbprp_file_path open failed");
-        return false;
-    }
-    while (!ifs.eof())  // 当文件没有到达末尾时
-    {
-        // 获取当前的文件位置指示器
-        std::streampos beforPosition = ifs.tellg();
-        uint32_t once_size;
-        ifs.read(reinterpret_cast<char*>(&once_size), sizeof(once_size));  // 读取4个字节
-        ifs.seekg(beforPosition);
-        std::string once_data;
-        once_data.resize(once_size);
-        ifs.read(&once_data[0], once_size);
-        // 检查读取是否成功
-        if (ifs.fail())
-        {
-            break;  // 如果读取失败，退出循环
-        }
-        silly_stbprp stbprp;                // 创建一个新对象
-        if (stbprp.deserialize(once_data))  // 尝试反序列化
-        {
-            des_stbprps.push_back(stbprp);  // 添加到容器中
-        }
-    }
-    ifs.close();  // 关闭文件
-
-    // 插入数据库
-    bool isDm8 = false;
-    if (otl.type() == enum_database_type::dbDM8)
-    {
-        isDm8 = true; // 如果是达梦数据库，需要将中文字段转为gbk
-    }
-    if (!otl.insert(inster_stbprp_sql, [&des_stbprps, &isDm8](otl_stream* stream) {
-            for (const auto& entry : des_stbprps)
-            {
-                otl_value<std::string> STCD(isDm8 ? silly_encode::utf8_gbk(entry.STCD) : entry.STCD);
-                otl_value<std::string> STNM(isDm8 ? silly_encode::utf8_gbk(entry.STNM) : entry.STNM);
-                otl_value<std::string> RVNM(isDm8 ? silly_encode::utf8_gbk(entry.RVNM) : entry.RVNM);
-                otl_value<std::string> HNNM(isDm8 ? silly_encode::utf8_gbk(entry.HNNM) : entry.HNNM);
-                otl_value<std::string> BSNM(isDm8 ? silly_encode::utf8_gbk(entry.BSNM) : entry.BSNM);
-                otl_value<float> LGTD(entry.LGTD);
-                otl_value<float> LTTD(entry.LTTD);
-                otl_value<std::string> STLC(isDm8 ? silly_encode::utf8_gbk(entry.STLC) : entry.STLC);
-                otl_value<std::string> ADDVCD(isDm8 ? silly_encode::utf8_gbk(entry.ADDVCD) : entry.ADDVCD);
-                otl_value<std::string> DTMNM(isDm8 ? silly_encode::utf8_gbk(entry.DTMNM) : entry.DTMNM);
-                otl_value<float> DTMEL(entry.DTMEL);
-                otl_value<float> DTPR(entry.DTPR);
-                otl_value<std::string> STTP(isDm8 ? silly_encode::utf8_gbk(entry.STTP) : entry.STTP);
-                otl_value<std::string> FRGRD(isDm8 ? silly_encode::utf8_gbk(entry.FRGRD) : entry.FRGRD);
-                otl_value<std::string> ESSTYM(isDm8 ? silly_encode::utf8_gbk(entry.ESSTYM) : entry.ESSTYM);
-                otl_value<std::string> BGFRYM(isDm8 ? silly_encode::utf8_gbk(entry.BGFRYM) : entry.BGFRYM);
-                otl_value<std::string> ATCUNIT(isDm8 ? silly_encode::utf8_gbk(entry.ATCUNIT) : entry.ATCUNIT);
-                otl_value<std::string> ADMAUTH(isDm8 ? silly_encode::utf8_gbk(entry.ADMAUTH) : entry.ADMAUTH);
-                otl_value<std::string> LOCALITY(isDm8 ? silly_encode::utf8_gbk(entry.LOCALITY) : entry.LOCALITY);
-                otl_value<std::string> STBK(isDm8 ? silly_encode::utf8_gbk(entry.STBK) : entry.STBK);
-                otl_value<int> STAzt(entry.STAzt);
-                otl_value<float> DSTRVM(entry.DSTRVM);
-                otl_value<int> DRNA(entry.DRNA);
-                otl_value<std::string> PHCD(isDm8 ? silly_encode::utf8_gbk(entry.PHCD) : entry.PHCD);
-                otl_value<std::string> USFL(isDm8 ? silly_encode::utf8_gbk(entry.USFL) : entry.USFL);
-                otl_value<std::string> COMMENTS(isDm8 ? silly_encode::utf8_gbk(entry.COMMENTS) : entry.COMMENTS);
-
-                otl_datetime MODITIME = otl_tools::otl_time_from_string(entry.MODITIME);
-                otl_value<std::string> HNNM0(isDm8 ? silly_encode::utf8_gbk(entry.HNNM0) : entry.HNNM0);
-                otl_value<std::string> ADCD(isDm8 ? silly_encode::utf8_gbk(entry.ADCD) : entry.ADCD);
-                otl_value<std::string> ADDVCD1(isDm8 ? silly_encode::utf8_gbk(entry.ADDVCD1) : entry.ADDVCD1);
 
 
-                otl_write_row(*stream, STCD, STNM, RVNM, HNNM, BSNM, LGTD, LTTD, STLC, ADDVCD, DTMNM, DTMEL, DTPR, STTP, FRGRD, ESSTYM, BGFRYM, ATCUNIT, ADMAUTH, LOCALITY, STBK, STAzt, DSTRVM, DRNA, PHCD, USFL, COMMENTS, MODITIME, HNNM0, ADCD, ADDVCD1);
-            }
-        }))
-    {
-        SLOG_ERROR(otl.err());
-        return false;
-    }
 
-    return true;
-}
 
-int main(int argc, char** argv)
-{
 
-    silly_import_pptn pptn;
-    pptn.init("../../../../tools/RWDB/import.json");
 
-    silly_import_stbprp stbprp;
-    stbprp.init("../../../../tools/RWDB/import.json");
 
-    pptn.import_pptn();
 
-    stbprp.import_stbprp();
 
-    return 0;
-}
+
+
+
+
+
+
+
+
 
