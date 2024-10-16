@@ -416,8 +416,9 @@ std::map<std::string, std::string> compareStbprps(const std::vector<silly_stbprp
 std::map<std::string, std::string> comparePptn(const std::vector<silly_pptn>& src_pptns, const std::vector<silly_pptn>& des_pptns)
 {
     std::map<std::string, std::string> discrepancies;
+    size_t msize = SU_MIN(src_pptns.size(), des_pptns.size());
 
-    for (size_t i = 0; i < src_pptns.size(); ++i)
+    for (size_t i = 0; i < msize; ++i)
     {
         const auto& src = src_pptns[i];
         const auto& des = des_pptns[i];

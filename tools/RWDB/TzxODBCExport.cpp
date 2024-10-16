@@ -155,7 +155,7 @@ bool export_stbprp()
     }
 
     // ------------添加index------------
-    uint32_t index = 0;
+    uint32_t index = 1;
     for (auto& stbprp : stbprps)
     {
         stbprp.index = index;
@@ -223,6 +223,7 @@ bool export_pptn()
     {
         if(stcd_index.find(pptn.stcd) == std::end(stcd_index))
         {
+            pptn.index = 0;
             continue;
         }
         pptn.index = stcd_index[pptn.stcd];
