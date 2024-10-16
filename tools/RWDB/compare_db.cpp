@@ -22,19 +22,6 @@ struct encode des_encode;
 std::string btm;
 std::string etm;
 
-//std::string src_s_encode;
-//std::string stc_d_encode;
-//std::string des_s_encode;
-//std::string dst_d_encode;
-
-// 结构体用于存储不一致的数据
-struct ComparisonResult
-{
-    std::string STCD;
-    std::string src_value;
-    std::string des_value;
-};
-
 
 bool init(const std::string& file);
 
@@ -263,17 +250,17 @@ std::map<std::string, std::string> compareStbprps(const std::vector<silly_stbprp
         // 比较每个成员
         if (src.STCD != des.STCD)
         {
-            std::string dif = "(" + src.STCD + "/" + des.STCD + ")\t";
+            std::string dif = "STCD:(" + src.STCD + "/" + des.STCD + ")\t";
             discrepancies[src.STCD] += dif;
         }
         if (src.STNM != des.STNM)
         {
-            std::string dif = "(" + src.STNM + "/" + des.STNM + ")\t";
+            std::string dif = "STNM:(" + src.STNM + "/" + des.STNM + ")\t";
             discrepancies[src.STCD] += dif;
         }
         if (src.RVNM != des.RVNM)
         {
-            std::string dif = "(" + src.RVNM + "/" + des.RVNM + ")\t";
+            std::string dif = "RVNM:(" + src.RVNM + "/" + des.RVNM + ")\t";
             discrepancies[src.STCD] += dif;
         }
         if (src.HNNM != des.HNNM)
@@ -283,28 +270,28 @@ std::map<std::string, std::string> compareStbprps(const std::vector<silly_stbprp
         }
         if (src.BSNM != des.BSNM)
         {
-            std::string dif = "(" + src.BSNM + "/" + des.BSNM + ")\t";
+            std::string dif = "BSNM:(" + src.BSNM + "/" + des.BSNM + ")\t";
             discrepancies[src.STCD] += dif;
         }
         if (std::abs(src.LGTD - des.LGTD)>0.00001)
         {
-            std::string dif = "(" + std::to_string(src.LGTD) + "/" + std::to_string(des.LGTD) + ")\
+            std::string dif = "LGTD:(" + std::to_string(src.LGTD) + "/" + std::to_string(des.LGTD) + ")\
 \t";
             discrepancies[src.STCD] += dif;
         }
         if (std::abs(src.LTTD - des.LTTD) > 0.00001)
         {
-            std::string dif = "(" + std::to_string(src.LTTD) + "/" + std::to_string(des.LTTD) + ")\t";
+            std::string dif = "LTTD:(" + std::to_string(src.LTTD) + "/" + std::to_string(des.LTTD) + ")\t";
             discrepancies[src.STCD] += dif;
         }
         if (src.STLC != des.STLC)
         {
-            std::string dif = "(" + src.STLC + "/" + des.STLC + ")\t";
+            std::string dif = "STLC:(" + src.STLC + "/" + des.STLC + ")\t";
             discrepancies[src.STCD] += dif;
         }
         if (src.ADDVCD != des.ADDVCD)
         {
-            std::string dif = "(" + src.ADDVCD + "/" + des.ADDVCD + ")\t";
+            std::string dif = "ADDVCD:(" + src.ADDVCD + "/" + des.ADDVCD + ")\t";
             discrepancies[src.STCD] += dif;
         }
         if (src.DTMNM != des.DTMNM)
@@ -314,7 +301,7 @@ std::map<std::string, std::string> compareStbprps(const std::vector<silly_stbprp
         }
         if (std::abs(src.DTMEL - des.DTMEL) > 0.00001)
         {
-            std::string dif = "(" + std::to_string(src.DTMEL) + "/" + std::to_string(des.DTMEL) + ")\t";
+            std::string dif = "DTMNM:(" + std::to_string(src.DTMEL) + "/" + std::to_string(des.DTMEL) + ")\t";
             discrepancies[src.STCD] += dif;
         }
         if (std::abs(src.DTPR - des.DTPR) > 0.00001)
@@ -324,12 +311,12 @@ std::map<std::string, std::string> compareStbprps(const std::vector<silly_stbprp
         }
         if (src.STTP != des.STTP)
         {
-            std::string dif = "(" + src.STTP + "/" + des.STTP + ")\t";
+            std::string dif = "DTPR:(" + src.STTP + "/" + des.STTP + ")\t";
             discrepancies[src.STCD] += dif;
         }
         if (src.FRGRD != des.FRGRD)
         {
-            std::string dif = "(" + src.FRGRD + "/" + des.FRGRD + ")\t";
+            std::string dif = "FRGRD:(" + src.FRGRD + "/" + des.FRGRD + ")\t";
             discrepancies[src.STCD] += dif;
         }
         if (src.ESSTYM != des.ESSTYM)
@@ -339,77 +326,77 @@ std::map<std::string, std::string> compareStbprps(const std::vector<silly_stbprp
         }
         if (src.BGFRYM != des.BGFRYM)
         {
-            std::string dif = "(" + src.BGFRYM + "/" + des.BGFRYM + ")\t";
+            std::string dif = "ESSTYM:(" + src.BGFRYM + "/" + des.BGFRYM + ")\t";
             discrepancies[src.STCD] += dif;
         }
         if (src.ATCUNIT != des.ATCUNIT)
         {
-            std::string dif = "(" + src.ATCUNIT + "/" + des.ATCUNIT + ")\t";
+            std::string dif = "ATCUNIT:(" + src.ATCUNIT + "/" + des.ATCUNIT + ")\t";
             discrepancies[src.STCD] += dif;
         }
         if (src.ADMAUTH != des.ADMAUTH)
         {
-            std::string dif = "(" + src.ADMAUTH + "/" + des.ADMAUTH + ")\t";
+            std::string dif = "ADMAUTH:(" + src.ADMAUTH + "/" + des.ADMAUTH + ")\t";
             discrepancies[src.STCD] += dif;
         }
         if (src.LOCALITY != des.LOCALITY)
         {
-            std::string dif = "(" + src.LOCALITY + "/" + des.LOCALITY + ")\t";
+            std::string dif = "LOCALITY:(" + src.LOCALITY + "/" + des.LOCALITY + ")\t";
             discrepancies[src.STCD] += dif;
         }
         if (src.STBK != des.STBK)
         {
-            std::string dif = "(" + src.STBK + "/" + des.STBK + ")\t";
+            std::string dif = "STBK:(" + src.STBK + "/" + des.STBK + ")\t";
             discrepancies[src.STCD] += dif;
         }
         if (src.STAzt != des.STAzt)
         {
-            std::string dif = "(" + std::to_string(src.STAzt) + "/" + std::to_string(des.STAzt) + ")\t";
+            std::string dif = "STAzt:(" + std::to_string(src.STAzt) + "/" + std::to_string(des.STAzt) + ")\t";
             discrepancies[src.STCD] += dif;
         }
         if (std::abs(src.DSTRVM - des.DSTRVM) > 0.00001)
         {
-            std::string dif = "(" + std::to_string(src.DSTRVM) + "/" + std::to_string(des.DSTRVM) + ")\t";
+            std::string dif = "DSTRVM:(" + std::to_string(src.DSTRVM) + "/" + std::to_string(des.DSTRVM) + ")\t";
             discrepancies[src.STCD] += dif;
         }
         if (src.DRNA != des.DRNA)
         {
-            std::string dif = "(" + std::to_string(src.DRNA) + "/" + std::to_string(des.DRNA) + ")\t";
+            std::string dif = "DRNA:(" + std::to_string(src.DRNA) + "/" + std::to_string(des.DRNA) + ")\t";
             discrepancies[src.STCD] += dif;
         }
         if (src.PHCD != des.PHCD)
         {
-            std::string dif = "(" + src.PHCD + "/" + des.PHCD + ")\t";
+            std::string dif = "PHCD:(" + src.PHCD + "/" + des.PHCD + ")\t";
             discrepancies[src.STCD] += dif;
         }
         if (src.USFL != des.USFL)
         {
-            std::string dif = "(" + src.USFL + "/" + des.USFL + ")\t";
+            std::string dif = "USFL:(" + src.USFL + "/" + des.USFL + ")\t";
             discrepancies[src.STCD] += dif;
         }
         if (src.COMMENTS != des.COMMENTS)
         {
-            std::string dif = "(" + src.COMMENTS + "/" + des.COMMENTS + ")\t";
+            std::string dif = "COMMENTS:(" + src.COMMENTS + "/" + des.COMMENTS + ")\t";
             discrepancies[src.STCD] += dif;
         }
         if (src.MODITIME != des.MODITIME)
         {
-            std::string dif = "(" + src.MODITIME + "/" + des.MODITIME + ")\t";
+            std::string dif = "MODITIME:(" + src.MODITIME + "/" + des.MODITIME + ")\t";
             discrepancies[src.STCD] += dif;
         }
         if (src.HNNM0 != des.HNNM0)
         {
-            std::string dif = "(" + src.HNNM0 + "/" + des.HNNM0 + ")\t";
+            std::string dif = "HNNM0:(" + src.HNNM0 + "/" + des.HNNM0 + ")\t";
             discrepancies[src.STCD] += dif;
         }
         if (src.ADCD != des.ADCD)
         {
-            std::string dif = "(" + src.ADCD + "/" + des.ADCD + ")\t";
+            std::string dif = "ADCD:(" + src.ADCD + "/" + des.ADCD + ")\t";
             discrepancies[src.STCD] += dif;
         }
         if (src.ADDVCD1 != des.ADDVCD1)
         {
-            std::string dif = "(" + src.ADDVCD1 + "/" + des.ADDVCD1 + ")\t";
+            std::string dif = "ADDVCD1:(" + src.ADDVCD1 + "/" + des.ADDVCD1 + ")\t";
             discrepancies[src.STCD] += dif;
         }
     }
@@ -432,22 +419,22 @@ std::map<std::string, std::string> comparePptn(const std::vector<silly_pptn>& sr
 
         if (src.stcd != des.stcd)
         {
-            std::string dif = "(" + src.stcd + "/" + des.stcd + ")\t";
+            std::string dif = "stcd:(" + src.stcd + "/" + des.stcd + ")\t";
             discrepancies[src.stcd] += dif;
         }
         if (src.drp != des.drp)
         {
-            std::string dif = "(" + std::to_string(src.drp) + "/" + std::to_string(des.drp) + ")\t";
+            std::string dif = "drp:(" + std::to_string(src.drp) + "/" + std::to_string(des.drp) + ")\t";
             discrepancies[src.stcd] += dif;
         }
         if (src.stamp != des.stamp)
         {
-            std::string dif = "(" + std::to_string(src.stamp) + "/" + std::to_string(des.stamp) + ")\t";
+            std::string dif = "stamp:(" + std::to_string(src.stamp) + "/" + std::to_string(des.stamp) + ")\t";
             discrepancies[src.stcd] += dif;
         }
         if (src.intv != des.intv)
         {
-            std::string dif = "(" + std::to_string(src.intv) + "/" + std::to_string(des.intv) + ")\t";
+            std::string dif = "intv:(" + std::to_string(src.intv) + "/" + std::to_string(des.intv) + ")\t";
             discrepancies[src.stcd] += dif;
         }
 
