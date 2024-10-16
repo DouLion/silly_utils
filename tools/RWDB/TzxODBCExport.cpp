@@ -113,36 +113,38 @@ bool export_stbprp()
                 otl_read_row(*stream, STCD, STNM, RVNM, HNNM, BSNM, LGTD, LTTD, STLC, ADDVCD, DTMNM, DTMEL, DTPR, STTP, FRGRD, ESSTYM, BGFRYM, ATCUNIT, ADMAUTH, LOCALITY, STBK, STAzt, DSTRVM, DRNA, PHCD, USFL, COMMENTS, MODITIME, HNNM0, ADCD, ADDVCD1);
 
                 silly_stbprp temp;
-                temp.STCD = STCD.v;
-                temp.STNM = STNM.v;
-                temp.RVNM = RVNM.v;
-                temp.HNNM = HNNM.v;
-                temp.BSNM = BSNM.v;
-                temp.LGTD = LGTD.v;
-                temp.LTTD = LTTD.v;
-                temp.STLC = STLC.v;
-                temp.ADDVCD = ADDVCD.v;
-                temp.DTMNM = DTMNM.v;
-                temp.DTMEL = DTMEL.v;
-                temp.DTPR = DTPR.v;
-                temp.STTP = STTP.v;
-                temp.FRGRD = FRGRD.v;
-                temp.ESSTYM = ESSTYM.v;
-                temp.BGFRYM = BGFRYM.v;
-                temp.ATCUNIT = ATCUNIT.v;
-                temp.ADMAUTH = ADMAUTH.v;
-                temp.LOCALITY = LOCALITY.v;
-                temp.STBK = STBK.v;
-                temp.STAzt = STAzt.v;
-                temp.DSTRVM = DSTRVM.v;
-                temp.DRNA = DRNA.v;
-                temp.PHCD = PHCD.v;
-                temp.USFL = USFL.v;
-                temp.COMMENTS = COMMENTS.v;
-                temp.MODITIME = otl_tools::otl_time_to_string(MODITIME);
-                temp.HNNM0 = HNNM0.v;
-                temp.ADCD = ADCD.v;
-                temp.ADDVCD1 = ADDVCD1.v;
+
+                // 检查并赋值
+                if (!STCD.is_null()) { temp.STCD = STCD.v; }
+                if (!STNM.is_null()) { temp.STNM = STNM.v; }
+                if (!RVNM.is_null()) { temp.RVNM = RVNM.v; }
+                if (!HNNM.is_null()) { temp.HNNM = HNNM.v; }
+                if (!BSNM.is_null()) { temp.BSNM = BSNM.v; }
+                if (!LGTD.is_null()) { temp.LGTD = LGTD.v; }
+                if (!LTTD.is_null()) { temp.LTTD = LTTD.v; }
+                if (!STLC.is_null()) { temp.STLC = STLC.v; }
+                if (!ADDVCD.is_null()) { temp.ADDVCD = ADDVCD.v; }
+                if (!DTMNM.is_null()) { temp.DTMNM = DTMNM.v; }
+                if (!DTMEL.is_null()) { temp.DTMEL = DTMEL.v; }
+                if (!DTPR.is_null()) { temp.DTPR = DTPR.v; }
+                if (!STTP.is_null()) { temp.STTP = STTP.v; }
+                if (!FRGRD.is_null()) { temp.FRGRD = FRGRD.v; }
+                if (!ESSTYM.is_null()) { temp.ESSTYM = ESSTYM.v; }
+                if (!BGFRYM.is_null()) { temp.BGFRYM = BGFRYM.v; }
+                if (!ATCUNIT.is_null()) { temp.ATCUNIT = ATCUNIT.v; }
+                if (!ADMAUTH.is_null()) { temp.ADMAUTH = ADMAUTH.v; }
+                if (!LOCALITY.is_null()) { temp.LOCALITY = LOCALITY.v; }
+                if (!STBK.is_null()) { temp.STBK = STBK.v; }
+                if (!STAzt.is_null()) { temp.STAzt = STAzt.v; }
+                if (!DSTRVM.is_null()) { temp.DSTRVM = DSTRVM.v; }
+                if (!DRNA.is_null()) { temp.DRNA = DRNA.v; }
+                if (!PHCD.is_null()) { temp.PHCD = PHCD.v; }
+                if (!USFL.is_null()) { temp.USFL = USFL.v; }
+                if (!COMMENTS.is_null()) { temp.COMMENTS = COMMENTS.v; }
+                temp.MODITIME = otl_tools::otl_time_to_string(MODITIME); 
+                if (!HNNM0.is_null()) { temp.HNNM0 = HNNM0.v; }
+                if (!ADCD.is_null()) { temp.ADCD = ADCD.v; }
+                if (!ADDVCD1.is_null()) { temp.ADDVCD1 = ADDVCD1.v; }
 
                 stbprps.push_back(temp);
             }
@@ -195,14 +197,21 @@ bool export_pptn()
             otl_write_row(*stream, btm, etm);  // 传入参数
             while (!stream->eof())
             {
-                std::string stcd;
-                double drp, intv;
+                otl_value<std::string> STCD;
+                otl_value<double> DRP, INTV;
                 otl_datetime tm;
-                otl_read_row(*stream, stcd, tm, intv, drp);
+                otl_read_row(*stream, STCD, tm, DRP, INTV);
+                silly_pptn tmp_pptn;
+
+                if (!STCD.is_null()){tmp_pptn.stcd = STCD.v;}
+                if (!DRP.is_null()){tmp_pptn.drp = DRP.v;}
+                if (!INTV.is_null()){tmp_pptn.intv = INTV.v;}
+
                 std::tm t{tm.second, tm.minute, tm.hour, tm.day, tm.month - 1, tm.year - 1900};
                 std::time_t stamp = std::mktime(&t);
-                silly_pptn pptn(stcd, stamp, intv, drp);
-                pptns.push_back(pptn);
+                tmp_pptn.stamp = stamp;
+
+                pptns.push_back(tmp_pptn);
             }
         }))
     {

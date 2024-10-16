@@ -136,7 +136,7 @@ bool import_stbprp()
             encode(entry, src_encode, dst_encode);
         }
     }
-
+    return true; // 临时添加
     // --------------插入数据库--------------
     if (!otl.insert(insert_stbprp_sql, [&des_stbprps](otl_stream* stream) {
             for (const auto& entry : des_stbprps)
@@ -237,9 +237,9 @@ bool import_pptn()
             pptn.stcd = t_stcd;
         }
     }
-
     // -----------数据插入-------------
     if (!otl.insert(insert_pptn_sql, [&des_pptns](otl_stream* stream) {
+            int count = 0;
             for (const auto& entry : des_pptns)
             {
                 otl_value<std::string> stcd(entry.stcd.c_str());
@@ -256,6 +256,10 @@ bool import_pptn()
 
                 otl_value<float> intv(entry.intv);
                 otl_value<float> drp(entry.drp);
+                if (count++ > 1905)
+                {
+                    int a = 0;
+                }
 
                 otl_write_row(*stream, stcd, tm, drp, intv);
             }
