@@ -61,7 +61,6 @@ int main(int argc, char** argv)
     }
 #else
 #endif
-    otl.help();
 
     // 导入导入stbprp
     export_stbprp();
