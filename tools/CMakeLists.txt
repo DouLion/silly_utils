@@ -15,5 +15,8 @@ target_link_libraries(TzxODBCExport sutils)
 add_executable(TzxODBCImport RWDB/TzxODBCImport.cpp)
 target_link_libraries(TzxODBCImport sutils)
 
+add_executable(TzxODBCCompare RWDB/compare_db.cpp)
+target_link_libraries(TzxODBCCompare sutils)
+
 add_executable(2DTask 2DTask/2DTask.cpp)
 target_link_libraries(2DTask sutils)
