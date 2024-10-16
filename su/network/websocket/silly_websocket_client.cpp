@@ -9,6 +9,7 @@
  * @version: v1.0.1 2024-09-11 dou li yang
  */
 #include "silly_websocket_client.h"
+#include "encode/silly_encode.h"
 
 silly_websocket_client::silly_websocket_client()
 {
@@ -16,7 +17,7 @@ silly_websocket_client::silly_websocket_client()
     {
         // Set logging to be pretty verbose (everything except message payloads)
         m_client.set_access_channels(websocketpp::log::alevel::none);
-        m_client.clear_access_channels(websocketpp::log::alevel::frame_payload);
+        m_client.clear_access_channels(websocketpp::log::alevel::none);
 
         // Initialize ASIO
         m_client.init_asio();
@@ -46,13 +47,18 @@ bool silly_websocket_client::connect(const std::string& url)
     {
         websocketpp::lib::error_code ec;
         client::connection_ptr conn = m_client.get_connection(url, ec);
-        if (ec)
+        if (ec.value())
         {
             m_err = ec.message();
             return status;
         }
         m_hdl = conn->get_handle();
         m_client.connect(conn);
+       /* client::connection_ptr con = m_client.get_con_from_hdl(m_hdl);
+        if(websocketpp::session::state::open == con->get_state())
+        {
+             status = true;
+        }*/
         status = true;
     }
     catch (websocketpp::exception const& e)
@@ -108,6 +114,7 @@ bool silly_websocket_client::send(const std::string& msg)
     try
     {
         m_client.send(m_hdl, msg, websocketpp::frame::opcode::text);
+        status = true;
     }
     catch (websocketpp::exception const& e)
     {
@@ -121,7 +128,30 @@ bool silly_websocket_client::send(const std::string& msg)
 }
 std::string silly_websocket_client::err() const
 {
+#if WIN32
+    return silly_encode::gbk_utf8(m_err);
+#endif
+    return m_err;
+}
+void silly_websocket_client::loop()
+{
+    try
     {
-        return m_err;
+        std::thread t(&silly_websocket_client::run, this);
+        t.detach();;
     }
+    catch (websocketpp::exception const& e)
+    {
+        m_err = e.what();
+    }
+    catch (const std::exception& e)
+    {
+        m_err = e.what();
+    }
+
+}
+bool silly_websocket_client::connected()
+{
+    auto state = m_client.get_con_from_hdl(m_hdl)->get_state();
+    return websocketpp::session::state::open == state;
 }

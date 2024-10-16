@@ -11,13 +11,21 @@
 #ifndef SILLY_UTILS_SILLY_WEBSOCKET_SERVER_H
 #define SILLY_UTILS_SILLY_WEBSOCKET_SERVER_H
 
+
+#include <websocketpp/config/asio_no_tls.hpp>
+#include <websocketpp/server.hpp>
 class silly_websocket_server
 {
   public:
     silly_websocket_server();
-    ~silly_websocket_server();
+    ~silly_websocket_server() = default;
 
+    bool listen(const int& port);
 
+  private:
+    int m_port = 9003;
+    websocketpp::server<websocketpp::config::asio> m_server;
+    std::string m_err;
 };
 
 #endif  // SILLY_UTILS_SILLY_WEBSOCKET_SERVER_H

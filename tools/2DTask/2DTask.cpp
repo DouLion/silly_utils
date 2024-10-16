@@ -14,14 +14,22 @@
 #include <files/silly_file.h>
 #include <network/websocket/silly_websocket_client.h>
 #include <network/http/silly_http_client.h>
+#include <json/silly_jsonpp.h>
 std::string port = "9001";
-std::string root = "./";
+#if NDEBUG
+std::string root = R"(D:\TzxProject\Webs\dem\server\task)";
+#else
+std::string root = R"(\\192.168.0.9\Webs\dem\server\task)";
+#endif
 std::string proj;
 std::string plan;
 // 计算项目根目录
 std::string svrr;
+std::atomic<bool> run = true;
 
 const static std::string WAIT = "Wait";
+const static std::string INVALID = "Invalid";
+
 const static std::string START = "Model initialized";
 const static std::string FINISH = "Model initialized and simulation complete";
 const static std::string EXTENSION = ".tzx_task";
@@ -38,8 +46,13 @@ int main(int argc, char** argv)
         std::cerr << "日志模块初始化失败" << std::endl;
         return -1;
     }
-    std::string url = "ws://127.0.0.1:";
-    url.append(port);
+    if(argc == 2)
+    {
+        root = std::string(argv[1]);
+    }
+    std::string url = "ws://192.168.0.9:";
+    //url = "ws://127.0.0.1:";
+    url.append(port).append("/ws1");
 
     while(1)
     {
@@ -63,17 +76,35 @@ int main(int argc, char** argv)
         }
         std::thread t(&silly_websocket_client::run, &wsc);
         t.detach();
+        // wsc.loop();
+
         while (1) // 改为ws是否断开连接
         {
-            if(plan.empty() && proj.empty())
+            if(plan.empty() && proj.empty() && run.load())
             {
                 latest_task();
                 if(!plan.empty() && !proj.empty())
                 {
-                    std::string msg = svrr;
-                    msg.append(",./").append(proj).append("/cfg/").append(plan + ".cfg");
-                    SLOG_INFO("发送任务信息: {}", msg)
-                    //wsc.send("");
+                    // {"argc":2,"command":"initialize_and_simulate","argv":["D:\\TzxProject\\Webs\\dem\\server\\projects\\2","./test2/cfg/plan1.cfg"]}
+                    std::string msg = "./";
+                    msg.append(proj).append("/cfg/").append(plan + ".cfg");
+                    Json::Value jv;
+                    jv["argc"] = 2;
+                    jv["command"] = "initialize_and_simulate";
+                    jv["argv"] = Json::arrayValue;
+                    jv["argv"].append(svrr);
+                    jv["argv"].append(msg);
+                    std::string jstr = silly_jsonpp::to_string(jv);
+                    SLOG_INFO("发送任务信息: {}", jstr)
+                    if(wsc.send(jstr))
+                    {
+                        run = false;
+                    }
+                    else
+                    {
+                        break;
+                    }
+
                 }
                 else{
                     SLOG_INFO("未检查到新任务")
@@ -99,14 +130,25 @@ void message_action(const std::string& msg)
     if (msg == WAIT)
     {
         SLOG_INFO("系统忙,稍后计算: {} {}", proj, plan)
+        run = true;
     }
     else if (msg == START)
     {
         SLOG_INFO("开始计算: {} {}", proj, plan)
+        run = true;
+    }
+    else if(msg == INVALID)
+    {
+        SLOG_INFO("无效任务, 移除任务: {} {}", proj, plan);
+        remove_task();
+        run = true;
     }
     else if (msg == FINISH)
     {
+        SLOG_INFO("计算完成, 移除任务: {} {}", proj, plan);
         remove_task();
+        run = true;
+
     }
 }
 void latest_task()
@@ -151,8 +193,8 @@ void latest_task()
 
 void remove_task()
 {
-    SLOG_INFO("计算完成, 移除任务: {} {}", proj, plan);
-    std::string filename = proj + "_"+plan + EXTENSION;
+
+    std::string filename = proj + "."+plan + EXTENSION;
     try{
         std::filesystem::remove(std::filesystem::path(root).append(filename));
     }

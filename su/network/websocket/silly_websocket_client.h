@@ -47,6 +47,10 @@ class silly_websocket_client
     void close(const std::string& bye);
 
     void run();
+
+    bool connected();
+
+    void loop();
     std::string err() const;
 
   private:
