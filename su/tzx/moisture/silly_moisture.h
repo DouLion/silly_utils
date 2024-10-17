@@ -32,9 +32,9 @@ class soil_moisture_record
 
     std::string serialize() const;
     bool deserialize(const std::string& data);
-    const static size_t serialized_size = 4 + 4 + 4 + 4 + 1;
+    const static size_t serialized_size;
 };
-
+const static size_t soil_moisture_record::serialized_size = 4 + 4 + 4 + 4 + 1;
 class silly_moisture_index
 {
   public:
