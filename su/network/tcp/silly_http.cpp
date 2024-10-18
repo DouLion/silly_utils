@@ -3,12 +3,7 @@
 //
 
 #include "silly_http.h"
-#include "curl/curl.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <filesystem>
-#include <su_marco.h>
+/*
 
 size_t req_reply(void* ptr, size_t size, size_t nmemb, void* stream)
 {
@@ -46,7 +41,7 @@ static size_t WriteMemoryCallback(void* contents, size_t size, size_t nmemb, voi
     char* ptr = (char*)realloc(mem->memory, mem->size + realsize + 1);
     if (ptr == NULL)
     {
-        /* out of memory! */
+        //  out of memory! //
         printf("not enough memory (realloc returned NULL)\n");
         return 0;
     }
@@ -65,41 +60,41 @@ std::string silly_http::request_get(const std::string& url, const std::map<std::
     // curl初始化
     curl_global_init(CURL_GLOBAL_ALL);
 
-    /* init the curl session */
+    //  init the curl session //
     CURL* curl = curl_easy_init();
     // curl返回值
     struct MemoryStruct chunk;
     CURLcode res;
     if (curl)
     {
-        /* specify URL to get */
+        //  specify URL to get //
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 
-        /* send all data to this function  */
+        //  send all data to this function  //
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
 
-        /* we pass our 'chunk' struct to the callback function */
+        //  we pass our 'chunk' struct to the callback function //
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*)&chunk);
 
-        /* some servers do not like requests that are made without a user-agent
-           field, so we provide one */
+        //  some servers do not like requests that are made without a user-agent
+           field, so we provide one //
         curl_easy_setopt(curl, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36");
 
-        /* get it! */
+        //  get it! //
         res = curl_easy_perform(curl);
 
-        /* check for errors */
+        //  check for errors //
         if (res != CURLE_OK)
         {
             fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
         }
         // else {
-        //	/*
+        //	// 
         //	 * Now, our chunk.memory points to a memory block that is chunk.size
         //	 * bytes big and contains the remote file.
         //	 *
         //	 * Do something nice with it!
-        //	 */
+        //	 //
 
         //	printf("%lu bytes retrieved\n", (unsigned long)chunk.size);
         //}
@@ -148,10 +143,10 @@ std::string silly_http::request_post(const std::string& url, const std::string& 
     curl_easy_setopt(pCurl, CURLOPT_READFUNCTION, NULL);
     curl_easy_setopt(pCurl, CURLOPT_WRITEFUNCTION, HandleWriteStrData);
     curl_easy_setopt(pCurl, CURLOPT_WRITEDATA, (void*)&ret_content);
-    /**
+    // *
      * 当多个线程都使用超时处理的时候，同时主线程中有sleep或是wait等操作。
      * 如果不设置这个选项，libcurl将会发信号打断这个wait从而导致程序退出。
-     */
+     //
     curl_easy_setopt(pCurl, CURLOPT_NOSIGNAL, 1);
     // 跳过服务器SSL验证，不使用CA证书.
     curl_easy_setopt(pCurl, CURLOPT_SSL_VERIFYPEER, 0L);
@@ -375,3 +370,4 @@ bool silly_http::request_upload(const std::string& url, const std::string& body,
     curl_global_cleanup();
     return status;
 }
+*/
