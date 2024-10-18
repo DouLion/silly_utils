@@ -42,6 +42,6 @@ add_compile_options(-DDISABLE_LUCENEPP)
 
 if(SU_AS_PROJECT)
   add_subdirectory(test)
-  add_subdirectory(tools)
+  #add_subdirectory(tools)
   add_subdirectory(extend)
 endif()
