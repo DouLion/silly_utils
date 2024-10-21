@@ -149,6 +149,7 @@ class jpeg_utils
 
     // 将jpeg_data数据转编码为内存jpeg数据
     static bool encode_to_memory(const jpeg_data& jpeg_data, char** buf, size_t& len);
+    static bool decode_from_memory(const std::string& jpeg_str, jpeg_data& jpeg_data);
 };
 
 #endif  // SILLY_UTILS_JPEG_UTILS_H

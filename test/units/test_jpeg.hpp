@@ -14,8 +14,61 @@
 #include <catch2/catch_test_macros.hpp>
 #include "image/jpeg_utils.h"
 
+std::string readFile(const std::string& filePath)
+{
+    // 打开文件
+    std::ifstream file(filePath, std::ios::binary);
+
+    // 检查文件是否成功打开
+    if (!file.is_open())
+    {
+        std::cerr << "Failed to open file: " << filePath << std::endl;
+        return "";
+    }
+
+    // 使用 std::string 的构造函数从文件流中读取内容
+    std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+
+    // 关闭文件
+    file.close();
+
+    return content;
+}
+
+
 TEST_CASE("TestJPEG")
 {
+
+
+
+SECTION("dencode_to_memory")
+{
+        std::filesystem::path data_root(DEFAULT_SU_DATA_DIR);
+        data_root += "/jpeg/1.jpeg";
+        std::string jpeg_string = readFile(data_root.string());
+
+
+        jpeg_data jpeg_info;
+        if (jpeg_utils::decode_from_memory(jpeg_string, jpeg_info))
+        {
+            std::cout << "Width: " << jpeg_info.jpeg_width << std::endl;
+            std::cout << "Height: " << jpeg_info.jpeg_height << std::endl;
+            std::cout << "Components: " << jpeg_info.jpeg_components << std::endl;
+            std::cout << "Color Space: " << jpeg_info.color_space << std::endl;
+            std::cout << "File Size: " << jpeg_info.fileSize << std::endl;
+        }
+        else
+        {
+            std::cerr << "Failed to decode JPEG data." << std::endl;
+        }
+
+        std::filesystem::path path_root(DEFAULT_SU_DATA_DIR);
+        path_root += "/jpeg/22.jpeg";
+        jpeg_utils::write_jpeg_data(path_root.string().c_str(), jpeg_info);
+
+		int a = 0;
+
+}
 
 SECTION("encode_to_memory")      // 根据二维数组value 创建一个jpeg图片
 {
@@ -58,6 +111,8 @@ SECTION("encode_to_memory")      // 根据二维数组value 创建一个jpeg图�
 	//data_root_2 += "/jpeg/color_2.jpeg";
 	//ju.write_jpeg_data(data_root_2.string().c_str(), temp_jpeg_7);
 	temp_jpeg_7.release();
+
+	int a = 0;
 
 
 }

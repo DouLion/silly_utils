@@ -149,6 +149,51 @@ bool jpeg_utils::encode_to_memory(const jpeg_data& jpeg_data, char** buf, size_t
     return true;
 }
 
+bool jpeg_utils::decode_from_memory(const std::string& jpeg_str, jpeg_data& jpeg_data)
+{
+    // 检查字符串是否为空
+    if (jpeg_str.empty())
+    {
+        return false;
+    }
+
+    // 创建 JPEG 解压缩结构体
+    jpeg_decompress_struct cinfo;
+    jpeg_error_mgr jerr;
+    cinfo.err = jpeg_std_error(&jerr);
+    jpeg_create_decompress(&cinfo);
+
+    // 将 JPEG 数据设置为输入
+    jpeg_mem_src(&cinfo, (unsigned char*)jpeg_str.data(), jpeg_str.size());
+
+    // 开始解压缩
+    jpeg_read_header(&cinfo, TRUE);
+    jpeg_data.jpeg_width = cinfo.image_width;
+    jpeg_data.jpeg_height = cinfo.image_height;
+    jpeg_data.jpeg_components = cinfo.num_components;
+    jpeg_data.color_space = cinfo.out_color_space;
+
+    // 计算文件大小并分配内存
+    jpeg_data.fileSize = jpeg_data.jpeg_width * jpeg_data.jpeg_height * jpeg_data.jpeg_components;
+    jpeg_data.image_data = new unsigned char[jpeg_data.fileSize];
+
+    // 开始解压缩并读取数据
+    jpeg_start_decompress(&cinfo);
+    unsigned char* row_pointer = jpeg_data.image_data;
+
+    while (cinfo.output_scanline < cinfo.output_height)
+    {
+        jpeg_read_scanlines(&cinfo, &row_pointer, 1);
+        row_pointer += cinfo.output_width * cinfo.num_components;
+    }
+
+    // 完成解压缩
+    jpeg_finish_decompress(&cinfo);
+    jpeg_destroy_decompress(&cinfo);
+
+    return true;
+}
+
 jpeg_data jpeg_utils::read_jpeg(const char* path)
 {
     jpeg_data res_jpeg;
