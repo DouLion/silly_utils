@@ -52,6 +52,7 @@ std::string silly_schedule_file::filename(const silly_posix_time& tm)
 {
    m_filename = silly_posix_time::time_to_string(tm, m_format);
    m_filename.append(m_extension);
+   return "";
 
 }
 bool silly_schedule_file::create_dir(const std::string& tm)
