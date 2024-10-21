@@ -96,10 +96,10 @@ bool silly_encode::iconv_convert(const std::string &from, const std::string &to,
     char *in = (char *)&text[0];
     size_t outBytesLeft = out_len;
     char *out = (char *)&str_out[0];
-    size_t converted_size = 0;
+
 
     size_t result = iconv(cd, &in, &inBytesLeft, &out, &outBytesLeft);
-    if (result == (size_t)-1)
+   /* if (result == (size_t)-1)
     {
         if (errno == EILSEQ)
         {  // 非法序列
@@ -110,15 +110,16 @@ bool silly_encode::iconv_convert(const std::string &from, const std::string &to,
             SLOG_ERROR("iconv")
         }
     }
-    else
+    else*/
+    out_len = out_len - outBytesLeft;
+    if(out_len > 0)
     {
-        // 计算有效输出字节数
-        converted_size = out_len - outBytesLeft;
-        ret.resize(converted_size);
+        // 计算有效输出字节
+        ret.resize(out_len);
         status = true;
     }
 
-    memcpy(&ret[0], (char *)&str_out[0], converted_size);
+    memcpy(&ret[0], (char *)&str_out[0], out_len);
     // 关闭 iconv 描述符
     iconv_close(cd);
     return status;
