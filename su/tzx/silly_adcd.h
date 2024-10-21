@@ -14,15 +14,42 @@
 
 
 
+#define AD_DA 0x00000001
+#define AD_ZRC 0b00000010
+#define AD_CUN 0b00000100
+#define AD_XIANG 0b00001000
+#define AD_XIAN 0b00010000
+#define AD_SHI 0b00100000
+#define AD_SHENG 0b01000000
+#define AD_ALL 0b01111111
+
 class silly_adcd
 {
+    // TODO: 目前危险区尚未支持, 后面需要补充危险区的处理方式
+    // TODO: 实现方式应该可以更灵活一些
+    // TODO: 是否保留编码中的补0值
   public:
     class options{
+        // 0b00000001  表示 危险区  true
+        // 0b00000010  表示 自然村,组 true   0b00000010
+        // 0b00000100  表示 行政村 true
+        // 0b00001000  表示 乡 true
+        // 0b00010000  表示 县 true
+        // 0b00100000  表示 市 true
+        // 0b01000000  表示 省 true
       public:
-        // 结果名称中的最高区划等级  如果是 3 最后输出的 结果是 xx县xx乡xx村
-        int name_max_level = 3; // 省 1 市 2 县 3 乡镇 4 村 5 自然村 6
+
+        unsigned char name_level = AD_XIANG | AD_CUN | AD_ZRC; // 默认显示xx乡xx村xx组
         // 结果输出的等级
-        int result_max_level = 6;
+        /*
+         * 返回结果的ADCD中, 如果0b00100000 那么只返回市级的信息
+         * 如果 0b00110000 那么返回市级和县级的信息
+         * 如果 0b00101000 那么返回市级和乡镇级的信息 以此类推
+         * */
+        unsigned char code_level = AD_ZRC; // 默认只显示村
+        unsigned char code_type = 0; // 保留补0值
+
+
     };
   public:
     static std::map<std::string, std::string> cascade(const std::map<std::string, std::string>& adcd_adnm, const options& opt);
