@@ -40,6 +40,8 @@ png_data png_utils::create_empty(const size_t &rows, const size_t &cols, const p
         case PNG_COLOR_TYPE_RGB_ALPHA:
             ret_data.pixel_size = sizeof(png_byte) * 4;
             break;
+        case 3:
+            ret_data.pixel_size = sizeof(png_byte) * 3;
         default:
             break;
     }
