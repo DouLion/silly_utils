@@ -332,3 +332,46 @@ void silly_dynamic_rule::set_index(const dynamic_rule_code_index& code_index)
         m_index.add(code, idx);
     }
 }
+bool silly_dynamic_rule::read_with_code_index(const std::string& path, const std::string& code, dynamic_rule_record& record) const
+{
+    auto iter = m_index.find(code);
+    if(iter != m_index.end())
+    {
+        return false;
+    }
+    std::string content;
+    if (0 == silly_file::read(path, content))
+    {
+        return false;
+    }
+    uint8_t* p = (uint8_t*)content.data();
+    /*p++;
+    int total = int(*p);
+    p+=sizeof (total);*/
+    while (*p == 0x5F)
+    {
+        p++;
+        int len = int(*p);
+        if (len == 0)
+        {
+            // 最后一个完成
+            return true;
+        }
+        p+=sizeof(len);
+        uint8_t* n = p;
+        n++;
+        int32_t index = ((int32_t*)n)[0];
+        if(index  == iter->second)
+        {
+            std::string tmp;
+            tmp.resize(len);
+            memcpy(tmp.data(), p, len);
+            record.deserialize(tmp);
+            return true;
+        }
+
+        p +=len;
+
+    }
+    return false;
+}

@@ -66,6 +66,8 @@ class silly_dynamic_rule
 
     bool read_with_code_index(const std::string& path, std::map<std::string, dynamic_rule_record>& records) const;
 
+    bool read_with_code_index(const std::string& path, const std::string& code, dynamic_rule_record& record) const;
+
     bool write_with_code_index(const std::string& path, const std::map<std::string, dynamic_rule_record>& records) const;
     void add_code_index(const std::string& code,  size_t& index);
 
