@@ -42,9 +42,9 @@ bool otl_conn_opt::load(const std::string& s_opt)
                 m_err = silly_format::format("不支持的数据库类型 (Unsupported database type): {}.", type_str);
                 return status;
             }
-            if (enum_database_type::dbDM8 == m_type || enum_database_type::dbKingB8 == m_type)
+            if (enum_database_type::dbKingB8 == m_type)
             {
-                m_err = "达梦和人大金仓请使用DSN方式(Please set DSN when using Dameng or Kingbase).";
+                m_err = "人大金仓请使用DSN方式(Please set DSN when using Kingbase).";
                 // SLOG_ERROR("达梦和人大金仓请使用DSN方式(Please set DSN when using Dameng or Kingbase).");
                 return status;
             }
