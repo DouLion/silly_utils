@@ -3,6 +3,7 @@
 //
 
 #include "png_utils.h"
+#include "log/silly_log.h"
 
 using namespace silly_image;
 
@@ -200,6 +201,20 @@ bool png_utils::memory_encode(const png_data &data, std::string &buff)
 
 bool png_utils::memory_decode(const std::string &buff, png_data &data)
 {
+    // 检查字符串是否为空
+    if (buff.empty() || buff.size() < 2)
+    {
+        SLOG_ERROR("PNG string is empty or too short")
+        return false;
+    }
+    char firstChar = static_cast<char>(buff[0]);
+    char secondChar = static_cast<char>(buff[1]);
+    if (firstChar != PNG_FIRST || secondChar != PNG_SECOND)
+    {
+        SLOG_ERROR("File header error")
+        return false;
+    }
+
     png_structp png_ptr = nullptr;
     png_infop info_ptr = nullptr;
     png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);

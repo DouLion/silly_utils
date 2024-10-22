@@ -29,6 +29,10 @@ const static std::vector<unsigned char> SILLY_1X1_RGBA_PNG = {0x89, 0x50, 0x4E, 
 
 const static std::string SILLY_1X1_RGBA_PNG_STR(reinterpret_cast<const char *>(SILLY_1X1_RGBA_PNG.data()), SILLY_1X1_RGBA_PNG.size());
 
+// png文件开头前几个字节
+const static char PNG_FIRST = 0x89;
+const static char PNG_SECOND = 0x50;
+
 namespace silly_image
 {
 
@@ -55,6 +59,8 @@ class png_data
     /// <param name="c"></param>
     /// <param name="sp"></param>
     void set_pixel(const size_t &r, const size_t &c, const silly_color &sp);
+
+    // 在赋值给另一个变量 data 的时候直接把自己地址传递给了另一个变量,没有拷贝一份数据
     png_data operator=(const png_data &other);
     // private:
     png_bytep *data{nullptr};

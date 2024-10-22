@@ -5,6 +5,8 @@
 #include "jpeg_utils.h"
 #include <cstring>
 #include <string.h>
+#include "log/silly_log.h"
+
 struct my_error_mgr
 {
     struct jpeg_error_mgr pub; /* "public" fields */
@@ -33,7 +35,7 @@ bool jpeg_data::release()
     return true;
 }
 
-jpeg_data jpeg_utils::creat_empty_jpeg(const size_t& width, const size_t& height, const size_t& components, const J_COLOR_SPACE& color_space, const size_t& quality, const size_t& data_precision)
+jpeg_data jpeg_utils::creat_empty(const size_t& width, const size_t& height, const size_t& components, const J_COLOR_SPACE& color_space, const size_t& quality, const size_t& data_precision)
 {
     jpeg_data res_jpeg;
 
@@ -55,7 +57,7 @@ jpeg_data jpeg_utils::creat_empty_jpeg(const size_t& width, const size_t& height
     return res_jpeg;
 }
 
-bool jpeg_utils::write_jpeg_data(const char* path, const jpeg_data& jpeg_data)
+bool jpeg_utils::write(const char* path, const jpeg_data& jpeg_data)
 {
     jpeg_compress_struct cinfo;
     jpeg_error_mgr jerr;
@@ -108,7 +110,7 @@ bool jpeg_utils::write_jpeg_data(const char* path, const jpeg_data& jpeg_data)
     return true;
 }
 
-bool jpeg_utils::encode_to_memory(const jpeg_data& jpeg_data, char** buf, size_t& len)
+bool jpeg_utils::memory_encode(const jpeg_data& jpeg_data, char** buf, size_t& len)
 {
     jpeg_compress_struct cinfo;
     jpeg_error_mgr jerr;
@@ -149,11 +151,19 @@ bool jpeg_utils::encode_to_memory(const jpeg_data& jpeg_data, char** buf, size_t
     return true;
 }
 
-bool jpeg_utils::decode_from_memory(const std::string& jpeg_str, jpeg_data& jpeg_data)
+bool jpeg_utils::memory_decode(const std::string& jpeg_str, jpeg_data& jpeg_data)
 {
     // 检查字符串是否为空
-    if (jpeg_str.empty())
+    if (jpeg_str.empty() || jpeg_str.size() < 2)
     {
+        SLOG_ERROR("JPEG string is empty or too short")
+        return false;
+    }
+    char firstChar = static_cast<char>(jpeg_str[0]);
+    char secondChar = static_cast<char>(jpeg_str[1]);
+    if (firstChar != JPG_FIRST || secondChar != JPG_SECOND)
+    {
+        SLOG_ERROR("File header error")
         return false;
     }
 
@@ -194,7 +204,7 @@ bool jpeg_utils::decode_from_memory(const std::string& jpeg_str, jpeg_data& jpeg
     return true;
 }
 
-jpeg_data jpeg_utils::read_jpeg(const char* path)
+jpeg_data jpeg_utils::read(const char* path)
 {
     jpeg_data res_jpeg;
 
