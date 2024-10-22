@@ -30,8 +30,8 @@
 using namespace silly_math;
 
 // jpeg文件头前两个字节
-const static char JPG_FIRST = 0xFF;
-const static char JPG_SECOND = 0xD8;
+const static char SILLY_JPG_FIRST = 0xFF;
+const static char SILLY_JPG_SECOND = 0xD8;
 
 // 像素颜色结构体 pixel_color
 struct jpeg_pixel

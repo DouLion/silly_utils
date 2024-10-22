@@ -30,8 +30,8 @@ const static std::vector<unsigned char> SILLY_1X1_RGBA_PNG = {0x89, 0x50, 0x4E, 
 const static std::string SILLY_1X1_RGBA_PNG_STR(reinterpret_cast<const char *>(SILLY_1X1_RGBA_PNG.data()), SILLY_1X1_RGBA_PNG.size());
 
 // png文件开头前几个字节
-const static char PNG_FIRST = 0x89;
-const static char PNG_SECOND = 0x50;
+const static char SILLY_PNG_FIRST = 0x89;
+const static char SILLY_PNG_SECOND = 0x50;
 
 namespace silly_image
 {

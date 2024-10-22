@@ -209,7 +209,7 @@ bool png_utils::memory_decode(const std::string &buff, png_data &data)
     }
     char firstChar = static_cast<char>(buff[0]);
     char secondChar = static_cast<char>(buff[1]);
-    if (firstChar != PNG_FIRST || secondChar != PNG_SECOND)
+    if (firstChar != SILLY_PNG_FIRST || secondChar != SILLY_PNG_SECOND)
     {
         SLOG_ERROR("File header error")
         return false;

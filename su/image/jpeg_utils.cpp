@@ -161,7 +161,7 @@ bool jpeg_utils::memory_decode(const std::string& jpeg_str, jpeg_data& jpeg_data
     }
     char firstChar = static_cast<char>(jpeg_str[0]);
     char secondChar = static_cast<char>(jpeg_str[1]);
-    if (firstChar != JPG_FIRST || secondChar != JPG_SECOND)
+    if (firstChar != SILLY_JPG_FIRST || secondChar != SILLY_JPG_SECOND)
     {
         SLOG_ERROR("File header error")
         return false;
