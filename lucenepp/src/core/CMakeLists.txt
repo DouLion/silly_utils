@@ -28,7 +28,7 @@ target_include_directories(lucenepp
 target_include_directories(
   lucenepp PUBLIC "${LucenePP_SOURCE_ROOT}/src/core/util/unicode")
 
-target_precompile_headers(lucenepp PRIVATE ${LPP_PRE_COMPILE_HEADERS})
+target_precompile_headers(lucenepp PUBLIC ${LPP_PRE_COMPILE_HEADERS})
 
 # ##############################################################################
 # dependencies
