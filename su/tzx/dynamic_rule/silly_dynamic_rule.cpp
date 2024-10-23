@@ -335,7 +335,7 @@ void silly_dynamic_rule::set_index(const dynamic_rule_code_index& code_index)
 bool silly_dynamic_rule::read_with_code_index(const std::string& path, const std::string& code, dynamic_rule_record& record) const
 {
     auto iter = m_index.find(code);
-    if(iter != m_index.end())
+    if(iter == m_index.end())
     {
         return false;
     }
