@@ -29,6 +29,10 @@
 #include "math/silly_matrix.h"
 using namespace silly_math;
 
+// jpeg文件头前两个字节
+const static char SILLY_JPG_FIRST = 0xFF;
+const static char SILLY_JPG_SECOND = 0xD8;
+
 // 像素颜色结构体 pixel_color
 struct jpeg_pixel
 {
@@ -124,6 +128,7 @@ class jpeg_data
         return true;
     }
 
+    // 在赋值给另一个变量 image_data 的时候直接把自己地址传递给了另一个变量,没有拷贝一份数据
     jpeg_data operator=(const jpeg_data& other);
     // 参数-----------------
     JDIMENSION jpeg_width{0};
@@ -141,15 +146,15 @@ class jpeg_data
 class jpeg_utils
 {
   public:
-    static jpeg_data creat_empty_jpeg(const size_t& width, const size_t& height, const size_t& components, const J_COLOR_SPACE& color_space, const size_t& quality = 75, const size_t& data_precision = 8);
+    static jpeg_data creat_empty(const size_t& width, const size_t& height, const size_t& components, const J_COLOR_SPACE& color_space, const size_t& quality = 75, const size_t& data_precision = 8);
 
-    static bool write_jpeg_data(const char* path, const jpeg_data& jpeg_data);
+    static bool write(const char* path, const jpeg_data& jpeg_data);
 
-    static jpeg_data read_jpeg(const char* path);
+    static jpeg_data read(const char* path);
 
     // 将jpeg_data数据转编码为内存jpeg数据
-    static bool encode_to_memory(const jpeg_data& jpeg_data, char** buf, size_t& len);
-    static bool decode_from_memory(const std::string& jpeg_str, jpeg_data& jpeg_data);
+    static bool memory_encode(const jpeg_data& jpeg_data, char** buf, size_t& len);
+    static bool memory_decode(const std::string& jpeg_str, jpeg_data& jpeg_data);
 };
 
 #endif  // SILLY_UTILS_JPEG_UTILS_H
