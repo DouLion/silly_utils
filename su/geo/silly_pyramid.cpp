@@ -45,14 +45,9 @@ pyramid_index silly_pyramid_proj::geo2pyramid(const uint8_t& layer, const silly_
 silly_rect silly_pyramid_proj::pyramid2geo(const pyramid_index& index, const uint64_t& tilesize)
 {
     silly_rect ret;
-    size_t ceil_num = static_cast<size_t>(2 << index.layer);  // 该层的行数列数
-    double x_delta = (SILLY_GLOBAL_RIGHT - SILLY_GLOBAL_LEFT) / ceil_num;
-    double y_delta = (SILLY_GLOBAL_TOP - SILLY_GLOBAL_BOTTOM) / ceil_num;
-    ret.min.x = index.col * x_delta + SILLY_GLOBAL_LEFT;  // 原点x方向上的偏移量
-    ret.max.x = ret.min.x + x_delta;
-    ret.max.y = SILLY_GLOBAL_TOP - y_delta * index.row;  // 方向上由上到下, 与经纬度表示的相反, 并且减去y方向上的偏移量
-    ret.min.y = ret.max.y - y_delta;
-
+    screen_rect screen = pyramid2screen(index, tilesize);
+    ret.max = screen2geo(index.layer, screen.max, tilesize);
+    ret.min = screen2geo(index.layer, screen.min, tilesize);
     return ret;
 }
 
