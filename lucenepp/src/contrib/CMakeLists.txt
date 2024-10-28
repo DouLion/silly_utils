@@ -45,9 +45,9 @@ target_include_directories(
 # dependencies
 # ##############################################################################
 target_link_libraries(lucenepp-contrib PUBLIC lucenepp)
-target_precompile_headers(lucenepp-contrib PRIVATE ${LPP_PRE_COMPILE_HEADERS})
+target_precompile_headers(lucenepp-contrib PUBLIC ${LPP_PRE_COMPILE_HEADERS})
 
 # ##############################################################################
 # link args
 # ##############################################################################
-target_compile_options(lucenepp-contrib PRIVATE -DLPP_BUILDING_LIB)
+target_compile_options(lucenepp-contrib PUBLIC -DLPP_BUILDING_LIB)
