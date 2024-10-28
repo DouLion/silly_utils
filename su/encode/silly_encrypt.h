@@ -77,6 +77,11 @@ class silly_encrypt
     /// <param name="text"></param>
     /// <returns></returns>
     static std::string base64_text_decode(const std::string &text);
+
+    static std::string crc32_text_encode(const std::string &text);
+    static std::string crc32_file_encode(const std::string &file_path);
+    static std::string crc16_text_encode(const std::string &text);
+    static std::string crc16_file_encode(const std::string &file_path);
 };
 
 #endif  // SILLY_UTILS_SILLY_ENCRYPT_H
