@@ -308,3 +308,65 @@ size_t silly_file::size(const std::string &u8path)
     file_size = input.gcount();
     return file_size;
 }
+bool silly_file::exist(const std::string &u8path)
+{
+    return exist(std::filesystem::path(u8path));
+}
+bool silly_file::exist(const std::filesystem::path &u8path)
+{
+    try
+    {
+        return std::filesystem::exists(u8path);
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << e.what() << '\n';
+    }
+    return false;
+}
+bool silly_file::create_dir(const std::string &u8path)
+{
+    return create_dir(std::filesystem::path(u8path));
+}
+bool silly_file::create_dir(const std::filesystem::path &u8path)
+{
+    try
+    {
+        return std::filesystem::create_directories(u8path);
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << e.what() << '\n';
+    }
+    return false;
+}
+void silly_file::remove_file(const std::string &u8path)
+{
+    remove_file(std::filesystem::path(u8path));
+}
+void silly_file::remove_file(const std::filesystem::path &u8path)
+{
+    try
+    {
+        std::filesystem::remove(u8path);
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << e.what() << '\n';
+    }
+}
+void silly_file::remove_dir(const std::string &u8path)
+{
+    remove_dir(std::filesystem::path(u8path));
+}
+void silly_file::remove_dir(const std::filesystem::path &u8path)
+{
+    try
+    {
+        std::filesystem::remove_all(u8path);
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << e.what() << '\n';
+    }
+}

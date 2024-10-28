@@ -83,6 +83,17 @@ class silly_file
     /// <returns></returns>
     static size_t last_modify_stamp_ms(const std::string &u8path);
 
+    static bool exist(const std::string& u8path);
+    static bool exist(const std::filesystem::path& u8path);
+
+    static bool create_dir(const std::string& u8path);
+    static bool create_dir(const std::filesystem::path& u8path);
+
+    static void remove_file(const std::string& u8path);
+    static void remove_file(const std::filesystem::path& u8path);
+    static void remove_dir(const std::string& u8path);
+    static void remove_dir(const std::filesystem::path& u8path);
+
   private:
     static std::string file_filter_regex(const std::string &filter);
 };
