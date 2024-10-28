@@ -14,7 +14,6 @@
 #define SILLY_UTILS_SILLY_GEO_H
 #include <su_marco.h>
 
-
 // geometry types
 // 点
 #define GEOJSON_GEOMETRY_POINT "Point"
@@ -349,6 +348,7 @@ class silly_triangle
     {
     }
 
+    /// 有向面积
     double oriented_area()
     {
         return (a.x * (b.y - c.y) + b.x * (c.y - a.y) + c.x * (a.y - b.y)) / 2;
@@ -358,7 +358,6 @@ class silly_triangle
     {
         return std::abs(oriented_area());
     }
-
 
     /// 外接圆
     silly_circle circumscribed_circle()
@@ -370,7 +369,8 @@ class silly_triangle
         double D = a.x * (b.y - c.y) + b.x * (c.y - a.y) + c.x * (a.y - b.y);
 
         silly_circle circle;
-        if (D == 0) {
+        if (D == 0)
+        {
             // 如果D为0，则无法计算外接圆
             throw std::runtime_error("无法计算外接圆");
         }
@@ -379,8 +379,7 @@ class silly_triangle
         circle.center.y = (a.y * (B - C) + b.y * (C - A) + c.y * (A - B)) / (2 * D);
 
         // 计算半径
-        circle.radius = sqrt((circle.center.x - a.x) * (circle.center.x - a.x) +
-                             (circle.center.y - a.y) * (circle.center.y - a.y));
+        circle.radius = sqrt((circle.center.x - a.x) * (circle.center.x - a.x) + (circle.center.y - a.y) * (circle.center.y - a.y));
 
         return circle;
     }
@@ -407,6 +406,39 @@ class silly_triangle
     silly_point a;
     silly_point b;
     silly_point c;
+};
+
+class silly_ellipse
+{
+  public:
+    silly_ellipse() = default;
+    ~silly_ellipse() = default;
+    silly_ellipse(silly_point p, double x, double y) : center(p), rx(x), ry(y)
+    {
+    }
+
+    double area() const
+    {
+        return M_PI * rx * ry;
+    }
+
+    /// 周长
+    /// Srinivasa Ramanujan 提出的两个近似公式, 1会更准确
+    double circumference(const int& Ramanujan = 1) const
+    {
+        if (Ramanujan == 1)
+        {
+            return M_PI * (3 * (rx + ry) - sqrt((3 * rx + ry) * (rx + 3 * ry)));
+        }
+
+        return 2 * M_PI * sqrt((rx * rx + ry * ry) / 2);
+    }
+
+  public:
+    silly_point center;  // 中心点
+    // 长半轴 和 短半轴, 不分
+    double rx;
+    double ry;
 };
 
 #else
@@ -720,7 +752,6 @@ class silly_triangle
         return std::abs(oriented_area());
     }
 
-
     /// 外接圆
     silly_circle circumscribed_circle()
     {
@@ -731,7 +762,8 @@ class silly_triangle
         double D = a.x * (b.y - c.y) + b.x * (c.y - a.y) + c.x * (a.y - b.y);
 
         silly_circle circle;
-        if (D == 0) {
+        if (D == 0)
+        {
             // 如果D为0，则无法计算外接圆
             throw std::runtime_error("无法计算外接圆");
         }
@@ -740,8 +772,7 @@ class silly_triangle
         circle.center.y = (a.y * (B - C) + b.y * (C - A) + c.y * (A - B)) / (2 * D);
 
         // 计算半径
-        circle.radius = sqrt((circle.center.x - a.x) * (circle.center.x - a.x) +
-                             (circle.center.y - a.y) * (circle.center.y - a.y));
+        circle.radius = sqrt((circle.center.x - a.x) * (circle.center.x - a.x) + (circle.center.y - a.y) * (circle.center.y - a.y));
 
         return circle;
     }
