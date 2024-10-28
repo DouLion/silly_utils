@@ -94,7 +94,7 @@ class silly_pyramid_proj
     /// </summary>
     /// <param name="layer"></param>
     /// <param name="geo"></param>
-    /// <param name="nth2">瓦片宽高均为 2^nth2</param>
+    /// <param name="tilesize">瓦片宽高均为 tilesize</param>
     /// <returns></returns>
     static screen_point geo2screen(const uint8_t& layer, const silly_point& geo, const uint64_t& tilesize = 256);
 
@@ -103,7 +103,7 @@ class silly_pyramid_proj
     /// </summary>
     /// <param name="layer"></param>
     /// <param name="geo"></param>
-    /// <param name="nth2">瓦片宽高均为 2^nth2</param>
+    /// <param name="tilesize">瓦片宽高均为 tilesize</param>
     /// <returns></returns>
     static screen_rect geo2screen(const uint8_t& layer, const silly_rect& rect, const uint64_t& tilesize = 256);
 
@@ -112,7 +112,7 @@ class silly_pyramid_proj
     /// </summary>
     /// <param name="layer"></param>
     /// <param name="geo"></param>
-    /// <param name="nth2">瓦片宽高均为 2^nth2</param>
+    /// <param name="tilesize">瓦片宽高均为 tilesize</param>
     /// <returns></returns>
     static silly_point screen2geo(const uint8_t& layer, const screen_point& point, const uint64_t& tilesize = 256);
 
@@ -121,7 +121,7 @@ class silly_pyramid_proj
     /// </summary>
     /// <param name="layer"></param>
     /// <param name="geo"></param>
-    /// <param name="nth2">瓦片宽高均为 2^nth2</param>
+    /// <param name="tilesize">瓦片宽高均为 tilesize</param>
     /// <returns></returns>
     static pyramid_index screen2pyramid(const uint8_t& layer, const screen_point& point, const uint64_t& tilesize = 256);
 
@@ -131,7 +131,7 @@ class silly_pyramid_proj
     /// </summary>
     /// <param name="layer"></param>
     /// <param name="geo"></param>
-    /// <param name="nth2">瓦片宽高均为 2^nth2</param>
+    /// <param name="tilesize">瓦片宽高均为 tilesize</param>
     /// <returns></returns>
     static screen_rect pyramid2screen(const pyramid_index& index, const uint64_t& tilesize = 256);
 };
