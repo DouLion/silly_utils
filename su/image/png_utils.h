@@ -59,7 +59,7 @@ class png_data
     /// <param name="c"></param>
     /// <param name="sp"></param>
     void set_pixel(const size_t &r, const size_t &c, const silly_color &sp);
-    silly_color get_pixel(const size_t &r, const size_t &c);
+    silly_color get_pixel(const size_t &r, const size_t &c) const;
 
 
     // 在赋值给另一个变量 data 的时候直接把自己地址传递给了另一个变量,没有拷贝一份数据

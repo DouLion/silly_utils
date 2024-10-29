@@ -364,7 +364,7 @@ void png_data::set_pixel(const size_t &r, const size_t &c, const silly_color &sp
     }
 }
 
-silly_color png_data::get_pixel(const size_t &r, const size_t &c)
+silly_color png_data::get_pixel(const size_t &r, const size_t &c) const
 {
     silly_color sp;  
 

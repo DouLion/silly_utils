@@ -300,7 +300,7 @@ bool jpeg_data::set_pixel(const size_t& row, const size_t& col, const jpeg_pixel
     return true;
 }
 
-jpeg_pixel jpeg_data::get_pixel(const size_t& row, const size_t& col)
+jpeg_pixel jpeg_data::get_pixel(const size_t& row, const size_t& col) const
 {
 
     jpeg_pixel pixel = {0, 0, 0};
