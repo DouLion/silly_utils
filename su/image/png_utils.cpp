@@ -363,3 +363,43 @@ void png_data::set_pixel(const size_t &r, const size_t &c, const silly_color &sp
             break;
     }
 }
+
+silly_color png_data::get_pixel(const size_t &r, const size_t &c)
+{
+    silly_color sp;  
+
+    if (!(r < height && c < width))
+    {
+        // SLOG_DEBUG("invalid %zu < %u and %zu < %u.", r, height, c, width);
+        return sp;  
+    }
+
+    size_t col_pos = c * pixel_size;
+    switch (color_type)
+    {
+        case PNG_COLOR_TYPE_GRAY:
+            sp.gray = data[r][col_pos];
+            break;
+        case PNG_COLOR_TYPE_RGB:
+            sp.red = data[r][col_pos];
+            sp.green = data[r][col_pos + 1];
+            sp.blue = data[r][col_pos + 2];
+            break;
+        case PNG_COLOR_TYPE_GRAY_ALPHA:
+            sp.gray = data[r][col_pos];
+            sp.alpha = data[r][col_pos + 1];
+            break;
+        case PNG_COLOR_TYPE_RGB_ALPHA:
+            sp.red = data[r][col_pos];
+            sp.green = data[r][col_pos + 1];
+            sp.blue = data[r][col_pos + 2];
+            sp.alpha = data[r][col_pos + 3];
+            break;
+        default:
+            break;
+    }
+
+    return sp; 
+}
+
+

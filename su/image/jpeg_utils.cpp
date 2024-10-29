@@ -300,6 +300,34 @@ bool jpeg_data::set_pixel(const size_t& row, const size_t& col, const jpeg_pixel
     return true;
 }
 
+jpeg_pixel jpeg_data::get_pixel(const size_t& row, const size_t& col)
+{
+
+    jpeg_pixel pixel = {0, 0, 0};
+
+
+    if (row >= jpeg_height || col >= jpeg_width)
+    {
+        std::cout << "Coordinates out of bounds " << std::endl;
+        return pixel;  
+    }
+    int start = (col + row * jpeg_width) * jpeg_components;
+
+    if (jpeg_components == 3)
+    {
+        pixel.red = image_data[start];
+        pixel.green = image_data[start + 1];
+        pixel.blue = image_data[start + 2];
+    }
+    else if (jpeg_components == 1)
+    {
+        pixel.gray = image_data[start];
+    }
+
+    return pixel;
+}
+
+
 jpeg_data jpeg_data::operator=(const jpeg_data& other)
 {
     this->jpeg_width = other.jpeg_width;

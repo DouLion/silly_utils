@@ -69,6 +69,7 @@ class jpeg_data
 
     // row : 第几行   col :第几列
     bool set_pixel(const size_t& row, const size_t& col, const jpeg_pixel& pixel);
+    jpeg_pixel get_pixel(const size_t& row, const size_t& col);
 
     template <typename T>
     bool matrix2d_to_rgb_jpeg(matrix_2d<T> matrix, std::vector<T> threshold, std::vector<jpeg_pixel> pixel_colors)
