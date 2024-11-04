@@ -11,7 +11,7 @@
 #pragma once
 #ifdef CATCH2_UNIT_TEST
 #include <catch2/catch_test_macros.hpp>
-#include <image/silly_cairo.h>
+#include "image/render/canvas/silly_cairo.h"
 
 TEST_CASE("SILLY_CAIRO")
 {

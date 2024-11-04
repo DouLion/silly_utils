@@ -3,12 +3,9 @@
  * reserved. 北京天智祥信息科技有限公司版权所有
  * @website: http://www.tianzhixiang.com.cn/
  * @author: dou li yang
- * @date: 2024/6/18 10:34
- * @version: 1.0.1
- * @description:
+ * @date: 2024-10-31
+ * @file: silly_stitcher.cpp
+ * @description: silly_stitcher实现
+ * @version: v1.0.1 2024-10-31 dou li yang
  */
-//
-// Created by dell on 2024/6/18. 实现
-//
-
-#include "silly_grid_render.h"
+#include "silly_stitcher.h"

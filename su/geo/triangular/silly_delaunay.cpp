@@ -101,7 +101,7 @@ double silly_delaunay_utils::sq_dist(const silly_dt_point& p0, const silly_dt_po
     return (p0.x - p1.x) * (p0.x - p1.x) + (p0.y - p1.y) * (p0.y - p1.y);
 }
 #ifndef NDEBUG
-#include <image/silly_cairo.h>
+#include <image/render/canvas/silly_cairo.h>
 void silly_delaunay::draw(const std::string& path)
 {
     silly_cairo sc;

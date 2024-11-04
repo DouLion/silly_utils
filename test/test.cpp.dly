@@ -40,7 +40,7 @@
 #include <log/silly_log.h>
 #include <weather/silly_tzx_grid.h>
 #include <geo/silly_raster_to_vector.h>
-#include <image/silly_cairo.h>
+#include "image/render/canvas/silly_cairo.h"
 #include <geo/silly_geojson.h>
 #include <geo/silly_geo_utils.h>
 #include <files/silly_file.h>
