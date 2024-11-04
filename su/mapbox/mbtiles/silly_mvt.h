@@ -132,7 +132,6 @@ struct mvt_layer
     std::map<std::string, size_t> key_map{};
     std::map<mvt_value, size_t> value_map{};
 };
-
 struct mvt_tile
 {
     std::vector<mvt_layer> layers{};
@@ -141,7 +140,8 @@ struct mvt_tile
     bool decode(std::string &message, bool &was_compressed);
 };
 
-bool is_compressed(std::string const &data);
+// 计划转移到其他地方
+/*bool is_compressed(std::string const &data);
 int decompress(std::string const &input, std::string &output);
 int compress(std::string const &input, std::string &output);
 int dezig(unsigned n);
@@ -149,6 +149,6 @@ int dezig(unsigned n);
 mvt_value stringified_to_mvt_value(int type, const char *s);
 
 bool is_integer(const char *s, long long *v);
-bool is_unsigned_integer(const char *s, unsigned long long *v);
+bool is_unsigned_integer(const char *s, unsigned long long *v);*/
 
 #endif  // SILLY_UTILS_SILLY_MVT_H
