@@ -145,12 +145,12 @@ bool silly_jsonpp::check_member_string(const Json::Value& root, const std::strin
         }
         else
         {
-            SLOG_ERROR("字段 {} 不是string类型", key)
+            SLOG_DEBUG("字段 {} 不是string类型", key)
         }
     }
     else
     {
-        SLOG_ERROR("不存在字段 {}", key)
+        SLOG_DEBUG("不存在字段 {}", key)
     }
     return false;
 }
@@ -165,12 +165,12 @@ bool silly_jsonpp::check_member_int(const Json::Value& root, const std::string& 
         }
         else
         {
-            SLOG_ERROR("字段 {} 不是int类型", key)
+            SLOG_DEBUG("字段 {} 不是int类型", key)
         }
     }
     else
     {
-        SLOG_ERROR("不存在字段 {}", key)
+        SLOG_DEBUG("不存在字段 {}", key)
     }
     return false;
 }
@@ -185,12 +185,12 @@ bool silly_jsonpp::check_member_double(const Json::Value& root, const std::strin
         }
         else
         {
-            SLOG_ERROR("字段 {} 不是double类型", key)
+            SLOG_DEBUG("字段 {} 不是double类型", key)
         }
     }
     else
     {
-        SLOG_ERROR("不存在字段 {}", key)
+        SLOG_DEBUG("不存在字段 {}", key)
     }
     return false;
 }
@@ -204,12 +204,12 @@ bool silly_jsonpp::check_member_bool(const Json::Value& root, const std::string&
             return true;
         }
         {
-            SLOG_ERROR("字段 {} 不是bool类型", key)
+            SLOG_DEBUG("字段 {} 不是bool类型", key)
         }
     }
     else
     {
-        SLOG_ERROR("不存在字段 {}", key)
+        SLOG_DEBUG("不存在字段 {}", key)
     }
     return false;
 }
@@ -224,12 +224,12 @@ bool silly_jsonpp::check_member_array(const Json::Value& root, const std::string
         }
         else
         {
-            SLOG_ERROR("字段 {} 不是数组类型", key)
+            SLOG_DEBUG("字段 {} 不是数组类型", key)
         }
     }
     else
     {
-        SLOG_ERROR("不存在字段 {}", key)
+        SLOG_DEBUG("不存在字段 {}", key)
     }
     return false;
 }
@@ -244,12 +244,12 @@ bool silly_jsonpp::check_member_object(const Json::Value& root, const std::strin
         }
         else
         {
-            SLOG_ERROR("字段 {} 不是数组类型", key)
+            SLOG_DEBUG("字段 {} 不是数组类型", key)
         }
     }
     else
     {
-        SLOG_ERROR("不存在字段 {}", key)
+        SLOG_DEBUG("不存在字段 {}", key)
     }
     return false;
 }
