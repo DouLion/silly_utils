@@ -72,13 +72,13 @@ bool silly_cairo::create(const size_t ww, const size_t &hh, const int &type)
     m_format = CAIRO_FORMAT_ARGB32;
     switch (type)
     {
-        case png_type::eptRGBA:
+        case png_data::color_type::eptRGBA:
             m_format = CAIRO_FORMAT_ARGB32;
             break;
-        case png_type::eptRGB:
+        case png_data::color_type::eptRGB:
             m_format = CAIRO_FORMAT_RGB24;
             break;
-        case png_type::eptGRAY:
+        case png_data::color_type::eptGRAY:
             m_format = CAIRO_FORMAT_A8;
             break;
         default:

@@ -18,7 +18,7 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-using namespace silly_image;
+
 
 enum enum_silly_cairo_align
 {
@@ -45,7 +45,7 @@ class silly_cairo
   public:
     silly_cairo() = default;
 
-    bool create(const size_t ww, const size_t& hh, const int& type = png_type::eptRGBA);
+    bool create(const size_t ww, const size_t& hh, const int& type = png_data::color_type::eptRGBA);
     void clean(silly_color color = {0, 0, 0, 0});
     bool read(const std::string& path);
     bool write(const std::string& path);

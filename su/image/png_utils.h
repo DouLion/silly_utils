@@ -26,27 +26,20 @@
 const static std::vector<unsigned char> SILLY_1X1_RGBA_PNG = {0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
                                                               0x01, 0x08, 0x06, 0x00, 0x00, 0x00, 0x1F, 0x15, 0xC4, 0x89, 0x00, 0x00, 0x00, 0x0B, 0x49, 0x44, 0x41, 0x54, 0x08, 0x99, 0x63, 0x60, 0x00,
                                                               0x02, 0x00, 0x00, 0x05, 0x00, 0x01, 0x62, 0x55, 0x32, 0x88, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82};
-
-const static std::string SILLY_1X1_RGBA_PNG_STR(reinterpret_cast<const char *>(SILLY_1X1_RGBA_PNG.data()), SILLY_1X1_RGBA_PNG.size());
-
-// png文件开头前几个字节
-const static char SILLY_PNG_FIRST = 0x89;
-const static char SILLY_PNG_SECOND = 0x50;
-
-namespace silly_image
-{
-
-enum png_type
-{
-    eptRGB = PNG_COLOR_TYPE_RGB,
-    eptRGBA = PNG_COLOR_TYPE_RGB_ALPHA,
-    eptGRAY = PNG_COLOR_TYPE_GRAY,
-    eptGRAYA = PNG_COLOR_TYPE_GRAY_ALPHA
-
-};
-
+class png_utils;
 class png_data
 {
+    friend class png_utils;
+  public:
+    enum color_type
+    {
+        eptRGB = PNG_COLOR_TYPE_RGB,
+        eptRGBA = PNG_COLOR_TYPE_RGB_ALPHA,
+        eptGRAY = PNG_COLOR_TYPE_GRAY,
+        eptGRAYA = PNG_COLOR_TYPE_GRAY_ALPHA
+
+    };
+
   public:
     png_data() = default;
 
@@ -61,16 +54,23 @@ class png_data
     void set_pixel(const size_t &r, const size_t &c, const silly_color &sp);
     silly_color get_pixel(const size_t &r, const size_t &c) const;
 
-
     // 在赋值给另一个变量 data 的时候直接把自己地址传递给了另一个变量,没有拷贝一份数据
     png_data operator=(const png_data &other);
+    static bool is_png(const std::string& bin);
+    static bool is_png(const char *data, const size_t size);
+    bool is_empty();
+
+  protected:
     // private:
-    png_bytep *data{nullptr};
-    png_uint_32 width{0};
-    png_uint_32 height{0};
-    png_uint_32 bit_depth{8};
-    png_uint_32 color_type{PNG_COLOR_TYPE_RGB_ALPHA};
-    png_uint_32 pixel_size{0};
+    png_bytep * m_data{nullptr};
+    png_uint_32 m_width{0};
+    png_uint_32 m_height{0};
+    png_uint_32 m_bit_depth{8};
+    png_uint_32 m_color_type{PNG_COLOR_TYPE_RGB_ALPHA};
+    png_uint_32 m_pixel_size{0};
+  private:
+    // PNG 文件总是以一个8字节的签名开始，这个签名用来识别文件是否为 PNG 格式。
+    static constexpr unsigned char HEADER[8] = {0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A};
 };
 
 class png_utils
@@ -99,11 +99,11 @@ class png_utils
     /// <param name="path"></param>
     /// <param name="data"></param>
     /// <returns></returns>
-    static bool write(const std::string &path, const png_data &data);
+    static bool write(const std::string &path, const png_data &pd);
 
     static bool memory_encode(const png_data &data, std::string &buff);
 
-    static bool memory_decode(const std::string &buff, png_data &data);
+    static bool memory_decode(const std::string &buff, png_data &pd);
 
     /// <summary>
     /// RGB图像转RGBA
@@ -121,5 +121,4 @@ class png_utils
     /// <returns></returns>
     static bool rgba_to_rgb(const png_data &src, png_data &dst);
 };
-}  // namespace silly_image
 #endif  // SILLY_UTILS_PNG_UTILS_H

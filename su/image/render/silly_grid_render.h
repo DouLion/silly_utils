@@ -14,7 +14,7 @@
 #include <geo/silly_geo_convert.h>
 
 using namespace silly_math;
-using namespace silly_image;
+
 
 template <typename T>
 class silly_val2color
