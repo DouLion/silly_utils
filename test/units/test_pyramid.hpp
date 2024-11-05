@@ -33,7 +33,7 @@ SECTION("PYRAMID_WRITE")
 	}
 	sp.close();*/
 
-	/*silly_image::*/
+	/**/
 
 	int ccc = 0;
 

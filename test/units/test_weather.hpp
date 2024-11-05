@@ -20,17 +20,17 @@
 
 //template <typename T>
 
-//silly_image::png_data generatePNGFromMatrix(matrix_2d<double>& elevation, std::map<int, silly_color, std::greater<int>> colorMap)
+//png_data generatePNGFromMatrix(matrix_2d<double>& elevation, std::map<int, silly_color, std::greater<int>> colorMap)
 //{
 //    int height = elevation.row();
 //    int width = elevation.col();
 //    if (height == 0 || width == 0 )
 //    {
 //        std::cout << "The size of the elevation matrix and shadow matrix is not equal." << std::endl;
-//        return silly_image::png_data();
+//        return png_data();
 //    }
 //    // 创建空的PNG数据块
-//    silly_image::png_data blockImage = silly_image::png_utils::create_empty(height, width, PNG_COLOR_TYPE_RGB_ALPHA);
+//    png_data blockImage = png_utils::create_empty(height, width, PNG_COLOR_TYPE_RGB_ALPHA);
 //
 //    // 遍历矩阵，根据阈值映射颜色
 //    for (int r = 0; r < height; ++r)
@@ -62,17 +62,17 @@ bool compareThreshold(const std::pair<int, silly_color>& entry, double value)
     return entry.first >= value;
 }
 
-silly_image::png_data generatePNGFromMatrix(matrix_2d<double>& elevation, std::map<int, silly_color, std::greater<int>> colorMap)
+png_data generatePNGFromMatrix(matrix_2d<double>& elevation, std::map<int, silly_color, std::greater<int>> colorMap)
 {
     int height = elevation.row();
     int width = elevation.col();
     if (height == 0 || width == 0)
     {
         std::cout << "The size of the elevation matrix and shadow matrix is not equal." << std::endl;
-        return silly_image::png_data();
+        return png_data();
     }
     // 创建空的PNG数据块
-    silly_image::png_data blockImage = silly_image::png_utils::create_empty(height, width, PNG_COLOR_TYPE_RGB_ALPHA);
+    png_data blockImage = png_utils::create_empty(height, width, PNG_COLOR_TYPE_RGB_ALPHA);
 
     // 遍历矩阵，根据阈值映射颜色
     for (int r = 0; r < height; ++r)
@@ -169,9 +169,9 @@ SECTION("READ_RGRIB")
 
     // 写入PNG文件（示例路径）
 
-    silly_image::png_utils::write(grib_png.string().c_str(), render_param.pd);
+    png_utils::write(grib_png.string().c_str(), render_param.pd);
 
-    if (!silly_image::png_utils::write(grib_png.string().c_str(), render_param.pd))
+    if (!png_utils::write(grib_png.string().c_str(), render_param.pd))
     {
         std::cout << "Failed to write PNG file." << grib_png.string() << std::endl;
     }
@@ -238,9 +238,9 @@ SECTION("GRID_TO_RGRID")
          grib_png += tempname;
          for (auto& list : lists)
          {
-             silly_image::png_data pngImage = generatePNGFromMatrix(list, colorMap);
+             png_data pngImage = generatePNGFromMatrix(list, colorMap);
              // 写入PNG文件（示例路径）
-             silly_image::png_utils::write(grib_png.string().c_str(), pngImage);
+             png_utils::write(grib_png.string().c_str(), pngImage);
              std::cout << "png:" << grib_png.string() << std::endl;
              pngImage.release();
              break;
@@ -319,10 +319,10 @@ SECTION("GRID_TO_RGRID")
 //    //    char tempname[50];
 //    //    sprintf(tempname, "/%s_.png", grib_data_path.filename().stem().string().c_str());
 //    //    grib_png += tempname;
-//    //    silly_image::png_data pngImage = generatePNGFromMatrix(stg.grid, colorMap);
+//    //    png_data pngImage = generatePNGFromMatrix(stg.grid, colorMap);
 //    //
 //    //    // 写入PNG文件（示例路径）
-//    //    if (!silly_image::png_utils::write(grib_png.string().c_str(), pngImage))
+//    //    if (!png_utils::write(grib_png.string().c_str(), pngImage))
 //    //    {
 //    //        std::cout << "Failed to write PNG file." << grib_png.string() << std::endl;
 //    //    }
@@ -380,10 +380,10 @@ SECTION("GRID_TO_RGRID")
 //        sprintf(tempname, "/%s_%02d.png", grib_data_path.filename().stem().string().c_str(), i);
 //        grib_png += tempname;
 //        i++;
-//        silly_image::png_data pngImage = generatePNGFromMatrix(list, colorMap);
+//        png_data pngImage = generatePNGFromMatrix(list, colorMap);
 //
 //        // 写入PNG文件（示例路径）
-//        if (!silly_image::png_utils::write(grib_png.string().c_str(), pngImage))
+//        if (!png_utils::write(grib_png.string().c_str(), pngImage))
 //        {
 //            std::cout << "Failed to write PNG file." << grib_png.string() << std::endl;
 //        }

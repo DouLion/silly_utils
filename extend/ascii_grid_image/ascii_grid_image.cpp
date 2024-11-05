@@ -6,7 +6,7 @@
 #include "image/png_utils.h"
 #include "files/silly_file.h"
 #include "proj/gdal/silly_proj_convert.h"
-using namespace silly_image;
+
 
 #include <cmath>  // 引入标准数学库
 
@@ -187,8 +187,8 @@ void convert_image(double ncols, double nrows, double xllcorner, double yllcorne
 
     double mct_x_step = (mct_right - mct_letf) / (ncols - 2);
     double mct_y_step = (mct_top - mct_bottom) / (nrows - 2);
-    png_data pd = silly_image::png_utils::create_empty((nrows - 2), (ncols - 2), PNG_COLOR_TYPE_RGB);
-    png_data pd2 = silly_image::png_utils::create_empty((nrows - 2), (ncols - 2), PNG_COLOR_TYPE_RGB);
+    png_data pd = png_utils::create_empty((nrows - 2), (ncols - 2), PNG_COLOR_TYPE_RGB);
+    png_data pd2 = png_utils::create_empty((nrows - 2), (ncols - 2), PNG_COLOR_TYPE_RGB);
     double hstep = (hMax - hMin) / 255;
     double ustep = (uMax - uMin) / 255;
     double vstep = (vMax - vMin) / 255;
