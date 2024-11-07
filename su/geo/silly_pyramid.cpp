@@ -3,7 +3,7 @@
 silly_rect silly_google_pyramid::get_rect(const pyramid_index& index)
 {
     silly_rect ret;
-    size_t ceil_num = static_cast<size_t>(2 << index.layer);  // 该层的行数列数
+    size_t ceil_num = std::pow(2, index.layer);               // 该层的行数列数
     if (!(index.row < ceil_num && index.col < ceil_num))
     {
         throw std::runtime_error("行列号不能超过 " + std::to_string(ceil_num));
