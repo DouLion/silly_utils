@@ -89,6 +89,7 @@ std::string silly_string_algo::replace(const std::string &src, const std::string
     }
     return result;
 }
+
 size_t silly_string_algo::count_with_chinese_character(const std::string &u8str)
 {
     size_t count = 0;
@@ -110,4 +111,32 @@ size_t silly_string_algo::count_with_chinese_character(const std::string &u8str)
         }
     }
     return count;
+}
+
+std::string silly_string_algo::ltrim(std::string str)
+{
+    auto it = std::find_if(str.begin(), str.end(), [](char ch) {
+        return !std::isspace<char>(ch, std::locale::classic());
+    });
+    return std::string(it, str.end());
+}
+
+std::string silly_string_algo::rtrim(std::string str)
+{
+    auto it = std::find_if(str.rbegin(), str.rend(), [](char ch) {
+                  return !std::isspace<char>(ch, std::locale::classic());
+              }).base();
+    return std::string(str.begin(), it);
+}
+
+std::string silly_string_algo::trim(std::string str)
+{
+    return ltrim(rtrim(str));
+}
+
+std::string silly_string_algo::trim_all(std::string str)
+{
+    std::string result;
+    std::remove_copy_if(str.begin(), str.end(), std::back_inserter(result), ::isspace);
+    return result;
 }
