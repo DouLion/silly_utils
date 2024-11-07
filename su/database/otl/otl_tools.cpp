@@ -129,7 +129,7 @@ bool otl_tools::conn_opt_from_json(const Json::Value &root, silly_otl &ret)
             }
         }
 
-        if (!silly_jsonpp::check_member_string(root, SILLY_OTL_OPT_S_SCHEMA, ret.m_schema))
+        if (!silly_jsonpp::check_member_string(root, SILLY_OTL_OPT_S_SCHEMA, ret.m_schema) && (enum_database_type::dbDM8 != ret.m_type))
         {
             ret.m_err = "未指定数据库";
             return status;
