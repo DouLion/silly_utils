@@ -3,8 +3,7 @@
 //
 #pragma once
 #include "silly_otl.h"
-#include "su_marco.h"
-#include "json/silly_jsonpp.h"
+#include "otl_tools.h"
 
 
 const static std::string SILLY_OTL_MYSQL_ODBC_FORMAT = "Driver={%s};Server=%s;Port=%d;Database=%s;User=%s;Password=%s;Option=3;charset=UTF8;";
@@ -14,66 +13,169 @@ const static std::string SILLY_OTL_DM8_ODBC_FORMAT = "Driver={%s};Server=%s;TCP_
 const static std::string SILLY_OTL_POSTGRE_ODBC_FORMAT = "Driver={%s};Server=%s;Port=%d;Database=%s;Uid=%s;Pwd=%s;";
 const static std::string SILLY_OTL_DSN_FORMAT = "UID=%s;PWD=%s;DSN=%s;";
 
-bool otl_conn_opt::load(const std::string& s_opt)
+// 去除字符串左边的空格
+std::string ltrim(const std::string& str) {
+    auto it = std::find_if(str.begin(), str.end(), [](char ch) {
+        return !std::isspace<char>(ch, std::locale::classic());
+    });
+    return std::string(it, str.end());
+}
+
+// 去除字符串右边的空格
+std::string rtrim(const std::string& str) {
+    auto it = std::find_if(str.rbegin(), str.rend(), [](char ch) {
+                  return !std::isspace<char>(ch, std::locale::classic());
+              }).base();
+    return std::string(str.begin(), it);
+}
+
+// 去除字符串左右两边的空格
+std::string _trim(const std::string& str) {
+    return ltrim(rtrim(str));
+}
+
+static enum_database_type assume_type(const std::string& driver)
 {
-    clean();
-    bool status = false;
-    if (s_opt.empty())
+    std::string lower_driver = driver;
+    std::transform(lower_driver.begin(), lower_driver.end(), lower_driver.begin(), ::tolower);
+    if(lower_driver.find("sql server") != std::string::npos)
     {
-        return status;
+        return enum_database_type::dbSQLSERVER;
+    }
+    else if(lower_driver.find("mysql") != std::string::npos)
+    {
+        return enum_database_type::dbMYSQL;
+    }
+    else if(lower_driver.find("oracle") != std::string::npos)
+    {
+        return enum_database_type::dbORACLE;
+    }
+    else if(lower_driver.find("postgresql") != std::string::npos)
+    {
+        return enum_database_type::dbPG;
+    }
+    else if(lower_driver.find("dm8") != std::string::npos)
+    {
+        return enum_database_type::dbDM8;
     }
 
-    Json::Value jv_root;
-    if (!(jv_root = silly_jsonpp::loads(s_opt)).isNull())
-    {
-        silly_jsonpp::check_member_string(jv_root, SILLY_OTL_OPT_S_DSN, m_dsn);
-        if (m_dsn.empty())  // 非DSN方式
-        {
-            // 检查类型
-            std::string type_str;
-            if (!silly_jsonpp::check_member_string(jv_root, SILLY_OTL_OPT_S_TYPE, type_str))
-            {
-                m_err = "指定链接类型";
-                return status;
-            }
-            m_type = str_to_db_type(type_str);
-            if (enum_database_type::dbINVALID == m_type)
-            {
-                m_err = silly_format::format("不支持的数据库类型 (Unsupported database type): {}.", type_str);
-                return status;
-            }
-            if (enum_database_type::dbKingB8 == m_type)
-            {
-                m_err = "人大金仓请使用DSN方式(Please set DSN when using Kingbase).";
-                // SLOG_ERROR("达梦和人大金仓请使用DSN方式(Please set DSN when using Dameng or Kingbase).");
-                return status;
-            }
+    return enum_database_type::dbINVALID;
+}
 
-            if (!silly_jsonpp::check_member_string(jv_root, SILLY_OTL_OPT_S_IP, m_ip))
-            {
-                m_err = "未指定IP";
-                return status;
-            }
-            if (!silly_jsonpp::check_member_string(jv_root, SILLY_OTL_OPT_S_DRIVER, m_driver))
-            {
-                m_err = "未指定驱动";
-                return status;
-            }
+static std::map<std::string, std::string> parse_odbc(const std::string& odbc)
+{
+    std::map<std::string, std::string> result;
+    std::istringstream iss(odbc);
+    std::string token;
 
-            // 端口
-            if (jv_root.isMember(SILLY_OTL_OPT_S_PORT))
+    while (std::getline(iss, token, ';')) {
+        size_t pos = token.find('=');
+        if (pos != std::string::npos) {
+            std::string key = token.substr(0, pos);
+            std::transform(key.begin(), key.end(), key.begin(), ::tolower); // key转小写
+            std::string value = token.substr(pos + 1);
+            if("driver" == key)
             {
-                if (jv_root[SILLY_OTL_OPT_S_PORT].isInt())
+                // 去除左右的空格以及花括号
+                std::string::size_type start = value.find_first_not_of(" \t{");
+                std::string::size_type end = value.find_last_not_of(" \t}");
+                result[key] = value.substr(start, end - start + 1);
+            }
+            else if("dbq" == key)
+            {
+                // 解析oracle 的DBQ  IP:PORT/SCHEMA
+                std::string ip_port_schema = value;
+                pos = ip_port_schema.find('/');
+                if (pos != std::string::npos)
                 {
-                    m_port = jv_root[SILLY_OTL_OPT_S_PORT].asInt();
-                }
-                else if (jv_root[SILLY_OTL_OPT_S_PORT].isString())
-                {
-                    m_port = std::stoi(jv_root[SILLY_OTL_OPT_S_PORT].asString());
-                }
+                    std::string schema = ip_port_schema.substr(pos + 1);
+                    ip_port_schema = ip_port_schema.substr(0, pos);
+                    pos = ip_port_schema.find(':');
+                    if (pos != std::string::npos)
+                    {
+                        result["server"] = _trim(ip_port_schema.substr(0, pos));
+                        result["port"] = _trim(ip_port_schema.substr(pos + 1));
+
+                    }
+                    else
+                    {
+                        result["server"] = _trim(ip_port_schema);
+                    }
+                    result["database"] = _trim(schema);
+               }
+
+            }
+            else if("tcp_port" == key)
+            {
+                result["port"] = _trim(value);
+            }
+            else if("uid" == key)
+            {
+                result["user"] = _trim(value);
+            }
+            else if("password" == key)
+            {
+                result["pwd"] = _trim(value);
             }
             else
             {
+                result[key] = _trim(value);
+            }
+
+
+        }
+    }
+
+    return result;
+}
+
+bool otl_conn_opt::load(const std::string& cfg)
+{
+    clean();
+    bool status = false;
+    if (cfg.empty())
+    {
+        return status;
+    }
+    if (!otl_tools::conn_opt_from_json(cfg, *this))
+    {
+        std::map<std::string, std::string> k2v = parse_odbc(cfg);
+        auto iter = k2v.find("dsn");
+        if(iter != k2v.end())
+        {
+            m_dsn = iter->second;
+
+        }
+        else
+        {
+            iter = k2v.find("driver");
+            if(iter == k2v.end())
+            {
+                m_err = "没有指定驱动";
+                return status;
+            }
+            m_driver = iter->second;
+            m_type = assume_type(m_driver);
+            if( enum_database_type::dbINVALID == m_type)
+            {
+                m_err = "无法识别的驱动: "+ iter->second;
+                return status;
+            }
+
+            if(enum_database_type::dbKingB8 == m_type)
+            {
+                m_err = "金仓数据库未支持: "+ iter->second;
+                return status;
+            }
+
+            iter = k2v.find("port");
+            if(iter != k2v.end())
+            {
+                m_port = std::stoi(iter->second);
+            }
+            else
+            {
+                // 使用默认端端口
                 switch (m_type)
                 {
                     case enum_database_type::dbSQLSERVER:
@@ -96,38 +198,41 @@ bool otl_conn_opt::load(const std::string& s_opt)
                 }
             }
 
-            if (!silly_jsonpp::check_member_string(jv_root, SILLY_OTL_OPT_S_SCHEMA, m_schema))
-            {
-                m_err = "未指定数据库";
-                return status;
-            }
+            m_ip = k2v["server"];
+            m_schema = k2v["database"];
+
         }
-        if (!silly_jsonpp::check_member_string(jv_root, SILLY_OTL_OPT_S_USER, m_user))
+        // 检查用户名和密码
+        iter = k2v.find("user");
+        if(iter != k2v.end())
         {
-            m_err = "未指定用户名";
+            m_user = iter->second;
+        }
+        else
+        {
+            m_err = "没有指定用户名";
             return status;
         }
-        if (!silly_jsonpp::check_member_string(jv_root, SILLY_OTL_OPT_S_PASSWORD, m_password))
+
+        iter = k2v.find("pwd");
+        if(iter != k2v.end())
         {
-            m_err = "未指定密码";
+            m_password = iter->second;
+        }
+        else
+        {
+            m_err = "没有指定密码";
             return status;
         }
-        m_conn = odbc(true);
+
+
     }
-    else if (!s_opt.empty())  // 纯字符串
-    {
-        m_conn = s_opt;
-    }
+    m_conn = odbc(true);
 
     return check();
 }
 
 std::string otl_conn_opt::odbc(const bool& rebuild)
-{
-    return dump_odbc(rebuild);
-}
-
-std::string otl_conn_opt::dump_odbc(const bool& rebuild)
 {
     if (m_conn.empty() || rebuild)
     {
@@ -171,18 +276,24 @@ bool otl_conn_opt::check()
     otl_connect db;
     try
     {
+        db.set_timeout(m_timeout);
         db.rlogon(m_conn.c_str());
         status = true;
     }
     catch (otl_exception& e)
     {
         db.rollback();
-        m_err = silly_format::format("OTL_ERR \nCONN:{} \nCODE:{} \nMSG:{} \nSTATE:{}\n", m_conn, e.code, (char*)e.msg, (char*)e.sqlstate);
+        m_err = "OTL_ERR \nCONN:";
+        m_err.append(m_conn);
+        m_err.append("\nCODE:").append(std::to_string(e.code));
+        m_err.append("\nMSG:").append(std::string((char*)e.msg));
+        m_err.append("\nSTATE:").append(std::string((char*)e.sqlstate));
+        m_err.append("\nSTMT:").append(std::string((char*)e.stm_text));
     }
     catch (std::exception& p)
     {
         db.rollback();
-        m_err = silly_format::format("OTL_UNKNOWN{}\n", p.what());
+        m_err = "OTL_UNKNOWN " + std::string(p.what());
     }
     db.logoff();
     return status;
@@ -204,18 +315,18 @@ void otl_conn_opt::clean()
 
 void otl_conn_opt::help()
 {
-    SLOG_INFO(
+    printf(
         "\nOTL 连接串帮助信息:\n >>> 账号和密码中不要出现 [ ] { } ( ) , ; ? * = ! @ | 这些特殊字符 <<<\nSQL Server:\n\tDRIVER={驱动名称};SERVER=IP;PORT=端口;UID=账号;PWD=密码;DATABASE=数据库;\nMySQL:\n\tDriver={MySQL ODBC 8.0 ANSI "
         "Driver};Server=IP;Port=端口;Database=数据库;User=账号;Password=密码;Option=3;charset=UTF8;\nOracle:\n\tDriver={ODBC驱动名称};DBQ=IP:端口/表空间名称;UID=用户;PWD=密码;Oracle需要另外设置环境变量NLS_LANG=SIMPLIFIED "
         "CHINESE_CHINA.UTF8,以支持中文编码utf8传递;\n达梦(DM8):\n\tDriver={驱动名称};Server=IP;TCP_PORT:端口;UID=账号;PWD=密码; \n\t即使数据库编码为UTF8, 数据在插入时也需要时GBK编码, 否则会乱码;"
-        "\n不能正常使用ODBC时,考虑使用DSN方式:\n\tUID=账号;PWD=密码;DSN=DNS名称;\n")
+        "\n不能正常使用ODBC时,考虑使用DSN方式:\n\tUID=账号;PWD=密码;DSN=DNS名称;\n");
     std::string content = "\n\n当前机器支持的ODBC驱动:\n";
     for( auto d: drivers())
     {
         content += d + "\n";
     }
 
-    SLOG_INFO(content)
+    printf(content.c_str());
 }
 
 static char* sqlserver_code_sql = "SELECT COLLATIONPROPERTY('Chinese_PRC_Stroke_CI_AI_KS_WS', 'CodePage');";
@@ -228,7 +339,7 @@ std::string otl_conn_opt::encode()
     otl_connect db;
     try
     {
-        m_conn = dump_odbc(true);
+        m_conn = odbc(true);
         db.rlogon(m_conn.c_str());
         char buff[512] = {0};
         sprintf(buff, "%s", sqlserver_code_sql);
@@ -243,11 +354,18 @@ std::string otl_conn_opt::encode()
     }
     catch (otl_exception& e)
     {
-        SLOG_ERROR("查询失败, \nsql:%s \nmessage:%s \n state:%s", e.stm_text, e.msg, e.sqlstate);
+        db.rollback();
+        m_err = "OTL_ERR \nCONN:";
+        m_err.append(m_conn);
+        m_err.append("\nCODE:").append(std::to_string(e.code));
+        m_err.append("\nMSG:").append(std::string((char*)e.msg));
+        m_err.append("\nSTATE:").append(std::string((char*)e.sqlstate));
+        m_err.append("\nSTMT:").append(std::string((char*)e.stm_text));
     }
-    catch (const std::exception& p)
+    catch (std::exception& p)
     {
-        SLOG_ERROR("%s", p.what());
+        db.rollback();
+        m_err = "OTL_UNKNOWN " + std::string(p.what());
     }
     db.logoff();
     result = sqlserver_code_map[code];

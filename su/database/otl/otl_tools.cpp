@@ -7,59 +7,9 @@
 
 otl_conn_opt otl_tools::conn_opt_from_json(const Json::Value &root)
 {
-    otl_conn_opt oco_ret_opt;
-    if (root.isMember(SILLY_OTL_OPT_S_TYPE))
-    {
-        oco_ret_opt.m_type = str_to_db_type(root[SILLY_OTL_OPT_S_TYPE].asString());
-    }
-    else
-    {
-        return oco_ret_opt;
-    }
-
-    if (root.isMember(SILLY_OTL_OPT_S_IP))
-    {
-        oco_ret_opt.m_ip = root[SILLY_OTL_OPT_S_IP].asString();
-    }
-
-    if (root.isMember(SILLY_OTL_OPT_S_PORT))
-    {
-        oco_ret_opt.m_port = root[SILLY_OTL_OPT_S_PORT].asInt();
-    }
-
-    if (root.isMember(SILLY_OTL_OPT_S_DRIVER))
-    {
-        oco_ret_opt.m_driver = root[SILLY_OTL_OPT_S_DRIVER].asString();
-    }
-
-    if (root.isMember(SILLY_OTL_OPT_S_SCHEMA))
-    {
-        oco_ret_opt.m_schema = root[SILLY_OTL_OPT_S_SCHEMA].asString();
-    }
-
-    if (root.isMember(SILLY_OTL_OPT_S_USER))
-    {
-        oco_ret_opt.m_user = root[SILLY_OTL_OPT_S_USER].asString();
-    }
-    else
-    {
-        return oco_ret_opt;
-    }
-    if (root.isMember(SILLY_OTL_OPT_S_PASSWORD))
-    {
-        oco_ret_opt.m_password = root[SILLY_OTL_OPT_S_PASSWORD].asString();
-    }
-    else
-    {
-        return oco_ret_opt;
-    }
-
-    if (root.isMember(SILLY_OTL_OPT_S_DSN))
-    {
-        oco_ret_opt.m_dsn = root[SILLY_OTL_OPT_S_DSN].asString();
-    }
-
-    return oco_ret_opt;
+    otl_conn_opt ret;
+    conn_opt_from_json(root, ret);
+    return ret;
 }
 
 otl_datetime otl_tools::otl_time_from_string(const std::string &str)
@@ -97,51 +47,104 @@ otl_conn_opt otl_tools::conn_opt_from_json(const std::string &json_str)
     return ret_opt;
 }
 
-#ifdef IS_WIN32
-#include <odbcinst.h>
-#include <tchar.h>
-#include <cstring>
-#include "encode/silly_encode.h"
-#define SILLY_OTL_TOOLS_DRIVER_BUFF_LEN 10240
-#pragma comment(lib, "odbccp32.lib")
-#pragma comment(lib, "legacy_stdio_definitions.lib")
-
-#endif
-
-std::vector<std::string> otl_tools::get_local_odbc_drivers()
+bool otl_tools::conn_opt_from_json(const std::string &str, silly_otl &ret)
 {
+    Json::Value jv_root;
+    if((jv_root = silly_jsonpp::loads(str)).isNull())
     {
-        std::vector<std::string> vs_drivers;
-#ifdef IS_WIN32
-        WCHAR *szBuf = new WCHAR[SILLY_OTL_TOOLS_DRIVER_BUFF_LEN];
-        memset(szBuf, 0, SILLY_OTL_TOOLS_DRIVER_BUFF_LEN * sizeof(WCHAR));
-        WORD cbBufMax = SILLY_OTL_TOOLS_DRIVER_BUFF_LEN - 1;
-        WORD cbBufOut;
-        WCHAR *pszBuf = szBuf;
-        if (SQLGetInstalledDrivers(szBuf, cbBufMax, &cbBufOut))
+        return false;
+    }
+    return conn_opt_from_json(jv_root, ret);
+}
+bool otl_tools::conn_opt_from_json(const Json::Value &root, silly_otl &ret)
+{
+    bool status = false;
+    silly_jsonpp::check_member_string(root, SILLY_OTL_OPT_S_DSN, ret.m_dsn);
+    if (ret.m_dsn.empty())  // 非DSN方式
+    {
+        // 检查类型
+        std::string type_str;
+        if (!silly_jsonpp::check_member_string(root, SILLY_OTL_OPT_S_TYPE, type_str))
         {
-            do
-            {
-                pszBuf = wcschr(pszBuf, '\0') + 1;
-                vs_drivers.push_back(silly_encode::cxx11_wstring_string(pszBuf));
-            } while (pszBuf[1] != '\0');
+            ret.m_err = "指定链接类型";
+            return status;
         }
-        delete[] szBuf;
-#else
-        FILE *fp;
-        char buffer[4096];
-        fp = popen("odbcinst -q -d", "r");
-        while (nullptr != fgets(buffer, 4096, fp))
+        ret.m_type = str_to_db_type(type_str);
+        if (enum_database_type::dbINVALID == ret.m_type)
         {
-            // printf("%s", buffer);
-            std::string tmp_odbc_driver(buffer);
-            tmp_odbc_driver = tmp_odbc_driver.substr(1, tmp_odbc_driver.size() - 3);  // 每一行的结果 [MySQL ODBC 8.0 Unicode Driver]\r    最后有个换行符,所以是 -3
-            vs_drivers.push_back(tmp_odbc_driver);
-            memset(buffer, 0, 4096);
+            ret.m_err = silly_format::format("不支持的数据库类型 (Unsupported database type): {}.", type_str);
+            return status;
+        }
+        if (enum_database_type::dbKingB8 == ret.m_type)
+        {
+            ret.m_err = "人大金仓请使用DSN方式(Please set DSN when using Kingbase).";
+            // SLOG_ERROR("达梦和人大金仓请使用DSN方式(Please set DSN when using Dameng or Kingbase).");
+            return status;
         }
 
-        pclose(fp);
-#endif
-        return vs_drivers;
+        if (!silly_jsonpp::check_member_string(root, SILLY_OTL_OPT_S_IP, ret.m_ip))
+        {
+            ret.m_err = "未指定IP";
+            return status;
+        }
+        if (!silly_jsonpp::check_member_string(root, SILLY_OTL_OPT_S_DRIVER, ret.m_driver))
+        {
+            ret.m_err = "未指定驱动";
+            return status;
+        }
+
+        // 端口
+        if (root.isMember(SILLY_OTL_OPT_S_PORT))
+        {
+            if (root[SILLY_OTL_OPT_S_PORT].isInt())
+            {
+                ret.m_port = root[SILLY_OTL_OPT_S_PORT].asInt();
+            }
+            else if (root[SILLY_OTL_OPT_S_PORT].isString())
+            {
+                ret.m_port = std::stoi(root[SILLY_OTL_OPT_S_PORT].asString());
+            }
+        }
+        else
+        {
+            switch (ret.m_type)
+            {
+                case enum_database_type::dbSQLSERVER:
+                    ret.m_port = 1433;
+                    break;
+                case enum_database_type::dbMYSQL:
+                    ret.m_port = 3306;
+                    break;
+                case enum_database_type::dbORACLE:
+                    ret.m_port = 1521;
+                    break;
+                case enum_database_type::dbPG:
+                    ret.m_port = 5432;
+                    break;
+                case enum_database_type::dbDM8:
+                    ret.m_port = 5236;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        if (!silly_jsonpp::check_member_string(root, SILLY_OTL_OPT_S_SCHEMA, ret.m_schema))
+        {
+            ret.m_err = "未指定数据库";
+            return status;
+        }
     }
+    if (!silly_jsonpp::check_member_string(root, SILLY_OTL_OPT_S_USER, ret.m_user))
+    {
+        ret.m_err = "未指定用户名";
+        return status;
+    }
+    if (!silly_jsonpp::check_member_string(root, SILLY_OTL_OPT_S_PASSWORD, ret.m_password))
+    {
+        ret.m_err = "未指定密码";
+        return status;
+    }
+
+    return true;
 }
