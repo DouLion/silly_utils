@@ -13,10 +13,8 @@
 #ifdef CATCH2_UNIT_TEST
 #include <catch2/catch_test_macros.hpp>
 #include <datetime/silly_posix_time.h>
-#include <datetime/simple_time.h>
 #include <log/silly_log.h>
 #ifdef SILLY_UTILS_BOOST_ENABLE
-PosixTime pt;
 #endif
 
 TEST_CASE("POSIX_TIME")
