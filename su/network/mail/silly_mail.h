@@ -24,7 +24,7 @@ enum class silly_mail_server_type
 class silly_mail_opt
 {
   public:
-    bool ssl= false;
+    bool ssl = false;
     std::string server;
     std::string port;
     std::string user;
@@ -34,16 +34,15 @@ class silly_mail_opt
 class silly_mail_send_content
 {
   public:
-    silly_mail_send_content();
-    ~silly_mail_send_content();
+    silly_mail_send_content() = default;
+    ~silly_mail_send_content() = default;
 
   public:
     std::string title;
     std::string content;
     silly_mail_user sender;
     std::vector<silly_mail_user> receivers;
-    std::vector<std::string> attachments; // 附件
-
+    std::vector<std::string> attachments;  // 附件
 };
 
 class silly_mail_receive_content
@@ -51,7 +50,6 @@ class silly_mail_receive_content
   public:
     silly_mail_receive_content();
     ~silly_mail_receive_content();
-
 };
 
 #endif  // SILLY_UTILS_SILLY_MAIL_H
