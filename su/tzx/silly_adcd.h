@@ -52,7 +52,16 @@ class silly_adcd
 
     };
   public:
-    static std::map<std::string, std::string> cascade(const std::map<std::string, std::string>& adcd_adnm, const options& opt);
+    std::map<std::string, std::string> cascade(const std::map<std::string, std::string>& adcd_adnm, const options& opt);
+    void clean();
+
+  public:
+    std::map<std::string, std::string> std_sheng_adnm;
+    std::map<std::string, std::string> std_shi_adnm;
+    std::map<std::string, std::string> std_xian_adnm;
+    std::map<std::string, std::string> std_xiang_adnm;
+    std::map<std::string, std::string> std_cun_adnm;  // 村
+    std::map<std::string, std::string> std_zu_adnm;   // 组,自然村
 };
 
 #endif  // SILLY_UTILS_SILLY_ADCD_H

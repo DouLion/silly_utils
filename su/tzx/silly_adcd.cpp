@@ -21,12 +21,7 @@
 
 std::map<std::string, std::string> silly_adcd::cascade(const std::map<std::string, std::string>& adcd_adnm, const options& opt)
 {
-    std::map<std::string, std::string> std_sheng_adnm;
-    std::map<std::string, std::string> std_shi_adnm;
-    std::map<std::string, std::string> std_xian_adnm;
-    std::map<std::string, std::string> std_xiang_adnm;
-    std::map<std::string, std::string> std_cun_adnm;  // 村
-    std::map<std::string, std::string> std_zu_adnm;   // 组
+
 
     bool sheng_in_name = opt.name_level << 1 & AD_APP_END;
     bool shi_in_name = opt.name_level << 2 & AD_APP_END;
@@ -260,4 +255,13 @@ std::map<std::string, std::string> silly_adcd::cascade(const std::map<std::strin
     }
 
     return result;
+}
+void silly_adcd::clean()
+{
+    std_sheng_adnm.clear();
+    std_shi_adnm.clear();
+    std_xian_adnm.clear();
+    std_xiang_adnm.clear();
+    std_cun_adnm.clear();
+    std_zu_adnm.clear();
 }
