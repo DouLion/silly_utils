@@ -10,14 +10,19 @@
  */
 #ifndef SILLY_UTILS_SILLY_SMTP_H
 #define SILLY_UTILS_SILLY_SMTP_H
-
+#include <network/mail/silly_mail.h>
 class silly_smtp
 {
   public:
     silly_smtp();
     ~silly_smtp();
 
+    bool send(const silly_mail_send_content& mail_content);
+    void set_smtp_options(const silly_mail_opt& options) {
+        smtp_options = options;
+    }
   private:
+    silly_mail_opt smtp_options;
 };
 
 #endif  // SILLY_UTILS_SILLY_SMTP_H
