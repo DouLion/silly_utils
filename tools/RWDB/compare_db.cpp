@@ -89,7 +89,7 @@ std::map<std::string, std::string> comparePptn(const std::vector<silly_pptn>& sr
 
     for (const auto& [stcd, dif] : stbprp_stcd_dif)
     {
-        std::cout << stcd << " " << dif << std::endl;
+        //std::cout << stcd << " " << dif << std::endl;
     }
 
     std::map<std::string, std::string> pptn_stcd_dif = comparePptn(src_pptns, des_pptns);
@@ -284,8 +284,7 @@ std::map<std::string, std::string> compareStbprps(const std::vector<silly_stbprp
         }
         if (std::abs(src.LGTD - des.LGTD)>0.00001)
         {
-            std::string dif = "LGTD:(" + std::to_string(src.LGTD) + "/" + std::to_string(des.LGTD) + ")\
-\t";
+            std::string dif = "LGTD:(" + std::to_string(src.LGTD) + "/" + std::to_string(des.LGTD) + ")\t";
             discrepancies[src.STCD] += dif;
         }
         if (std::abs(src.LTTD - des.LTTD) > 0.00001)

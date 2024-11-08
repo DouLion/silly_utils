@@ -21,6 +21,7 @@
 silly_otl otl;
 std::string insert_pptn_sql;
 std::string insert_stbprp_sql;
+std::string insert_river_sql;
 std::string stbprp_file_path;
 std::string pptn_file_path;
 std::string btm;
@@ -37,6 +38,8 @@ bool import_stbprp();
 // 导入pptn
 bool import_pptn();
 
+bool import_river();
+
 
 
 int main(int argc, char** argv)
@@ -45,18 +48,30 @@ int main(int argc, char** argv)
 #ifndef NDEBUG
     std::string configPath = std::filesystem::path(DEFAULT_SU_ROOT_DIR).append("tools").append("RWDB").append("import.json").string();
 #else
-    std::string configPath = "./config/import.json";
+    std::string configPath = "./import.json";
 #endif
 
     if (!init(configPath))
     {
+        SLOG_ERROR("init failed:{}", configPath);
         return -1;
     }
 
     // 导入stbprp
-    import_stbprp();
-    // 导入pptn
-    import_pptn();
+    if (!import_stbprp())
+    {
+        SLOG_ERROR("import stbprp failed");
+        return -1;
+    }
+    
+    //// 导入pptn
+    //import_pptn();
+
+    if (!import_river())
+    {
+        SLOG_ERROR("import river failed");
+        return -1;
+    }
 
     return 0;
 }
@@ -72,10 +87,11 @@ bool init(const std::string& file)
         return status;
     }
     otl = otl_tools::conn_opt_from_json(jv_root["db"]);
-    otl.dump_odbc();
+    otl.odbc();
 
     insert_pptn_sql = jv_root["sql"]["insert_pptn_sql"].asString();
     insert_stbprp_sql = jv_root["sql"]["insert_stbprp_sql"].asString();
+    insert_river_sql = jv_root["sql"]["insert_river_sql"].asString();
 
     stbprp_file_path = jv_root["stbprp_file_path"].asString();
     pptn_file_path = jv_root["pptn_file_path"].asString();
@@ -136,7 +152,7 @@ bool import_stbprp()
             encode(entry, src_encode, dst_encode);
         }
     }
-
+    return true;
     // --------------插入数据库--------------
     if (!otl.insert(insert_stbprp_sql, [&des_stbprps](otl_stream* stream) {
             for (const auto& entry : des_stbprps)
@@ -186,8 +202,6 @@ bool import_stbprp()
 }
 
 
-
-
 bool import_pptn()
 {
     if (index_stcd.empty())
@@ -222,7 +236,7 @@ bool import_pptn()
         }
         else
         {
-            std::cerr << "Failed to deserialize an object from the data." << std::endl;
+            std::cout << "Failed to deserialize an object from the data." << std::endl;
         }
     }
     ifs.close();
@@ -276,6 +290,99 @@ bool import_pptn()
     return true;
 }
 
+bool import_river()
+{
+    if (index_stcd.empty())
+    {
+        return false;
+    }
+
+    std::vector<silly_river> des_rivers;  // 用于存储反序列化后的对象
+
+    // -----------文件读取-------------
+    std::ifstream ifs(pptn_file_path, std::ios::binary);  // 以二进制方式打开文件
+    if (!ifs.is_open())
+    {
+        SLOG_ERROR("pptn_file_path open failed: {}", pptn_file_path);
+        return false;
+    }
+    
+    while (!ifs.eof())
+    {
+        std::string buffer;
+        buffer.resize(silly_river::SIZE_V1);
+        ifs.read(&buffer[0], silly_river::SIZE_V1);
+        if (ifs.gcount() == 0)
+        {
+            break;  // 检查是否读取结束到达文件末尾
+        }
+        silly_river pptn;
+        // 反序列化
+        silly_river temp;
+        if (temp.deserialize(buffer))
+        {
+            des_rivers.push_back(temp);
+            if (des_rivers.size() == 100)
+            {
+                break;
+            }
+        }
+        else
+        {
+            std::cout << "Failed to deserialize an object from the data." << std::endl;
+        }
+    }
+    ifs.close();
+
+    // -----------index 找 stcd-------------
+    for (auto& pptn : des_rivers)
+    {
+        uint32_t t_index = pptn.index;
+        if (index_stcd.find(t_index) != index_stcd.end())
+        {
+            std::string t_stcd = index_stcd[t_index];
+            if (!t_stcd.empty())
+            {
+                pptn.stcd = t_stcd;
+            }
+        }
+    }
+    // -----------数据插入-------------
+    if (!otl.insert(insert_river_sql, [&des_rivers](otl_stream* stream) {
+            int count = 0;
+            for (const auto& entry : des_rivers)
+            {
+                if (entry.stcd.empty())
+                {
+                    continue;
+                }
+                otl_value<std::string> stcd(entry.stcd.c_str());
+                struct tm* timeinfo;
+                timeinfo = localtime(&entry.stamp);
+                otl_datetime tm;
+                tm.year = (timeinfo->tm_year + 1900);
+                tm.month = timeinfo->tm_mon + 1;
+                tm.day = timeinfo->tm_mday;
+                tm.hour = timeinfo->tm_hour;
+                tm.minute = timeinfo->tm_min;
+                tm.second = timeinfo->tm_sec;
+
+                otl_value<double> qq(entry.qq);
+                otl_value<double> zz(entry.zz);
+
+                otl_write_row(*stream, stcd, tm, zz, qq);
+            }
+        }))
+    {
+        SLOG_ERROR(otl.err());
+        return false;
+    }
+
+    SLOG_INFO("{} 导入完成", pptn_file_path);
+
+    return true;
+
+}
 
 
 

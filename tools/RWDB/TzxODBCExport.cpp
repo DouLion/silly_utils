@@ -15,6 +15,7 @@
 #include <tzx/rwdb/silly_rsvr.h>
 #include <tzx/rwdb/silly_river.h>
 #include "export_tool.h"
+#include "datetime/silly_posix_time.h"
 
 // 全局变量
 struct encode
@@ -39,6 +40,7 @@ bool export_stbprp();
 
 // 导出降雨记录
 bool export_pptn();
+bool export_river();
 
 int main(int argc, char** argv)
 {
@@ -51,6 +53,7 @@ int main(int argc, char** argv)
 
     if (!init(configPath))
     {
+        SLOG_ERROR("init failed:{}", configPath);
         return -1;
     }
 
@@ -62,15 +65,23 @@ int main(int argc, char** argv)
 #else
 #endif
 
-    // 导入导入stbprp
-    export_stbprp();
+    // 导出stbprp
+    if (!export_stbprp())
+    {
+        SLOG_ERROR("export_stbprp failed");
+        return -1;
+    }
 
-    // 导入导入pptn
-    export_pptn();
+    // 导出pptn
+    // export_pptn();
 
-    // export_rsvr(btm, etm);
+    if (!export_river())
+    {
+        SLOG_ERROR("export_river failed");
+        return -1;
+    }
+
     // export_river(btm, etm);
-
     return 0;
 }
 
@@ -84,7 +95,7 @@ bool init(const std::string& file)
         return status;
     }
     otl = otl_tools::conn_opt_from_json(jv_root["db"]);
-    otl.dump_odbc();
+    otl.odbc();
     select_stbprp_sql = jv_root["sql"]["select_stbprp_sql"].asString();
     select_pptn_sql = jv_root["sql"]["select_pptn_sql"].asString();
 
@@ -110,19 +121,21 @@ bool export_stbprp()
                 otl_value<int> STAzt, DRNA;
                 otl_datetime MODITIME;
 
-                otl_read_row(*stream, STCD, STNM, RVNM, HNNM, BSNM, LGTD, LTTD, STLC, ADDVCD, DTMNM, DTMEL, DTPR, STTP, FRGRD, ESSTYM, BGFRYM, ATCUNIT, ADMAUTH, LOCALITY, STBK, STAzt, DSTRVM, DRNA, PHCD, USFL, COMMENTS, MODITIME, HNNM0, ADCD, ADDVCD1);
-
+                otl_read_row(*stream, STCD, STNM/*, RVNM, HNNM, BSNM*/, LGTD, LTTD/*, STLC, ADDVCD, DTMNM, DTMEL, DTPR, STTP, FRGRD, ESSTYM, BGFRYM, ATCUNIT, ADMAUTH, LOCALITY, STBK, STAzt, DSTRVM, DRNA, PHCD, USFL, COMMENTS, MODITIME, HNNM0, ADCD, ADDVCD1*/);
                 silly_stbprp temp;
 
                 // 检查并赋值
                 if (!STCD.is_null()) { temp.STCD = STCD.v; }
                 if (!STNM.is_null()) { temp.STNM = STNM.v; }
-                if (!RVNM.is_null()) { temp.RVNM = RVNM.v; }
+               /* if (!RVNM.is_null()) { temp.RVNM = RVNM.v; }
                 if (!HNNM.is_null()) { temp.HNNM = HNNM.v; }
-                if (!BSNM.is_null()) { temp.BSNM = BSNM.v; }
+                if (!BSNM.is_null()) { temp.BSNM = BSNM.v; }*/
                 if (!LGTD.is_null()) { temp.LGTD = LGTD.v; }
                 if (!LTTD.is_null()) { temp.LTTD = LTTD.v; }
-                if (!STLC.is_null()) { temp.STLC = STLC.v; }
+                /* if (!STLC.is_null())
+                {
+                    temp.STLC = STLC.v;
+                }
                 if (!ADDVCD.is_null()) { temp.ADDVCD = ADDVCD.v; }
                 if (!DTMNM.is_null()) { temp.DTMNM = DTMNM.v; }
                 if (!DTMEL.is_null()) { temp.DTMEL = DTMEL.v; }
@@ -144,13 +157,14 @@ bool export_stbprp()
                 temp.MODITIME = otl_tools::otl_time_to_string(MODITIME); 
                 if (!HNNM0.is_null()) { temp.HNNM0 = HNNM0.v; }
                 if (!ADCD.is_null()) { temp.ADCD = ADCD.v; }
-                if (!ADDVCD1.is_null()) { temp.ADDVCD1 = ADDVCD1.v; }
+                if (!ADDVCD1.is_null()) { temp.ADDVCD1 = ADDVCD1.v; }*/
 
                 stbprps.push_back(temp);
             }
         }))
     {
         SLOG_ERROR(otl.err());
+        SLOG_ERROR(silly_encode::gbk_utf8(otl.err()));
         return false;
     }
 
@@ -161,6 +175,7 @@ bool export_stbprp()
         stbprp.index = index;
         stcd_index[stbprp.STCD] = index;
         index++;
+
     }
 
     // -----------转编码--------------
@@ -240,6 +255,85 @@ bool export_pptn()
         ofs << pptn.serialize();
     }
     ofs.close();
+    SLOG_INFO("{} 导出完成", ppth_file_path.string());
+
+    return true;
+}
+
+
+bool export_river()
+{
+    std::filesystem::path ppth_file_path(root);
+    std::string fileName = str_now_tm + "_" + silly_river::FILE_NAME;
+    ppth_file_path.append(fileName);
+    std::filesystem::create_directories(ppth_file_path.parent_path());
+
+    silly_posix_time startTime = silly_posix_time::time_from_string(btm);
+    silly_posix_time endTime = silly_posix_time::time_from_string(etm);
+    silly_time_duration minutes(1 * 24, 0, 0); // 10天
+
+    for (silly_posix_time currentTm = startTime; currentTm < endTime; currentTm += minutes)
+    {
+        std::string btm_str = currentTm.to_string();
+        silly_posix_time temp = currentTm;
+        temp+= minutes;
+        std::string etm_str = temp.to_string();
+        std::vector<silly_river> rivers;
+        if (!otl.select(select_pptn_sql, [&rivers, btm_str, etm_str](otl_stream* stream) {
+                otl_write_row(*stream, btm_str, etm_str);  // 传入参数
+                while (!stream->eof())
+                {
+                    otl_value<std::string> STCD;
+                    otl_value<double> DRP, INTV;
+                    otl_datetime tm;
+                    otl_read_row(*stream, STCD, tm, DRP, INTV);
+                    silly_river tmp_river;
+
+                    if (!STCD.is_null())
+                    {
+                        tmp_river.stcd = STCD.v;
+                    }
+                    if (!DRP.is_null())
+                    {
+                        tmp_river.zz = DRP.v;
+                    }
+                    if (!INTV.is_null())
+                    {
+                        tmp_river.qq = INTV.v;
+                    }
+
+                    std::tm t{tm.second, tm.minute, tm.hour, tm.day, tm.month - 1, tm.year - 1900};
+                    std::time_t stamp = std::mktime(&t);
+                    tmp_river.stamp = stamp;
+
+                    rivers.push_back(tmp_river);
+                }
+            }))
+        {
+            SLOG_ERROR(otl.err());
+            return false;
+        }
+
+        for (auto& river : rivers)
+        {
+            if (stcd_index.find(river.stcd) == std::end(stcd_index))
+            {
+                river.index = 0;
+                continue;
+            }
+            river.index = stcd_index[river.stcd];
+        }
+
+        std::ofstream ofs(ppth_file_path.string(), std::ios::binary | std::ios::app);
+        for (auto& river : rivers)
+        {
+            ofs << river.serialize();
+        }
+        ofs.close();
+        SLOG_INFO("btm: {}, etm: {}, size:{}", btm_str, etm_str, rivers.size());
+
+    }
+
     SLOG_INFO("{} 导出完成", ppth_file_path.string());
 
     return true;

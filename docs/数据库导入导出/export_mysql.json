@@ -1,0 +1,20 @@
+{
+  "src_db": {
+    "type": "mysql",
+    "ip": "192.168.0.237",
+    "port": 13307,
+    "driver": "Mysql ODBC 8.0 UNICODE Driver",
+    "schema": "TZX_TEST",
+    "user": "root",
+    "password": "123456"
+  },
+  "sql": {
+    "select_pptn_sql": "SELECT STCD, TM, DRP, INTV FROM ST_PPTN_R WHERE TM > :f1<char[32]> AND TM <= :f2<char[32]> ;",
+    "select_stbprp_sql": "SELECT  STCD, STNM, RVNM, HNNM, BSNM, LGTD, LTTD, STLC, ADDVCD, DTMNM, DTMEL, DTPR, STTP, FRGRD, ESSTYM, BGFRYM, ATCUNIT, ADMAUTH, LOCALITY, STBK, STAzt, DSTRVM, DRNA, PHCD, USFL, COMMENTS, MODITIME, HNNM0, ADCD, ADDVCD1 FROM ST_STBPRP_B;"
+
+  },
+    "btm": "2023-02-23 01:00:00",
+    "etm": "2023-03-24 13:00:00"
+  }
+  
+  
