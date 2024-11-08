@@ -1,0 +1,20 @@
+{
+  "des_db": {
+    "type": "sqlserver",
+    "ip": "192.168.0.151",
+    "port": 1433,
+    "driver": "SQL Server",
+    "schema": "test",
+    "user": "sa",
+    "password": "3edc9ijn~"
+  },
+  "sql": {
+    "insert_pptn_sql": "insert into test.dbo.ST_PPTN_R (STCD, TM, DRP, INTV) values (:f1<char[9]>, :f2<timestamp>, :f3<float>, :f4<float>);",
+    "insert_stbprp_sql": "INSERT INTO test.dbo.ST_STBPRP_B (STCD, STNM, RVNM, HNNM, BSNM, LGTD, LTTD, STLC, ADDVCD, DTMNM, DTMEL, DTPR, STTP, FRGRD, ESSTYM, BGFRYM, ATCUNIT, ADMAUTH, LOCALITY, STBK, STAZT, DSTRVM, DRNA, PHCD, USFL, COMMENTS, MODITIME, HNNM0, ADCD, ADDVCD1) VALUES (:f1<char[9]>, :f2<char[30]>, :f3<char[50]>, :f4<char[30]>, :f5<char[30]>, :f6<float>, :f7<float>, :f8<char[80]>, :f9<char[7]>, :f10<char[30]>, :f11<float>, :f12<float>, :f13<char[4]>, :f14<char[2]>, :f15<char[7]>, :f16<char[7]>, :f17<char[40]>, :f18<char[40]>, :f19<char[20]>, :f20<char[2]>, :f21<int>, :f22<float>, :f23<int>, :f24<char[10]>, :f25<char[2]>,:f26<char[200]>, :f27<timestamp>, :f28<char[30]>, :f29<char[30]>, :f30<char[7]>);",
+    "delete_sql": ""
+  },
+  "stbprp_file_path": "D:/1_wangyingjie/readfile/sync_data/20241012094214_STBPRP.dat",
+  "pptn_file_path": "D:/1_wangyingjie/readfile/sync_data/20241012094214_PPTN.dat"
+}
+  
+  

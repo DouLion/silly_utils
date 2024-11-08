@@ -1,0 +1,20 @@
+{
+    "src_db": {
+      "type": "oracle",
+      "ip": "192.168.0.71",
+      "port": 1521,
+      "driver": "Oracle in instantclient_12_2",
+      "schema": "ORCL",
+      "user": "RWDB_HN",
+      "password": "RWDB_HN"
+    },
+  "sql": {
+    "select_pptn_sql": "SELECT STCD, TM, DRP, INTV FROM (SELECT STCD, TM, DRP, INTV FROM ST_PPTN_R WHERE TM > TO_DATE(:f1<char[32]>, 'YYYY-MM-DD HH24:MI:SS') AND TM <= TO_DATE(:f2<char[32]>, 'YYYY-MM-DD HH24:MI:SS')) WHERE ROWNUM <= 100;",
+    "select_stbprp_sql": "SELECT  STCD, STNM, RVNM, HNNM, BSNM, LGTD, LTTD, STLC, ADDVCD, DTMNM, DTMEL, DTPR, STTP, FRGRD, ESSTYM, BGFRYM, ATCUNIT, ADMAUTH, LOCALITY, STBK, STAzt, DSTRVM, DRNA, PHCD, USFL, COMMENTS, MODITIME, HNNM0, ADCD, ADDVCD1 FROM ST_STBPRP_B;"
+
+  },
+    "btm": "2023-02-23 01:00:00",
+    "etm": "2023-03-24 13:00:00"
+  }
+  
+  
