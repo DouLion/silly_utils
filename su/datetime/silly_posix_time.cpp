@@ -71,9 +71,12 @@ void check_std_tm(std::tm stm)
         throw std::runtime_error(std::string("年(year) ").append(std::to_string(stm.tm_year)).append(" + 1900"));
 }
 
-
 silly_posix_time::silly_posix_time()
 {
+    std::scoped_lock lock(m_mutex);
+    std::time_t stt = 8 * SEC_IN_HOUR;
+    m_tm = *std::gmtime(&stt);
+    m_time_point = std::chrono::system_clock::from_time_t(0);
 }
 
 silly_posix_time::silly_posix_time(const silly_posix_time& time)
@@ -88,7 +91,7 @@ bool silly_posix_time::from_string(const std::string& str, const std::string& fm
     try
     {
         std::istringstream ss(str);
-        std::tm tmp={};
+        std::tm tmp = {};
         ss >> std::get_time(&tmp, fmt.c_str());
         check_std_tm(tmp);
         // 检查是否成功解析
@@ -297,5 +300,5 @@ bool silly_posix_time::is_not_a_date_time() const
         return true;
     }
 
-    return  false;
+    return false;
 }

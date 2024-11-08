@@ -16,7 +16,7 @@
 #include <network/http/silly_http_client.h>
 #include <json/silly_jsonpp.h>
 std::string port = "9001";
-#if NDEBUG
+#ifndef NDEBUG
 std::string root = R"(D:\TzxProject\Webs\dem\server\task)";
 #else
 std::string root = R"(\\192.168.0.9\Webs\dem\server\task)";

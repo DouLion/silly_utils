@@ -20,7 +20,11 @@ size_t silly_file::read(const std::string &u8path, std::string &content, const s
     content.clear();
     std::fstream input;
 #if IS_WIN32
-    input.open(silly_encode::cxx11_string_wstring(u8path), std::ios::binary | std::ios::in);
+    if(silly_encode::is_utf8(u8path))
+    {
+        input.open(silly_encode::cxx11_string_wstring(u8path), std::ios::binary | std::ios::in);
+    }
+
 #else
     input.open(u8path, std::ios::binary | std::ios::in);
 #endif
