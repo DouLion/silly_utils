@@ -5,7 +5,7 @@
  * @author: dou li yang
  * @date: 2024-09-30
  * @file: TzxODBCExport.c
- * @description: RWDB数据使用ODBC导入到自定文件
+ * @description: RWDB数据使用ODBC导出到自定文件
  * @version: v1.0.1 2024-09-30 dou li yang
  */
 #include <database/otl/silly_otl.h>
@@ -28,6 +28,7 @@ struct encode
 silly_otl otl;
 std::string select_stbprp_sql;
 std::string select_pptn_sql;
+std::string select_river_sql;
 std::string btm;
 std::string etm;
 std::string root = "./";  // 文件根路径
@@ -37,19 +38,19 @@ std::string str_now_tm = silly_posix_time::now().to_string("%Y%m%d%H%M%S");
 
 bool init(const std::string& file);
 
-// 导入测站基本信息
+// 导出测站基本信息
 bool export_stbprp();
 
-// 导入降雨记录
+// 导出降雨记录
 bool export_pptn();
 bool export_river();
-// TODO: 导入水库信息  rsvr 分块导入 pptn分块导入导入 三个的分块导入导入
+// TODO: 导出水库信息  rsvr 分块导出 pptn分块导出导出 三个的分块导出导出
 
 int main(int argc, char** argv)
 {
 #ifndef NDEBUG
 
-    std::string configPath = std::filesystem::path(DEFAULT_SU_ROOT_DIR).append("tools").append("RWDB").append("export.json").string();
+    std::string configPath = std::filesystem::path(DEFAULT_SU_ROOT_DIR).append("docs").append("数据库导入导出").append("export.json").string();
 #else
     std::string configPath = "./export.json";
 #endif
@@ -70,7 +71,7 @@ int main(int argc, char** argv)
     silly_timer timer;
     
     timer.restart();
-    // 导入stbprp
+    // 导出stbprp
     if (!export_stbprp())
     {
         SLOG_ERROR("export_stbprp failed");
@@ -78,7 +79,7 @@ int main(int argc, char** argv)
     }
     SLOG_INFO("stbprp 导出时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
 
-    // 导入pptn
+    // 导出pptn
     // export_pptn();
 
     timer.restart();
@@ -106,6 +107,7 @@ bool init(const std::string& file)
     otl.odbc();
     select_stbprp_sql = jv_root["sql"]["select_stbprp_sql"].asString();
     select_pptn_sql = jv_root["sql"]["select_pptn_sql"].asString();
+    select_river_sql = jv_root["sql"]["select_river_sql"].asString();
 
     btm = jv_root["btm"].asString();
     etm = jv_root["etm"].asString();
@@ -185,7 +187,7 @@ bool export_stbprp()
         index++;
 
     }
-    SLOG_INFO("查询到:{} 条数据开始导入到文件", stbprps.size());
+    SLOG_INFO("查询到:{} 条数据开始导出到文件", stbprps.size());
 
     // -----------转编码--------------
     if (!cvt.src.empty() && !cvt.dst.empty())
@@ -196,7 +198,7 @@ bool export_stbprp()
         }
     }
 
-    // -----------导入stbprp文件------------
+    // -----------导出stbprp文件------------
     std::filesystem::path stbprp_file_path(root);
     std::string fileName = str_now_tm + "_" + silly_stbprp::FILE_NAME;
     stbprp_file_path.append(fileName);
@@ -208,7 +210,7 @@ bool export_stbprp()
     }
     ofs.close();
 
-    SLOG_INFO("{} 导入完成, 导入 {} 条数据", stbprp_file_path.string(), stbprps.size());
+    SLOG_INFO("{} 导出完成, 导出 {} 条数据", stbprp_file_path.string(), stbprps.size());
 
     return true;
 }
@@ -253,7 +255,7 @@ bool export_pptn()
         pptn.index = stcd_index[pptn.stcd];
     }
 
-    SLOG_INFO("查询到:{} 条数据开始导入到文件", pptns.size());
+    SLOG_INFO("查询到:{} 条数据开始导出到文件", pptns.size());
 
     std::filesystem::path ppth_file_path(root);
     std::string fileName = str_now_tm + "_" + silly_pptn::FILE_NAME;
@@ -263,10 +265,10 @@ bool export_pptn()
     std::ofstream ofs(ppth_file_path.string(), std::ios::binary);
     for (auto& pptn : pptns)
     {
-        ofs << pptn.serialize();
+        //ofs << pptn.serialize();
     }
     ofs.close();
-    SLOG_INFO("{} 导入完成, 导入 {} 条数据", ppth_file_path.string(), pptns.size());
+    SLOG_INFO("{} 导出完成, 导出 {} 条数据", ppth_file_path.string(), pptns.size());
 
     return true;
 }
@@ -281,7 +283,7 @@ bool export_river()
 
     silly_posix_time startTime = silly_posix_time::time_from_string(btm);
     silly_posix_time endTime = silly_posix_time::time_from_string(etm);
-    silly_time_duration minutes(1 * 24, 0, 0); // 10天
+    silly_time_duration minutes(5 * 24, 0, 0); // 10天
     SLOG_INFO("查询截止时间: {}, etm: {}", btm, etm);
     size_t all_index = 0;
     for (silly_posix_time currentTm = startTime; currentTm < endTime; currentTm += minutes)
@@ -289,12 +291,15 @@ bool export_river()
         std::string btm_str = currentTm.to_string();
         silly_posix_time temp = currentTm;
         temp+= minutes;
+        if (temp > endTime)
+        {
+            temp = endTime;
+        }
         std::string etm_str = temp.to_string();
         std::vector<silly_river> rivers;
-        
-        std::string sql = silly_format::format(select_pptn_sql, btm_str, etm_str);
-        if (!otl.select(sql, [&rivers](otl_stream* stream) {
-                //otl_write_row(*stream, btm_str, etm_str);  // 传入参数
+        //std::string sql = silly_format::format(select_pptn_sql, btm_str, etm_str);
+        if (!otl.select(select_river_sql, [&rivers, btm_str, etm_str](otl_stream* stream) {
+                otl_write_row(*stream, btm_str, etm_str);  // 传入参数
                 while (!stream->eof())
                 {
                     otl_value<std::string> STCD, WPTN;
@@ -319,7 +324,6 @@ bool export_river()
             SLOG_ERROR(otl.err());
             return false;
         }
-
         for (auto& river : rivers)
         {
             if (stcd_index.find(river.stcd) == std::end(stcd_index))
@@ -333,14 +337,14 @@ bool export_river()
         std::ofstream ofs(ppth_file_path.string(), std::ios::binary | std::ios::app);
         for (auto& river : rivers)
         {
-            ofs << river.serialize();
+            ofs << river.serialize(SILLY_RIVER_FORMAT_V2);
         }
         ofs.close();
         SLOG_INFO("btm: {}, etm: {}, size:{}", btm_str, etm_str, rivers.size());
         all_index+= rivers.size();
     }
 
-    SLOG_INFO("{} 导入完成, 导入 {} 条数据", ppth_file_path.string(), std::to_string(all_index));
+    SLOG_INFO("{} 导出完成, 导出 {} 条数据", ppth_file_path.string(), std::to_string(all_index));
 
     return true;
 }

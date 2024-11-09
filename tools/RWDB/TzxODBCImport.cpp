@@ -25,6 +25,7 @@ std::string insert_stbprp_sql;
 std::string insert_river_sql;
 std::string stbprp_file_path;
 std::string pptn_file_path;
+std::string river_file_path;
 std::string btm;
 std::string etm;
 std::string src_encode;
@@ -47,7 +48,7 @@ int main(int argc, char** argv)
 {
 
 #ifndef NDEBUG
-    std::string configPath = std::filesystem::path(DEFAULT_SU_ROOT_DIR).append("tools").append("RWDB").append("import.json").string();
+    std::string configPath = std::filesystem::path(DEFAULT_SU_ROOT_DIR).append("docs").append("数据库导入导出").append("import.json").string();
 #else
     std::string configPath = "./import.json";
 #endif
@@ -70,8 +71,10 @@ int main(int argc, char** argv)
     }
     SLOG_INFO("stbprp 导入时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
     
+    //timer.restart();
     //// 导入pptn
     //import_pptn();
+    //SLOG_INFO("pptn 导入时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
 
     timer.restart();
     if (!import_river())
@@ -104,6 +107,8 @@ bool init(const std::string& file)
 
     stbprp_file_path = jv_root["stbprp_file_path"].asString();
     pptn_file_path = jv_root["pptn_file_path"].asString();
+    river_file_path = jv_root["river_file_path"].asString();
+
 
     src_encode = jv_root["encode"]["src"].asString();
     dst_encode = jv_root["encode"]["dst"].asString();
@@ -311,18 +316,18 @@ bool import_river()
     std::vector<silly_river> des_rivers;  // 用于存储反序列化后的对象
 
     // -----------文件读取-------------
-    std::ifstream ifs(pptn_file_path, std::ios::binary);  // 以二进制方式打开文件
+    std::ifstream ifs(river_file_path, std::ios::binary);  // 以二进制方式打开文件
     if (!ifs.is_open())
     {
-        SLOG_ERROR("pptn_file_path open failed: {}", pptn_file_path);
+        SLOG_ERROR("river_file_path open failed: {}", river_file_path);
         return false;
     }
     
     while (!ifs.eof())
     {
         std::string buffer;
-        buffer.resize(silly_river::SIZE_V1);
-        ifs.read(&buffer[0], silly_river::SIZE_V1);
+        buffer.resize(silly_river::SIZE_V2);
+        ifs.read(&buffer[0], silly_river::SIZE_V2);
         if (ifs.gcount() == 0)
         {
             break;  // 检查是否读取结束到达文件末尾
@@ -391,7 +396,7 @@ bool import_river()
         return false;
     }
 
-    SLOG_INFO("{} 导入完成, 导入数量: {}", pptn_file_path, des_rivers.size());
+    SLOG_INFO("{} 导入完成, 导入数量: {}", river_file_path, des_rivers.size());
 
     return true;
 

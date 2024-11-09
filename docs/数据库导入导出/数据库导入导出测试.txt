@@ -204,9 +204,39 @@ SQL Server Native Client 11.0
 
 
 
+ST_RSVR_R 表
+
+CREATE TABLE ST_RSVR_R (
+    STCD VARCHAR(8) PRIMARY KEY,   -- 假设 STCD 是主键
+    TM DATE,
+    RZ DECIMAL(7, 3),
+    INQ DECIMAL(9, 3),
+    W DECIMAL(9, 3),
+    OTQ DECIMAL(9, 3),
+    RWCHRCD VARCHAR(1),
+    RWPTN VARCHAR(1),
+    INQDR DECIMAL(5, 2),
+    MSQMT VARCHAR(1),
+    BLRZ DECIMAL(7, 3)
+);
 
 
+ST_RIVER_R 表
 
+CREATE TABLE ST_RIVER_R (
+    STCD VARCHAR(8),            -- 流域代码，最大长度 8
+    TM DATETIME,                -- 时间戳
+    Z DECIMAL(7, 3),            -- 数值 Z，最多 7 位数字，其中 3 位小数
+    Q DECIMAL(9, 3),            -- 数值 Q，最多 9 位数字，其中 3 位小数
+    XSA DECIMAL(9, 3),          -- 数值 XSA，最多 9 位数字，其中 3 位小数
+    XSAVV DECIMAL(5, 3),        -- 数值 XSAVV，最多 5 位数字，其中 3 位小数
+    XSMXV DECIMAL(5, 3),        -- 数值 XSMXV，最多 5 位数字，其中 3 位小数
+    FLWCHRCD CHAR(1),           -- 流量控制字符，1 字符
+    WPTN CHAR(1),               -- 水位监测字符，1 字符
+    MSQMT CHAR(1),              -- 月度水质字符，1 字符
+    MSAMT CHAR(1),              -- 月度水量字符，1 字符
+    MSVMT CHAR(1)               -- 月度水位字符，1 字符
+);
 
 
 

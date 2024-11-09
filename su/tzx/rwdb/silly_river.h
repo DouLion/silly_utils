@@ -48,6 +48,7 @@ class silly_river
     // static constexpr size_t SIZE_V1 = 1 + 1 + 4 + 8 + 4 + 4 + 4;
 
     static constexpr size_t SIZE_V1 = 1 + 1 + 4 + 4 + 4 + 4;
+    static constexpr size_t SIZE_V2 = 1 + 1 + 4 + 4 + 4 + 4 + 2;
     static constexpr char PREFIX = 'H';  // 固定头
     static constexpr char* FILE_NAME = "RIVER.dat";
 };
