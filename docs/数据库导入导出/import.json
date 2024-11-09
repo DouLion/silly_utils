@@ -11,12 +11,12 @@
   "sql": {
     "insert_pptn_sql": "insert into ST_PPTN_R (STCD, TM, DRP, INTV) values (:f1<char[9]>, :f2<timestamp>, :f3<double>, :f4<double>)  ON DUPLICATE KEY UPDATE STCD = STCD;",
     "insert_stbprp_sql__b": "INSERT INTO ST_STBPRP_B (STCD, STNM, RVNM, HNNM, BSNM, LGTD, LTTD, STLC, ADDVCD, DTMNM, DTMEL, DTPR, STTP, FRGRD, ESSTYM, BGFRYM, ATCUNIT, ADMAUTH, LOCALITY, STBK, STAZT, DSTRVM, DRNA, PHCD, USFL, COMMENTS, MODITIME, HNNM0, ADCD, ADDVCD1) VALUES (:f1<char[9]>, :f2<char[30]>, :f3<char[50]>, :f4<char[30]>, :f5<char[30]>, :f6<double>, :f7<double>, :f8<char[80]>, :f9<char[7]>, :f10<char[30]>, :f11<double>, :f12<double>, :f13<char[4]>, :f14<char[2]>, :f15<char[7]>, :f16<char[7]>, :f17<char[40]>, :f18<char[40]>, :f19<char[20]>, :f20<char[2]>, :f21<int>, :f22<double>, :f23<int>, :f24<char[10]>, :f25<char[2]>,:f26<char[200]>, :f27<timestamp>, :f28<char[30]>, :f29<char[30]>, :f30<char[7]>)  ON DUPLICATE KEY UPDATE STCD = STCD;",
-    "insert_stbprp_sql": "INSERT INTO ST_STBPRP_B (STCD, STNM, RVNM, LGTD, LTTD) VALUES (:f1<char[9]>, :f2<char[30]>, :f3<double>, :f4<double>);",
+    "insert_stbprp_sql": "INSERT INTO ST_STBPRP_B (STCD, STNM, LGTD, LTTD) VALUES (:f1<char[9]>, :f2<char[30]>, :f3<double>, :f4<double>);",
     "insert_river_sql": "INSERT INTO ST_RIVER_R (STCD, TM, Z, Q, WPTN ) VALUES (:f1<char[9]>, :f2<timestamp>, :f3<double>, :f4<double>, :f5<char[2]>);"
   },
-  "stbprp_file_path": "./20241109150541_STBPRP.dat",
-  "pptn_file_path": "./20241016162954_PPTN.dat",
-  "river_file_path": "./20241109150541_RIVER.dat",
+  "stbprp_file_path": "./20241109153300_STBPRP.dat",
+  "pptn_file_path": "./20241109160332_PPTN.dat",
+  "river_file_path": "./20241109155425_RIVER.dat",
   "encode": {
     "src": "UTF-8",
     "dst": ""

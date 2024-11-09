@@ -9,14 +9,14 @@
     "password": "RWDB_HN"
   },
   "sql": {
-    "select_pptn_sql": "SELECT STCD, TM, Z, Q, WPTN FROM ST_RIVER_R WHERE TM > TO_DATE(:f1<char[32]>, 'YYYY-MM-DD HH24:MI:SS') AND TM <= TO_DATE(:f2<char[32]>, 'YYYY-MM-DD HH24:MI:SS') ORDER BY STCD; ",
+    "select_pptn_sql": "SELECT  STCD, TM, DRP, INTV  FROM ST_PPTN_R WHERE TM > TO_DATE(:f1<char[32]>, 'YYYY-MM-DD HH24:MI:SS') AND TM <= TO_DATE(:f2<char[32]>, 'YYYY-MM-DD HH24:MI:SS');",
     "select_stbprp_sql_bak": "SELECT  STCD, STNM, RVNM, HNNM, BSNM, LGTD, LTTD, STLC, ADDVCD, DTMNM, DTMEL, DTPR, STTP, FRGRD, ESSTYM, BGFRYM, ATCUNIT, ADMAUTH, LOCALITY, STBK, STAzt, DSTRVM, DRNA, PHCD, USFL, COMMENTS, MODITIME, HNNM0, ADCD, ADDVCD1 FROM ST_STBPRP_B;",
     "select_stbprp_sql": "SELECT  STCD, STNM,  LGTD, LTTD FROM ST_STBPRP_B;",
     "select_river_sql": "SELECT STCD, TM, Z, Q, WPTN FROM ST_RIVER_R WHERE TM > TO_DATE(:f1<char[32]>, 'YYYY-MM-DD HH24:MI:SS') AND TM <= TO_DATE(:f2<char[32]>, 'YYYY-MM-DD HH24:MI:SS')"
 
   },
-  "btm": "2021-06-13 00:00:00",
-  "etm": "2021-06-20 02:00:00",
+  "btm": "2023-06-13 00:00:00",
+  "etm": "2023-06-20 00:00:00",
   "encode": {
     "src": "",
     "dst": ""

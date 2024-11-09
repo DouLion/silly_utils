@@ -36,7 +36,7 @@ std::map<uint32_t, std::string> index_stcd;
 // 读取配置文件
 bool init(const std::string& file);
 // 导入stbprp
-bool import_stbprp();
+bool import_stbprp(bool insert=false);
 // 导入pptn
 bool import_pptn();
 
@@ -46,6 +46,29 @@ bool import_river();
 
 int main(int argc, char** argv)
 {
+
+    // 初始化布尔变量，默认值为false
+    bool has_pptn = false;
+    bool has_river = true;
+    bool has_rsvr = false;
+
+    // 遍历命令行参数（从索引1开始，因为argv[0]是程序名）
+    for (int i = 1; i < argc; ++i)
+    {
+        std::string arg = argv[i];
+        if (arg == "pptn")
+        {
+            has_pptn = true;
+        }
+        else if (arg == "river")
+        {
+            has_river = true;
+        }
+        else if (arg == "rsvr")
+        {
+            has_rsvr = true;
+        }
+    }
 
 #ifndef NDEBUG
     std::string configPath = std::filesystem::path(DEFAULT_SU_ROOT_DIR).append("docs").append("数据库导入导出").append("import.json").string();
@@ -64,6 +87,7 @@ int main(int argc, char** argv)
     timer.restart();
 
     // 导入stbprp
+
     if (!import_stbprp())
     {
         SLOG_ERROR("import stbprp failed");
@@ -71,18 +95,24 @@ int main(int argc, char** argv)
     }
     SLOG_INFO("stbprp 导入时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
     
-    //timer.restart();
-    //// 导入pptn
-    //import_pptn();
-    //SLOG_INFO("pptn 导入时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
-
-    timer.restart();
-    if (!import_river())
+    if (has_pptn)
     {
-        SLOG_ERROR("import river failed");
-        return -1;
+        // 导入pptn
+        timer.restart();
+        import_pptn();
+        SLOG_INFO("pptn 导入时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
     }
-    SLOG_INFO("river 导入时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
+
+    if (has_river)
+    {
+        timer.restart();
+        if (!import_river())
+        {
+            SLOG_ERROR("import river failed");
+            return -1;
+        }
+        SLOG_INFO("river 导入时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
+    }
 
 
     return 0;
@@ -118,7 +148,7 @@ bool init(const std::string& file)
 }
 
 
-bool import_stbprp()
+bool import_stbprp(bool insert)
 {
     std::vector<silly_stbprp> des_stbprps;
 
@@ -167,43 +197,47 @@ bool import_stbprp()
         }
     }
     SLOG_INFO("stbprp insert size:{}", des_stbprps.size());
-    return true; // 临时添加
+    if (!insert)
+    {
+        return true;
+    }
+    //return true; // 临时添加
     // --------------插入数据库--------------
     if (!otl.insert(insert_stbprp_sql, [&des_stbprps](otl_stream* stream) {
             for (const auto& entry : des_stbprps)
             {
                 otl_value<std::string> STCD(entry.STCD);
                 otl_value<std::string> STNM(entry.STNM);
-                otl_value<std::string> RVNM(entry.RVNM);
-                otl_value<std::string> HNNM(entry.HNNM);
-                otl_value<std::string> BSNM(entry.BSNM);
+                //otl_value<std::string> RVNM(entry.RVNM);
+                //otl_value<std::string> HNNM(entry.HNNM);
+                //otl_value<std::string> BSNM(entry.BSNM);
                 otl_value<double> LGTD(entry.LGTD);
                 otl_value<double> LTTD(entry.LTTD);
-                otl_value<std::string> STLC(entry.STLC);
-                otl_value<std::string> ADDVCD(entry.ADDVCD);
-                otl_value<std::string> DTMNM(entry.DTMNM);
-                otl_value<double> DTMEL(entry.DTMEL);
-                otl_value<double> DTPR(entry.DTPR);
-                otl_value<std::string> STTP(entry.STTP);
-                otl_value<std::string> FRGRD(entry.FRGRD);
-                otl_value<std::string> ESSTYM(entry.ESSTYM);
-                otl_value<std::string> BGFRYM(entry.BGFRYM);
-                otl_value<std::string> ATCUNIT(entry.ATCUNIT);
-                otl_value<std::string> ADMAUTH(entry.ADMAUTH);
-                otl_value<std::string> LOCALITY(entry.LOCALITY);
-                otl_value<std::string> STBK(entry.STBK);
-                otl_value<int> STAzt(entry.STAzt);
-                otl_value<double> DSTRVM(entry.DSTRVM);
-                otl_value<int> DRNA(entry.DRNA);
-                otl_value<std::string> PHCD(entry.PHCD);
-                otl_value<std::string> USFL(entry.USFL);
-                otl_value<std::string> COMMENTS(entry.COMMENTS);
-                otl_datetime MODITIME = otl_tools::otl_time_from_string(entry.MODITIME);
-                otl_value<std::string> HNNM0(entry.HNNM0);
-                otl_value<std::string> ADCD(entry.ADCD);
-                otl_value<std::string> ADDVCD1(entry.ADDVCD1);
+                //otl_value<std::string> STLC(entry.STLC);
+                //otl_value<std::string> ADDVCD(entry.ADDVCD);
+                //otl_value<std::string> DTMNM(entry.DTMNM);
+                //otl_value<double> DTMEL(entry.DTMEL);
+                //otl_value<double> DTPR(entry.DTPR);
+                //otl_value<std::string> STTP(entry.STTP);
+                //otl_value<std::string> FRGRD(entry.FRGRD);
+                //otl_value<std::string> ESSTYM(entry.ESSTYM);
+                //otl_value<std::string> BGFRYM(entry.BGFRYM);
+                //otl_value<std::string> ATCUNIT(entry.ATCUNIT);
+                //otl_value<std::string> ADMAUTH(entry.ADMAUTH);
+                //otl_value<std::string> LOCALITY(entry.LOCALITY);
+                //otl_value<std::string> STBK(entry.STBK);
+                //otl_value<int> STAzt(entry.STAzt);
+                //otl_value<double> DSTRVM(entry.DSTRVM);
+                //otl_value<int> DRNA(entry.DRNA);
+                //otl_value<std::string> PHCD(entry.PHCD);
+                //otl_value<std::string> USFL(entry.USFL);
+                //otl_value<std::string> COMMENTS(entry.COMMENTS);
+                //otl_datetime MODITIME = otl_tools::otl_time_from_string(entry.MODITIME);
+                //otl_value<std::string> HNNM0(entry.HNNM0);
+                //otl_value<std::string> ADCD(entry.ADCD);
+                //otl_value<std::string> ADDVCD1(entry.ADDVCD1);
 
-                otl_write_row(*stream, STCD, STNM/*, RVNM, HNNM, BSNM, LGTD, LTTD, STLC, ADDVCD, DTMNM, DTMEL, DTPR, STTP, FRGRD, ESSTYM, BGFRYM, ATCUNIT, ADMAUTH, LOCALITY, STBK, STAzt, DSTRVM, DRNA, PHCD, USFL, COMMENTS, MODITIME, HNNM0, ADCD, ADDVCD1*/);
+                otl_write_row(*stream, STCD, STNM/*, RVNM, HNNM, BSNM*/, LGTD, LTTD/*, STLC, ADDVCD, DTMNM, DTMEL, DTPR, STTP, FRGRD, ESSTYM, BGFRYM, ATCUNIT, ADMAUTH, LOCALITY, STBK, STAzt, DSTRVM, DRNA, PHCD, USFL, COMMENTS, MODITIME, HNNM0, ADCD, ADDVCD1*/);
             }
         }))
     {
@@ -257,6 +291,7 @@ bool import_pptn()
     ifs.close();
     
     // -----------index 找 stcd-------------
+    size_t nindex = 0;
     for (auto& pptn : des_pptns)
     {
         uint32_t t_index = pptn.index;
@@ -267,9 +302,16 @@ bool import_pptn()
             {
                 pptn.stcd = t_stcd;
             }
+            else
+            {
+                nindex++;
+            }
         }
     }
+    SLOG_INFO("pptn not found stcd: {}", nindex);
     SLOG_INFO("pptn insert size: {}", des_pptns.size());
+
+    //return true;// 临时添加
     // -----------数据插入-------------
     if (!otl.insert(insert_pptn_sql, [&des_pptns](otl_stream* stream) {
             int count = 0;
@@ -290,8 +332,8 @@ bool import_pptn()
                 tm.minute = timeinfo->tm_min;
                 tm.second = timeinfo->tm_sec;
 
-                otl_value<float> intv(entry.intv);
-                otl_value<float> drp(entry.drp);
+                otl_value<double> intv(entry.intv);
+                otl_value<double> drp(entry.drp);
 
                 otl_write_row(*stream, stcd, tm, drp, intv);
             }
@@ -365,61 +407,47 @@ bool import_river()
     }
     SLOG_INFO("rivers insert size: {}", des_rivers.size());
     // -----------数据插入-------------
-    if (!otl.insert(insert_river_sql, [&des_rivers](otl_stream* stream) {
-            int count = 0;
-            for (const auto& entry : des_rivers)
-            {
-                if (entry.stcd.empty())
-                {
-                    continue;
-                }
-                otl_value<std::string> stcd(entry.stcd.c_str());
-                struct tm* timeinfo;
-                timeinfo = localtime(&entry.stamp);
-                otl_datetime tm;
-                tm.year = (timeinfo->tm_year + 1900);
-                tm.month = timeinfo->tm_mon + 1;
-                tm.day = timeinfo->tm_mday;
-                tm.hour = timeinfo->tm_hour;
-                tm.minute = timeinfo->tm_min;
-                tm.second = timeinfo->tm_sec;
-
-                otl_value<double> zz(entry.zz);
-                otl_value<double> qq(entry.qq);
-                otl_value<std::string> wptn(entry.wptn);
-
-                otl_write_row(*stream, stcd, tm, zz, qq, wptn);
-            }
-        }))
+    //return true; // 临时添加
+    int bi = 0,    ei = 0;
+    int step = 5000;
+    ei = SU_MIN(step, des_rivers.size());
+    while (bi < des_rivers.size())
     {
-        SLOG_ERROR(otl.err());
-        return false;
+        if (!otl.insert(insert_river_sql, [&](otl_stream* stream) {
+                int count = 0;
+                for (int i = bi; i < ei; i++)
+                {
+                    auto entry = des_rivers[i];
+                    otl_value<std::string> stcd(entry.stcd);
+                    struct tm* timeinfo;
+                    timeinfo = localtime(&entry.stamp);
+                    otl_datetime tm;
+                    tm.year = (timeinfo->tm_year + 1900);
+                    tm.month = timeinfo->tm_mon + 1;
+                    tm.day = timeinfo->tm_mday;
+                    tm.hour = timeinfo->tm_hour;
+                    tm.minute = timeinfo->tm_min;
+                    tm.second = timeinfo->tm_sec;
+
+                    otl_value<double> zz(entry.zz);
+                    otl_value<double> qq(entry.qq);
+                    otl_value<std::string> wptn(entry.wptn);
+
+                    otl_write_row(*stream, stcd, tm, zz, qq, wptn);
+                }
+            }))
+        {
+            SLOG_ERROR(otl.err());
+            return false;
+        }
+        SLOG_INFO("插入第{} - {} 条记录", bi, ei);
+        bi = ei;
+        ei = SU_MIN(ei + step, des_rivers.size());
     }
+    
 
     SLOG_INFO("{} 导入完成, 导入数量: {}", river_file_path, des_rivers.size());
 
     return true;
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
