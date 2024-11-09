@@ -16,6 +16,7 @@
 #include <tzx/rwdb/silly_rsvr.h>
 #include <tzx/rwdb/silly_river.h>
 #include "export_tool.h"
+#include "datetime/silly_timer.h"  // 计时
 
 
 silly_otl otl;
@@ -56,6 +57,10 @@ int main(int argc, char** argv)
         SLOG_ERROR("init failed:{}", configPath);
         return -1;
     }
+    SLOG_INFO("读取配置文件完成开始导入数据");
+
+    silly_timer timer;
+    timer.restart();
 
     // 导入stbprp
     if (!import_stbprp())
@@ -63,15 +68,19 @@ int main(int argc, char** argv)
         SLOG_ERROR("import stbprp failed");
         return -1;
     }
+    SLOG_INFO("stbprp 导入时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
     
     //// 导入pptn
     //import_pptn();
 
+    timer.restart();
     if (!import_river())
     {
         SLOG_ERROR("import river failed");
         return -1;
     }
+    SLOG_INFO("river 导入时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
+
 
     return 0;
 }
@@ -152,7 +161,8 @@ bool import_stbprp()
             encode(entry, src_encode, dst_encode);
         }
     }
-    return true;
+    SLOG_INFO("stbprp insert size:{}", des_stbprps.size());
+    return true; // 临时添加
     // --------------插入数据库--------------
     if (!otl.insert(insert_stbprp_sql, [&des_stbprps](otl_stream* stream) {
             for (const auto& entry : des_stbprps)
@@ -162,13 +172,13 @@ bool import_stbprp()
                 otl_value<std::string> RVNM(entry.RVNM);
                 otl_value<std::string> HNNM(entry.HNNM);
                 otl_value<std::string> BSNM(entry.BSNM);
-                otl_value<float> LGTD(entry.LGTD);
-                otl_value<float> LTTD(entry.LTTD);
+                otl_value<double> LGTD(entry.LGTD);
+                otl_value<double> LTTD(entry.LTTD);
                 otl_value<std::string> STLC(entry.STLC);
                 otl_value<std::string> ADDVCD(entry.ADDVCD);
                 otl_value<std::string> DTMNM(entry.DTMNM);
-                otl_value<float> DTMEL(entry.DTMEL);
-                otl_value<float> DTPR(entry.DTPR);
+                otl_value<double> DTMEL(entry.DTMEL);
+                otl_value<double> DTPR(entry.DTPR);
                 otl_value<std::string> STTP(entry.STTP);
                 otl_value<std::string> FRGRD(entry.FRGRD);
                 otl_value<std::string> ESSTYM(entry.ESSTYM);
@@ -178,7 +188,7 @@ bool import_stbprp()
                 otl_value<std::string> LOCALITY(entry.LOCALITY);
                 otl_value<std::string> STBK(entry.STBK);
                 otl_value<int> STAzt(entry.STAzt);
-                otl_value<float> DSTRVM(entry.DSTRVM);
+                otl_value<double> DSTRVM(entry.DSTRVM);
                 otl_value<int> DRNA(entry.DRNA);
                 otl_value<std::string> PHCD(entry.PHCD);
                 otl_value<std::string> USFL(entry.USFL);
@@ -188,7 +198,7 @@ bool import_stbprp()
                 otl_value<std::string> ADCD(entry.ADCD);
                 otl_value<std::string> ADDVCD1(entry.ADDVCD1);
 
-                otl_write_row(*stream, STCD, STNM, RVNM, HNNM, BSNM, LGTD, LTTD, STLC, ADDVCD, DTMNM, DTMEL, DTPR, STTP, FRGRD, ESSTYM, BGFRYM, ATCUNIT, ADMAUTH, LOCALITY, STBK, STAzt, DSTRVM, DRNA, PHCD, USFL, COMMENTS, MODITIME, HNNM0, ADCD, ADDVCD1);
+                otl_write_row(*stream, STCD, STNM/*, RVNM, HNNM, BSNM, LGTD, LTTD, STLC, ADDVCD, DTMNM, DTMEL, DTPR, STTP, FRGRD, ESSTYM, BGFRYM, ATCUNIT, ADMAUTH, LOCALITY, STBK, STAzt, DSTRVM, DRNA, PHCD, USFL, COMMENTS, MODITIME, HNNM0, ADCD, ADDVCD1*/);
             }
         }))
     {
@@ -196,7 +206,7 @@ bool import_stbprp()
         return false;
     }
 
-    SLOG_INFO("{} 导入完成", stbprp_file_path);
+    SLOG_INFO("{} 导入完成, 导入数量: {}", stbprp_file_path, des_stbprps.size());
 
     return true;
 }
@@ -254,6 +264,7 @@ bool import_pptn()
             }
         }
     }
+    SLOG_INFO("pptn insert size: {}", des_pptns.size());
     // -----------数据插入-------------
     if (!otl.insert(insert_pptn_sql, [&des_pptns](otl_stream* stream) {
             int count = 0;
@@ -285,7 +296,7 @@ bool import_pptn()
         return false;
     }
 
-    SLOG_INFO("{} 导入完成", pptn_file_path);
+    SLOG_INFO("{} 导入完成, 导入数量: {}", pptn_file_path, des_pptns.size());
     
     return true;
 }
@@ -322,10 +333,10 @@ bool import_river()
         if (temp.deserialize(buffer))
         {
             des_rivers.push_back(temp);
-            if (des_rivers.size() == 100)
-            {
-                break;
-            }
+            //if (des_rivers.size() == 100)
+            //{
+            //    break;
+            //}
         }
         else
         {
@@ -335,18 +346,19 @@ bool import_river()
     ifs.close();
 
     // -----------index 找 stcd-------------
-    for (auto& pptn : des_rivers)
+    for (auto& river : des_rivers)
     {
-        uint32_t t_index = pptn.index;
+        uint32_t t_index = river.index;
         if (index_stcd.find(t_index) != index_stcd.end())
         {
             std::string t_stcd = index_stcd[t_index];
             if (!t_stcd.empty())
             {
-                pptn.stcd = t_stcd;
+                river.stcd = t_stcd;
             }
         }
     }
+    SLOG_INFO("rivers insert size: {}", des_rivers.size());
     // -----------数据插入-------------
     if (!otl.insert(insert_river_sql, [&des_rivers](otl_stream* stream) {
             int count = 0;
@@ -367,10 +379,11 @@ bool import_river()
                 tm.minute = timeinfo->tm_min;
                 tm.second = timeinfo->tm_sec;
 
-                otl_value<double> qq(entry.qq);
                 otl_value<double> zz(entry.zz);
+                otl_value<double> qq(entry.qq);
+                otl_value<std::string> wptn(entry.wptn);
 
-                otl_write_row(*stream, stcd, tm, zz, qq);
+                otl_write_row(*stream, stcd, tm, zz, qq, wptn);
             }
         }))
     {
@@ -378,7 +391,7 @@ bool import_river()
         return false;
     }
 
-    SLOG_INFO("{} 导入完成", pptn_file_path);
+    SLOG_INFO("{} 导入完成, 导入数量: {}", pptn_file_path, des_rivers.size());
 
     return true;
 

@@ -90,8 +90,9 @@ std::string silly_river::serialize_v1()
 
     memcpy(p, &zz, sizeof(zz));
     p += sizeof(zz);
-
     memcpy(p, &qq, sizeof(qq));
+    p += sizeof(wptn);
+    memcpy(p, &wptn, sizeof(wptn));
 
     return result;
 }
@@ -118,6 +119,8 @@ bool silly_river::deserialize_v1(const std::string& data)
     zz = P2FLOAT(p);
     p += sizeof(zz);
     qq = P2FLOAT(p);
+    p += sizeof(qq);
+    wptn = P2INT8(p);
     status = true;
     return status;
 }

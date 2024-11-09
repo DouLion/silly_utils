@@ -38,11 +38,12 @@ class silly_river
     bool deserialize_v3(const std::string& data);
 
   public:
-    float zz{0};
     std::string stcd;
     uint32_t index{0};
     std::time_t stamp{0};
+    float zz{0};
     float qq{0};
+    std::string wptn;
     // 固定长度  固定头1 版本信息 1 STCD 索引 4 int64_t 8, 时间戳 int 4, intv  4 uchar 雨量 float 4
     // static constexpr size_t SIZE_V1 = 1 + 1 + 4 + 8 + 4 + 4 + 4;
 
