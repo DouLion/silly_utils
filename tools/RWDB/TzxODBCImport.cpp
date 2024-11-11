@@ -23,9 +23,11 @@ silly_otl otl;
 std::string insert_pptn_sql;
 std::string insert_stbprp_sql;
 std::string insert_river_sql;
+std::string insert_rsvr_sql;
 std::string stbprp_file_path;
 std::string pptn_file_path;
 std::string river_file_path;
+std::string rsvr_file_path;
 std::string btm;
 std::string etm;
 std::string src_encode;
@@ -39,17 +41,18 @@ bool init(const std::string& file);
 bool import_stbprp(bool insert=false);
 // 导入pptn
 bool import_pptn();
-
+// 导入river
 bool import_river();
-
+// 导入rsvr
+bool import_rsvr();
 
 
 int main(int argc, char** argv)
 {
 
     // 初始化布尔变量，默认值为false
-    bool has_pptn = true;
-    bool has_river = true;
+    bool has_pptn = false;
+    bool has_river = false;
     bool has_rsvr = false;
 
     // 遍历命令行参数（从索引1开始，因为argv[0]是程序名）
@@ -67,6 +70,11 @@ int main(int argc, char** argv)
         else if (arg == "rsvr")
         {
             has_rsvr = true;
+        }
+        else
+        {
+            SLOG_ERROR("please input pptn or river or rsvr");
+            // return -1;
         }
     }
 
@@ -109,9 +117,19 @@ int main(int argc, char** argv)
         if (!import_river())
         {
             SLOG_ERROR("import river failed");
-            return -1;
         }
         SLOG_INFO("river 导入时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
+    }
+
+    if (has_rsvr)
+    {
+        timer.restart();
+        if (!import_rsvr())
+        {
+            SLOG_ERROR("import rsvr failed");
+        }
+        SLOG_INFO("rsvr 导入时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
+
     }
 
 
@@ -134,10 +152,13 @@ bool init(const std::string& file)
     insert_pptn_sql = jv_root["sql"]["insert_pptn_sql"].asString();
     insert_stbprp_sql = jv_root["sql"]["insert_stbprp_sql"].asString();
     insert_river_sql = jv_root["sql"]["insert_river_sql"].asString();
+    insert_rsvr_sql = jv_root["sql"]["insert_rsvr_sql"].asString();
 
     stbprp_file_path = jv_root["stbprp_file_path"].asString();
     pptn_file_path = jv_root["pptn_file_path"].asString();
     river_file_path = jv_root["river_file_path"].asString();
+    rsvr_file_path = jv_root["rsvr_file_path"].asString();
+
 
 
     src_encode = jv_root["encode"]["src"].asString();
@@ -255,6 +276,7 @@ bool import_pptn()
 {
     if (index_stcd.empty())
     {
+        SLOG_ERROR("index_stcd is empty");
         return false;
     }
 
@@ -360,6 +382,7 @@ bool import_river()
 {
     if (index_stcd.empty())
     {
+        SLOG_ERROR("index_stcd is empty");
         return false;
     }
 
@@ -382,7 +405,6 @@ bool import_river()
         {
             break;  // 检查是否读取结束到达文件末尾
         }
-        silly_river pptn;
         // 反序列化
         silly_river temp;
         if (temp.deserialize(buffer))
@@ -459,3 +481,121 @@ bool import_river()
     return true;
 
 }
+
+
+
+bool import_rsvr()
+{
+    if (index_stcd.empty())
+    {
+        SLOG_ERROR("index_stcd is empty");
+        return false;
+    }
+
+    std::vector<silly_rsvr> des_rsvrs;  // 用于存储反序列化后的对象
+
+    // -----------文件读取-------------
+    std::ifstream ifs(rsvr_file_path, std::ios::binary);  // 以二进制方式打开文件
+    if (!ifs.is_open())
+    {
+        SLOG_ERROR("rsvr_file_path open failed: {}", rsvr_file_path);
+        return false;
+    }
+
+    while (!ifs.eof())
+    {
+        std::string buffer;
+        buffer.resize(silly_rsvr::SIZE_V1);
+        ifs.read(&buffer[0], silly_rsvr::SIZE_V1);
+        if (ifs.gcount() == 0)
+        {
+            break;  // 检查是否读取结束到达文件末尾
+        }
+        // 反序列化
+        silly_rsvr temp;
+        if (temp.deserialize(buffer))
+        {
+            des_rsvrs.push_back(temp);
+            // if (des_rivers.size() == 100)
+            //{
+            //     break;
+            // }
+        }
+        else
+        {
+            std::cout << "Failed to deserialize an object from the data." << std::endl;
+        }
+    }
+    ifs.close();
+
+    // -----------index 找 stcd-------------
+    for (auto& rsvr : des_rsvrs)
+    {
+        uint32_t t_index = rsvr.index;
+        if (index_stcd.find(t_index) != index_stcd.end())
+        {
+            std::string t_stcd = index_stcd[t_index];
+            if (!t_stcd.empty())
+            {
+                rsvr.stcd = t_stcd;
+            }
+        }
+    }
+    SLOG_INFO("rivers insert size: {}", des_rsvrs.size());
+    // -----------数据插入-------------
+    // return true; // 临时添加
+    int bi = 0, ei = 0;
+    int step = 5000;
+    ei = SU_MIN(step, des_rsvrs.size());
+    while (bi < des_rsvrs.size())
+    {
+        if (!otl.insert(insert_rsvr_sql, [&](otl_stream* stream) {
+                int count = 0;
+                for (int i = bi; i < ei; i++)
+                {
+                    auto entry = des_rsvrs[i];
+
+                    otl_value<std::string> STCD(entry.stcd);
+                    otl_datetime OTM;
+                    struct tm* timeinfo;
+                    timeinfo = localtime(&entry.stamp);
+                    OTM.year = (timeinfo->tm_year + 1900);
+                    OTM.month = timeinfo->tm_mon + 1;
+                    OTM.day = timeinfo->tm_mday;
+                    OTM.hour = timeinfo->tm_hour;
+                    OTM.minute = timeinfo->tm_min;
+                    OTM.second = timeinfo->tm_sec;
+                    otl_value<double> RZ(entry.rz);
+                    otl_value<double> INQ(entry.inq);
+                    otl_value<double> W(entry.w);
+                    otl_value<double> OTQ(entry.otq);
+                    otl_value<std::string> RWCHRCD(entry.rwchrcd);
+                    otl_value<std::string> RWPTN(entry.rwptn);
+                    otl_value<double> INQDR(entry.inqdr);
+                    otl_value<std::string> MSQMT(entry.msqmt);
+                    otl_value<double> BLRZ(entry.blrz);
+                    
+                    otl_write_row(*stream, STCD, OTM, RZ, INQ, W, OTQ, RWCHRCD, RWPTN, INQDR, MSQMT, BLRZ);
+                }
+            }))
+        {
+            SLOG_ERROR(otl.err());
+            return false;
+        }
+        SLOG_INFO("插入第{} - {} 条记录", bi, ei);
+        bi = ei;
+        ei = SU_MIN(ei + step, des_rsvrs.size());
+    }
+
+    SLOG_INFO("{} 导入完成, 导入数量: {}", rsvr_file_path, des_rsvrs.size());
+
+    return true;
+}
+
+
+
+
+
+
+
+

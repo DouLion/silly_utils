@@ -68,7 +68,6 @@ int main(int argc, char** argv)
 {
 
     int type = 0;
-
     // 遍历命令行参数（从索引1开始，因为argv[0]是程序名）
     for (int i = 1; i < argc; ++i)
     {
@@ -123,38 +122,36 @@ int main(int argc, char** argv)
     }
     SLOG_INFO("stbprp 导出时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
 
-    type = 1;
-
-    bool e1 = export_type(1);
-    bool e2 = export_type(2);
-
-    //if (has_pptn)
-    //{
-    //    // // 导出pptn
-    //     timer.restart();
-    //     export_pptn();
-    //     SLOG_INFO("pptn 导出时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
-    //}
-
-    //if (has_river)
-    //{
-    //    timer.restart();
-    //    export(2);
-    //    SLOG_INFO("river 导出时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
-    //}
-
-    //if (has_rsvr)
-    //{
-    //    timer.restart();
-    //    if (!export_rsvr())
-    //    {
-    //        SLOG_ERROR("query_river failed");
-    //        return -1;
-    //    }
-    //    SLOG_INFO("river 导出时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
-    //}
-
-    // query_river(btm, etm);
+    if (type == 1)
+    {
+        timer.restart();
+        // 导出pptn
+        if (!export_type(1))
+        {
+            SLOG_ERROR("export_pptn failed");
+        }
+        SLOG_INFO("pptn 导出时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
+    }
+    else if (type == 2)
+    {
+        timer.restart();
+        // 导出river
+        if (!export_type(2))
+        {
+            SLOG_ERROR("export_river failed");
+        }
+        SLOG_INFO("river 导出时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
+    }
+    else if (type == 3)
+    {
+        timer.restart();
+        // 导出rsvr
+        if (!export_type(3))
+        {
+            SLOG_ERROR("export_rsvr failed");
+        }
+        SLOG_INFO("rsvr 导出时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
+    }
     return 0;
 }
 
@@ -560,15 +557,33 @@ std::vector<silly_rsvr> query_rsvr(const std::string& begtm, const std::string& 
 {
     std::vector<silly_rsvr> rsvrs;
 
-    std::string sql = silly_format::format(select_river_sql, begtm, endtm);
+    std::string sql = silly_format::format(select_rsvr_sql, begtm, endtm);
     if (!otl.select(sql, [&rsvrs](otl_stream* stream) {
             // otl_write_row(*stream, btm_str, etm_str);  // 传入参数
             while (!stream->eof())
             {
-                silly_rsvr tep_rsvr;
+                silly_rsvr tmp_rsvr;
 
+                otl_value<std::string> STCD, RWCHRCD, RWPTN, MSQMT;
+                otl_value<double> RZ, INQ, W, OTQ, INQDR, BLRZ;
+                otl_datetime tm;
+                otl_read_row(*stream, STCD, tm, RZ, INQ, W, OTQ, RWCHRCD, RWPTN, INQDR, MSQMT, BLRZ);
+                if (!STCD.is_null()) {tmp_rsvr.stcd = STCD.v;}
+                if (!RZ.is_null()) {tmp_rsvr.rz = RZ.v;}
+                if (!INQ.is_null()) {tmp_rsvr.inq = INQ.v;}
+                if (!W.is_null()) {tmp_rsvr.w = W.v;}
+                if (!OTQ.is_null()) {tmp_rsvr.otq = OTQ.v;}
+                if (!RWCHRCD.is_null()) {tmp_rsvr.rwchrcd = RWCHRCD.v;}
+                if (!RWPTN.is_null()) {tmp_rsvr.rwptn = RWPTN.v;}
+                if (!INQDR.is_null()) {tmp_rsvr.inqdr = INQDR.v;}
+                if (!MSQMT.is_null()) {tmp_rsvr.msqmt = MSQMT.v;}
+                if (!BLRZ.is_null()) {tmp_rsvr.blrz = BLRZ.v;}
+                
+                std::tm t{tm.second, tm.minute, tm.hour, tm.day, tm.month - 1, tm.year - 1900};
+                std::time_t stamp = std::mktime(&t);
+                tmp_rsvr.stamp = stamp;
 
-                rsvrs.push_back(tep_rsvr);
+                rsvrs.push_back(tmp_rsvr);
             }
         }))
     {

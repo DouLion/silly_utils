@@ -9,26 +9,7 @@
  * @version: v1.0.1 2024-09-30 dou li yang
  */
 #include "silly_river.h"
-
-
-
-
-
-#define P2INT8(x) ((int8_t*)((x)))[0]
-#define P2INT16(x) ((int16_t*)((x)))[0]
-#define P2INT32(x) ((int32_t*)((x)))[0]
-#define P2INT64(x) ((int64_t*)((x)))[0]
-#define P2UINT8(x) ((int8_t*)((x)))[0]
-#define P2UINT16(x) ((int16_t*)((x)))[0]
-#define P2UINT32(x) ((int32_t*)((x)))[0]
-#define P2UINT64(x) ((int64_t*)((x)))[0]
-#define P2FLOAT(x) ((float*)((x)))[0]
-#define P2DOUBLE(x) ((double*)((x))[0]
-
-
-
-
-
+#include "silly_turn_tool.h"
 
 std::string silly_river::serialize(const int& ver)
 {
@@ -100,22 +81,6 @@ std::string silly_river::serialize_v1()
     return result;
 }
 
-std::string rstr2bin(std::string str)
-{
-    std::string result;
-    result.resize(1);
-    result[0] = static_cast<uint8_t>(str.size());
-    result.append(str);
-    return result;
-}
-std::string rbin2str(const char* str)
-{
-    uint8_t size = str[0];
-    std::string result;
-    result.resize(size);
-    memcpy(&result[0], &str[1], size);
-    return result;
-}
 
 bool silly_river::deserialize_v1(const std::string& data)
 {
@@ -169,7 +134,7 @@ std::string silly_river::serialize_v2()
     {
         wptn = "0";
     }
-    std::string wp = rstr2bin(wptn);
+    std::string wp = str2bin(wptn);
     memcpy(p, &wp[0], 2);
 
     return result;
@@ -197,7 +162,7 @@ bool silly_river::deserialize_v2(const std::string& data)
     p += sizeof(zz);
     qq = P2FLOAT(p);
     p += sizeof(qq);
-    wptn = rbin2str(p);
+    wptn = bin2str(p);
     status = true;
     return status;
 }

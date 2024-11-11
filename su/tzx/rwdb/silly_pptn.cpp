@@ -9,17 +9,7 @@
  * @version: v1.0.1 2024-09-30 dou li yang
  */
 #include "silly_pptn.h"
-
-#define P2INT8(x) ((int8_t*)((x)))[0]
-#define P2INT16(x) ((int16_t*)((x)))[0]
-#define P2INT32(x) ((int32_t*)((x)))[0]
-#define P2INT64(x) ((int64_t*)((x)))[0]
-#define P2UINT8(x) ((int8_t*)((x)))[0]
-#define P2UINT16(x) ((int16_t*)((x)))[0]
-#define P2UINT32(x) ((int32_t*)((x)))[0]
-#define P2UINT64(x) ((int64_t*)((x)))[0]
-#define P2FLOAT(x) ((float*)((x)))[0]
-#define P2DOUBLE(x) ((double*)((x))[0]
+#include "silly_turn_tool.h"
 
 std::string silly_pptn::serialize(const int& ver)
 {

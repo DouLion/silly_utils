@@ -39,25 +39,22 @@ class silly_rsvr
 
   public:
 
-    std::string stcd;
-    uint32_t index{0};
-    std::time_t stamp{0};
-    float rz{0};
-    float inq{0};
-    float w;
-    float otq{0};
-    std::string rwchrcd;
-    std::string rwptn;
-    float inqdr;
-    std::string msqmt;
-    float blrz;
+    std::string stcd; 
+    uint32_t index{0}; // 索引 4
+    std::time_t stamp{0}; // 时间戳 4
+    float rz{0}; // 4
+    float inq{0}; //4
+    float w{0};            // 4
+    float otq{0}; //4
+    std::string rwchrcd;  // 一个字节 +长度2个字节
+    std::string rwptn; // 一个字节+长度2个字节
+    float inqdr{0};        // 4
+    std::string msqmt; // 一个字节+长度2个字节
+    float blrz{0};          // 4
 
+    // 固定长度  固定头1 版本信息 1 STCD 索引 4 
+    static constexpr size_t SIZE_V1 = 1 + 1 + 4 + 4 + 4 + 4 + 4 + 4 + 2 + 2 + 4 + 2 + 4;
 
-    // 固定长度  固定头1 版本信息 1 STCD 索引 4 int64_t 8, 时间戳 int 4, intv  4 uchar 雨量 float 4
-    // static constexpr size_t SIZE_V1 = 1 + 1 + 4 + 8 + 4 + 4 + 4;
-
-    static constexpr size_t SIZE_V1 = 1 + 1 + 4 + 4 + 4 + 4;
-    static constexpr size_t SIZE_V2 = 1 + 1 + 4 + 4 + 4 + 4 + 2;
     static constexpr char PREFIX = 'H';  // 固定头
     static constexpr char* FILE_NAME = "RSVR.dat";
 };

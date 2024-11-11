@@ -9,55 +9,9 @@
  * @version: v1.0.1 2024-09-30 dou li yang
  */
 #include "silly_stbprp.h"
+#include "silly_turn_tool.h"
 
-std::string v2bin(uint8_t v)
-{
-    std::string result;
-    result.resize(sizeof(v));
-    memcpy(&result[0], &v, sizeof(v));
-    return result;
-}
 
-std::string v2bin(double v)
-{
-    std::string result;
-    result.resize(sizeof(v));
-    memcpy(&result[0], &v, sizeof(v));
-    return result;
-}
-
-std::string v2bin(uint32_t v)
-{
-    std::string result;
-    result.resize(sizeof(v));
-    memcpy(&result[0], &v, sizeof(v));
-    return result;
-}
-
-std::string v2bin(int32_t v)
-{
-    std::string result;
-    result.resize(sizeof(v));
-    memcpy(&result[0], &v, sizeof(v));
-    return result;
-}
-
-std::string str2bin(std::string str)
-{
-    std::string result;
-    result.resize(1);
-    result[0] = static_cast<uint8_t>(str.size());
-    result.append(str);
-    return result;
-}
-std::string bin2str(const char* str)
-{
-    uint8_t size = str[0];
-    std::string result;
-    result.resize(size);
-    memcpy(&result[0], &str[1], size);
-    return result;
-}
 
 std::string silly_stbprp::serialize()
 {

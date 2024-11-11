@@ -53,9 +53,4 @@ class silly_river
     static constexpr char* FILE_NAME = "RIVER.dat";
 };
 
-
-
-
-
-
 #endif  // SILLY_UTILS_SILLY_RIVER_H
