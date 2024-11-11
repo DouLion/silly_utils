@@ -48,7 +48,7 @@ int main(int argc, char** argv)
 {
 
     // 初始化布尔变量，默认值为false
-    bool has_pptn = false;
+    bool has_pptn = true;
     bool has_river = true;
     bool has_rsvr = false;
 
@@ -313,34 +313,42 @@ bool import_pptn()
 
     //return true;// 临时添加
     // -----------数据插入-------------
-    if (!otl.insert(insert_pptn_sql, [&des_pptns](otl_stream* stream) {
-            int count = 0;
-            for (const auto& entry : des_pptns)
-            {
-                if (entry.stcd.empty())
-                {
-                    continue;
-                }
-                otl_value<std::string> stcd(entry.stcd.c_str());
-                struct tm* timeinfo;
-                timeinfo = localtime(&entry.stamp);
-                otl_datetime tm;
-                tm.year = (timeinfo->tm_year + 1900);
-                tm.month = timeinfo->tm_mon + 1;
-                tm.day = timeinfo->tm_mday;
-                tm.hour = timeinfo->tm_hour;
-                tm.minute = timeinfo->tm_min;
-                tm.second = timeinfo->tm_sec;
-
-                otl_value<double> intv(entry.intv);
-                otl_value<double> drp(entry.drp);
-
-                otl_write_row(*stream, stcd, tm, drp, intv);
-            }
-        }))
+    int bi = 0, ei = 0;
+    int step = 5000;
+    ei = SU_MIN(step, des_pptns.size());
+    while (bi < des_pptns.size())
     {
-        SLOG_ERROR(otl.err());
-        return false;
+        if (!otl.insert(insert_pptn_sql, [&](otl_stream* stream) {
+                int count = 0;
+                for (int i = bi; i < ei; i++)
+                {
+                    auto entry = des_pptns[i];
+
+                    otl_value<std::string> stcd(entry.stcd.c_str());
+                    struct tm* timeinfo;
+                    timeinfo = localtime(&entry.stamp);
+                    otl_datetime tm;
+                    tm.year = (timeinfo->tm_year + 1900);
+                    tm.month = timeinfo->tm_mon + 1;
+                    tm.day = timeinfo->tm_mday;
+                    tm.hour = timeinfo->tm_hour;
+                    tm.minute = timeinfo->tm_min;
+                    tm.second = timeinfo->tm_sec;
+
+                    otl_value<double> intv(entry.intv);
+                    otl_value<double> drp(entry.drp);
+
+                    otl_write_row(*stream, stcd, tm, drp, intv);
+                }
+            }))
+        {
+            SLOG_ERROR(otl.err());
+            return false;
+        }
+        SLOG_INFO("插入第{} - {} 条记录", bi, ei);
+        bi = ei;
+        ei = SU_MIN(ei + step, des_pptns.size());
+
     }
 
     SLOG_INFO("{} 导入完成, 导入数量: {}", pptn_file_path, des_pptns.size());
