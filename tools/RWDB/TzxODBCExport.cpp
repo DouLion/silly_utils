@@ -16,7 +16,7 @@
 #include <tzx/rwdb/silly_river.h>
 #include "export_tool.h"
 #include "datetime/silly_posix_time.h"
-#include "datetime/silly_timer.h" // 计时
+#include "datetime/silly_timer.h"  // 计时
 #include "string/silly_format.h"
 
 // 全局变量
@@ -44,7 +44,6 @@ bool export_stbprp();
 // 导出降雨记录
 bool export_pptn();
 
-
 // 查询 pptn 表中从 begtm 到 endtm 的数据
 std::vector<silly_pptn> query_pptn(const std::string& begtm, const std::string& endtm);
 // 将 pptn 表中的数据导出到二进制流中
@@ -60,13 +59,10 @@ std::vector<silly_rsvr> query_rsvr(const std::string& begtm, const std::string& 
 // 将 rsvr 表中的数据导出到二进制流中
 std::vector<std::string> rsvr_strs(std::vector<silly_rsvr>& rsvrs);
 
-
 bool export_type(const int& type);
-
 
 int main(int argc, char** argv)
 {
-
     int type = 0;
     // 遍历命令行参数（从索引1开始，因为argv[0]是程序名）
     for (int i = 1; i < argc; ++i)
@@ -87,7 +83,7 @@ int main(int argc, char** argv)
         else
         {
             SLOG_ERROR("please input pptn or river or rsvr");
-            //return -1;
+            // return -1;
         }
     }
 
@@ -112,8 +108,7 @@ int main(int argc, char** argv)
 #else
 #endif
     silly_timer timer;
-    
-    timer.restart();
+
     // 导出stbprp
     if (!export_stbprp())
     {
@@ -193,17 +188,30 @@ bool export_stbprp()
                 otl_value<int> STAzt, DRNA;
                 otl_datetime MODITIME;
 
-                otl_read_row(*stream, STCD, STNM/*, RVNM, HNNM, BSNM*/, LGTD, LTTD/*, STLC, ADDVCD, DTMNM, DTMEL, DTPR, STTP, FRGRD, ESSTYM, BGFRYM, ATCUNIT, ADMAUTH, LOCALITY, STBK, STAzt, DSTRVM, DRNA, PHCD, USFL, COMMENTS, MODITIME, HNNM0, ADCD, ADDVCD1*/);
+                otl_read_row(
+                    *stream, STCD, STNM /*, RVNM, HNNM, BSNM*/, LGTD, LTTD /*, STLC, ADDVCD, DTMNM, DTMEL, DTPR, STTP, FRGRD, ESSTYM, BGFRYM, ATCUNIT, ADMAUTH, LOCALITY, STBK, STAzt, DSTRVM, DRNA, PHCD, USFL, COMMENTS, MODITIME, HNNM0, ADCD, ADDVCD1*/);
                 silly_stbprp temp;
 
                 // 检查并赋值
-                if (!STCD.is_null()) { temp.STCD = STCD.v; }
-                if (!STNM.is_null()) { temp.STNM = STNM.v; }
-               /* if (!RVNM.is_null()) { temp.RVNM = RVNM.v; }
-                if (!HNNM.is_null()) { temp.HNNM = HNNM.v; }
-                if (!BSNM.is_null()) { temp.BSNM = BSNM.v; }*/
-                if (!LGTD.is_null()) { temp.LGTD = LGTD.v; }
-                if (!LTTD.is_null()) { temp.LTTD = LTTD.v; }
+                if (!STCD.is_null())
+                {
+                    temp.STCD = STCD.v;
+                }
+                if (!STNM.is_null())
+                {
+                    temp.STNM = STNM.v;
+                }
+                /* if (!RVNM.is_null()) { temp.RVNM = RVNM.v; }
+                 if (!HNNM.is_null()) { temp.HNNM = HNNM.v; }
+                 if (!BSNM.is_null()) { temp.BSNM = BSNM.v; }*/
+                if (!LGTD.is_null())
+                {
+                    temp.LGTD = LGTD.v;
+                }
+                if (!LTTD.is_null())
+                {
+                    temp.LTTD = LTTD.v;
+                }
                 /* if (!STLC.is_null()) { temp.STLC = STLC.v; }
                 if (!ADDVCD.is_null()) { temp.ADDVCD = ADDVCD.v; }
                 if (!DTMNM.is_null()) { temp.DTMNM = DTMNM.v; }
@@ -223,7 +231,7 @@ bool export_stbprp()
                 if (!PHCD.is_null()) { temp.PHCD = PHCD.v; }
                 if (!USFL.is_null()) { temp.USFL = USFL.v; }
                 if (!COMMENTS.is_null()) { temp.COMMENTS = COMMENTS.v; }
-                temp.MODITIME = otl_tools::otl_time_to_string(MODITIME); 
+                temp.MODITIME = otl_tools::otl_time_to_string(MODITIME);
                 if (!HNNM0.is_null()) { temp.HNNM0 = HNNM0.v; }
                 if (!ADCD.is_null()) { temp.ADCD = ADCD.v; }
                 if (!ADDVCD1.is_null()) { temp.ADDVCD1 = ADDVCD1.v; }*/
@@ -244,7 +252,6 @@ bool export_stbprp()
         stbprp.index = index;
         stcd_index[stbprp.STCD] = index;
         index++;
-
     }
     SLOG_INFO("查询到 stbprp 数据:{} 条数据开始导出到文件", stbprps.size());
 
@@ -310,9 +317,18 @@ bool export_pptn()
                     otl_read_row(*stream, STCD, tm, DRP, INTV);
                     silly_pptn tmp_pptn;
 
-                    if (!STCD.is_null()){tmp_pptn.stcd = STCD.v;}
-                    if (!DRP.is_null()){tmp_pptn.drp = DRP.v;}
-                    if (!INTV.is_null()){tmp_pptn.intv = INTV.v;}
+                    if (!STCD.is_null())
+                    {
+                        tmp_pptn.stcd = STCD.v;
+                    }
+                    if (!DRP.is_null())
+                    {
+                        tmp_pptn.drp = DRP.v;
+                    }
+                    if (!INTV.is_null())
+                    {
+                        tmp_pptn.intv = INTV.v;
+                    }
 
                     std::tm t{tm.second, tm.minute, tm.hour, tm.day, tm.month - 1, tm.year - 1900};
                     std::time_t stamp = std::mktime(&t);
@@ -325,9 +341,9 @@ bool export_pptn()
             SLOG_ERROR(otl.err());
             return false;
         }
-        for(auto& pptn : pptns)
+        for (auto& pptn : pptns)
         {
-            if(stcd_index.find(pptn.stcd) == std::end(stcd_index))
+            if (stcd_index.find(pptn.stcd) == std::end(stcd_index))
             {
                 pptn.index = 0;
                 continue;
@@ -336,7 +352,7 @@ bool export_pptn()
             pptn.index = stcd_index[pptn.stcd];
         }
         SLOG_INFO("查询到:{} 条数据开始导出到文件", pptns.size());
-        
+
         std::ofstream ofs(ppth_file_path.string(), std::ios::binary | std::ios::app);
         for (auto& pptn : pptns)
         {
@@ -344,7 +360,7 @@ bool export_pptn()
         }
         ofs.close();
         std::cout << "btm: " << btm_str << ", etm: " << etm_str << ", size:" << pptns.size() << std::endl;
-        all_index+=pptns.size();
+        all_index += pptns.size();
     }
     SLOG_INFO("pptn not found stcd: {}", nstdcindex);
 
@@ -353,11 +369,8 @@ bool export_pptn()
     return true;
 }
 
-
-
 bool export_type(const int& type)
 {
-    
     std::filesystem::path out_file_path(root);
     std::string fileName;
     if (type == 1)
@@ -392,17 +405,17 @@ bool export_type(const int& type)
         std::string etm_str = temp.to_string();
 
         std::vector<std::string> rows;
-        if (type == 1) //pptn
+        if (type == 1)  // pptn
         {
             std::vector<silly_pptn> pptns = query_pptn(btm_str, etm_str);
             rows = pptn_strs(pptns);
         }
-        else if (type == 2) //river
+        else if (type == 2)  // river
         {
             std::vector<silly_river> rivers = query_river(btm_str, etm_str);
             rows = river_strs(rivers);
         }
-        else if (type == 3) // rsvr
+        else if (type == 3)  // rsvr
         {
             std::vector<silly_rsvr> rsvrs = query_rsvr(btm_str, etm_str);
             rows = rsvr_strs(rsvrs);
@@ -425,14 +438,13 @@ bool export_type(const int& type)
     return true;
 }
 
-
 std::vector<silly_pptn> query_pptn(const std::string& begtm, const std::string& endtm)
 {
     std::vector<silly_pptn> pptns;
     std::string sql = silly_format::format(select_pptn_sql, begtm, endtm);
 
     if (!otl.select(sql, [&pptns](otl_stream* stream) {
-            //otl_write_row(*stream, btm_str, etm_str);  // 传入参数
+            // otl_write_row(*stream, btm_str, etm_str);  // 传入参数
             while (!stream->eof())
             {
                 otl_value<std::string> STCD;
@@ -468,17 +480,19 @@ std::vector<silly_pptn> query_pptn(const std::string& begtm, const std::string& 
     SLOG_INFO("查询到:{} 条 PPTN 数据", pptns.size());
     return pptns;
 }
-std::vector<std::string> pptn_strs(std::vector<silly_pptn>& pptns)
+std::vector<std::string> pptn_strs(std::vector<silly_pptn>& pptns, const std::unordered_map<std::string, uint32_t>& stcd_index)
 {
     std::vector<std::string> rows;
     for (auto& pptn : pptns)
     {
-        if (stcd_index.find(pptn.stcd) == std::end(stcd_index))
+        auto it = stcd_index.find(pptn.stcd);
+
+        if (it == std::end(stcd_index))
         {
             pptn.index = 0;
             continue;
         }
-        pptn.index = stcd_index[pptn.stcd];
+        pptn.index = it->second;
     }
     for (auto& pptn : pptns)
     {
@@ -492,7 +506,6 @@ std::vector<silly_river> query_river(const std::string& begtm, const std::string
     std::vector<silly_river> rivers;
     std::string sql = silly_format::format(select_river_sql, begtm, endtm);
     if (!otl.select(sql, [&rivers](otl_stream* stream) {
-            // otl_write_row(*stream, btm_str, etm_str);  // 传入参数
             while (!stream->eof())
             {
                 otl_value<std::string> STCD, WPTN;
@@ -527,7 +540,7 @@ std::vector<silly_river> query_river(const std::string& begtm, const std::string
         }))
     {
         SLOG_ERROR(otl.err());
-        rivers.clear();//查询失败,返回空
+        rivers.clear();  // 查询失败,返回空
     }
 
     SLOG_INFO("查询到:{} 条 RIVER 数据", rivers.size());
@@ -559,7 +572,6 @@ std::vector<silly_rsvr> query_rsvr(const std::string& begtm, const std::string& 
 
     std::string sql = silly_format::format(select_rsvr_sql, begtm, endtm);
     if (!otl.select(sql, [&rsvrs](otl_stream* stream) {
-            // otl_write_row(*stream, btm_str, etm_str);  // 传入参数
             while (!stream->eof())
             {
                 silly_rsvr tmp_rsvr;
@@ -568,17 +580,47 @@ std::vector<silly_rsvr> query_rsvr(const std::string& begtm, const std::string& 
                 otl_value<double> RZ, INQ, W, OTQ, INQDR, BLRZ;
                 otl_datetime tm;
                 otl_read_row(*stream, STCD, tm, RZ, INQ, W, OTQ, RWCHRCD, RWPTN, INQDR, MSQMT, BLRZ);
-                if (!STCD.is_null()) {tmp_rsvr.stcd = STCD.v;}
-                if (!RZ.is_null()) {tmp_rsvr.rz = RZ.v;}
-                if (!INQ.is_null()) {tmp_rsvr.inq = INQ.v;}
-                if (!W.is_null()) {tmp_rsvr.w = W.v;}
-                if (!OTQ.is_null()) {tmp_rsvr.otq = OTQ.v;}
-                if (!RWCHRCD.is_null()) {tmp_rsvr.rwchrcd = RWCHRCD.v;}
-                if (!RWPTN.is_null()) {tmp_rsvr.rwptn = RWPTN.v;}
-                if (!INQDR.is_null()) {tmp_rsvr.inqdr = INQDR.v;}
-                if (!MSQMT.is_null()) {tmp_rsvr.msqmt = MSQMT.v;}
-                if (!BLRZ.is_null()) {tmp_rsvr.blrz = BLRZ.v;}
-                
+                if (!STCD.is_null())
+                {
+                    tmp_rsvr.stcd = STCD.v;
+                }
+                if (!RZ.is_null())
+                {
+                    tmp_rsvr.rz = RZ.v;
+                }
+                if (!INQ.is_null())
+                {
+                    tmp_rsvr.inq = INQ.v;
+                }
+                if (!W.is_null())
+                {
+                    tmp_rsvr.w = W.v;
+                }
+                if (!OTQ.is_null())
+                {
+                    tmp_rsvr.otq = OTQ.v;
+                }
+                if (!RWCHRCD.is_null())
+                {
+                    tmp_rsvr.rwchrcd = RWCHRCD.v;
+                }
+                if (!RWPTN.is_null())
+                {
+                    tmp_rsvr.rwptn = RWPTN.v;
+                }
+                if (!INQDR.is_null())
+                {
+                    tmp_rsvr.inqdr = INQDR.v;
+                }
+                if (!MSQMT.is_null())
+                {
+                    tmp_rsvr.msqmt = MSQMT.v;
+                }
+                if (!BLRZ.is_null())
+                {
+                    tmp_rsvr.blrz = BLRZ.v;
+                }
+
                 std::tm t{tm.second, tm.minute, tm.hour, tm.day, tm.month - 1, tm.year - 1900};
                 std::time_t stamp = std::mktime(&t);
                 tmp_rsvr.stamp = stamp;
@@ -597,7 +639,6 @@ std::vector<silly_rsvr> query_rsvr(const std::string& begtm, const std::string& 
 // 将 rsvr 表中的数据导出到二进制流中
 std::vector<std::string> rsvr_strs(std::vector<silly_rsvr>& rsvrs)
 {
-
     std::vector<std::string> rows;
     for (auto& river : rsvrs)
     {
@@ -620,37 +661,37 @@ bool export_rsvr()
 {
     bool status = true;
 
-    //std::filesystem::path rsvr_file_path(root);
-    //std::string fileName = str_now_tm + "_" + silly_rsvr::FILE_NAME;
-    //rsvr_file_path.append(fileName);
-    //std::filesystem::create_directories(rsvr_file_path.parent_path());
+    // std::filesystem::path rsvr_file_path(root);
+    // std::string fileName = str_now_tm + "_" + silly_rsvr::FILE_NAME;
+    // rsvr_file_path.append(fileName);
+    // std::filesystem::create_directories(rsvr_file_path.parent_path());
 
-    //silly_posix_time startTime = silly_posix_time::time_from_string(btm);
-    //silly_posix_time endTime = silly_posix_time::time_from_string(etm);
-    //silly_time_duration minutes(5 * 24, 0, 0);  // 10天
-    //SLOG_INFO("查询 rsvr 截止时间: {}, etm: {}", btm, etm);
-    //size_t all_index = 0;
-    //for (silly_posix_time currentTm = startTime; currentTm < endTime; currentTm += minutes)
+    // silly_posix_time startTime = silly_posix_time::time_from_string(btm);
+    // silly_posix_time endTime = silly_posix_time::time_from_string(etm);
+    // silly_time_duration minutes(5 * 24, 0, 0);  // 10天
+    // SLOG_INFO("查询 rsvr 截止时间: {}, etm: {}", btm, etm);
+    // size_t all_index = 0;
+    // for (silly_posix_time currentTm = startTime; currentTm < endTime; currentTm += minutes)
     //{
-    //    std::string btm_str = currentTm.to_string();
-    //    silly_posix_time temp = currentTm;
-    //    temp += minutes;
-    //    if (temp > endTime)
-    //    {
-    //        temp = endTime;
-    //    }
-    //    std::string etm_str = temp.to_string();
-    //    std::vector<silly_rsvr> rsvrs;
-    //    // std::string sql = silly_format::format(select_pptn_sql, btm_str, etm_str);
-    //    if (!otl.select(select_rsvr_sql, [&rsvrs, btm_str, etm_str](otl_stream* stream) {
-    //            otl_write_row(*stream, btm_str, etm_str);  // 传入参数
-    //            while (!stream->eof())
-    //            {
-    //                otl_value<std::string> STCD, WPTN;
-    //                otl_value<double> Z, Q;
-    //                otl_datetime tm;
-    //                otl_read_row(*stream, STCD, tm, Z, Q, WPTN);
-    //                silly_rsvr tmp_rsvr;
+    //     std::string btm_str = currentTm.to_string();
+    //     silly_posix_time temp = currentTm;
+    //     temp += minutes;
+    //     if (temp > endTime)
+    //     {
+    //         temp = endTime;
+    //     }
+    //     std::string etm_str = temp.to_string();
+    //     std::vector<silly_rsvr> rsvrs;
+    //     // std::string sql = silly_format::format(select_pptn_sql, btm_str, etm_str);
+    //     if (!otl.select(select_rsvr_sql, [&rsvrs, btm_str, etm_str](otl_stream* stream) {
+    //             otl_write_row(*stream, btm_str, etm_str);  // 传入参数
+    //             while (!stream->eof())
+    //             {
+    //                 otl_value<std::string> STCD, WPTN;
+    //                 otl_value<double> Z, Q;
+    //                 otl_datetime tm;
+    //                 otl_read_row(*stream, STCD, tm, Z, Q, WPTN);
+    //                 silly_rsvr tmp_rsvr;
 
     //                if (!STCD.is_null())
     //                {
@@ -700,8 +741,7 @@ bool export_rsvr()
     //    all_index += rsvrs.size();
     //}
 
-    //SLOG_INFO("{} 导出完成, 导出 {} 条数据", rsvr_file_path.string(), std::to_string(all_index));
+    // SLOG_INFO("{} 导出完成, 导出 {} 条数据", rsvr_file_path.string(), std::to_string(all_index));
 
     return status;
 }
-
