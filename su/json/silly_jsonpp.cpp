@@ -40,6 +40,16 @@ Json::Value silly_jsonpp::loads(const std::string& content)
     return Json::nullValue;
 }
 
+std::string silly_jsonpp::dumps(const Json::Value& root, const std::string& indentation)
+{
+    Json::StreamWriterBuilder writerBuilder;
+    // 可以根据需要选择格式化选项，StreamWriterBuilder 是新版 jsoncpp 的写法
+    writerBuilder["indentation"] = indentation;  // 不缩进为""，生成紧凑的 JSON 字符串
+
+    std::string jsonString = Json::writeString(writerBuilder, root);
+    return jsonString;
+}
+
 std::string silly_jsonpp::to_string(const Json::Value root, const silly_jsonpp_opt& opt)
 {
     Json::StreamWriterBuilder stream_builder;
@@ -250,6 +260,27 @@ bool silly_jsonpp::check_member_object(const Json::Value& root, const std::strin
     else
     {
         SLOG_DEBUG("不存在字段 {}", key)
+    }
+    return false;
+}
+
+bool silly_jsonpp::check_member_uint64(const Json::Value& root, const std::string& key, unsigned long long& val)
+{
+    if (root.isMember(key))
+    {
+        if (root[key].asUInt64())  // 检查是否是 int64 类型
+        {
+            val = root[key].asUInt64();  // 将值转换为 long long (int64)
+            return true;
+        }
+        else
+        {
+            SLOG_DEBUG("字段 {} 不是unsigned long long类型", key);
+        }
+    }
+    else
+    {
+        SLOG_DEBUG("不存在字段 {}", key);
     }
     return false;
 }

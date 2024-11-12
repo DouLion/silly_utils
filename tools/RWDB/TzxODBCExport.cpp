@@ -19,8 +19,14 @@
 #include "datetime/silly_timer.h"  // 计时
 #include "string/silly_format.h"
 
-// 全局变量
+// 检查查询数据,不为null 则赋值
+#define CHECK_NULL_VALUE(var, dest) \
+    if (!(var).is_null())           \
+    {                               \
+        (dest) = (var).v;           \
+    }
 
+// 全局变量
 silly_otl otl;
 std::string select_stbprp_sql;
 std::string select_pptn_sql;
@@ -51,8 +57,10 @@ std::time_t to_timestamp(const otl_datetime& olt_tm)
 
 bool init(const std::string& file);
 
-// 导出测站基本信息
-bool export_stbprp();
+// 查询基础测站信息
+bool query_stbprp(std::vector<silly_stbprp>& stbprps);
+// 将测站信息导出到二进制流中
+bool stbprp_strs(std::vector<silly_stbprp>& stbprps);
 
 // 查询 pptn 表中从 begtm 到 endtm 的数据
 std::vector<silly_pptn> query_pptn(const std::string& begtm, const std::string& endtm);
@@ -120,9 +128,15 @@ int main(int argc, char** argv)
     silly_timer timer;
 
     // 导出stbprp
-    if (!export_stbprp())
+    std::vector<silly_stbprp> stbprps;
+    if (!query_stbprp(stbprps))
     {
-        SLOG_ERROR("export_stbprp failed");
+        SLOG_ERROR("查询 stbprp 失败");
+        return -1;
+    }
+    if (!stbprp_strs(stbprps))
+    {
+        SLOG_ERROR("stbprp 导出文件失败");
         return -1;
     }
     SLOG_INFO("stbprp 导出时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
@@ -153,10 +167,10 @@ bool init(const std::string& file)
         SLOG_ERROR("配置文件中缺少 db 字段记录 odbc 链接信息");
         return status;
     }
-    otl = otl_tools::conn_opt_from_json(js_db);
-    if (otl.odbc().empty())
+    std::string js_db_str = silly_jsonpp::dumps(js_db);
+    if (!otl.load(js_db_str))
     {
-        SLOG_ERROR("解析 odbc 链接串为空");
+        SLOG_ERROR("解析 odbc 错误");
         return status;
     }
     SLOG_INFO("odbc 链接串: {}", otl.odbc());
@@ -164,14 +178,38 @@ bool init(const std::string& file)
     Json::Value js_sql;
     if (silly_jsonpp::check_member_object(jv_root, "sql", js_sql))
     {
-        silly_jsonpp::check_member_string(js_sql, "select_stbprp_sql", select_stbprp_sql);
-        silly_jsonpp::check_member_string(js_sql, "select_pptn_sql", select_pptn_sql);
-        silly_jsonpp::check_member_string(js_sql, "select_river_sql", select_river_sql);
-        silly_jsonpp::check_member_string(js_sql, "select_rsvr_sql", select_rsvr_sql);
+        if (!silly_jsonpp::check_member_string(js_sql, "select_stbprp_sql", select_stbprp_sql))
+        {
+            SLOG_ERROR("配置文件中缺少 select_stbprp_sql 字段");
+            return status;
+        }
+        if (!silly_jsonpp::check_member_string(js_sql, "select_pptn_sql", select_pptn_sql))
+        {
+            SLOG_ERROR("配置文件中缺少 select_pptn_sql 字段");
+            return status;
+        }
+        if (!silly_jsonpp::check_member_string(js_sql, "select_river_sql", select_river_sql))
+        {
+            SLOG_ERROR("配置文件中缺少 select_river_sql 字段");
+            return status;
+        }
+        if (!silly_jsonpp::check_member_string(js_sql, "select_rsvr_sql", select_rsvr_sql))
+        {
+            SLOG_ERROR("配置文件中缺少 select_rsvr_sql 字段");
+            return status;
+        }
     }
 
-    silly_jsonpp::check_member_string(jv_root, "btm", btm);
-    silly_jsonpp::check_member_string(jv_root, "etm", etm);
+    if (!silly_jsonpp::check_member_string(jv_root, "btm", btm))
+    {
+        SLOG_ERROR("配置文件中缺少 btm 字段");
+        return status;
+    }
+    if (!silly_jsonpp::check_member_string(jv_root, "etm", etm))
+    {
+        SLOG_ERROR("配置文件中缺少 etm 字段");
+        return status;
+    }
 
     Json::Value js_encode;
     if (silly_jsonpp::check_member_object(jv_root, "encode", js_encode))
@@ -184,9 +222,8 @@ bool init(const std::string& file)
     return status;
 }
 
-bool export_stbprp()
+bool query_stbprp(std::vector<silly_stbprp>& stbprps)
 {
-    std::vector<silly_stbprp> stbprps;
     // ---------查询数据库-----------
     if (!otl.select(select_stbprp_sql, [&stbprps](otl_stream* stream) {
             while (!stream->eof())
@@ -201,25 +238,13 @@ bool export_stbprp()
                 silly_stbprp temp;
 
                 // 检查并赋值
-                if (!STCD.is_null())
-                {
-                    temp.STCD = STCD.v;
-                }
-                if (!STNM.is_null())
-                {
-                    temp.STNM = STNM.v;
-                }
+                CHECK_NULL_VALUE(STCD, temp.STCD);
+                CHECK_NULL_VALUE(STNM, temp.STNM);
                 /* if (!RVNM.is_null()) { temp.RVNM = RVNM.v; }
                  if (!HNNM.is_null()) { temp.HNNM = HNNM.v; }
                  if (!BSNM.is_null()) { temp.BSNM = BSNM.v; }*/
-                if (!LGTD.is_null())
-                {
-                    temp.LGTD = LGTD.v;
-                }
-                if (!LTTD.is_null())
-                {
-                    temp.LTTD = LTTD.v;
-                }
+                CHECK_NULL_VALUE(LGTD, temp.LGTD);
+                CHECK_NULL_VALUE(LTTD, temp.LTTD);
                 /* if (!STLC.is_null()) { temp.STLC = STLC.v; }
                 if (!ADDVCD.is_null()) { temp.ADDVCD = ADDVCD.v; }
                 if (!DTMNM.is_null()) { temp.DTMNM = DTMNM.v; }
@@ -250,9 +275,16 @@ bool export_stbprp()
     {
         SLOG_ERROR(otl.err());
         SLOG_ERROR(silly_encode::gbk_utf8(otl.err()));
+        stbprps.clear();
         return false;
     }
 
+    SLOG_INFO("查询到 stbprp 数据:{} 条数据开始导出到文件", stbprps.size());
+    return true;
+}
+
+bool stbprp_strs(std::vector<silly_stbprp>& stbprps)
+{
     // ------------添加index------------
     uint32_t index = 1;
     for (auto& stbprp : stbprps)
@@ -261,7 +293,6 @@ bool export_stbprp()
         stcd_index[stbprp.STCD] = index;
         index++;
     }
-    SLOG_INFO("查询到 stbprp 数据:{} 条数据开始导出到文件", stbprps.size());
 
     // -----------转编码--------------
     if (!src_encode.empty() && !dst_encode.empty())
@@ -379,20 +410,9 @@ std::vector<silly_pptn> query_pptn(const std::string& begtm, const std::string& 
                 otl_datetime tm;
                 otl_read_row(*stream, STCD, tm, DRP, INTV);
                 silly_pptn tmp_pptn;
-
-                if (!STCD.is_null())
-                {
-                    tmp_pptn.stcd = STCD.v;
-                }
-                if (!DRP.is_null())
-                {
-                    tmp_pptn.drp = DRP.v;
-                }
-                if (!INTV.is_null())
-                {
-                    tmp_pptn.intv = INTV.v;
-                }
-
+                CHECK_NULL_VALUE(STCD, tmp_pptn.stcd);
+                CHECK_NULL_VALUE(DRP, tmp_pptn.drp);
+                CHECK_NULL_VALUE(INTV, tmp_pptn.intv);
                 tmp_pptn.stamp = to_timestamp(tm);
 
                 pptns.push_back(tmp_pptn);
@@ -440,22 +460,10 @@ std::vector<silly_river> query_river(const std::string& begtm, const std::string
                 otl_read_row(*stream, STCD, tm, Z, Q, WPTN);
                 silly_river tmp_river;
 
-                if (!STCD.is_null())
-                {
-                    tmp_river.stcd = STCD.v;
-                }
-                if (!Z.is_null())
-                {
-                    tmp_river.zz = Z.v;
-                }
-                if (!Q.is_null())
-                {
-                    tmp_river.qq = Q.v;
-                }
-                if (!WPTN.is_null())
-                {
-                    tmp_river.wptn = WPTN.v;
-                }
+                CHECK_NULL_VALUE(STCD, tmp_river.stcd);
+                CHECK_NULL_VALUE(Z, tmp_river.zz);
+                CHECK_NULL_VALUE(Q, tmp_river.qq);
+                CHECK_NULL_VALUE(WPTN, tmp_river.wptn);
 
                 tmp_river.stamp = to_timestamp(tm);
 
@@ -506,46 +514,18 @@ std::vector<silly_rsvr> query_rsvr(const std::string& begtm, const std::string& 
                 otl_value<double> RZ, INQ, W, OTQ, INQDR, BLRZ;
                 otl_datetime tm;
                 otl_read_row(*stream, STCD, tm, RZ, INQ, W, OTQ, RWCHRCD, RWPTN, INQDR, MSQMT, BLRZ);
-                if (!STCD.is_null())
-                {
-                    tmp_rsvr.stcd = STCD.v;
-                }
-                if (!RZ.is_null())
-                {
-                    tmp_rsvr.rz = RZ.v;
-                }
-                if (!INQ.is_null())
-                {
-                    tmp_rsvr.inq = INQ.v;
-                }
-                if (!W.is_null())
-                {
-                    tmp_rsvr.w = W.v;
-                }
-                if (!OTQ.is_null())
-                {
-                    tmp_rsvr.otq = OTQ.v;
-                }
-                if (!RWCHRCD.is_null())
-                {
-                    tmp_rsvr.rwchrcd = RWCHRCD.v;
-                }
-                if (!RWPTN.is_null())
-                {
-                    tmp_rsvr.rwptn = RWPTN.v;
-                }
-                if (!INQDR.is_null())
-                {
-                    tmp_rsvr.inqdr = INQDR.v;
-                }
-                if (!MSQMT.is_null())
-                {
-                    tmp_rsvr.msqmt = MSQMT.v;
-                }
-                if (!BLRZ.is_null())
-                {
-                    tmp_rsvr.blrz = BLRZ.v;
-                }
+
+                CHECK_NULL_VALUE(STCD, tmp_rsvr.stcd);
+                CHECK_NULL_VALUE(RZ, tmp_rsvr.rz);
+                CHECK_NULL_VALUE(INQ, tmp_rsvr.inq);
+                CHECK_NULL_VALUE(W, tmp_rsvr.w);
+                CHECK_NULL_VALUE(OTQ, tmp_rsvr.otq);
+                CHECK_NULL_VALUE(RWCHRCD, tmp_rsvr.rwchrcd);
+                CHECK_NULL_VALUE(RWPTN, tmp_rsvr.rwptn);
+                CHECK_NULL_VALUE(INQDR, tmp_rsvr.inqdr);
+                CHECK_NULL_VALUE(MSQMT, tmp_rsvr.msqmt);
+                CHECK_NULL_VALUE(BLRZ, tmp_rsvr.blrz);
+
                 tmp_rsvr.stamp = to_timestamp(tm);
 
                 rsvrs.push_back(tmp_rsvr);

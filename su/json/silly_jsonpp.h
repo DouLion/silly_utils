@@ -37,6 +37,13 @@ class silly_jsonpp
     static Json::Value loads(const std::string& content);
 
     /// <summary>
+    /// 将json内容解析到字符串中
+    /// </summary>
+    /// <param name="root"></param>
+    /// <param name="indentation">是否为紧凑型字符串,默认为紧凑型</param>
+    static std::string dumps(const Json::Value& root, const std::string& indentation = "");
+
+    /// <summary>
     ///
     /// </summary>
     /// <param name="root"></param>
@@ -56,6 +63,7 @@ class silly_jsonpp
     static bool check_member_bool(const Json::Value& root, const std::string& key, bool& val);
     static bool check_member_array(const Json::Value& root, const std::string& key, Json::Value& jv_arr);
     static bool check_member_object(const Json::Value& root, const std::string& key, Json::Value& jv_obj);
+    static bool check_member_uint64(const Json::Value& root, const std::string& key, unsigned long long& val);
 };
 
 #endif  // SILLY_UTILS_SILLY_JSONPP_H

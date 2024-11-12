@@ -23,7 +23,7 @@
     "src": "UTF-8",
     "dst": ""
   },
-  "has_stbprp": false
+  "block_byte": 1073741824
 }
 
 // encode：GBK,UTF-8,EUC-CN, 如果为空，则不进行编码转换,导入达梦数据库需要将UTF-8 转为GBK

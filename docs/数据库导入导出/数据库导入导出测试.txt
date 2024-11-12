@@ -206,7 +206,7 @@ SQL Server Native Client 11.0
 
 ST_RSVR_R 表
 
-CREATE TABLE ST_RSVR_R (
+CREATE TABLE W_ST_RSVR_R (
     STCD VARCHAR(8) PRIMARY KEY,   -- 假设 STCD 是主键
     TM DATE,
     RZ DECIMAL(7, 3),
