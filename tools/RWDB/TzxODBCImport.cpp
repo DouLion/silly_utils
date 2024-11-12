@@ -108,7 +108,7 @@ int main(int argc, char** argv)
     int type = 0;
     bool has_pptn = false;
     bool has_river = false;
-    bool has_rsvr = true;
+    bool has_rsvr = false;
 
     bool has_stbprp = false;
 
@@ -183,8 +183,12 @@ int main(int argc, char** argv)
     SLOG_INFO("stbprp 导入时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
     dst_stbprps.clear();  // 释放内存
 
+    /////////////////// 分块 (读, 解析, 插入) ////////////////////////
     timer.restart();
-    blcok_read_decode_import(type);
+    if (!blcok_read_decode_import(type))
+    {
+        SLOG_ERROR("导入数据失败");
+    }
     SLOG_INFO("导入时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
 
     return 0;
