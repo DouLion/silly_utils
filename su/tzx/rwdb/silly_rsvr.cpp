@@ -12,7 +12,6 @@
 #include "silly_rsvr.h"
 #include "silly_turn_tool.h"
 
-
 std::string silly_rsvr::serialize(const int& ver)
 {
     std::string result;
@@ -124,7 +123,7 @@ bool silly_rsvr::deserialize_v1(const std::string& data)
     rwptn = bin2str(p);
     p += 2;
     inqdr = P2FLOAT(p);
-    p += 2;
+    p += 4;
     msqmt = bin2str(p);
     p += 2;
     blrz = P2FLOAT(p);

@@ -22,9 +22,6 @@ class silly_rsvr
     silly_rsvr()
     {
     }
-    //silly_rsvr(const std::string& stcd, const std::time_t& stamp, const float& z, const float& q) : stcd(stcd), stamp(stamp), zz(z), qq(q)
-    //{
-    //}
 
     std::string serialize(const int& ver = SILLY_RSVR_FORMAT_V1);
     bool deserialize(const std::string& data);
@@ -38,32 +35,24 @@ class silly_rsvr
     bool deserialize_v3(const std::string& data);
 
   public:
-
-    std::string stcd; 
-    uint32_t index{0}; // 索引 4
-    std::time_t stamp{0}; // 时间戳 4
-    float rz{0}; // 4
-    float inq{0}; //4
+    std::string stcd;
+    uint32_t index{0};     // 索引 4
+    std::time_t stamp{0};  // 时间戳 4
+    float rz{0};           // 4
+    float inq{0};          // 4
     float w{0};            // 4
-    float otq{0}; //4
-    std::string rwchrcd;  // 一个字节 +长度2个字节
-    std::string rwptn; // 一个字节+长度2个字节
+    float otq{0};          // 4
+    std::string rwchrcd;   // 一个字节 +长度2个字节
+    std::string rwptn;     // 一个字节+长度2个字节
     float inqdr{0};        // 4
-    std::string msqmt; // 一个字节+长度2个字节
-    float blrz{0};          // 4
+    std::string msqmt;     // 一个字节+长度2个字节
+    float blrz{0};         // 4
 
-    // 固定长度  固定头1 版本信息 1 STCD 索引 4 
+    // 固定长度  固定头1 版本信息 1 STCD 索引 4
     static constexpr size_t SIZE_V1 = 1 + 1 + 4 + 4 + 4 + 4 + 4 + 4 + 2 + 2 + 4 + 2 + 4;
 
     static constexpr char PREFIX = 'H';  // 固定头
     static constexpr char* FILE_NAME = "RSVR.dat";
 };
-
-
-
-
-
-
-
 
 #endif  // SILLY_UTILS_SILLY_RSVR_H

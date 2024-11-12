@@ -16,8 +16,8 @@
     "select_rsvr_sql": "SELECT STCD, TM, RZ, INQ, W, OTQ, RWCHRCD, RWPTN, INQDR, MSQMT, BLRZ FROM ST_RSVR_R  WHERE TM > TO_DATE('{}', 'YYYY-MM-DD HH24:MI:SS') AND TM <= TO_DATE('{}', 'YYYY-MM-DD HH24:MI:SS');"
 
   },
-  "btm": "2021-07-01 00:00:00",
-  "etm": "2021-07-02 00:00:00",
+  "btm": "2024-07-31 20:00:00",
+  "etm": "2024-08-01 00:00:00",
   "encode": {
     "src": "",
     "dst": ""
