@@ -36,34 +36,34 @@
 
 公共函数:
     时间分段:
-        std::vector<std::make_pair<std::string, std::string>> btm_etm = splitTime(begin, end, interval);
+        std::vector<std::pair<std::string, std::string>> btm_etm = splitTime(std::string beginTM, std::ostringstream endTM, int interval);
         saveInfor(std::vector<std::string>&data, std::string& filename); // 是追加的写入文件
         一个模板函数 void getindex(std::vector<T>& data); // 根据stcd_index获取stcd对应的index,并写入stcd字段
 
 1) exportSTBPRP()
     1.1) std::vector<silly_stbprp> loadSTBPRP();
-    1.2) bool getSTCDindex(std::vector<silly_stbprp>& stbprp, std::map<uint32_t, std::string> index_stcd);
+    1.2) bool getSTCDindex(std::vector<silly_stbprp>& stbprp, std::unordered_map<std::string, uint32_t> stcd_index);
     1.3) std::vector<std::string> serializeSTBPRP(std::vector<silly_stbprp>& stbprp);
     1.4) void saveInfor(std::vector<std::string>&data, std::string& filename);
 
 2) exprotPPTN()
-    2.1) std::vector<std::make_pair<std::string, std::string>> btm_etm = splitTime(begin, end, interval)
-    2.2) 循环每段时间 exprotPPTNByTime(btm, etm)
+    2.1)         std::vector<std::pair<std::string, std::string>> btm_etm = splitTime(std::string beginTM, std::string endTM, int interval);
+    2.2) 循环每段时间 (btm, etm)
         2.2.1) std::vector<silly_pptn> loadPPTN(std::string& btm, std::string& etm);
         2.2.2) void getindex(std::vector<silly_pptn>& pptn);
         2.2.3) serializeSTBPRP(std::vector<silly_pptn>& pptn);
         2.2.4) saveInfor(std::vector<std::string>&data, std::string& filename);
 3) exportRiver()
-    3.1) std::vector<std::make_pair<std::string, std::string>> btm_etm = splitTime(begin, end, interval)
-    3.2) 循环每段时间 exprotRiverByTime(btm, etm)
+    3.1)         std::vector<std::pair<std::string, std::string>> btm_etm = splitTime(std::string beginTM, std::string endTM, int interval);
+    3.2) 循环每段时间 (btm, etm)
         3.2.1) std::vector<silly_river> loadRiver(std::string& btm, std::string& etm);
         3.2.2) void getindex(std::vector<silly_river>& river);
         3.2.3) serializeSTBPRP(std::vector<silly_river>& river);
         3.2.4) saveInfor(std::vector<std::string>&data, std::string& filename);
 
 4) exportRsvr()
-    4.1) std::vector<std::make_pair<std::string, std::string>> btm_etm = splitTime(begin, end, interval)
-    4.2) 循环每段时间 exprotRsvrByTime(btm, etm)
+    4.1)         std::vector<std::pair<std::string, std::string>> btm_etm = splitTime(std::string beginTM, std::string endTM, int interval);
+    4.2) 循环每段时间 (btm, etm)
         4.2.1) std::vector<silly_rsvr> loadRsvr(std::string& btm, std::string& etm);
         4.2.2) void getindex(std::vector<silly_rsvr>& rsvr);
         4.2.3) serializeSTBPRP(std::vector<silly_rsvr>& rsvr);

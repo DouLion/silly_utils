@@ -32,7 +32,7 @@ std::string btm;
 std::string etm;
 std::string src_encode;
 std::string dst_encode;
-std::map<uint32_t, std::string> index_stcd;
+std::unordered_map<uint32_t, std::string> index_stcd;
 
 unsigned long long block_byte = 1024 * 1024 * 1024;
 // SIZE_T block_byte = 1024 * 1024;
@@ -55,7 +55,7 @@ otl_datetime from_timestamp(std::time_t timestamp)
 
 // 模板函数根据index查找stcd
 template <typename T>
-std::vector<T> indexToStcd(std::vector<T>& dst_objects)
+std::vector<T> getStcd(std::vector<T>& dst_objects)
 {
     // 根据 index_stcd 查找并更新 stcd
     std::vector<T> res_objects;
@@ -75,72 +75,194 @@ std::vector<T> indexToStcd(std::vector<T>& dst_objects)
     return res_objects;
 }
 
+struct export_obj
+{
+    bool has_pptn{false};
+    bool has_river{false};
+    bool has_rsvr{false};
+    bool has_stbprp{false};
+};
+
+export_obj paramAnalysis(int argc, char** argv)
+{
+    export_obj obj;
+
+    return obj;
+}
+
 // 读取配置文件
 bool init(const std::string& file);
 
-// 从 once_obj_str 中解码 pptn
-bool decode_pptn(const std::string& once_obj_str, std::vector<silly_pptn>& dst_pptn);
-// 从 once_obj_str 中解码 stbprp
-bool decode_river(const std::string& once_obj_str, std::vector<silly_river>& dst_rivers);
-// 从 once_obj_str 中解码 rsvr
-bool decode_rsvr(const std::string& once_obj_str, std::vector<silly_rsvr>& dst_rsvrs);
+// 从文件中一次性读取全部的stbprp数据
+bool loadSTBPRP(const std::string& file_path, std::vector<silly_stbprp>& stbprps)
+{
+    return true;
+}
 
-// 从文件中读取stbprp
-bool read_stbprp(std::vector<silly_stbprp>& dst_stbprps);
-// 导入 stbprp 数据
-bool import_stbprp(std::vector<silly_stbprp>& dst_stbprps);
+// 插入stbprp到数据库
+bool insertSTBPRP(std::vector<silly_stbprp>& stbprps)
+{
+    return true;
+}
 
-//  导入pptn
-bool import_pptn(const std::vector<silly_pptn>& dst_pptns);
+// 导入stbprp ,默认不插入数据库指导出stcd和index的映射
+bool importSTBPRP(const std::string& file_path, bool import = false)
+{
+    //  一次性全部读取出stbprp文件中的数据,并反序列化文件字符串中的所有数据
+    std::vector<silly_stbprp> stbprps;
+    if (!loadSTBPRP(file_path, stbprps))
+    {
+        SLOG_ERROR("读取stbprp文件失败");
+        return false;
+    }
 
-//  导入river
-bool import_river(const std::vector<silly_river>& dst_rivers);
+    // 根据 stbprps 生成说有 stcd 和 index 的映射
+    for (const auto& stbprp : stbprps)
+    {
+        index_stcd[stbprp.index] = stbprp.STCD;
+    }
 
-//  导入rsvrv
-bool import_rsvr(const std::vector<silly_rsvr>& dst_rsvrs);
+    // 导入 stbprp 到数据库
+    if (import)
+    {
+        if (!insertSTBPRP(stbprps))
+        {
+            SLOG_ERROR("导入stbprp失败");
+            return false;
+        }
+    }
+}
 
-// 根据type 选择对应的文件 分块读取,解析一块,插入一块的数据到数据库
-bool blcok_read_decode_import(int type);
+// 从文件中读取全部的pptn数据,residue_size为剩余数据大小
+bool deserializePPTN(const std::string& block_data, std::vector<silly_pptn>& pptns, int& residue_size)
+{
+    return true;
+}
+
+// 导入pptn到数据库
+bool insertPPTN(std::vector<silly_pptn>& pptns)
+{
+    return true;
+}
+
+// 导入pptn数据到数据库
+bool importPPTN(const std::string& file_path, const size_t block_size = 1024 * 1024 * 1024)
+{
+    bool status = false;
+
+    size_t fsize = silly_file::size(file_path);
+    for (size_t pos = 0; pos < fsize;)
+    {
+        std::string block_data;
+        size_t rsize = silly_file::read(file_path, block_data, pos, block_size);
+        std::vector<silly_pptn> pptns;
+        int residue_size = 0;
+        if (deserializePPTN(block_data, pptns, residue_size))
+        {
+            SLOG_ERROR("反序列化pptn失败");
+            return status;
+        }
+        getStcd(pptns);
+        if (!insertPPTN(pptns))
+        {
+            SLOG_ERROR("导入pptn失败");
+            return status;
+        }
+        pos = pos + residue_size - residue_size;
+    }
+
+    status = true;
+    return status;
+}
+
+bool deserializeRiver(const std::string& block_data, std::vector<silly_river>& rivers, int& residue_size)
+{
+    bool status = false;
+
+    status = true;
+    return status;
+}
+
+bool insertRiver(std::vector<silly_river>& rivers)
+{
+    bool status = false;
+
+    status = true;
+    return status;
+}
+
+bool deserializeRsvr(const std::string& block_data, std::vector<silly_rsvr>& rsvrs, int& residue_size)
+{
+    bool status = false;
+
+    status = true;
+    return status;
+}
+
+bool insertRsvr(std::vector<silly_rsvr>& rsvrs)
+{
+    bool status = false;
+
+    status = true;
+    return status;
+}
+
+// 导入river数据到数据
+bool importRiver(const std::string& file_path, const size_t block_size = 1024 * 1024 * 1024)
+{
+    bool status = false;
+    size_t fsize = silly_file::size(file_path);
+    for (size_t pos = 0; pos < fsize;)
+    {
+        std::string block_data;
+        size_t rsize = silly_file::read(file_path, block_data, pos, block_size);
+        std::vector<silly_river> rivers;
+        int residue_size = 0;
+        if (deserializeRiver(block_data, rivers, residue_size))
+        {
+            SLOG_ERROR("反序列化river失败");
+            return status;
+        }
+        getStcd(rivers);
+        if (!insertRiver(rivers))
+        {
+            SLOG_ERROR("导入river失败");
+            return status;
+        }
+        pos = pos + residue_size - residue_size;
+    }
+}
+
+bool importRsvr(const std::string& file_path, const size_t block_size = 1024 * 1024 * 1024)
+{
+    bool status = false;
+    size_t fsize = silly_file::size(file_path);
+    for (size_t pos = 0; pos < fsize;)
+    {
+        std::string block_data;
+        size_t rsize = silly_file::read(file_path, block_data, pos, block_size);
+        std::vector<silly_rsvr> rsvrs;
+        int residue_size = 0;
+        if (deserializeRsvr(block_data, rsvrs, residue_size))
+        {
+            SLOG_ERROR("反序列化rsvr失败");
+            return status;
+        }
+        getStcd(rsvrs);
+        if (!insertRsvr(rsvrs))
+        {
+            SLOG_ERROR("导入rsvr失败");
+            return status;
+        }
+        pos = pos + residue_size - residue_size;
+    }
+}
 
 int main(int argc, char** argv)
 {
-    // 初始化布尔变量，默认值为false
-    int type = 0;
-    bool has_pptn = false;
-    bool has_river = false;
-    bool has_rsvr = false;
+    // 参数解析
+    export_obj param = paramAnalysis(argc, argv);
 
-    bool has_stbprp = false;
-
-    // 遍历命令行参数（从索引1开始，因为argv[0]是程序名）
-    for (int i = 0; i < argc; ++i)
-    {
-        std::string arg = argv[i];
-        if (arg == "pptn")
-        {
-            has_pptn = true;
-            type = 1;
-        }
-        else if (arg == "river")
-        {
-            has_river = true;
-            type = 2;
-        }
-        else if (arg == "rsvr")
-        {
-            has_rsvr = true;
-            type = 3;
-        }
-        else if (arg == "stbprp")
-        {
-            has_stbprp = true;
-        }
-    }
-    if (!has_pptn && !has_river && !has_rsvr)
-    {
-        SLOG_ERROR("please input pptn or river or rsvr");
-        return -1;
-    }
 #ifndef NDEBUG
     std::string configPath = std::filesystem::path(DEFAULT_SU_ROOT_DIR).append("docs").append("数据库导入导出").append("import.json").string();
 #else
@@ -162,34 +284,41 @@ int main(int argc, char** argv)
 #else
 #endif
 
-    /////////////////// stbprp ////////////////////////
-    // 导入stbprp
     silly_timer timer;
-    timer.restart();
-    std::vector<silly_stbprp> dst_stbprps;
-    if (!read_stbprp(dst_stbprps))
+    if (!importSTBPRP(stbprp_file_path, param.has_stbprp))
     {
-        SLOG_ERROR("读取 stbprp 文件失败");
+        SLOG_ERROR("导入stbprp失败");
         return -1;
     }
-    if (has_stbprp)  // 确定导入stbprp
-    {
-        if (!import_stbprp(dst_stbprps))
-        {
-            SLOG_ERROR("导入 stbprp 失败");
-            return -1;
-        }
-    }
     SLOG_INFO("stbprp 导入时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
-    dst_stbprps.clear();  // 释放内存
 
-    /////////////////// 分块 (读, 解析, 插入) ////////////////////////
-    timer.restart();
-    if (!blcok_read_decode_import(type))
+    if (param.has_pptn)
     {
-        SLOG_ERROR("导入数据失败");
+        timer.restart();
+        if (!importPPTN(pptn_file_path, block_byte))
+        {
+            SLOG_ERROR("导入PPTN失败");
+        }
+        SLOG_INFO("导入 PPTN 时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
     }
-    SLOG_INFO("导入时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
+    if (param.has_river)
+    {
+        timer.restart();
+        if (!importRiver(river_file_path, block_byte))
+        {
+            SLOG_ERROR("导入 River 失败");
+        }
+        SLOG_INFO("导入 River 时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
+    }
+    if (param.has_rsvr)
+    {
+        timer.restart();
+        if (!importRsvr(rsvr_file_path, block_byte))
+        {
+            SLOG_ERROR("导入 Rsvr 失败");
+        }
+        SLOG_INFO("导入 Rsvr 时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
+    }
 
     return 0;
 }
@@ -277,412 +406,4 @@ bool init(const std::string& file)
 
     status = true;
     return status;
-}
-
-bool read_stbprp(std::vector<silly_stbprp>& dst_stbprps)
-{
-    bool status = false;
-    if (!std::filesystem::exists(stbprp_file_path))
-    {
-        SLOG_ERROR("文件不存在: {}", stbprp_file_path);
-        return status;
-    }
-    size_t fsize = silly_file::size(stbprp_file_path);
-    if (fsize < 4)
-    {
-        SLOG_ERROR("文件大小小于 4 字节: {}", fsize);
-        return status;
-    }
-    // 一次性读取
-    std::string content;
-    size_t r = silly_file::read(stbprp_file_path, content, 0, fsize);
-    if (r != fsize)
-    {
-        SLOG_ERROR("文件大小:{}, 读取到的字节数:{},两者不符", fsize, r);
-        return status;
-    }
-    // 逐块解析
-    size_t pos = 0;
-    while (pos < content.size())
-    {
-        uint32_t blockLength = 0;  // 读取块长度
-        memcpy(&blockLength, content.data() + pos, 4);
-        if (pos + blockLength > content.size())  // 检查是否越界
-        {
-            break;
-        }
-        std::string block = content.substr(pos, blockLength);
-        silly_stbprp stbprp;
-        if (stbprp.deserialize(block))  // 反序列化解析文件中的数据
-        {
-            dst_stbprps.push_back(stbprp);
-        }
-        pos += blockLength;
-    }
-
-    // --------------index 找 stcd--------------
-    for (const auto& entry : dst_stbprps)
-    {
-        index_stcd[entry.index] = entry.STCD;
-    }
-
-    SLOG_INFO("stbprp insert size:{}", dst_stbprps.size());
-    status = true;
-    return status;
-}
-
-bool import_stbprp(std::vector<silly_stbprp>& dst_stbprps)
-{
-    // --------------转编码-----------------
-    if (!src_encode.empty() && !dst_encode.empty())
-    {
-        for (auto& entry : dst_stbprps)
-        {
-            encode(entry, src_encode, dst_encode);
-        }
-    }
-    // return true; // 临时添加
-    //  --------------插入数据库--------------
-    if (!otl.insert(insert_stbprp_sql, [&dst_stbprps](otl_stream* stream) {
-            for (const auto& entry : dst_stbprps)
-            {
-                otl_value<std::string> STCD(entry.STCD);
-                otl_value<std::string> STNM(entry.STNM);
-                // otl_value<std::string> RVNM(entry.RVNM);
-                // otl_value<std::string> HNNM(entry.HNNM);
-                // otl_value<std::string> BSNM(entry.BSNM);
-                otl_value<double> LGTD(entry.LGTD);
-                otl_value<double> LTTD(entry.LTTD);
-                // otl_value<std::string> STLC(entry.STLC);
-                // otl_value<std::string> ADDVCD(entry.ADDVCD);
-                // otl_value<std::string> DTMNM(entry.DTMNM);
-                // otl_value<double> DTMEL(entry.DTMEL);
-                // otl_value<double> DTPR(entry.DTPR);
-                // otl_value<std::string> STTP(entry.STTP);
-                // otl_value<std::string> FRGRD(entry.FRGRD);
-                // otl_value<std::string> ESSTYM(entry.ESSTYM);
-                // otl_value<std::string> BGFRYM(entry.BGFRYM);
-                // otl_value<std::string> ATCUNIT(entry.ATCUNIT);
-                // otl_value<std::string> ADMAUTH(entry.ADMAUTH);
-                // otl_value<std::string> LOCALITY(entry.LOCALITY);
-                // otl_value<std::string> STBK(entry.STBK);
-                // otl_value<int> STAzt(entry.STAzt);
-                // otl_value<double> DSTRVM(entry.DSTRVM);
-                // otl_value<int> DRNA(entry.DRNA);
-                // otl_value<std::string> PHCD(entry.PHCD);
-                // otl_value<std::string> USFL(entry.USFL);
-                // otl_value<std::string> COMMENTS(entry.COMMENTS);
-                // otl_datetime MODITIME = otl_tools::otl_time_from_string(entry.MODITIME);
-                // otl_value<std::string> HNNM0(entry.HNNM0);
-                // otl_value<std::string> ADCD(entry.ADCD);
-                // otl_value<std::string> ADDVCD1(entry.ADDVCD1);
-
-                otl_write_row(
-                    *stream, STCD, STNM /*, RVNM, HNNM, BSNM*/, LGTD, LTTD /*, STLC, ADDVCD, DTMNM, DTMEL, DTPR, STTP, FRGRD, ESSTYM, BGFRYM, ATCUNIT, ADMAUTH, LOCALITY, STBK, STAzt, DSTRVM, DRNA, PHCD, USFL, COMMENTS, MODITIME, HNNM0, ADCD, ADDVCD1*/);
-            }
-        }))
-    {
-        SLOG_ERROR(otl.err());
-        return false;
-    }
-
-    SLOG_INFO("{} 导入完成, 导入数量: {}", stbprp_file_path, dst_stbprps.size());
-
-    return true;
-}
-
-bool import_pptn(const std::vector<silly_pptn>& dst_pptns)
-{
-    //  -----------数据插入-------------
-    int bi = 0, ei = 0;
-    int step = 5000;
-    ei = SU_MIN(step, dst_pptns.size());
-    while (bi < dst_pptns.size())
-    {
-        if (!otl.insert(insert_pptn_sql, [&](otl_stream* stream) {
-                int count = 0;
-                for (int i = bi; i < ei; i++)
-                {
-                    auto entry = dst_pptns[i];
-
-                    otl_value<std::string> stcd(entry.stcd.c_str());
-                    otl_datetime tm = from_timestamp(entry.stamp);
-                    otl_value<double> intv(entry.intv);
-                    otl_value<double> drp(entry.drp);
-
-                    otl_write_row(*stream, stcd, tm, drp, intv);
-                }
-            }))
-        {
-            SLOG_ERROR(otl.err());
-            return false;
-        }
-        SLOG_INFO("插入第{} - {} 条记录", bi, ei);
-        bi = ei;
-        ei = SU_MIN(ei + step, dst_pptns.size());
-    }
-
-    SLOG_INFO("{} 导入完成, 导入数量: {}", pptn_file_path, dst_pptns.size());
-
-    return true;
-}
-
-bool import_river(const std::vector<silly_river>& dst_rivers)
-{
-    // -----------数据插入-------------
-    int bi = 0, ei = 0;
-    int step = 5000;
-    ei = SU_MIN(step, dst_rivers.size());
-    while (bi < dst_rivers.size())
-    {
-        if (!otl.insert(insert_river_sql, [&](otl_stream* stream) {
-                int count = 0;
-                for (int i = bi; i < ei; i++)
-                {
-                    auto entry = dst_rivers[i];
-                    otl_value<std::string> stcd(entry.stcd);
-                    otl_datetime tm = from_timestamp(entry.stamp);
-                    otl_value<double> zz(entry.zz);
-                    otl_value<double> qq(entry.qq);
-                    otl_value<std::string> wptn(entry.wptn);
-
-                    otl_write_row(*stream, stcd, tm, zz, qq, wptn);
-                }
-            }))
-        {
-            SLOG_ERROR(otl.err());
-            return false;
-        }
-        SLOG_INFO("插入第{} - {} 条记录", bi, ei);
-        bi = ei;
-        ei = SU_MIN(ei + step, dst_rivers.size());
-    }
-
-    SLOG_INFO("{} 导入完成, 导入数量: {}", river_file_path, dst_rivers.size());
-
-    return true;
-}
-
-bool import_rsvr(const std::vector<silly_rsvr>& dst_rsvrs)
-{
-    int bi = 0, ei = 0;
-    int step = 5000;
-    ei = SU_MIN(step, dst_rsvrs.size());
-    while (bi < dst_rsvrs.size())
-    {
-        if (!otl.insert(insert_rsvr_sql, [&](otl_stream* stream) {
-                int count = 0;
-                for (int i = bi; i < ei; i++)
-                {
-                    auto entry = dst_rsvrs[i];
-
-                    otl_value<std::string> STCD(entry.stcd);
-                    otl_datetime OTM = from_timestamp(entry.stamp);
-                    otl_value<double> RZ(entry.rz);
-                    otl_value<double> INQ(entry.inq);
-                    otl_value<double> W(entry.w);
-                    otl_value<double> OTQ(entry.otq);
-                    otl_value<std::string> RWCHRCD(entry.rwchrcd);
-                    otl_value<std::string> RWPTN(entry.rwptn);
-                    otl_value<double> INQDR(entry.inqdr);
-                    otl_value<std::string> MSQMT(entry.msqmt);
-                    otl_value<double> BLRZ(entry.blrz);
-
-                    otl_write_row(*stream, STCD, OTM, RZ, INQ, W, OTQ, RWCHRCD, RWPTN, INQDR, MSQMT, BLRZ);
-                }
-            }))
-        {
-            SLOG_ERROR(otl.err());
-            return false;
-        }
-        SLOG_INFO("插入第{} - {} 条记录", bi, ei);
-        bi = ei;
-        ei = SU_MIN(ei + step, dst_rsvrs.size());
-    }
-
-    SLOG_INFO("{} 导入完成, 导入数量: {}", rsvr_file_path, dst_rsvrs.size());
-
-    return true;
-}
-
-bool blcok_read_decode_import(int type)
-{
-    std::string file_path;
-    unsigned int object_size = 0;
-    if (type == 1)
-    {
-        file_path = pptn_file_path;
-        object_size = silly_pptn::SIZE_V1;
-        SLOG_INFO("导入 PPTN 数据");
-    }
-    else if (type == 2)
-    {
-        file_path = river_file_path;
-        object_size = silly_river::SIZE_V2;
-        SLOG_INFO("导入 RIVER 数据");
-    }
-    else if (type == 3)
-    {
-        file_path = rsvr_file_path;
-        object_size = silly_rsvr::SIZE_V1;
-        SLOG_INFO("导入 RSVR 数据");
-    }
-    else
-    {
-        SLOG_ERROR("type 参数错误:{}", type);
-        return false;
-    }
-
-    if (index_stcd.empty())
-    {
-        SLOG_ERROR("index 下标对应的 stcd 为空 ");
-        return false;
-    }
-    if (!std::filesystem::exists(file_path))
-    {
-        SLOG_ERROR("文件不存在: {}", file_path);
-    }
-    size_t all_insert_size = 0;
-    size_t fsize = silly_file::size(file_path);
-    size_t pos = 0;
-    std::string leftoverData;  // 缓存跨越分块边界的数据
-    while (pos < fsize)
-    {
-        std::string content;
-        size_t onceBlock = silly_file::read(file_path, content, pos, block_byte);  // 读取当前块大小
-        if (onceBlock <= 0)
-        {
-            break;
-        }
-
-        if (!leftoverData.empty())
-        {
-            content = leftoverData + content;  // 将上一块不完整的数据与当前块拼接
-            leftoverData.clear();
-        }
-
-        std::vector<silly_pptn> dst_pptns;
-        std::vector<silly_river> dst_rivers;
-        std::vector<silly_rsvr> dst_rsvrs;
-
-        size_t currentPos = 0;
-        while (currentPos < content.size())
-        {
-            if (currentPos + object_size > content.size())
-            {
-                leftoverData = content.substr(currentPos);  // 该块不完整的数据,保存到下一块开头
-                break;
-            }
-            std::string once_obj_str = content.substr(currentPos, object_size);
-            if (type == 1)
-            {
-                decode_pptn(once_obj_str, dst_pptns);
-            }
-            else if (type == 2)
-            {
-                decode_river(once_obj_str, dst_rivers);
-            }
-            else if (type == 3)
-            {
-                decode_rsvr(once_obj_str, dst_rsvrs);
-            }
-            currentPos += object_size;
-        }
-
-        // 解析完一块数据后,插入数据库
-        if (type == 1)
-        {
-            std::vector<silly_pptn> stcd_ppnts = indexToStcd(dst_pptns);
-            // 插入数据库
-            if (import_pptn(stcd_ppnts))
-            {
-                all_insert_size += stcd_ppnts.size();
-            }
-        }
-        else if (type == 2)
-        {
-            std::vector<silly_river> stcd_rivers = indexToStcd(dst_rivers);
-            // 插入数据库
-            if (import_river(stcd_rivers))
-            {
-                all_insert_size += stcd_rivers.size();
-            }
-        }
-        else if (type == 3)
-        {
-            std::vector<silly_rsvr> stcd_rivers = indexToStcd(dst_rsvrs);
-            if (import_rsvr(stcd_rivers))
-            {
-                all_insert_size += dst_rsvrs.size();
-            }
-        }
-        pos += onceBlock;
-    }
-
-    SLOG_INFO("插入数据量: {}", all_insert_size);
-    return true;
-}
-
-// 从字符串中解码出 river 对象 并插入数据库
-bool decode_import_river(const std::string& content, std::string& leftoverData, size_t& num)
-{
-    std::vector<silly_river> temp_rivers;
-    size_t currentPos = 0;
-    while (currentPos < content.size())
-    {
-        if (currentPos + silly_river::SIZE_V2 > content.size())
-        {
-            leftoverData = content.substr(currentPos);  // 该块不完整的数据,保存到下一块开头
-            break;
-        }
-        std::string block = content.substr(currentPos, silly_river::SIZE_V2);
-        silly_river river;
-        if (river.deserialize(block))
-        {
-            temp_rivers.push_back(river);
-        }
-    }
-    // 根据 index_stcd 查找并更新 stcd
-    std::vector<silly_river> stcd_rivers = indexToStcd(temp_rivers);
-
-    // 插入数据库
-    if (!import_river(stcd_rivers))
-    {
-        return false;
-    }
-    num += stcd_rivers.size();
-    return true;
-}
-
-bool decode_pptn(const std::string& once_obj_str, std::vector<silly_pptn>& dst_pptn)
-{
-    silly_pptn pptn;
-    if (!pptn.deserialize(once_obj_str))
-    {
-        return false;
-    }
-    dst_pptn.push_back(pptn);
-    return true;
-}
-
-bool decode_river(const std::string& once_obj_str, std::vector<silly_river>& dst_rivers)
-{
-    silly_river river;
-    if (!river.deserialize(once_obj_str))
-    {
-        return false;
-    }
-    dst_rivers.push_back(river);
-    return true;
-}
-
-bool decode_rsvr(const std::string& once_obj_str, std::vector<silly_rsvr>& dst_rsvrs)
-{
-    silly_rsvr river;
-    if (!river.deserialize(once_obj_str))
-    {
-        return false;
-    }
-    dst_rsvrs.push_back(river);
-    return true;
 }
