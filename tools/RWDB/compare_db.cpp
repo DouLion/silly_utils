@@ -3,7 +3,7 @@
 #include <database/otl/otl_tools.h>
 #include <tzx/rwdb/silly_pptn.h>
 #include <tzx/rwdb/silly_stbprp.h>
-#include "export_tool.h"
+#include "tools.h"
 
 // 全局变量
 struct encode

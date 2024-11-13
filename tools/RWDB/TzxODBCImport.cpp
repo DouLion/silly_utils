@@ -15,7 +15,7 @@
 #include <tzx/rwdb/silly_stbprp.h>
 #include <tzx/rwdb/silly_rsvr.h>
 #include <tzx/rwdb/silly_river.h>
-#include "export_tool.h"
+#include "tools.h"
 #include "datetime/silly_timer.h"  // 计时
 #include "files/silly_file.h"
 
@@ -37,21 +37,7 @@ std::unordered_map<uint32_t, std::string> index_stcd;
 unsigned long long block_byte = 1024 * 1024 * 1024;
 // SIZE_T block_byte = 1024 * 1024;
 
-// 转换时间戳为otl_datetime
-otl_datetime from_timestamp(std::time_t timestamp)
-{
-    std::tm* t = std::localtime(&timestamp);  // 获取本地时间的 std::tm 结构
-    // 将 std::tm 转换为 otl_datetime
-    otl_datetime olt_tm;
-    olt_tm.year = t->tm_year + 1900;  // tm_year 是从 1900 年开始的，所以加 1900
-    olt_tm.month = t->tm_mon + 1;     // tm_mon 是从 0 开始的，所以加 1
-    olt_tm.day = t->tm_mday;
-    olt_tm.hour = t->tm_hour;
-    olt_tm.minute = t->tm_min;
-    olt_tm.second = t->tm_sec;
 
-    return olt_tm;
-}
 
 // 模板函数根据index查找stcd
 template <typename T>
@@ -75,20 +61,6 @@ std::vector<T> getStcd(std::vector<T>& dst_objects)
     return res_objects;
 }
 
-struct export_obj
-{
-    bool has_pptn{false};
-    bool has_river{false};
-    bool has_rsvr{false};
-    bool has_stbprp{false};
-};
-
-export_obj paramAnalysis(int argc, char** argv)
-{
-    export_obj obj;
-
-    return obj;
-}
 
 // 读取配置文件
 bool init(const std::string& file);
@@ -104,6 +76,8 @@ bool insertSTBPRP(std::vector<silly_stbprp>& stbprps)
 {
     return true;
 }
+
+
 
 // 导入stbprp ,默认不插入数据库指导出stcd和index的映射
 bool importSTBPRP(const std::string& file_path, bool import = false)
@@ -261,7 +235,7 @@ bool importRsvr(const std::string& file_path, const size_t block_size = 1024 * 1
 int main(int argc, char** argv)
 {
     // 参数解析
-    export_obj param = paramAnalysis(argc, argv);
+    paramAnalysis(argc, argv);
 
 #ifndef NDEBUG
     std::string configPath = std::filesystem::path(DEFAULT_SU_ROOT_DIR).append("docs").append("数据库导入导出").append("import.json").string();
@@ -271,28 +245,22 @@ int main(int argc, char** argv)
 
     if (!init(configPath))
     {
-        SLOG_ERROR("init failed:{}", configPath);
         return -1;
     }
     SLOG_INFO("读取配置文件完成开始导入数据");
 
-#if IS_WIN32
-    if (otl.type() == enum_database_type::dbORACLE)
-    {
-        _putenv_s("NLS_LANG", "SIMPLIFIED CHINESE_CHINA.UTF8");
-    }
-#else
-#endif
+
 
     silly_timer timer;
-    if (!importSTBPRP(stbprp_file_path, param.has_stbprp))
+    std::vector<silly_stbprp> stbprps;
+    if (!loadSTBPRP(stbprp_file_path, stbprps))
     {
         SLOG_ERROR("导入stbprp失败");
         return -1;
     }
     SLOG_INFO("stbprp 导入时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
 
-    if (param.has_pptn)
+    if (_opt.pptn)
     {
         timer.restart();
         if (!importPPTN(pptn_file_path, block_byte))
@@ -301,7 +269,7 @@ int main(int argc, char** argv)
         }
         SLOG_INFO("导入 PPTN 时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
     }
-    if (param.has_river)
+    if (_opt.river)
     {
         timer.restart();
         if (!importRiver(river_file_path, block_byte))
@@ -310,7 +278,7 @@ int main(int argc, char** argv)
         }
         SLOG_INFO("导入 River 时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
     }
-    if (param.has_rsvr)
+    if (_opt.rsvr)
     {
         timer.restart();
         if (!importRsvr(rsvr_file_path, block_byte))
@@ -346,6 +314,13 @@ bool init(const std::string& file)
         return status;
     }
     SLOG_INFO("odbc 链接串: {}", otl.odbc());
+#if IS_WIN32
+    if (otl.type() == enum_database_type::dbORACLE)
+    {
+        _putenv_s("NLS_LANG", "SIMPLIFIED CHINESE_CHINA.UTF8");
+    }
+#else
+#endif
 
     Json::Value js_sql;
     if (silly_jsonpp::check_member_object(jv_root, "sql", js_sql))

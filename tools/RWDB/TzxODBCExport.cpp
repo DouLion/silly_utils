@@ -14,7 +14,7 @@
 #include <tzx/rwdb/silly_stbprp.h>
 #include <tzx/rwdb/silly_rsvr.h>
 #include <tzx/rwdb/silly_river.h>
-#include "export_tool.h"
+#include "tools.h"
 #include "datetime/silly_posix_time.h"
 #include "datetime/silly_timer.h"  // 计时
 #include "string/silly_format.h"
@@ -38,36 +38,7 @@ std::string root = "./";  // 文件根路径
 std::string src_encode;
 std::string dst_encode;
 std::unordered_map<std::string, uint32_t> stcd_index;
-std::string str_now_tm = silly_posix_time::now().to_string("%Y%m%d%H%M%S");
-
-struct export_obj
-{
-    bool has_pptn{false};
-    bool has_river{false};
-    bool has_rsvr{false};
-};
-
-// otl_datetime 转 时间戳
-std::time_t to_timestamp(const otl_datetime& olt_tm)
-{
-    // std::tm t{tm.second, tm.minute, tm.hour, tm.day, tm.month - 1, tm.year - 1900};
-    std::tm t;
-    t.tm_sec = olt_tm.second;
-    t.tm_min = olt_tm.minute;
-    t.tm_hour = olt_tm.hour;
-    t.tm_mday = olt_tm.day;
-    t.tm_mon = olt_tm.month - 1;
-    t.tm_year = olt_tm.year - 1900;
-    std::time_t stamp = std::mktime(&t);
-    return stamp;
-}
-
-export_obj paramAnalysis(int argc, char** argv)
-{
-    export_obj obj;
-
-    return obj;
-}
+std::string str_now_tm;
 
 bool init(const std::string& file);
 
@@ -87,12 +58,12 @@ bool saveInfor(std::vector<std::string>& data, std::string& filename)
 
 // 根据stcd_index获取stcd对应的index,并写入datas中stcd字段
 template <typename T>
-void getindex(std::vector<T>& datas)
+void getIndex(std::vector<T>& datas)
 {
 }
 
 // 生成 stcd 对应的 index 结构
-bool getStcdIndex(std::vector<silly_stbprp>& stbprp, std::unordered_map<std::string, uint32_t>& stcdindex)
+bool createStcdIndex(std::vector<silly_stbprp>& stbprp, std::unordered_map<std::string, uint32_t>& stcdindex)
 {
     return false;
 }
@@ -123,7 +94,7 @@ bool exportSTBPRP()
     }
 
     // 生成 stcd对应的index 关系
-    if (!getStcdIndex(stbprps, stcd_index))
+    if (!createStcdIndex(stbprps, stcd_index))
     {
         SLOG_ERROR("STBPRP stcd index 对应关系生成失败");
         return status;
@@ -176,7 +147,7 @@ bool exportPPTN(const std::string& beginTM, const std::string& endTM, const int&
             continue;
         }
         // 根据stcd 获取index
-        getindex(pptns);
+        getIndex(pptns);
         // 序列化 pptns 为二进制文件
         std::vector<std::string> datas;
         if (!serializePPTN(pptns, datas))
@@ -225,7 +196,7 @@ bool exportRiver(const std::string& beginTM, const std::string& endTM, const int
             continue;
         }
         // 根据stcd 获取index
-        getindex(rivers);
+        getIndex(rivers);
         // 序列化 rivers 为二进制文件
         std::vector<std::string> datas;
         if (!serializeRiver(rivers, datas))
@@ -272,7 +243,7 @@ bool exportRsvr(const std::string& beginTM, const std::string& endTM, const int&
             continue;
         }
         // 根据stcd 获取index
-        getindex(rsvrs);
+        getIndex(rsvrs);
 
         // 序列化 rivers 为二进制文件
         std::vector<std::string> datas;
@@ -297,7 +268,8 @@ bool exportRsvr(const std::string& beginTM, const std::string& endTM, const int&
 int main(int argc, char** argv)
 {
     // 参数解析
-    export_obj obj = paramAnalysis(argc, argv);
+    paramAnalysis(argc, argv);
+     str_now_tm = silly_posix_time::now().to_string("%Y%m%d%H%M%S");
 
 // 初始化
 #ifndef NDEBUG
@@ -329,7 +301,7 @@ int main(int argc, char** argv)
     }
     SLOG_INFO("stbprp 导出时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
 
-    if (obj.has_pptn)
+    if (_opt.pptn)
     {
         timer.restart();
         if (!exportPPTN(btm, etm, 24))
@@ -338,7 +310,7 @@ int main(int argc, char** argv)
         }
         SLOG_INFO("PPTN 导出时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
     }
-    if (obj.has_river)
+    if (_opt.river)
     {
         timer.restart();
         if (!exportRiver(btm, etm, 24))
@@ -347,7 +319,7 @@ int main(int argc, char** argv)
         }
         SLOG_INFO("RIVER 导出时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
     }
-    if (obj.has_rsvr)
+    if (_opt.rsvr)
     {
         timer.restart();
         if (!exportRsvr(btm, etm, 24))
