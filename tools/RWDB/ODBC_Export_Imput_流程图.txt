@@ -1,0 +1,150 @@
+
+导出
+
+1) export stbprp
+    1.1) 数据库查询所有stbprp信息std::vector<silly_stbprp> stbprps;
+    1.2) 根据stbprp信息,生成 stcd对应的index结构 std::unordered_map<std::string, uint32_t> stcd_index;
+    1.3) 将stbprps序列化成二进制字符串
+    1.4) 将字符串写入文件
+
+2) export pptn
+    2.1) 根据开始开始结束时间将时间按照interval(小时),进行分段,std::vector<std::make_pair<std::string, std::string>> btm_etm
+    2.2) 循环每段时间
+        2.2.1) 根据每段btm etm 数据库查询pptn信息
+        2.2.2) 根据pptn信息中的stcd,从stcd_index中获取stcd对应的index写入pptn的stcd字段
+        2.2.3) 将pptn序列化成二进制字符串
+        2.2.4) 将字符串写入文件
+
+3. export river
+    3.1) 根据开始开始结束时间将时间按照interval(小时),进行分段,std::vector<std::make_pair<std::string, std::string>> btm_etm
+    3.2) 循环每段时间
+        3.2.1) 根据每段btm etm 数据库查询river信息
+        3.2.2) 根据river信息中的stcd,从stcd_index中获取stcd对应的index写入river的stcd字段
+        3.2.3) 将river序列化成二进制字符串
+        3.2.4) 将字符串写入文件
+
+4. export rsvr
+    4.1) 根据开始开始结束时间将时间按照interval(小时),进行分段,std::vector<std::make_pair<std::string, std::string>> btm_etm
+    4.2) 循环每段时间
+        4.2.1) 根据每段btm etm 数据库查询rsvr信息
+        4.2.2) 根据rsvr信息中的stcd,从stcd_index中获取stcd对应的index写入rsvr的stcd字段
+        4.2.3) 将rsvr序列化成二进制字符串
+        4.2.4) 将字符串写入文件
+
+
+导出
+
+公共函数:
+    时间分段:
+        std::vector<std::make_pair<std::string, std::string>> btm_etm = splitTime(begin, end, interval);
+        saveInfor(std::vector<std::string>&data, std::string& filename); // 是追加的写入文件
+        一个模板函数 void getindex(std::vector<T>& data); // 根据stcd_index获取stcd对应的index,并写入stcd字段
+
+1) exportSTBPRP()
+    1.1) std::vector<silly_stbprp> loadSTBPRP();
+    1.2) bool getSTCDindex(std::vector<silly_stbprp>& stbprp, std::map<uint32_t, std::string> index_stcd);
+    1.3) std::vector<std::string> serializeSTBPRP(std::vector<silly_stbprp>& stbprp);
+    1.4) void saveInfor(std::vector<std::string>&data, std::string& filename);
+
+2) exprotPPTN()
+    2.1) std::vector<std::make_pair<std::string, std::string>> btm_etm = splitTime(begin, end, interval)
+    2.2) 循环每段时间 exprotPPTNByTime(btm, etm)
+        2.2.1) std::vector<silly_pptn> loadPPTN(std::string& btm, std::string& etm);
+        2.2.2) void getindex(std::vector<silly_pptn>& pptn);
+        2.2.3) serializeSTBPRP(std::vector<silly_pptn>& pptn);
+        2.2.4) saveInfor(std::vector<std::string>&data, std::string& filename);
+3) exportRiver()
+    3.1) std::vector<std::make_pair<std::string, std::string>> btm_etm = splitTime(begin, end, interval)
+    3.2) 循环每段时间 exprotRiverByTime(btm, etm)
+        3.2.1) std::vector<silly_river> loadRiver(std::string& btm, std::string& etm);
+        3.2.2) void getindex(std::vector<silly_river>& river);
+        3.2.3) serializeSTBPRP(std::vector<silly_river>& river);
+        3.2.4) saveInfor(std::vector<std::string>&data, std::string& filename);
+
+4) exportRsvr()
+    4.1) std::vector<std::make_pair<std::string, std::string>> btm_etm = splitTime(begin, end, interval)
+    4.2) 循环每段时间 exprotRsvrByTime(btm, etm)
+        4.2.1) std::vector<silly_rsvr> loadRsvr(std::string& btm, std::string& etm);
+        4.2.2) void getindex(std::vector<silly_rsvr>& rsvr);
+        4.2.3) serializeSTBPRP(std::vector<silly_rsvr>& rsvr);
+        4.2.4) saveInfor(std::vector<std::string>&data, std::string& filename);
+
+
+
+
+导入
+
+1) import stbprp
+    1.1) 一次性全部读取出stbprp文件中的数据,并反序列化文件字符串中的所有数据 std::vector<silly_stbprp> stbprps;
+    1.2) 根据stbprps中的数据创建构建stcd与index的对应关系std::unordered_map<uint32_t, std::string> index_stcd;
+    1.3) 根据数据变量has_stbprp判断是否将stbprps中的数据插入到数据库中
+
+2) import pptn
+   2.1) 按照设定的字节数block_size, 循环 读取pptn文件中的数据,当读取的文件的下标post大于等于文件的总长度first_size,则退出循环
+        2.1.1) 将读取到的这块字符串,反序列化成pptn数据 std::vector<silly_pptn> pptns;此时会得到这块数据中被节点的下一块数据std::string residue,记录他的长residue_size;
+        2.1.2) 反序列化出来的数据中根据index 找到对应的stcd
+        2.1.3) 将数据插入到数据库中(批量插入,5000条插入一次)
+        2.1.4) pos = pos+block_size-residue_size,将pos移动到下一块数据的开头
+
+3) import river 
+   3.1) 按照设定的字节数block_size, 循环 读取river文件中的数据,当读取的文件的下标post大于等于文件的总长度first_size,则退出循环
+        3.1.1) 将读取到的这块字符串,反序列化成silly_river数据 std::vector<silly_river> rivers;此时会得到这块数据中被节点的下一块数据std::string residue,记录他的长residue_size;
+        3.1.2) 将反序列化出来的数据中根据index 找到对应的stcd
+        3.1.3) 将反序列化出来的数据插入到数据库中(批量插入,5000条插入一次)
+        3.1.4) pos = pos+block_size-residue_size,将pos移动到下一块数据的开头
+
+4. import rsvr
+   4.1) 按照设定的字节数block_size, 循环 读取rsvr文件中的数据(每块数据可能会被阶段的不完整数据std::string residueData)
+        4.1.1)  将读取到的这块字符串,反序列化成silly_rsvr数据 std::vector<silly_rsvr> rsvers;此时会得到这块数据中被节点的下一块数据std::string residue,记录他的长residue_size;
+        4.1.2) 将反序列化出来的数据中根据index 找到对应的stcd
+        4.1.3) 将反序列化出来的数据插入到数据库中(批量插入,5000条插入一次)
+        4.1.4) pos = pos+block_size-residue_size,将pos移动到下一块数据的开头
+
+   
+
+公共函数
+
+    模板函数 void getStcd(std::vector<T>& datas); // 根据index_stcd 和 data中的index 找到对应的stcd,写入datas中的stcd字段字段
+
+1) importSTBPRP()
+    1.1) bool loadSTBPRP(std::vector<silly_stbprp>& stbprps) // 从文件中读取出stbprp数据
+    1.2) bool getIndexStcd(const std::vector<silly_stbprp>& stbprps, std::unordered_map<uint32_t, std::string> index_stcd);
+    1.3) if(has_stbprp) {insertSTBPRP(std::vector<silly_stbprp>& stbprps)}
+
+2. importPPTN()
+    2.1) size_t fsize = silly_file::size(file_path);
+    2.2) for(size_t pos = 0; pos < fsize; pos += block_size) {
+        2.2.1) std::string data = silly_file::read(file_path, pos, block_size);
+        2.2.2) bool deserializePPTN(data, std::vector<silly_pptn> pptns, int& residue_size);
+        2.2.3) getStcd(pptns);
+        2.2.4) insertPPTN(pptns);
+        2.2.5) pos = pos + residue_size - residue_size;
+    }
+
+3. importRIVER()
+    3.1) size_t fsize = silly_file::size(file_path);
+    3.2) for(size_t pos = 0; pos < fsize; pos += block_size) {
+        3.2.1) std::string data = silly_file::read(file_path, pos, block_size);
+        3.2.2) bool deserializeRIVER(data, std::vector<silly_river> rivers, int& residue_size);
+        3.2.3) getStcd(rivers);
+        3.2.4) insertRIVER(rivers);
+        3.2.5) pos = pos + residue_size - residue_size;
+    }
+
+4. importRsvr()
+    4.1) size_t fsize = silly_file::size(file_path);
+    4.2) for(size_t pos = 0; pos < fsize; pos += block_size) {
+        4.2.1) std::string data = silly_file::read(file_path, pos, block_size);
+        4.2.2) bool deserializeRsvr(data, std::vector<silly_rsvr> rsvers, int& residue_size);
+        4.2.3) getStcd(rsvers);
+        4.2.4) insertRsvr(rsvers);
+        4.2.5) pos = pos + residue_size - residue_size;
+    }
+
+
+
+
+
+
+
+
