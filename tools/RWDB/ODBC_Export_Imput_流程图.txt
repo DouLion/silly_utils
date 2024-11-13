@@ -75,8 +75,9 @@
 导入
 
 1) import stbprp
-    1.1) 一次性全部读取出stbprp文件中的数据,并反序列化文件字符串中的所有数据 std::vector<silly_stbprp> stbprps;
-    1.2) 根据stbprps中的数据创建构建stcd与index的对应关系std::unordered_map<uint32_t, std::string> index_stcd;
+    1.1) 一次性全部读取出stbprp文件中的数据,
+    1.2) 反序列化文件字符串中的所有数据 std::vector<silly_stbprp> stbprps;
+    1.3) 根据stbprps中的数据创建构建stcd与index的对应关系std::unordered_map<uint32_t, std::string> index_stcd;
     1.3) 根据数据变量has_stbprp判断是否将stbprps中的数据插入到数据库中
 
 2) import pptn
@@ -107,9 +108,10 @@
     模板函数 void getStcd(std::vector<T>& datas); // 根据index_stcd 和 data中的index 找到对应的stcd,写入datas中的stcd字段字段
 
 1) importSTBPRP()
-    1.1) bool loadSTBPRP(std::vector<silly_stbprp>& stbprps) // 从文件中读取出stbprp数据
-    1.2) bool getIndexStcd(const std::vector<silly_stbprp>& stbprps, std::unordered_map<uint32_t, std::string> index_stcd);
-    1.3) if(has_stbprp) {insertSTBPRP(std::vector<silly_stbprp>& stbprps)}
+    1.1) bool loadSTBPRP(const std::string& file_path, std::string& content) // 从文件中读取出二进制流
+    1.2) bool deserializeSTBPRP(const std::string& contion, std::vector<silly_stbprp>& stbprps) // 从文件中读取出stbprp数据
+    1.3) bool creatIndexStcd(const std::vector<silly_stbprp>& stbprps, std::unordered_map<uint32_t, std::string> index_stcd);
+    1.4) if(has_stbprp) {insertSTBPRP(std::vector<silly_stbprp>& stbprps)}
 
 2. importPPTN()
     2.1) size_t fsize = silly_file::size(file_path);

@@ -37,7 +37,8 @@ std::unordered_map<uint32_t, std::string> index_stcd;
 unsigned long long block_byte = 1024 * 1024 * 1024;
 // SIZE_T block_byte = 1024 * 1024;
 
-
+// 读取配置文件
+bool init(const std::string& file);
 
 // 模板函数根据index查找stcd
 template <typename T>
@@ -61,13 +62,47 @@ std::vector<T> getStcd(std::vector<T>& dst_objects)
     return res_objects;
 }
 
-
-// 读取配置文件
-bool init(const std::string& file);
-
-// 从文件中一次性读取全部的stbprp数据
-bool loadSTBPRP(const std::string& file_path, std::vector<silly_stbprp>& stbprps)
+// 创建 index 和 stcd 的映射
+bool creatIndexStcd(const std::vector<silly_stbprp>& stbprps, std::unordered_map<uint32_t, std::string>& indexstcd)
 {
+    // 根据 stbprps 生成说有 stcd 和 index 的映射
+    for (const auto& stbprp : stbprps)
+    {
+        indexstcd[stbprp.index] = stbprp.STCD;
+    }
+    return true;
+}
+
+// 读取stbprp文件中的全部数据
+bool loadSTBPRP(const std::string& file_path, std::string& content)
+{
+    bool status = false;
+    if (!std::filesystem::exists(stbprp_file_path))
+    {
+        SLOG_ERROR("文件不存在: {}", stbprp_file_path);
+        return status;
+    }
+    size_t fsize = silly_file::size(stbprp_file_path);
+    if (fsize < 4)
+    {
+        SLOG_ERROR("文件大小小于 4 字节: {}", fsize);
+        return status;
+    }
+    size_t r = silly_file::read(stbprp_file_path, content, 0, fsize);
+    if (r != fsize)
+    {
+        SLOG_ERROR("文件大小:{}, 读取到的字节数:{},两者不符", fsize, r);
+        return status;
+    }
+    status = true;
+    return status;
+}
+
+// 反序列化stbprp文件中的全部数据
+bool deserializeSTBPRP(const std::string& content, std::vector<silly_stbprp>& stbprps)
+{
+    bool status = false;
+
     return true;
 }
 
@@ -77,34 +112,34 @@ bool insertSTBPRP(std::vector<silly_stbprp>& stbprps)
     return true;
 }
 
-
-
-// 导入stbprp ,默认不插入数据库指导出stcd和index的映射
-bool importSTBPRP(const std::string& file_path, bool import = false)
+// 读取strprp文件并序列化,生成index和stcd的映射
+bool importSTBPRP(const std::string& file_path)
 {
+    bool status = false;
     //  一次性全部读取出stbprp文件中的数据,并反序列化文件字符串中的所有数据
+    std::string content;
+    if (!loadSTBPRP(file_path, content))
+    {
+        SLOG_ERROR("读取stbprp文件失败: {}", file_path);
+        return status;
+    }
+
+    // 反序列化stbprp文件中的全部数据
     std::vector<silly_stbprp> stbprps;
-    if (!loadSTBPRP(file_path, stbprps))
+    if (!deserializeSTBPRP(content, stbprps))
     {
         SLOG_ERROR("读取stbprp文件失败");
         return false;
     }
 
-    // 根据 stbprps 生成说有 stcd 和 index 的映射
-    for (const auto& stbprp : stbprps)
+    // 创建 index 和 stcd 的映射
+    if (!creatIndexStcd(stbprps, index_stcd))
     {
-        index_stcd[stbprp.index] = stbprp.STCD;
+        SLOG_ERROR("创建index和stcd的映射失败");
+        return false;
     }
-
-    // 导入 stbprp 到数据库
-    if (import)
-    {
-        if (!insertSTBPRP(stbprps))
-        {
-            SLOG_ERROR("导入stbprp失败");
-            return false;
-        }
-    }
+    status = true;
+    return status;
 }
 
 // 从文件中读取全部的pptn数据,residue_size为剩余数据大小
@@ -123,7 +158,6 @@ bool insertPPTN(std::vector<silly_pptn>& pptns)
 bool importPPTN(const std::string& file_path, const size_t block_size = 1024 * 1024 * 1024)
 {
     bool status = false;
-
     size_t fsize = silly_file::size(file_path);
     for (size_t pos = 0; pos < fsize;)
     {
@@ -136,13 +170,15 @@ bool importPPTN(const std::string& file_path, const size_t block_size = 1024 * 1
             SLOG_ERROR("反序列化pptn失败");
             return status;
         }
+        // 获取pptn中的stcd
         getStcd(pptns);
+        // 插入pptn到数据库
         if (!insertPPTN(pptns))
         {
             SLOG_ERROR("导入pptn失败");
             return status;
         }
-        pos = pos + residue_size - residue_size;
+        pos = pos + rsize - residue_size;
     }
 
     status = true;
@@ -158,22 +194,6 @@ bool deserializeRiver(const std::string& block_data, std::vector<silly_river>& r
 }
 
 bool insertRiver(std::vector<silly_river>& rivers)
-{
-    bool status = false;
-
-    status = true;
-    return status;
-}
-
-bool deserializeRsvr(const std::string& block_data, std::vector<silly_rsvr>& rsvrs, int& residue_size)
-{
-    bool status = false;
-
-    status = true;
-    return status;
-}
-
-bool insertRsvr(std::vector<silly_rsvr>& rsvrs)
 {
     bool status = false;
 
@@ -197,14 +217,35 @@ bool importRiver(const std::string& file_path, const size_t block_size = 1024 * 
             SLOG_ERROR("反序列化river失败");
             return status;
         }
+        // 根据index获取stcd
         getStcd(rivers);
+
+        // 插入数据库
         if (!insertRiver(rivers))
         {
             SLOG_ERROR("导入river失败");
             return status;
         }
-        pos = pos + residue_size - residue_size;
+        pos = pos + rsize - residue_size;
     }
+    status = true;
+    return status;
+}
+
+bool deserializeRsvr(const std::string& block_data, std::vector<silly_rsvr>& rsvrs, int& residue_size)
+{
+    bool status = false;
+
+    status = true;
+    return status;
+}
+
+bool insertRsvr(std::vector<silly_rsvr>& rsvrs)
+{
+    bool status = false;
+
+    status = true;
+    return status;
 }
 
 bool importRsvr(const std::string& file_path, const size_t block_size = 1024 * 1024 * 1024)
@@ -222,14 +263,20 @@ bool importRsvr(const std::string& file_path, const size_t block_size = 1024 * 1
             SLOG_ERROR("反序列化rsvr失败");
             return status;
         }
+
+        // 根据index获取stcd
         getStcd(rsvrs);
+
+        // 插入数据库
         if (!insertRsvr(rsvrs))
         {
             SLOG_ERROR("导入rsvr失败");
             return status;
         }
-        pos = pos + residue_size - residue_size;
+        pos = pos + rsize - residue_size;
     }
+    status = true;
+    return status;
 }
 
 int main(int argc, char** argv)
@@ -249,17 +296,28 @@ int main(int argc, char** argv)
     }
     SLOG_INFO("读取配置文件完成开始导入数据");
 
-
-
     silly_timer timer;
+
+    //////////// 解析 index 和 stcd对应关系 /////////////
     std::vector<silly_stbprp> stbprps;
-    if (!loadSTBPRP(stbprp_file_path, stbprps))
+    if (!importSTBPRP(stbprp_file_path))
     {
         SLOG_ERROR("导入stbprp失败");
         return -1;
     }
-    SLOG_INFO("stbprp 导入时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
+    SLOG_INFO("stbprp 解析时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
 
+    //////////// 导入数据 /////////////
+
+    if (_opt.stbprp)  // 默认不导入
+    {
+        if (!insertSTBPRP(stbprps))
+        {
+            SLOG_ERROR("导入stbprp失败");
+            return false;
+        }
+        SLOG_INFO("stbprp 导入时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
+    }
     if (_opt.pptn)
     {
         timer.restart();
@@ -327,43 +385,35 @@ bool init(const std::string& file)
     {
         if (!silly_jsonpp::check_member_string(js_sql, "insert_pptn_sql", insert_pptn_sql))
         {
-            SLOG_ERROR("配置文件中缺少 insert_pptn_sql 字段");
             return status;
         }
         if (!silly_jsonpp::check_member_string(js_sql, "insert_stbprp_sql", insert_stbprp_sql))
         {
-            SLOG_ERROR("配置文件中缺少 insert_stbprp_sql 字段");
             return status;
         }
         if (!silly_jsonpp::check_member_string(js_sql, "insert_river_sql", insert_river_sql))
         {
-            SLOG_ERROR("配置文件中缺少 insert_river_sql 字段");
             return status;
         }
         if (!silly_jsonpp::check_member_string(js_sql, "insert_rsvr_sql", insert_rsvr_sql))
         {
-            SLOG_ERROR("配置文件中缺少 insert_rsvr_sql 字段");
             return status;
         }
     }
     if (!silly_jsonpp::check_member_string(jv_root, "stbprp_file_path", stbprp_file_path))
     {
-        SLOG_ERROR("配置文件中缺少 stbprp_file_path 字段");
         return status;
     }
     if (!silly_jsonpp::check_member_string(jv_root, "pptn_file_path", pptn_file_path))
     {
-        SLOG_ERROR("配置文件中缺少 pptn_file_path 字段");
         return status;
     }
     if (!silly_jsonpp::check_member_string(jv_root, "river_file_path", river_file_path))
     {
-        SLOG_ERROR("配置文件中缺少 river_file_path 字段");
         return status;
     }
     if (!silly_jsonpp::check_member_string(jv_root, "rsvr_file_path", rsvr_file_path))
     {
-        SLOG_ERROR("配置文件中缺少 rsvr_file_path 字段");
         return status;
     }
     // block_byte

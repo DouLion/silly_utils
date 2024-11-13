@@ -9,7 +9,7 @@
 #include <tzx/rwdb/silly_rsvr.h>
 #include <tzx/rwdb/silly_river.h>
 
-class silly_rwdb_export
+class silly_export_stbprp
 {
   public:
     static bool init();
@@ -20,9 +20,20 @@ class silly_rwdb_export
     /// <returns></returns>
     static bool exportSTBPRP();
     // 数据库加载 STBPRP 数据
-    static bool loadSTBPRP(std::vector<silly_stbprp>& stbprps)
+    static bool loadSTBPRP(std::vector<silly_stbprp>& stbprps);
     // 序列化 STBPRP 数据为二进制流
     static bool serializeSTBPRP(const std::vector<silly_stbprp>& stbprp, std::vector<std::string>& datas);
+
+  public:
+
+    static std::unordered_map<std::string, uint32_t> stcd_index;  // STCD 与 索引 的映射
+    static silly_otl otl;
+};
+
+class silly_export_pptn
+{
+  public:
+    static bool init();
 
     /// <summary>
     /// 导出 PPTN
@@ -37,6 +48,17 @@ class silly_rwdb_export
     // 序列化 PPTN 数据为二进制流
     static bool serializePPTN(std::vector<silly_pptn>& pptn, std::vector<std::string>& datas);
 
+  public:
+
+    static std::unordered_map<std::string, uint32_t> stcd_index;  // STCD 与 索引 的映射
+    static silly_otl otl;
+};
+
+class silly_export_river
+{
+  public:
+    static bool init();
+
     /// <summary>
     /// 导出 RSVR
     /// </summary>
@@ -49,6 +71,17 @@ class silly_rwdb_export
     static bool loadRSVR(const std::string& btm, const std::string& etm, std::vector<silly_rsvr>& rsrvs);
     // 序列化 RSVR 数据为二进制流
     static bool serializeRSVR(std::vector<silly_rsvr>& rsvr, std::vector<std::string>& datas);
+
+  public:
+
+    static std::unordered_map<std::string, uint32_t> stcd_index;  // STCD 与 索引 的映射
+    static silly_otl otl;
+};
+
+class silly_export_rsvr
+{
+  public:
+    static bool init();
 
     /// <summary>
     /// 导出 RIVER
@@ -63,10 +96,10 @@ class silly_rwdb_export
     // 序列化 RIVER 数据为二进制流
     static bool serializeRIVER(std::vector<silly_river>& river, std::vector<std::string>& datas);
 
+  public:
+
     static std::unordered_map<std::string, uint32_t> stcd_index;  // STCD 与 索引 的映射
     static silly_otl otl;
-
-  private:
 };
 
 #endif  // SILLY_RWDB_EXPORT_H

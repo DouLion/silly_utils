@@ -1,6 +1,14 @@
 
 #include "encode/silly_encode.h"
 
+// 检查查询数据,不为null 则赋值
+#define CHECK_NULL_VALUE(var, dest) \
+    if (!(var).is_null())           \
+    {                               \
+        (dest) = (var).v;           \
+    }
+
+
 struct option
 {
     bool stbprp{false};
@@ -48,11 +56,11 @@ static void paramAnalysis(int argc, char** argv)
         {
             _opt.pptn = true;
         }
-        else if ("rsvr" == argv[i])
+        else if ("river" == argv[i])
         {
             _opt.river = true;
         }
-        else if ("river" == argv[i])
+        else if ("rsvr" == argv[i])
         {
             _opt.rsvr = true;
         }
@@ -63,12 +71,14 @@ static void paramAnalysis(int argc, char** argv)
     }
 }
 
-// 检查查询数据,不为null 则赋值
-#define CHECK_NULL_VALUE(var, dest) \
-    if (!(var).is_null())           \
-    {                               \
-        (dest) = (var).v;           \
-    }
+
+// 时间分段函数,interval 单位为小时
+std::vector<std::pair<std::string, std::string>> splitTime(std::string beginTM, std::string endTM, int interval)
+{
+    std::vector<std::pair<std::string, std::string>> b_e_tms;
+
+    return b_e_tms;
+}
 
 
 static bool encode(silly_stbprp& stbprp, const std::string& from, const std::string& to)

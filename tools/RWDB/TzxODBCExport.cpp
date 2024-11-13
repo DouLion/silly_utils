@@ -19,13 +19,6 @@
 #include "datetime/silly_timer.h"  // 计时
 #include "string/silly_format.h"
 
-// 检查查询数据,不为null 则赋值
-#define CHECK_NULL_VALUE(var, dest) \
-    if (!(var).is_null())           \
-    {                               \
-        (dest) = (var).v;           \
-    }
-
 // 全局变量
 silly_otl otl;
 std::string select_stbprp_sql;
@@ -34,21 +27,13 @@ std::string select_river_sql;
 std::string select_rsvr_sql;
 std::string btm;
 std::string etm;
-std::string root = "./";  // 文件根路径
 std::string src_encode;
 std::string dst_encode;
 std::unordered_map<std::string, uint32_t> stcd_index;
 std::string str_now_tm;
 
+// 读取配置文件
 bool init(const std::string& file);
-
-// 时间分段函数,interval 单位为小时
-std::vector<std::pair<std::string, std::string>> splitTime(std::string beginTM, std::string endTM, int interval)
-{
-    std::vector<std::pair<std::string, std::string>> b_e_tms;
-
-    return b_e_tms;
-}
 
 // 将data中的字符串都写入到文件中,追加的写入
 bool saveInfor(std::vector<std::string>& data, std::string& filename)
@@ -58,12 +43,15 @@ bool saveInfor(std::vector<std::string>& data, std::string& filename)
 
 // 根据stcd_index获取stcd对应的index,并写入datas中stcd字段
 template <typename T>
-void getIndex(std::vector<T>& datas)
+std::vector<T>& getIndex(std::vector<T>& datas)
 {
+    std::vector<T> res_opt;
+
+    return res_opt;
 }
 
-// 生成 stcd 对应的 index 结构
-bool createStcdIndex(std::vector<silly_stbprp>& stbprp, std::unordered_map<std::string, uint32_t>& stcdindex)
+// 生成 stcd 和 index 的映射
+bool createStcdIndex(std::vector<silly_stbprp>& stbprps, std::unordered_map<std::string, uint32_t>& stcdindex)
 {
     return false;
 }
@@ -107,6 +95,7 @@ bool exportSTBPRP()
         SLOG_ERROR("STBPRP 序列化失败");
         return status;
     }
+
     // 写入文件
     std::string fileName = str_now_tm + "_" + silly_stbprp::FILE_NAME;
     if (!saveInfor(datas, fileName))
@@ -130,20 +119,18 @@ bool serializePPTN(std::vector<silly_pptn>& pptn, std::vector<std::string>& data
     return false;
 }
 
-bool exportPPTN(const std::string& beginTM, const std::string& endTM, const int& hour)
+bool exportPPTN(const std::vector<std::pair<std::string, std::string>>& btm_etm)
 {
     bool status = false;
 
     std::string fileName = str_now_tm + "_" + silly_pptn::FILE_NAME;
-    // 时间分段
-    std::vector<std::pair<std::string, std::string>> btm_etm = splitTime(beginTM, endTM, hour);
-    for (const auto& [btm, etm] : btm_etm)
+    for (const auto& [_btm, _etm] : btm_etm)
     {
         // 数据库查询 PPTN
         std::vector<silly_pptn> pptns;
-        if (!loadPPTN(beginTM, endTM, pptns))
+        if (!loadPPTN(_btm, _etm, pptns))
         {
-            SLOG_ERROR("PPTN 数据库加载失败 ({} ~ {})", beginTM, endTM);
+            SLOG_ERROR("PPTN 数据库加载失败 ({} ~ {})", _btm, _etm);
             continue;
         }
         // 根据stcd 获取index
@@ -152,13 +139,13 @@ bool exportPPTN(const std::string& beginTM, const std::string& endTM, const int&
         std::vector<std::string> datas;
         if (!serializePPTN(pptns, datas))
         {
-            SLOG_ERROR("PPTN 序列化失败  ({} ~ {})", beginTM, endTM);
+            SLOG_ERROR("PPTN 序列化失败  ({} ~ {})", _btm, _etm);
             continue;
         }
         // 写入文件
         if (!saveInfor(datas, fileName))
         {
-            SLOG_ERROR("PPTN 写入文件失败  ({} ~ {})", beginTM, endTM);
+            SLOG_ERROR("PPTN 写入文件失败  ({} ~ {})", _btm, _etm);
             continue;
         }
     }
@@ -179,20 +166,18 @@ bool serializeRiver(std::vector<silly_river>& rivers, std::vector<std::string>& 
     return false;
 }
 
-bool exportRiver(const std::string& beginTM, const std::string& endTM, const int& hour)
+bool exportRiver(const std::vector<std::pair<std::string, std::string>>& btm_etm)
 {
     bool status = false;
 
     std::string fileName = str_now_tm + "_" + silly_river::FILE_NAME;
-    // 时间分段
-    std::vector<std::pair<std::string, std::string>> btm_etm = splitTime(beginTM, endTM, hour);
-    for (const auto& [btm, etm] : btm_etm)
+    for (const auto& [_btm, _etm] : btm_etm)
     {
         // 数据库查询 RIVER
         std::vector<silly_river> rivers;
-        if (!loadRiver(beginTM, endTM, rivers))
+        if (!loadRiver(_btm, _etm, rivers))
         {
-            SLOG_ERROR("RIVER 数据库加载失败 ({} ~ {})", beginTM, endTM);
+            SLOG_ERROR("RIVER 数据库加载失败 ({} ~ {})", _btm, _etm);
             continue;
         }
         // 根据stcd 获取index
@@ -201,13 +186,13 @@ bool exportRiver(const std::string& beginTM, const std::string& endTM, const int
         std::vector<std::string> datas;
         if (!serializeRiver(rivers, datas))
         {
-            SLOG_ERROR("RIVER 序列化失败  ({} ~ {})", beginTM, endTM);
+            SLOG_ERROR("RIVER 序列化失败  ({} ~ {})", _btm, _etm);
             continue;
         }
         // 写入文件
         if (!saveInfor(datas, fileName))
         {
-            SLOG_ERROR("RIVER 写入文件失败  ({} ~ {})", beginTM, endTM);
+            SLOG_ERROR("RIVER 写入文件失败  ({} ~ {})", _btm, _etm);
             continue;
         }
     }
@@ -227,19 +212,18 @@ bool serializeRsvr(std::vector<silly_rsvr>& rsvrs, std::vector<std::string>& dat
 }
 
 // 数据库查询 RSVR 数据
-bool exportRsvr(const std::string& beginTM, const std::string& endTM, const int& hour)
+bool exportRsvr(const std::vector<std::pair<std::string, std::string>>& btm_etm)
 {
     bool status = false;
 
     std::string fileName = str_now_tm + "_" + silly_rsvr::FILE_NAME;
-    std::vector<std::pair<std::string, std::string>> btm_etm = splitTime(beginTM, endTM, hour);
-    for (const auto& [btm, etm] : btm_etm)
+    for (const auto& [_btm, _etm] : btm_etm)
     {
         // 数据库查询 RSVR
         std::vector<silly_rsvr> rsvrs;
-        if (!loadRsvr(beginTM, endTM, rsvrs))
+        if (!loadRsvr(_btm, _etm, rsvrs))
         {
-            SLOG_ERROR("RSVR 数据库加载失败 ({} ~ {})", beginTM, endTM);
+            SLOG_ERROR("RSVR 数据库加载失败 ({} ~ {})", _btm, _etm);
             continue;
         }
         // 根据stcd 获取index
@@ -249,13 +233,13 @@ bool exportRsvr(const std::string& beginTM, const std::string& endTM, const int&
         std::vector<std::string> datas;
         if (!serializeRsvr(rsvrs, datas))
         {
-            SLOG_ERROR("RSVR 序列化失败  ({} ~ {})", beginTM, endTM);
+            SLOG_ERROR("RSVR 序列化失败  ({} ~ {})", _btm, _etm);
             continue;
         }
         // 写入文件
         if (!saveInfor(datas, fileName))
         {
-            SLOG_ERROR("RSVR 写入文件失败  ({} ~ {})", beginTM, endTM);
+            SLOG_ERROR("RSVR 写入文件失败  ({} ~ {})", _btm, _etm);
             continue;
         }
     }
@@ -269,7 +253,7 @@ int main(int argc, char** argv)
 {
     // 参数解析
     paramAnalysis(argc, argv);
-     str_now_tm = silly_posix_time::now().to_string("%Y%m%d%H%M%S");
+    str_now_tm = silly_posix_time::now().to_string("%Y%m%d%H%M%S");
 
 // 初始化
 #ifndef NDEBUG
@@ -284,15 +268,7 @@ int main(int argc, char** argv)
         return -1;
     }
 
-#if IS_WIN32
-    if (otl.type() == enum_database_type::dbORACLE)
-    {
-        _putenv_s("NLS_LANG", "SIMPLIFIED CHINESE_CHINA.UTF8");
-    }
-#else
-#endif
     silly_timer timer;
-
     // STBPRP 一定要导出
     if (!exportSTBPRP())
     {
@@ -301,10 +277,13 @@ int main(int argc, char** argv)
     }
     SLOG_INFO("stbprp 导出时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
 
+    // 时间分段
+    std::vector<std::pair<std::string, std::string>> btm_etm = splitTime(btm, etm, 24);
+
     if (_opt.pptn)
     {
         timer.restart();
-        if (!exportPPTN(btm, etm, 24))
+        if (!exportPPTN(btm_etm))
         {
             SLOG_ERROR("PPTN 导出失败");
         }
@@ -313,7 +292,7 @@ int main(int argc, char** argv)
     if (_opt.river)
     {
         timer.restart();
-        if (!exportRiver(btm, etm, 24))
+        if (!exportRiver(btm_etm))
         {
             SLOG_ERROR("RIVER 导出失败");
         }
@@ -322,7 +301,7 @@ int main(int argc, char** argv)
     if (_opt.rsvr)
     {
         timer.restart();
-        if (!exportRsvr(btm, etm, 24))
+        if (!exportRsvr(btm_etm))
         {
             SLOG_ERROR("RIVER 导出失败");
         }
@@ -355,39 +334,41 @@ bool init(const std::string& file)
     }
     SLOG_INFO("odbc 链接串: {}", otl.odbc());
 
+#if IS_WIN32
+    if (otl.type() == enum_database_type::dbORACLE)
+    {
+        _putenv_s("NLS_LANG", "SIMPLIFIED CHINESE_CHINA.UTF8");
+    }
+#else
+#endif
+
     Json::Value js_sql;
     if (silly_jsonpp::check_member_object(jv_root, "sql", js_sql))
     {
         if (!silly_jsonpp::check_member_string(js_sql, "select_stbprp_sql", select_stbprp_sql))
         {
-            SLOG_ERROR("配置文件中缺少 select_stbprp_sql 字段");
             return status;
         }
         if (!silly_jsonpp::check_member_string(js_sql, "select_pptn_sql", select_pptn_sql))
         {
-            SLOG_ERROR("配置文件中缺少 select_pptn_sql 字段");
             return status;
         }
         if (!silly_jsonpp::check_member_string(js_sql, "select_river_sql", select_river_sql))
         {
-            SLOG_ERROR("配置文件中缺少 select_river_sql 字段");
             return status;
         }
         if (!silly_jsonpp::check_member_string(js_sql, "select_rsvr_sql", select_rsvr_sql))
         {
-            SLOG_ERROR("配置文件中缺少 select_rsvr_sql 字段");
             return status;
         }
     }
 
     if (!silly_jsonpp::check_member_string(jv_root, "btm", btm))
     {
-        SLOG_ERROR("配置文件中缺少 btm 字段");
         return status;
     }
     if (!silly_jsonpp::check_member_string(jv_root, "etm", etm))
     {
-        SLOG_ERROR("配置文件中缺少 etm 字段");
         return status;
     }
 
