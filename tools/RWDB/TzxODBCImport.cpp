@@ -31,13 +31,6 @@ std::string src_encode;
 std::string dst_encode;
 std::unordered_map<uint32_t, std::string> g_index_stcd;  // 导入
 
-//
-std::string select_stbprp_sql;
-std::string select_pptn_sql;
-std::string select_river_sql;
-std::string select_rsvr_sql;
-std::string str_now_tm;
-std::unordered_map<std::string, uint32_t> g_stcd_index;  // 导出
 
 unsigned long long block_byte = 1024 * 1024 * 1024;
 // SIZE_T block_byte = 1024 * 1024;
@@ -47,6 +40,10 @@ bool init(const std::string& file);
 
 int main(int argc, char** argv)
 {
+    if (!silly_log::instance().init(argc, argv))
+    {
+        std::cout << "日志初始化失败" << std::endl;
+    }
     // 参数解析
     paramAnalysis(argc, argv);
 
