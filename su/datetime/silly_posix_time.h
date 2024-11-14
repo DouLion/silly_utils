@@ -46,7 +46,7 @@ class silly_time_duration
 static void check_std_tm(std::tm stm);
 
 // 时间戳为标准时间戳精确到秒;
-// 事件以北京时间为准,间fix_tm的实现;
+// 时间以北京时间为准,见fix_tm的实现;
 class silly_posix_time
 {
   public:

@@ -166,7 +166,7 @@ silly_posix_time silly_posix_time::operator-(const silly_time_duration& td) cons
 silly_posix_time& silly_posix_time::operator-=(const silly_time_duration& td)
 {
     std::scoped_lock lock(m_mutex);
-    m_time_point += std::chrono::seconds(td.total_seconds());
+    m_time_point -= std::chrono::seconds(td.total_seconds());
     fix_tm();
     return *this;
 }
