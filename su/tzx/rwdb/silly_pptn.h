@@ -21,23 +21,23 @@ class silly_pptn
     silly_pptn()
     {
     }
-    silly_pptn(const std::string& stcd, const std::time_t& stamp, const float& drp, const float& intv) : stcd(stcd), stamp(stamp), drp(drp), intv(intv)
+    silly_pptn(const std::string& STCD, const std::time_t& stamp, const float& drp, const float& intv) : STCD(STCD), stamp(stamp), drp(drp), intv(intv)
     {
     }
 
-    std::string serialize(const int& ver = SILLY_PPTN_FORMAT_V1);
+    std::string serialize(const int& ver = SILLY_PPTN_FORMAT_V1) const;
     bool deserialize(const std::string& data);
 
   private:
-    std::string serialize_v1();
+    std::string serialize_v1() const;
     bool deserialize_v1(const std::string& data);
-    std::string serialize_v2();
+    std::string serialize_v2() const;
     bool deserialize_v2(const std::string& data);
-    std::string serialize_v3();
+    std::string serialize_v3() const;
     bool deserialize_v3(const std::string& data);
 
   public:
-    std::string stcd;
+    std::string STCD;
     uint32_t index{0};
     std::time_t stamp{0};
     float intv{0};

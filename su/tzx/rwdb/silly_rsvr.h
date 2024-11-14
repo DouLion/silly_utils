@@ -23,19 +23,19 @@ class silly_rsvr
     {
     }
 
-    std::string serialize(const int& ver = SILLY_RSVR_FORMAT_V1);
+    std::string serialize(const int& ver = SILLY_RSVR_FORMAT_V1) const;
     bool deserialize(const std::string& data);
 
   private:
-    std::string serialize_v1();
+    std::string serialize_v1() const;
     bool deserialize_v1(const std::string& data);
-    std::string serialize_v2();
+    std::string serialize_v2() const;
     bool deserialize_v2(const std::string& data);
-    std::string serialize_v3();
+    std::string serialize_v3() const;
     bool deserialize_v3(const std::string& data);
 
   public:
-    std::string stcd;
+    std::string STCD;
     uint32_t index{0};     // 索引 4
     std::time_t stamp{0};  // 时间戳 4
     float rz{0};           // 4

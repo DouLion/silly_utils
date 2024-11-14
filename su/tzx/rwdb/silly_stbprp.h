@@ -14,7 +14,7 @@
 class silly_stbprp
 {
   public:
-    std::string serialize();
+    std::string serialize() const;
     bool deserialize(const std::string& data);
 
   public:

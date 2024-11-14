@@ -4,33 +4,44 @@
 
 #include <su_marco.h>
 
+#include <tzx/rwdb/silly_pptn.h>
+#include <tzx/rwdb/silly_stbprp.h>
+#include <tzx/rwdb/silly_rsvr.h>
+#include <tzx/rwdb/silly_river.h>
+
+// 寻找全局变量
+extern silly_otl otl;
+extern std::string src_encode;
+extern std::string dst_encode;
+extern std::string insert_stbprp_sql;
+extern std::string insert_pptn_sql;
+extern std::string insert_river_sql;
+extern std::string insert_rsvr_sql;
+extern std::string stbprp_file_path;
+extern std::string pptn_file_path;
+extern std::string river_file_path;
+extern std::string rsvr_file_path;
+extern std::unordered_map<uint32_t, std::string> index_stcd;
+
 class silly_import_stbprp
 {
   public:
-    static bool init();
-
     // 读取strprp文件并序列化,生成index和stcd的映射关系
-    bool importSTBPRP(const std::string& file_path);
+    static bool importSTBPRP(const std::string& file_path);
 
     // 读取stbprp文件中的全部数据
-    bool loadSTBPRP(const std::string& file_path, std::string& content);
+    static bool loadSTBPRP(const std::string& file_path, std::string& content);
 
     // 反序列化stbprp文件中的全部数据
-    bool deserializeSTBPRP(const std::string& content, std::vector<silly_stbprp>& stbprps);
+    static bool deserializeSTBPRP(const std::string& content, std::vector<silly_stbprp>& stbprps);
 
     // 插入stbprp到数据库
-    bool insertSTBPRP(std::vector<silly_stbprp>& stbprps);
-
-  public:
-    static std::unordered_map<uint32_t, std::string> index_stcd;  // 索引和stcd的映射
-    static silly_otl otl;
+    static bool insertSTBPRP(std::vector<silly_stbprp>& stbprps);
 };
 
 class silly_import_pptn
 {
   public:
-    static bool init();
-
     /// <summary>
     /// 导入PPTN
     /// </summary>
@@ -48,38 +59,61 @@ class silly_import_pptn
     static bool deserializePPTN(const std::string& block_data, std::vector<silly_pptn>& pptns, int& residue_size);
     // 导入pptn到数据库
     static bool insertPPTN(std::vector<silly_pptn>& pptns);
-
-  public:
-    static std::unordered_map<uint32_t, std::string> index_stcd;  // 索引和stcd的映射
-    static silly_otl otl;
 };
 
 class silly_import_river
 {
   public:
-    static bool init();
-
+    /// <summary>
+    /// 导入river
+    /// </summary>
+    /// <param name="file_path"></param>
+    /// <param name="block_size"></param>
+    /// <returns></returns>
     static bool importRiver(const std::string& file_path, const size_t block_size = 1024 * 1024 * 1024);
+    /// <summary>
+    /// 从字符串解析river数据
+    /// </summary>
+    /// <param name="block_data"></param>
+    /// <param name="rivers"></param>
+    /// <param name="residue_size">剩余数据大小</param>
+    /// <returns></returns>
     static bool deserializeRiver(const std::string& block_data, std::vector<silly_river>& rivers, int& residue_size);
-    static bool insertRiver(std::vector<silly_river>& rivers);
 
-  public:
-    static std::unordered_map<uint32_t, std::string> index_stcd;  // 索引和stcd的映射
-    static silly_otl otl;
+    /// <summary>
+    /// 插入river到数据库
+    /// </summary>
+    /// <param name="rivers"></param>
+    /// <returns></returns>
+    static bool insertRiver(std::vector<silly_river>& rivers);
 };
 
 class silly_import_rsvr
 {
   public:
-    static bool init();
-
+    /// <summary>
+    /// 导入rsvr
+    /// </summary>
+    /// <param name="file_path"></param>
+    /// <param name="block_size"></param>
+    /// <returns></returns>
     static bool importRsvr(const std::string& file_path, const size_t block_size = 1024 * 1024 * 1024);
-    static bool deserializeRsvr(const std::string& block_data, std::vector<silly_rsvr>& rsvrs, int& residue_size);
-    static bool insertRsvr(std::vector<silly_rsvr>& rsvrs);
 
-  public:
-    static std::unordered_map<uint32_t, std::string> index_stcd;  // 索引和stcd的映射
-    static silly_otl otl;
+    /// <summary>
+    /// 从字符串解析rsvr数据
+    /// </summary>
+    /// <param name="block_data"></param>
+    /// <param name="rsvrs"></param>
+    /// <param name="residue_size">剩余数据大小</param>
+    /// <returns></returns>
+    static bool deserializeRsvr(const std::string& block_data, std::vector<silly_rsvr>& rsvrs, int& residue_size);
+
+    /// <summary>
+    /// 插入rsvr到数据库
+    /// </summary>
+    /// <param name="rsvrs"></param>
+    /// <returns></returns>
+    static bool insertRsvr(std::vector<silly_rsvr>& rsvrs);
 };
 
 #endif  // SILLY_RWDB_IMPORT_H

@@ -13,7 +13,7 @@
 
 
 
-std::string silly_stbprp::serialize()
+std::string silly_stbprp::serialize() const
 {
     std::string result;
     result.append("    ");

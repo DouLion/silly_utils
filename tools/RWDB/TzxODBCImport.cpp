@@ -18,6 +18,7 @@
 #include "tools.h"
 #include "datetime/silly_timer.h"  // 计时
 #include "files/silly_file.h"
+#include "silly_rwdb_import.h"
 
 silly_otl otl;
 std::string insert_pptn_sql;
@@ -40,245 +41,6 @@ unsigned long long block_byte = 1024 * 1024 * 1024;
 // 读取配置文件
 bool init(const std::string& file);
 
-// 模板函数根据index查找stcd
-template <typename T>
-std::vector<T> getStcd(std::vector<T>& dst_objects)
-{
-    // 根据 index_stcd 查找并更新 stcd
-    std::vector<T> res_objects;
-    for (auto& obj : dst_objects)
-    {
-        uint32_t t_index = obj.index;
-        if (index_stcd.find(t_index) != index_stcd.end())
-        {
-            std::string t_stcd = index_stcd[t_index];
-            if (!t_stcd.empty())
-            {
-                obj.stcd = t_stcd;
-                res_objects.push_back(obj);
-            }
-        }
-    }
-    return res_objects;
-}
-
-// 创建 index 和 stcd 的映射
-bool creatIndexStcd(const std::vector<silly_stbprp>& stbprps, std::unordered_map<uint32_t, std::string>& indexstcd)
-{
-    // 根据 stbprps 生成说有 stcd 和 index 的映射
-    for (const auto& stbprp : stbprps)
-    {
-        indexstcd[stbprp.index] = stbprp.STCD;
-    }
-    return true;
-}
-
-// 读取stbprp文件中的全部数据
-bool loadSTBPRP(const std::string& file_path, std::string& content)
-{
-    bool status = false;
-    if (!std::filesystem::exists(stbprp_file_path))
-    {
-        SLOG_ERROR("文件不存在: {}", stbprp_file_path);
-        return status;
-    }
-    size_t fsize = silly_file::size(stbprp_file_path);
-    if (fsize < 4)
-    {
-        SLOG_ERROR("文件大小小于 4 字节: {}", fsize);
-        return status;
-    }
-    size_t r = silly_file::read(stbprp_file_path, content, 0, fsize);
-    if (r != fsize)
-    {
-        SLOG_ERROR("文件大小:{}, 读取到的字节数:{},两者不符", fsize, r);
-        return status;
-    }
-    status = true;
-    return status;
-}
-
-// 反序列化stbprp文件中的全部数据
-bool deserializeSTBPRP(const std::string& content, std::vector<silly_stbprp>& stbprps)
-{
-    bool status = false;
-
-    return true;
-}
-
-// 插入stbprp到数据库
-bool insertSTBPRP(std::vector<silly_stbprp>& stbprps)
-{
-    return true;
-}
-
-// 读取strprp文件并序列化,生成index和stcd的映射
-bool importSTBPRP(const std::string& file_path)
-{
-    bool status = false;
-    //  一次性全部读取出stbprp文件中的数据,并反序列化文件字符串中的所有数据
-    std::string content;
-    if (!loadSTBPRP(file_path, content))
-    {
-        SLOG_ERROR("读取stbprp文件失败: {}", file_path);
-        return status;
-    }
-
-    // 反序列化stbprp文件中的全部数据
-    std::vector<silly_stbprp> stbprps;
-    if (!deserializeSTBPRP(content, stbprps))
-    {
-        SLOG_ERROR("读取stbprp文件失败");
-        return false;
-    }
-
-    // 创建 index 和 stcd 的映射
-    if (!creatIndexStcd(stbprps, index_stcd))
-    {
-        SLOG_ERROR("创建index和stcd的映射失败");
-        return false;
-    }
-    status = true;
-    return status;
-}
-
-// 从文件中读取全部的pptn数据,residue_size为剩余数据大小
-bool deserializePPTN(const std::string& block_data, std::vector<silly_pptn>& pptns, int& residue_size)
-{
-    return true;
-}
-
-// 导入pptn到数据库
-bool insertPPTN(std::vector<silly_pptn>& pptns)
-{
-    return true;
-}
-
-// 导入pptn数据到数据库
-bool importPPTN(const std::string& file_path, const size_t block_size = 1024 * 1024 * 1024)
-{
-    bool status = false;
-    size_t fsize = silly_file::size(file_path);
-    for (size_t pos = 0; pos < fsize;)
-    {
-        std::string block_data;
-        size_t rsize = silly_file::read(file_path, block_data, pos, block_size);
-        std::vector<silly_pptn> pptns;
-        int residue_size = 0;
-        if (deserializePPTN(block_data, pptns, residue_size))
-        {
-            SLOG_ERROR("反序列化pptn失败");
-            return status;
-        }
-        // 获取pptn中的stcd
-        getStcd(pptns);
-        // 插入pptn到数据库
-        if (!insertPPTN(pptns))
-        {
-            SLOG_ERROR("导入pptn失败");
-            return status;
-        }
-        pos = pos + rsize - residue_size;
-    }
-
-    status = true;
-    return status;
-}
-
-bool deserializeRiver(const std::string& block_data, std::vector<silly_river>& rivers, int& residue_size)
-{
-    bool status = false;
-
-    status = true;
-    return status;
-}
-
-bool insertRiver(std::vector<silly_river>& rivers)
-{
-    bool status = false;
-
-    status = true;
-    return status;
-}
-
-// 导入river数据到数据
-bool importRiver(const std::string& file_path, const size_t block_size = 1024 * 1024 * 1024)
-{
-    bool status = false;
-    size_t fsize = silly_file::size(file_path);
-    for (size_t pos = 0; pos < fsize;)
-    {
-        std::string block_data;
-        size_t rsize = silly_file::read(file_path, block_data, pos, block_size);
-        std::vector<silly_river> rivers;
-        int residue_size = 0;
-        if (deserializeRiver(block_data, rivers, residue_size))
-        {
-            SLOG_ERROR("反序列化river失败");
-            return status;
-        }
-        // 根据index获取stcd
-        getStcd(rivers);
-
-        // 插入数据库
-        if (!insertRiver(rivers))
-        {
-            SLOG_ERROR("导入river失败");
-            return status;
-        }
-        pos = pos + rsize - residue_size;
-    }
-    status = true;
-    return status;
-}
-
-bool deserializeRsvr(const std::string& block_data, std::vector<silly_rsvr>& rsvrs, int& residue_size)
-{
-    bool status = false;
-
-    status = true;
-    return status;
-}
-
-bool insertRsvr(std::vector<silly_rsvr>& rsvrs)
-{
-    bool status = false;
-
-    status = true;
-    return status;
-}
-
-bool importRsvr(const std::string& file_path, const size_t block_size = 1024 * 1024 * 1024)
-{
-    bool status = false;
-    size_t fsize = silly_file::size(file_path);
-    for (size_t pos = 0; pos < fsize;)
-    {
-        std::string block_data;
-        size_t rsize = silly_file::read(file_path, block_data, pos, block_size);
-        std::vector<silly_rsvr> rsvrs;
-        int residue_size = 0;
-        if (deserializeRsvr(block_data, rsvrs, residue_size))
-        {
-            SLOG_ERROR("反序列化rsvr失败");
-            return status;
-        }
-
-        // 根据index获取stcd
-        getStcd(rsvrs);
-
-        // 插入数据库
-        if (!insertRsvr(rsvrs))
-        {
-            SLOG_ERROR("导入rsvr失败");
-            return status;
-        }
-        pos = pos + rsize - residue_size;
-    }
-    status = true;
-    return status;
-}
-
 int main(int argc, char** argv)
 {
     // 参数解析
@@ -300,7 +62,7 @@ int main(int argc, char** argv)
 
     //////////// 解析 index 和 stcd对应关系 /////////////
     std::vector<silly_stbprp> stbprps;
-    if (!importSTBPRP(stbprp_file_path))
+    if (!silly_import_stbprp::importSTBPRP(stbprp_file_path))
     {
         SLOG_ERROR("导入stbprp失败");
         return -1;
@@ -311,17 +73,18 @@ int main(int argc, char** argv)
 
     if (_opt.stbprp)  // 默认不导入
     {
-        if (!insertSTBPRP(stbprps))
+        if (!silly_import_stbprp::insertSTBPRP(stbprps))
         {
             SLOG_ERROR("导入stbprp失败");
             return false;
         }
         SLOG_INFO("stbprp 导入时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
     }
+    stbprps.clear();
     if (_opt.pptn)
     {
         timer.restart();
-        if (!importPPTN(pptn_file_path, block_byte))
+        if (!silly_import_pptn::importPPTN(pptn_file_path, block_byte))
         {
             SLOG_ERROR("导入PPTN失败");
         }
@@ -330,7 +93,7 @@ int main(int argc, char** argv)
     if (_opt.river)
     {
         timer.restart();
-        if (!importRiver(river_file_path, block_byte))
+        if (!silly_import_river::importRiver(river_file_path, block_byte))
         {
             SLOG_ERROR("导入 River 失败");
         }
@@ -339,7 +102,7 @@ int main(int argc, char** argv)
     if (_opt.rsvr)
     {
         timer.restart();
-        if (!importRsvr(rsvr_file_path, block_byte))
+        if (!silly_import_rsvr::importRsvr(rsvr_file_path, block_byte))
         {
             SLOG_ERROR("导入 Rsvr 失败");
         }

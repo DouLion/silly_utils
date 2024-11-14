@@ -1,4 +1,7 @@
 
+#ifndef TOOLS_H
+#define TOOLS_H
+
 #include "encode/silly_encode.h"
 
 // 检查查询数据,不为null 则赋值
@@ -8,19 +11,20 @@
         (dest) = (var).v;           \
     }
 
-
 struct option
 {
     bool stbprp{false};
     bool pptn{false};
     bool river{false};
     bool rsvr{false};
-} _opt;
+};
+
+// 定义全局变量 _opt
+static option _opt;
 
 // otl_datetime 转 时间戳
 static std::time_t otl_to_timestamp(const otl_datetime& olt_tm)
 {
-    // std::tm t{tm.second, tm.minute, tm.hour, tm.day, tm.month - 1, tm.year - 1900};
     std::tm t;
     t.tm_sec = olt_tm.second;
     t.tm_min = olt_tm.minute;
@@ -33,12 +37,11 @@ static std::time_t otl_to_timestamp(const otl_datetime& olt_tm)
 }
 
 // 转换时间戳为otl_datetime
-otl_datetime otl_from_timestamp(std::time_t timestamp)
+static otl_datetime otl_from_timestamp(std::time_t timestamp)
 {
-    std::tm* t = std::localtime(&timestamp);  // 获取本地时间的 std::tm 结构
-    // 将 std::tm 转换为 otl_datetime
+    std::tm* t = std::localtime(&timestamp);
     otl_datetime olt_tm;
-    olt_tm.year = t->tm_year + 1900;  // tm_year 是从 1900 年开始的，所以加 1900
+    olt_tm.year = t->tm_year + 1900;  
     olt_tm.month = t->tm_mon + 1;     // tm_mon 是从 0 开始的，所以加 1
     olt_tm.day = t->tm_mday;
     olt_tm.hour = t->tm_hour;
@@ -64,22 +67,20 @@ static void paramAnalysis(int argc, char** argv)
         {
             _opt.rsvr = true;
         }
-        else if("stbprp" == argv[i])
+        else if ("stbprp" == argv[i])
         {
             _opt.stbprp = true;
         }
     }
 }
 
-
 // 时间分段函数,interval 单位为小时
-std::vector<std::pair<std::string, std::string>> splitTime(std::string beginTM, std::string endTM, int interval)
+static std::vector<std::pair<std::string, std::string>> splitTime(std::string beginTM, std::string endTM, int interval)
 {
     std::vector<std::pair<std::string, std::string>> b_e_tms;
 
     return b_e_tms;
 }
-
 
 static bool encode(silly_stbprp& stbprp, const std::string& from, const std::string& to)
 {
@@ -108,3 +109,14 @@ static bool encode(silly_stbprp& stbprp, const std::string& from, const std::str
 
     return true;
 }
+
+static bool encode(std::vector<silly_stbprp>& stbprps, const std::string& from, const std::string& to)
+{
+    for (auto& stbprp : stbprps)
+    {
+        encode(stbprp, from, to);
+    }
+    return true;
+}
+
+#endif  // TOOLS_H

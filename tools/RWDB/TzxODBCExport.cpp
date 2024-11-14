@@ -18,6 +18,7 @@
 #include "datetime/silly_posix_time.h"
 #include "datetime/silly_timer.h"  // 计时
 #include "string/silly_format.h"
+#include "silly_rwdb_export.h"
 
 // 全局变量
 silly_otl otl;
@@ -34,220 +35,6 @@ std::string str_now_tm;
 
 // 读取配置文件
 bool init(const std::string& file);
-
-// 将data中的字符串都写入到文件中,追加的写入
-bool saveInfor(std::vector<std::string>& data, std::string& filename)
-{
-    return false;
-}
-
-// 根据stcd_index获取stcd对应的index,并写入datas中stcd字段
-template <typename T>
-std::vector<T>& getIndex(std::vector<T>& datas)
-{
-    std::vector<T> res_opt;
-
-    return res_opt;
-}
-
-// 生成 stcd 和 index 的映射
-bool createStcdIndex(std::vector<silly_stbprp>& stbprps, std::unordered_map<std::string, uint32_t>& stcdindex)
-{
-    return false;
-}
-
-// 数据库加载 STBPRP 数据
-bool loadSTBPRP(std::vector<silly_stbprp>& stbprps)
-{
-    return false;
-}
-
-// 序列化 STBPRP 数据为二进制流
-bool serializeSTBPRP(const std::vector<silly_stbprp>& stbprp, std::vector<std::string>& datas)
-{
-    return false;
-}
-
-// 导出 STBPRP
-bool exportSTBPRP()
-{
-    bool status = false;
-
-    // 数据库查询 STBPRP
-    std::vector<silly_stbprp> stbprps;
-    if (!loadSTBPRP(stbprps))
-    {
-        SLOG_ERROR("STBPRP 数据库加载失败");
-        return status;
-    }
-
-    // 生成 stcd对应的index 关系
-    if (!createStcdIndex(stbprps, stcd_index))
-    {
-        SLOG_ERROR("STBPRP stcd index 对应关系生成失败");
-        return status;
-    }
-
-    // 序列化 stbprps 为二进制文件
-    std::vector<std::string> datas;
-    if (!serializeSTBPRP(stbprps, datas))
-    {
-        SLOG_ERROR("STBPRP 序列化失败");
-        return status;
-    }
-
-    // 写入文件
-    std::string fileName = str_now_tm + "_" + silly_stbprp::FILE_NAME;
-    if (!saveInfor(datas, fileName))
-    {
-        SLOG_ERROR("STBPRP 写入文件失败");
-        return status;
-    }
-
-    status = true;
-    return status;
-}
-
-// 数据库查询 PPTN 数据
-bool loadPPTN(const std::string& btm, const std::string& etm, std::vector<silly_pptn>& pptns)
-{
-    return false;
-}
-
-bool serializePPTN(std::vector<silly_pptn>& pptn, std::vector<std::string>& datas)
-{
-    return false;
-}
-
-bool exportPPTN(const std::vector<std::pair<std::string, std::string>>& btm_etm)
-{
-    bool status = false;
-
-    std::string fileName = str_now_tm + "_" + silly_pptn::FILE_NAME;
-    for (const auto& [_btm, _etm] : btm_etm)
-    {
-        // 数据库查询 PPTN
-        std::vector<silly_pptn> pptns;
-        if (!loadPPTN(_btm, _etm, pptns))
-        {
-            SLOG_ERROR("PPTN 数据库加载失败 ({} ~ {})", _btm, _etm);
-            continue;
-        }
-        // 根据stcd 获取index
-        getIndex(pptns);
-        // 序列化 pptns 为二进制文件
-        std::vector<std::string> datas;
-        if (!serializePPTN(pptns, datas))
-        {
-            SLOG_ERROR("PPTN 序列化失败  ({} ~ {})", _btm, _etm);
-            continue;
-        }
-        // 写入文件
-        if (!saveInfor(datas, fileName))
-        {
-            SLOG_ERROR("PPTN 写入文件失败  ({} ~ {})", _btm, _etm);
-            continue;
-        }
-    }
-
-    status = true;
-    return status;
-}
-
-// 数据库查询 RIVER 数据
-bool loadRiver(const std::string& btm, const std::string& etm, std::vector<silly_river>& rivers)
-{
-    return false;
-}
-
-// 序列化 RIVER 数据为二进制流
-bool serializeRiver(std::vector<silly_river>& rivers, std::vector<std::string>& datas)
-{
-    return false;
-}
-
-bool exportRiver(const std::vector<std::pair<std::string, std::string>>& btm_etm)
-{
-    bool status = false;
-
-    std::string fileName = str_now_tm + "_" + silly_river::FILE_NAME;
-    for (const auto& [_btm, _etm] : btm_etm)
-    {
-        // 数据库查询 RIVER
-        std::vector<silly_river> rivers;
-        if (!loadRiver(_btm, _etm, rivers))
-        {
-            SLOG_ERROR("RIVER 数据库加载失败 ({} ~ {})", _btm, _etm);
-            continue;
-        }
-        // 根据stcd 获取index
-        getIndex(rivers);
-        // 序列化 rivers 为二进制文件
-        std::vector<std::string> datas;
-        if (!serializeRiver(rivers, datas))
-        {
-            SLOG_ERROR("RIVER 序列化失败  ({} ~ {})", _btm, _etm);
-            continue;
-        }
-        // 写入文件
-        if (!saveInfor(datas, fileName))
-        {
-            SLOG_ERROR("RIVER 写入文件失败  ({} ~ {})", _btm, _etm);
-            continue;
-        }
-    }
-    status = true;
-    return status;
-}
-
-// 数据库查询 RSVR 数据
-bool loadRsvr(const std::string& btm, const std::string& etm, std::vector<silly_rsvr>& rsvrs)
-{
-    return false;
-}
-
-bool serializeRsvr(std::vector<silly_rsvr>& rsvrs, std::vector<std::string>& datas)
-{
-    return false;
-}
-
-// 数据库查询 RSVR 数据
-bool exportRsvr(const std::vector<std::pair<std::string, std::string>>& btm_etm)
-{
-    bool status = false;
-
-    std::string fileName = str_now_tm + "_" + silly_rsvr::FILE_NAME;
-    for (const auto& [_btm, _etm] : btm_etm)
-    {
-        // 数据库查询 RSVR
-        std::vector<silly_rsvr> rsvrs;
-        if (!loadRsvr(_btm, _etm, rsvrs))
-        {
-            SLOG_ERROR("RSVR 数据库加载失败 ({} ~ {})", _btm, _etm);
-            continue;
-        }
-        // 根据stcd 获取index
-        getIndex(rsvrs);
-
-        // 序列化 rivers 为二进制文件
-        std::vector<std::string> datas;
-        if (!serializeRsvr(rsvrs, datas))
-        {
-            SLOG_ERROR("RSVR 序列化失败  ({} ~ {})", _btm, _etm);
-            continue;
-        }
-        // 写入文件
-        if (!saveInfor(datas, fileName))
-        {
-            SLOG_ERROR("RSVR 写入文件失败  ({} ~ {})", _btm, _etm);
-            continue;
-        }
-    }
-    // 数据库查询 RSVR
-    std::vector<silly_rsvr> rsvrs;
-
-    return status;
-}
 
 int main(int argc, char** argv)
 {
@@ -270,7 +57,7 @@ int main(int argc, char** argv)
 
     silly_timer timer;
     // STBPRP 一定要导出
-    if (!exportSTBPRP())
+    if (!silly_export_stbprp::exportSTBPRP())
     {
         SLOG_ERROR("STBPRP 导出失败");
         return -1;
@@ -283,7 +70,7 @@ int main(int argc, char** argv)
     if (_opt.pptn)
     {
         timer.restart();
-        if (!exportPPTN(btm_etm))
+        if (!silly_export_pptn::exportPPTN(btm_etm))
         {
             SLOG_ERROR("PPTN 导出失败");
         }
@@ -292,7 +79,7 @@ int main(int argc, char** argv)
     if (_opt.river)
     {
         timer.restart();
-        if (!exportRiver(btm_etm))
+        if (!silly_export_river::exportRiver(btm_etm))
         {
             SLOG_ERROR("RIVER 导出失败");
         }
@@ -301,7 +88,7 @@ int main(int argc, char** argv)
     if (_opt.rsvr)
     {
         timer.restart();
-        if (!exportRsvr(btm_etm))
+        if (!silly_export_rsvr::exportRsvr(btm_etm))
         {
             SLOG_ERROR("RIVER 导出失败");
         }

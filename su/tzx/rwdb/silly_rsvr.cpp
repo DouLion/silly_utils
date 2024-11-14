@@ -12,7 +12,7 @@
 #include "silly_rsvr.h"
 #include "silly_turn_tool.h"
 
-std::string silly_rsvr::serialize(const int& ver)
+std::string silly_rsvr::serialize(const int& ver) const
 {
     std::string result;
     switch (ver)
@@ -57,7 +57,7 @@ bool silly_rsvr::deserialize(const std::string& data)
     return status;
 }
 
-std::string silly_rsvr::serialize_v1()
+std::string silly_rsvr::serialize_v1() const
 {
     std::string result;
     result.resize(SIZE_V1);
@@ -132,7 +132,7 @@ bool silly_rsvr::deserialize_v1(const std::string& data)
     return status;
 }
 
-std::string silly_rsvr::serialize_v2()
+std::string silly_rsvr::serialize_v2() const 
 {
     return std::string();
 }
@@ -140,7 +140,7 @@ bool silly_rsvr::deserialize_v2(const std::string& data)
 {
     return false;
 }
-std::string silly_rsvr::serialize_v3()
+std::string silly_rsvr::serialize_v3() const
 {
     return std::string();
 }

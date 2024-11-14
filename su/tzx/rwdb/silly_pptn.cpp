@@ -11,7 +11,7 @@
 #include "silly_pptn.h"
 #include "silly_turn_tool.h"
 
-std::string silly_pptn::serialize(const int& ver)
+std::string silly_pptn::serialize(const int& ver) const
 {
     std::string result;
     switch (ver)
@@ -57,7 +57,7 @@ bool silly_pptn::deserialize(const std::string& data)
 }
 
 
-std::string silly_pptn::serialize_v1()
+std::string silly_pptn::serialize_v1() const 
 {
     std::string result;
     result.resize(SIZE_V1);
@@ -114,7 +114,7 @@ bool silly_pptn::deserialize_v1(const std::string& data)
     return status;
 }
 
-std::string silly_pptn::serialize_v2()
+std::string silly_pptn::serialize_v2() const
 {
     return std::string();
 }
@@ -122,7 +122,7 @@ bool silly_pptn::deserialize_v2(const std::string& data)
 {
     return false;
 }
-std::string silly_pptn::serialize_v3()
+std::string silly_pptn::serialize_v3() const
 {
     return std::string();
 }
