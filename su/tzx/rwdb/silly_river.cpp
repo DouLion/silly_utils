@@ -11,7 +11,7 @@
 #include "silly_river.h"
 #include "silly_turn_tool.h"
 
-std::string silly_river::serialize(const int& ver)
+std::string silly_river::serialize(const int& ver) const
 {
     std::string result;
     switch (ver)
@@ -56,7 +56,7 @@ bool silly_river::deserialize(const std::string& data)
     return status;
 }
 
-std::string silly_river::serialize_v1()
+std::string silly_river::serialize_v1() const
 {
     std::string result;
     result.resize(SIZE_V1);
@@ -108,7 +108,7 @@ bool silly_river::deserialize_v1(const std::string& data)
     return status;
 }
 
-std::string silly_river::serialize_v2()
+std::string silly_river::serialize_v2() const
 {
     std::string result;
     result.resize(SIZE_V2);
@@ -130,11 +130,12 @@ std::string silly_river::serialize_v2()
     p += sizeof(zz);
     memcpy(p, &qq, sizeof(qq));
     p += sizeof(qq);
+    std::string tmp_wptn = wptn;
     if (wptn.empty())
     {
-        wptn = "0";
+        tmp_wptn = "0";
     }
-    std::string wp = str2bin(wptn);
+    std::string wp = str2bin(tmp_wptn);
     memcpy(p, &wp[0], 2);
 
     return result;
@@ -166,7 +167,7 @@ bool silly_river::deserialize_v2(const std::string& data)
     status = true;
     return status;
 }
-std::string silly_river::serialize_v3()
+std::string silly_river::serialize_v3() const
 {
     return std::string();
 }

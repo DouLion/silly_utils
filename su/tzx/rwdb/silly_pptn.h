@@ -10,23 +10,16 @@
  */
 #ifndef SILLY_UTILS_SILLY_PPTN_H
 #define SILLY_UTILS_SILLY_PPTN_H
-#include <su_marco.h>
+#include <tzx/rwdb/silly_rwdb_record.h>
 #define SILLY_PPTN_FORMAT_V1 1
 #define SILLY_PPTN_FORMAT_V2 2
 #define SILLY_PPTN_FORMAT_V3 3
 
-class silly_pptn
+class silly_pptn : public silly_rwdb_record
 {
   public:
-    silly_pptn()
-    {
-    }
-    silly_pptn(const std::string& stcd, const std::time_t& stamp, const float& drp, const float& intv) : stcd(stcd), stamp(stamp), drp(drp), intv(intv)
-    {
-    }
-
-    std::string serialize(const int& ver = SILLY_PPTN_FORMAT_V1) const;
-    bool deserialize(const std::string& data);
+    std::string serialize(const int& ver = SILLY_PPTN_FORMAT_V1) const override;
+    bool deserialize(const std::string& data) override;
 
   private:
     std::string serialize_v1() const;
@@ -37,9 +30,6 @@ class silly_pptn
     bool deserialize_v3(const std::string& data);
 
   public:
-    std::string stcd;
-    uint32_t index{0};
-    std::time_t stamp{0};
     float intv{0};
     float drp{0};
     // 固定长度  固定头1 版本信息 1 STCD 索引 4 int64_t 8, 时间戳 int 4, intv  4 uchar 雨量 float 4

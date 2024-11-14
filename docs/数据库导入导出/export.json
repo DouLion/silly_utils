@@ -3,7 +3,7 @@
     "type": "oracle",
     "ip": "192.168.0.71",
     "port": 1521,
-    "driver": "Oracle in instantclient_12_2",
+    "driver": "Oracle in OraClient11g_home1",
     "schema": "ORCL",
     "user": "RWDB_HN",
     "password": "RWDB_HN"

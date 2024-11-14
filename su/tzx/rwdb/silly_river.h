@@ -11,30 +11,23 @@
 #ifndef SILLY_UTILS_SILLY_RIVER_H
 #define SILLY_UTILS_SILLY_RIVER_H
 
-#include <su_marco.h>
+#include <tzx/rwdb/silly_rwdb_record.h>
 #define SILLY_RIVER_FORMAT_V1 1
 #define SILLY_RIVER_FORMAT_V2 2
 #define SILLY_RIVER_FORMAT_V3 3
 
-class silly_river
+class silly_river : public silly_rwdb_record
 {
   public:
-    silly_river()
-    {
-    }
-    silly_river(const std::string& stcd, const std::time_t& stamp, const float& z, const float& q) : stcd(stcd), stamp(stamp), zz(z), qq(q)
-    {
-    }
-
-    std::string serialize(const int& ver = SILLY_RIVER_FORMAT_V1);
-    bool deserialize(const std::string& data);
+    std::string serialize(const int& ver = SILLY_RIVER_FORMAT_V1) const override ;
+    bool deserialize(const std::string& data) override;
 
   private:
-    std::string serialize_v1();
+    std::string serialize_v1() const;
     bool deserialize_v1(const std::string& data);
-    std::string serialize_v2();
+    std::string serialize_v2() const;
     bool deserialize_v2(const std::string& data);
-    std::string serialize_v3();
+    std::string serialize_v3() const;
     bool deserialize_v3(const std::string& data);
 
   public:

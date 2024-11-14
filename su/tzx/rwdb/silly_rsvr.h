@@ -11,20 +11,16 @@
 #ifndef SILLY_UTILS_SILLY_RSVR_H
 #define SILLY_UTILS_SILLY_RSVR_H
 
-#include <su_marco.h>
+#include <tzx/rwdb/silly_rwdb_record.h>
 #define SILLY_RSVR_FORMAT_V1 1
 #define SILLY_RSVR_FORMAT_V2 2
 #define SILLY_RSVR_FORMAT_V3 3
 
-class silly_rsvr
+class silly_rsvr : public silly_rwdb_record
 {
   public:
-    silly_rsvr()
-    {
-    }
-
-    std::string serialize(const int& ver = SILLY_RSVR_FORMAT_V1) const;
-    bool deserialize(const std::string& data);
+    std::string serialize(const int& ver = SILLY_RSVR_FORMAT_V1) const override;
+    bool deserialize(const std::string& data) override;
 
   private:
     std::string serialize_v1() const;
@@ -35,18 +31,15 @@ class silly_rsvr
     bool deserialize_v3(const std::string& data);
 
   public:
-    std::string stcd;
-    uint32_t index{0};     // 索引 4
-    std::time_t stamp{0};  // 时间戳 4
-    float rz{0};           // 4
-    float inq{0};          // 4
-    float w{0};            // 4
-    float otq{0};          // 4
-    std::string rwchrcd;   // 一个字节 +长度2个字节
-    std::string rwptn;     // 一个字节+长度2个字节
-    float inqdr{0};        // 4
-    std::string msqmt;     // 一个字节+长度2个字节
-    float blrz{0};         // 4
+    float rz{0};          // 4
+    float inq{0};         // 4
+    float w{0};           // 4
+    float otq{0};         // 4
+    std::string rwchrcd;  // 一个字节 +长度2个字节
+    std::string rwptn;    // 一个字节+长度2个字节
+    float inqdr{0};       // 4
+    std::string msqmt;    // 一个字节+长度2个字节
+    float blrz{0};        // 4
 
     // 固定长度  固定头1 版本信息 1 STCD 索引 4
     static constexpr size_t SIZE_V1 = 1 + 1 + 4 + 4 + 4 + 4 + 4 + 4 + 2 + 2 + 4 + 2 + 4;
