@@ -98,9 +98,9 @@ int main(int argc, char** argv)
         silly_rwdb_rsvr::setNowTime(str_now_tm);
         if (!silly_rwdb_rsvr::output(btm_etm))
         {
-            SLOG_ERROR("RIVER 导出失败");
+            SLOG_ERROR("RSVR 导出失败");
         }
-        SLOG_INFO("RIVER 导出时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
+        SLOG_INFO("RSVR 导出时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
     }
 
     return 0;
