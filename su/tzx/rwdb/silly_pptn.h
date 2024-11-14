@@ -21,7 +21,7 @@ class silly_pptn
     silly_pptn()
     {
     }
-    silly_pptn(const std::string& STCD, const std::time_t& stamp, const float& drp, const float& intv) : STCD(STCD), stamp(stamp), drp(drp), intv(intv)
+    silly_pptn(const std::string& stcd, const std::time_t& stamp, const float& drp, const float& intv) : stcd(stcd), stamp(stamp), drp(drp), intv(intv)
     {
     }
 
@@ -37,7 +37,7 @@ class silly_pptn
     bool deserialize_v3(const std::string& data);
 
   public:
-    std::string STCD;
+    std::string stcd;
     uint32_t index{0};
     std::time_t stamp{0};
     float intv{0};

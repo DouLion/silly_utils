@@ -208,7 +208,7 @@ ST_RSVR_R 表
 
 CREATE TABLE W_ST_RSVR_R (
     STCD VARCHAR(8) PRIMARY KEY,   -- 假设 STCD 是主键
-    TM DATE,
+    TM DATETIME,
     RZ DECIMAL(7, 3),
     INQ DECIMAL(9, 3),
     W DECIMAL(9, 3),
@@ -223,7 +223,7 @@ CREATE TABLE W_ST_RSVR_R (
 
 ST_RIVER_R 表
 
-CREATE TABLE ST_RIVER_R (
+CREATE TABLE W_ST_RIVER_R (
     STCD VARCHAR(8),            -- 流域代码，最大长度 8
     TM DATETIME,                -- 时间戳
     Z DECIMAL(7, 3),            -- 数值 Z，最多 7 位数字，其中 3 位小数

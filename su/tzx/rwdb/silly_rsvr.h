@@ -35,7 +35,7 @@ class silly_rsvr
     bool deserialize_v3(const std::string& data);
 
   public:
-    std::string STCD;
+    std::string stcd;
     uint32_t index{0};     // 索引 4
     std::time_t stamp{0};  // 时间戳 4
     float rz{0};           // 4

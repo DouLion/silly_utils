@@ -10,15 +10,13 @@
  */
 
 #include <database/otl/silly_otl.h>
-#include <database/otl/otl_tools.h>
-#include <tzx/rwdb/silly_pptn.h>
-#include <tzx/rwdb/silly_stbprp.h>
-#include <tzx/rwdb/silly_rsvr.h>
-#include <tzx/rwdb/silly_river.h>
 #include "tools.h"
+#include "silly_rwdb_stbprp.h"
+#include "silly_rwdb_pptn.h"
+#include "silly_rwdb_river.h"
+#include "silly_rwdb_rsvr.h"
+
 #include "datetime/silly_timer.h"  // 计时
-#include "files/silly_file.h"
-#include "silly_rwdb_import.h"
 
 silly_otl otl;
 std::string insert_pptn_sql;
@@ -29,11 +27,17 @@ std::string stbprp_file_path;
 std::string pptn_file_path;
 std::string river_file_path;
 std::string rsvr_file_path;
-std::string btm;
-std::string etm;
 std::string src_encode;
 std::string dst_encode;
-std::unordered_map<uint32_t, std::string> index_stcd;
+std::unordered_map<uint32_t, std::string> g_index_stcd;  // 导入
+
+//
+std::string select_stbprp_sql;
+std::string select_pptn_sql;
+std::string select_river_sql;
+std::string select_rsvr_sql;
+std::string str_now_tm;
+std::unordered_map<std::string, uint32_t> g_stcd_index;  // 导出
 
 unsigned long long block_byte = 1024 * 1024 * 1024;
 // SIZE_T block_byte = 1024 * 1024;
@@ -62,7 +66,9 @@ int main(int argc, char** argv)
 
     //////////// 解析 index 和 stcd对应关系 /////////////
     std::vector<silly_stbprp> stbprps;
-    if (!silly_import_stbprp::importSTBPRP(stbprp_file_path))
+    silly_rwdb_stbprp::setInsertStbprpSql(insert_stbprp_sql);
+    silly_rwdb_stbprp::setStbprpFilePath(stbprp_file_path);
+    if (!silly_rwdb_stbprp::import())
     {
         SLOG_ERROR("导入stbprp失败");
         return -1;
@@ -73,7 +79,7 @@ int main(int argc, char** argv)
 
     if (_opt.stbprp)  // 默认不导入
     {
-        if (!silly_import_stbprp::insertSTBPRP(stbprps))
+        if (!silly_rwdb_stbprp::insert())
         {
             SLOG_ERROR("导入stbprp失败");
             return false;
@@ -84,7 +90,9 @@ int main(int argc, char** argv)
     if (_opt.pptn)
     {
         timer.restart();
-        if (!silly_import_pptn::importPPTN(pptn_file_path, block_byte))
+        silly_rwdb_pptn::setInsertPPTNsql(insert_pptn_sql);
+        silly_rwdb_pptn::setPPTNFilePath(pptn_file_path);
+        if (!silly_rwdb_pptn::import(block_byte))
         {
             SLOG_ERROR("导入PPTN失败");
         }
@@ -93,7 +101,9 @@ int main(int argc, char** argv)
     if (_opt.river)
     {
         timer.restart();
-        if (!silly_import_river::importRiver(river_file_path, block_byte))
+        silly_rwdb_river::setInsertRiverSql(insert_river_sql);
+        silly_rwdb_river::setRiverFilePath(river_file_path);
+        if (!silly_rwdb_river::import(block_byte))
         {
             SLOG_ERROR("导入 River 失败");
         }
@@ -102,7 +112,9 @@ int main(int argc, char** argv)
     if (_opt.rsvr)
     {
         timer.restart();
-        if (!silly_import_rsvr::importRsvr(rsvr_file_path, block_byte))
+        silly_rwdb_rsvr::setInsertRsvrSql(insert_rsvr_sql);
+        silly_rwdb_rsvr::setRsvrFilePath(rsvr_file_path);
+        if (!silly_rwdb_rsvr::import(block_byte))
         {
             SLOG_ERROR("导入 Rsvr 失败");
         }
@@ -131,7 +143,7 @@ bool init(const std::string& file)
     std::string js_db_str = silly_jsonpp::dumps(js_db);
     if (!otl.load(js_db_str))
     {
-        SLOG_ERROR("解析 odbc 错误");
+        SLOG_ERROR("解析 odbc 错误: {}", otl.odbc());
         return status;
     }
     SLOG_INFO("odbc 链接串: {}", otl.odbc());

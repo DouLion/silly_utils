@@ -9,10 +9,20 @@ target_link_libraries(GridToRect sutils)
 add_executable(TritonCvtDeep triton/convert_deepth.cpp)
 target_link_libraries(TritonCvtDeep sutils)
 
-add_executable(TzxODBCExport RWDB/TzxODBCExport.cpp RWDB/silly_rwdb_export.h RWDB/silly_rwdb_export.cpp)
+set(RWDB_SOURCES
+    RWDB/silly_rwdb_stbprp.h
+    RWDB/silly_rwdb_stbprp.cpp
+    RWDB/silly_rwdb_pptn.h
+    RWDB/silly_rwdb_pptn.cpp
+    RWDB/silly_rwdb_river.h
+    RWDB/silly_rwdb_river.cpp
+    RWDB/silly_rwdb_rsvr.h
+    RWDB/silly_rwdb_rsvr.cpp
+)
+add_executable(TzxODBCExport RWDB/TzxODBCExport.cpp ${RWDB_SOURCES})
 target_link_libraries(TzxODBCExport sutils)
 
-add_executable(TzxODBCImport RWDB/TzxODBCImport.cpp RWDB/silly_rwdb_import.h RWDB/silly_rwdb_import.cpp)
+add_executable(TzxODBCImport RWDB/TzxODBCImport.cpp ${RWDB_SOURCES})
 target_link_libraries(TzxODBCImport sutils)
 
 add_executable(TzxODBCCompare RWDB/compare_db.cpp)

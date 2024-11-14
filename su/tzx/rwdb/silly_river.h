@@ -22,7 +22,7 @@ class silly_river
     silly_river()
     {
     }
-    silly_river(const std::string& STCD, const std::time_t& stamp, const float& z, const float& q) : STCD(STCD), stamp(stamp), zz(z), qq(q)
+    silly_river(const std::string& stcd, const std::time_t& stamp, const float& z, const float& q) : stcd(stcd), stamp(stamp), zz(z), qq(q)
     {
     }
 
@@ -38,7 +38,7 @@ class silly_river
     bool deserialize_v3(const std::string& data);
 
   public:
-    std::string STCD;
+    std::string stcd;
     uint32_t index{0};
     std::time_t stamp{0};
     float zz{0};
