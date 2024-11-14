@@ -58,21 +58,25 @@ static void paramAnalysis(int argc, char** argv)
 {
     for (int i = 1; i < argc; ++i)
     {
-        if ("pptn" == argv[i])
+        if (std::strcmp("pptn", argv[i]) == 0)
         {
             _opt.pptn = true;
+            SLOG_INFO("导出 pptn");
         }
-        else if ("river" == argv[i])
+        else if (std::strcmp("river", argv[i]) == 0)
         {
             _opt.river = true;
+            SLOG_INFO("导出 river");     
         }
-        else if ("rsvr" == argv[i])
+        else if (std::strcmp("rsvr", argv[i]) == 0)
         {
             _opt.rsvr = true;
+            SLOG_INFO("导出 rsvr");
         }
-        else if ("stbprp" == argv[i])
+        else if (std::strcmp("stbprp", argv[i]) == 0)
         {
             _opt.stbprp = true;
+            SLOG_INFO("导出 stbprp");
         }
     }
 }
@@ -180,8 +184,6 @@ static bool creatIndexStcd(const std::vector<silly_stbprp>& stbprps, std::unorde
     return true;
 }
 
-//extern std::unordered_map<uint32_t, std::string> index_stcd;
-//extern std::unordered_map<std::string, uint32_t> stcd_index;
 
 // (导入) 模板函数根据index查找stcd
 template <typename T>

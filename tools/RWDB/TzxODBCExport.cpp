@@ -29,22 +29,15 @@ std::string src_encode;
 std::string dst_encode;
 std::string str_now_tm;
 
-
-std::string insert_pptn_sql;
-std::string insert_stbprp_sql;
-std::string insert_river_sql;
-std::string insert_rsvr_sql;
-std::string stbprp_file_path;
-std::string pptn_file_path;
-std::string river_file_path;
-std::string rsvr_file_path;
-
-
 // 读取配置文件
 bool init(const std::string& file);
 
 int main(int argc, char** argv)
 {
+    if (!silly_log::instance().init(argc, argv))
+    {
+        std::cout << "日志初始化失败" << std::endl;
+    }
     // 参数解析
     paramAnalysis(argc, argv);
     str_now_tm = silly_posix_time::now().to_string("%Y%m%d%H%M%S");
@@ -61,7 +54,6 @@ int main(int argc, char** argv)
         SLOG_ERROR("init failed:{}", configPath);
         return -1;
     }
-
 
     silly_timer timer;
     silly_rwdb_stbprp::setSelectStbprpSql(select_stbprp_sql);
