@@ -26,8 +26,48 @@
 #include <fstream>
 #include "geo/silly_vector_to_raster.h"
 
+#include "proj/silly_proj.h"
+
 TEST_CASE("TestGEO")
 {
+    SECTION("DISTANCE")
+    {
+        std::cout << "\r\n\r\n****************"
+                  << "DISTANCE"
+                  << "****************" << std::endl;
+
+        //silly_point beg(80.95642, 43.95478);
+        //silly_point end(81.08218, 43.93080); // 10520.910 米
+
+        //80.92237	43.79439	
+        //82.12174	43.88876	97019.759
+        //silly_point beg(80.92237, 43.79439);
+        //silly_point end(82.12174, 43.88876); // 97019.759 米
+
+
+        //silly_guass_param param;
+        //param.central = (80.95642 + 81.08218) / 2;  // 中央经线
+        //param.scale = 0.9996;  // 比例因子
+        //param.easting = 500000.0;  // 东偏移
+        //param.major_axis = WGS84_SEMI_MAJOR_AXIS;  // 长半轴
+        //param.flatten = WGS84_FLATTENING_R;  // 扁率
+
+        //    // 转换为高斯克吕格坐标
+        //double gb_x, gb_y, ge_x, ge_y;
+
+        //double central = (beg.lgtd + end.lgtd) / 2;
+        //silly_proj::lonlat_to_gauss(central, beg.lgtd, beg.lttd, gb_x, gb_y);
+        //silly_proj::lonlat_to_gauss(central, end.lgtd, end.lttd, ge_x, ge_y);
+
+        //    // 计算两点之间的距离
+
+        //double distance = std::sqrt(std::pow(ge_x - gb_x, 2) + std::pow(ge_y - gb_y, 2));
+
+        int a = 0;
+        int b = 0;
+    }
+
+
 
     SECTION("INTERSECTION_ALGORITHM")
     {

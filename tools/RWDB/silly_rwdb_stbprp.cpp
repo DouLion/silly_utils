@@ -4,13 +4,10 @@
 #include "tools.h"
 
 // 定义静态成员变量
-std::vector<silly_stbprp> silly_rwdb_stbprp::m_stbprps;
+
 std::unordered_map<std::string, unsigned int> silly_rwdb_stbprp::m_stcd_index;
 std::unordered_map<unsigned int, std::string> silly_rwdb_stbprp::m_index_stcd;
-std::string silly_rwdb_stbprp::m_select_stbprp_sql;
-std::string silly_rwdb_stbprp::m_insert_stbprp_sql;
-std::string silly_rwdb_stbprp::m_stbprp_file_path;
-std::string silly_rwdb_stbprp::m_str_now_tm;
+
 
 bool silly_rwdb_stbprp::output()
 {
@@ -63,7 +60,7 @@ bool silly_rwdb_stbprp::import()
     std::string content;
     if (!dumps(content))
     {
-        SLOG_ERROR("读取stbprp文件失败: {}", m_stbprp_file_path);
+        SLOG_ERROR("读取stbprp文件失败: {}", m_file_path);
         return status;
     }
 
@@ -94,7 +91,7 @@ bool silly_rwdb_stbprp::loads()
 {
     bool status = false;
     // ---------查询数据库-----------
-    if (!otl.select(m_select_stbprp_sql, [&](otl_stream* stream) {
+    if (!otl.select(m_select_sql, [&](otl_stream* stream) {
             while (!stream->eof())
             {
                 otl_value<std::string> STCD, STNM, RVNM, HNNM, BSNM, STLC, ADDVCD, DTMNM, STTP, FRGRD, ESSTYM, BGFRYM, ATCUNIT, ADMAUTH, LOCALITY, STBK, PHCD, USFL, COMMENTS, HNNM0, ADCD, ADDVCD1;
@@ -156,7 +153,7 @@ bool silly_rwdb_stbprp::loads()
 bool silly_rwdb_stbprp::dumps(std::string& content)
 {
     bool status = false;
-    std::string file_path = m_stbprp_file_path;
+    std::string file_path = m_file_path;
     if (!std::filesystem::exists(file_path))
     {
         SLOG_ERROR("文件不存在: {}", file_path);
@@ -169,12 +166,13 @@ bool silly_rwdb_stbprp::dumps(std::string& content)
         return status;
     }
     // 一次性读取
-    size_t r = silly_file::read(m_stbprp_file_path, content, 0, fsize);
+    size_t r = silly_file::read(file_path, content, 0, fsize);
     if (r != fsize)
     {
         SLOG_ERROR("文件大小:{}, 读取到的字节数:{},两者不符", fsize, r);
         return status;
     }
+    SLOG_INFO("解析文件完成:{}", file_path);
     return true;
 }
 
@@ -189,6 +187,7 @@ bool silly_rwdb_stbprp::serialize(std::vector<std::string>& datas)
 
 bool silly_rwdb_stbprp::deserialize(const std::string& content)
 {
+    m_stbprps.clear();
     bool status = false;
     // 逐块解析
     size_t pos = 0;
@@ -224,7 +223,7 @@ bool silly_rwdb_stbprp::insert()
     while (bi < m_stbprps.size())
     {
         // 使用 OTL 执行批量插入
-        if (!otl.insert(m_insert_stbprp_sql, [&](otl_stream* stream) {
+        if (!otl.insert(m_insert_sql, [&](otl_stream* stream) {
                 for (int i = bi; i < ei; i++)
                 {
                     auto entry = m_stbprps[i];
@@ -280,7 +279,7 @@ bool silly_rwdb_stbprp::insert()
         ei = SU_MIN(ei + step, m_stbprps.size());
     }
 
-    SLOG_INFO("{} 导入完成, 导入数量: {}", m_stbprp_file_path, m_stbprps.size());
+    SLOG_INFO("{} 导入完成, 导入数量: {}", m_file_path, m_stbprps.size());
     status = true;
     return true;
 }

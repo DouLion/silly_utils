@@ -4,81 +4,11 @@
 #include "files/silly_file.h"
 #include "tools.h"
 
-std::vector<silly_rsvr> silly_rwdb_rsvr::m_rsvrs;
-std::string silly_rwdb_rsvr::m_str_now_tm;
-std::string silly_rwdb_rsvr::m_select_rsvr_sql;
-std::string silly_rwdb_rsvr::m_insert_rsvr_sql;
-std::string silly_rwdb_rsvr::m_rsvr_file_path;
-
-bool silly_rwdb_rsvr::output(const std::vector<std::pair<std::string, std::string>>& btm_etm)
-{
-    bool status = false;
-    std::string fileName = m_str_now_tm + "_" + silly_rsvr::FILE_NAME;
-    for (const auto& [_btm, _etm] : btm_etm)
-    {
-        // 数据库查询 PPTN
-        m_rsvrs.clear();
-        if (!loads(_btm, _etm))
-        {
-            SLOG_ERROR("PPTN 数据库加载失败 ({} ~ {})", _btm, _etm);
-            continue;
-        }
-        // 根据stcd 获取index
-        m_rsvrs = getIndex(m_rsvrs);
-        // 序列化 rsvrs 为二进制文件
-        std::vector<std::string> datas;
-        if (!serialize(datas))
-        {
-            SLOG_ERROR("PPTN 序列化失败  ({} ~ {})", _btm, _etm);
-            continue;
-        }
-        // 写入文件
-        if (!saveInfo(fileName, datas))
-        {
-            SLOG_ERROR("PPTN 写入文件失败  ({} ~ {})", _btm, _etm);
-            continue;
-        }
-    }
-    SLOG_INFO("PPTN 写入文件成功: {}", fileName);
-
-    status = true;
-    return status;
-}
-
-bool silly_rwdb_rsvr::import(const size_t block_size)
-{
-    bool status = false;
-    size_t fsize = silly_file::size(m_rsvr_file_path);
-    for (size_t pos = 0; pos < fsize;)
-    {
-        std::string block_data;
-        size_t rsize = silly_file::read(m_rsvr_file_path, block_data, pos, block_size);
-        m_rsvrs.clear();
-        int residue_size = 0;
-        if (!deserialize(block_data, residue_size))
-        {
-            SLOG_ERROR("反序列化rsvr失败");
-            return status;
-        }
-        // 获取rsvr中的stcd
-        m_rsvrs = getStcd(m_rsvrs);
-        // 插入rsvr到数据库
-        if (!insert())
-        {
-            SLOG_ERROR("导入rsvr失败");
-            return status;
-        }
-        pos = pos + rsize - residue_size;
-    }
-
-    status = true;
-    return status;
-}
 
 bool silly_rwdb_rsvr::loads(const std::string& btm, const std::string& etm)
 {
     bool status = false;
-    std::string sql = silly_format::format(m_select_rsvr_sql, btm, etm);
+    std::string sql = silly_format::format(m_select_sql, btm, etm);
     if (!otl.select(sql, [&](otl_stream* stream) {
             while (!stream->eof())
             {
@@ -99,7 +29,6 @@ bool silly_rwdb_rsvr::loads(const std::string& btm, const std::string& etm)
                 CHECK_NULL_VALUE(INQDR, tmp_rsvr.inqdr);
                 CHECK_NULL_VALUE(MSQMT, tmp_rsvr.msqmt);
                 CHECK_NULL_VALUE(BLRZ, tmp_rsvr.blrz);
-
                 tmp_rsvr.stamp = otl_to_timestamp(tm);
 
                 m_rsvrs.push_back(tmp_rsvr);
@@ -111,7 +40,7 @@ bool silly_rwdb_rsvr::loads(const std::string& btm, const std::string& etm)
         return status;
     }
 
-    SLOG_INFO("查询到:{} 条 RIVER 数据", m_rsvrs.size());
+    SLOG_INFO("查询到:{} 条 Rsvr 数据", m_rsvrs.size());
     status = true;
     return status;
 }
@@ -127,6 +56,7 @@ bool silly_rwdb_rsvr::serialize(std::vector<std::string>& datas)
 
 bool silly_rwdb_rsvr::deserialize(const std::string& block_data, int& residue_size)
 {
+    m_rsvrs.clear();
     bool status = false;
     unsigned int object_size = silly_rsvr::SIZE_V1;
 
@@ -153,14 +83,22 @@ bool silly_rwdb_rsvr::deserialize(const std::string& block_data, int& residue_si
 
 bool silly_rwdb_rsvr::insert()
 {
+    otl_datetime tm0;
+    tm0.second= 0;
+    tm0.minute = 0;
+    tm0.hour = 1;
+    tm0.day = 31;
+    tm0.month = 7;
+    tm0.year = 2024;
     bool status = false;
+    std::time_t stamp_0 = otl_to_timestamp(tm0);
 
     int bi = 0, ei = 0;
     int step = 5000;
     ei = SU_MIN(step, m_rsvrs.size());
     while (bi < m_rsvrs.size())
     {
-        if (!otl.insert(m_insert_rsvr_sql, [&](otl_stream* stream) {
+        if (!otl.insert(m_insert_sql, [&](otl_stream* stream) {
                 int count = 0;
                 for (int i = bi; i < ei; i++)
                 {
@@ -177,6 +115,10 @@ bool silly_rwdb_rsvr::insert()
                     otl_value<double> INQDR(entry.inqdr);
                     otl_value<std::string> MSQMT(entry.msqmt);
                     otl_value<double> BLRZ(entry.blrz);
+                    if (entry.stcd == "600K0050" && entry.stamp == stamp_0)
+                    {
+                        int a = 0;
+                    }
 
                     otl_write_row(*stream, STCD, OTM, RZ, INQ, W, OTQ, RWCHRCD, RWPTN, INQDR, MSQMT, BLRZ);
                 }

@@ -10,6 +10,8 @@ add_executable(TritonCvtDeep triton/convert_deepth.cpp)
 target_link_libraries(TritonCvtDeep sutils)
 
 set(RWDB_SOURCES
+    RWDB/silly_rwdb_base.h
+    RWDB/silly_rwdb_base.cpp
     RWDB/silly_rwdb_stbprp.h
     RWDB/silly_rwdb_stbprp.cpp
     RWDB/silly_rwdb_pptn.h

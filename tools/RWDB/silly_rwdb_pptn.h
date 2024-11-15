@@ -2,57 +2,42 @@
 #ifndef SILLY_RWDB_PPTN_H
 #define SILLY_RWDB_PPTN_H
 
+#include "silly_rwdb_base.h"
 #include "tzx/rwdb/silly_pptn.h"
 
-extern silly_otl otl;
-extern std::string src_encode;
-extern std::string dst_encode;
-
-class silly_rwdb_pptn
+class silly_rwdb_pptn : public silly_rwdb_base
 {
   public:
-    // 导出 PPTN
-    static bool output(const std::vector<std::pair<std::string, std::string>>& btm_etm);
-
-    // 导入 PPTN
-    static bool import(const size_t block_size = 1024 * 1024 * 1024);
-
     // 数据库加载 PPTN 数据(导出)
-    static bool loads(const std::string& btm, const std::string& etm);
+    bool loads(const std::string& btm, const std::string& etm) override;
 
     // 将pptn数组序列化成二进制流(导出)
-    static bool serialize(std::vector<std::string>& datas);
+    bool serialize(std::vector<std::string>& datas) override;
 
     // 将二进制流反序列化成pptn数组(导入)
-    static bool deserialize(const std::string& block_data, int& residue_size);
+    bool deserialize(const std::string& block_data, int& residue_size) override;
 
     // 插入pptn到数据库(导入)
-    static bool insert();
+    bool insert() override;
 
-    static void setSelectPPTNsql(const std::string& sql)
+    std::string getFileName() const override
     {
-        m_select_pptn_sql = sql;
+        return silly_pptn::FILE_NAME;
     }
-    static void setInsertPPTNsql(const std::string& sql)
+
+    bool getIndexs() override
     {
-        m_insert_pptn_sql = sql;
+        m_pptns = getIndex(m_pptns);
+        return true;
     }
-    static void setPPTNFilePath(const std::string& path)
+    bool getStcds() override
     {
-        m_pptn_file_path = path;
-    }
-    static void setNowTime(const std::string& now_tm)
-    {
-        m_str_now_tm = now_tm;
+        m_pptns = getStcd(m_pptns);
+        return true;
     }
 
   public:
-    static std::vector<silly_pptn> m_pptns;
-
-    static std::string m_select_pptn_sql;
-    static std::string m_insert_pptn_sql;
-    static std::string m_pptn_file_path;
-    static std::string m_str_now_tm;
+    std::vector<silly_pptn> m_pptns;
 };
 
 #endif  // SILLY_RWDB_PPTN_H

@@ -3,7 +3,7 @@
     "type": "oracle",
     "ip": "192.168.0.71",
     "port": 1521,
-    "driver": "Oracle in OraClient11g_home1",
+    "driver": "Oracle in instantclient_12_2",
     "schema": "ORCL",
     "user": "RWDB_HN",
     "password": "RWDB_HN"
@@ -16,7 +16,7 @@
     "select_rsvr_sql": "SELECT STCD, TM, RZ, INQ, W, OTQ, RWCHRCD, RWPTN, INQDR, MSQMT, BLRZ FROM ST_RSVR_R  WHERE TM > TO_DATE('{}', 'YYYY-MM-DD HH24:MI:SS') AND TM <= TO_DATE('{}', 'YYYY-MM-DD HH24:MI:SS');"
 
   },
-  "btm": "2024-07-31 20:00:00",
+  "btm": "2024-07-31 00:00:00",
   "etm": "2024-08-01 00:00:00",
   "encode": {
     "src": "",

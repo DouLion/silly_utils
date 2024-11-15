@@ -29,7 +29,18 @@ std::string src_encode;
 std::string dst_encode;
 std::string str_now_tm;
 
-// 读取配置文件
+#define EXPORT(rwdb_type, select_sql, btm_etm, log_name) \
+    timer.restart();                                     \
+    rwdb_type rwdb;                                      \
+    rwdb.setSelectSql(select_sql);                       \
+    rwdb.setNowTm(str_now_tm);                           \
+    if (!rwdb.output(btm_etm))                           \
+    {                                                    \
+        SLOG_ERROR(log_name " 导出失败");                \
+    }                                                    \
+    SLOG_INFO(log_name " 导出时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
+
+//  读取配置文件
 bool init(const std::string& file);
 
 int main(int argc, char** argv)
@@ -56,10 +67,11 @@ int main(int argc, char** argv)
     }
 
     silly_timer timer;
-    silly_rwdb_stbprp::setSelectStbprpSql(select_stbprp_sql);
-    silly_rwdb_stbprp::setNowTime(str_now_tm);
+    silly_rwdb_stbprp rwdb_stbprp;
+    rwdb_stbprp.setSelectSql(select_stbprp_sql);
+    rwdb_stbprp.setNowTm(str_now_tm);
     // STBPRP 一定要导出
-    if (!silly_rwdb_stbprp::output())
+    if (!rwdb_stbprp.output())
     {
         SLOG_ERROR("STBPRP 导出失败");
         return -1;
@@ -71,36 +83,15 @@ int main(int argc, char** argv)
 
     if (_opt.pptn)
     {
-        timer.restart();
-        silly_rwdb_pptn::setSelectPPTNsql(select_pptn_sql);
-        silly_rwdb_pptn::setNowTime(str_now_tm);
-        if (!silly_rwdb_pptn::output(btm_etm))
-        {
-            SLOG_ERROR("PPTN 导出失败");
-        }
-        SLOG_INFO("PPTN 导出时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
+        EXPORT(silly_rwdb_pptn, select_pptn_sql, btm_etm, "PPTN");
     }
     if (_opt.river)
     {
-        timer.restart();
-        silly_rwdb_river::setSelectRiverSql(select_river_sql);
-        silly_rwdb_river::setNowTime(str_now_tm);
-        if (!silly_rwdb_river::output(btm_etm))
-        {
-            SLOG_ERROR("RIVER 导出失败");
-        }
-        SLOG_INFO("RIVER 导出时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
+        EXPORT(silly_rwdb_river, select_river_sql, btm_etm, "RIVER");
     }
     if (_opt.rsvr)
     {
-        timer.restart();
-        silly_rwdb_rsvr::setSelectRsvrSql(select_rsvr_sql);
-        silly_rwdb_rsvr::setNowTime(str_now_tm);
-        if (!silly_rwdb_rsvr::output(btm_etm))
-        {
-            SLOG_ERROR("RSVR 导出失败");
-        }
-        SLOG_INFO("RSVR 导出时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
+        EXPORT(silly_rwdb_rsvr, select_rsvr_sql, btm_etm, "RSVR");
     }
 
     return 0;
@@ -115,6 +106,7 @@ bool init(const std::string& file)
         SFP_ERROR("配置文件读取失败: {}", file);
         return status;
     }
+
     Json::Value js_db;
     if (!silly_jsonpp::check_member_object(jv_root, "db", js_db))
     {
@@ -142,28 +134,34 @@ bool init(const std::string& file)
     {
         if (!silly_jsonpp::check_member_string(js_sql, "select_stbprp_sql", select_stbprp_sql))
         {
+            SLOG_ERROR("配置文件中缺少 select_stbprp_sql 字段");
             return status;
         }
-        if (!silly_jsonpp::check_member_string(js_sql, "select_pptn_sql", select_pptn_sql))
+        if (!silly_jsonpp::check_member_string(js_sql, "select_pptn_sql", select_pptn_sql) && _opt.pptn)
         {
+            SLOG_ERROR("配置文件中缺少 select_pptn_sql 字段");
             return status;
         }
-        if (!silly_jsonpp::check_member_string(js_sql, "select_river_sql", select_river_sql))
+        if (!silly_jsonpp::check_member_string(js_sql, "select_river_sql", select_river_sql) && _opt.river)
         {
+            SLOG_ERROR("配置文件中缺少 select_river_sql 字段");
             return status;
         }
-        if (!silly_jsonpp::check_member_string(js_sql, "select_rsvr_sql", select_rsvr_sql))
+        if (!silly_jsonpp::check_member_string(js_sql, "select_rsvr_sql", select_rsvr_sql) && _opt.rsvr)
         {
+            SLOG_ERROR("配置文件中缺少 select_rsvr_sql 字段");
             return status;
         }
     }
 
     if (!silly_jsonpp::check_member_string(jv_root, "btm", btm))
     {
+        SLOG_ERROR("配置文件中缺少 btm 字段");
         return status;
     }
     if (!silly_jsonpp::check_member_string(jv_root, "etm", etm))
     {
+        SLOG_ERROR("配置文件中缺少 etm 字段");
         return status;
     }
 

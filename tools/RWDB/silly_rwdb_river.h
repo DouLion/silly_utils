@@ -2,57 +2,43 @@
 #ifndef SILLY_RWDB_RIVER_H
 #define SILLY_RWDB_RIVER_H
 
+#include "silly_rwdb_base.h"
 #include "tzx/rwdb/silly_river.h"
 
-extern silly_otl otl;
-extern std::string src_encode;
-extern std::string dst_encode;
-
-class silly_rwdb_river
+class silly_rwdb_river : public silly_rwdb_base
 {
   public:
-    // 导出 river
-    static bool output(const std::vector<std::pair<std::string, std::string>>& btm_etm);
-
-    // 导入 river
-    static bool import(const size_t block_size = 1024 * 1024 * 1024);
-
     // 数据库加载 river 数据(导出)
-    static bool loads(const std::string& btm, const std::string& etm);
+    bool loads(const std::string& btm, const std::string& etm) override;
 
     // 将river数组序列化成二进制流(导出)
-    static bool serialize(std::vector<std::string>& datas);
+    bool serialize(std::vector<std::string>& datas) override;
 
     // 将二进制流反序列化成river数组(导入)
-    static bool deserialize(const std::string& block_data, int& residue_size);
+    bool deserialize(const std::string& block_data, int& residue_size) override;
 
     // 插入river到数据库(导入)
-    static bool insert();
+    bool insert() override;
 
-    static void setSelectRiverSql(const std::string& sql)
+    // 实现纯虚函数：返回文件名
+    std::string getFileName() const override
     {
-        m_select_river_sql = sql;
+        return silly_river::FILE_NAME;
     }
-    static void setInsertRiverSql(const std::string& sql)
+
+    bool getIndexs() override
     {
-        m_insert_river_sql = sql;
+        m_rivers = getIndex(m_rivers);
+        return true;
     }
-    static void setRiverFilePath(const std::string& path)
+    bool getStcds() override
     {
-        m_river_file_path = path;
-    }
-    static void setNowTime(const std::string& tm)
-    {
-        m_str_now_tm = tm;
+        m_rivers = getStcd(m_rivers);
+        return true;
     }
 
   public:
-    static std::vector<silly_river> m_rivers;
-
-    static std::string m_str_now_tm;
-    static std::string m_select_river_sql;
-    static std::string m_insert_river_sql;
-    static std::string m_river_file_path;
+    std::vector<silly_river> m_rivers;
 };
 
 #endif  // SILLY_RWDB_RIVER_H

@@ -31,9 +31,23 @@ std::string src_encode;
 std::string dst_encode;
 std::unordered_map<uint32_t, std::string> g_index_stcd;  // 导入
 
-
 unsigned long long block_byte = 1024 * 1024 * 1024;
 // SIZE_T block_byte = 1024 * 1024;
+
+
+
+#define IMPORT(rwdb_type, file_path, insert_sql, block_byte, log_name) \
+    timer.restart();                                       \
+    rwdb_type rwdb;                                        \
+    rwdb.setFilePath(file_path);                           \
+    rwdb.setInsertSql(insert_sql);                         \
+    if (!rwdb.import(block_byte))                          \
+    {                                                      \
+        SLOG_ERROR("导入 " log_name " 失败");              \
+    }                                                      \
+    SLOG_INFO("导入 " log_name " 时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
+
+
 
 // 读取配置文件
 bool init(const std::string& file);
@@ -63,9 +77,10 @@ int main(int argc, char** argv)
 
     //////////// 解析 index 和 stcd对应关系 /////////////
     std::vector<silly_stbprp> stbprps;
-    silly_rwdb_stbprp::setInsertStbprpSql(insert_stbprp_sql);
-    silly_rwdb_stbprp::setStbprpFilePath(stbprp_file_path);
-    if (!silly_rwdb_stbprp::import())
+    silly_rwdb_stbprp rwdb_stbprp;
+    rwdb_stbprp.setInsertSql(insert_stbprp_sql);
+    rwdb_stbprp.setFilePath(stbprp_file_path);
+    if (!rwdb_stbprp.import())
     {
         SLOG_ERROR("导入stbprp失败");
         return -1;
@@ -76,7 +91,7 @@ int main(int argc, char** argv)
 
     if (_opt.stbprp)  // 默认不导入
     {
-        if (!silly_rwdb_stbprp::insert())
+        if (!rwdb_stbprp.insert())
         {
             SLOG_ERROR("导入stbprp失败");
             return false;
@@ -84,38 +99,18 @@ int main(int argc, char** argv)
         SLOG_INFO("stbprp 导入时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
     }
     stbprps.clear();
+
     if (_opt.pptn)
     {
-        timer.restart();
-        silly_rwdb_pptn::setInsertPPTNsql(insert_pptn_sql);
-        silly_rwdb_pptn::setPPTNFilePath(pptn_file_path);
-        if (!silly_rwdb_pptn::import(block_byte))
-        {
-            SLOG_ERROR("导入PPTN失败");
-        }
-        SLOG_INFO("导入 PPTN 时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
+        IMPORT(silly_rwdb_pptn, pptn_file_path, insert_pptn_sql, block_byte, "PPTN");
     }
     if (_opt.river)
     {
-        timer.restart();
-        silly_rwdb_river::setInsertRiverSql(insert_river_sql);
-        silly_rwdb_river::setRiverFilePath(river_file_path);
-        if (!silly_rwdb_river::import(block_byte))
-        {
-            SLOG_ERROR("导入 River 失败");
-        }
-        SLOG_INFO("导入 River 时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
+        IMPORT(silly_rwdb_river, river_file_path, insert_river_sql, block_byte, "River");
     }
     if (_opt.rsvr)
     {
-        timer.restart();
-        silly_rwdb_rsvr::setInsertRsvrSql(insert_rsvr_sql);
-        silly_rwdb_rsvr::setRsvrFilePath(rsvr_file_path);
-        if (!silly_rwdb_rsvr::import(block_byte))
-        {
-            SLOG_ERROR("导入 Rsvr 失败");
-        }
-        SLOG_INFO("导入 Rsvr 时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
+        IMPORT(silly_rwdb_rsvr, rsvr_file_path, insert_rsvr_sql, block_byte, "Rsvr");
     }
 
     return 0;
@@ -130,6 +125,7 @@ bool init(const std::string& file)
         SLOG_ERROR("配置文件读取失败: {}", file);
         return status;
     }
+
     Json::Value js_db;
     if (!silly_jsonpp::check_member_object(jv_root, "db", js_db))
     {
@@ -144,6 +140,7 @@ bool init(const std::string& file)
         return status;
     }
     SLOG_INFO("odbc 链接串: {}", otl.odbc());
+
 #if IS_WIN32
     if (otl.type() == enum_database_type::dbORACLE)
     {
@@ -152,48 +149,61 @@ bool init(const std::string& file)
 #else
 #endif
 
+    // 检查并加载 SQL 配置
     Json::Value js_sql;
     if (silly_jsonpp::check_member_object(jv_root, "sql", js_sql))
     {
-        if (!silly_jsonpp::check_member_string(js_sql, "insert_pptn_sql", insert_pptn_sql))
+        if (!silly_jsonpp::check_member_string(js_sql, "insert_stbprp_sql", insert_stbprp_sql) && _opt.stbprp)
         {
+            SLOG_ERROR("缺少 insert_stbprp_sql 配置项");
             return status;
         }
-        if (!silly_jsonpp::check_member_string(js_sql, "insert_stbprp_sql", insert_stbprp_sql))
+        if (!silly_jsonpp::check_member_string(js_sql, "insert_pptn_sql", insert_pptn_sql) && _opt.pptn)
         {
+            SLOG_ERROR("缺少 insert_pptn_sql 配置项");
             return status;
         }
-        if (!silly_jsonpp::check_member_string(js_sql, "insert_river_sql", insert_river_sql))
+        if (!silly_jsonpp::check_member_string(js_sql, "insert_river_sql", insert_river_sql) && _opt.river)
         {
+            SLOG_ERROR("缺少 insert_river_sql 配置项");
             return status;
         }
-        if (!silly_jsonpp::check_member_string(js_sql, "insert_rsvr_sql", insert_rsvr_sql))
+        if (!silly_jsonpp::check_member_string(js_sql, "insert_rsvr_sql", insert_rsvr_sql) && _opt.rsvr)
         {
+            SLOG_ERROR("缺少 insert_rsvr_sql 配置项");
             return status;
         }
     }
-    if (!silly_jsonpp::check_member_string(jv_root, "stbprp_file_path", stbprp_file_path))
+
+    // 检查路径配置
+    if (!silly_jsonpp::check_member_string(jv_root, "stbprp_file_path", stbprp_file_path) && _opt.stbprp)
     {
+        SLOG_ERROR("缺少 stbprp_file_path 配置项");
         return status;
     }
-    if (!silly_jsonpp::check_member_string(jv_root, "pptn_file_path", pptn_file_path))
+    if (!silly_jsonpp::check_member_string(jv_root, "pptn_file_path", pptn_file_path) && _opt.pptn)
     {
+        SLOG_ERROR("缺少 pptn_file_path 配置项");
         return status;
     }
-    if (!silly_jsonpp::check_member_string(jv_root, "river_file_path", river_file_path))
+    if (!silly_jsonpp::check_member_string(jv_root, "river_file_path", river_file_path) && _opt.river)
     {
+        SLOG_ERROR("缺少 river_file_path 配置项");
         return status;
     }
-    if (!silly_jsonpp::check_member_string(jv_root, "rsvr_file_path", rsvr_file_path))
+    if (!silly_jsonpp::check_member_string(jv_root, "rsvr_file_path", rsvr_file_path) && _opt.rsvr)
     {
+        SLOG_ERROR("缺少 rsvr_file_path 配置项");
         return status;
     }
-    // block_byte
+
+    // block_byte 配置项
     if (!silly_jsonpp::check_member_uint64(jv_root, "block_byte", block_byte))
     {
         SLOG_WARN("配置文件中缺少 block_byte 字段, 默认按照 1G 字节数处理");
     }
 
+    // 编码设置
     Json::Value js_encode;
     if (silly_jsonpp::check_member_object(jv_root, "encode", js_encode))
     {

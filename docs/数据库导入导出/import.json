@@ -15,10 +15,10 @@
     "insert_river_sql": "INSERT INTO W_ST_RIVER_R (STCD, TM, Z, Q, WPTN ) VALUES (:f1<char[9]>, :f2<timestamp>, :f3<double>, :f4<double>, :f5<char[2]>);",
     "insert_rsvr_sql": "INSERT INTO W_ST_RSVR_R (STCD, TM, RZ, INQ, W, OTQ, RWCHRCD, RWPTN, INQDR, MSQMT, BLRZ) VALUES (:f1<char[9]> ,:f2<timestamp> ,:f3<double> ,:f4<double> ,:f5<double> ,:f6<double> ,:f7<char[2]> ,:f8<char[2]> ,:f9<double> ,:f10<char[2]> ,:f11<double>);"
   },
-  "stbprp_file_path": "./20241114180148_STBPRP.dat",
-  "pptn_file_path": "./20241114180148_PPTN.dat",
-  "river_file_path": "./20241114173330_RIVER.dat",
-  "rsvr_file_path": "./20241114173948_RSVR.dat",
+  "stbprp_file_path": "./20241115170237_STBPRP.dat",
+  "pptn_file_path": "./20241115170237_PPTN.dat",
+  "river_file_path": "./20241115170237_RIVER.dat",
+  "rsvr_file_path": "./20241115173236_RSVR.dat",
   "encode": {
     "src": "UTF-8",
     "dst": ""
