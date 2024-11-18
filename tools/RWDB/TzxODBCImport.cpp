@@ -78,8 +78,8 @@ int main(int argc, char** argv)
     //////////// 解析 index 和 stcd对应关系 /////////////
     std::vector<silly_stbprp> stbprps;
     silly_rwdb_stbprp rwdb_stbprp;
-    rwdb_stbprp.setInsertSql(insert_stbprp_sql);
-    rwdb_stbprp.setFilePath(stbprp_file_path);
+    rwdb_stbprp.m_insert_sql = insert_stbprp_sql;
+    rwdb_stbprp.m_file_path = stbprp_file_path;
     if (!rwdb_stbprp.import())
     {
         SLOG_ERROR("导入stbprp失败");

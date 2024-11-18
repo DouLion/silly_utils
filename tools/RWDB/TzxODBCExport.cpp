@@ -68,8 +68,8 @@ int main(int argc, char** argv)
 
     silly_timer timer;
     silly_rwdb_stbprp rwdb_stbprp;
-    rwdb_stbprp.setSelectSql(select_stbprp_sql);
-    rwdb_stbprp.setNowTm(str_now_tm);
+    rwdb_stbprp.m_select_sql = select_stbprp_sql;
+    rwdb_stbprp.m_str_now_tm = str_now_tm;
     // STBPRP 一定要导出
     if (!rwdb_stbprp.output())
     {
