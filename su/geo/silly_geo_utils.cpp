@@ -271,6 +271,56 @@ OGRMultiPolygon geo_utils::silly_multi_poly_to_ogr(const silly_multi_poly& multi
     return ogrMultiPolygon;
 }
 
+std::shared_ptr<OGRGeometry> geo_utils::silly_geo_to_OGRGeometry(const silly_geo_coll& coll)
+{
+    switch (coll.m_type)
+    {
+        case enum_geometry_type::egtPoint:
+            return std::make_shared<OGRPoint>(silly_point_to_ogr(coll.m_point));
+
+        case enum_geometry_type::egtMultiPoint:
+            return std::make_shared<OGRMultiPoint>(silly_multi_point_to_ogr(coll.m_m_points));
+
+        case enum_geometry_type::egtLineString:
+            return std::make_shared<OGRLineString>(silly_line_to_ogr(coll.m_line));
+
+        case enum_geometry_type::egtMultiLineString:
+            return std::make_shared<OGRMultiLineString>(silly_multi_line_to_ogr(coll.m_m_lines));
+
+        case enum_geometry_type::egtPolygon:
+            return std::make_shared<OGRPolygon>(silly_poly_to_ogr(coll.m_poly));
+
+        case enum_geometry_type::egtMultiPolygon:
+            return std::make_shared<OGRMultiPolygon>(silly_multi_poly_to_ogr(coll.m_m_polys));
+
+        default:
+            SLOG_ERROR("Error: Unsupported type: {}");
+            return nullptr;
+    }
+}
+
+silly_geo_coll geo_utils::sily_geo_from_OGRGeometry(const OGRGeometry* geometry)
+{
+    switch (geometry->getGeometryType())
+    {
+        case wkbPoint:
+            return silly_point_from_ogr(static_cast<const OGRPoint*>(geometry));
+        case wkbMultiPoint:
+            return silly_multi_point_from_ogr(static_cast<const OGRMultiPoint*>(geometry));
+        case wkbLineString:
+            return silly_line_from_ogr(static_cast<const OGRLineString*>(geometry));
+        case wkbMultiLineString:
+            return silly_multi_line_from_ogr(static_cast<const OGRMultiLineString*>(geometry));
+        case wkbPolygon:
+            return silly_poly_from_ogr(static_cast<const OGRPolygon*>(geometry));
+        case wkbMultiPolygon:
+            return silly_multi_poly_from_ogr(static_cast<const OGRMultiPolygon*>(geometry));
+        default:
+            SLOG_ERROR("Error: Unsupported type: {}");
+            return silly_geo_coll();
+    }
+}
+
 void geo_utils::init_gdal_env()
 {
     GDALAllRegister();
