@@ -74,7 +74,7 @@ class silly_geo_utils
     /// 等值面切割使用的矢量文件格式
     static bool read_iso_polygon(const std::string& u8file, silly_multi_poly& mpoly);
 
-    static bool write_iso_polygon(const std::string& u8file, const silly_multi_poly& mpoly, const int& precision=10);
+    static bool write_iso_polygon(const std::string& u8file, const silly_multi_poly& mpoly, const int& precision = 10);
 
     /// <summary>
     /// 将silly_geo_coll数据结构写入矢量文件(如shp文件)
@@ -179,7 +179,6 @@ class silly_geo_utils
     /// <returns></returns>
     static std::vector<silly_line> trans_intersection(const silly_multi_poly& mpoly1, const silly_line& line);
 
-
     /// <summary>
     /// 距离,直接数值计算
     /// </summary>
@@ -207,7 +206,6 @@ class silly_geo_utils
     /// <param name="p2"></param>
     /// <returns></returns>
     static double distance_km(const silly_point& p1, const silly_point& p2);
-
 
     /// <summary>
     /// 面积
@@ -427,6 +425,22 @@ class silly_geo_utils
     /// <param name="multiPoly"></param>
     /// <returns></returns>
     static OGRMultiPolygon silly_multi_poly_to_ogr(const silly_multi_poly& multiPoly);
+
+    /// ================ OGRGeometry ================
+
+    /// <summary>
+    /// 将OGRGeometry对象转换为silly_geo_coll对象
+    /// </summary>
+    /// <param name="coll"></param>
+    /// <returns></returns>
+    static std::shared_ptr<OGRGeometry> silly_geo_to_OGRGeometry(const silly_geo_coll& coll);
+
+    /// <summary>
+    /// 将silly_geo_coll对象转换为OGRGeometry对象
+    /// </summary>
+    /// <param name="geometry"></param>
+    /// <returns></returns>
+    static silly_geo_coll sily_geo_from_OGRGeometry(const OGRGeometry* geometry);
 };
 
 typedef silly_geo_utils geo_utils;  // 兼容之前的写法
