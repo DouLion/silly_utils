@@ -26,6 +26,7 @@
 #define SILLY_KML_DRIVER_NAME "KML"
 #define SILLY_GML_DRIVER_NAME "GML"
 #define SILLY_XLSX_DRIVER_NAME "XLSX"
+#define SILLY_BUFFER_EXCHANGE 0.00001  // 计算缓冲区距离转化参数(米*该变量)
 
 class silly_geo_utils
 {
@@ -312,6 +313,14 @@ class silly_geo_utils
     /// <returns></returns>
     static std::vector<silly_point> simplify_ring(const std::vector<silly_point>& ring, const double& dist);
 
+    /// <summary>
+    /// 缓冲区
+    /// </summary>
+    /// <param name="coll"></param>
+    /// <param name="distance">缓冲区距离,单位米</param>
+    /// <returns></returns>
+    static silly_geo_coll buffer(const silly_geo_coll& coll, double distance);
+
     /// ================ gdal中矢量与silly utils中矢量互转 ================
 
     /// ================ 单点 ================
@@ -429,18 +438,25 @@ class silly_geo_utils
     /// ================ OGRGeometry ================
 
     /// <summary>
-    /// 将OGRGeometry对象转换为silly_geo_coll对象
+    /// 将 OGRGeometry 对象转换为silly_geo_coll对象,
+    /// OGRGeometry是一个抽象类，无法实例化,只能以指针的方式使用,
+    /// 注意: 返回的对象需要手动释放,释放方法:
+    /// if (OGRGeometry* != nullptr)
+    /// {
+    ///    OGRGeometryFactory::destroyGeometry(OGRGeometry*);
+    ///    OGRGeometry* = nullptr;
+    /// }
     /// </summary>
     /// <param name="coll"></param>
     /// <returns></returns>
-    static std::shared_ptr<OGRGeometry> silly_geo_to_OGRGeometry(const silly_geo_coll& coll);
+    static OGRGeometry* silly_geo_coll_to_ogr(const silly_geo_coll& coll);
 
     /// <summary>
     /// 将silly_geo_coll对象转换为OGRGeometry对象
     /// </summary>
     /// <param name="geometry"></param>
     /// <returns></returns>
-    static silly_geo_coll sily_geo_from_OGRGeometry(const OGRGeometry* geometry);
+    static silly_geo_coll silly_geo_coll_from_ogr(const OGRGeometry* geometry);
 };
 
 typedef silly_geo_utils geo_utils;  // 兼容之前的写法

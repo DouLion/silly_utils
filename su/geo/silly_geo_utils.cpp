@@ -271,27 +271,27 @@ OGRMultiPolygon geo_utils::silly_multi_poly_to_ogr(const silly_multi_poly& multi
     return ogrMultiPolygon;
 }
 
-std::shared_ptr<OGRGeometry> geo_utils::silly_geo_to_OGRGeometry(const silly_geo_coll& coll)
+OGRGeometry* geo_utils::silly_geo_coll_to_ogr(const silly_geo_coll& coll)
 {
     switch (coll.m_type)
     {
         case enum_geometry_type::egtPoint:
-            return std::make_shared<OGRPoint>(silly_point_to_ogr(coll.m_point));
+            return new OGRPoint(geo_utils::silly_point_to_ogr(coll.m_point));
 
         case enum_geometry_type::egtMultiPoint:
-            return std::make_shared<OGRMultiPoint>(silly_multi_point_to_ogr(coll.m_m_points));
+            return new OGRMultiPoint(geo_utils::silly_multi_point_to_ogr(coll.m_m_points));
 
         case enum_geometry_type::egtLineString:
-            return std::make_shared<OGRLineString>(silly_line_to_ogr(coll.m_line));
+            return new OGRLineString(geo_utils::silly_line_to_ogr(coll.m_line));
 
         case enum_geometry_type::egtMultiLineString:
-            return std::make_shared<OGRMultiLineString>(silly_multi_line_to_ogr(coll.m_m_lines));
+            return new OGRMultiLineString(geo_utils::silly_multi_line_to_ogr(coll.m_m_lines));
 
         case enum_geometry_type::egtPolygon:
-            return std::make_shared<OGRPolygon>(silly_poly_to_ogr(coll.m_poly));
+            return new OGRPolygon(geo_utils::silly_poly_to_ogr(coll.m_poly));
 
         case enum_geometry_type::egtMultiPolygon:
-            return std::make_shared<OGRMultiPolygon>(silly_multi_poly_to_ogr(coll.m_m_polys));
+            return new OGRMultiPolygon(geo_utils::silly_multi_poly_to_ogr(coll.m_m_polys));
 
         default:
             SLOG_ERROR("Error: Unsupported type: {}");
@@ -299,7 +299,7 @@ std::shared_ptr<OGRGeometry> geo_utils::silly_geo_to_OGRGeometry(const silly_geo
     }
 }
 
-silly_geo_coll geo_utils::sily_geo_from_OGRGeometry(const OGRGeometry* geometry)
+silly_geo_coll geo_utils::silly_geo_coll_from_ogr(const OGRGeometry* geometry)
 {
     switch (geometry->getGeometryType())
     {
@@ -1498,4 +1498,23 @@ double silly_geo_utils::distance_km(const silly_point& p1, const silly_point& p2
 double silly_geo_utils::distance_sq(const silly_point& p1, const silly_point& p2)
 {
     return (p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y);
+}
+
+silly_geo_coll silly_geo_utils::buffer(const silly_geo_coll& coll, double distance)
+{
+    OGRGeometry* resOGRGeom = silly_geo_coll_to_ogr(coll);
+    double radius = distance * SILLY_BUFFER_EXCHANGE;
+    OGRGeometry* bufferedGeom = resOGRGeom->Buffer(radius);
+    silly_geo_coll buffer_coll = silly_geo_coll_from_ogr(bufferedGeom);
+    if (resOGRGeom != nullptr)
+    {
+        OGRGeometryFactory::destroyGeometry(resOGRGeom);
+        resOGRGeom = nullptr;
+    }
+    if (bufferedGeom != nullptr)
+    {
+        OGRGeometryFactory::destroyGeometry(bufferedGeom);
+        bufferedGeom = nullptr;
+    }
+    return buffer_coll;
 }
