@@ -429,18 +429,25 @@ class silly_geo_utils
     /// ================ OGRGeometry ================
 
     /// <summary>
-    /// 将OGRGeometry对象转换为silly_geo_coll对象
+    /// 将 OGRGeometry 对象转换为silly_geo_coll对象,
+    /// OGRGeometry是一个抽象类，无法实例化,只能以指针的方式使用,
+    /// 注意: 返回的对象需要手动释放,释放方法:
+    /// if (OGRGeometry* != nullptr)
+    /// {
+    ///    OGRGeometryFactory::destroyGeometry(OGRGeometry*);
+    ///    OGRGeometry* = nullptr;
+    /// }
     /// </summary>
     /// <param name="coll"></param>
     /// <returns></returns>
-    static std::shared_ptr<OGRGeometry> silly_geo_to_OGRGeometry(const silly_geo_coll& coll);
+    static OGRGeometry* silly_geo_coll_to_ogr(const silly_geo_coll& coll);
 
     /// <summary>
     /// 将silly_geo_coll对象转换为OGRGeometry对象
     /// </summary>
     /// <param name="geometry"></param>
     /// <returns></returns>
-    static silly_geo_coll sily_geo_from_OGRGeometry(const OGRGeometry* geometry);
+    static silly_geo_coll silly_geo_coll_from_ogr(const OGRGeometry* geometry);
 };
 
 typedef silly_geo_utils geo_utils;  // 兼容之前的写法
