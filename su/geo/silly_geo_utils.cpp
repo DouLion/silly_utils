@@ -271,7 +271,7 @@ OGRMultiPolygon geo_utils::silly_multi_poly_to_ogr(const silly_multi_poly& multi
     return ogrMultiPolygon;
 }
 
-OGRGeometry* silly_geo_coll_to_ogr(const silly_geo_coll& coll)
+OGRGeometry* geo_utils::silly_geo_coll_to_ogr(const silly_geo_coll& coll)
 {
     switch (coll.m_type)
     {
