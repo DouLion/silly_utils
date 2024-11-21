@@ -16,15 +16,18 @@
 
 const static std::string APP_OCT_STRM_CONTENT_ENCODE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-static char* extract_before_at(const char* str) {
-    if (str == NULL) {
+static char* extract_before_at(const char* str)
+{
+    if (str == NULL)
+    {
         return NULL;
     }
 
     // 查找 '@' 符号的位置
     const char* at_pos = strchr(str, '@');
-    if (at_pos == NULL) {
-        return NULL; // 没有找到 '@'
+    if (at_pos == NULL)
+    {
+        return NULL;  // 没有找到 '@'
     }
 
     // 计算 '@' 前面部分的长度
@@ -32,12 +35,13 @@ static char* extract_before_at(const char* str) {
 
     // 分配内存并复制 '@' 前面的部分
     char* result = (char*)malloc(len + 1);
-    if (result == NULL) {
-        return NULL; // 内存分配失败
+    if (result == NULL)
+    {
+        return NULL;  // 内存分配失败
     }
 
     strncpy(result, str, len);
-    result[len] = '\0'; // 确保字符串以 null 结尾
+    result[len] = '\0';  // 确保字符串以 null 结尾
 
     return result;
 }
@@ -275,7 +279,7 @@ bool silly_smtp::head(const silly_mail_content& content)
     }
 
     // 发送Headers
-    msg = "From:\"" + content.sender.first + "\"<" + content.sender.second + ">\r\n";
+    msg = "From:\"" + content.sender.second + "\"<" + content.sender.first + ">\r\n";
 
     // 遍历receiver
     msg += "To: ";
@@ -361,7 +365,7 @@ bool silly_smtp::resp(const std::string expected_response)
     char response_buffer[256];
     if ((recv_bytes = recv(m_socket, response_buffer, 256, 0)) < 0)
     {
-        SLOG_DEBUG(std::string("[ERROR]RECV:") + expected_response);
+        SLOG_ERROR(std::string("RECV:\n") + expected_response);
         return false;
     }
     // 输出信息
@@ -378,13 +382,13 @@ int silly_smtp::req(const std::string content, bool bout)
     int len_s = ::send(m_socket, content.c_str(), content.length(), 0);
     if (len_s < 0)
     {
-        SLOG_ERROR(std::string("[ERROR]SEND:") + content);
+        SLOG_ERROR(std::string("SEND:\n") + content);
         return false;
     }
     // 输出信息
     if (bout)
     {
-        SLOG_DEBUG(std::string("[ERROR]SEND:") + content);
+        SLOG_ERROR(std::string("SEND:\n") + content);
     }
     return len_s;
 }
