@@ -194,8 +194,8 @@ class otl_conn_opt
     /// <summary>
     /// 非session执行sql的模板函数
     /// </summary>
-    /// <typeparam name="Func"></typeparam>
-    /// <typeparam name="...Args"></typeparam>
+    /// <param name="Func"></param>
+    /// <param name="...Args"></param>
     /// <param name="sql"></param>
     /// <param name="func"></param>
     /// <param name="...args"></param>
@@ -322,8 +322,8 @@ class otl_conn_opt
     /// <summary>
     /// select的模板函数
     /// </summary>
-    /// <typeparam name="Func"></typeparam>
-    /// <typeparam name="...Args"></typeparam>
+    /// <param name="Func"></param>
+    /// <param name="...Args"></param>
     /// <param name="sql"></param>
     /// <param name="func"></param>
     /// <param name="...args"></param>
@@ -370,8 +370,8 @@ class otl_conn_opt
     /// <summary>
     /// insert的模板函数
     /// </summary>
-    /// <typeparam name="Func"></typeparam>
-    /// <typeparam name="...Args"></typeparam>
+    /// <param name="Func"></param>
+    /// <param name="...Args"></param>
     /// <param name="sql"></param>
     /// <param name="func"></param>
     /// <param name="...args"></param>
@@ -416,6 +416,20 @@ class otl_conn_opt
 
         return status;
     }
+
+    /// <summary>
+    /// 查询sql的列信息
+    /// </summary>
+    /// <param name="sql"></param>
+    /// <returns>执行是否成功</returns>
+    bool check_column_info(const std::string& sql);
+
+    /// <summary>
+    /// otl类型枚举对应的字符串
+    /// </summary>
+    /// <param name="sql"></param>
+    /// <returns>执行是否成功</returns>
+    std::string print_otl_type_name(const otl_var_enum& vt);
 
     ///////////////////////////////
     /// getter

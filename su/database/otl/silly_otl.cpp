@@ -5,7 +5,6 @@
 #include "silly_otl.h"
 #include "otl_tools.h"
 
-
 const static std::string SILLY_OTL_MYSQL_ODBC_FORMAT = "Driver={%s};Server=%s;Port=%d;Database=%s;User=%s;Password=%s;Option=3;charset=UTF8;";
 const static std::string SILLY_OTL_MSSQL_ODBC_FORMAT = "Driver={%s};Server=%s;Port=%d;UID=%s;PWD=%s;Database=%s;";
 const static std::string SILLY_OTL_ORACLE_ODBC_FORMAT = "Driver={%s};DBQ=%s:%d/%s;Uid=%s;Pwd=%s;";
@@ -14,23 +13,22 @@ const static std::string SILLY_OTL_POSTGRE_ODBC_FORMAT = "Driver={%s};Server=%s;
 const static std::string SILLY_OTL_DSN_FORMAT = "UID=%s;PWD=%s;DSN=%s;";
 
 // 去除字符串左边的空格
-std::string ltrim(const std::string& str) {
-    auto it = std::find_if(str.begin(), str.end(), [](char ch) {
-        return !std::isspace<char>(ch, std::locale::classic());
-    });
+std::string ltrim(const std::string& str)
+{
+    auto it = std::find_if(str.begin(), str.end(), [](char ch) { return !std::isspace<char>(ch, std::locale::classic()); });
     return std::string(it, str.end());
 }
 
 // 去除字符串右边的空格
-std::string rtrim(const std::string& str) {
-    auto it = std::find_if(str.rbegin(), str.rend(), [](char ch) {
-                  return !std::isspace<char>(ch, std::locale::classic());
-              }).base();
+std::string rtrim(const std::string& str)
+{
+    auto it = std::find_if(str.rbegin(), str.rend(), [](char ch) { return !std::isspace<char>(ch, std::locale::classic()); }).base();
     return std::string(str.begin(), it);
 }
 
 // 去除字符串左右两边的空格
-std::string _trim(const std::string& str) {
+std::string _trim(const std::string& str)
+{
     return ltrim(rtrim(str));
 }
 
@@ -38,23 +36,23 @@ static enum_database_type assume_type(const std::string& driver)
 {
     std::string lower_driver = driver;
     std::transform(lower_driver.begin(), lower_driver.end(), lower_driver.begin(), ::tolower);
-    if(lower_driver.find("sql server") != std::string::npos)
+    if (lower_driver.find("sql server") != std::string::npos)
     {
         return enum_database_type::dbSQLSERVER;
     }
-    else if(lower_driver.find("mysql") != std::string::npos)
+    else if (lower_driver.find("mysql") != std::string::npos)
     {
         return enum_database_type::dbMYSQL;
     }
-    else if(lower_driver.find("oracle") != std::string::npos)
+    else if (lower_driver.find("oracle") != std::string::npos)
     {
         return enum_database_type::dbORACLE;
     }
-    else if(lower_driver.find("postgresql") != std::string::npos)
+    else if (lower_driver.find("postgresql") != std::string::npos)
     {
         return enum_database_type::dbPG;
     }
-    else if(lower_driver.find("dm8") != std::string::npos)
+    else if (lower_driver.find("dm8") != std::string::npos)
     {
         return enum_database_type::dbDM8;
     }
@@ -68,20 +66,22 @@ static std::map<std::string, std::string> parse_odbc(const std::string& odbc)
     std::istringstream iss(odbc);
     std::string token;
 
-    while (std::getline(iss, token, ';')) {
+    while (std::getline(iss, token, ';'))
+    {
         size_t pos = token.find('=');
-        if (pos != std::string::npos) {
+        if (pos != std::string::npos)
+        {
             std::string key = token.substr(0, pos);
-            std::transform(key.begin(), key.end(), key.begin(), ::tolower); // key转小写
+            std::transform(key.begin(), key.end(), key.begin(), ::tolower);  // key转小写
             std::string value = token.substr(pos + 1);
-            if("driver" == key)
+            if ("driver" == key)
             {
                 // 去除左右的空格以及花括号
                 std::string::size_type start = value.find_first_not_of(" \t{");
                 std::string::size_type end = value.find_last_not_of(" \t}");
                 result[key] = value.substr(start, end - start + 1);
             }
-            else if("dbq" == key)
+            else if ("dbq" == key)
             {
                 // 解析oracle 的DBQ  IP:PORT/SCHEMA
                 std::string ip_port_schema = value;
@@ -95,25 +95,23 @@ static std::map<std::string, std::string> parse_odbc(const std::string& odbc)
                     {
                         result["server"] = _trim(ip_port_schema.substr(0, pos));
                         result["port"] = _trim(ip_port_schema.substr(pos + 1));
-
                     }
                     else
                     {
                         result["server"] = _trim(ip_port_schema);
                     }
                     result["database"] = _trim(schema);
-               }
-
+                }
             }
-            else if("tcp_port" == key)
+            else if ("tcp_port" == key)
             {
                 result["port"] = _trim(value);
             }
-            else if("uid" == key)
+            else if ("uid" == key)
             {
                 result["user"] = _trim(value);
             }
-            else if("password" == key)
+            else if ("password" == key)
             {
                 result["pwd"] = _trim(value);
             }
@@ -121,8 +119,6 @@ static std::map<std::string, std::string> parse_odbc(const std::string& odbc)
             {
                 result[key] = _trim(value);
             }
-
-
         }
     }
 
@@ -141,35 +137,34 @@ bool otl_conn_opt::load(const std::string& cfg)
     {
         std::map<std::string, std::string> k2v = parse_odbc(cfg);
         auto iter = k2v.find("dsn");
-        if(iter != k2v.end())
+        if (iter != k2v.end())
         {
             m_dsn = iter->second;
-
         }
         else
         {
             iter = k2v.find("driver");
-            if(iter == k2v.end())
+            if (iter == k2v.end())
             {
                 m_err = "没有指定驱动";
                 return status;
             }
             m_driver = iter->second;
             m_type = assume_type(m_driver);
-            if( enum_database_type::dbINVALID == m_type)
+            if (enum_database_type::dbINVALID == m_type)
             {
-                m_err = "无法识别的驱动: "+ iter->second;
+                m_err = "无法识别的驱动: " + iter->second;
                 return status;
             }
 
-            if(enum_database_type::dbKingB8 == m_type)
+            if (enum_database_type::dbKingB8 == m_type)
             {
-                m_err = "金仓数据库未支持: "+ iter->second;
+                m_err = "金仓数据库未支持: " + iter->second;
                 return status;
             }
 
             iter = k2v.find("port");
-            if(iter != k2v.end())
+            if (iter != k2v.end())
             {
                 m_port = std::stoi(iter->second);
             }
@@ -200,11 +195,10 @@ bool otl_conn_opt::load(const std::string& cfg)
 
             m_ip = k2v["server"];
             m_schema = k2v["database"];
-
         }
         // 检查用户名和密码
         iter = k2v.find("user");
-        if(iter != k2v.end())
+        if (iter != k2v.end())
         {
             m_user = iter->second;
         }
@@ -215,7 +209,7 @@ bool otl_conn_opt::load(const std::string& cfg)
         }
 
         iter = k2v.find("pwd");
-        if(iter != k2v.end())
+        if (iter != k2v.end())
         {
             m_password = iter->second;
         }
@@ -224,8 +218,6 @@ bool otl_conn_opt::load(const std::string& cfg)
             m_err = "没有指定密码";
             return status;
         }
-
-
     }
     m_conn = odbc(true);
 
@@ -321,7 +313,7 @@ void otl_conn_opt::help()
         "CHINESE_CHINA.UTF8,以支持中文编码utf8传递;\n达梦(DM8):\n\tDriver={驱动名称};Server=IP;TCP_PORT:端口;UID=账号;PWD=密码; \n\t即使数据库编码为UTF8, 数据在插入时也需要时GBK编码, 否则会乱码;"
         "\n不能正常使用ODBC时,考虑使用DSN方式:\n\tUID=账号;PWD=密码;DSN=DNS名称;\n");
     std::string content = "\n\n当前机器支持的ODBC驱动:\n";
-    for( auto d: drivers())
+    for (auto d : drivers())
     {
         content += d + "\n";
     }
@@ -454,15 +446,15 @@ void otl_conn_opt::timeout(int to)
 #ifdef IS_WIN32
 #include <odbcinst.h>
 #include <cstring>
-#pragma  comment(lib, "odbccp32.lib")
-#pragma  comment(lib, "legacy_stdio_definitions.lib")
+#pragma comment(lib, "odbccp32.lib")
+#pragma comment(lib, "legacy_stdio_definitions.lib")
 #endif
 std::vector<std::string> otl_conn_opt::drivers()
 {
     std::vector<std::string> retVec;
 #ifdef IS_WIN32
 
-    WCHAR szBuf[10240] = { 0 };
+    WCHAR szBuf[10240] = {0};
     WORD cbBufMax = 10239;
     WORD cbBufOut;
     WCHAR* pszBuf = szBuf;
@@ -484,7 +476,7 @@ std::vector<std::string> otl_conn_opt::drivers()
     {
         // printf("%s", buffer);
         std::string tmp_odbc_driver(buffer);
-        tmp_odbc_driver = tmp_odbc_driver.substr(1, tmp_odbc_driver.size() - 3); // 每一行的结果 [MySQL ODBC 8.0 Unicode Driver]\r    最后有个换行符,所以是 -3
+        tmp_odbc_driver = tmp_odbc_driver.substr(1, tmp_odbc_driver.size() - 3);  // 每一行的结果 [MySQL ODBC 8.0 Unicode Driver]\r    最后有个换行符,所以是 -3
         retVec.push_back(tmp_odbc_driver);
         memset(buffer, 0, 4096);
     }
@@ -492,4 +484,117 @@ std::vector<std::string> otl_conn_opt::drivers()
     pclose(fp);
 #endif
     return retVec;
+}
+bool otl_conn_opt::check_column_info(const std::string& sql)
+{
+    bool status = false;
+    otl_connect db;
+    try
+    {
+        db.auto_commit_off();
+        db.set_timeout(m_timeout);
+        db.rlogon(m_conn.c_str(), false);
+        otl_stream stream;
+        stream.open(1, sql.c_str(), db);
+
+        int col_num = 0;
+        otl_column_desc* desc_list = stream.describe_select(col_num);
+        std::cout << "列数: " << col_num << std::endl;
+        for (int i = 0; i < col_num; ++i)
+        {
+            std::cout << "[" << i + 1 << "] "<< "列名: " << desc_list[i].name << "  类型: " << print_otl_type_name((otl_var_enum)desc_list[i].otl_var_dbtype) << std::endl;
+        }
+        stream.close();
+        status = true;
+    }
+    catch (otl_exception& e)
+    {
+        db.rollback();
+        m_err = "OTL_ERR \nCONN:";
+        m_err.append(m_conn);
+        m_err.append("\nCODE:").append(std::to_string(e.code));
+        m_err.append("\nMSG:").append(std::string((char*)e.msg));
+        m_err.append("\nSTATE:").append(std::string((char*)e.sqlstate));
+        m_err.append("\nSTMT:").append(std::string((char*)e.stm_text));
+    }
+    catch (std::exception& p)
+    {
+        db.rollback();
+        m_err = "OTL_UNKNOWN " + std::string(p.what());
+    }
+    db.logoff();
+
+    return status;
+}
+
+std::string otl_conn_opt::print_otl_type_name(const otl_var_enum& ot)
+{
+    std::string result = "Unknown";
+    switch (ot)
+    {
+        case otl_var_char:
+            result = "char";
+            break;
+        case otl_var_double:
+            result = "double";
+            break;
+        case otl_var_float:
+            result = "float";
+            break;
+        case otl_var_int:
+            result = "int ";
+            break;
+        case otl_var_unsigned_int:
+            result = "unsigned_int";
+            break;
+        case otl_var_short:
+            result = "short";
+            break;
+        case otl_var_long_int:
+            result = "long_int";
+            break;
+        case otl_var_timestamp:
+            result = "timestamp";
+            break;
+        case otl_var_varchar_long:
+            result = "varchar_long";
+            break;
+        case otl_var_raw_long:
+            result = "raw_long";
+            break;
+        case otl_var_clob:
+            result = "clob";
+            break;
+        case otl_var_blob:
+            result = "blob";
+            break;
+        case otl_var_refcur:
+            result = "refcur";
+            break;
+        case otl_var_long_string:
+            result = "long_string";
+            break;
+        case otl_var_db2time:
+            result = "db2time";
+            break;
+        case otl_var_db2date:
+            result = "db2date";
+            break;
+        case otl_var_tz_timestamp:
+            result = "tz_timestamp";
+            break;
+        case otl_var_ltz_timestamp:
+            result = "ltz_timestamp";
+            break;
+        case otl_var_bigint:
+            result = "bigint";
+            break;
+        case otl_var_raw:
+            result = "raw";
+            break;
+        default:
+            result = "unknown";
+            break;
+    }
+    return result;
 }
