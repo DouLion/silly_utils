@@ -26,6 +26,7 @@
 #define SILLY_KML_DRIVER_NAME "KML"
 #define SILLY_GML_DRIVER_NAME "GML"
 #define SILLY_XLSX_DRIVER_NAME "XLSX"
+#define SILLY_BUFFER_EXCHANGE 0.00001  // 计算缓冲区距离转化参数(米*该变量)
 
 class silly_geo_utils
 {
@@ -311,6 +312,14 @@ class silly_geo_utils
     /// <param name="dist">距离容差</param>
     /// <returns></returns>
     static std::vector<silly_point> simplify_ring(const std::vector<silly_point>& ring, const double& dist);
+
+    /// <summary>
+    /// 缓冲区
+    /// </summary>
+    /// <param name="coll"></param>
+    /// <param name="distance">缓冲区距离,单位米</param>
+    /// <returns></returns>
+    static silly_geo_coll buffer(const silly_geo_coll& coll, double distance);
 
     /// ================ gdal中矢量与silly utils中矢量互转 ================
 
