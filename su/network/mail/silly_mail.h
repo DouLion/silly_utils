@@ -12,7 +12,7 @@
 #define SILLY_UTILS_SILLY_MAIL_H
 #include <su_marco.h>
 
-using silly_mail_user = std::pair<std::string, std::string>;
+using silly_mail_user = std::pair<std::string, std::string>;  // 邮箱 用户名
 
 enum class silly_mail_server_type
 {
@@ -21,27 +21,37 @@ enum class silly_mail_server_type
     imap
 
 };
-class silly_mail_opt
+class silly_mail_conn_opt
 {
   public:
+    silly_mail_conn_opt() = default;
+    ~silly_mail_conn_opt() = default;
+    silly_mail_conn_opt(const std::string& u, const std::string& p): user(u), pwd(p)
+    {
+
+    }
+    silly_mail_conn_opt(const std::string& u, const std::string& p, const std::string& s): user(u), pwd(p), server(s)
+    {
+
+    }
     bool ssl = false;
-    std::string server;
-    std::string port;
+    std::string server = "smtp.qq.com";
+    int port = 25;  // SSL/TLS: 465  STARTTLS: 587
     std::string user;
-    std::string password;
+    std::string pwd;
 };
 
-class silly_mail_send_content
+class silly_mail_content
 {
   public:
-    silly_mail_send_content() = default;
-    ~silly_mail_send_content() = default;
+    silly_mail_content() = default;
+    ~silly_mail_content() = default;
 
   public:
-    std::string title;
-    std::string content;
     silly_mail_user sender;
     std::vector<silly_mail_user> receivers;
+    std::string subject;
+    std::string body;
     std::vector<std::string> attachments;  // 附件
 };
 

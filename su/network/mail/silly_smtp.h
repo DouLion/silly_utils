@@ -11,18 +11,46 @@
 #ifndef SILLY_UTILS_SILLY_SMTP_H
 #define SILLY_UTILS_SILLY_SMTP_H
 #include <network/mail/silly_mail.h>
+#include <curl/curl.h>
+
 class silly_smtp
 {
   public:
-    silly_smtp();
-    ~silly_smtp();
+    bool logon();
 
-    bool send(const silly_mail_send_content& mail_content);
-    void set_smtp_options(const silly_mail_opt& options) {
-        smtp_options = options;
-    }
+    bool logon(const std::string& account, const std::string& pwd);
+
+    bool send(const silly_mail_content& content);
+
+    void conn_opt(const silly_mail_conn_opt& mco);
+
+  private:                                                           // 以字符形式读入附件内容
+
+    std::string Base64Encode(std::string in_str);  // 把char类型转换成Base64类型
+    // 获取时间
+    std::string prepareDate();
+
+    // 通信recv和send的封装
+    int req(const std::string content, bool bout = false);  // 返回发送了多少字节
+    bool resp(const std::string expected_response);         // 返回接收的结果和expected_response是否相同
+
+    // 工作函数
+    bool create_socket();  // 建立socket连接
+
+    bool head(const silly_mail_content& content);
+
+    bool body(const silly_mail_content& content);
+
+    bool attachments(const silly_mail_content& content);
+
+    bool end();
+
   private:
-    silly_mail_opt smtp_options;
+    bool m_connected{false};
+
+    uint64_t m_socket;
+
+    silly_mail_conn_opt m_conn_opt;
 };
 
 #endif  // SILLY_UTILS_SILLY_SMTP_H
