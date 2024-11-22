@@ -26,7 +26,6 @@
 #define SILLY_KML_DRIVER_NAME "KML"
 #define SILLY_GML_DRIVER_NAME "GML"
 #define SILLY_XLSX_DRIVER_NAME "XLSX"
-#define SILLY_BUFFER_EXCHANGE 0.00001  // 计算缓冲区距离转化参数(米*该变量)
 
 class silly_geo_utils
 {
