@@ -1500,11 +1500,22 @@ double silly_geo_utils::distance_sq(const silly_point& p1, const silly_point& p2
     return (p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y);
 }
 
-silly_geo_coll silly_geo_utils::buffer(const silly_geo_coll& coll, double distance)
+silly_geo_coll silly_geo_utils::buffer(const silly_geo_coll& coll, const double& distance)
 {
     OGRGeometry* resOGRGeom = silly_geo_coll_to_ogr(coll);
-    double radius = distance * SILLY_BUFFER_EXCHANGE;
-    OGRGeometry* bufferedGeom = resOGRGeom->Buffer(radius);
+    if (resOGRGeom == nullptr)
+    {
+        SLOG_ERROR("Failed to convert silly_geo_coll to OGRGeometry");
+        return silly_geo_coll();
+    }
+    OGRGeometry* bufferedGeom = resOGRGeom->Buffer(distance);  // 创建缓冲区
+    if (bufferedGeom == nullptr)
+    {
+        OGRGeometryFactory::destroyGeometry(resOGRGeom);
+        resOGRGeom = nullptr;
+        SLOG_ERROR("Failed to buffer OGRGeometry");
+        return silly_geo_coll();
+    }
     silly_geo_coll buffer_coll = silly_geo_coll_from_ogr(bufferedGeom);
     if (resOGRGeom != nullptr)
     {

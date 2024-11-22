@@ -314,12 +314,12 @@ class silly_geo_utils
     static std::vector<silly_point> simplify_ring(const std::vector<silly_point>& ring, const double& dist);
 
     /// <summary>
-    /// 缓冲区
+    /// 创建缓冲区
     /// </summary>
     /// <param name="coll"></param>
-    /// <param name="distance">缓冲区距离,单位米</param>
+    /// <param name="distance">缓冲区大小(正负均可),该值要对应coll中数据的的单位,即coll单位的经纬度,distance单位要是度</param>
     /// <returns></returns>
-    static silly_geo_coll buffer(const silly_geo_coll& coll, double distance);
+    static silly_geo_coll buffer(const silly_geo_coll& coll, const double& distance);
 
     /// ================ gdal中矢量与silly utils中矢量互转 ================
 
