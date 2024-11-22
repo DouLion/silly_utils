@@ -59,6 +59,7 @@ bool silly_smtp::logon()
 
     if (!create_socket())
     {
+        SLOG_ERROR("创建socket失败!")
         return m_connected;
     }
     char local_host[256];
@@ -85,7 +86,8 @@ bool silly_smtp::logon()
         return m_connected;
     }
 
-    msg = Base64Encode(extract_before_at(m_conn_opt.user.c_str())) + "\r\n";
+    // msg = Base64Encode(extract_before_at(m_conn_opt.user.c_str())) + "\r\n";
+    msg = Base64Encode(m_conn_opt.user) + "\r\n";
     req(msg);
     if (!resp("334"))
     {
@@ -372,6 +374,7 @@ bool silly_smtp::resp(const std::string expected_response)
     std::string response(response_buffer, recv_bytes);
     if (response.substr(0, 3) != expected_response)
     {
+        SLOG_ERROR(std::string("RECV:\n") + response);
         return false;
     }
     return true;

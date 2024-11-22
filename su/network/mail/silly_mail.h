@@ -14,13 +14,21 @@
 
 using silly_mail_user = std::pair<std::string, std::string>;  // 邮箱 用户名
 
-enum class silly_mail_server_type
+enum class silly_mail_app_type
 {
     smtp,
     pop3,
     imap
 
 };
+
+enum class silly_mail_security_type
+{
+    normal = 1,
+    ssl = 2,
+    tls = 3
+};
+
 class silly_mail_conn_opt
 {
   public:
@@ -34,7 +42,8 @@ class silly_mail_conn_opt
     {
 
     }
-    bool ssl = false;
+    silly_mail_app_type app;
+    silly_mail_security_type security;
     std::string server = "smtp.qq.com";
     int port = 25;  // SSL/TLS: 465  STARTTLS: 587
     std::string user;
