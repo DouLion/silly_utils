@@ -12,23 +12,40 @@
 #define SILLY_UTILS_SILLY_SOCKET_H
 #include <su_marco.h>
 #ifdef WIN32
-typedef SOCKET su_socket_t;
+typedef SOCKET socket_t;
 #else
-
+typedef int socket_t;
 #endif
-
+#include <openssl/ssl.h>
+#include <openssl/err.h>
 class silly_socket
 {
   public:
     silly_socket();
     ~silly_socket();
 
+    bool create(const std::string& hostname, const int& port, const bool& ssl = false);
 
-    bool connect(const std::string& ip, const int& port);
+    bool read(std::string& msg);
 
+    bool write(const std::string& msg);
 
+    bool listen(const std::string& hostname, const int& port, const bool& reuse_port = false);
+
+    void verbose(const bool& v);
+
+    std::string err();
+
+    void release();
   private:
-
+    bool m_connected = false;
+    socket_t m_socket = 0;
+    bool m_verbose = false;
+    bool m_use_ssl = false;
+    std::string m_err;
+    SSL* m_ssl= nullptr;
+    SSL_CTX* m_ssl_ctx = nullptr;
+    std::mutex m_mutex;
 };
 
 #endif  // SILLY_UTILS_SILLY_SOCKET_H
