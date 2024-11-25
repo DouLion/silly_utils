@@ -12,7 +12,6 @@
 #include <curl/curl.h>
 #include <log/silly_log.h>
 #include <files/silly_file.h>
-#include <string/silly_algorithm.h>
 
 const static std::string APP_OCT_STRM_CONTENT_ENCODE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
@@ -22,6 +21,18 @@ static char* extract_before_at(const char* str)
     {
         return NULL;
     }
+    std::string msg, code;
+    auto ff = [msg, code]() -> bool {
+        std::string _msg(msg), _code(code);
+        for (int i = 0; i < msg.length(); i++)
+        {
+            if (msg[i] != code[i])
+            {
+                return false;
+            }
+        }
+        return true;
+    };
 
     // 查找 '@' 符号的位置
     const char* at_pos = strchr(str, '@');
@@ -47,6 +58,10 @@ static char* extract_before_at(const char* str)
 }
 bool silly_smtp::logon()
 {
+#ifndef NDEBUG
+
+    m_socket.verbose(true);
+#endif
     if (m_connected)
     {
         return m_connected;
@@ -57,11 +72,18 @@ bool silly_smtp::logon()
         return m_connected;
     }
 
-    if (!create_socket())
+    if (!m_socket.create(m_conn_opt.server, m_conn_opt.port, m_conn_opt.security == silly_mail_security_type::ssl))
     {
-        SLOG_ERROR("创建socket失败!")
+        SLOG_ERROR("连接服务器失败!");
         return m_connected;
     }
+    std::string msg;
+    if (!m_socket.read(msg) || !compare(msg, "220"))
+    {
+        SLOG_ERROR("连接服务器失败!");
+        return m_connected;
+    }
+
     char local_host[256];
     if (gethostname(local_host, 256) != 0)
     {
@@ -69,34 +91,32 @@ bool silly_smtp::logon()
         return m_connected;
     }
 
-    std::string msg;
-
     msg = "HELO ";
     msg += std::string(local_host) + "\r\n";
-    req(msg);
-    if (!resp("250"))
+    m_socket.write(msg);
+    if (!m_socket.read(msg) || !compare(msg, "250"))
     {
         return m_connected;
     }
 
     msg = "AUTH LOGIN\r\n";
-    req(msg);
-    if (!resp("334"))
+    m_socket.write(msg);
+    if (!m_socket.read(msg) || !compare(msg, "334"))
     {
         return m_connected;
     }
 
     // msg = Base64Encode(extract_before_at(m_conn_opt.user.c_str())) + "\r\n";
     msg = Base64Encode(m_conn_opt.user) + "\r\n";
-    req(msg);
-    if (!resp("334"))
+    m_socket.write(msg);
+    if (!m_socket.read(msg) || !compare(msg, "334"))
     {
         return m_connected;
     }
 
     msg = Base64Encode(m_conn_opt.pwd) + "\r\n";
-    req(msg);
-    if (!resp("235"))
+    m_socket.write(msg);
+    if (!m_socket.read(msg) || !compare(msg, "235"))
     {
         return m_connected;
     }
@@ -203,49 +223,6 @@ std::string silly_smtp::prepareDate()
 
 bool silly_smtp::create_socket()
 {
-    WORD wVersionRequested;
-    WSADATA wsaData;
-    int err;
-    wVersionRequested = MAKEWORD(2, 2);
-    err = WSAStartup(wVersionRequested, &wsaData);
-    if (err != 0)
-    {
-        SLOG_ERROR("WSAStartup调用失败!");
-        return false;
-    }
-    if (LOBYTE(wsaData.wVersion) != 2 || HIBYTE(wsaData.wVersion) != 2)
-    {
-        WSACleanup();
-        return false;
-    }
-    m_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
-    if (m_socket == INVALID_SOCKET)
-    {
-        SLOG_ERROR("socket创建失败!");
-        return false;
-    }
-
-    sockaddr_in serv_addr;
-    memset(&serv_addr, 0, sizeof(sockaddr_in));
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(m_conn_opt.port);  // 发邮件一般都是25端口
-
-    struct hostent* hp = gethostbyname(m_conn_opt.server.c_str());  // 使用名称
-    if (hp == NULL)
-    {
-        DWORD dwErrCode = GetLastError();
-        return false;
-    }
-    serv_addr.sin_addr.s_addr = *(int*)(*hp->h_addr_list);
-
-    int ret = connect(m_socket, (sockaddr*)&serv_addr, sizeof(serv_addr));  // 建立连接
-    if (ret == SOCKET_ERROR)
-    {
-        DWORD dwErr = GetLastError();
-        return false;
-    }
-    if (!resp("220"))
-        return false;
     return true;
 }
 bool silly_smtp::head(const silly_mail_content& content)
@@ -254,8 +231,8 @@ bool silly_smtp::head(const silly_mail_content& content)
 
     msg = "MAIL FROM:<";
     msg += m_conn_opt.user + ">\r\n";
-    req(msg);
-    if (!resp("250"))
+    m_socket.write(msg);
+    if (!m_socket.read(msg) || !compare(msg, "250"))
     {
         SLOG_ERROR(std::string("邮件地址错误") + m_conn_opt.user);
         return false;
@@ -266,16 +243,16 @@ bool silly_smtp::head(const silly_mail_content& content)
     {
         msg = "RCPT TO: <";
         msg += mail + ">\r\n";
-        req(msg);
-        if (!resp("250"))
+        m_socket.write(msg);
+        if (!m_socket.read(msg) || !compare(msg, "250"))
         {
             return false;
         }
     }
 
     msg = "DATA\r\n";
-    req(msg);
-    if (!resp("354"))
+    m_socket.write(msg);
+    if (!m_socket.read(msg) || !compare(msg, "354"))
     {
         return false;
     }
@@ -306,7 +283,7 @@ bool silly_smtp::head(const silly_mail_content& content)
 
     msg += "\r\n";
     SLOG_DEBUG("\n" + msg)
-    req(msg);
+    m_socket.write(msg);
 
     return true;
 }
@@ -317,7 +294,7 @@ bool silly_smtp::body(const silly_mail_content& content)
     msg += content.body;
     msg += "\r\n\r\n";
     SLOG_DEBUG("\n" + msg)
-    int len_s = req(msg, true);
+    int len_s = m_socket.write(msg);
 
     if (len_s != msg.length())
     {
@@ -346,14 +323,14 @@ bool silly_smtp::attachments(const silly_mail_content& content)
         msg += "\"\r\nContent-Transfer-Encoding: base64\r\nContent-Disposition: attachment;\r\n  filename=\"";
         msg += fileName;
         msg += "\"\r\n\r\n";
-        req(msg, true);
+        m_socket.write(msg);
 
         int npos = 0, len = szContent.length();
         while (npos < len)
         {
             std::string szBuffer = Base64Encode(szContent.substr(npos, std::min(len - npos, 3000)));
             szBuffer += "\r\n";
-            req(szBuffer);
+            m_socket.write(szBuffer);
             npos += std::min(len - npos, 3000);
         }
     }
@@ -361,59 +338,29 @@ bool silly_smtp::attachments(const silly_mail_content& content)
     return true;
 }
 
-bool silly_smtp::resp(const std::string expected_response)
-{
-    int recv_bytes = 0;
-    char response_buffer[256];
-    if ((recv_bytes = recv(m_socket, response_buffer, 256, 0)) < 0)
-    {
-        SLOG_ERROR(std::string("RECV:\n") + expected_response);
-        return false;
-    }
-    // 输出信息
-    std::string response(response_buffer, recv_bytes);
-    if (response.substr(0, 3) != expected_response)
-    {
-        SLOG_ERROR(std::string("RECV:\n") + response);
-        return false;
-    }
-    return true;
-}
-
-int silly_smtp::req(const std::string content, bool bout)
-{
-    int len_s = ::send(m_socket, content.c_str(), content.length(), 0);
-    if (len_s < 0)
-    {
-        SLOG_ERROR(std::string("SEND:\n") + content);
-        return false;
-    }
-    // 输出信息
-    if (bout)
-    {
-        SLOG_ERROR(std::string("SEND:\n") + content);
-    }
-    return len_s;
-}
 bool silly_smtp::end()
 {
     bool status = true;
     std::string msg;
 
     msg = "--INVT--\r\n.\r\n";
-    req(msg, true);
+    m_socket.write(msg);
 
     msg = "QUIT\r\n";
     SLOG_DEBUG("\n" + msg)
-    req(msg, true);
-
-    if (SOCKET_ERROR == closesocket(m_socket))
-    {
-        SLOG_ERROR("关闭socket失败!")
-        WSACleanup();
-        status = false;
-    }
-    WSACleanup();
+    m_socket.write(msg);
 
     return status;
+}
+bool silly_smtp::quit()
+{
+    m_socket.release();
+    return true;
+}
+bool silly_smtp::compare(const std::string& msg, const std::string& code)
+{
+    for (int i = 0; i < code.length(); i++)
+        if (msg[i] != code[i])
+            return false;
+    return true;
 }

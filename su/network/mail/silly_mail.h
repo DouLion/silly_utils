@@ -25,8 +25,7 @@ enum class silly_mail_app_type
 enum class silly_mail_security_type
 {
     normal = 1,
-    ssl = 2,
-    tls = 3
+    ssl = 2
 };
 
 class silly_mail_conn_opt
@@ -42,10 +41,10 @@ class silly_mail_conn_opt
     {
 
     }
-    silly_mail_app_type app;
-    silly_mail_security_type security;
+    silly_mail_app_type app = silly_mail_app_type::smtp;
+    silly_mail_security_type security = silly_mail_security_type::ssl;
     std::string server = "smtp.qq.com";
-    int port = 25;  // SSL/TLS: 465  STARTTLS: 587
+    int port = 465;  // SSL/TLS: 465  STARTTLS: 587
     std::string user;
     std::string pwd;
 };
