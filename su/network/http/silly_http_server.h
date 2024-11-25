@@ -21,7 +21,7 @@
 #define SU_OLD_HTTP_JSON_RESPONSE_RET_CODE "return_code"
 #define SU_OLD_HTTP_JSON_RESPONSE_RET_MESSAGE "return_msg"
 
-#define SU_CREATE_JSON_DEFAULT_RESPONSE                                       \
+#define SU_CREATE_JSON_DEFAULT_RESPONSE                                      \
     auto resp = HttpResponse::newHttpResponse();                             \
     resp->setStatusCode(k200OK);                                             \
     resp->setContentTypeCode(CT_APPLICATION_JSON);                           \
@@ -33,7 +33,7 @@
     respJson[SU_HTTP_JSON_RESPONSE_STATUS] = 0;                              \
     respJson[SU_HTTP_JSON_RESPONSE_MESSAGE] = "not implement.";
 
-#define SU_OLD_CREATE_JSON_DEFAULT_RESPONSE(type)                                        \
+#define SU_OLD_CREATE_JSON_DEFAULT_RESPONSE(type)                                       \
     auto resp = HttpResponse::newHttpResponse();                                        \
     resp->setStatusCode(k200OK);                                                        \
     resp->setContentTypeCode(CT_APPLICATION_JSON);                                      \
@@ -51,15 +51,16 @@
     callback(resp);               \
     return;
 
-
-
-class silly_http_response {
-public:
-    int status = 1; // 0 有错误  1 ok
+class silly_http_response
+{
+  public:
+    int status = 1;  // 0 有错误  1 ok
     std::string message;
 };
 
-class silly_http_response1{
+class silly_http_response1
+{
+  public:
     int code = 200;
     std::string message;
 };

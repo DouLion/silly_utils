@@ -83,11 +83,11 @@ bool silly_socket::create(const std::string& hostname, const int& port, const bo
 #endif
     if (m_use_ssl)
     {
-        if (!silly_utils_openssl_init_flag)
+        //if (!silly_utils_openssl_init_flag)
         {
             SSL_load_error_strings();
             OpenSSL_add_ssl_algorithms();
-            silly_utils_openssl_init_flag = true;
+            //silly_utils_openssl_init_flag = true;
         }
 
         if (!(m_ssl_ctx = SSL_CTX_new(TLS_client_method())))
