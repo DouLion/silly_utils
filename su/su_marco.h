@@ -6,7 +6,7 @@
  * @date: 2023/7/11 16:03
  * @version: 1.0.1
  * @software: silly_utils
- * @description:
+ * @description:  基本头文件 以及 一些自定义宏,加上SU_前缀, 避免与第三方库冲突
  */
 // 标准c++头文件
 // 输入输出库
@@ -71,7 +71,7 @@
 #include <codecvt>
 #include <cstring>
 #include <locale>
-
+#include <su_global.h>
 #if WIN32
 #include <Windows.h>
 #include <winsock2.h>
@@ -83,7 +83,7 @@
 #include <arpa/inet.h>
 #endif
 
-// 一些自定义宏
+
 
 #define SU_VAR_NAME(var) #var
 

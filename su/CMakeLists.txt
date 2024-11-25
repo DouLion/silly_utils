@@ -14,6 +14,7 @@ add_library(${PROJECT_NAME} STATIC ${SU_SRC_FILES})
 
 target_precompile_headers(
         ${PROJECT_NAME} PUBLIC
+        su_global.h
         su_marco.h
         geo/silly_geo.h
         log/silly_log.h
