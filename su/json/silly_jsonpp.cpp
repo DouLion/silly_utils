@@ -2,7 +2,8 @@
 // Created by dell on 2023/12/26.
 //
 
-#include "silly_jsonpp.h"
+#include <json/silly_jsonpp.h>
+#include <files/silly_file.h>
 #include <log/silly_log.h>
 
 Json::Value silly_jsonpp::loadf(const std::string& file)
@@ -40,16 +41,6 @@ Json::Value silly_jsonpp::loads(const std::string& content)
     return Json::nullValue;
 }
 
-std::string silly_jsonpp::dumps(const Json::Value& root, const std::string& indentation)
-{
-    Json::StreamWriterBuilder writerBuilder;
-    // 可以根据需要选择格式化选项，StreamWriterBuilder 是新版 jsoncpp 的写法
-    writerBuilder["indentation"] = indentation;  // 不缩进为""，生成紧凑的 JSON 字符串
-
-    std::string jsonString = Json::writeString(writerBuilder, root);
-    return jsonString;
-}
-
 std::string silly_jsonpp::to_string(const Json::Value root, const silly_jsonpp_opt& opt)
 {
     Json::StreamWriterBuilder stream_builder;
@@ -72,6 +63,23 @@ std::string silly_jsonpp::to_string(const Json::Value root, const silly_jsonpp_o
     writer->write(root, &stream);
     return stream.str();
 }
+
+
+std::string silly_jsonpp::stringify(const Json::Value root, const silly_jsonpp_opt& opt)
+{
+    return silly_jsonpp::to_string(root, opt);
+}
+
+std::string silly_jsonpp::dumps(const Json::Value& root, const silly_jsonpp_opt& opt)
+{
+    return silly_jsonpp::to_string(root, opt);
+}
+
+bool silly_jsonpp::dumpf(const std::string& file, const Json::Value& root, const silly_jsonpp_opt& opt)
+{
+    return silly_file::write(file, silly_jsonpp::to_string(root, opt)) > 0;
+}
+
 void find_object(const Json::Value jv_obj, const std::string& key, const std::string& filter, std::vector<std::string>& arr);
 void find_array(const Json::Value jv_arr, const std::string& key, const std::string& filter, std::vector<std::string>& arr);
 
@@ -144,8 +152,16 @@ void silly_jsonpp::find_by_key(const Json::Value& root, const std::string& key, 
         find_object(root, key, filter, arr);
     }
 }
+
+
 bool silly_jsonpp::check_member_string(const Json::Value& root, const std::string& key, std::string& val)
 {
+    if(root.isNull())
+    {
+        SLOG_DEBUG("json 为空")
+        return false;
+    }
+
     if (root.isMember(key))
     {
         if (root[key].isString())
@@ -164,28 +180,15 @@ bool silly_jsonpp::check_member_string(const Json::Value& root, const std::strin
     }
     return false;
 }
-bool silly_jsonpp::check_member_int(const Json::Value& root, const std::string& key, int& val)
-{
-    if (root.isMember(key))
-    {
-        if (root[key].isInt())
-        {
-            val = root[key].asInt();
-            return true;
-        }
-        else
-        {
-            SLOG_DEBUG("字段 {} 不是int类型", key)
-        }
-    }
-    else
-    {
-        SLOG_DEBUG("不存在字段 {}", key)
-    }
-    return false;
-}
+
 bool silly_jsonpp::check_member_double(const Json::Value& root, const std::string& key, double& val)
 {
+    if(root.isNull())
+    {
+        SLOG_DEBUG("json 为空")
+        return false;
+    }
+
     if (root.isMember(key))
     {
         if (root[key].isDouble())
@@ -206,6 +209,12 @@ bool silly_jsonpp::check_member_double(const Json::Value& root, const std::strin
 }
 bool silly_jsonpp::check_member_bool(const Json::Value& root, const std::string& key, bool& val)
 {
+    if(root.isNull())
+    {
+        SLOG_DEBUG("json 为空")
+        return false;
+    }
+
     if (root.isMember(key))
     {
         if (root[key].isBool())
@@ -225,6 +234,12 @@ bool silly_jsonpp::check_member_bool(const Json::Value& root, const std::string&
 }
 bool silly_jsonpp::check_member_array(const Json::Value& root, const std::string& key, Json::Value& jv_arr)
 {
+    if(root.isNull())
+    {
+        SLOG_DEBUG("json 为空")
+        return false;
+    }
+
     if (root.isMember(key))
     {
         if (root[key].isArray())
@@ -245,6 +260,12 @@ bool silly_jsonpp::check_member_array(const Json::Value& root, const std::string
 }
 bool silly_jsonpp::check_member_object(const Json::Value& root, const std::string& key, Json::Value& jv_obj)
 {
+    if(root.isNull())
+    {
+        SLOG_DEBUG("json 为空")
+        return false;
+    }
+
     if (root.isMember(key))
     {
         if (root[key].isObject())
@@ -264,23 +285,104 @@ bool silly_jsonpp::check_member_object(const Json::Value& root, const std::strin
     return false;
 }
 
-bool silly_jsonpp::check_member_uint64(const Json::Value& root, const std::string& key, unsigned long long& val)
+bool silly_jsonpp::check_member_int(const Json::Value& root, const std::string& key, int32_t& val)
 {
+    if(root.isNull())
+    {
+        SLOG_DEBUG("json 为空")
+        return false;
+    }
     if (root.isMember(key))
     {
-        if (root[key].asUInt64())  // 检查是否是 int64 类型
+        if (root[key].isInt())
         {
-            val = root[key].asUInt64();  // 将值转换为 long long (int64)
+            val = root[key].asInt();
             return true;
         }
         else
         {
-            SLOG_DEBUG("字段 {} 不是unsigned long long类型", key);
+            SLOG_DEBUG("字段 {} 不是int类型", key)
         }
     }
     else
     {
-        SLOG_DEBUG("不存在字段 {}", key);
+        SLOG_DEBUG("不存在字段 {}", key)
     }
+    return false;
+}
+bool silly_jsonpp::check_member_uint(const Json::Value& root, const std::string& key, int32_t& val)
+{
+    if(root.isNull())
+    {
+        SLOG_DEBUG("json 为空")
+        return false;
+    }
+    if (root.isMember(key))
+    {
+        if (root[key].isUInt())
+        {
+            val = root[key].asUInt();
+            return true;
+        }
+        else
+        {
+            SLOG_DEBUG("字段 {} 不是uint类型", key)
+        }
+    }
+    else
+    {
+        SLOG_DEBUG("不存在字段 {}", key)
+    }
+    return false;
+}
+bool silly_jsonpp::check_member_long(const Json::Value& root, const std::string& key, int64_t& val)
+{
+    if(root.isNull())
+    {
+        SLOG_DEBUG("json 为空")
+        return false;
+    }
+    if (root.isMember(key))
+    {
+        if (root[key].isInt64())
+        {
+            val = root[key].asInt64();
+            return true;
+        }
+        else
+        {
+            SLOG_DEBUG("字段 {} 不是int64类型", key)
+        }
+    }
+    else
+    {
+        SLOG_DEBUG("不存在字段 {}", key)
+    }
+    return false;
+}
+bool silly_jsonpp::check_member_ulong(const Json::Value& root, const std::string& key, uint64_t& val)
+{
+    if(root.isNull())
+    {
+        SLOG_DEBUG("json 为空")
+        return false;
+    }
+    if (root.isMember(key))
+    {
+        if (root[key].isUInt64())
+        {
+            val = root[key].asUInt64();
+            return true;
+        }
+        else
+        {
+            SLOG_DEBUG("字段 {} 不是uint64类型", key)
+        }
+    }
+    else
+    {
+        SLOG_DEBUG("不存在字段 {}", key)
+    }
+
     return false;
 }
