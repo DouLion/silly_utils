@@ -67,6 +67,10 @@ class silly_rwdb_base
     {
         return false;
     }
+    virtual bool clear()
+    {
+        return false;
+    }
 
   protected:
     std::string m_select_sql;

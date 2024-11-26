@@ -1,11 +1,11 @@
 {
   "db": {
-    "type": "mysql",
+    "type": "oracle",
     "ip": "192.168.0.237",
-    "port": 13307,
-    "driver": "Mysql ODBC 8.0 UNICODE Driver",
-    "schema": "TZX_TEST",
-    "user": "root",
+    "port": 11522,
+    "driver": "Oracle in instantclient_12_2",
+    "schema": "helowin",
+    "user": "TZX_TEST",
     "password": "123456"
   },
   "sql": {
@@ -15,15 +15,15 @@
     "insert_river_sql": "INSERT INTO W_ST_RIVER_R (STCD, TM, Z, Q, WPTN ) VALUES (:f1<char[9]>, :f2<timestamp>, :f3<double>, :f4<double>, :f5<char[2]>);",
     "insert_rsvr_sql": "INSERT INTO W_ST_RSVR_R (STCD, TM, RZ, INQ, W, OTQ, RWCHRCD, RWPTN, INQDR, MSQMT, BLRZ) VALUES (:f1<char[9]> ,:f2<timestamp> ,:f3<double> ,:f4<double> ,:f5<double> ,:f6<double> ,:f7<char[2]> ,:f8<char[2]> ,:f9<double> ,:f10<char[2]> ,:f11<double>);"
   },
-  "stbprp_file_path": "./20241115170237_STBPRP.dat",
+  "stbprp_file_path": "./20241126112856_STBPRP.dat",
   "pptn_file_path": "./20241115170237_PPTN.dat",
-  "river_file_path": "./20241115170237_RIVER.dat",
+  "river_file_path": "./20241126112856_RIVER.dat",
   "rsvr_file_path": "./20241115173236_RSVR.dat",
   "encode": {
     "src": "UTF-8",
     "dst": ""
   },
-  "block_byte": 10240
+  "block_byte": 1073741824
 }
 
 // encode：GBK,UTF-8,EUC-CN, 如果为空，则不进行编码转换,导入达梦数据库需要将UTF-8 转为GBK

@@ -33,6 +33,7 @@ bool silly_rwdb_base::output(const std::vector<std::pair<std::string, std::strin
             SLOG_ERROR("写入文件失败  ({} ~ {})", _btm, _etm);
             continue;
         }
+        clear();
         SLOG_INFO("写入文件成功: {}", fileName);
     }
 
