@@ -62,6 +62,32 @@ class png_data
     static bool is_png(const char *data, const size_t size);
     bool is_empty();
 
+    png_uint_32 width()
+    {
+        return m_width;
+    }
+
+    png_uint_32 height()
+    {
+        return m_height;
+    }
+    png_uint_32 pixel_size()
+    {
+        return m_pixel_size;
+    }
+    png_uint_32 bit_depth()
+    {
+        return m_bit_depth;
+    }
+    png_uint_32 color_type()
+    {
+        return m_color_type;
+    }
+    png_bytep * data()
+    {
+        return m_data;
+    }
+
   protected:
     // private:
     png_bytep * m_data{nullptr};
