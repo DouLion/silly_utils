@@ -31,10 +31,6 @@ class silly_smtp
     std::string Base64Encode(std::string in_str);  // 把char类型转换成Base64类型
     // 获取时间
     std::string prepareDate();
-
-    // 工作函数
-    bool create_socket();  // 建立socket连接
-
     bool head(const silly_mail_content& content);
 
     bool body(const silly_mail_content& content);

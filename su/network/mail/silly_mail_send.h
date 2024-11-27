@@ -10,6 +10,8 @@
 #ifndef SILLY_UTILS_SILLY_MAIL_SEND_H
 #define SILLY_UTILS_SILLY_MAIL_SEND_H
 #include <log/silly_log.h>
+#include <openssl/ssl.h>
+#include <openssl/err.h>
 
 using silly_mail_addr_name = std::tuple<std::string, std::string>;
 /*
@@ -25,80 +27,135 @@ pwd=fevvtczwqnvjdicc
 address=851749525@qq.com;hmc@tianzhixiang.com.cn
 
 */
-
-class silly_mail_attachment
+class SmtpBase
 {
+  protected:
+    struct EmailInfo
+    {
+        std::string smtpServer;      //the SMTP server
+        std::string serverPort;      //the SMTP server port
+        std::string charset;         //the email character set
+        std::string sender;          //the sender's name
+        std::string senderEmail;     //the sender's email
+        std::string password;        //the password of sender
+        std::string recipient;       //the recipient's name
+        std::string recipientEmail;  //the recipient's email
+
+        std::map<std::string, std::string> recvList; //收件人列表<email, name>
+
+        std::string subject;         //the email message's subject  邮件主题
+        std::string message;         //the email message body   邮件内容
+
+        std::map<std::string, std::string> ccEmail;         //抄送列表
+        std::vector<std::string> attachment; //附件
+    };
   public:
-    std::string name;
-    std::string type;
-    std::string content;
+
+    virtual ~SmtpBase() {}
+    /**
+     * @brief 简单发送文本邮件
+     * @param   from 发送者的帐号
+     * @param   passs 发送者密码
+     * @param   to 收件人
+     * @param   subject 主题
+     * @param   strMessage  邮件内容
+     */
+
+    virtual int SendEmail(const std::string& from, const std::string& passs, const std::string& to, const std::string& subject, const std::string& strMessage) = 0;
+    /**
+     * @brief 发送邮件，包括附件以及抄送人和多个收件人
+     * @param   from 发送者的帐号
+     * @param   passs 发送者密码
+     * @param   vecTo 收件人列表
+     * @param   subject 主题
+     * @param   strMessage  邮件内容
+     * @param   attachment  附件列表    附件可以是绝对路径，默认是可执行程序目录下
+     * @param   ccList  抄送列表
+     */
+    virtual int SendEmail(const std::string& from, const std::string& passs, const std::vector<std::string>& vecTo,
+                          const std::string& subject, const std::string& strMessage, const std::vector<std::string>& attachment,const std::vector<std::string>& ccList) = 0;
+
+    std::string GetLastError()
+    {
+        return m_lastErrorMsg;
+    }
+
+    virtual int Read(void* buf, int num) = 0;
+    virtual int Write(const void* buf, int num) = 0;
+    virtual int Connect() = 0;
+    virtual int DisConnect() = 0;
+
+  protected:
+
+    std::string m_lastErrorMsg;
+
+
 };
 
-class silly_mail_send
+
+class SmtpEmail : public SmtpBase
+{
+
+  public:
+    SmtpEmail(const std::string& emailHost, const std::string& port);
+    ~SmtpEmail();
+
+    int SendEmail(const std::string& from, const std::string& passs, const std::string& to, const std::string& subject, const std::string& strMessage);
+
+    int SendEmail(const std::string& from, const std::string& passs, const std::vector<std::string>& vecTo,
+                  const std::string& subject, const std::string& strMessage, const std::vector<std::string>& attachment, const std::vector<std::string>& ccList);
+  protected:
+    int Read(void* buf, int num);
+    int Write(const void* buf, int num);
+    int Connect();
+    int DisConnect();
+
+    virtual std::string GetEmailBody(const EmailInfo & info);
+  private:
+    //int SMTPSSLComunicate(SSL *connection, const EmailInfo &info);
+    int SMTPComunicate(const EmailInfo &info);
+
+
+
+
+  protected:
+    addrinfo* m_addrinfo;
+    int m_socketfd;
+
+    std::string m_host;
+    std::string m_port;
+
+    bool m_isConnected;
+};
+
+class SimpleSmtpEmail : public SmtpEmail
 {
   public:
-    ~silly_mail_send();
+    using SmtpEmail::SmtpEmail;
+    virtual std::string GetEmailBody(const EmailInfo & info);
+};
 
-    /// <summary>
-    /// 设置邮件标题
-    /// </summary>
-    /// <param name="str"></param>
-    void title(const std::string& str);
-
-    /// <summary>
-    /// 设置邮件正文
-    /// </summary>
-    /// <param name="str"></param>
-    void content(const std::string& str);
-
-    /// <summary>
-    /// 添加附件
-    /// </summary>
-    /// <param name="sma"></param>
-    void attach(const silly_mail_attachment& sma);
-
-    /// <summary>
-    /// 添加邮件接收者
-    /// </summary>
-    /// <param name="sman"></param>
-    void add_receiver(const silly_mail_addr_name& sman);
-
-    /// <summary>
-    /// 设置邮件接收者
-    /// </summary>
-    /// <param name="smans"></param>
-    void receivers(const std::vector<silly_mail_addr_name>& smans);
-
-    /// <summary>
-    /// 发送邮件
-    /// </summary>
-    /// <returns></returns>
-    bool send();
-
+class SslSmtpEmail : public SmtpEmail
+{
   public:
-    void smtp(const std::string& str);
-    void imap(const std::string& str);
-    void pop3(const std::string& str);
-    void user(const std::string& str);
-    void password(const std::string& str);
-    void name(const std::string& str);
-    void from(const std::string& str);
+    using SmtpEmail::SmtpEmail;
+    ~SslSmtpEmail();
 
+    int Connect();
+    int DisConnect();
+  protected:
+    int Read(void* buf, int num);
+    int Write(const void* buf, int num);
   private:
-    /////////////////////////邮件信息///////////////////////////////////
-    /////////////////////////connent///////////////////////////////////
-    std::string m_smtp;      // smtp服务器地址
-    std::string m_imap;      // imap服务器地址
-    std::string m_pop3;      // pop3服务器地址
-    std::string m_user;      // 邮箱用户
-    std::string m_password;  // 邮箱用户密
-    /////////////////////////SendMail//////////////////////////////////
-    std::string m_name;     // 发送者的名
-    std::string m_from;     // 发送者的邮箱地址
-    std::string m_title;    // 邮件标题(subject)
-    std::string m_content;  // 邮件正文
+    SSL_CTX *m_ctx;
+    SSL *m_ssl;
+};
 
-    std::vector<silly_mail_addr_name> m_receivers;  // 邮件接收者（name,email_address)
+class SimpleSslSmtpEmail : public SslSmtpEmail
+{
+  public:
+    using SslSmtpEmail::SslSmtpEmail;
+    virtual std::string GetEmailBody(const EmailInfo & info);
 };
 
 #endif  // SILLY_UTILS_SILLY_MAIL_SEND_H

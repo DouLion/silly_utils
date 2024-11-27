@@ -33,6 +33,7 @@ bool silly_socket::create(const std::string& hostname, const int& port, const bo
         WSACleanup();
         return m_connected;
     }
+    /* 创建一个 socket 用于 tcp 通信 */
     m_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
     if (m_socket == INVALID_SOCKET)
     {
@@ -83,11 +84,12 @@ bool silly_socket::create(const std::string& hostname, const int& port, const bo
 #endif
     if (m_use_ssl)
     {
-        //if (!silly_utils_openssl_init_flag)
+        // if (!silly_utils_openssl_init_flag)
         {
+            SSL_library_init();
             SSL_load_error_strings();
             OpenSSL_add_ssl_algorithms();
-            //silly_utils_openssl_init_flag = true;
+            // silly_utils_openssl_init_flag = true;
         }
 
         if (!(m_ssl_ctx = SSL_CTX_new(TLS_client_method())))
@@ -102,11 +104,12 @@ bool silly_socket::create(const std::string& hostname, const int& port, const bo
             return m_connected;
         }
         ret = SSL_set_fd(m_ssl, m_socket);
-        if(ret <= 0)
+        if (ret <= 0)
         {
             m_err = SSL_get_error(m_ssl, ret);
             return m_connected;
         }
+        SSL_connect(m_ssl);
     }
     m_connected = true;
     return m_connected;
@@ -116,34 +119,39 @@ bool silly_socket::read(std::string& msg)
     bool status = false;
     if (!m_connected)
         return status;
-    if (m_ssl)
-    {
-        int ret = SSL_read(m_ssl, &msg, 1024);
-        if( ret != SSL_ERROR_NONE)
+
+    do{
+        if (m_ssl)
         {
-            m_err = SSL_get_error(m_ssl, ret);
-            return status;
+            int num = 1024;
+            int ret = SSL_read(m_ssl, &msg, num);
+            if (ret != SSL_ERROR_NONE)
+            {
+                m_err = SSL_get_error(m_ssl, ret);
+                break;
+            }
         }
-    }
-    else
-    {
-        char buff[1024];
+        else
+        {
+            char buff[1024];
 #if defined(WIN32)
 
-        int ret = ::recv(m_socket, buff, 1024, 0);
-        if (ret > 0)
-        {
-            status = true;
-        }
+            int ret = ::recv(m_socket, buff, 1024, 0);
+            if (ret > 0)
+            {
+                status = true;
+            }
 
 #else
-        char buff[1024];
-        int ret = recv(m_socket, buff, 1024, 0);
+            char buff[1024];
+            int ret = recv(m_socket, buff, 1024, 0);
 
 #endif
-        msg.assign(buff, ret);
-    }
-    if (m_verbose && status)
+            msg.assign(buff, ret);
+        }
+    } while (0);
+
+    if (m_verbose)
     {
         SLOG_INFO("read:{}", msg);
     }

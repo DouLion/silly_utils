@@ -74,7 +74,7 @@ bool silly_smtp::logon()
 
     if (!m_socket.create(m_conn_opt.server, m_conn_opt.port, m_conn_opt.security == silly_mail_security_type::ssl))
     {
-        SLOG_ERROR("连接服务器失败!");
+        SLOG_ERROR(m_socket.err());
         return m_connected;
     }
     std::string msg;
@@ -221,10 +221,6 @@ std::string silly_smtp::prepareDate()
     return std::string(buff);
 }
 
-bool silly_smtp::create_socket()
-{
-    return true;
-}
 bool silly_smtp::head(const silly_mail_content& content)
 {
     std::string msg;
