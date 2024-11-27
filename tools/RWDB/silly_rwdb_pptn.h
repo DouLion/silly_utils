@@ -35,7 +35,11 @@ class silly_rwdb_pptn : public silly_rwdb_base
         m_pptns = getStcd(m_pptns);
         return true;
     }
-
+    bool clear() override
+    {
+        m_pptns.clear();
+        return true;
+    }
   public:
     std::vector<silly_pptn> m_pptns;
 };

@@ -39,6 +39,11 @@ class silly_rwdb_rsvr : public silly_rwdb_base
         m_rsvrs = getStcd(m_rsvrs);
         return true;
     }
+    bool clear() override
+    {
+        m_rsvrs.clear();
+        return true;
+    }
 
   public:
     std::vector<silly_rsvr> m_rsvrs;

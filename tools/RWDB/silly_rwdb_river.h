@@ -36,6 +36,11 @@ class silly_rwdb_river : public silly_rwdb_base
         m_rivers = getStcd(m_rivers);
         return true;
     }
+    bool clear() override
+    {
+        m_rivers.clear();
+        return true;
+    }
 
   public:
     std::vector<silly_river> m_rivers;
