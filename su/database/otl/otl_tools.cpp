@@ -145,6 +145,7 @@ bool otl_tools::conn_opt_from_json(const Json::Value &root, silly_otl &ret)
         ret.m_err = "未指定密码";
         return status;
     }
+    silly_jsonpp::check_member_bool(root, SILLY_OTL_OPT_S_VERBOSE, ret.m_verbose);
 
     return true;
 }

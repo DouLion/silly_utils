@@ -130,6 +130,7 @@ static std::string db_type_to_str(const enum_database_type& type)
 #define SILLY_OTL_OPT_S_USER "user"
 #define SILLY_OTL_OPT_S_PASSWORD "password"
 #define SILLY_OTL_OPT_S_DSN "dsn"
+#define SILLY_OTL_OPT_S_VERBOSE "verbose"
 
 #define SILLY_OLT_LOB_STREAM_TO_STRING(lob, str) \
     while (!lob.eof())                           \
@@ -210,6 +211,10 @@ class otl_conn_opt
             db.set_timeout(m_timeout);
             db.set_max_long_size(INT_MAX - 1);
             db.rlogon(m_conn.c_str(), true);
+            if(m_verbose)
+            {
+                SLOG_INFO("SQL:{}", sql);
+            }
 
             /* otl_stream stream;
              stream.open(1, sql.c_str(), db);*/
@@ -256,6 +261,10 @@ class otl_conn_opt
 
             for (auto sql : sqls)
             {
+                if(m_verbose)
+                {
+                    SLOG_INFO("SQL:{}", sql);
+                }
                 db.direct_exec(sql.c_str());
             }
 
@@ -338,7 +347,10 @@ class otl_conn_opt
             db.set_timeout(m_timeout);
             db.set_max_long_size(INT_MAX - 1);
             db.rlogon(m_conn.c_str());
-
+            if(m_verbose)
+            {
+                SLOG_INFO("SQL:{}", sql);
+            }
             otl_stream stream;
             stream.set_lob_stream_mode(true);
             stream.open(1, sql.c_str(), db);
@@ -386,7 +398,10 @@ class otl_conn_opt
             db.auto_commit_off();
             db.set_timeout(m_timeout);
             db.rlogon(m_conn.c_str(), false);
-
+            if(m_verbose)
+            {
+                SLOG_INFO("SQL:{}", sql);
+            }
             // db.set_max_long_size(1024*1024*100 - 1);
             otl_stream stream;
             stream.set_lob_stream_mode(true);
@@ -454,6 +469,7 @@ class otl_conn_opt
     void user(std::string u);
     void pwd(std::string p);
     void timeout(int to);
+    void verbose(bool vb);
 
   protected:
     std::string m_ip;
@@ -467,6 +483,7 @@ class otl_conn_opt
     int m_timeout{10}; // 单位 秒
     std::string m_conn;
     std::string m_err;
+    bool m_verbose = false;
 };
 
 using silly_otl = otl_conn_opt;

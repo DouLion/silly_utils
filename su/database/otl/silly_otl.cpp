@@ -598,3 +598,7 @@ std::string otl_conn_opt::print_otl_type_name(const otl_var_enum& ot)
     }
     return result;
 }
+void otl_conn_opt::verbose(bool vb)
+{
+    m_verbose = vb;
+}
