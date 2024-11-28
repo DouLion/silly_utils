@@ -19,16 +19,16 @@ bool silly_rwdb_rsvr::loads(const std::string& btm, const std::string& etm)
                 otl_datetime tm;
                 otl_read_row(*stream, STCD, tm, RZ, INQ, W, OTQ, RWCHRCD, RWPTN, INQDR, MSQMT, BLRZ);
 
-                CHECK_NULL_VALUE(STCD, tmp_rsvr.stcd);
-                CHECK_NULL_VALUE(RZ, tmp_rsvr.rz);
-                CHECK_NULL_VALUE(INQ, tmp_rsvr.inq);
-                CHECK_NULL_VALUE(W, tmp_rsvr.w);
-                CHECK_NULL_VALUE(OTQ, tmp_rsvr.otq);
-                CHECK_NULL_VALUE(RWCHRCD, tmp_rsvr.rwchrcd);
-                CHECK_NULL_VALUE(RWPTN, tmp_rsvr.rwptn);
-                CHECK_NULL_VALUE(INQDR, tmp_rsvr.inqdr);
-                CHECK_NULL_VALUE(MSQMT, tmp_rsvr.msqmt);
-                CHECK_NULL_VALUE(BLRZ, tmp_rsvr.blrz);
+                SU_CHECK_OTL_VALUE(STCD, tmp_rsvr.stcd);
+                SU_CHECK_OTL_VALUE(RZ, tmp_rsvr.rz);
+                SU_CHECK_OTL_VALUE(INQ, tmp_rsvr.inq);
+                SU_CHECK_OTL_VALUE(W, tmp_rsvr.w);
+                SU_CHECK_OTL_VALUE(OTQ, tmp_rsvr.otq);
+                SU_CHECK_OTL_VALUE(RWCHRCD, tmp_rsvr.rwchrcd);
+                SU_CHECK_OTL_VALUE(RWPTN, tmp_rsvr.rwptn);
+                SU_CHECK_OTL_VALUE(INQDR, tmp_rsvr.inqdr);
+                SU_CHECK_OTL_VALUE(MSQMT, tmp_rsvr.msqmt);
+                SU_CHECK_OTL_VALUE(BLRZ, tmp_rsvr.blrz);
                 tmp_rsvr.stamp = otl_to_timestamp(tm);
 
                 m_rsvrs.push_back(tmp_rsvr);

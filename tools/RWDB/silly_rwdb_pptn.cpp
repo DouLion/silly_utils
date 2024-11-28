@@ -18,9 +18,9 @@ bool silly_rwdb_pptn::loads(const std::string& btm, const std::string& etm)
                 otl_datetime tm;
                 otl_read_row(*stream, STCD, tm, DRP, INTV);
 
-                CHECK_NULL_VALUE(STCD, tmp_pptn.stcd);
-                CHECK_NULL_VALUE(DRP, tmp_pptn.drp);
-                CHECK_NULL_VALUE(INTV, tmp_pptn.intv);
+                SU_CHECK_OTL_VALUE(STCD, tmp_pptn.stcd);
+                SU_CHECK_OTL_VALUE(DRP, tmp_pptn.drp);
+                SU_CHECK_OTL_VALUE(INTV, tmp_pptn.intv);
                 tmp_pptn.stamp = otl_to_timestamp(tm);
 
                 m_pptns.push_back(tmp_pptn);

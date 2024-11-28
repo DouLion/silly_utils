@@ -299,4 +299,13 @@
     }
 #endif
 
+#ifndef SU_CHECK_OTL_VALUE
+// 检查otl查询到的数据是否为空
+#define SU_CHECK_OTL_VALUE(var, dest) \
+    if (!(var).is_null())             \
+    {                                 \
+        (dest) = (var).v;             \
+    }
+#endif
+
 #define SILLY_IGNORE_WATER_DEPTH_METER 0.001
