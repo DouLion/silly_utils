@@ -146,14 +146,6 @@ else ()
   find_package(Boost COMPONENTS program_options date_time)
 endif ()
 
-if(Boost_FOUND)
-  # 如果找到了 Boost 库
-  include_directories(${Boost_INCLUDE_DIRS})
-  add_definitions("-DSILLY_UTILS_BOOST_ENABLE")
-  message("Found boost  ${Boost_INCLUDE_DIRS}")
-else()
-  message(WARNING "Boost library not found. Some features might be disabled.")
-endif()
 
 # ##############################################################################
 # 设置全局的可执行程序和链接库的生成路径.

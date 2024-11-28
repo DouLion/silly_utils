@@ -33,12 +33,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/su)
 # Add sub dirs.
 # ##############################################################################
 
-if(ENABLE_LUCENEPP)
-  add_subdirectory(lucenepp)
-  add_compile_options(-DENABLE_LUCENEPP)
-endif()
 add_subdirectory(su)
-add_compile_options(-DDISABLE_LUCENEPP)
 
 if(SU_AS_PROJECT)
   add_subdirectory(test)
