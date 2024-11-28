@@ -31,7 +31,7 @@ std::string src_encode;
 std::string dst_encode;
 std::unordered_map<uint32_t, std::string> g_index_stcd;  // 导入
 
-unsigned long long block_byte = 1024 * 1024 * 1024;
+uint64_t block_byte = 1024 * 1024 * 1024;
 // SIZE_T block_byte = 1024 * 1024;
 
 
@@ -198,7 +198,7 @@ bool init(const std::string& file)
     }
 
     // block_byte 配置项
-    if (!silly_jsonpp::check_member_uint64(jv_root, "block_byte", block_byte))
+    if (!silly_jsonpp::check_member_ulong(jv_root, "block_byte", block_byte))
     {
         SLOG_WARN("配置文件中缺少 block_byte 字段, 默认按照 1G 字节数处理");
     }

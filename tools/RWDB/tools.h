@@ -2,17 +2,10 @@
 #ifndef TOOLS_H
 #define TOOLS_H
 
+#include "su_marco.h"
 #include "encode/silly_encode.h"
 #include "tzx/rwdb/silly_stbprp.h"
 #include "silly_rwdb_stbprp.h"
-
-
-// 检查查询数据,不为null 则赋值
-#define CHECK_NULL_VALUE(var, dest) \
-    if (!(var).is_null())           \
-    {                               \
-        (dest) = (var).v;           \
-    }
 
 struct option
 {
@@ -66,7 +59,7 @@ static void paramAnalysis(int argc, char** argv)
         else if (std::strcmp("river", argv[i]) == 0)
         {
             _opt.river = true;
-            SLOG_INFO("导出 river");     
+            SLOG_INFO("导出 river");
         }
         else if (std::strcmp("rsvr", argv[i]) == 0)
         {
@@ -183,7 +176,6 @@ static bool creatIndexStcd(const std::vector<silly_stbprp>& stbprps, std::unorde
     }
     return true;
 }
-
 
 // (导入) 模板函数根据index查找stcd
 template <typename T>

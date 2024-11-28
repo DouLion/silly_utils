@@ -17,10 +17,10 @@ bool silly_rwdb_river::loads(const std::string& btm, const std::string& etm)
                 otl_datetime tm;
                 otl_read_row(*stream, STCD, tm, Z, Q, WPTN);
 
-                CHECK_NULL_VALUE(STCD, tmp_river.stcd);
-                CHECK_NULL_VALUE(Z, tmp_river.zz);
-                CHECK_NULL_VALUE(Q, tmp_river.qq);
-                CHECK_NULL_VALUE(WPTN, tmp_river.wptn);
+                SU_CHECK_OTL_VALUE(STCD, tmp_river.stcd);
+                SU_CHECK_OTL_VALUE(Z, tmp_river.zz);
+                SU_CHECK_OTL_VALUE(Q, tmp_river.qq);
+                SU_CHECK_OTL_VALUE(WPTN, tmp_river.wptn);
                 tmp_river.stamp = otl_to_timestamp(tm);
 
                 m_rivers.push_back(tmp_river);

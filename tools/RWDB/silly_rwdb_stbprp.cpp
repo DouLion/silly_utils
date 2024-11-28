@@ -104,13 +104,13 @@ bool silly_rwdb_stbprp::loads()
                 silly_stbprp temp;
 
                 // 检查并赋值
-                CHECK_NULL_VALUE(STCD, temp.STCD);
-                CHECK_NULL_VALUE(STNM, temp.STNM);
+                SU_CHECK_OTL_VALUE(STCD, temp.STCD);
+                SU_CHECK_OTL_VALUE(STNM, temp.STNM);
                 /* if (!RVNM.is_null()) { temp.RVNM = RVNM.v; }
                  if (!HNNM.is_null()) { temp.HNNM = HNNM.v; }
                  if (!BSNM.is_null()) { temp.BSNM = BSNM.v; }*/
-                CHECK_NULL_VALUE(LGTD, temp.LGTD);
-                CHECK_NULL_VALUE(LTTD, temp.LTTD);
+                SU_CHECK_OTL_VALUE(LGTD, temp.LGTD);
+                SU_CHECK_OTL_VALUE(LTTD, temp.LTTD);
                 /* if (!STLC.is_null()) { temp.STLC = STLC.v; }
                 if (!ADDVCD.is_null()) { temp.ADDVCD = ADDVCD.v; }
                 if (!DTMNM.is_null()) { temp.DTMNM = DTMNM.v; }
