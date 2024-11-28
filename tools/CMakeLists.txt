@@ -10,16 +10,16 @@ add_executable(TritonCvtDeep triton/convert_deepth.cpp)
 target_link_libraries(TritonCvtDeep sutils)
 
 set(RWDB_SOURCES
-    RWDB/silly_rwdb_base.h
-    RWDB/silly_rwdb_base.cpp
-    RWDB/silly_rwdb_stbprp.h
-    RWDB/silly_rwdb_stbprp.cpp
-    RWDB/silly_rwdb_pptn.h
-    RWDB/silly_rwdb_pptn.cpp
-    RWDB/silly_rwdb_river.h
-    RWDB/silly_rwdb_river.cpp
-    RWDB/silly_rwdb_rsvr.h
-    RWDB/silly_rwdb_rsvr.cpp
+    RWDB/rwdb_base.h
+    RWDB/rwdb_base.cpp
+    RWDB/rwdb_stbprp.h
+    RWDB/rwdb_stbprp.cpp
+    RWDB/rwdb_pptn.h
+    RWDB/rwdb_pptn.cpp
+    RWDB/rwdb_river.h
+    RWDB/rwdb_river.cpp
+    RWDB/rwdb_rsvr.h
+    RWDB/rwdb_rsvr.cpp
 )
 add_executable(TzxODBCExport RWDB/TzxODBCExport.cpp ${RWDB_SOURCES})
 target_link_libraries(TzxODBCExport sutils)

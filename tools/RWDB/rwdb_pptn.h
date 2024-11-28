@@ -1,8 +1,8 @@
 
-#ifndef SILLY_RWDB_PPTN_H
-#define SILLY_RWDB_PPTN_H
+#ifndef RWDB_PPTN_H
+#define RWDB_PPTN_H
 
-#include "silly_rwdb_base.h"
+#include "rwdb_base.h"
 #include "tzx/rwdb/silly_pptn.h"
 
 class silly_rwdb_pptn : public silly_rwdb_base
@@ -44,4 +44,4 @@ class silly_rwdb_pptn : public silly_rwdb_base
     std::vector<silly_pptn> m_pptns;
 };
 
-#endif  // SILLY_RWDB_PPTN_H
+#endif  // RWDB_PPTN_H

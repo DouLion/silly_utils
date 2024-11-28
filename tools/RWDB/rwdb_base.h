@@ -1,6 +1,6 @@
 
-#ifndef SILLY_RWDB_BASE_H
-#define SILLY_RWDB_BASE_H
+#ifndef RWDB_BASE_H
+#define RWDB_BASE_H
 
 #include <tzx/rwdb/silly_rwdb_record.h>
 #include "tzx/rwdb/silly_stbprp.h"
@@ -79,4 +79,4 @@ class silly_rwdb_base
     std::string m_str_now_tm;
 };
 
-#endif  // SILLY_RWDB_BASE_H
+#endif  // RWDB_BASE_H

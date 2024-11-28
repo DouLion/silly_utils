@@ -1,8 +1,8 @@
 
-#ifndef SILLY_RWDB_RIVER_H
-#define SILLY_RWDB_RIVER_H
+#ifndef RWDB_RIVER_H
+#define RWDB_RIVER_H
 
-#include "silly_rwdb_base.h"
+#include "rwdb_base.h"
 #include "tzx/rwdb/silly_river.h"
 
 class silly_rwdb_river : public silly_rwdb_base
@@ -46,4 +46,4 @@ class silly_rwdb_river : public silly_rwdb_base
     std::vector<silly_river> m_rivers;
 };
 
-#endif  // SILLY_RWDB_RIVER_H
+#endif  // RWDB_RIVER_H

@@ -1,8 +1,8 @@
 
-#ifndef SILLY_RWDB_STBPRP_H
-#define SILLY_RWDB_STBPRP_H
+#ifndef RWDB_STBPRP_H
+#define RWDB_STBPRP_H
 
-#include "silly_rwdb_base.h"
+#include "rwdb_base.h"
 #include "tzx/rwdb/silly_stbprp.h"
 
 // 寻找全局变量
@@ -45,4 +45,4 @@ class silly_rwdb_stbprp
     std::string m_str_now_tm;
 };
 
-#endif  // SILLY_RWDB_STBPRP_H
+#endif  // RWDB_STBPRP_H

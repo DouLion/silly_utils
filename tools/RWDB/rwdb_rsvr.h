@@ -1,8 +1,8 @@
 
-#ifndef SILLY_RWDB_RSVR_H
-#define SILLY_RWDB_RSVR_H
+#ifndef RWDB_RSVR_H
+#define RWDB_RSVR_H
 
-#include "silly_rwdb_base.h"
+#include "rwdb_base.h"
 #include "tzx/rwdb/silly_rsvr.h"
 
 extern silly_otl otl;
@@ -49,4 +49,4 @@ class silly_rwdb_rsvr : public silly_rwdb_base
     std::vector<silly_rsvr> m_rsvrs;
 };
 
-#endif  // SILLY_RWDB_RSVR_H
+#endif  // RWDB_RSVR_H

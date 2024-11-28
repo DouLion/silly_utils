@@ -1,5 +1,5 @@
 
-#include "silly_rwdb_pptn.h"
+#include "rwdb_pptn.h"
 #include "files/silly_file.h"
 #include "tools.h"
 
@@ -16,11 +16,11 @@ bool silly_rwdb_pptn::loads(const std::string& btm, const std::string& etm)
                 otl_value<std::string> STCD;
                 otl_value<double> DRP, INTV;
                 otl_datetime tm;
-                otl_read_row(*stream, STCD, tm, DRP, INTV);
 
-                SU_CHECK_OTL_VALUE(STCD, tmp_pptn.stcd);
-                SU_CHECK_OTL_VALUE(DRP, tmp_pptn.drp);
-                SU_CHECK_OTL_VALUE(INTV, tmp_pptn.intv);
+                otl_read_row(*stream, STCD, tm, DRP, INTV);
+                tmp_pptn.stcd = STCD.v;
+                tmp_pptn.drp = DRP.v;
+                tmp_pptn.intv = INTV.v;
                 tmp_pptn.stamp = otl_to_timestamp(tm);
 
                 m_pptns.push_back(tmp_pptn);

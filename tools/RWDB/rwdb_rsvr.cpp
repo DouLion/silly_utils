@@ -1,5 +1,5 @@
 
-#include "silly_rwdb_rsvr.h"
+#include "rwdb_rsvr.h"
 
 #include "files/silly_file.h"
 #include "tools.h"
@@ -19,16 +19,16 @@ bool silly_rwdb_rsvr::loads(const std::string& btm, const std::string& etm)
                 otl_datetime tm;
                 otl_read_row(*stream, STCD, tm, RZ, INQ, W, OTQ, RWCHRCD, RWPTN, INQDR, MSQMT, BLRZ);
 
-                SU_CHECK_OTL_VALUE(STCD, tmp_rsvr.stcd);
-                SU_CHECK_OTL_VALUE(RZ, tmp_rsvr.rz);
-                SU_CHECK_OTL_VALUE(INQ, tmp_rsvr.inq);
-                SU_CHECK_OTL_VALUE(W, tmp_rsvr.w);
-                SU_CHECK_OTL_VALUE(OTQ, tmp_rsvr.otq);
-                SU_CHECK_OTL_VALUE(RWCHRCD, tmp_rsvr.rwchrcd);
-                SU_CHECK_OTL_VALUE(RWPTN, tmp_rsvr.rwptn);
-                SU_CHECK_OTL_VALUE(INQDR, tmp_rsvr.inqdr);
-                SU_CHECK_OTL_VALUE(MSQMT, tmp_rsvr.msqmt);
-                SU_CHECK_OTL_VALUE(BLRZ, tmp_rsvr.blrz);
+                tmp_rsvr.stcd = STCD.v;
+                tmp_rsvr.rz = RZ.v;
+                tmp_rsvr.inq = INQ.v;
+                tmp_rsvr.w = W.v;
+                tmp_rsvr.otq = OTQ.v;
+                tmp_rsvr.rwchrcd = RWCHRCD.v;
+                tmp_rsvr.rwptn = RWPTN.v;
+                tmp_rsvr.inqdr = INQDR.v;
+                tmp_rsvr.msqmt = MSQMT.v;
+                tmp_rsvr.blrz = BLRZ.v;
                 tmp_rsvr.stamp = otl_to_timestamp(tm);
 
                 m_rsvrs.push_back(tmp_rsvr);

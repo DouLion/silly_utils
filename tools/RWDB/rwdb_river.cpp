@@ -1,5 +1,5 @@
 
-#include "silly_rwdb_river.h"
+#include "rwdb_river.h"
 #include "files/silly_file.h"
 #include "tools.h"
 
@@ -15,12 +15,12 @@ bool silly_rwdb_river::loads(const std::string& btm, const std::string& etm)
                 otl_value<std::string> STCD, WPTN;
                 otl_value<double> Z, Q;
                 otl_datetime tm;
-                otl_read_row(*stream, STCD, tm, Z, Q, WPTN);
 
-                SU_CHECK_OTL_VALUE(STCD, tmp_river.stcd);
-                SU_CHECK_OTL_VALUE(Z, tmp_river.zz);
-                SU_CHECK_OTL_VALUE(Q, tmp_river.qq);
-                SU_CHECK_OTL_VALUE(WPTN, tmp_river.wptn);
+                otl_read_row(*stream, STCD, tm, Z, Q, WPTN);
+                tmp_river.stcd = STCD.v;
+                tmp_river.zz = Z.v;
+                tmp_river.qq = Q.v;
+                tmp_river.wptn = WPTN.v;
                 tmp_river.stamp = otl_to_timestamp(tm);
 
                 m_rivers.push_back(tmp_river);

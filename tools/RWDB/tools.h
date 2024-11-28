@@ -5,7 +5,7 @@
 #include "su_marco.h"
 #include "encode/silly_encode.h"
 #include "tzx/rwdb/silly_stbprp.h"
-#include "silly_rwdb_stbprp.h"
+#include "rwdb_stbprp.h"
 
 struct option
 {

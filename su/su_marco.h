@@ -83,8 +83,6 @@
 #include <arpa/inet.h>
 #endif
 
-
-
 #define SU_VAR_NAME(var) #var
 
 #define SU_PRINTF_COLOR_NONE "\033[m"
@@ -163,7 +161,7 @@
 #define SQRT_2 (1.4142135623730950488016887242097f)
 
 #define SU_RGB(r, g, b) ((unsigned int)(((unsigned char)(r) | ((unsigned int)((unsigned char)(g)) << 8)) | (((unsigned int)(unsigned char)(b)) << 16)))
-#define SU_ARGB(a, r, g, b) (unsigned int)(((a) & 0xff) << 24 | ((r) & 0xff) << 16 | ((g) & 0xff) << 8 | (b & 0xff))
+#define SU_ARGB(a, r, g, b) (unsigned int)(((a)&0xff) << 24 | ((r)&0xff) << 16 | ((g)&0xff) << 8 | (b & 0xff))
 #define SU_RGBA(r, g, b, a) SU_ARGB(a, r, g, b)
 #define SU_XRGB(r, g, b) SU_ARGB(0xff, r, g, b)
 
@@ -296,15 +294,6 @@
     {                      \
         delete[] (p);      \
         (p) = nullptr;     \
-    }
-#endif
-
-#ifndef SU_CHECK_OTL_VALUE
-// 检查otl查询到的数据是否为空
-#define SU_CHECK_OTL_VALUE(var, dest) \
-    if (!(var).is_null())             \
-    {                                 \
-        (dest) = (var).v;             \
     }
 #endif
 

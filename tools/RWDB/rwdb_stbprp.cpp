@@ -1,5 +1,5 @@
 
-#include "silly_rwdb_stbprp.h"
+#include "rwdb_stbprp.h"
 #include "files/silly_file.h"
 #include "tools.h"
 
@@ -104,38 +104,37 @@ bool silly_rwdb_stbprp::loads()
                 silly_stbprp temp;
 
                 // 检查并赋值
-                SU_CHECK_OTL_VALUE(STCD, temp.STCD);
-                SU_CHECK_OTL_VALUE(STNM, temp.STNM);
-                /* if (!RVNM.is_null()) { temp.RVNM = RVNM.v; }
-                 if (!HNNM.is_null()) { temp.HNNM = HNNM.v; }
-                 if (!BSNM.is_null()) { temp.BSNM = BSNM.v; }*/
-                SU_CHECK_OTL_VALUE(LGTD, temp.LGTD);
-                SU_CHECK_OTL_VALUE(LTTD, temp.LTTD);
-                /* if (!STLC.is_null()) { temp.STLC = STLC.v; }
-                if (!ADDVCD.is_null()) { temp.ADDVCD = ADDVCD.v; }
-                if (!DTMNM.is_null()) { temp.DTMNM = DTMNM.v; }
-                if (!DTMEL.is_null()) { temp.DTMEL = DTMEL.v; }
-                if (!DTPR.is_null()) { temp.DTPR = DTPR.v; }
-                if (!STTP.is_null()) { temp.STTP = STTP.v; }
-                if (!FRGRD.is_null()) { temp.FRGRD = FRGRD.v; }
-                if (!ESSTYM.is_null()) { temp.ESSTYM = ESSTYM.v; }
-                if (!BGFRYM.is_null()) { temp.BGFRYM = BGFRYM.v; }
-                if (!ATCUNIT.is_null()) { temp.ATCUNIT = ATCUNIT.v; }
-                if (!ADMAUTH.is_null()) { temp.ADMAUTH = ADMAUTH.v; }
-                if (!LOCALITY.is_null()) { temp.LOCALITY = LOCALITY.v; }
-                if (!STBK.is_null()) { temp.STBK = STBK.v; }
-                if (!STAzt.is_null()) { temp.STAzt = STAzt.v; }
-                if (!DSTRVM.is_null()) { temp.DSTRVM = DSTRVM.v; }
-                if (!DRNA.is_null()) { temp.DRNA = DRNA.v; }
-                if (!PHCD.is_null()) { temp.PHCD = PHCD.v; }
-                if (!USFL.is_null()) { temp.USFL = USFL.v; }
-                if (!COMMENTS.is_null()) { temp.COMMENTS = COMMENTS.v; }
-                temp.MODITIME = otl_tools::otl_time_to_string(MODITIME);
-                if (!HNNM0.is_null()) { temp.HNNM0 = HNNM0.v; }
-                if (!ADCD.is_null()) { temp.ADCD = ADCD.v; }
-                if (!ADDVCD1.is_null()) { temp.ADDVCD1 = ADDVCD1.v; }*/
+                temp.STCD = STCD.v;
+                temp.STNM = STNM.v;
+                // temp.RVNM = RVNM.v;
+                // temp.HNNM = HNNM.v;
+                // temp.BSNM = BSNM.v;
+                temp.LGTD = LGTD.v;
+                temp.LTTD = LTTD.v;
+                // temp.STLC = STLC.v;
+                // temp.ADDVCD = ADDVCD.v;
+                // temp.DTMNM = DTMNM.v;
+                // temp.DTMEL = DTMEL.v;
+                // temp.DTPR = DTPR.v;
+                // temp.STTP = STTP.v;
+                // temp.FRGRD = FRGRD.v;
+                // temp.ESSTYM = ESSTYM.v;
+                // temp.BGFRYM = BGFRYM.v;
+                // temp.ATCUNIT = ATCUNIT.v;
+                // temp.ADMAUTH = ADMAUTH.v;
+                // temp.LOCALITY = LOCALITY.v;
+                // temp.STBK = STBK.v;
+                //temp.STAzt = STAzt.v;
+                //temp.DSTRVM = DSTRVM.v;
+                //temp.DRNA = DRNA.v;
+                //temp.PHCD = PHCD.v;
+                //temp.USFL = USFL.v;
+                //temp.COMMENTS = COMMENTS.v;
+                //temp.MODITIME = MODITIME.v;
+                //temp.HNNM0 = HNNM0.v;
+                //temp.ADCD = ADCD.v;
+                //temp.ADDVCD1 = ADDVCD1.v;
 
-                // silly_rwdb_stbprp::stbprps.push_back(temp);  // 通过类名访问静态成员
                 m_stbprps.push_back(temp);
             }
         }))

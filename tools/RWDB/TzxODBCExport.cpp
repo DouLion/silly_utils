@@ -10,10 +10,10 @@
  */
 #include <database/otl/silly_otl.h>
 #include "tools.h"
-#include "silly_rwdb_stbprp.h"
-#include "silly_rwdb_pptn.h"
-#include "silly_rwdb_river.h"
-#include "silly_rwdb_rsvr.h"
+#include "rwdb_stbprp.h"
+#include "rwdb_pptn.h"
+#include "rwdb_river.h"
+#include "rwdb_rsvr.h"
 
 #include "datetime/silly_timer.h"  // 计时
 
@@ -116,7 +116,7 @@ bool init(const std::string& file)
     std::string js_db_str = silly_jsonpp::dumps(js_db);
     if (!otl.load(js_db_str))
     {
-        SLOG_ERROR("解析 odbc 错误: {}", otl.odbc());
+        SLOG_ERROR("解析 odbc 错误: {}", otl.err());
         return status;
     }
     SLOG_INFO("odbc 链接串: {}", otl.odbc());
