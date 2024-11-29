@@ -74,28 +74,31 @@ static void paramAnalysis(int argc, char** argv)
     }
 }
 
-// 时间分段函数,interval 单位为小时
-static std::vector<std::pair<std::string, std::string>> splitTime(std::string beginTM, std::string endTM, int interval)
+// 时间分段函数,intvlHour 单位为小时
+static std::map<std::string, std::string> splitTmBtmEtm(std::string btm, std::string etm, int intvlHour)
 {
-    std::vector<std::pair<std::string, std::string>> b_e_tms;
+    std::map<std::string, std::string> b_e_tms; // <btm, etm>
 
-    silly_posix_time pt_btm = silly_posix_time::time_from_string(beginTM);
-    silly_posix_time pt_etm = silly_posix_time::time_from_string(endTM);
+    silly_posix_time pt_btm = silly_posix_time::time_from_string(btm);
+    silly_posix_time pt_etm = silly_posix_time::time_from_string(etm);
+    silly_time_duration intvl(intvlHour, 0, 0);
+
     silly_posix_time t_tm = pt_btm;
-    silly_time_duration td(interval, 0, 0);
+
     while (t_tm < pt_etm)
     {
-        std::string sbt = t_tm.to_string();
-        t_tm += td;
-        if (t_tm >= pt_etm)
+        std::string str_btm = t_tm.to_string(); // 该段开始时间
+        t_tm += intvl;  // 该段结束时间
+        if (t_tm >= pt_etm) // 如果结束时间大于等于 etm，则结束时间取 etm
         {
             t_tm = pt_etm;
         }
-        std::string set = t_tm.to_string();
-        b_e_tms.push_back(std::make_pair(sbt, set));
+        std::string str_etm = t_tm.to_string();
+        b_e_tms[str_btm] = str_etm;
     }
     return b_e_tms;
 }
+
 
 static bool encode(silly_stbprp& stbprp, const std::string& from, const std::string& to)
 {
@@ -181,7 +184,7 @@ static bool creatIndexStcd(const std::vector<silly_stbprp>& stbprps, std::unorde
 template <typename T>
 std::vector<T> getStcd(const std::vector<T>& opts)
 {
-    std::unordered_map<unsigned int, std::string> index_stcd = silly_rwdb_stbprp::m_index_stcd;
+    std::unordered_map<unsigned int, std::string> index_stcd = rwdb_stbprp::m_index_stcd;
     // 根据 index_stcd 查找并更新 stcd
     std::vector<T> res_opt;
     for (auto& opt : opts)
@@ -205,7 +208,7 @@ std::vector<T> getStcd(const std::vector<T>& opts)
 template <typename T>
 std::vector<T> getIndex(const std::vector<T>& opts)
 {
-    std::unordered_map<std::string, uint32_t> stcd_index = silly_rwdb_stbprp::m_stcd_index;
+    std::unordered_map<std::string, uint32_t> stcd_index = rwdb_stbprp::m_stcd_index;
     std::vector<T> res_opt;
     for (auto& opt : opts)
     {

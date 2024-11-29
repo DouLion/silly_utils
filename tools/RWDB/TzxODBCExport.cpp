@@ -67,7 +67,7 @@ int main(int argc, char** argv)
     }
 
     silly_timer timer;
-    silly_rwdb_stbprp rwdb_stbprp;
+    rwdb_stbprp rwdb_stbprp;
     rwdb_stbprp.m_select_sql = select_stbprp_sql;
     rwdb_stbprp.m_str_now_tm = str_now_tm;
     // STBPRP 一定要导出
@@ -79,19 +79,19 @@ int main(int argc, char** argv)
     SLOG_INFO("stbprp 导出时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
 
     // 时间分段
-    std::vector<std::pair<std::string, std::string>> btm_etm = splitTime(btm, etm, 12);
+    std::map<std::string, std::string> btm_etm = splitTmBtmEtm(btm, etm, 12);
 
     if (_opt.pptn)
     {
-        EXPORT(silly_rwdb_pptn, select_pptn_sql, btm_etm, "PPTN");
+        EXPORT(rwdb_pptn, select_pptn_sql, btm_etm, "PPTN");
     }
     if (_opt.river)
     {
-        EXPORT(silly_rwdb_river, select_river_sql, btm_etm, "RIVER");
+        EXPORT(rwdb_river, select_river_sql, btm_etm, "RIVER");
     }
     if (_opt.rsvr)
     {
-        EXPORT(silly_rwdb_rsvr, select_rsvr_sql, btm_etm, "RSVR");
+        EXPORT(rwdb_rsvr, select_rsvr_sql, btm_etm, "RSVR");
     }
 
     return 0;

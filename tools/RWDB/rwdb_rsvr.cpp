@@ -5,7 +5,7 @@
 #include "tools.h"
 
 
-bool silly_rwdb_rsvr::loads(const std::string& btm, const std::string& etm)
+bool rwdb_rsvr::loads(const std::string& btm, const std::string& etm)
 {
     bool status = false;
     std::string sql = silly_format::format(m_select_sql, btm, etm);
@@ -45,7 +45,7 @@ bool silly_rwdb_rsvr::loads(const std::string& btm, const std::string& etm)
     return status;
 }
 
-bool silly_rwdb_rsvr::serialize(std::vector<std::string>& datas)
+bool rwdb_rsvr::serialize(std::vector<std::string>& datas)
 {
     for (const auto& rsvr : m_rsvrs)
     {
@@ -54,7 +54,7 @@ bool silly_rwdb_rsvr::serialize(std::vector<std::string>& datas)
     return true;
 }
 
-bool silly_rwdb_rsvr::deserialize(const std::string& block_data, int& residue_size)
+bool rwdb_rsvr::deserialize(const std::string& block_data, int& residue_size)
 {
     m_rsvrs.clear();
     bool status = false;
@@ -81,7 +81,7 @@ bool silly_rwdb_rsvr::deserialize(const std::string& block_data, int& residue_si
     return true;
 }
 
-bool silly_rwdb_rsvr::insert()
+bool rwdb_rsvr::insert()
 {
     otl_datetime tm0;
     tm0.second= 0;

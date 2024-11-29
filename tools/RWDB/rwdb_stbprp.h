@@ -10,7 +10,7 @@ extern silly_otl otl;
 extern std::string src_encode;
 extern std::string dst_encode;
 
-class silly_rwdb_stbprp
+class rwdb_stbprp
 {
   public:
     // 导出 STBPRP

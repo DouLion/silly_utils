@@ -3,7 +3,7 @@
 #include "files/silly_file.h"
 #include "tools.h"
 
-bool silly_rwdb_pptn::loads(const std::string& btm, const std::string& etm)
+bool rwdb_pptn::loads(const std::string& btm, const std::string& etm)
 {
     bool status = false;
     std::string sql = silly_format::format(m_select_sql, btm, etm);
@@ -36,7 +36,7 @@ bool silly_rwdb_pptn::loads(const std::string& btm, const std::string& etm)
     return status;
 }
 
-bool silly_rwdb_pptn::serialize(std::vector<std::string>& datas)
+bool rwdb_pptn::serialize(std::vector<std::string>& datas)
 {
     for (const auto& pptn : m_pptns)
     {
@@ -45,7 +45,7 @@ bool silly_rwdb_pptn::serialize(std::vector<std::string>& datas)
     return true;
 }
 
-bool silly_rwdb_pptn::deserialize(const std::string& block_data, int& residue_size)
+bool rwdb_pptn::deserialize(const std::string& block_data, int& residue_size)
 {
     m_pptns.clear();
     bool status = false;
@@ -72,7 +72,7 @@ bool silly_rwdb_pptn::deserialize(const std::string& block_data, int& residue_si
     return true;
 }
 
-bool silly_rwdb_pptn::insert()
+bool rwdb_pptn::insert()
 {
     bool status = false;
 

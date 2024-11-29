@@ -77,7 +77,7 @@ int main(int argc, char** argv)
 
     //////////// 解析 index 和 stcd对应关系 /////////////
     std::vector<silly_stbprp> stbprps;
-    silly_rwdb_stbprp rwdb_stbprp;
+    rwdb_stbprp rwdb_stbprp;
     rwdb_stbprp.m_insert_sql = insert_stbprp_sql;
     rwdb_stbprp.m_file_path = stbprp_file_path;
     if (!rwdb_stbprp.import())
@@ -102,15 +102,15 @@ int main(int argc, char** argv)
 
     if (_opt.pptn)
     {
-        IMPORT(silly_rwdb_pptn, pptn_file_path, insert_pptn_sql, block_byte, "PPTN");
+        IMPORT(rwdb_pptn, pptn_file_path, insert_pptn_sql, block_byte, "PPTN");
     }
     if (_opt.river)
     {
-        IMPORT(silly_rwdb_river, river_file_path, insert_river_sql, block_byte, "River");
+        IMPORT(rwdb_river, river_file_path, insert_river_sql, block_byte, "River");
     }
     if (_opt.rsvr)
     {
-        IMPORT(silly_rwdb_rsvr, rsvr_file_path, insert_rsvr_sql, block_byte, "Rsvr");
+        IMPORT(rwdb_rsvr, rsvr_file_path, insert_rsvr_sql, block_byte, "Rsvr");
     }
 
     return 0;

@@ -5,11 +5,11 @@
 
 // 定义静态成员变量
 
-std::unordered_map<std::string, unsigned int> silly_rwdb_stbprp::m_stcd_index;
-std::unordered_map<unsigned int, std::string> silly_rwdb_stbprp::m_index_stcd;
+std::unordered_map<std::string, unsigned int> rwdb_stbprp::m_stcd_index;
+std::unordered_map<unsigned int, std::string> rwdb_stbprp::m_index_stcd;
 
 
-bool silly_rwdb_stbprp::output()
+bool rwdb_stbprp::output()
 {
     bool status = false;
     // 数据库查询 STBPRP
@@ -53,7 +53,7 @@ bool silly_rwdb_stbprp::output()
     return status;
 }
 
-bool silly_rwdb_stbprp::import()
+bool rwdb_stbprp::import()
 {
     bool status = false;
     //  一次性全部读取出stbprp文件中的数据,并反序列化文件字符串中的所有数据
@@ -87,7 +87,7 @@ bool silly_rwdb_stbprp::import()
     return status;
 }
 
-bool silly_rwdb_stbprp::loads()
+bool rwdb_stbprp::loads()
 {
     bool status = false;
     // ---------查询数据库-----------
@@ -149,7 +149,7 @@ bool silly_rwdb_stbprp::loads()
     return true;
 }
 
-bool silly_rwdb_stbprp::dumps(std::string& content)
+bool rwdb_stbprp::dumps(std::string& content)
 {
     bool status = false;
     std::string file_path = m_file_path;
@@ -175,7 +175,7 @@ bool silly_rwdb_stbprp::dumps(std::string& content)
     return true;
 }
 
-bool silly_rwdb_stbprp::serialize(std::vector<std::string>& datas)
+bool rwdb_stbprp::serialize(std::vector<std::string>& datas)
 {
     for (const auto& stbprp : m_stbprps)
     {
@@ -184,7 +184,7 @@ bool silly_rwdb_stbprp::serialize(std::vector<std::string>& datas)
     return true;
 }
 
-bool silly_rwdb_stbprp::deserialize(const std::string& content)
+bool rwdb_stbprp::deserialize(const std::string& content)
 {
     m_stbprps.clear();
     bool status = false;
@@ -211,7 +211,7 @@ bool silly_rwdb_stbprp::deserialize(const std::string& content)
     return true;
 }
 
-bool silly_rwdb_stbprp::insert()
+bool rwdb_stbprp::insert()
 {
     bool status = false;
 

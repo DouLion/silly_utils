@@ -9,7 +9,7 @@ extern silly_otl otl;
 extern std::string src_encode;
 extern std::string dst_encode;
 
-class silly_rwdb_rsvr : public silly_rwdb_base
+class rwdb_rsvr : public rwdb_base
 {
   public:
     // 数据库加载 rsvr 数据(导出)

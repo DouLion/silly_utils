@@ -3,7 +3,7 @@
 #include "rwdb_base.h"
 #include "rwdb_base.h"
 
-bool silly_rwdb_base::output(const std::vector<std::pair<std::string, std::string>>& btm_etm)
+bool rwdb_base::output(const std::map<std::string, std::string>& btm_etm)
 {
     bool status = false;
     std::string fileName = m_str_now_tm + "_" + getFileName();
@@ -41,7 +41,7 @@ bool silly_rwdb_base::output(const std::vector<std::pair<std::string, std::strin
     return status;
 }
 
-bool silly_rwdb_base::import(const size_t block_size)
+bool rwdb_base::import(const size_t block_size)
 {
     bool status = false;
     if (!std::filesystem::exists(m_file_path))

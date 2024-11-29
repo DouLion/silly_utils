@@ -3,7 +3,7 @@
 #include "files/silly_file.h"
 #include "tools.h"
 
-bool silly_rwdb_river::loads(const std::string& btm, const std::string& etm)
+bool rwdb_river::loads(const std::string& btm, const std::string& etm)
 {
     bool status = false;
     std::string sql = silly_format::format(m_select_sql, btm, etm);
@@ -37,7 +37,7 @@ bool silly_rwdb_river::loads(const std::string& btm, const std::string& etm)
     return status;
 }
 
-bool silly_rwdb_river::serialize(std::vector<std::string>& datas)
+bool rwdb_river::serialize(std::vector<std::string>& datas)
 {
     for (auto& river : m_rivers)
     {
@@ -46,7 +46,7 @@ bool silly_rwdb_river::serialize(std::vector<std::string>& datas)
     return true;
 }
 
-bool silly_rwdb_river::deserialize(const std::string& block_data, int& residue_size)
+bool rwdb_river::deserialize(const std::string& block_data, int& residue_size)
 {
     m_rivers.clear();
     bool status = false;
@@ -73,7 +73,7 @@ bool silly_rwdb_river::deserialize(const std::string& block_data, int& residue_s
     return true;
 }
 
-bool silly_rwdb_river::insert()
+bool rwdb_river::insert()
 {
     bool status = false;
 

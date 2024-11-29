@@ -5,7 +5,7 @@
 #include "rwdb_base.h"
 #include "tzx/rwdb/silly_river.h"
 
-class silly_rwdb_river : public silly_rwdb_base
+class rwdb_river : public rwdb_base
 {
   public:
     // 数据库加载 river 数据(导出)

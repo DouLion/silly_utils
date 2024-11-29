@@ -5,7 +5,7 @@
 #include "rwdb_base.h"
 #include "tzx/rwdb/silly_pptn.h"
 
-class silly_rwdb_pptn : public silly_rwdb_base
+class rwdb_pptn : public rwdb_base
 {
   public:
     // 数据库加载 PPTN 数据(导出)

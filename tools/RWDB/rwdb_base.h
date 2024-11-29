@@ -8,11 +8,11 @@
 #include "tools.h"
 #include "files/silly_file.h"
 
-class silly_rwdb_base
+class rwdb_base
 {
   public:
     // 导出数据
-    virtual bool output(const std::vector<std::pair<std::string, std::string>>& btm_etm);
+    virtual bool output(const std::map<std::string, std::string>& btm_etm);
 
     virtual bool import(const size_t block_size = 1024 * 1024 * 1024);
 
