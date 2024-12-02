@@ -71,6 +71,7 @@
 #include <codecvt>
 #include <cstring>
 #include <locale>
+#include <unistd.h>
 #include <su_global.h>
 #if WIN32
 #include <Windows.h>
@@ -81,6 +82,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <netdb.h>
 #endif
 
 #define SU_VAR_NAME(var) #var

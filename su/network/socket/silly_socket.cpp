@@ -18,10 +18,11 @@ bool silly_socket::create(const std::string& hostname, const int& port, const bo
         return m_connected;
     }
     m_use_ssl = ssl;
+    int ret = 0;
 #if defined(WIN32)
     WSADATA wsaData;
     WORD wVersionRequested = MAKEWORD(2, 2);
-    int ret = WSAStartup(wVersionRequested, &wsaData);
+    ret = WSAStartup(wVersionRequested, &wsaData);
     if (ret)
     {
         SLOG_ERROR("WSAStartup失败, {}!", WSAGetLastError())
@@ -63,7 +64,7 @@ bool silly_socket::create(const std::string& hostname, const int& port, const bo
 #else
     struct addrinfo hints, *res;
 
-    memset(&hints, 0, sizeof(hints));
+   /* memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
 
@@ -79,7 +80,7 @@ bool silly_socket::create(const std::string& hostname, const int& port, const bo
         perror("Connect error");
         freeaddrinfo(res);
         return m_connected;
-    }
+    }*/
 
 #endif
     if (m_use_ssl)
@@ -143,7 +144,6 @@ bool silly_socket::read(std::string& msg)
             }
 
 #else
-            char buff[1024];
             int ret = recv(m_socket, buff, 1024, 0);
 
 #endif
