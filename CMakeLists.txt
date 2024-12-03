@@ -7,16 +7,15 @@ message(STATUS "su 当前项目根目录 (CMAKE_SOURCE_DIR) ${CMAKE_SOURCE_DIR}"
 
 set(SU_FILE_ROOT "${CMAKE_CURRENT_SOURCE_DIR}")
 set(SU_PROJ_ROOT "${CMAKE_SOURCE_DIR}")
-
+set(CMAKE_MODULE_PATH "${SU_FILE_ROOT}/cmake;${CMAKE_MODULE_PATH}")
+include(CheckEnv)
+include(CheckOSEndian)
+include(CheckDM8)
+include(CheckEccodes)
+include(CheckCUDA)
 if("${SU_FILE_ROOT}" STREQUAL "${SU_PROJ_ROOT}")
 	message(STATUS "作为单个工程编译")
-    set(CMAKE_MODULE_PATH "${SU_PROJ_ROOT}/cmake;${CMAKE_MODULE_PATH}")
-	include(CheckEnv)
-	include(CheckOSEndian)
-	include(CheckDM8)
-	include(CheckEccodes)
-	include(CheckCUDA)
-
+    
 	include_directories(${SU_PROJ_ROOT}/su)
 	add_definitions("-DDEFAULT_SU_ROOT_DIR=\"${SU_PROJ_ROOT}\"")
     add_definitions("-DDEFAULT_SU_DATA_DIR=\"${SU_PROJ_ROOT}/data\"")
