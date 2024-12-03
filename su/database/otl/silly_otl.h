@@ -11,10 +11,11 @@
 #define SILLY_UTILS_SILLY_OTL_H
 
 #define OTL_ODBC
-
+#define OTL_ODBC_MYSQL
+#define OTL_ODBC_LOGOFF_FREES_HANDLES
 #ifndef IS_WIN32
 #define OTL_ODBC_UNIX
-#define OTL_ODBC_MYSQL
+
 #else
 
 #endif

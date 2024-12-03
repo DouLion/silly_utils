@@ -73,11 +73,18 @@
 #include <locale>
 #include <unistd.h>
 #include <su_global.h>
+
+// 数据库
+// #include <sql.h>
+// #include <sqlext.h>
 #if WIN32
+// 注意这个顺序,一定是先Windows.h, 后winsock2.h
 #include <Windows.h>
 #include <winsock2.h>
 #pragma comment(lib, "WSOCK32")
 #pragma comment(lib, "ws2_32")
+
+#include <psapi.h>
 #else
 #include <sys/socket.h>
 #include <netinet/in.h>
