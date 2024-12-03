@@ -32,12 +32,13 @@ double silly_process::memory_usage_kbyte(const int& pid)
         {
             result = pmc.WorkingSetSize / 1024.0 / 1024.0;
         }
+        if (close)
+        {
+            CloseHandle(hProcess);
+            hProcess = nullptr;
+        }
     }
-    if (close)
-    {
-        CloseHandle(hProcess);
-        hProcess = nullptr;
-    }
+
 #else
 
 #endif
@@ -74,11 +75,11 @@ void silly_process::clear_working_set(const int& pid, const int& seconds)
                 std::cout << "清空工作集" << std::endl;
                 std::cout << "进程" << pid << "内存占用: " << memory_usage_kbyte(pid) << " kb" << std::endl;
 #endif
-            }
-            if (close)
-            {
-                CloseHandle(hProcess);
-                hProcess = nullptr;
+                if (close)
+                {
+                    CloseHandle(hProcess);
+                    hProcess = nullptr;
+                }
             }
 
             std::this_thread::sleep_for(std::chrono::seconds(seconds));
