@@ -14,15 +14,15 @@ add_library(${PROJECT_NAME} STATIC ${SU_SRC_FILES})
 
 target_precompile_headers(
         ${PROJECT_NAME} PUBLIC
-        ${SU_FILE_ROOT}/su_global.h
-        ${SU_FILE_ROOT}/su_marco.h
-        ${SU_FILE_ROOT}/geo/silly_geo.h
-        ${SU_FILE_ROOT}/log/silly_log.h
-        ${SU_FILE_ROOT}/string/silly_format.h
-        ${SU_FILE_ROOT}/database/otl/silly_otl.h
-        ${SU_FILE_ROOT}/datetime/silly_posix_time.h
-        ${SU_FILE_ROOT}/json/silly_jsonpp.h
-        ${SU_FILE_ROOT}/image/png_utils.h
+        ${SU_FILE_ROOT}/su/su_global.h
+        ${SU_FILE_ROOT}/su/su_marco.h
+        ${SU_FILE_ROOT}/su/geo/silly_geo.h
+        ${SU_FILE_ROOT}/su/log/silly_log.h
+        ${SU_FILE_ROOT}/su/string/silly_format.h
+        ${SU_FILE_ROOT}/su/database/otl/silly_otl.h
+        ${SU_FILE_ROOT}/su/datetime/silly_posix_time.h
+        ${SU_FILE_ROOT}/su/json/silly_jsonpp.h
+        ${SU_FILE_ROOT}/su/image/png_utils.h
 )
 
 find_package(cryptopp CONFIG REQUIRED)
