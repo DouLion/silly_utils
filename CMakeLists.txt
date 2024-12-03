@@ -1,6 +1,18 @@
 cmake_minimum_required(VERSION 3.15)
 project(silly_utils)
 
+# 判断当前目录是否为 cmake的根目录,如果不是,则是被其他项目引用的,不需要编译测试,工具模块
+message(STATUS "su 当前目录(CMAKE_CURRENT_SOURCE_DIR) ${CMAKE_CURRENT_SOURCE_DIR}")
+message(STATUS "su 根目录 (CMAKE_SOURCE_DIR) ${CMAKE_SOURCE_DIR}")
+set(SU_AS_PROJECT TRUE)
+set(SU_AS_LIB FALSE)
+if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_SOURCE_DIR}")
+  
+else()
+  set(SU_AS_PROJECT FALSE)
+  set(SU_AS_LIB TRUE)
+endif()
+
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
 
 include(CheckEnv)
@@ -9,14 +21,7 @@ include(CheckDM8)
 include(CheckEccodes)
 include(CheckCUDA)
 
-# 判断当前目录是否为 cmake的根目录,如果不是,则是被其他项目引用的,不需要编译测试,工具模块
-if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_SOURCE_DIR}")
-  set(SU_AS_PROJECT TRUE)
-  set(SU_AS_LIB FALSE)
-else()
-  set(SU_AS_PROJECT FALSE)
-  set(SU_AS_LIB TRUE)
-endif()
+
 
 if(SU_AS_PROJECT)
   message(STATUS "作为单个工程编译")
