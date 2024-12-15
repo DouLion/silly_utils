@@ -20,7 +20,7 @@
 #define GLGSV "GLGSV"
 #define GBGSV "GBGSV"
 #define GAGSV "GAGSV"
-#define GQGSV "GQGSV""
+#define GQGSV "GQGSV"
 
 class silly_nmea
 {
