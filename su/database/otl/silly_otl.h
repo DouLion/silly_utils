@@ -145,6 +145,30 @@ static std::string db_type_to_str(const enum_database_type& type)
     }                                            \
     lob.close();
 
+static std::string olt_lob_stream_to_str(otl_lob_stream lob)
+{
+    std::string ret;
+    while (!lob.eof())
+    {
+        std::string tmp;
+        otl_long_string _sols;
+        lob >> _sols;
+        tmp.resize(_sols.len());
+        memcpy(&tmp[0], _sols.v, _sols.len());
+        ret += tmp;
+    }
+
+    return ret;
+}
+
+static std::string otl_long_str_to_str(otl_long_string ls)
+{
+    std::string ret;
+    ret.resize(ls.len());
+    memcpy(&ret[0], ls.v, ls.len());
+    return ret;
+}
+
 class otl_tools;  // 始终直接传入odbc字符串时不需要这个类
 class otl_conn_opt
 {
@@ -445,7 +469,7 @@ class otl_conn_opt
     /// </summary>
     /// <param name="sql"></param>
     /// <returns>执行是否成功</returns>
-    std::string print_otl_type_name(const otl_var_enum& vt);
+    static std::string otl_type_name(const otl_var_enum& vt);
 
     ///////////////////////////////
     /// getter

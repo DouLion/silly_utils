@@ -502,7 +502,7 @@ bool otl_conn_opt::check_column_info(const std::string& sql)
         std::cout << "列数: " << col_num << std::endl;
         for (int i = 0; i < col_num; ++i)
         {
-            std::cout << "[" << i + 1 << "] "<< "列名: " << desc_list[i].name << "  类型: " << print_otl_type_name((otl_var_enum)desc_list[i].otl_var_dbtype) << std::endl;
+            std::cout << "[" << i + 1 << "] "<< "列名: " << desc_list[i].name << "  类型: " << otl_type_name((otl_var_enum)desc_list[i].otl_var_dbtype) << std::endl;
         }
         stream.close();
         status = true;
@@ -527,7 +527,7 @@ bool otl_conn_opt::check_column_info(const std::string& sql)
     return status;
 }
 
-std::string otl_conn_opt::print_otl_type_name(const otl_var_enum& ot)
+std::string otl_conn_opt::otl_type_name(const otl_var_enum& ot)
 {
     std::string result = "Unknown";
     switch (ot)
