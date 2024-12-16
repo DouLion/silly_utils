@@ -10,5 +10,4 @@
 /test/test_main.cpp
 /build
 /test/test.cpp
-/lucenepp/include/lucenepp/LPPConfig.h
-/lucenepp/include/config_h/LPPConfig.h
+*.log

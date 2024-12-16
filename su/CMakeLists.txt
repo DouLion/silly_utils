@@ -115,8 +115,14 @@ target_link_libraries(${PROJECT_NAME} PUBLIC lz4::lz4)
 
 find_package(websocketpp CONFIG REQUIRED)
 target_include_directories(${PROJECT_NAME} PUBLIC websocketpp::websocketpp)
-#[[find_package(Boost REQUIRED random)
-target_link_libraries(${PROJECT_NAME} PUBLIC  Boost::random)]]
+
+find_package(PahoMqttCpp CONFIG REQUIRED)
+if(IS_LINUX)
+  target_link_libraries(${PROJECT_NAME} PUBLIC PahoMqttCpp::paho-mqttpp3-static)
+else()
+  target_link_libraries(${PROJECT_NAME} PUBLIC PahoMqttCpp::paho-mqttpp3)
+endif()
+
 
 if(IS_LINUX)
 

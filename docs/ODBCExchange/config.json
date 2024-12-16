@@ -1,0 +1,13 @@
+{
+  "db":
+  {
+    "type": "mysql",
+    "ip": "192.168.0.73",
+    "port": 3306,
+    "driver": "MYSQL ODBC 9.1 UNICODE Driver",
+    "schema": "TZX_FloodDisaster_HN",
+    "user": "root",
+    "password": "3edc9ijn~"
+  }
+
+}

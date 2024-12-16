@@ -32,3 +32,6 @@ target_link_libraries(TzxODBCCompare sutils)
 
 add_executable(2DTask 2DTask/2DTask.cpp)
 target_link_libraries(2DTask sutils)
+
+add_subdirectory(ODBCExchange)
+
