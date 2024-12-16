@@ -38,47 +38,13 @@ int main(int argc, char** argv)
     std::string sql = R"(select * from MessageInfo_R;)";
 
     X::Table table;
-    table.otl.load(conn);
-
-
-    otl_connect db;
-    otl_stream stream;
-    std::string m_err;
-    try
+    if(!table.Connect(conn))
     {
-        db.auto_commit_off();
-        db.set_timeout(5);
-        db.rlogon(table.otl.odbc().c_str(), false);
-
-        stream.open(1, sql.c_str(), db);
-
-        table.Read(&stream);
-
-        stream.close();
+        return 2;
     }
-    catch (otl_exception& e)
-    {
 
-        db.rollback();
-        m_err = "OTL_ERR \nCONN:";
-        m_err.append(table.otl.odbc());
-        m_err.append("\nCODE:").append(std::to_string(e.code));
-        m_err.append("\nMSG:").append(std::string((char*)e.msg));
-        m_err.append("\nSTATE:").append(std::string((char*)e.sqlstate));
-        m_err.append("\nSTMT:").append(std::string((char*)e.stm_text));
-    }
-    catch (std::exception& p)
-    {
-        db.rollback();
-        m_err = "OTL_UNKNOWN " + std::string(p.what());
-    }
-    stream.close();
-    db.logoff();
-    if(!m_err.empty())
-    {
-        SLOG_ERROR(m_err);
-        return -1;
-    }
+    table.Pull(sql);
+
 
     table.Print();
 

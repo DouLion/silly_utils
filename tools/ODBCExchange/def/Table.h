@@ -21,16 +21,24 @@ class Table
 {
   public:
 
+    bool Connect(const std::string& otlCfg);
+
+    void Pull(const std::string& sql);
 
     bool Read(otl_stream* stream);
 
     void Print(const uint64_t& num =10);
 
-    static std::string OtlTypeToStr(const otl_var_enum& type);
+    bool Write(const std::string& file);
 
   private:
     void ReadColDesc(otl_stream* stream);
     void ReadRowData(otl_stream* stream);
+
+
+    bool WriteHeader(std::string& file);
+
+    bool WriteRowData(std::string& file);
 
   public:
     std::string name;

@@ -17,30 +17,93 @@ namespace X
 
 typedef otl_var_enum ColType;
 
-class Binary
+static std::string OtlTypeToStr(const otl_var_enum &type)
 {
-  public:
-    Binary();
-    ~Binary(){
-        m_blob.~basic_string();
-    }
-
-  public:
-    std::string m_blob;
-};
-
-class LString
-{
-  public:
-    LString();
-    ~LString()
+    std::string result = "Unknown";
+    switch (type)
     {
-        m_str.~basic_string();
+        case otl_var_char:
+            result = "char";
+            break;
+        case otl_var_double:
+            result = "double";
+            break;
+        case otl_var_float:
+            result = "float";
+            break;
+        case otl_var_int:
+            result = "int ";
+            break;
+        case otl_var_unsigned_int:
+            result = "unsigned_int";
+            break;
+        case otl_var_short:
+            result = "short";
+            break;
+        case otl_var_long_int:
+            result = "long_int";
+            break;
+        case otl_var_timestamp:
+            result = "timestamp";
+            break;
+        case otl_var_varchar_long:
+            result = "varchar_long";
+            break;
+        case otl_var_raw_long:
+            result = "raw_long";
+            break;
+        case otl_var_clob:
+            result = "clob";
+            break;
+        case otl_var_blob:
+            result = "blob";
+            break;
+        case otl_var_refcur:
+            result = "refcur";
+            break;
+        case otl_var_long_string:
+            result = "long_string";
+            break;
+        case otl_var_db2time:
+            result = "db2time";
+            break;
+        case otl_var_db2date:
+            result = "db2date";
+            break;
+        case otl_var_tz_timestamp:
+            result = "tz_timestamp";
+            break;
+        case otl_var_ltz_timestamp:
+            result = "ltz_timestamp";
+            break;
+        case otl_var_bigint:
+            result = "bigint";
+            break;
+        case otl_var_raw:
+            result = "raw";
+            break;
+        default:
+            throw std::runtime_error("不支持此类型: " + std::to_string(type));
     }
+    return result;
+}
 
-  public:
-    std::string m_str;
+static const std::map<otl_var_enum, int> Otl2MySQLType = {
+
 };
+
+static const std::map<otl_var_enum, int> Otl2DMType = {
+
+};
+
+static const std::map<otl_var_enum, int> Otl2OracleType = {
+
+};
+
+static const std::map<otl_var_enum, int> Otl2MSSQLType = {
+
+};
+
 }  // namespace X
 
 #endif  // SILLY_UTILS_COLTYPE_H

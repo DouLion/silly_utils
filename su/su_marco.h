@@ -158,6 +158,12 @@
 #define SEC_IN_DAY (SEC_IN_MIN * MIN_IN_HOUR * HOUR_IN_DAY)
 #endif
 
+#ifndef SU_KB
+#define SU_KB (1024)
+#define SU_MB (1024 * 1024)
+#define SU_GB (1024 * 1024 * 1024)
+#endif
+
 /** earth radius */
 #ifndef EARTH_RADIUS
 #define EARTH_RADIUS (6378.137)

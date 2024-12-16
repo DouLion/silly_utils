@@ -37,8 +37,10 @@ class Exchange
     Exchange();
     ~Exchange();
 
+    // 读取数据库服务器数据
     bool Pull(PullOpt& opt);
 
+    // 推送数据到数据库服务器
     bool Push(PushOpt& opt);
 
 

@@ -83,7 +83,7 @@ void Table::ReadColDesc(otl_stream *stream)
         cols[i].type = (ColType)desc_list[i].otl_var_dbtype;
         std::cout << "[" << cols[i].index << "] ";
         std::cout << "列名: " << desc_list[i].name;
-        std::cout << "  类型: " << Table::OtlTypeToStr((otl_var_enum)desc_list[i].otl_var_dbtype) << std::endl;
+        std::cout << "  类型: " << OtlTypeToStr((otl_var_enum)desc_list[i].otl_var_dbtype) << std::endl;
     }
 }
 void Table::ReadRowData(otl_stream *stream)
@@ -152,7 +152,7 @@ void Table::ReadRowData(otl_stream *stream)
                     s >> olstream;
                     break;
                 default:
-                    throw std::runtime_error("未兼容的类型" + Table::OtlTypeToStr(cols[i].type));
+                    throw std::runtime_error("未兼容的类型" + OtlTypeToStr(cols[i].type));
             }
         }
         rows.push_back(row);
@@ -160,73 +160,94 @@ void Table::ReadRowData(otl_stream *stream)
         row.resize(colNum);
     }
 }
-std::string Table::OtlTypeToStr(const otl_var_enum &type)
+
+bool Table::Write(const std::string &file)
 {
-    std::string result = "Unknown";
-    switch (type)
+    std::ofstream out(file);
+
+    return false;
+}
+bool Table::WriteHeader(std::string &file)
+{
+    std::ofstream out;
+
+    // 覆盖写
+    out.open(file, std::ios::out | std::ios::trunc | std::ios::binary);
+    return false;
+}
+bool Table::WriteRowData(std::string &file)
+{
+    const static int64_t LIMIT_SIZE = 10 * SU_MB; // 超过10M就写入文件一次,避免过多占用内存
+    int64_t totalSize = 0;
+    std::string buff;
+
+    for(auto &row : rows)
     {
-        case otl_var_char:
-            result = "char";
-            break;
-        case otl_var_double:
-            result = "double";
-            break;
-        case otl_var_float:
-            result = "float";
-            break;
-        case otl_var_int:
-            result = "int ";
-            break;
-        case otl_var_unsigned_int:
-            result = "unsigned_int";
-            break;
-        case otl_var_short:
-            result = "short";
-            break;
-        case otl_var_long_int:
-            result = "long_int";
-            break;
-        case otl_var_timestamp:
-            result = "timestamp";
-            break;
-        case otl_var_varchar_long:
-            result = "varchar_long";
-            break;
-        case otl_var_raw_long:
-            result = "raw_long";
-            break;
-        case otl_var_clob:
-            result = "clob";
-            break;
-        case otl_var_blob:
-            result = "blob";
-            break;
-        case otl_var_refcur:
-            result = "refcur";
-            break;
-        case otl_var_long_string:
-            result = "long_string";
-            break;
-        case otl_var_db2time:
-            result = "db2time";
-            break;
-        case otl_var_db2date:
-            result = "db2date";
-            break;
-        case otl_var_tz_timestamp:
-            result = "tz_timestamp";
-            break;
-        case otl_var_ltz_timestamp:
-            result = "ltz_timestamp";
-            break;
-        case otl_var_bigint:
-            result = "bigint";
-            break;
-        case otl_var_raw:
-            result = "raw";
-            break;
-        default:
-            throw std::runtime_error("不支持此类型: " + std::to_string(type));
+        // TODO: 将每一行记录转为二进制, 并且 使用CRC32检验数据
+        for(auto &col : row)
+        {
+
+        }
+
+        if(buff.size()> LIMIT_SIZE)
+        {
+            totalSize += buff.size();
+            std::ofstream out;
+            out.open(file, std::ios::out | std::ios::app | std::ios::binary);
+            out.write(buff.c_str(), buff.size());
+            buff.clear();
+            out.close();
+        }
     }
-    return result;
+
+    return totalSize > 0;
+}
+bool Table::Connect(const std::string &otlCfg)
+{
+    if(!otl.load(otlCfg))
+    {
+        SLOG_ERROR(otl.err())
+        return false;
+    }
+    return true;
+}
+void Table::Pull(const std::string &sql)
+{
+    otl_connect db;
+    otl_stream stream;
+    std::string m_err;
+    try
+    {
+        db.auto_commit_off();
+        db.set_timeout(5);
+        db.rlogon(otl.odbc().c_str(), false);
+
+        stream.open(1, sql.c_str(), db);
+
+        Read(&stream);
+
+        stream.close();
+    }
+    catch (otl_exception& e)
+    {
+
+        db.rollback();
+        m_err = "OTL_ERR \nCONN:";
+        m_err.append(otl.odbc());
+        m_err.append("\nCODE:").append(std::to_string(e.code));
+        m_err.append("\nMSG:").append(std::string((char*)e.msg));
+        m_err.append("\nSTATE:").append(std::string((char*)e.sqlstate));
+        m_err.append("\nSTMT:").append(std::string((char*)e.stm_text));
+    }
+    catch (std::exception& p)
+    {
+        db.rollback();
+        m_err = "OTL_UNKNOWN " + std::string(p.what());
+    }
+    stream.close();
+    db.logoff();
+    if(!m_err.empty())
+    {
+        SLOG_ERROR(m_err);
+    }
 }
