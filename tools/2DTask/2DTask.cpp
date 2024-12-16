@@ -5,7 +5,7 @@
  * @author: dou li yang
  * @date: 2024-10-15
  * @file: 2DTask.c
- * @description: 2DTask实现
+ * @description: 2D水动力,提交任务实现
  * @version: v1.0.1 2024-10-15 dou li yang
  */
 #pragma once
@@ -15,8 +15,7 @@
 #include <network/websocket/silly_websocket_client.h>
 #include <network/http/silly_http_client.h>
 #include <json/silly_jsonpp.h>
-std::string port = "9001";
-#ifndef NDEBUG
+#ifdef NDEBUG
 std::string root = R"(D:\TzxProject\Webs\dem\server\task)";
 #else
 std::string root = R"(\\192.168.0.9\Webs\dem\server\task)";
@@ -33,7 +32,7 @@ const static std::string INVALID = "Invalid";
 const static std::string START = "Model initialized";
 const static std::string FINISH = "Model initialized and simulation complete";
 const static std::string EXTENSION = ".tzx_task";
-#define SLEEP_SECONDS(sec)  std::this_thread::sleep_for(std::chrono::seconds(sec))
+#define SLEEP_SECONDS(sec) std::this_thread::sleep_for(std::chrono::seconds(sec))
 
 void message_action(const std::string& msg);
 void latest_task();
@@ -46,18 +45,25 @@ int main(int argc, char** argv)
         std::cerr << "日志模块初始化失败" << std::endl;
         return -1;
     }
-    if(argc == 2)
+    if (argc >= 2)
     {
         root = std::string(argv[1]);
     }
-    std::string url = "ws://192.168.0.9:";
-    //url = "ws://127.0.0.1:";
-    url.append(port).append("/ws1");
+    std::string url = "ws://192.168.0.9:80";
+#ifdef NDEBUG
+    url = "ws://127.0.0.1:80";
+#endif
+    if (argc == 3)
+    {
+        url = std::string(argv[2]);
+    }
+   
+    url.append("/ws1");
 
-    while(1)
+    while (1)
     {
         silly_http_client http;
-        if(!http.get("192.168.0.9:3000/server/path", svrr) || svrr.empty())
+        if (!http.get("127.0.0.1:3000/server/path", svrr) || svrr.empty())
         {
             SLOG_ERROR("获取运行根目录失败")
             SLEEP_SECONDS(5);
@@ -66,11 +72,11 @@ int main(int argc, char** argv)
         SLOG_INFO("运行根目录: {}", svrr)
         silly_websocket_client wsc;
         wsc.on_receive(message_action);
-
+        SLOG_INFO("WS地址: " + url)
         if (!wsc.connect(url))
         {
-            SLOG_ERROR("连接失败: {}", url)
-            SLOG_ERROR("错误信息:\n {}", wsc.err())
+            SLOG_ERROR("连接失败: " + url)
+            SLOG_ERROR("错误信息:\n " + wsc.err())
             SLEEP_SECONDS(10);
             continue;
         }
@@ -78,12 +84,12 @@ int main(int argc, char** argv)
         t.detach();
         // wsc.loop();
 
-        while (1) // 改为ws是否断开连接
+        while (1)  // 改为ws是否断开连接
         {
-            if(plan.empty() && proj.empty() && run.load())
+            if (plan.empty() && proj.empty() && run.load())
             {
                 latest_task();
-                if(!plan.empty() && !proj.empty())
+                if (!plan.empty() && !proj.empty())
                 {
                     // {"argc":2,"command":"initialize_and_simulate","argv":["D:\\TzxProject\\Webs\\dem\\server\\projects\\2","./test2/cfg/plan1.cfg"]}
                     std::string msg = "./";
@@ -96,7 +102,7 @@ int main(int argc, char** argv)
                     jv["argv"].append(msg);
                     std::string jstr = silly_jsonpp::to_string(jv);
                     SLOG_INFO("发送任务信息: {}", jstr)
-                    if(wsc.send(jstr))
+                    if (wsc.send(jstr))
                     {
                         run = false;
                     }
@@ -104,25 +110,21 @@ int main(int argc, char** argv)
                     {
                         break;
                     }
-
                 }
-                else{
+                else
+                {
                     SLOG_INFO("未检查到新任务")
                 }
             }
 
-
-          SLEEP_SECONDS(10);
+            SLEEP_SECONDS(10);
         }
 
         SLEEP_SECONDS(5);
     }
 
-
     return 0;
 }
-
-
 
 void message_action(const std::string& msg)
 {
@@ -137,7 +139,7 @@ void message_action(const std::string& msg)
         SLOG_INFO("开始计算: {} {}", proj, plan)
         run = true;
     }
-    else if(msg == INVALID)
+    else if (msg == INVALID)
     {
         SLOG_INFO("无效任务, 移除任务: {} {}", proj, plan);
         remove_task();
@@ -148,7 +150,6 @@ void message_action(const std::string& msg)
         SLOG_INFO("计算完成, 移除任务: {} {}", proj, plan);
         remove_task();
         run = true;
-
     }
 }
 void latest_task()
@@ -161,13 +162,13 @@ void latest_task()
     {
         return;
     }
-    for(auto it: std::filesystem::directory_iterator(sfp_p))
+    for (auto it : std::filesystem::directory_iterator(sfp_p))
     {
-        if(it.is_directory())
+        if (it.is_directory())
         {
             continue;
         }
-        if(it.path().extension() != EXTENSION)
+        if (it.path().extension() != EXTENSION)
         {
             continue;
         }
@@ -175,30 +176,29 @@ void latest_task()
         std::string filename = it.path().filename().stem().string();
         time_filename[tm] = filename;
     }
-    if(time_filename.empty())
+    if (time_filename.empty())
     {
         return;
     }
     std::string filename = time_filename.rbegin()->second;
     size_t pos = filename.find(".");
-    if(pos == std::string::npos)
+    if (pos == std::string::npos)
     {
         return;
     }
     proj = filename.substr(0, pos);
-    plan = filename.substr(proj.size()+1);
+    plan = filename.substr(proj.size() + 1);
     SLOG_INFO("检查到新任务: {} {}", proj, plan)
-
 }
 
 void remove_task()
 {
-
-    std::string filename = proj + "."+plan + EXTENSION;
-    try{
+    std::string filename = proj + "." + plan + EXTENSION;
+    try
+    {
         std::filesystem::remove(std::filesystem::path(root).append(filename));
     }
-    catch(...)
+    catch (...)
     {
         SLOG_ERROR("移除任务失败: {}", filename);
     }
