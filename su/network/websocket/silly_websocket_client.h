@@ -28,36 +28,69 @@ class silly_websocket_client
 {
   public:
     silly_websocket_client();
-    ~silly_websocket_client() = default;
+    ~silly_websocket_client();
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="url"></param>
+    /// <returns></returns>
+    bool connect(const std::string& url);
 
+    /// <summary>
+    /// 发送消息
+    /// </summary>
+    /// <param name="msg"></param>
+    /// <returns></returns>
+    bool send(const std::string& msg);
+
+    /// <summary>
+    /// 断开连接
+    /// </summary>
+    /// <param name="bye"></param>
+    void close(const std::string& bye);
+
+    /// <summary>
+    /// 连接成功,绑定响应函数
+    /// </summary>
+    /// <typeparam name="Func"></typeparam>
+    /// <typeparam name="...Args"></typeparam>
+    /// <param name="func"></param>
+    /// <param name="...args"></param>
     template <typename Func, typename... Args>
     void on_connect(Func&& func, Args&&... args);
 
-    bool connect(const std::string& url);
-
-    bool send(const std::string& msg);
-
+    /// <summary>
+    /// 收到消息,绑定响应函数
+    /// </summary>
+    /// <typeparam name="Func"></typeparam>
+    /// <typeparam name="...Args"></typeparam>
+    /// <param name="func"></param>
+    /// <param name="...args"></param>
     template <typename Func, typename... Args>
     void on_receive(Func&& func, Args&&... args);
-    /*template <typename Func>
-    void on_receive(Func&& func);*/
 
+    /// <summary>
+    /// 被动关闭,绑定响应函数
+    /// </summary>
+    /// <typeparam name="Func"></typeparam>
+    /// <typeparam name="...Args"></typeparam>
+    /// <param name="func"></param>
+    /// <param name="...args"></param>
     template <typename Func, typename... Args>
     void on_close(Func&& func, Args&&... args);
-    void close(const std::string& bye);
 
-    void run();
-
+    /// <summary>
+    /// 是否连接
+    /// </summary>
+    /// <returns></returns>
     bool connected();
-
-    void loop();
     std::string err() const;
 
   private:
     websocketpp::connection_hdl m_hdl;
     client m_client;
     std::string m_err;
-    std::atomic<bool> m_closed = false;
+    std::atomic<bool> m_closed = true;
     std::condition_variable m_cv;
     std::mutex m_mutex;
 };
@@ -65,45 +98,36 @@ class silly_websocket_client
 template <typename Func, typename... Args>
 void silly_websocket_client::on_connect(Func&& func, Args&&... args)
 {
-    /* m_client.set_open_handler([this, func, &args...](websocketpp::connection_hdl hdl) {
-         m_conn = m_client.get_con_from_hdl(hdl);
-         func(m_conn, args...);
-     });*/
+    m_client.set_open_handler([&](websocketpp::connection_hdl hdl) {
+#ifndef NDEBUG
+        std::cout << "已连接" << std::endl;
+#endif
+        m_closed = false;
+        func(std::forward<Args>(args)...);
+    });
 }
 
 template <typename Func, typename... Args>
 void silly_websocket_client::on_receive(Func&& func, Args&&... args)
 {
-    std::function<void(client * c, websocketpp::connection_hdl, message_ptr)> on_message;
+    std::function<void(client * c, websocketpp::connection_hdl, message_ptr)> _on_message;
 
-    on_message = [func1 = std::forward<Func>(func), args...](client* c, websocketpp::connection_hdl hdl, message_ptr msg) {
+    _on_message = [func1 = std::forward<Func>(func), args...](client* c, websocketpp::connection_hdl hdl, message_ptr msg) {
         std::string message = msg->get_payload();
         std::cout << "Received message: " << message << std::endl;
         func1(message, std::forward<Args>(args)...);
     };
-    m_client.set_message_handler(websocketpp::lib::bind(on_message, &m_client, websocketpp::lib::placeholders::_1, websocketpp::lib::placeholders::_2));
+    m_client.set_message_handler(websocketpp::lib::bind(_on_message, &m_client, websocketpp::lib::placeholders::_1, websocketpp::lib::placeholders::_2));
 }
-
-/*
-template <typename Func>
-void silly_websocket_client::on_receive(Func&& func)
-{
-    auto on_message = [](client* c, websocketpp::connection_hdl hdl, message_ptr msg) {
-        std::string message = msg->get_payload();
-        func(message);
-    };
-    m_client.set_message_handler(websocketpp::lib::bind(func, &m_client, websocketpp::lib::placeholders::_1, websocketpp::lib::placeholders::_2));
-}
-*/
 
 template <typename Func, typename... Args>
 void silly_websocket_client::on_close(Func&& func, Args&&... args)
 {
-    /*if(m_hdl.expired())
-    {
-
-    }
-    m_client.set_close_handler(std::bind(func, std::forward<Args>(args)...));*/
+    m_client.set_close_handler([&](websocketpp::connection_hdl hdl) {
+        func(std::forward<Args>(args)...);
+        m_client.stop();
+        m_closed = true;
+    });
 }
 
 #endif  // SILLY_UTILS_SILLY_WEBSOCKET_CLIENT_H

@@ -22,13 +22,17 @@ silly_websocket_client::silly_websocket_client()
         // Initialize ASIO
         m_client.init_asio();
         m_client.set_open_handler([this](websocketpp::connection_hdl hdl) {
-            //std::cout << "Disconnected from server" << std::endl;
+            // std::cout << "Disconnected from server" << std::endl;
             {
-                std::lock_guard<std::mutex> lock(m_mutex);
-                m_closed = true;
+#ifndef NDEBUG
+                std::cout << "已连接" << std::endl;
+#endif
+                m_closed = false;
             }
-            m_cv.notify_one();
         });
+        m_client.set_close_handler([this](websocketpp::connection_hdl hdl) { 
+            m_client.stop();
+            m_closed = true; });
     }
     catch (websocketpp::exception const& e)
     {
@@ -39,10 +43,14 @@ silly_websocket_client::silly_websocket_client()
         m_err = e.what();
     }
 }
+silly_websocket_client::~silly_websocket_client()
+{
+    m_hdl.reset();
+    m_client.stop();
+}
 
 bool silly_websocket_client::connect(const std::string& url)
 {
-    bool status = false;
     try
     {
         websocketpp::lib::error_code ec;
@@ -50,16 +58,18 @@ bool silly_websocket_client::connect(const std::string& url)
         if (ec.value())
         {
             m_err = ec.message();
-            return status;
+            return !m_closed;
         }
         m_hdl = conn->get_handle();
         m_client.connect(conn);
-       /* client::connection_ptr con = m_client.get_con_from_hdl(m_hdl);
-        if(websocketpp::session::state::open == con->get_state())
+        std::thread t([this]() { m_client.run(); });
+        t.detach();
+        int wait = 10;
+        while (m_closed && wait--)
         {
-             status = true;
-        }*/
-        status = true;
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
+       
     }
     catch (websocketpp::exception const& e)
     {
@@ -69,24 +79,10 @@ bool silly_websocket_client::connect(const std::string& url)
     {
         m_err = e.what();
     }
-    return status;
+    return !m_closed;
 }
 
-void silly_websocket_client::run()
-{
-    try
-    {
-        m_client.run();
-    }
-    catch (websocketpp::exception const& e)
-    {
-        m_err = e.what();
-    }
-    catch (const std::exception& e)
-    {
-        m_err = e.what();
-    }
-}
+
 
 void silly_websocket_client::close(const std::string& bye)
 {
@@ -96,7 +92,7 @@ void silly_websocket_client::close(const std::string& bye)
         {
             m_client.close(m_hdl, websocketpp::close::status::normal, bye);
         }
-
+        m_client.stop();
     }
     catch (websocketpp::exception const& e)
     {
@@ -106,6 +102,7 @@ void silly_websocket_client::close(const std::string& bye)
     {
         m_err = e.what();
     }
+
 }
 
 bool silly_websocket_client::send(const std::string& msg)
@@ -133,25 +130,8 @@ std::string silly_websocket_client::err() const
 #endif
     return m_err;
 }
-void silly_websocket_client::loop()
-{
-    try
-    {
-        std::thread t(&silly_websocket_client::run, this);
-        t.detach();;
-    }
-    catch (websocketpp::exception const& e)
-    {
-        m_err = e.what();
-    }
-    catch (const std::exception& e)
-    {
-        m_err = e.what();
-    }
 
-}
 bool silly_websocket_client::connected()
 {
-    auto state = m_client.get_con_from_hdl(m_hdl)->get_state();
-    return websocketpp::session::state::open == state;
+    return !m_closed;
 }
