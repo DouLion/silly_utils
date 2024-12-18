@@ -114,7 +114,9 @@ void silly_websocket_client::on_receive(Func&& func, Args&&... args)
 
     _on_message = [func1 = std::forward<Func>(func), args...](client* c, websocketpp::connection_hdl hdl, message_ptr msg) {
         std::string message = msg->get_payload();
-        std::cout << "Received message: " << message << std::endl;
+#ifndef NDEBUG
+        std::cout << "收到消息: " << message << std::endl;
+#endif
         func1(message, std::forward<Args>(args)...);
     };
     m_client.set_message_handler(websocketpp::lib::bind(_on_message, &m_client, websocketpp::lib::placeholders::_1, websocketpp::lib::placeholders::_2));
@@ -124,6 +126,9 @@ template <typename Func, typename... Args>
 void silly_websocket_client::on_close(Func&& func, Args&&... args)
 {
     m_client.set_close_handler([&](websocketpp::connection_hdl hdl) {
+#ifndef NDEBUG
+        std::cout << "连接断开" << std::endl;
+#endif
         func(std::forward<Args>(args)...);
         m_client.stop();
         m_closed = true;
