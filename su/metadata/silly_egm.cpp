@@ -67,7 +67,7 @@ double silly_egm::geoid(const double& lgtd, const double& lttd)
     g10 = g10 * 0.003 - 108.0;
     g11 = g11 * 0.003 - 108.0;
 
-    std::cout << g00 << "\n" << g01 << "\n" << g10 << "\n" << g11 << "\n" << std::endl;
+   // std::cout << g00 << "\n" << g01 << "\n" << g10 << "\n" << g11 << "\n" << std::endl;
 
 
     double geoid0 = g00 * (1 - ddc) + g01 * ddc;
