@@ -25,11 +25,13 @@ class silly_egm
         double scale = 0.003;
         // 参照 # Offset -108
         double offset = -108.0;
-        // 参照 # Origin 90N 0E
         double min_lat = -90.0;
         double max_lat = 90.;
-        double min_lon = 0.;
+        double min_lon = -180.;
         double max_lon = 180.;
+        // 参照 # Origin 90N 0E
+        double origin_lat = 90.;
+        double origin_lon = 0.;
         size_t rows = 0;
         size_t cols = 0;
         size_t dlen = 1;  // 格点数据长度
@@ -42,14 +44,15 @@ class silly_egm
 
     /// <summary>
     /// 获取大地水准面高差, 见文件下方说明
+    /// 使用双线性差值
     /// </summary>
-    /// <param name="lgtd"></param>
-    /// <param name="lttd"></param>
+    /// <param name="lgtd">经度, -180~180, 0~180为东经, -180~-0为西经</param>
+    /// <param name="lttd">纬度, -90~90, -90为南纬, 90为北纬</param>
     /// <returns></returns>
     double geoid(const double& lgtd, const double& lttd);
 
     /// <summary>
-    /// 获取正高
+    /// 获取正高, 根据ellipsoid 计算  ellipsoid - geoid(lgtd, lttd)
     /// </summary>
     /// <param name="lgtd"></param>
     /// <param name="lttd"></param>
@@ -67,6 +70,8 @@ class silly_egm
     header m_headers;
     size_t m_doffs = 0;  // 数据块起始位置在文件中的偏移
     silly_mmap m_mmap;
+    double m_lat_ratio = 0;
+    double m_lon_ratio = 0;
 };
 
 /* 常用高程类型说明
