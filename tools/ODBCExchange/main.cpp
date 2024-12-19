@@ -26,25 +26,30 @@ int main(int argc, char** argv)
     // 切换当前工作目录
     std::filesystem::current_path(root);
 #endif
+    std::string tableName = "MessageInfo_R";
+    if(argc == 2)
+    {
+        tableName = argv[1];
+    }
 
     std::string conn = R"({"type": "mysql",
 "ip": "192.168.0.73",
 "port": 3306,
-"driver": "MYSQL ODBC 9.1 UNICODE Driver",
+"driver": "MYSQL ODBC 8.0 UNICODE Driver",
 "schema": "TZX_FloodDisaster_HN",
 "user": "root",
 "password": "3edc9ijn~"
 })";
-    std::string sql = R"(select * from MessageInfo_R;)";
+    std::string sql = R"(select * from )" + tableName + R"( limit 20)";
+    SLOG_INFO("sql: {}", sql)
 
     X::Table table;
-    if(!table.Connect(conn))
+    if (!table.Connect(conn))
     {
         return 2;
     }
 
     table.Pull(sql);
-
 
     table.Print();
 
