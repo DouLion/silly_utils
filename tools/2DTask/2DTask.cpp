@@ -15,6 +15,7 @@
 #include <network/websocket/silly_websocket_client.h>
 #include <network/http/silly_http_client.h>
 #include <json/silly_jsonpp.h>
+
 #ifdef NDEBUG
 std::string root = R"(D:\TzxProject\Webs\dem\server\task)";
 #else
@@ -35,6 +36,15 @@ const static std::string EXTENSION = ".tzx_task";
 #define SLEEP_SECONDS(sec) std::this_thread::sleep_for(std::chrono::seconds(sec))
 
 void message_action(const std::string& msg);
+void open_action(const std::string& zzz)
+{
+    SLOG_INFO("连接" + zzz)
+}
+
+void close_action(const std::string& zzz)
+{
+    SLOG_ERROR("断开连接" + zzz);
+}
 void latest_task();
 void remove_task();
 
@@ -49,7 +59,7 @@ int main(int argc, char** argv)
     {
         root = std::string(argv[1]);
     }
-    std::string url = "ws://192.168.0.9:80";
+    std::string url = "ws://127.0.0.1:9001";
 #ifdef NDEBUG
     url = "ws://127.0.0.1:80";
 #endif
@@ -57,13 +67,13 @@ int main(int argc, char** argv)
     {
         url = std::string(argv[2]);
     }
-   
+
     url.append("/ws1");
 
     while (1)
     {
         silly_http_client http;
-        if (!http.get("127.0.0.1:3000/server/path", svrr) || svrr.empty())
+        if (!http.get("192.168.0.9:3000/server/path", svrr) || svrr.empty())
         {
             SLOG_ERROR("获取运行根目录失败")
             SLEEP_SECONDS(5);
@@ -72,6 +82,10 @@ int main(int argc, char** argv)
         SLOG_INFO("运行根目录: {}", svrr)
         silly_websocket_client wsc;
         wsc.on_receive(message_action);
+        /* wsc.on_close(close_action, "NONO");
+         wsc.on_connect(open_action, "OKOK");*/
+        wsc.on_close([]() {});
+        wsc.on_connect([]() {});
         SLOG_INFO("WS地址: " + url)
         if (!wsc.connect(url))
         {
@@ -80,18 +94,23 @@ int main(int argc, char** argv)
             SLEEP_SECONDS(10);
             continue;
         }
-        std::thread t(&silly_websocket_client::run, &wsc);
-        t.detach();
+        std::cout << "连接成功\n";
+        /* std::thread t(&silly_websocket_client::run, &wsc);
+         t.detach();*/
         // wsc.loop();
 
-        while (1)  // 改为ws是否断开连接
+        while (wsc.connected())  // 改为ws是否断开连接
         {
-            if (plan.empty() && proj.empty() && run.load())
+            if (!wsc.send("Hi"))
+            {
+                break;
+            }
+            /*if (plan.empty() && proj.empty() && run.load())
             {
                 latest_task();
                 if (!plan.empty() && !proj.empty())
                 {
-                    // {"argc":2,"command":"initialize_and_simulate","argv":["D:\\TzxProject\\Webs\\dem\\server\\projects\\2","./test2/cfg/plan1.cfg"]}
+                     {"argc":2,"command":"initialize_and_simulate","argv":["D:\\TzxProject\\Webs\\dem\\server\\projects\\2","./test2/cfg/plan1.cfg"]}
                     std::string msg = "./";
                     msg.append(proj).append("/cfg/").append(plan + ".cfg");
                     Json::Value jv;
@@ -115,12 +134,12 @@ int main(int argc, char** argv)
                 {
                     SLOG_INFO("未检查到新任务")
                 }
-            }
+            }*/
 
-            SLEEP_SECONDS(10);
+            SLEEP_SECONDS(1);
         }
 
-        SLEEP_SECONDS(5);
+        SLEEP_SECONDS(1);
     }
 
     return 0;
