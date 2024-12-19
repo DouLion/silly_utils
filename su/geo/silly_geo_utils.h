@@ -315,7 +315,7 @@ class utils
     /// 创建缓冲区
     /// </summary>
     /// <param name="coll"></param>
-    /// <param name="distance">缓冲区大小(正负均可),该值要对应coll中数据的的单位,即coll单位的经纬度,distance单位要是度</param>
+    /// <param name="distance">缓冲区大小(正负均可),要求coll中矢量的单位和distance单位保持一致</param>
     /// <returns></returns>
     static silly_geo_coll buffer(const silly_geo_coll& coll, const double& distance);
 
