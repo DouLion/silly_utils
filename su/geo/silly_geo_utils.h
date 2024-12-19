@@ -27,7 +27,11 @@
 #define SILLY_GML_DRIVER_NAME "GML"
 #define SILLY_XLSX_DRIVER_NAME "XLSX"
 
-class silly_geo_utils
+namespace silly
+{
+namespace geo
+{
+class utils
 {
   public:
     /// <summary>
@@ -36,7 +40,7 @@ class silly_geo_utils
     static void init_gdal_env();
 
     /// <summary>
-    /// 销毁 GDAL 环境, 一旦执行此方法,那么GDAL可能就无法使用,
+    /// 销毁 GDAL 环境, 一旦执行此方法,那么当前进程及其子线程中GDAL就无法使用
     /// </summary>
     static void destroy_gdal_env();
 
@@ -70,11 +74,6 @@ class silly_geo_utils
     /// <returns></returns>
     /// 注:读取 shp , geojson 类型文件中可以实现
     static bool read_geo_coll(const std::string& u8file, std::vector<silly_geo_coll>& collections, const bool& ignore_prop = false);
-
-    /// 等值面切割使用的矢量文件格式
-    static bool read_iso_polygon(const std::string& u8file, silly_multi_poly& mpoly);
-
-    static bool write_iso_polygon(const std::string& u8file, const silly_multi_poly& mpoly, const int& precision = 10);
 
     /// <summary>
     /// 将silly_geo_coll数据结构写入矢量文件(如shp文件)
@@ -458,10 +457,8 @@ class silly_geo_utils
     static silly_geo_coll silly_geo_coll_from_ogr(const OGRGeometry* geometry);
 };
 
-typedef silly_geo_utils geo_utils;  // 兼容之前的写法
-
 template <typename T>
-double silly_geo_utils::area(const std::vector<T>& xs, const std::vector<T>& ys)
+double utils::area(const std::vector<T>& xs, const std::vector<T>& ys)
 {
     double result = 0.0;
     if (xs.size() != ys.size())
@@ -484,7 +481,7 @@ double silly_geo_utils::area(const std::vector<T>& xs, const std::vector<T>& ys)
     return std::abs(result) / 2.0;
 }
 template <typename T>
-double silly_geo_utils::area(const int& pnum, const T* points)
+double utils::area(const int& pnum, const T* points)
 {
     double result = 0.0;
     // 确保至少有3个点才能构成一个多边形
@@ -503,7 +500,7 @@ double silly_geo_utils::area(const int& pnum, const T* points)
     return std::abs(result) / 2.0;
 }
 template <typename T>
-double silly_geo_utils::area(const int& pnum, const T* xs, const T* ys)
+double utils::area(const int& pnum, const T* xs, const T* ys)
 {
     double result = 0.0;
     // 确保至少有3个点才能构成一个多边形
@@ -520,5 +517,9 @@ double silly_geo_utils::area(const int& pnum, const T* xs, const T* ys)
     }
     return std::abs(result) / 2.0;
 }
+}  // namespace geo
+}  // namespace silly
+typedef silly::geo::utils silly_geo_utils;
+typedef silly_geo_utils geo_utils;  // 兼容之前的写法
 
 #endif  // SILLY_UTILS_SILLY_GEO_OPERATION_H
