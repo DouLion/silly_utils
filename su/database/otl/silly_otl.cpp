@@ -424,26 +424,15 @@ std::vector<std::string> otl_conn_opt::drivers()
     WORD cbBufMax = 10239;
     WORD cbBufOut;
     WCHAR* pszBuf = szBuf.data();
-
-    // 使用 std::wstring_convert 替代方案，这里使用 std::wstring_convert 和 std::codecvt_utf8_utf16
-    using convert_typeX = std::codecvt_utf8_utf16<wchar_t>;
+    using convert_typeX = std::codecvt_utf8<wchar_t>;
     std::wstring_convert<convert_typeX, wchar_t> converterX;
-
-    if (SQLGetInstalledDrivers(szBuf.data(), cbBufMax, &cbBufOut) == SQL_SUCCESS)
+    if (SQLGetInstalledDrivers(szBuf.data(), cbBufMax, &cbBufOut))
     {
-        pszBuf = szBuf.data();
         do
         {
-            // 转换并添加到结果向量
+            pszBuf = wcschr(pszBuf, '\0') + 1;
             ret.push_back(converterX.to_bytes(pszBuf));
-            // 移动到下一个驱动程序名称
-            pszBuf += wcslen(pszBuf) + 1;
-        } while (*pszBuf != L'\0');  // 检查是否到达结束标志
-    }
-    else
-    {
-        // 错误处理
-        std::cerr << "Failed to retrieve installed drivers." << std::endl;
+        } while (pszBuf[1] != '\0');
     }
 #else
     FILE* fp;
