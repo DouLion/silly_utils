@@ -154,6 +154,11 @@ static std::string db_type_to_str(const enum_database_type& type)
     }                                            \
     lob.close();
 
+/// <summary>
+/// lob数据怕为字符串
+/// </summary>
+/// <param name="lob"></param>
+/// <returns></returns>
 static std::string olt_lob_stream_to_str(otl_lob_stream lob)
 {
     std::string ret;
@@ -170,12 +175,39 @@ static std::string olt_lob_stream_to_str(otl_lob_stream lob)
     return ret;
 }
 
+/// <summary>
+/// long_string 转换为字符串
+/// </summary>
+/// <param name="ls"></param>
+/// <returns></returns>
 static std::string otl_long_str_to_str(otl_long_string ls)
 {
     std::string ret;
     ret.resize(ls.len());
     memcpy(&ret[0], ls.v, ls.len());
     return ret;
+}
+
+static std::string otl_datetime_to_str(otl_datetime dt, bool millisecond = false)
+{
+    char buff[32];
+    if (millisecond)
+    {
+        sprintf(buff, "%04d-%02d-%02d %02d:%02d:%02d.%03d", dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second, dt.fraction / 1e6);
+    }
+    else
+    {
+        sprintf(buff, "%04d-%02d-%02d %02d:%02d:%02d", dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second);
+    }
+    return std::string(buff);
+}
+
+static otl_datetime st_to_otl_datetime(const std::string& str)
+{
+    otl_datetime dt;
+    sscanf(str.c_str(), "%04d-%02d-%02d %02d:%02d:%02d.%03d", &dt.year, &dt.month, &dt.day, &dt.hour, &dt.minute, &dt.second, dt.fraction);
+    dt.fraction = dt.fraction * 1e6;
+    return dt;
 }
 
 class otl_tools;  // 始终直接传入odbc字符串时不需要这个类

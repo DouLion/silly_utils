@@ -121,15 +121,15 @@
 #define SU_2PI (SU_PI * 2.)
 
 #ifndef M_PI
-#define M_PI 3.14159265358979323846
+#define M_PI PI
 #endif
 
 #ifndef M_PI_2
-#define M_PI_2 1.57079632679489661923
+#define M_PI_2 (PI / 2.)
 #endif
 
-#ifndef M_PI_2
-#define M_2PI (M_PI * 2.)
+#ifndef M_2PI
+#define M_2PI (PI * 2.)
 #endif
 
 // 自然指数e
@@ -176,7 +176,7 @@
 #define SQRT_2 (1.4142135623730950488016887242097f)
 
 #define SU_RGB(r, g, b) ((unsigned int)(((unsigned char)(r) | ((unsigned int)((unsigned char)(g)) << 8)) | (((unsigned int)(unsigned char)(b)) << 16)))
-#define SU_ARGB(a, r, g, b) (unsigned int)(((a)&0xff) << 24 | ((r)&0xff) << 16 | ((g)&0xff) << 8 | (b & 0xff))
+#define SU_ARGB(a, r, g, b) (unsigned int)(((a) & 0xff) << 24 | ((r) & 0xff) << 16 | ((g) & 0xff) << 8 | (b & 0xff))
 #define SU_RGBA(r, g, b, a) SU_ARGB(a, r, g, b)
 #define SU_XRGB(r, g, b) SU_ARGB(0xff, r, g, b)
 
@@ -259,18 +259,20 @@
 
 #ifndef SU_MAX
 #define SU_MAX(a, b) (((a) > (b)) ? (a) : (b))
-#endif
-
-#ifndef SU_MIN
 #define SU_MIN(a, b) (((a) < (b)) ? (a) : (b))
+#define SU_CLAMP(v, min, max) (((v) < (min)) ? (min) : (((v) > (max)) ? (max) : (v)))
+#define SU_MAX3(a, b, c) SU_MAX(a, SU_MAX(b, c))
+#define SU_MIN3(a, b, c) SU_MIN(a, SU_MIN(b, c))
 #endif
 
-// 转化小端序的int值
-#define SU_CONVERT_LITTLE_ENDIAN_LONG(src_ptr) (src_ptr[3] << 24 | (src_ptr[2] << 16) | src_ptr[1] << 8 | src_ptr[0])
-// 转化小端序的int值
-#define SU_CONVERT_LITTLE_ENDIAN_INT(src_ptr) (src_ptr[3] << 24 | (src_ptr[2] << 16) | src_ptr[1] << 8 | src_ptr[0])
-// 转化小端序的short值
-#define SU_CONVERT_LITTLE_ENDIAN_SHORT(src_ptr) (src_ptr[1] << 8) + src_ptr[0]
+// 按照小端序转换
+#define SU_LE_64(p) (p[7] << 56 | (p[6] << 48) | (p[5] << 40) | (p[4] << 32) | (p[3] << 24) | (p[2] << 16) | (p[1] << 8) | p[0])
+#define SU_LE_32(p) (p[3] << 24 | (p[2] << 16) | p[1] << 8 | p[0])
+#define SU_LE_16(p) (p[1] << 8 | p[0])
+// 按照大端序转换
+#define SU_BE_64(p) (p[0] << 56 | (p[1] << 48) | (p[2] << 40) | (p[3] << 32) | (p[4] << 24) | (p[5] << 16) | (p[6] << 8) | p[7])
+#define SU_BE_32(p) (p[0] << 24 | (p[1] << 16) | p[2] << 8 | p[3])
+#define SU_BE_16(p) (p[0] << 8 | p[1])
 
 #ifndef SU_MEMCPY
 #define SU_MEMCPY(p, off, v) memcpy(p + off, &v, sizeof(v));
@@ -311,5 +313,3 @@
         (p) = nullptr;     \
     }
 #endif
-
-#define SILLY_IGNORE_WATER_DEPTH_METER 0.001
