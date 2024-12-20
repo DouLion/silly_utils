@@ -6,6 +6,7 @@
 #include "otl_tools.h"
 
 const static std::string SILLY_OTL_MYSQL_ODBC_FORMAT = "Driver={%s};Server=%s;Port=%d;Database=%s;User=%s;Password=%s;Option=3;charset=UTF8;";
+const static std::string SILLY_OTL_MARIA_ODBC_FORMAT = "Driver={%s};Server=%s;Port=%d;Database=%s;User=%s;Password=%s;Option=3;charset=UTF8;";
 const static std::string SILLY_OTL_MSSQL_ODBC_FORMAT = "Driver={%s};Server=%s;Port=%d;UID=%s;PWD=%s;Database=%s;";
 const static std::string SILLY_OTL_ORACLE_ODBC_FORMAT = "Driver={%s};DBQ=%s:%d/%s;Uid=%s;Pwd=%s;";
 const static std::string SILLY_OTL_DM8_ODBC_FORMAT = "Driver={%s};Server=%s;TCP_PORT=%d;UID=%s;PWD=%s;";
@@ -32,6 +33,16 @@ std::string _trim(const std::string& str)
     return ltrim(rtrim(str));
 }
 
+std::string _lower(const std::string& str)
+{
+    return std::string(std::find_if(str.begin(), str.end(), [](char ch) { return !std::isspace<char>(ch, std::locale::classic()); }), str.end());
+}
+
+/// <summary>
+/// 根据驱动名称,猜测数据库类型
+/// </summary>
+/// <param name="driver"></param>
+/// <returns></returns>
 static enum_database_type assume_type(const std::string& driver)
 {
     std::string lower_driver = driver;
@@ -55,6 +66,10 @@ static enum_database_type assume_type(const std::string& driver)
     else if (lower_driver.find("dm8") != std::string::npos)
     {
         return enum_database_type::dbDM8;
+    }
+    else if (lower_driver.find("maria") != std::string::npos)
+    {
+        return enum_database_type::dbKingB8;
     }
 
     return enum_database_type::dbINVALID;
@@ -179,6 +194,9 @@ bool otl_conn_opt::load(const std::string& cfg)
                     case enum_database_type::dbMYSQL:
                         m_port = 3306;
                         break;
+                    case enum_database_type::dbMariaDB:
+                        m_port = 3306;
+                        break;
                     case enum_database_type::dbORACLE:
                         m_port = 1521;
                         break;
@@ -219,6 +237,31 @@ bool otl_conn_opt::load(const std::string& cfg)
             return status;
         }
     }
+    if (m_dsn.empty())
+    {
+        // 检测驱动名称是否有效
+        std::vector<std::string> driver = drivers();
+        std::string lower_driver = _lower(m_driver);
+        bool valid = false;
+        for (auto& d : driver)
+        {
+            if (lower_driver == _lower(d))
+            {
+                if (d != m_driver)
+                {
+                    m_driver = d;  // 自动修正大小写
+                }
+                valid = true;
+                break;
+            }
+        }
+
+        if (!valid)
+        {
+            m_err = "无效的数据库驱动: " + m_driver;
+            return status;
+        }
+    }
     m_conn = odbc(true);
 
     return check();
@@ -252,6 +295,9 @@ std::string otl_conn_opt::odbc(const bool& rebuild)
                     break;
                 case enum_database_type::dbDM8:
                     sprintf(buff, SILLY_OTL_DM8_ODBC_FORMAT.c_str(), m_driver.c_str(), m_ip.c_str(), m_port, m_user.c_str(), m_password.c_str());
+                    break;
+                case enum_database_type::dbMariaDB:
+                    sprintf(buff, SILLY_OTL_MYSQL_ODBC_FORMAT.c_str(), m_driver.c_str(), m_ip.c_str(), m_port, m_schema.c_str(), m_user.c_str(), m_password.c_str());
                     break;
                 default:
                     break;
@@ -364,85 +410,6 @@ std::string otl_conn_opt::encode()
     return result;
 }
 
-enum_database_type otl_conn_opt::type() const
-{
-    return m_type;
-}
-
-std::string otl_conn_opt::driver() const
-{
-    return m_driver;
-}
-
-std::string otl_conn_opt::ip() const
-{
-    return m_ip;
-}
-
-int otl_conn_opt::port() const
-{
-    return m_port;
-}
-
-std::string otl_conn_opt::schema() const
-{
-    return m_schema;
-}
-
-std::string otl_conn_opt::user() const
-{
-    return m_user;
-}
-
-std::string otl_conn_opt::pwd() const
-{
-    return m_password;
-}
-
-std::string otl_conn_opt::err() const
-{
-    return m_err;
-}
-
-void otl_conn_opt::type(enum_database_type tp)
-{
-    m_type = tp;
-}
-
-void otl_conn_opt::driver(std::string d)
-{
-    m_driver = d;
-}
-
-void otl_conn_opt::ip(std::string i)
-{
-    m_ip = i;
-}
-
-void otl_conn_opt::port(int p)
-{
-    m_port = p;
-}
-
-void otl_conn_opt::schema(std::string s)
-{
-    m_schema = s;
-}
-
-void otl_conn_opt::user(std::string u)
-{
-    m_user = u;
-}
-
-void otl_conn_opt::pwd(std::string p)
-{
-    m_password = p;
-}
-
-void otl_conn_opt::timeout(int to)
-{
-    m_timeout = to;
-}
 #ifdef IS_WIN32
 #include <odbcinst.h>
 #include <cstring>
@@ -451,22 +418,32 @@ void otl_conn_opt::timeout(int to)
 #endif
 std::vector<std::string> otl_conn_opt::drivers()
 {
-    std::vector<std::string> retVec;
+    std::vector<std::string> ret;
 #ifdef IS_WIN32
-
-    WCHAR szBuf[10240] = {0};
+    std::vector<WCHAR> szBuf(10240);
     WORD cbBufMax = 10239;
     WORD cbBufOut;
-    WCHAR* pszBuf = szBuf;
-    using convert_typeX = std::codecvt_utf8<wchar_t>;
+    WCHAR* pszBuf = szBuf.data();
+
+    // 使用 std::wstring_convert 替代方案，这里使用 std::wstring_convert 和 std::codecvt_utf8_utf16
+    using convert_typeX = std::codecvt_utf8_utf16<wchar_t>;
     std::wstring_convert<convert_typeX, wchar_t> converterX;
-    if (SQLGetInstalledDrivers(szBuf, cbBufMax, &cbBufOut))
+
+    if (SQLGetInstalledDrivers(szBuf.data(), cbBufMax, &cbBufOut) == SQL_SUCCESS)
     {
+        pszBuf = szBuf.data();
         do
         {
-            pszBuf = wcschr(pszBuf, '\0') + 1;
-            retVec.push_back(converterX.to_bytes(pszBuf));
-        } while (pszBuf[1] != '\0');
+            // 转换并添加到结果向量
+            ret.push_back(converterX.to_bytes(pszBuf));
+            // 移动到下一个驱动程序名称
+            pszBuf += wcslen(pszBuf) + 1;
+        } while (*pszBuf != L'\0');  // 检查是否到达结束标志
+    }
+    else
+    {
+        // 错误处理
+        std::cerr << "Failed to retrieve installed drivers." << std::endl;
     }
 #else
     FILE* fp;
@@ -477,13 +454,13 @@ std::vector<std::string> otl_conn_opt::drivers()
         // printf("%s", buffer);
         std::string tmp_odbc_driver(buffer);
         tmp_odbc_driver = tmp_odbc_driver.substr(1, tmp_odbc_driver.size() - 3);  // 每一行的结果 [MySQL ODBC 8.0 Unicode Driver]\r    最后有个换行符,所以是 -3
-        retVec.push_back(tmp_odbc_driver);
+        ret.push_back(tmp_odbc_driver);
         memset(buffer, 0, 4096);
     }
 
     pclose(fp);
 #endif
-    return retVec;
+    return ret;
 }
 bool otl_conn_opt::check_column_info(const std::string& sql)
 {
@@ -502,7 +479,7 @@ bool otl_conn_opt::check_column_info(const std::string& sql)
         std::cout << "列数: " << col_num << std::endl;
         for (int i = 0; i < col_num; ++i)
         {
-            std::cout << "[" << i + 1 << "] "<< "列名: " << desc_list[i].name << "  类型: " << otl_type_name((otl_var_enum)desc_list[i].otl_var_dbtype) << std::endl;
+            std::cout << "[" << i + 1 << "] " << "列名: " << desc_list[i].name << "  类型: " << otl_type_name((otl_var_enum)desc_list[i].otl_var_dbtype) << std::endl;
         }
         stream.close();
         status = true;
@@ -601,4 +578,84 @@ std::string otl_conn_opt::otl_type_name(const otl_var_enum& ot)
 void otl_conn_opt::verbose(bool vb)
 {
     m_verbose = vb;
+}
+
+enum_database_type otl_conn_opt::type() const
+{
+    return m_type;
+}
+
+std::string otl_conn_opt::driver() const
+{
+    return m_driver;
+}
+
+std::string otl_conn_opt::ip() const
+{
+    return m_ip;
+}
+
+int otl_conn_opt::port() const
+{
+    return m_port;
+}
+
+std::string otl_conn_opt::schema() const
+{
+    return m_schema;
+}
+
+std::string otl_conn_opt::user() const
+{
+    return m_user;
+}
+
+std::string otl_conn_opt::pwd() const
+{
+    return m_password;
+}
+
+std::string otl_conn_opt::err() const
+{
+    return m_err;
+}
+
+void otl_conn_opt::type(enum_database_type tp)
+{
+    m_type = tp;
+}
+
+void otl_conn_opt::driver(std::string d)
+{
+    m_driver = d;
+}
+
+void otl_conn_opt::ip(std::string i)
+{
+    m_ip = i;
+}
+
+void otl_conn_opt::port(int p)
+{
+    m_port = p;
+}
+
+void otl_conn_opt::schema(std::string s)
+{
+    m_schema = s;
+}
+
+void otl_conn_opt::user(std::string u)
+{
+    m_user = u;
+}
+
+void otl_conn_opt::pwd(std::string p)
+{
+    m_password = p;
+}
+
+void otl_conn_opt::timeout(int to)
+{
+    m_timeout = to;
 }

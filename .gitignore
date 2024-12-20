@@ -9,5 +9,4 @@
 /cmake-*
 /test/test_main.cpp
 /build
-/test/test.cpp
 *.log

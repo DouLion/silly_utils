@@ -11,7 +11,7 @@
 #define SILLY_UTILS_SILLY_OTL_H
 
 #define OTL_ODBC
-#define OTL_ODBC_MYSQL
+//#define OTL_ODBC_MYSQL
 #define OTL_ODBC_LOGOFF_FREES_HANDLES
 #ifndef IS_WIN32
 #define OTL_ODBC_UNIX
@@ -54,11 +54,13 @@ enum class enum_database_type
     dbORACLE = 3,     // ORACLE 数据库
     dbDM8 = 4,        // 达梦
     dbPG = 5,         // postgres
-    dbKingB8 = 6      // 人大金仓
+    dbKingB8 = 6,      // 人大金仓
+    dbMariaDB = 7       //MYSQL的一个开源分支,基本能够兼容mysql
 };
 
 const static char* SILLY_DB_TYPE_MSSQL_STR = "sqlserver";
 const static char* SILLY_DB_TYPE_MYSQL_STR = "mysql";
+const static char* SILLY_DB_TYPE_MARIA_STR = "maria";
 const static char* SILLY_DB_TYPE_ORACLE_STR = "oracle";
 const static char* SILLY_DB_TYPE_DM8_STR = "dm8";
 const static char* SILLY_DB_TYPE_POSTGRESQL_STR = "postgresql";
@@ -90,6 +92,10 @@ static enum_database_type str_to_db_type(const std::string& desc)
     {
         return enum_database_type::dbKingB8;
     }
+    else if (SILLY_DB_TYPE_MARIA_STR == desc)
+    {
+        return enum_database_type::dbMariaDB;
+    }
     return enum_database_type::dbINVALID;
 }
 
@@ -115,6 +121,9 @@ static std::string db_type_to_str(const enum_database_type& type)
             break;
         case enum_database_type::dbKingB8:
             s_ret = SILLY_DB_TYPE_KINGB8_STR;
+            break;
+        case enum_database_type::dbMariaDB:
+            s_ret = SILLY_DB_TYPE_MARIA_STR;
             break;
         default:
             s_ret = "";
