@@ -26,18 +26,18 @@ int main(int argc, char** argv)
     // 切换当前工作目录
     std::filesystem::current_path(root);
 #endif
-    std::string tableName = "MessageInfo_R";
+    std::string tableName = R"("TZX_FloodDisaster_XJ_FWQ"."Dzwl_MessageInfo_R")";
     if(argc == 2)
     {
         tableName = argv[1];
     }
 
-    std::string conn = R"({"type": "mysql",
-"ip": "192.168.0.73",
-"port": 3306,
-"driver": "MYSQL ODBC 8.0 UNICODE Driver",
-"schema": "TZX_FloodDisaster_HN",
-"user": "root",
+    std::string conn = R"({"type": "dm8",
+"ip": "192.168.0.156",
+"port": 5237,
+"driver": "DM8 ODBC DRIVER",
+"schema": "TZX_FloodDisaster_XJ_FWQ",
+"user": "SYSDBA",
 "password": "3edc9ijn~"
 })";
     std::string sql = R"(select * from )" + tableName + R"( limit 20)";

@@ -12,6 +12,8 @@
 #define SILLY_UTILS_COLVAL_H
 #include <def/base/DateTime.h>
 #include <def/ColType.h>
+#include <encode/silly_encode.h>
+
 namespace X
 {
 

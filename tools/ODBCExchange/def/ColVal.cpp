@@ -49,6 +49,7 @@ ColVal::ColVal(otl_datetime v)
 }*/
 ColVal::ColVal(otl_long_string v)
 {
+    
     LStr(v);
 }
 ColVal::ColVal(std::string v)
@@ -101,11 +102,19 @@ void ColVal::LStr(otl_long_string v)
 {
     type = otl_var_varchar_long;
     str = otl_long_str_to_str( v);
+    if (!silly_encode::is_utf8(str))
+    {
+        str = silly_encode::gbk_utf8(str);
+    }
 }
 void ColVal::Str(std::string v)
 {
     type = otl_var_char;
     str = v;
+    if (!silly_encode::is_utf8(str))
+    {
+        str = silly_encode::gbk_utf8(str);
+    }
 }
 
 void ColVal::Double(otl_value<double_t> v)
