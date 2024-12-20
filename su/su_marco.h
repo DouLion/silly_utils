@@ -71,7 +71,6 @@
 #include <codecvt>
 #include <cstring>
 #include <locale>
-#include <unistd.h>
 #include <su_global.h>
 
 // 数据库
@@ -90,6 +89,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <unistd.h>
 #endif
 
 #define SU_VAR_NAME(var) #var

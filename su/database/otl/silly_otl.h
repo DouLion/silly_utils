@@ -427,7 +427,59 @@ class otl_conn_opt
             {
                 SLOG_INFO("SQL:{}", sql);
             }
-            // db.set_max_long_size(1024*1024*100 - 1);
+            db.set_max_long_size(50*SU_MB);
+            otl_stream stream;
+            stream.open(1, sql.c_str(), db);
+            func(&stream, std::forward<Args>(args)...);
+            stream.flush();
+            stream.close();
+            db.commit();
+            status = true;
+        }
+        catch (otl_exception& e)
+        {
+            db.rollback();
+            m_err = "OTL_ERR \nCONN:";
+            m_err.append(m_conn);
+            m_err.append("\nCODE:").append(std::to_string(e.code));
+            m_err.append("\nMSG:").append(std::string((char*)e.msg));
+            m_err.append("\nSTATE:").append(std::string((char*)e.sqlstate));
+            m_err.append("\nSTMT:").append(std::string((char*)e.stm_text));
+        }
+        catch (std::exception& p)
+        {
+            db.rollback();
+            m_err = "OTL_UNKNOWN " + std::string(p.what());
+        }
+        db.logoff();
+
+        return status;
+    }
+
+    /// <summary>
+    /// 使用lob(Large Object Binary)插入
+    /// </summary>
+    /// <param name="Func"></param>
+    /// <param name="...Args"></param>
+    /// <param name="sql"></param>
+    /// <param name="func"></param>
+    /// <param name="...args"></param>
+    /// <returns>执行是否成功</returns>
+    template <typename Func, typename... Args>
+    bool insert_lob(const std::string& sql, Func&& func, Args&&... args)
+    {
+        bool status = false;
+        otl_connect db;
+        try
+        {
+            db.auto_commit_off();
+            db.set_timeout(m_timeout);
+            db.rlogon(m_conn.c_str(), false);
+            if(m_verbose)
+            {
+                SLOG_INFO("SQL:{}", sql);
+            }
+
             otl_stream stream;
             stream.set_lob_stream_mode(true);
             stream.open(1, sql.c_str(), db);
