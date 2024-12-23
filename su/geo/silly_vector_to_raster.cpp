@@ -3,21 +3,22 @@
 //
 
 #include "silly_vector_to_raster.h"
+using namespace silly::geo::rasterization;
 
-void xscan_line_raster::check_line_point(silly_point point, std::vector<raster_point>& vct, int& last_x, int& last_y)
+void xscan::check_line_point(silly_point point, std::vector<_point>& vct, int& last_x, int& last_y)
 {
     // m_row_pairs.clear();
     int tmp_x = std::round((point.x - m_rect.min.x) / m_cell_size);
     int tmp_y = std::round((m_rect.max.y - point.y) / m_cell_size);
     if (last_x != tmp_x || last_y != tmp_y)
     {
-        vct.push_back(raster_point(tmp_x, tmp_y));
+        vct.push_back(_point(tmp_x, tmp_y));
         last_x = tmp_x;
         last_y = tmp_y;
     }
 }
 
-bool xscan_line_raster::rasterization(const silly_point& point)
+bool xscan::rasterization(const silly_point& point)
 {
     int raster_x = std::round((point.x - m_rect.min.x) / m_cell_size);
     int raster_y = std::round((m_rect.max.y - point.y) / m_cell_size);
@@ -29,7 +30,7 @@ bool xscan_line_raster::rasterization(const silly_point& point)
     return false;
 }
 
-bool xscan_line_raster::rasterization(const silly_multi_point& points)
+bool xscan::rasterization(const silly_multi_point& points)
 {
     // m_row_pairs.clear();
     for (const auto& point : points)
@@ -40,7 +41,7 @@ bool xscan_line_raster::rasterization(const silly_multi_point& points)
     return true;
 }
 
-bool xscan_line_raster::rasterization(const silly_line& line)
+bool xscan::rasterization(const silly_line& line)
 {
     // m_row_pairs.clear();
     if (line.size() < 2)
@@ -79,7 +80,7 @@ bool xscan_line_raster::rasterization(const silly_line& line)
     return true;
 }
 
-bool xscan_line_raster::rasterization(const silly_multi_silly_line& lines)
+bool xscan::rasterization(const silly_multi_silly_line& lines)
 {
     // m_row_pairs.clear();
     for (const auto& line : lines)
@@ -91,15 +92,15 @@ bool xscan_line_raster::rasterization(const silly_multi_silly_line& lines)
     return true;
 }
 
-bool xscan_line_raster::rasterization(const silly_poly& poly)
+bool xscan::rasterization(const silly_poly& poly)
 {
     // m_row_pairs.clear();
-    std::vector<std::vector<raster_point>> vertices_arr;
+    std::vector<std::vector<_point>> vertices_arr;
 
     // 将点转换为光栅坐标并合并连续的相同点
     int last_x = 0 - m_width;
     int last_y = 0 - m_height;
-    std::vector<raster_point> tmp_vertices;
+    std::vector<_point> tmp_vertices;
 
     for (const auto& point : poly.outer_ring.points)
     {
@@ -122,10 +123,10 @@ bool xscan_line_raster::rasterization(const silly_poly& poly)
     return rasterization(vertices_arr);
 }
 
-bool xscan_line_raster::rasterization(const silly_multi_poly& m_polys)
+bool xscan::rasterization(const silly_multi_poly& m_polys)
 {
     // m_row_pairs.clear();
-    std::vector<std::vector<raster_point>> vertices_arr;
+    std::vector<std::vector<_point>> vertices_arr;
 
     for (const auto& poly : m_polys)
     {
@@ -134,14 +135,14 @@ bool xscan_line_raster::rasterization(const silly_multi_poly& m_polys)
         int last_y = 0 - m_height;
         for (const auto& ring : poly.inner_rings)
         {
-            std::vector<raster_point> tmp_vertices;
+            std::vector<_point> tmp_vertices;
             for (const auto& point : ring.points)
             {
                 check_line_point(point, tmp_vertices, last_x, last_y);
             }
             vertices_arr.push_back(tmp_vertices);
         }
-        std::vector<raster_point> tmp_vertices;
+        std::vector<_point> tmp_vertices;
 
         for (const auto& point : poly.outer_ring.points)
         {
@@ -153,7 +154,7 @@ bool xscan_line_raster::rasterization(const silly_multi_poly& m_polys)
     return rasterization(vertices_arr);
 }
 
-bool xscan_line_raster::rasterization(const std::vector<std::vector<raster_point>> vertices_arr)
+bool xscan::rasterization(const std::vector<std::vector<_point>> vertices_arr)
 {
     int minY = INT_MAX, maxY = 0;
     int minX = INT_MAX, maxX = 0;
@@ -180,8 +181,8 @@ bool xscan_line_raster::rasterization(const std::vector<std::vector<raster_point
             int numVertices = vertices.size();
             for (int i = 0; i < numVertices; ++i)
             {
-                raster_point v1 = vertices[i];
-                raster_point v2 = vertices[(i + 1) % numVertices];
+                _point v1 = vertices[i];
+                _point v2 = vertices[(i + 1) % numVertices];
                 if ((scanY >= v1.y && scanY < v2.y) || (scanY >= v2.y && scanY < v1.y))  // v1 v2 不在同一行
                 {
                     float slope = (v2.x - v1.x) / (v2.y - v1.y);
@@ -199,7 +200,7 @@ bool xscan_line_raster::rasterization(const std::vector<std::vector<raster_point
         std::sort(edges.begin(), edges.end());
         for (int i = 0; i < edges.size(); i += 2)
         {
-            cover_pair tmp_pair;
+            row_pair tmp_pair;
             tmp_pair.beg = edges[i];
             tmp_pair.end = edges[i + 1];
             m_row_pairs[scanY].push_back(tmp_pair);
@@ -208,7 +209,7 @@ bool xscan_line_raster::rasterization(const std::vector<std::vector<raster_point
     return true;
 }
 
-bool xscan_line_raster::rasterization(const silly_geo_coll& geo_coll)
+bool xscan::rasterization(const silly_geo_coll& geo_coll)
 {
     bool status = false;
     enum_geometry_type feature_type = geo_coll.m_type;
@@ -241,10 +242,9 @@ bool xscan_line_raster::rasterization(const silly_geo_coll& geo_coll)
 
 #ifndef NDEBUG
 #include <image/png_utils.h>
-
 #endif
 
-void xscan_line_raster::image(const std::string& path)
+void xscan::image(const std::string& path)
 {
 #ifndef NDEBUG
     png_data png = png_utils::create_empty(m_height, m_width, PNG_COLOR_TYPE_RGB_ALPHA);
@@ -266,7 +266,7 @@ void xscan_line_raster::image(const std::string& path)
     png.release();
 #endif
 }
-void xscan_line_raster::set(const silly_geo_rect& rect, const double& cell_size)
+void xscan::set(const silly_geo_rect& rect, const double& cell_size)
 {
     m_rect = rect;
     m_rect.correct();
@@ -274,19 +274,19 @@ void xscan_line_raster::set(const silly_geo_rect& rect, const double& cell_size)
     m_width = static_cast<int>(std::ceil((m_rect.max.x - m_rect.min.x) / m_cell_size));
     m_height = static_cast<int>(std::ceil((m_rect.max.y - m_rect.min.y) / m_cell_size));
 }
-int xscan_line_raster::width() const
+int xscan::width() const
 {
     return m_width;
 }
-int xscan_line_raster::height() const
+int xscan::height() const
 {
     return m_height;
 }
-std::map<int, std::vector<cover_pair>> xscan_line_raster::row_pairs() const
+scan_pairs xscan::row_pairs() const
 {
     return m_row_pairs;
 }
-void xscan_line_raster::slim()
+void xscan::slim()
 {
     std::map<int, std::map<int, int>> r_c_i;
     for (auto [r, cs] : m_row_pairs)
@@ -313,4 +313,70 @@ void xscan_line_raster::slim()
             m_row_pairs[r].push_back({c, c});
         }
     }
+}
+
+void xscan::clear()
+{
+    m_row_pairs.clear();
+}
+
+scan_pairs xscan::merge(const scan_pairs& l, const scan_pairs& r)
+{
+    if (l.empty())
+        return r;
+    if (r.empty())
+        return l;
+    scan_pairs result;
+    int minr = SU_MIN(l.begin()->first, r.begin()->first);
+    int maxr = SU_MAX(l.rbegin()->first, r.rbegin()->first);
+    for (int i = minr; i <= maxr; ++i)
+    {
+        auto liter = l.find(i);
+        auto riter = r.find(i);
+        std::vector<row_pair> all;
+        bool full = (liter != l.end() && riter != r.end());
+        if (liter != l.end())
+        {
+            all.insert(all.end(), liter->second.begin(), liter->second.end());
+        }
+
+        if (riter != r.end())
+        {
+            all.insert(all.end(), riter->second.begin(), riter->second.end());
+        }
+
+        if (!full)
+        {
+            result[i] = all;
+            break;
+        }
+
+        // 对所有线段按照 beg 进行排序
+        std::sort(all.begin(), all.end(), row_pair::compare);
+
+        std::vector<row_pair> pairs;
+        if (!all.empty())
+        {
+            pairs.push_back(all[0]);
+            for (size_t i = 1; i < all.size(); ++i)
+            {
+                row_pair& last = pairs.back();
+                const row_pair& current = all[i];
+
+                if (last.intersect(current))
+                {
+                    // 如果有交集，则合并
+                    last = last.merge(current);
+                }
+                else
+                {
+                    // 如果没有交集，则将当前线段添加到结果中
+                    pairs.push_back(current);
+                }
+            }
+        }
+        result[i] = all;
+    }
+
+    return result;
 }

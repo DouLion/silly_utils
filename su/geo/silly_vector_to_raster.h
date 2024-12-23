@@ -12,25 +12,64 @@
 
 #include <geo/silly_geo_coll.h>
 
-struct raster_point
+namespace silly
 {
-    raster_point() = default;
-    raster_point(int _x, int _y)
+namespace geo
+{
+namespace rasterization
+{
+
+class _point
+{
+  public:
+    _point() = default;
+    _point(int _x, int _y)
     {
         x = _x;
         y = _y;
     }
-    int x{0}, y{0};
+
+  public:
+    int x{0};
+
+    int y{0};
 };
 
-struct cover_pair
+class row_pair
 {
-    int beg;
-    int end;
+  public:
+    bool intersect(const row_pair& rp) const
+    {
+        if (beg >= rp.beg)
+        {
+            return beg <= rp.end;
+        }
+
+        return end >= rp.beg;
+    }
+
+    // 合并两个相交的线段
+    row_pair merge(const row_pair& rp) const
+    {
+        return row_pair{std::min(beg, rp.beg), std::max(end, rp.end)};
+    }
+
+    // 用于排序的比较函数
+    static bool compare(const row_pair& a, const row_pair& b)
+    {
+        return a.beg < b.beg || (a.beg == b.beg && a.end < b.end);
+    }
+
+  public:
+    int beg = 0;
+    int end = 0;
 };
+
+typedef std::map<int, std::vector<row_pair>> scan_pairs;
+
 /// X扫描线算法
 
-class xscan_line_raster
+class xscan
 {
   public:
     void set(const silly_geo_rect& rect, const double& cell_size);
@@ -93,7 +132,14 @@ class xscan_line_raster
     int width() const;
     int height() const;
 
-    std::map<int, std::vector<cover_pair>> row_pairs() const;
+    scan_pairs row_pairs() const;
+
+    /// <summary>
+    /// 清空row_pairs
+    /// </summary>
+    void clear();
+
+    static scan_pairs merge(const scan_pairs& l, const scan_pairs& r);
 
   private:
     /// <summary>
@@ -101,9 +147,9 @@ class xscan_line_raster
     /// </summary>
     /// <param name="vertices_arr"></param>
     /// <returns></returns>
-    bool rasterization(const std::vector<std::vector<raster_point>> vertices_arr);
+    bool rasterization(const std::vector<std::vector<_point>> vertices_arr);
 
-    void check_line_point(silly_point point, std::vector<raster_point>& vct, int& last_x, int& last_y);
+    void check_line_point(silly_point point, std::vector<_point>& vct, int& last_x, int& last_y);
 
     /// <summary>
     /// 点 线 不会闭合, 可能会存在一些点重合
@@ -119,7 +165,13 @@ class xscan_line_raster
     // 经纬度小数点后6位能精确到1米,更加精确意义不大
     double m_cell_size{0.000001};
     // 记录每一行在矢量内的多对起始列号
-    std::map<int, std::vector<cover_pair>> m_row_pairs;
+    scan_pairs m_row_pairs;
 };
+
+}  // namespace rasterization
+}  // namespace geo
+}  // namespace silly
+
+typedef silly::geo::rasterization::xscan silly_vector_to_raster;
 
 #endif  // SILLY_UTILS_SILLY_VECTOR_TO_RASTER_H
