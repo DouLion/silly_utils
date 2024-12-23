@@ -11,7 +11,7 @@
 #include "silly_http_client.h"
 #include <curl/curl.h>
 #include <files/silly_file.h>
-
+using namespace silly::net::http;
 #define SILLY_CURL_ERR_BREAK(v)                         \
     if (CURLE_OK != v)                                  \
     {                                                   \
@@ -97,24 +97,36 @@ static size_t silly_curl_resp_header_callback(char* buffer, size_t size, size_t 
     return total_size;
 }
 
-silly_http_client::silly_http_client()
+client::client()
 {
     // 初始化 libcurl
     // curl_global_init(CURL_GLOBAL_DEFAULT);
 }
 
-silly_http_client::silly_http_client(const silly_http_client::req_type& type)
+client::client(const enum_http_type& type)
 {
-    silly_http_client();
+    client();
     m_type = type;
 }
 
-bool silly_http_client::get(const std::string& url, std::string& resp)
+bool client::get(const std::string& url, std::string& resp)
 {
-    bool status = false;   m_err.clear();
+    m_type = enum_http_type::Get;
+    return request(url, resp);
+}
+bool client::post(const std::string& url, std::string& resp)
+{
+    m_type = enum_http_type::Post;
+    return request(url, resp);
+}
+bool client::request(const std::string& url, std::string& resp)
+{
+    bool status = false;
+    m_err.clear();
     m_err.resize(CURL_ERROR_SIZE);
 
     CURL* hnd = curl_easy_init();
+    struct curl_slist* headers = NULL;
     if (nullptr == hnd)
     {
         m_err = "初始化curl错误";
@@ -137,6 +149,25 @@ bool silly_http_client::get(const std::string& url, std::string& resp)
             SILLY_CURL_ERR_BREAK(curl_easy_setopt(hnd, CURLOPT_USERAGENT, m_agent.c_str()))
         }
 
+        // 设置请求头
+        for (auto [k, v] : m_req_headers)
+        {
+            headers = curl_slist_append(headers, std::string(k + ": " + v).c_str());
+        }
+        curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, headers);
+
+        if (m_type == enum_http_type::Post)
+        {
+            // 指定这是一个 POST 请求
+            curl_easy_setopt(hnd, CURLOPT_POST, 1L);
+
+            // 设置Post请求数据
+            if (!m_body.empty())
+            {
+                curl_easy_setopt(hnd, CURLOPT_POSTFIELDS, m_body.c_str());
+            }
+        }
+
         /* send all data to this function  */
         curl_easy_setopt(hnd, CURLOPT_WRITEFUNCTION, silly_curl_write_memory_callback);
 
@@ -155,7 +186,6 @@ bool silly_http_client::get(const std::string& url, std::string& resp)
         SILLY_CURL_ERR_BREAK(curl_easy_setopt(hnd, CURLOPT_TIMEOUT, m_timeout))
         //
 
-
         // Set progress callback.
         SILLY_CURL_ERR_BREAK(curl_easy_setopt(hnd, CURLOPT_NOPROGRESS, 1L))
         // 设置响应头回调函数
@@ -171,7 +201,7 @@ bool silly_http_client::get(const std::string& url, std::string& resp)
         int resp_code = 0;
         SILLY_CURL_ERR_BREAK(curl_easy_getinfo(hnd, CURLINFO_RESPONSE_CODE, &resp_code))
 
-        if (resp_code != silly_resp_code::OK_200)
+        if (resp_code != enum_http_code::OK_200)
         {
             memcpy(&m_err[0], err_buffer, CURL_ERROR_SIZE);
             break;
@@ -190,20 +220,11 @@ bool silly_http_client::get(const std::string& url, std::string& resp)
         break;
     } while (0);
     curl_easy_cleanup(hnd);
-    return status;
-}
-bool silly_http_client::post(const std::string& url, std::string& resp)
-{
-    bool status = false;
-    return status;
-}
-bool silly_http_client::request(const std::string& url, std::string& resp)
-{
-    bool status = false;
+    curl_slist_free_all(headers);
     return status;
 }
 
-bool silly_http_client::download(const std::string& url, const std::string& file, const std::string& filename)
+bool client::download(const std::string& url, const std::string& file, const std::string& filename)
 {
     bool status = false;
     m_err.clear();
@@ -286,7 +307,7 @@ bool silly_http_client::download(const std::string& url, const std::string& file
         int resp_code = 0;
         SILLY_CURL_ERR_BREAK(curl_easy_getinfo(hnd, CURLINFO_RESPONSE_CODE, &resp_code))
 
-        if (resp_code != silly_resp_code::OK_200)
+        if (resp_code != enum_http_code::OK_200)
         {
             memcpy(&m_err[0], err_buffer, CURL_ERROR_SIZE);
             break;
@@ -320,65 +341,68 @@ bool silly_http_client::download(const std::string& url, const std::string& file
     curl_easy_cleanup(hnd);
     return status;
 }
-bool silly_http_client::upload(const std::string& url, const std::string& file, const std::string& filename)
+bool client::upload(const std::string& url, const std::string& file, const std::string& filename)
 {
     bool status = false;
     return status;
 }
-void silly_http_client::body(const std::string& body)
+void client::body(const std::string& body)
 {
     m_body = body;
 }
-std::string silly_http_client::err() const
+std::string client::err() const
 {
     return m_err;
 }
 
-void silly_http_client::type(const silly_http_client::req_type& type)
+void client::type(const enum_http_type& type)
 {
     m_type = type;
 }
-void silly_http_client::req_header(const std::string& key, const std::string& val)
+void client::header(const std::string& key, const std::string& val)
 {
     m_req_headers.insert({key, val});
 }
-void silly_http_client::req_headers(const std::unordered_map<std::string, std::string>& headers)
+void client::headers(const std::unordered_map<std::string, std::string>& headers)
 {
     m_req_headers = headers;
 }
-std::unordered_map<std::string, std::string> silly_http_client::req_headers() const
+std::string client::header(const std::string& key) const
 {
-    return m_req_headers;
+    auto it = m_resp_headers.find(key);
+    if (it == m_resp_headers.end())
+        return "";
+    return it->second;
 }
-std::unordered_map<std::string, std::string> silly_http_client::resp_headers() const
+void client::headers(std::unordered_map<std::string, std::string>& h) const
 {
-    return m_resp_headers;
+    h = m_resp_headers;
 }
-silly_resp_code silly_http_client::resp_code()
+enum_http_code client::code()
 {
-    return m_resp_code;
+    return m_code;
 }
-void silly_http_client::agent(const std::string& agent)
+void client::agent(const std::string& agent)
 {
     m_agent = agent;
 }
-void silly_http_client::timeout(const int64_t& seconds)
+void client::timeout(const int64_t& seconds)
 {
     m_timeout = seconds;
 }
-double silly_http_client::speed_mps() const
+double client::speed_mps() const
 {
     return m_speed_mps;
 }
-double silly_http_client::total_seconds() const
+double client::total_seconds() const
 {
     return m_total_seconds;
 }
-void silly_http_client::verbose(const bool& vb)
+void client::verbose(const bool& vb)
 {
     m_verbose = vb;
 }
-void silly_http_client::max_recv_speed(const size_t& mrs)
+void client::max_recv_speed(const size_t& mrs)
 {
     m_max_recv_speed = mrs;
 }

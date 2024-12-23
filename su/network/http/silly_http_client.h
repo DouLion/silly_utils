@@ -12,7 +12,14 @@
 #define SILLY_UTILS_SILLY_HTTP_CLIENT_H
 #include <su_marco.h>
 
-enum silly_resp_code
+enum enum_http_type
+{
+    Get = 1,
+    Post = 2,
+    Option = 3,
+    Delete = 4
+};
+enum enum_http_code
 {
     Continue_100 = 100,
     SwitchingProtocol_101 = 101,
@@ -87,70 +94,155 @@ enum silly_resp_code
     NetworkAuthenticationRequired_511 = 511,
 };
 
-class silly_http_client
+namespace silly
+{
+namespace net
+{
+namespace http
+{
+
+class client
 {
   public:
-    enum class req_type
-    {
-        Get = 1,
-        Post = 2
-    };
   public:
-    silly_http_client();
-    ~silly_http_client() = default;
-    silly_http_client(const req_type& type);
+    client();
+    ~client() = default;
+    client(const enum_http_type& type);
 
-
+    /// <summary>
+    /// 执行Get请求
+    /// </summary>
+    /// <param name="url"></param>
+    /// <param name="resp"></param>
+    /// <returns></returns>
     bool get(const std::string& url, std::string& resp);
+
+    /// <summary>
+    /// 执行Post请求
+    /// </summary>
+    /// <param name="url"></param>
+    /// <param name="resp"></param>
+    /// <returns></returns>
     bool post(const std::string& url, std::string& resp);
 
+    /// <summary>
+    /// 根据m_type执行请求
+    /// </summary>
+    /// <param name="url"></param>
+    /// <param name="resp"></param>
+    /// <returns></returns>
     bool request(const std::string& url, std::string& resp);
 
-    /// 下载文件,更改下载文件名
-    bool download(const std::string& url, const std::string& file, const std::string& filename="");
-    /// 上传文件
-    bool upload(const std::string& url, const std::string& file, const std::string& filename="");
+    /// <summary>
+    /// 下载
+    /// </summary>
+    /// <param name="url"></param>
+    /// <param name="file"></param>
+    /// <param name="filename"></param>
+    /// <returns></returns>
+    bool download(const std::string& url, const std::string& file, const std::string& filename = "");
 
+    /// <summary>
+    /// 上传
+    /// </summary>
+    /// <param name="url"></param>
+    /// <param name="file"></param>
+    /// <param name="filename"></param>
+    /// <returns></returns>
+    bool upload(const std::string& url, const std::string& file, const std::string& filename = "");
+
+    /// <summary>
+    /// 设置请求体
+    /// </summary>
+    /// <param name="body"></param>
     void body(const std::string& body);
 
+    /// <summary>
+    /// 设置请求头
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="val"></param>
+    void header(const std::string& key, const std::string& val);
+    void headers(const std::unordered_map<std::string, std::string>& headers);
+
+    /// <summary>
+    /// 获取响应头
+    /// </summary>
+    /// <returns></returns>
+    std::string header(const std::string& key) const;
+    void headers(std::unordered_map<std::string, std::string>& h) const;
+
+    /// <summary>
+    /// 错误信息
+    /// </summary>
+    /// <returns></returns>
     std::string err() const;
 
-    void req_header(const std::string& key, const std::string& val);
-    void req_headers(const std::unordered_map<std::string, std::string>& headers);
-    std::unordered_map<std::string, std::string> req_headers() const;
-    std::unordered_map<std::string, std::string> resp_headers() const;
-    silly_resp_code resp_code();
+    /// <summary>
+    /// http错误码
+    /// </summary>
+    /// <returns></returns>
+    enum_http_code code();
 
+    /// <summary>
+    /// http请求类型
+    /// </summary>
+    /// <param name="type"></param>
+    void type(const enum_http_type& type);
 
-    void type(const req_type& type);
-
+    /// <summary>
+    /// http请求代理
+    /// </summary>
+    /// <param name="agent"></param>
     void agent(const std::string& agent);
 
+    /// <summary>
+    /// 设置超时时间
+    /// </summary>
     void timeout(const int64_t& seconds);
 
+    /// <summary>
+    /// 获取传输速度 M/S 兆每秒
+    /// </summary>
+    /// <returns></returns>
     double speed_mps() const;
+
+    /// <summary>
+    /// 总时长
+    /// </summary>
+    /// <returns></returns>
     double total_seconds() const;
 
+    /// <summary>
+    /// 是否输出详细日志
+    /// </summary>
+    /// <param name="vb"></param>
     void verbose(const bool& vb);
 
+    /// <summary>
     /// 设置最大下载速度
+    /// </summary>
+    /// <param name="kb_per_sec"></param>
     void max_recv_speed(const size_t& kb_per_sec);
-
 
   private:
     std::string m_body;
     std::string m_err;
-    std::unordered_map<std::string, std::string> m_req_headers{};
-    std::unordered_map<std::string, std::string> m_resp_headers{};
-    silly_resp_code m_resp_code;
+    std::unordered_map<std::string, std::string> m_req_headers;
+    std::unordered_map<std::string, std::string> m_resp_headers;
+    enum_http_code m_code = enum_http_code::BadRequest_400;
     std::string m_agent;
-    req_type m_type{req_type::Get};
+    enum_http_type m_type{enum_http_type::Get};
     int64_t m_timeout{120L};
-    double m_speed_mps{0};// 传输速度Mb/s
+    double m_speed_mps{0};  // 传输速度Mb/s
     double m_total_seconds{0};
-    bool m_verbose{0};
-    size_t m_max_recv_speed{0}; // kb/s   0为不做设置
-
+    bool m_verbose{false};
+    size_t m_max_recv_speed{0};  // kb/s   0为不做设置
 };
+}  // namespace http
+}  // namespace net
+}  // namespace silly
+
+typedef silly::net::http::client silly_http_client;
 
 #endif  // SILLY_UTILS_SILLY_HTTP_CLIENT_H
