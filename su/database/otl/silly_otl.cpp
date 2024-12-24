@@ -35,7 +35,9 @@ std::string _trim(const std::string& str)
 
 std::string _lower(const std::string& str)
 {
-    return std::string(std::find_if(str.begin(), str.end(), [](char ch) { return !std::isspace<char>(ch, std::locale::classic()); }), str.end());
+	std::string ret = str;
+	std::transform(ret.begin(), ret.end(), ret.begin(), [](unsigned char c){ return std::tolower(c); });
+	return ret;
 }
 
 /// <summary>
