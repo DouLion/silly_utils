@@ -14,7 +14,7 @@
 #include "rwdb_pptn.h"
 #include "rwdb_river.h"
 #include "rwdb_rsvr.h"
-
+#include "encode/silly_encode.h"
 #include "datetime/silly_timer.h"  // 计时
 
 // 全局变量
@@ -55,7 +55,8 @@ int main(int argc, char** argv)
 
 // 初始化
 #ifndef NDEBUG
-    std::string configPath = std::filesystem::path(DEFAULT_SU_ROOT_DIR).append("docs").append("数据库导入导出").append("export.json").string();
+    std::string utf8_dir = silly_encode::utf8_gbk("数据库导入导出");
+    std::string configPath = std::filesystem::path(DEFAULT_SU_ROOT_DIR).append("docs").append(utf8_dir).append("export.json").string();
 #else
     std::string configPath = "./export.json";
 #endif
@@ -124,7 +125,7 @@ bool init(const std::string& file)
 #if IS_WIN32
     if (otl.type() == enum_database_type::dbORACLE)
     {
-        _putenv_s("NLS_LANG", "SIMPLIFIED CHINESE_CHINA.UTF8");
+        //_putenv_s("NLS_LANG", "SIMPLIFIED CHINESE_CHINA.UTF8");
     }
 #else
 #endif

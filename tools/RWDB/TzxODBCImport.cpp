@@ -34,20 +34,16 @@ std::unordered_map<uint32_t, std::string> g_index_stcd;  // 导入
 uint64_t block_byte = 1024 * 1024 * 1024;
 // SIZE_T block_byte = 1024 * 1024;
 
-
-
 #define IMPORT(rwdb_type, file_path, insert_sql, block_byte, log_name) \
-    timer.restart();                                       \
-    rwdb_type rwdb;                                        \
-    rwdb.setFilePath(file_path);                           \
-    rwdb.setInsertSql(insert_sql);                         \
-    if (!rwdb.import(block_byte))                          \
-    {                                                      \
-        SLOG_ERROR("导入 " log_name " 失败");              \
-    }                                                      \
+    timer.restart();                                                   \
+    rwdb_type rwdb;                                                    \
+    rwdb.setFilePath(file_path);                                       \
+    rwdb.setInsertSql(insert_sql);                                     \
+    if (!rwdb.import(block_byte))                                      \
+    {                                                                  \
+        SLOG_ERROR("导入 " log_name " 失败");                          \
+    }                                                                  \
     SLOG_INFO("导入 " log_name " 时间:{} 秒, {} 分钟", timer.elapsed_ms() / 1000, timer.elapsed_ms() / 1000 / 60);
-
-
 
 // 读取配置文件
 bool init(const std::string& file);
@@ -62,7 +58,8 @@ int main(int argc, char** argv)
     paramAnalysis(argc, argv);
 
 #ifndef NDEBUG
-    std::string configPath = std::filesystem::path(DEFAULT_SU_ROOT_DIR).append("docs").append("数据库导入导出").append("import.json").string();
+    std::string utf8_dir = silly_encode::utf8_gbk("数据库导入导出");
+    std::string configPath = std::filesystem::path(DEFAULT_SU_ROOT_DIR).append("docs").append(utf8_dir).append("import.json").string();
 #else
     std::string configPath = "./import.json";
 #endif
