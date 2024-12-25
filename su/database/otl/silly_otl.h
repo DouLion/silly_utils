@@ -275,7 +275,7 @@ class otl_conn_opt
         try
         {
             db.set_timeout(m_timeout);
-            db.set_max_long_size(INT_MAX - 1);
+            db.set_max_long_size(SU_GB);
             db.rlogon(m_conn.c_str(), true);
             if(m_verbose)
             {
@@ -365,7 +365,7 @@ class otl_conn_opt
         try
         {
             db.set_timeout(m_timeout);
-            db.set_max_long_size(INT_MAX - 1);
+            db.set_max_long_size(SU_GB);
             db.rlogon(m_conn.c_str(), false);
             db.auto_commit_off();
 
@@ -411,7 +411,7 @@ class otl_conn_opt
         try
         {
             db.set_timeout(m_timeout);
-            db.set_max_long_size(INT_MAX - 1);
+            db.set_max_long_size(SU_GB);
             db.rlogon(m_conn.c_str());
             if(m_verbose)
             {
@@ -461,7 +461,7 @@ class otl_conn_opt
         try
         {
             db.set_timeout(m_timeout);
-            db.set_max_long_size(INT_MAX - 1);
+            db.set_max_long_size(SU_GB);
             db.rlogon(m_conn.c_str());
             if(m_verbose)
             {
@@ -518,7 +518,7 @@ class otl_conn_opt
             {
                 SLOG_INFO("SQL:{}", sql);
             }
-            db.set_max_long_size(50*SU_MB);
+            db.set_max_long_size(SU_GB);
             otl_stream stream;
             stream.open(1, sql.c_str(), db);
             func(&stream, std::forward<Args>(args)...);
