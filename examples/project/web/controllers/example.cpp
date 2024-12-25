@@ -1,12 +1,14 @@
 #include "example.h"
-#include <tcp/silly_http.h>
+
+#include <network/tcp/silly_http.h>
 #include "web/response_results.h"
 #include "web/request_params.h"
+
 using namespace project_name::api;
 
 void example::get_data(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)>&& callback)
 {
-    SU_CREAT_JSON_DEFAULT_RESPONSE
+    SU_CREATE_JSON_DEFAULT_RESPONSE;
 
     get_lasest_data_param req_param;
     get_latest_data_resp_result resp_param;
@@ -35,14 +37,14 @@ void example::get_data(const HttpRequestPtr& req, std::function<void(const HttpR
         SU_REQUEST_CALLBACK("")
     }
 
-    SU_REQUEST_CALLBACK(silly_jsonpp::to_string(respJson))
+    SU_REQUEST_CALLBACK(silly_jsonpp::to_string(respJson));
 }
 
 void example::set_data_by_id(const HttpRequestPtr& req, std::function<void(const HttpResponsePtr&)>&& callback)
 {
-    SU_CREAT_JSON_DEFAULT_RESPONSE
+    SU_CREATE_JSON_DEFAULT_RESPONSE;
 
-        get_lasest_data_param req_param;
+    get_lasest_data_param req_param;
     get_latest_data_resp_result resp_param;
     if (HttpMethod::Get == req->method())
     {
@@ -69,5 +71,5 @@ void example::set_data_by_id(const HttpRequestPtr& req, std::function<void(const
         SU_REQUEST_CALLBACK("")
     }
 
-    SU_REQUEST_CALLBACK(silly_jsonpp::to_string(respJson))
+    SU_REQUEST_CALLBACK(silly_jsonpp::to_string(respJson));
 }
