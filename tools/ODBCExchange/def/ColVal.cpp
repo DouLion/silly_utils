@@ -203,8 +203,8 @@ void ColVal::Time(otl_value<otl_datetime> v)
 }
 ColVal::~ColVal()
 {
-    str.~basic_string();
-    dt.~DateTime();
+   /* str.~basic_string();
+    dt.~DateTime();*/
 }
 
 ColVal::ColVal(DateTime v)

@@ -167,6 +167,44 @@ bool Table::Write(const std::string &file)
 
     return false;
 }
+Json::Value X::Table::Jsonify()
+{
+    Json::Value ret = Json::arrayValue;
+    for (int i = 0; i < rows.size(); ++i)
+    {
+        Json::Value jvrow = Json::objectValue;
+        for (int j = 0; j < cols.size(); ++j)
+        {
+            switch (cols[j].type)
+            {
+                case otl_var_char:
+                case otl_var_varchar_long:
+                case otl_var_raw_long:
+                case otl_var_blob:
+                    jvrow[cols[j].name] = rows[i][j].str;
+                    break;
+                case otl_var_timestamp:
+                    jvrow[cols[j].name] = rows[i][j].dt.StrFTime() ;
+                    break;
+                case otl_var_double:
+                case otl_var_float:
+                    jvrow[cols[j].name] = rows[i][j].d;
+                    break;
+                case otl_var_int:
+                    jvrow[cols[j].name] = rows[i][j].i32;
+                    break;
+                
+                default:
+                    jvrow[cols[j].name] = Json::nullValue;
+                    break;
+            }
+            
+        }
+        ret.append(jvrow);
+    }
+
+    return ret;
+}
 bool Table::WriteHeader(std::string &file)
 {
     std::ofstream out;
@@ -204,11 +242,16 @@ bool Table::WriteRowData(std::string &file)
 }
 bool Table::Connect(const std::string &otlCfg)
 {
-    if(!otl.load(otlCfg))
+    if (!m_otl.load(otlCfg))
     {
-        SLOG_ERROR(otl.err())
+        SLOG_ERROR(m_otl.err())
         return false;
     }
+    return true;
+}
+bool X::Table::Connect(const silly_otl &otl)
+{
+    m_otl = otl;
     return true;
 }
 void Table::Pull(const std::string &sql)
@@ -220,7 +263,7 @@ void Table::Pull(const std::string &sql)
     {
         db.auto_commit_off();
         db.set_timeout(5);
-        db.rlogon(otl.odbc().c_str(), false);
+        db.rlogon(m_otl.odbc().c_str(), false);
 
         stream.open(1, sql.c_str(), db);
 
@@ -233,7 +276,7 @@ void Table::Pull(const std::string &sql)
 
         db.rollback();
         m_err = "OTL_ERR \nCONN:";
-        m_err.append(otl.odbc());
+        m_err.append(m_otl.odbc());
         m_err.append("\nCODE:").append(std::to_string(e.code));
         m_err.append("\nMSG:").append(std::string((char*)e.msg));
         m_err.append("\nSTATE:").append(std::string((char*)e.sqlstate));
@@ -250,4 +293,5 @@ void Table::Pull(const std::string &sql)
     {
         SLOG_ERROR(m_err);
     }
+    SLOG_INFO("共{}条数据", rows.size())
 }

@@ -49,10 +49,9 @@ void X::DateTime::FromOTL(const otl_datetime& dt)
 }
 std::string X::DateTime::StrFTime()
 {
-    std::string ret;
-    ret.resize(64);
+    char buff[64] = {0};
 
-    sprintf(ret.data(), "%04d-%02d-%02d %02d:%02d:%02d.%03d", year, month, day, hour, minute, second, millisecond);
-    return ret;
+    sprintf(buff, "%04d-%02d-%02d %02d:%02d:%02d.%03d", year, month, day, hour, minute, second, millisecond);
+    return std::string(buff);
 
 }

@@ -26,32 +26,23 @@ int main(int argc, char** argv)
     // 切换当前工作目录
     std::filesystem::current_path(root);
 #endif
-    std::string tableName = R"("TZX_FloodDisaster_XJ_FWQ"."Dzwl_MessageInfo_R")";
-    if(argc == 2)
+    X::PullOpt opt;
+    if (!opt.load("./config.json"))
     {
-        tableName = argv[1];
+        return 1;
     }
 
-    std::string conn = R"({"type": "dm8",
-"ip": "192.168.0.156",
-"port": 5237,
-"driver": "DM8 ODBC DRIVER",
-"schema": "TZX_FloodDisaster_XJ_FWQ",
-"user": "SYSDBA",
-"password": "3edc9ijn~"
-})";
-    std::string sql = R"(select * from )" + tableName + R"( limit 20)";
-    SLOG_INFO("sql: {}", sql)
-
     X::Table table;
-    if (!table.Connect(conn))
+    if (!table.Connect(opt.otl))
     {
         return 2;
     }
 
-    table.Pull(sql);
+    table.Pull(opt.sql);
 
-    table.Print();
+    auto jv = table.Jsonify();
+
+    silly_file::write("./data.json", silly_jsonpp::stringify(jv, {true,1}));
 
     return 0;
 }

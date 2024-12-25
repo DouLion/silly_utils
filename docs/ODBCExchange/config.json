@@ -1,6 +1,5 @@
 {
-  "db":
-  {
+  "db1": {
     "type": "mysql",
     "ip": "192.168.0.73",
     "port": 3306,
@@ -8,6 +7,16 @@
     "schema": "TZX_FloodDisaster_HN",
     "user": "root",
     "password": "3edc9ijn~"
-  }
+  },
+  "db": {
+    "type": "dm8",
+    "ip": "192.168.0.156",
+    "port": 5237,
+    "driver": "DM8 ODBC DRIVER",
+    "schema": "TZX_FloodDisaster_XJ_FWQ",
+    "user": "SYSDBA",
+    "password": "3edc9ijn~"
+  },
+  "sql": "select * from \"TZX_FloodDisaster_XJ_FWQ\".\"WarnRecord_R\""
 
 }

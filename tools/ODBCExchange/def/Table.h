@@ -12,6 +12,8 @@
 #define SILLY_UTILS_TABLE_H
 #include <def/ColDesc.h>
 #include <def/ColVal.h>
+#include <json/silly_jsonpp.h>
+#include <files/silly_file.h>
 
 namespace X
 {
@@ -23,6 +25,8 @@ class Table
 
     bool Connect(const std::string& otlCfg);
 
+    bool Connect(const silly_otl& otl);
+
     void Pull(const std::string& sql);
 
     bool Read(otl_stream* stream);
@@ -30,6 +34,8 @@ class Table
     void Print(const uint64_t& num =10);
 
     bool Write(const std::string& file);
+
+    Json::Value Jsonify();
 
   private:
     void ReadColDesc(otl_stream* stream);
@@ -45,7 +51,7 @@ class Table
     std::vector<ColDesc> cols;
     std::vector<Row> rows;
     bool crc32 = false;
-    silly_otl otl;
+    silly_otl m_otl;
 
 
 

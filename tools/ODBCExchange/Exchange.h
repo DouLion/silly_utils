@@ -18,9 +18,11 @@ namespace X
 class PullOpt
 {
   public:
-    std::string table;
+    bool load(const std::string& file);
+  public:
     std::string sql;
     silly_otl  otl;
+
 };
 
 class PushOpt
