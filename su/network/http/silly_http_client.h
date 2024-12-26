@@ -96,8 +96,6 @@ enum enum_http_code
 
 namespace silly
 {
-namespace net
-{
 namespace http
 {
 
@@ -240,9 +238,8 @@ class client
     size_t m_max_recv_speed{0};  // kb/s   0为不做设置
 };
 }  // namespace http
-}  // namespace net
 }  // namespace silly
 
-typedef silly::net::http::client silly_http_client;
+typedef silly::http::client silly_http_client;
 
 #endif  // SILLY_UTILS_SILLY_HTTP_CLIENT_H

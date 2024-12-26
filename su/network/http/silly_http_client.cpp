@@ -11,7 +11,7 @@
 #include "silly_http_client.h"
 #include <curl/curl.h>
 #include <files/silly_file.h>
-using namespace silly::net::http;
+using namespace silly::http;
 #define SILLY_CURL_ERR_BREAK(v)                         \
     if (CURLE_OK != v)                                  \
     {                                                   \
