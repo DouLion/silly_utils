@@ -4,7 +4,7 @@
 #pragma once
 #include "silly_otl.h"
 #include "otl_tools.h"
-
+using namespace silly::db;
 const static std::string SILLY_OTL_MYSQL_ODBC_FORMAT = "Driver={%s};Server=%s;Port=%d;Database=%s;User=%s;Password=%s;Option=3;charset=UTF8;";
 const static std::string SILLY_OTL_MARIA_ODBC_FORMAT = "Driver={%s};Server=%s;Port=%d;Database=%s;User=%s;Password=%s;Option=3;charset=UTF8;";
 const static std::string SILLY_OTL_MSSQL_ODBC_FORMAT = "Driver={%s};Server=%s;Port=%d;UID=%s;PWD=%s;Database=%s;";
@@ -12,6 +12,24 @@ const static std::string SILLY_OTL_ORACLE_ODBC_FORMAT = "Driver={%s};DBQ=%s:%d/%
 const static std::string SILLY_OTL_DM8_ODBC_FORMAT = "Driver={%s};Server=%s;TCP_PORT=%d;UID=%s;PWD=%s;";
 const static std::string SILLY_OTL_POSTGRE_ODBC_FORMAT = "Driver={%s};Server=%s;Port=%d;Database=%s;Uid=%s;Pwd=%s;";
 const static std::string SILLY_OTL_DSN_FORMAT = "UID=%s;PWD=%s;DSN=%s;";
+
+#define TYPE_MSSQL_STR "sqlserver"
+#define TYPE_MYSQL_STR "mysql"
+#define TYPE_MARIA_STR "maria"
+#define TYPE_ORACLE_STR "oracle"
+#define TYPE_DM8_STR "dm8"
+#define TYPE_POSTGRESQL_STR "postgresql"
+#define TYPE_KING8_STR "kb8"
+
+#define OPT_STR_IP "ip"
+#define OPT_STR_PORT "port"
+#define OPT_STR_TYPE "type"
+#define OPT_STR_DRIVER "driver"
+#define OPT_STR_SCHEMA "schema"
+#define OPT_STR_USER "user"
+#define OPT_STR_PASSWORD "password"
+#define OPT_STR_DSN "dsn"
+#define OPT_STR_VERBOSE "verbose"
 
 // 去除字符串左边的空格
 std::string ltrim(const std::string& str)
@@ -35,9 +53,9 @@ std::string _trim(const std::string& str)
 
 std::string _lower(const std::string& str)
 {
-	std::string ret = str;
-	std::transform(ret.begin(), ret.end(), ret.begin(), [](unsigned char c){ return std::tolower(c); });
-	return ret;
+    std::string ret = str;
+    std::transform(ret.begin(), ret.end(), ret.begin(), [](unsigned char c) { return std::tolower(c); });
+    return ret;
 }
 
 /// <summary>
@@ -45,36 +63,36 @@ std::string _lower(const std::string& str)
 /// </summary>
 /// <param name="driver"></param>
 /// <returns></returns>
-static enum_database_type assume_type(const std::string& driver)
+static otl::eType assume_type(const std::string& driver)
 {
     std::string lower_driver = driver;
     std::transform(lower_driver.begin(), lower_driver.end(), lower_driver.begin(), ::tolower);
     if (lower_driver.find("sql server") != std::string::npos)
     {
-        return enum_database_type::dbSQLSERVER;
+        return otl::eType::dbSQLSERVER;
     }
     else if (lower_driver.find("mysql") != std::string::npos)
     {
-        return enum_database_type::dbMYSQL;
+        return otl::eType::dbMYSQL;
     }
     else if (lower_driver.find("oracle") != std::string::npos)
     {
-        return enum_database_type::dbORACLE;
+        return otl::eType::dbORACLE;
     }
     else if (lower_driver.find("postgresql") != std::string::npos)
     {
-        return enum_database_type::dbPG;
+        return otl::eType::dbPG;
     }
     else if (lower_driver.find("dm8") != std::string::npos)
     {
-        return enum_database_type::dbDM8;
+        return otl::eType::dbDM8;
     }
     else if (lower_driver.find("maria") != std::string::npos)
     {
-        return enum_database_type::dbKingB8;
+        return otl::eType::dbKingB8;
     }
 
-    return enum_database_type::dbINVALID;
+    return otl::eType::dbINVALID;
 }
 
 static std::map<std::string, std::string> parse_odbc(const std::string& odbc)
@@ -94,7 +112,7 @@ static std::map<std::string, std::string> parse_odbc(const std::string& odbc)
             if ("driver" == key)
             {
                 // 去除左右的空格以及花括号
-                std::string::size_type start = value.find_first_not_of(" \t{");
+                std::string::size_type  start = value.find_first_not_of(" \t{");
                 std::string::size_type end = value.find_last_not_of(" \t}");
                 result[key] = value.substr(start, end - start + 1);
             }
@@ -142,7 +160,7 @@ static std::map<std::string, std::string> parse_odbc(const std::string& odbc)
     return result;
 }
 
-bool otl_conn_opt::load(const std::string& cfg)
+bool otl::load(const std::string& cfg)
 {
     clean();
     bool status = false;
@@ -168,13 +186,13 @@ bool otl_conn_opt::load(const std::string& cfg)
             }
             m_driver = iter->second;
             m_type = assume_type(m_driver);
-            if (enum_database_type::dbINVALID == m_type)
+            if (otl::eType::dbINVALID == m_type)
             {
                 m_err = "无法识别的驱动: " + iter->second;
                 return status;
             }
 
-            if (enum_database_type::dbKingB8 == m_type)
+            if (otl::eType::dbKingB8 == m_type)
             {
                 m_err = "金仓数据库未支持: " + iter->second;
                 return status;
@@ -190,22 +208,22 @@ bool otl_conn_opt::load(const std::string& cfg)
                 // 使用默认端端口
                 switch (m_type)
                 {
-                    case enum_database_type::dbSQLSERVER:
+                    case otl::eType::dbSQLSERVER:
                         m_port = 1433;
                         break;
-                    case enum_database_type::dbMYSQL:
+                    case otl::eType::dbMYSQL:
                         m_port = 3306;
                         break;
-                    case enum_database_type::dbMariaDB:
+                    case otl::eType::dbMariaDB:
                         m_port = 3306;
                         break;
-                    case enum_database_type::dbORACLE:
+                    case otl::eType::dbORACLE:
                         m_port = 1521;
                         break;
-                    case enum_database_type::dbPG:
+                    case otl::eType::dbPG:
                         m_port = 5432;
                         break;
-                    case enum_database_type::dbDM8:
+                    case otl::eType::dbDM8:
                         m_port = 5236;
                         break;
                     default:
@@ -269,7 +287,7 @@ bool otl_conn_opt::load(const std::string& cfg)
     return check();
 }
 
-std::string otl_conn_opt::odbc(const bool& rebuild)
+std::string otl::odbc(const bool& rebuild)
 {
     if (m_conn.empty() || rebuild)
     {
@@ -283,22 +301,22 @@ std::string otl_conn_opt::odbc(const bool& rebuild)
         {
             switch (m_type)  // 使用ODBC连接串
             {
-                case enum_database_type::dbMYSQL:
+                case otl::eType::dbMYSQL:
                     sprintf(buff, SILLY_OTL_MYSQL_ODBC_FORMAT.c_str(), m_driver.c_str(), m_ip.c_str(), m_port, m_schema.c_str(), m_user.c_str(), m_password.c_str());
                     break;
-                case enum_database_type::dbSQLSERVER:
+                case otl::eType::dbSQLSERVER:
                     sprintf(buff, SILLY_OTL_MSSQL_ODBC_FORMAT.c_str(), m_driver.c_str(), m_ip.c_str(), m_port, m_user.c_str(), m_password.c_str(), m_schema.c_str());
                     break;
-                case enum_database_type::dbORACLE:
+                case otl::eType::dbORACLE:
                     sprintf(buff, SILLY_OTL_ORACLE_ODBC_FORMAT.c_str(), m_driver.c_str(), m_ip.c_str(), m_port, m_schema.c_str(), m_user.c_str(), m_password.c_str());
                     break;
-                case enum_database_type::dbPG:
+                case otl::eType::dbPG:
                     sprintf(buff, SILLY_OTL_POSTGRE_ODBC_FORMAT.c_str(), m_driver.c_str(), m_ip.c_str(), m_port, m_schema.c_str(), m_user.c_str(), m_password.c_str());
                     break;
-                case enum_database_type::dbDM8:
+                case otl::eType::dbDM8:
                     sprintf(buff, SILLY_OTL_DM8_ODBC_FORMAT.c_str(), m_driver.c_str(), m_ip.c_str(), m_port, m_user.c_str(), m_password.c_str());
                     break;
-                case enum_database_type::dbMariaDB:
+                case otl::eType::dbMariaDB:
                     sprintf(buff, SILLY_OTL_MYSQL_ODBC_FORMAT.c_str(), m_driver.c_str(), m_ip.c_str(), m_port, m_schema.c_str(), m_user.c_str(), m_password.c_str());
                     break;
                 default:
@@ -310,7 +328,7 @@ std::string otl_conn_opt::odbc(const bool& rebuild)
     return m_conn;
 }
 
-bool otl_conn_opt::check()
+bool otl::check()
 {
     bool status = false;
     otl_connect db;
@@ -339,11 +357,11 @@ bool otl_conn_opt::check()
     return status;
 }
 
-void otl_conn_opt::clean()
+void otl::clean()
 {
     m_ip.clear();
     m_port = 0;
-    m_type = enum_database_type::dbINVALID;
+    m_type = otl::eType::dbINVALID;
     m_driver.clear();
     m_schema.clear();
     m_user.clear();
@@ -353,7 +371,7 @@ void otl_conn_opt::clean()
     m_err.clear();
 }
 
-void otl_conn_opt::help()
+void otl::help()
 {
     printf(
         "\nOTL 连接串帮助信息:\n >>> 账号和密码中不要出现 [ ] { } ( ) , ; ? * = ! @ | 这些特殊字符 <<<\nSQL Server:\n\tDRIVER={驱动名称};SERVER=IP;PORT=端口;UID=账号;PWD=密码;DATABASE=数据库;\nMySQL:\n\tDriver={MySQL ODBC 8.0 ANSI "
@@ -372,7 +390,7 @@ void otl_conn_opt::help()
 static char* sqlserver_code_sql = "SELECT COLLATIONPROPERTY('Chinese_PRC_Stroke_CI_AI_KS_WS', 'CodePage');";
 static std::map<std::string, std::string> sqlserver_code_map = {{"936", "GBK"}, {"950", "BIG5"}, {"437", "Eng"}, {"932", "JP"}, {"949", "KOREA"}, {"866", "RUSSIA"}, {"65001", "UFT-8"}, {"", "INVALID"}};
 
-std::string otl_conn_opt::encode()
+std::string otl::encode()
 {
     std::string result;
     std::string code;
@@ -418,7 +436,7 @@ std::string otl_conn_opt::encode()
 #pragma comment(lib, "odbccp32.lib")
 #pragma comment(lib, "legacy_stdio_definitions.lib")
 #endif
-std::vector<std::string> otl_conn_opt::drivers()
+std::vector<std::string> otl::drivers()
 {
     std::vector<std::string> ret;
 #ifdef IS_WIN32
@@ -453,7 +471,7 @@ std::vector<std::string> otl_conn_opt::drivers()
 #endif
     return ret;
 }
-bool otl_conn_opt::check_column_info(const std::string& sql)
+bool otl::check_column_info(const std::string& sql)
 {
     bool status = false;
     otl_connect db;
@@ -495,7 +513,7 @@ bool otl_conn_opt::check_column_info(const std::string& sql)
     return status;
 }
 
-std::string otl_conn_opt::otl_type_name(const otl_var_enum& ot)
+std::string otl::otl_type_name(const otl_var_enum& ot)
 {
     std::string result = "Unknown";
     switch (ot)
@@ -566,87 +584,152 @@ std::string otl_conn_opt::otl_type_name(const otl_var_enum& ot)
     }
     return result;
 }
-void otl_conn_opt::verbose(bool vb)
+void otl::verbose(bool vb)
 {
     m_verbose = vb;
 }
 
-enum_database_type otl_conn_opt::type() const
+otl::eType otl::type() const
 {
     return m_type;
 }
 
-std::string otl_conn_opt::driver() const
+std::string otl::driver() const
 {
     return m_driver;
 }
 
-std::string otl_conn_opt::ip() const
+std::string otl::ip() const
 {
     return m_ip;
 }
 
-int otl_conn_opt::port() const
+int otl::port() const
 {
     return m_port;
 }
 
-std::string otl_conn_opt::schema() const
+std::string otl::schema() const
 {
     return m_schema;
 }
 
-std::string otl_conn_opt::user() const
+std::string otl::user() const
 {
     return m_user;
 }
 
-std::string otl_conn_opt::pwd() const
+std::string otl::pwd() const
 {
     return m_password;
 }
 
-std::string otl_conn_opt::err() const
+std::string otl::err() const
 {
     return m_err;
 }
 
-void otl_conn_opt::type(enum_database_type tp)
+void otl::type(otl::eType tp)
 {
     m_type = tp;
 }
 
-void otl_conn_opt::driver(std::string d)
+void otl::driver(std::string d)
 {
     m_driver = d;
 }
 
-void otl_conn_opt::ip(std::string i)
+void otl::ip(std::string i)
 {
     m_ip = i;
 }
 
-void otl_conn_opt::port(int p)
+void otl::port(int p)
 {
     m_port = p;
 }
 
-void otl_conn_opt::schema(std::string s)
+void otl::schema(std::string s)
 {
     m_schema = s;
 }
 
-void otl_conn_opt::user(std::string u)
+void otl::user(std::string u)
 {
     m_user = u;
 }
 
-void otl_conn_opt::pwd(std::string p)
+void otl::pwd(std::string p)
 {
     m_password = p;
 }
 
-void otl_conn_opt::timeout(int to)
+void otl::timeout(int to)
 {
     m_timeout = to;
+}
+otl::eType otl::str2type(const std::string& desc)
+{
+    if (TYPE_MSSQL_STR == desc)
+    {
+        return eType::dbSQLSERVER;
+    }
+    else if (TYPE_MYSQL_STR == desc)
+    {
+        return eType::dbMYSQL;
+    }
+    else if (TYPE_ORACLE_STR == desc)
+    {
+        return eType::dbORACLE;
+    }
+    else if (TYPE_DM8_STR == desc)
+    {
+        return eType::dbDM8;
+    }
+    else if (TYPE_POSTGRESQL_STR == desc)
+    {
+        return eType::dbPG;
+    }
+    else if (TYPE_KING8_STR == desc)
+    {
+        return eType::dbKingB8;
+    }
+    else if (TYPE_MARIA_STR == desc)
+    {
+        return eType::dbMariaDB;
+    }
+    return eType::dbINVALID;
+}
+
+std::string otl::type2str(const otl::eType& type)
+{
+    std::string s_ret;
+    switch (type)
+    {
+        case eType::dbSQLSERVER:
+            s_ret = TYPE_MSSQL_STR;
+            break;
+        case eType::dbMYSQL:
+            s_ret = TYPE_MYSQL_STR;
+            break;
+        case eType::dbORACLE:
+            s_ret = TYPE_ORACLE_STR;
+            break;
+        case eType::dbDM8:
+            s_ret = TYPE_DM8_STR;
+            break;
+        case eType::dbPG:
+            s_ret = TYPE_POSTGRESQL_STR;
+            break;
+        case eType::dbKingB8:
+            s_ret = TYPE_KING8_STR;
+            break;
+        case eType::dbMariaDB:
+            s_ret = TYPE_MARIA_STR;
+            break;
+        default:
+            s_ret = "";
+            break;
+    }
+    return s_ret;
 }

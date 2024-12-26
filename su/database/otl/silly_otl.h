@@ -11,7 +11,7 @@
 #define SILLY_UTILS_SILLY_OTL_H
 
 #define OTL_ODBC
-//#define OTL_ODBC_MYSQL
+// #define OTL_ODBC_MYSQL
 #define OTL_ODBC_LOGOFF_FREES_HANDLES
 #ifndef IS_WIN32
 #define OTL_ODBC_UNIX
@@ -46,101 +46,11 @@
 
 #define SILLY_OTL_ODBC_MAX_LEN 1024
 
-enum class enum_database_type
+class otl_tools;  // 始终直接传入odbc字符串时不需要这个类
+namespace silly
 {
-    dbINVALID = 0,    // 无效数据源类型
-    dbSQLSERVER = 1,  // SQLSERVER 数据库
-    dbMYSQL = 2,      // MYSQL 数据库
-    dbORACLE = 3,     // ORACLE 数据库
-    dbDM8 = 4,        // 达梦
-    dbPG = 5,         // postgres
-    dbKingB8 = 6,      // 人大金仓
-    dbMariaDB = 7       //MYSQL的一个开源分支,基本能够兼容mysql
-};
-
-const static char* SILLY_DB_TYPE_MSSQL_STR = "sqlserver";
-const static char* SILLY_DB_TYPE_MYSQL_STR = "mysql";
-const static char* SILLY_DB_TYPE_MARIA_STR = "maria";
-const static char* SILLY_DB_TYPE_ORACLE_STR = "oracle";
-const static char* SILLY_DB_TYPE_DM8_STR = "dm8";
-const static char* SILLY_DB_TYPE_POSTGRESQL_STR = "postgresql";
-const static char* SILLY_DB_TYPE_KINGB8_STR = "kb8";
-
-static enum_database_type str_to_db_type(const std::string& desc)
+namespace db
 {
-    if (SILLY_DB_TYPE_MSSQL_STR == desc)
-    {
-        return enum_database_type::dbSQLSERVER;
-    }
-    else if (SILLY_DB_TYPE_MYSQL_STR == desc)
-    {
-        return enum_database_type::dbMYSQL;
-    }
-    else if (SILLY_DB_TYPE_ORACLE_STR == desc)
-    {
-        return enum_database_type::dbORACLE;
-    }
-    else if (SILLY_DB_TYPE_DM8_STR == desc)
-    {
-        return enum_database_type::dbDM8;
-    }
-    else if (SILLY_DB_TYPE_POSTGRESQL_STR == desc)
-    {
-        return enum_database_type::dbPG;
-    }
-    else if (SILLY_DB_TYPE_KINGB8_STR == desc)
-    {
-        return enum_database_type::dbKingB8;
-    }
-    else if (SILLY_DB_TYPE_MARIA_STR == desc)
-    {
-        return enum_database_type::dbMariaDB;
-    }
-    return enum_database_type::dbINVALID;
-}
-
-static std::string db_type_to_str(const enum_database_type& type)
-{
-    std::string s_ret;
-    switch (type)
-    {
-        case enum_database_type::dbSQLSERVER:
-            s_ret = SILLY_DB_TYPE_MSSQL_STR;
-            break;
-        case enum_database_type::dbMYSQL:
-            s_ret = SILLY_DB_TYPE_MYSQL_STR;
-            break;
-        case enum_database_type::dbORACLE:
-            s_ret = SILLY_DB_TYPE_ORACLE_STR;
-            break;
-        case enum_database_type::dbDM8:
-            s_ret = SILLY_DB_TYPE_DM8_STR;
-            break;
-        case enum_database_type::dbPG:
-            s_ret = SILLY_DB_TYPE_POSTGRESQL_STR;
-            break;
-        case enum_database_type::dbKingB8:
-            s_ret = SILLY_DB_TYPE_KINGB8_STR;
-            break;
-        case enum_database_type::dbMariaDB:
-            s_ret = SILLY_DB_TYPE_MARIA_STR;
-            break;
-        default:
-            s_ret = "";
-            break;
-    }
-    return s_ret;
-}
-
-#define SILLY_OTL_OPT_S_IP "ip"
-#define SILLY_OTL_OPT_S_PORT "port"
-#define SILLY_OTL_OPT_S_TYPE "type"
-#define SILLY_OTL_OPT_S_DRIVER "driver"
-#define SILLY_OTL_OPT_S_SCHEMA "schema"
-#define SILLY_OTL_OPT_S_USER "user"
-#define SILLY_OTL_OPT_S_PASSWORD "password"
-#define SILLY_OTL_OPT_S_DSN "dsn"
-#define SILLY_OTL_OPT_S_VERBOSE "verbose"
 
 #define SILLY_OLT_LOB_STREAM_TO_STRING(lob, str) \
     while (!lob.eof())                           \
@@ -155,32 +65,11 @@ static std::string db_type_to_str(const enum_database_type& type)
     lob.close();
 
 /// <summary>
-/// lob数据怕为字符串
-/// </summary>
-/// <param name="lob"></param>
-/// <returns></returns>
-static std::string olt_lob_stream_to_str(otl_lob_stream lob)
-{
-    std::string ret;
-    while (!lob.eof())
-    {
-        std::string tmp;
-        otl_long_string _sols;
-        lob >> _sols;
-        tmp.resize(_sols.len());
-        memcpy(&tmp[0], _sols.v, _sols.len());
-        ret += tmp;
-    }
-
-    return ret;
-}
-
-/// <summary>
 /// long_string 转换为字符串
 /// </summary>
 /// <param name="ls"></param>
 /// <returns></returns>
-static std::string otl_long_str_to_str(otl_long_string ls)
+static std::string lstr2str(otl_long_string ls)
 {
     std::string ret;
     ret.resize(ls.len());
@@ -188,7 +77,7 @@ static std::string otl_long_str_to_str(otl_long_string ls)
     return ret;
 }
 
-static std::string otl_datetime_to_str(otl_datetime dt, bool millisecond = false)
+static std::string datetime2str(otl_datetime dt, bool millisecond = false)
 {
     char buff[32];
     if (millisecond)
@@ -202,7 +91,7 @@ static std::string otl_datetime_to_str(otl_datetime dt, bool millisecond = false
     return std::string(buff);
 }
 
-static otl_datetime st_to_otl_datetime(const std::string& str)
+static otl_datetime str2datetime(const std::string& str)
 {
     otl_datetime dt;
     sscanf(str.c_str(), "%04d-%02d-%02d %02d:%02d:%02d.%03d", &dt.year, &dt.month, &dt.day, &dt.hour, &dt.minute, &dt.second, dt.fraction);
@@ -210,10 +99,22 @@ static otl_datetime st_to_otl_datetime(const std::string& str)
     return dt;
 }
 
-class otl_tools;  // 始终直接传入odbc字符串时不需要这个类
-class otl_conn_opt
+class otl
 {
     friend class otl_tools;
+
+  public:
+    enum class eType
+    {
+        dbINVALID = 0,    // 无效数据源类型
+        dbSQLSERVER = 1,  // SQLSERVER 数据库
+        dbMYSQL = 2,      // MYSQL 数据库
+        dbORACLE = 3,     // ORACLE 数据库
+        dbDM8 = 4,        // 达梦
+        dbPG = 5,         // postgres
+        dbKingB8 = 6,     // 人大金仓
+        dbMariaDB = 7     // MYSQL的一个开源分支,基本能够兼容mysql
+    };
 
   public:
     /// <summary>
@@ -277,7 +178,7 @@ class otl_conn_opt
             db.set_timeout(m_timeout);
             db.set_max_long_size(50 * SU_MB);
             db.rlogon(m_conn.c_str(), true);
-            if(m_verbose)
+            if (m_verbose)
             {
                 SLOG_INFO("SQL:{}", sql);
             }
@@ -327,7 +228,7 @@ class otl_conn_opt
 
             for (auto sql : sqls)
             {
-                if(m_verbose)
+                if (m_verbose)
                 {
                     SLOG_INFO("SQL:{}", sql);
                 }
@@ -368,7 +269,6 @@ class otl_conn_opt
             db.set_max_long_size(50 * SU_MB);
             db.rlogon(m_conn.c_str(), false);
             db.auto_commit_off();
-
 
             func(&db, std::forward<Args>(args)...);
             db.commit();
@@ -413,7 +313,7 @@ class otl_conn_opt
             db.set_timeout(m_timeout);
             db.set_max_long_size(50 * SU_MB);
             db.rlogon(m_conn.c_str());
-            if(m_verbose)
+            if (m_verbose)
             {
                 SLOG_INFO("SQL:{}", sql);
             }
@@ -443,8 +343,8 @@ class otl_conn_opt
 
         return status;
     }
-	
-	/// <summary>
+
+    /// <summary>
     /// select的模板函数, 以lob的方式读取large object binary
     /// </summary>
     /// <param name="Func"></param>
@@ -463,7 +363,7 @@ class otl_conn_opt
             db.set_timeout(m_timeout);
             db.set_max_long_size(50 * SU_MB);
             db.rlogon(m_conn.c_str());
-            if(m_verbose)
+            if (m_verbose)
             {
                 SLOG_INFO("SQL:{}", sql);
             }
@@ -494,7 +394,7 @@ class otl_conn_opt
 
         return status;
     }
-	
+
     /// <summary>
     /// insert的模板函数
     /// </summary>
@@ -514,7 +414,7 @@ class otl_conn_opt
             db.auto_commit_off();
             db.set_timeout(m_timeout);
             db.rlogon(m_conn.c_str(), false);
-            if(m_verbose)
+            if (m_verbose)
             {
                 SLOG_INFO("SQL:{}", sql);
             }
@@ -566,7 +466,7 @@ class otl_conn_opt
             db.auto_commit_off();
             db.set_timeout(m_timeout);
             db.rlogon(m_conn.c_str(), false);
-            if(m_verbose)
+            if (m_verbose)
             {
                 SLOG_INFO("SQL:{}", sql);
             }
@@ -614,10 +514,13 @@ class otl_conn_opt
     /// <returns>执行是否成功</returns>
     static std::string otl_type_name(const otl_var_enum& vt);
 
+    static eType str2type(const std::string& desc);
+
+    static std::string type2str(const eType& type);
     ///////////////////////////////
     /// getter
     ///////////////////////////////
-    enum_database_type type() const;
+    eType type() const;
     std::string driver() const;
     std::string ip() const;
     int port() const;
@@ -629,7 +532,7 @@ class otl_conn_opt
     ///////////////////////////////
     /// setter
     ///////////////////////////////
-    void type(enum_database_type tp);
+    void type(eType tp);
     void driver(std::string d);
     void ip(std::string i);
     void port(int p);
@@ -642,19 +545,29 @@ class otl_conn_opt
   protected:
     std::string m_ip;
     int m_port{0};
-    enum_database_type m_type{enum_database_type::dbINVALID};
+    eType m_type{eType::dbINVALID};
     std::string m_driver;  // 驱动名称 可由
     std::string m_schema;
     std::string m_user;
     std::string m_password;
     std::string m_dsn;
-    int m_timeout{10}; // 单位 秒
+    int m_timeout{10};  // 单位 秒
     std::string m_conn;
     std::string m_err;
     bool m_verbose = false;
 };
 
-using silly_otl = otl_conn_opt;
+}  // namespace db
+}  // namespace silly
+
+using silly_otl = silly::db::otl;
+using otl_conn_opt = silly::db::otl;
+using enum_database_type = silly::db::otl::eType;
+#define otl_long_str_to_str silly::db::lstr2str
+#define otl_datetime_to_str silly::db::datetime2str
+#define str_to_otl_datetime silly::db::str2datetime
+#define str_to_db_type silly::db::otl::str2type
+#define db_type_to_str silly::db::otl::type2str
 
 /* ODBC 示例
   Driver={DM8 ODBC DRIVER};Server=127.0.0.1;TCP_PORT=5236;UID=SYSDBA;PWD=xxxxxxxx;

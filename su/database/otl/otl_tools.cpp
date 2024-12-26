@@ -5,6 +5,16 @@
 #include "otl_tools.h"
 #include <datetime/silly_posix_time.h>
 
+#define OPT_STR_IP "ip"
+#define OPT_STR_PORT "port"
+#define OPT_STR_TYPE "type"
+#define OPT_STR_DRIVER "driver"
+#define OPT_STR_SCHEMA "schema"
+#define OPT_STR_USER "user"
+#define OPT_STR_PASSWORD "password"
+#define OPT_STR_DSN "dsn"
+#define OPT_STR_VERBOSE "verbose"
+
 otl_conn_opt otl_tools::conn_opt_from_json(const Json::Value &root)
 {
     otl_conn_opt ret;
@@ -59,12 +69,12 @@ bool otl_tools::conn_opt_from_json(const std::string &str, silly_otl &ret)
 bool otl_tools::conn_opt_from_json(const Json::Value &root, silly_otl &ret)
 {
     bool status = false;
-    silly_jsonpp::check_member_string(root, SILLY_OTL_OPT_S_DSN, ret.m_dsn);
+    silly_jsonpp::check_member_string(root, OPT_STR_DSN, ret.m_dsn);
     if (ret.m_dsn.empty())  // 非DSN方式
     {
         // 检查类型
         std::string type_str;
-        if (!silly_jsonpp::check_member_string(root, SILLY_OTL_OPT_S_TYPE, type_str))
+        if (!silly_jsonpp::check_member_string(root, OPT_STR_TYPE, type_str))
         {
             ret.m_err = "指定链接类型";
             return status;
@@ -82,27 +92,27 @@ bool otl_tools::conn_opt_from_json(const Json::Value &root, silly_otl &ret)
             return status;
         }
 
-        if (!silly_jsonpp::check_member_string(root, SILLY_OTL_OPT_S_IP, ret.m_ip))
+        if (!silly_jsonpp::check_member_string(root, OPT_STR_IP, ret.m_ip))
         {
             ret.m_err = "未指定IP";
             return status;
         }
-        if (!silly_jsonpp::check_member_string(root, SILLY_OTL_OPT_S_DRIVER, ret.m_driver))
+        if (!silly_jsonpp::check_member_string(root, OPT_STR_DRIVER, ret.m_driver))
         {
             ret.m_err = "未指定驱动";
             return status;
         }
 
         // 端口
-        if (root.isMember(SILLY_OTL_OPT_S_PORT))
+        if (root.isMember(OPT_STR_PORT))
         {
-            if (root[SILLY_OTL_OPT_S_PORT].isInt())
+            if (root[OPT_STR_PORT].isInt())
             {
-                ret.m_port = root[SILLY_OTL_OPT_S_PORT].asInt();
+                ret.m_port = root[OPT_STR_PORT].asInt();
             }
-            else if (root[SILLY_OTL_OPT_S_PORT].isString())
+            else if (root[OPT_STR_PORT].isString())
             {
-                ret.m_port = std::stoi(root[SILLY_OTL_OPT_S_PORT].asString());
+                ret.m_port = std::stoi(root[OPT_STR_PORT].asString());
             }
         }
         else
@@ -129,23 +139,23 @@ bool otl_tools::conn_opt_from_json(const Json::Value &root, silly_otl &ret)
             }
         }
 
-        if (!silly_jsonpp::check_member_string(root, SILLY_OTL_OPT_S_SCHEMA, ret.m_schema) && (enum_database_type::dbDM8 != ret.m_type))
+        if (!silly_jsonpp::check_member_string(root, OPT_STR_SCHEMA, ret.m_schema) && (enum_database_type::dbDM8 != ret.m_type))
         {
             ret.m_err = "未指定数据库";
             return status;
         }
     }
-    if (!silly_jsonpp::check_member_string(root, SILLY_OTL_OPT_S_USER, ret.m_user))
+    if (!silly_jsonpp::check_member_string(root, OPT_STR_USER, ret.m_user))
     {
         ret.m_err = "未指定用户名";
         return status;
     }
-    if (!silly_jsonpp::check_member_string(root, SILLY_OTL_OPT_S_PASSWORD, ret.m_password))
+    if (!silly_jsonpp::check_member_string(root, OPT_STR_PASSWORD, ret.m_password))
     {
         ret.m_err = "未指定密码";
         return status;
     }
-    silly_jsonpp::check_member_bool(root, SILLY_OTL_OPT_S_VERBOSE, ret.m_verbose);
+    silly_jsonpp::check_member_bool(root, OPT_STR_VERBOSE, ret.m_verbose);
 
     return true;
 }
