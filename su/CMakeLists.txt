@@ -16,6 +16,7 @@ target_precompile_headers(
         ${PROJECT_NAME} PUBLIC
         ${SU_FILE_ROOT}/su/su_global.h
         ${SU_FILE_ROOT}/su/su_marco.h
+        ${SU_FILE_ROOT}/su/3D/silly_hill_shade.hpp
         ${SU_FILE_ROOT}/su/geo/silly_geo.h
         ${SU_FILE_ROOT}/su/log/silly_log.h
         ${SU_FILE_ROOT}/su/string/silly_format.h

@@ -11,27 +11,20 @@
 #define SILLY_UTILS_SILLY_GEOJSON_H
 #include <geo/silly_geo_coll.h>
 #include <json/silly_jsonpp.h>
-class silly_geojson
-{
-  public:
-    static enum_geometry_type check_geojson_type(const std::string& content);
-    static std::string dump_geojson(const std::vector<silly_point> points);
-    static std::string dump_geojson(const std::vector<silly_line> lines);
-    static std::string dump_geojson(const std::vector<silly_poly> polys);
-    static std::vector<silly_poly> load_geojson(const std::string& geojson);
-    /// <summary>
-    /// 将silly_geo_coll回写为geojson中的表示方式
-    /// </summary>
-    /// <param name="sgc"></param>
-    /// <returns></returns>
-    static std::string dump_geo_coll(const silly_geo_coll& geo_coll);
 
-    /// <summary>
-    /// 从字符串加载silly_geo_coll
-    /// </summary>
-    /// <param name="content"></param>
-    /// <returns></returns>
-    static silly_geo_coll load_geo_coll(const std::string& content);
+namespace silly
+{
+class geojson{
+  public:
+    
+    static enum_geometry_type check_geojson_type(const std::string& content);
+    static std::string stringify(const std::vector<silly_point> points);
+    static std::string stringify(const std::vector<silly_line> lines);
+    static std::string stringify(const std::vector<silly_poly> polys);
+    // static std::vector<silly_poly> loads(const std::string& geojson);
+    static std::vector<silly_geo_coll> loads(const std::string& geojson);
+    static std::vector<silly_geo_coll> loadf(const std::string& file);
 };
+}
 
 #endif  // SILLY_UTILS_SILLY_GEOJSON_H
