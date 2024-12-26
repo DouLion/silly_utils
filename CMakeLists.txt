@@ -15,7 +15,7 @@ include(${SU_FILE_ROOT}/cmake/CheckEccodes.cmake)
 include(${SU_FILE_ROOT}/cmake/CheckCUDA.cmake)
 if("${SU_FILE_ROOT}" STREQUAL "${SU_PROJ_ROOT}")
 	message(STATUS "作为单个工程编译")
-    # include(${SU_PROJ_ROOT}/cmake/ThirdSupport.cmake)
+    include(${SU_PROJ_ROOT}/cmake/ThirdSupport.cmake)
     
 	include_directories(${SU_PROJ_ROOT}/su)
 	add_definitions("-DDEFAULT_SU_ROOT_DIR=\"${SU_PROJ_ROOT}\"")
