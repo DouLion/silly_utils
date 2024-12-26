@@ -94,7 +94,7 @@ bool smtp::send(const silly_curl::smtp_req &req)
             if (!file.is_open())
             {
                 std::cerr << "Failed to open attachment file: " << attachment.first << std::endl;
-                return -1;
+                return false;
             }
 
             // 添加附件部分的头部信息

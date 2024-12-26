@@ -1,6 +1,5 @@
 #pragma once
 #include <log/silly_log.h>
-#include <log/loguru/loguru.hpp>
 #include <spdlog/sinks/daily_file_sink.h>
 #include <spdlog/sinks/rotating_file_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
