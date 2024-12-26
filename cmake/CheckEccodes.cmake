@@ -1,4 +1,5 @@
-message("\n检查ECCODES")
+if(ENABLE_ECCODES)
+message("\n检查ECCODES,支持GIRB2文件读写")
 if(DEFINED ENV{ECCODES_ROOT})
     message(STATUS "检测到环境变量ECCODES_ROOT: $ENV{ECCODES_ROOT}")
     set(ECCODES_PREFIX $ENV{ECCODES_ROOT})
@@ -53,4 +54,4 @@ if (NOT "" STREQUAL "${eccodes_BASE_DIR}")
   endif ()
 
 endif()
-
+endif()

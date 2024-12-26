@@ -13,6 +13,7 @@
 
 #include "silly_proj_convert.h"
 #include <log/silly_log.h>
+#if ENABLE_GDAL
 static OGRSpatialReference spc_build_srs(const spc_srs_param& ssp)
 {
     bool status = false;
@@ -25,6 +26,7 @@ static OGRSpatialReference spc_build_srs(const spc_srs_param& ssp)
 
     return res_srs;
 }
+#endif
 silly_proj_convert::~silly_proj_convert()
 {
     close();
@@ -32,6 +34,7 @@ silly_proj_convert::~silly_proj_convert()
 bool silly_proj_convert::begin(const silly_proj_param& p)
 {
     bool status = false;
+#if ENABLE_GDAL
     OGRSpatialReference src_srs = spc_build_srs(p.from);
     OGRSpatialReference dst_srs = spc_build_srs(p.to);
     m_poTransform = OGRCreateCoordinateTransformation(&src_srs, &dst_srs);
@@ -39,11 +42,13 @@ bool silly_proj_convert::begin(const silly_proj_param& p)
     {
         SLOG_ERROR("\n地理坐标系统转换: {} -> {}, 构建错误错误\n", static_cast<int>(p.from.wk_num), static_cast<int>(p.to.wk_num))
     }
+#endif
     return status;
 }
 bool silly_proj_convert::convert(const double& fromX, const double& fromY, double& toX, double& toY)
 {
     bool status = false;
+#if ENABLE_GDAL
     if (m_poTransform)
     {
         double tmpX = fromX, tmpY = fromY;
@@ -58,12 +63,14 @@ bool silly_proj_convert::convert(const double& fromX, const double& fromY, doubl
             SLOG_ERROR("坐标转换失败")
         }
     }
+#endif
     return status;
 }
 
 bool silly_proj_convert::convert(const std::vector<double>& fromX, const std::vector<double>& fromY, std::vector<double>& toX, std::vector<double>& toY)
 {
     bool status = false;
+#if ENABLE_GDAL
     if (m_poTransform)
     {
         std::vector<double> tmpX = fromX;
@@ -83,14 +90,17 @@ bool silly_proj_convert::convert(const std::vector<double>& fromX, const std::ve
             SLOG_ERROR("坐标转换失败")
         }
     }
+#endif
     return status;
 }
 bool silly_proj_convert::close()
 {
+#if ENABLE_GDAL
     if (m_poTransform)
     {
         OCTDestroyCoordinateTransformation(m_poTransform);
     }
+#endif
 
     return true;
 }

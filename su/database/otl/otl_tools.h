@@ -16,18 +16,26 @@
 #include "database/otl/silly_otl.h"
 #include <json/silly_jsonpp.h>
 
-class otl_tools
+namespace silly
+{
+namespace db
+{
+class tools
 {
   public:
-    static otl_datetime otl_time_from_string(const std::string &str);
+    /*static otl_datetime otl_time_from_string(const std::string &str);
 
     static std::string otl_time_to_string(const otl_datetime &tm);
 
-    static silly_otl conn_opt_from_json(const Json::Value &root);
-    static silly_otl conn_opt_from_json(const std::string &jstr);
+    static silly::db::otl otl_from_json(const Json::Value &root);
+    static silly::db::otl otl_from_json(const std::string &jstr);
 
-    static bool  conn_opt_from_json(const std::string &str, silly_otl& ret);
-    static bool  conn_opt_from_json(const Json::Value &root, silly_otl& ret);
+    static bool otl_from_json(const std::string &str, silly::db::otl &ret);
+    static bool otl_from_json(const Json::Value &root, silly::db::otl &ret);*/
 };
+}  // namespace db
+}  // namespace silly
+
+typedef silly::db::tools otl_tools;
 
 #endif  // OTL_TOOLS_H

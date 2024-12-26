@@ -19,7 +19,7 @@ target_precompile_headers(
         ${SU_FILE_ROOT}/su/geo/silly_geo.h
         ${SU_FILE_ROOT}/su/log/silly_log.h
         ${SU_FILE_ROOT}/su/string/silly_format.h
-        ${SU_FILE_ROOT}/su/database/otl/silly_otl.h
+        ${SU_FILE_ROOT}/su/database/otl/otl_tools.h
         ${SU_FILE_ROOT}/su/datetime/silly_posix_time.h
         ${SU_FILE_ROOT}/su/json/silly_jsonpp.h
         ${SU_FILE_ROOT}/su/image/png_utils.h
@@ -28,7 +28,10 @@ target_precompile_headers(
 find_package(cryptopp CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC cryptopp::cryptopp)
 
-target_link_libraries(${PROJECT_NAME} PUBLIC eccodes)
+if(ENABLE_ECCODES)
+    target_link_libraries(${PROJECT_NAME} PUBLIC eccodes)
+    add_definitions(-DENABLE_ECCODES)
+endif()
 
 
 find_package(Iconv)
@@ -78,8 +81,11 @@ find_package(GeoTIFF CONFIG REQUIRED)
 target_include_directories(${PROJECT_NAME} PUBLIC ${GEOTIFF_INCLUDE_DIR})
 target_link_libraries(${PROJECT_NAME} PUBLIC ${GEOTIFF_LIBRARIES})
 
+if(ENABLE_GDAL)
 find_package(GDAL CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC GDAL::GDAL)
+add_definitions(-DENABLE_GDAL)
+endif()
 
 find_library(SPATIALITE_LIB NAMES "spatialite")
 target_link_libraries(${PROJECT_NAME} PUBLIC ${SPATIALITE_LIB})
@@ -113,14 +119,20 @@ target_link_libraries(${PROJECT_NAME} PUBLIC spdlog::spdlog
 find_package(lz4 CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC lz4::lz4)
 
-find_package(websocketpp CONFIG REQUIRED)
-target_include_directories(${PROJECT_NAME} PUBLIC websocketpp::websocketpp)
+if(ENABLE_WEBSOCKET_PP)
+    find_package(websocketpp CONFIG REQUIRED)
+    target_include_directories(${PROJECT_NAME} PUBLIC websocketpp::websocketpp)
+    add_definitions(-DENABLE_WEBSOCKET_PP)
+endif()
 
-find_package(PahoMqttCpp CONFIG REQUIRED)
-if(IS_LINUX)
-  target_link_libraries(${PROJECT_NAME} PUBLIC PahoMqttCpp::paho-mqttpp3-static)
-else()
-  target_link_libraries(${PROJECT_NAME} PUBLIC PahoMqttCpp::paho-mqttpp3)
+if(ENABLE_PAHO_MQTT)
+    find_package(PahoMqttCpp CONFIG REQUIRED)
+    if(IS_LINUX)
+      target_link_libraries(${PROJECT_NAME} PUBLIC PahoMqttCpp::paho-mqttpp3-static)
+    else()
+      target_link_libraries(${PROJECT_NAME} PUBLIC PahoMqttCpp::paho-mqttpp3)
+    endif()
+    add_definitions(-DENABLE_PAHO_MQTT)
 endif()
 
 

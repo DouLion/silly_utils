@@ -319,6 +319,7 @@ class utils
     /// <returns></returns>
     static silly_geo_coll buffer(const silly_geo_coll& coll, const double& distance);
 
+#if ENABLE_GDAL
     /// ================ gdal中矢量与silly utils中矢量互转 ================
 
     /// ================ 单点 ================
@@ -455,6 +456,7 @@ class utils
     /// <param name="geometry"></param>
     /// <returns></returns>
     static silly_geo_coll silly_geo_coll_from_ogr(const OGRGeometry* geometry);
+#endif
 };
 
 template <typename T>

@@ -3,7 +3,6 @@
 //
 #pragma once
 #include "silly_otl.h"
-#include "otl_tools.h"
 using namespace silly::db;
 const static std::string SILLY_OTL_MYSQL_ODBC_FORMAT = "Driver={%s};Server=%s;Port=%d;Database=%s;User=%s;Password=%s;Option=3;charset=UTF8;";
 const static std::string SILLY_OTL_MARIA_ODBC_FORMAT = "Driver={%s};Server=%s;Port=%d;Database=%s;User=%s;Password=%s;Option=3;charset=UTF8;";
@@ -112,7 +111,7 @@ static std::map<std::string, std::string> parse_odbc(const std::string& odbc)
             if ("driver" == key)
             {
                 // 去除左右的空格以及花括号
-                std::string::size_type  start = value.find_first_not_of(" \t{");
+                std::string::size_type start = value.find_first_not_of(" \t{");
                 std::string::size_type end = value.find_last_not_of(" \t}");
                 result[key] = value.substr(start, end - start + 1);
             }
@@ -168,7 +167,12 @@ bool otl::load(const std::string& cfg)
     {
         return status;
     }
-    if (!otl_tools::conn_opt_from_json(cfg, *this))
+    bool valid_json = false;
+#if USE_JSON_PARSE
+    valid_json = from_json(cfg);
+#endif
+
+    if (!valid_json)
     {
         std::map<std::string, std::string> k2v = parse_odbc(cfg);
         auto iter = k2v.find("dsn");
@@ -584,6 +588,115 @@ std::string otl::otl_type_name(const otl_var_enum& ot)
     }
     return result;
 }
+
+#if USE_JSON_PARSE
+
+bool silly::db::otl::from_json(const std::string& jstr)
+{
+    Json::Value root = silly_jsonpp::loads(jstr);
+    if (root.isNull())
+    {
+        return false;
+    }
+
+    return from_json(root);
+}
+
+bool silly::db::otl::from_json(const Json::Value& root)
+{
+    bool status = false;
+    silly_jsonpp::check_member_string(root, OPT_STR_DSN, m_dsn);
+    if (m_dsn.empty())  // 非DSN方式
+    {
+        // 检查类型
+        std::string type_str;
+        if (!silly_jsonpp::check_member_string(root, OPT_STR_TYPE, type_str))
+        {
+            m_err = "指定链接类型";
+            return status;
+        }
+        m_type = str_to_db_type(type_str);
+        if (enum_database_type::dbINVALID == m_type)
+        {
+            m_err = silly_format::format("不支持的数据库类型 (Unsupported database type): {}.", type_str);
+            return status;
+        }
+        if (enum_database_type::dbKingB8 == m_type)
+        {
+            m_err = "人大金仓请使用DSN方式(Please set DSN when using Kingbase).";
+            // SLOG_ERROR("达梦和人大金仓请使用DSN方式(Please set DSN when using Dameng or Kingbase).");
+            return status;
+        }
+
+        if (!silly_jsonpp::check_member_string(root, OPT_STR_IP, m_ip))
+        {
+            m_err = "未指定IP";
+            return status;
+        }
+        if (!silly_jsonpp::check_member_string(root, OPT_STR_DRIVER, m_driver))
+        {
+            m_err = "未指定驱动";
+            return status;
+        }
+
+        // 端口
+        if (root.isMember(OPT_STR_PORT))
+        {
+            if (root[OPT_STR_PORT].isInt())
+            {
+                m_port = root[OPT_STR_PORT].asInt();
+            }
+            else if (root[OPT_STR_PORT].isString())
+            {
+                m_port = std::stoi(root[OPT_STR_PORT].asString());
+            }
+        }
+        else
+        {
+            switch (m_type)
+            {
+                case enum_database_type::dbSQLSERVER:
+                    m_port = 1433;
+                    break;
+                case enum_database_type::dbMYSQL:
+                    m_port = 3306;
+                    break;
+                case enum_database_type::dbORACLE:
+                    m_port = 1521;
+                    break;
+                case enum_database_type::dbPG:
+                    m_port = 5432;
+                    break;
+                case enum_database_type::dbDM8:
+                    m_port = 5236;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        if (!silly_jsonpp::check_member_string(root, OPT_STR_SCHEMA, m_schema) && (enum_database_type::dbDM8 != m_type))
+        {
+            m_err = "未指定数据库";
+            return status;
+        }
+    }
+    if (!silly_jsonpp::check_member_string(root, OPT_STR_USER, m_user))
+    {
+        m_err = "未指定用户名";
+        return status;
+    }
+    if (!silly_jsonpp::check_member_string(root, OPT_STR_PASSWORD, m_password))
+    {
+        m_err = "未指定密码";
+        return status;
+    }
+    silly_jsonpp::check_member_bool(root, OPT_STR_VERBOSE, m_verbose);
+
+    return true;
+}
+#endif
+
 void otl::verbose(bool vb)
 {
     m_verbose = vb;

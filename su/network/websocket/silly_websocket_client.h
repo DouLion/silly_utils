@@ -11,6 +11,7 @@
 #ifndef SILLY_UTILS_SILLY_WEBSOCKET_CLIENT_H
 #define SILLY_UTILS_SILLY_WEBSOCKET_CLIENT_H
 #include <su_marco.h>
+#if ENABLE_WEBSOCKET_PP
 #ifndef _WEBSOCKETPP_CPP11_RANDOM_DEVICE_
 #define _WEBSOCKETPP_CPP11_RANDOM_DEVICE_
 #endif
@@ -23,7 +24,7 @@ typedef websocketpp::config::asio_client::message_type::ptr message_ptr;
 using websocketpp::lib::bind;
 using websocketpp::lib::placeholders::_1;
 using websocketpp::lib::placeholders::_2;
-
+#endif
 class silly_websocket_client
 {
   public:
@@ -87,8 +88,10 @@ class silly_websocket_client
     std::string err() const;
 
   private:
+#if ENABLE_WEBSOCKET_PP
     websocketpp::connection_hdl m_hdl;
     client m_client;
+#endif
     std::string m_err;
     std::atomic<bool> m_closed = true;
     std::condition_variable m_cv;
@@ -98,6 +101,7 @@ class silly_websocket_client
 template <typename Func, typename... Args>
 void silly_websocket_client::on_connect(Func&& func, Args&&... args)
 {
+#if ENABLE_WEBSOCKET_PP
     m_client.set_open_handler([&](websocketpp::connection_hdl hdl) {
 #ifndef NDEBUG
         std::cout << "已连接" << std::endl;
@@ -105,11 +109,13 @@ void silly_websocket_client::on_connect(Func&& func, Args&&... args)
         m_closed = false;
         func(std::forward<Args>(args)...);
     });
+#endif
 }
 
 template <typename Func, typename... Args>
 void silly_websocket_client::on_receive(Func&& func, Args&&... args)
 {
+#if ENABLE_WEBSOCKET_PP
     std::function<void(client * c, websocketpp::connection_hdl, message_ptr)> _on_message;
 
     _on_message = [func1 = std::forward<Func>(func), args...](client* c, websocketpp::connection_hdl hdl, message_ptr msg) {
@@ -120,11 +126,13 @@ void silly_websocket_client::on_receive(Func&& func, Args&&... args)
         func1(message, std::forward<Args>(args)...);
     };
     m_client.set_message_handler(websocketpp::lib::bind(_on_message, &m_client, websocketpp::lib::placeholders::_1, websocketpp::lib::placeholders::_2));
+#endif
 }
 
 template <typename Func, typename... Args>
 void silly_websocket_client::on_close(Func&& func, Args&&... args)
 {
+#if ENABLE_WEBSOCKET_PP
     m_client.set_close_handler([&](websocketpp::connection_hdl hdl) {
 #ifndef NDEBUG
         std::cout << "连接断开" << std::endl;
@@ -133,6 +141,7 @@ void silly_websocket_client::on_close(Func&& func, Args&&... args)
         m_client.stop();
         m_closed = true;
     });
+#endif
 }
 
 #endif  // SILLY_UTILS_SILLY_WEBSOCKET_CLIENT_H

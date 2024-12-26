@@ -13,6 +13,7 @@
 
 silly_websocket_client::silly_websocket_client()
 {
+#if ENABLE_WEBSOCKET_PP
     try
     {
         // Set logging to be pretty verbose (everything except message payloads)
@@ -30,9 +31,10 @@ silly_websocket_client::silly_websocket_client()
                 m_closed = false;
             }
         });
-        m_client.set_close_handler([this](websocketpp::connection_hdl hdl) { 
+        m_client.set_close_handler([this](websocketpp::connection_hdl hdl) {
             m_client.stop();
-            m_closed = true; });
+            m_closed = true;
+        });
     }
     catch (websocketpp::exception const& e)
     {
@@ -42,15 +44,19 @@ silly_websocket_client::silly_websocket_client()
     {
         m_err = e.what();
     }
+#endif
 }
 silly_websocket_client::~silly_websocket_client()
 {
+#if ENABLE_WEBSOCKET_PP
     m_hdl.reset();
     m_client.stop();
+#endif
 }
 
 bool silly_websocket_client::connect(const std::string& url)
 {
+#if ENABLE_WEBSOCKET_PP
     try
     {
         websocketpp::lib::error_code ec;
@@ -69,7 +75,6 @@ bool silly_websocket_client::connect(const std::string& url)
         {
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
-       
     }
     catch (websocketpp::exception const& e)
     {
@@ -79,13 +84,13 @@ bool silly_websocket_client::connect(const std::string& url)
     {
         m_err = e.what();
     }
+#endif
     return !m_closed;
 }
 
-
-
 void silly_websocket_client::close(const std::string& bye)
 {
+#if ENABLE_WEBSOCKET_PP
     try
     {
         if (m_hdl.expired())
@@ -102,12 +107,13 @@ void silly_websocket_client::close(const std::string& bye)
     {
         m_err = e.what();
     }
-
+#endif
 }
 
 bool silly_websocket_client::send(const std::string& msg)
 {
     bool status = false;
+#if ENABLE_WEBSOCKET_PP
     try
     {
         m_client.send(m_hdl, msg, websocketpp::frame::opcode::text);
@@ -121,6 +127,7 @@ bool silly_websocket_client::send(const std::string& msg)
     {
         m_err = e.what();
     }
+#endif
     return status;
 }
 std::string silly_websocket_client::err() const

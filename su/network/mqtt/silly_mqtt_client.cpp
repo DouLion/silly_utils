@@ -9,8 +9,10 @@
  * @version: v1.0.1 2024-09-11 dou li yang
  */
 #include "silly_mqtt_client.h"
+#if ENABLE_PAHO_MQTT
 #include <mqtt/client.h>
 #include <mqtt/ssl_options.h>
+#endif
 
 const auto PERIOD = std::chrono::seconds(20);
 
@@ -20,13 +22,9 @@ bool silly_mqtt_client::publish(const std::string& topic, const std::string& pay
 {
     bool status = false;
     std::string uri = m_protocol + "://" + m_host + ":" + std::to_string(m_port);
-    
+#if ENABLE_PAHO_MQTT
 
-    auto conn_opts = mqtt::connect_options_builder()
-        .keep_alive_interval(PERIOD)
-        .clean_session(true)
-        .automatic_reconnect(true)
-        .finalize();
+    auto conn_opts = mqtt::connect_options_builder().keep_alive_interval(PERIOD).clean_session(true).automatic_reconnect(true).finalize();
     conn_opts.set_ssl(mqtt::ssl_options());
     conn_opts.set_mqtt_version(MQTTVERSION_3_1);
     conn_opts.set_user_name(m_user);
@@ -48,7 +46,7 @@ bool silly_mqtt_client::publish(const std::string& topic, const std::string& pay
     {
         SLOG_ERROR("MQTT发布内容 :\n{} \n到主题:[ {} ]失败,错误信息:\n {}.", payload, topic, exc.what());
     }
-
+#endif
     return false;
 }
 

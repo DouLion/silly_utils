@@ -10,9 +10,6 @@
 #ifndef SILLY_UTILS_SILLY_GRIB2_H
 #define SILLY_UTILS_SILLY_GRIB2_H
 #include <su_marco.h>
-#include <vector>
-#include <map>
-
 /// <summary>
 /// grib2的帧数据
 /// </summary>

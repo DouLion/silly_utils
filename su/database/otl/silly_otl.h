@@ -36,6 +36,14 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 
+// 支持json解析, 如果不希望使用json解析, 可以注释掉
+// #define USE_JSON_PARSE 0
+#define USE_JSON_PARSE 1
+
+#if USE_JSON_PARSE
+#include <json/silly_jsonpp.h>
+#endif
+
 #include <database/otl/otlv4.h>
 #include <functional>
 #include <stdexcept>  // 包含标准异常类
@@ -45,8 +53,12 @@
 #endif
 
 #define SILLY_OTL_ODBC_MAX_LEN 1024
+#define otl_long_str_to_str silly::db::lstr2str
+#define otl_datetime_to_str silly::db::datetime2str
+#define str_to_otl_datetime silly::db::str2datetime
+#define str_to_db_type silly::db::otl::str2type
+#define db_type_to_str silly::db::otl::type2str
 
-class otl_tools;  // 始终直接传入odbc字符串时不需要这个类
 namespace silly
 {
 namespace db
@@ -98,11 +110,8 @@ static otl_datetime str2datetime(const std::string& str)
     dt.fraction = dt.fraction * 1e6;
     return dt;
 }
-
 class otl
 {
-    friend class otl_tools;
-
   public:
     enum class eType
     {
@@ -542,6 +551,12 @@ class otl
     void timeout(int to);
     void verbose(bool vb);
 
+#if USE_JSON_PARSE
+    bool from_json(const std::string& jstr);
+    bool from_json(const Json::Value& jv);
+
+#endif
+
   protected:
     std::string m_ip;
     int m_port{0};
@@ -560,14 +575,9 @@ class otl
 }  // namespace db
 }  // namespace silly
 
-using silly_otl = silly::db::otl;
-using otl_conn_opt = silly::db::otl;
-using enum_database_type = silly::db::otl::eType;
-#define otl_long_str_to_str silly::db::lstr2str
-#define otl_datetime_to_str silly::db::datetime2str
-#define str_to_otl_datetime silly::db::str2datetime
-#define str_to_db_type silly::db::otl::str2type
-#define db_type_to_str silly::db::otl::type2str
+typedef silly::db::otl silly_otl;
+typedef silly::db::otl otl_conn_opt;
+typedef silly::db::otl::eType enum_database_type;
 
 /* ODBC 示例
   Driver={DM8 ODBC DRIVER};Server=127.0.0.1;TCP_PORT=5236;UID=SYSDBA;PWD=xxxxxxxx;

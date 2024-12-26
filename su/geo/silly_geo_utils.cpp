@@ -1,12 +1,14 @@
 
 
 #include "silly_geo_utils.h"
+#if ENABLE_GDAL
 // GDAL.
 #include "ogr_spatialref.h"
 // #include "gdal_priv.h"
 #include "ogrsf_frmts.h"
 #include "gdal_alg.h"
 #include "ogr_api.h"
+#endif
 
 #include <polyclipping/clipper.hpp>
 #include <encode/silly_encode.h>
@@ -19,6 +21,7 @@ using namespace ClipperLib;
 silly_point silly::geo::utils::poly_centroid(const silly_poly& poly)
 {
     silly_point center_point;
+#if ENABLE_GDAL
     OGRPolygon orgPloy = silly::geo::utils::silly_poly_to_ogr(poly);
     OGRPoint point;
     int err = orgPloy.Centroid(&point);
@@ -27,6 +30,7 @@ silly_point silly::geo::utils::poly_centroid(const silly_poly& poly)
         center_point.x = point.getX();
         center_point.y = point.getY();
     }
+#endif
     return center_point;
 }
 
@@ -78,7 +82,7 @@ std::string silly::geo::utils::angle_to_desc(const double& angle)
     }
     return desc;
 }
-
+#if ENABLE_GDAL
 // 将 silly_ring 转换为 OGRPolygon
 OGRLinearRing silly::geo::utils::silly_ring_to_ogr(const silly_ring& ring)
 {
@@ -320,34 +324,42 @@ silly_geo_coll silly::geo::utils::silly_geo_coll_from_ogr(const OGRGeometry* geo
             return silly_geo_coll();
     }
 }
+#endif
 
 void silly::geo::utils::init_gdal_env()
 {
+#if ENABLE_GDAL
     GDALAllRegister();
     CPLSetConfigOption("GDAL_FILENAME_IS_UTF8", "NO");
     OGRRegisterAll();
     CPLSetConfigOption("SHAPE_ENCODING", "");
+#endif
 }
 
 void silly::geo::utils::destroy_gdal_env()
 {
+#if ENABLE_GDAL
     OGRCleanupAll();
+#endif
 }
 
 bool silly::geo::utils::is_valid_shp(const std::string& u8file)
 {
+#if ENABLE_GDAL
     auto poDSr = (GDALDataset*)GDALOpenEx(u8file.c_str(), GDAL_OF_ALL | GDAL_OF_READONLY, nullptr, nullptr, nullptr);
     if (nullptr == poDSr)
     {
         return false;
     }
-    OGRCleanupAll();
     return true;
+#endif
+    return false;
 }
 
 bool silly::geo::utils::check_shp_info(const std::string& u8file, enum_geometry_type& type, std::map<std::string, silly_geo_prop::enum_prop_type>& properties)
 {
     bool status = false;
+#if ENABLE_GDAL
     std::map<std::string, std::string> result;
 
     auto poDSr = (GDALDataset*)GDALOpenEx(u8file.c_str(), GDAL_OF_ALL | GDAL_OF_READONLY, nullptr, nullptr, nullptr);
@@ -445,6 +457,7 @@ bool silly::geo::utils::check_shp_info(const std::string& u8file, enum_geometry_
 
     GDALClose(poDSr);
     status = true;
+#endif
     return status;
 }
 
@@ -457,6 +470,7 @@ bool silly::geo::utils::check_shp_info(const std::string& u8file, enum_geometry_
 /// <returns></returns>
 bool read_property(const OGRFeature* feature, const std::map<std::string, silly_geo_prop::enum_prop_type>& properties, std::map<std::string, silly_geo_prop>& props)
 {
+#if ENABLE_GDAL
     for (const auto& [key, p_type] : properties)
     {
         switch (p_type)
@@ -508,12 +522,14 @@ bool read_property(const OGRFeature* feature, const std::map<std::string, silly_
                 break;
         }
     }
+#endif
     return true;
 }
 
 bool read_all_types_data(const enum_geometry_type& feature_type, const OGRGeometry* geometry, silly_geo_coll& geo_coll)
 {
     bool status = false;
+#if ENABLE_GDAL
     geo_coll.comp_type.push_back(feature_type);
     switch (feature_type)
     {
@@ -581,14 +597,14 @@ bool read_all_types_data(const enum_geometry_type& feature_type, const OGRGeomet
         }
         break;
     }
-
+#endif
     return status;
 }
 
 bool silly::geo::utils::read_geo_coll(const std::string& u8file, std::vector<silly_geo_coll>& collections, const bool& ignore_prop)
 {
     bool status = false;
-
+#if ENABLE_GDAL
     if (!std::filesystem::exists(std::filesystem::path(u8file)))
     {
         SLOG_ERROR("文件[{}]不存在\n", u8file);
@@ -646,7 +662,7 @@ bool silly::geo::utils::read_geo_coll(const std::string& u8file, std::vector<sil
         }
 
     }  // 一个图层结束
-
+#endif
     return status;
 }
 
@@ -702,7 +718,7 @@ bool silly::geo::utils::get_driver_name(const std::string& u8file, std::string& 
     }
     return status;
 }
-
+#if ENABLE_GDAL
 // 根据silly_geo_prop::enum_prop_type 找gdal中属性的类型
 OGRFieldType convertToOGRFieldType(const silly_geo_prop::enum_prop_type& type)
 {
@@ -743,9 +759,11 @@ OGRFieldType convertToOGRFieldType(const silly_geo_prop::enum_prop_type& type)
     return result;
 }
 
+#endif
 // 添加属性到shp中
 bool writePropertiesToGeometry(OGRFeature* feature, const std::map<std::string, silly_geo_prop>& m_props)
 {
+#if ENABLE_GDAL
     bool status = true;
     for (const auto& [key, prop] : m_props)
     {
@@ -779,11 +797,14 @@ bool writePropertiesToGeometry(OGRFeature* feature, const std::map<std::string, 
         }
     }
     return status;
+#endif
+    return false;
 }
 
 // 处理复合数据类型的变量
 bool process_composite_data(const enum_geometry_type coll_type, OGRGeometry* geometry, OGRGeometryCollection* geomCollection, const silly_geo_coll& geo_coll)
 {
+#if ENABLE_GDAL
     bool status = true;
     switch (coll_type)
     {
@@ -827,13 +848,17 @@ bool process_composite_data(const enum_geometry_type coll_type, OGRGeometry* geo
             status = false;
             break;
     }
+
     return status;
+#endif
+    return false;
 }
 
 // 写入所有类型的数据
 static bool wire_all_types_data(const enum_geometry_type coll_type, OGRLayer* outputLayer, OGRFeature* feature, OGRGeometry* geometry, const silly_geo_coll& geo_coll)
 {
     bool status = true;
+#if ENABLE_GDAL
     switch (coll_type)
     {
         case enum_geometry_type::egtPoint:
@@ -891,11 +916,14 @@ static bool wire_all_types_data(const enum_geometry_type coll_type, OGRLayer* ou
         status = false;
     }
     return status;
+#endif
+    return false;
 }
 
 bool silly::geo::utils::write_geo_coll(const std::string& u8file, const std::vector<silly_geo_coll>& collections)
 {
     bool status = false;
+#if ENABLE_GDAL
     if (collections.empty())
     {
         return status;
@@ -971,7 +999,7 @@ bool silly::geo::utils::write_geo_coll(const std::string& u8file, const std::vec
     // 关闭数据集
     GDALClose(outputData);
     SU_INFO_PRINT("Vector data added to shapefile and saved successfully\n");
-
+#endif
     return status;
 }
 bool silly::geo::utils::intersect(const silly_multi_poly& mpoly1, const silly_multi_poly& mpoly2)
@@ -982,7 +1010,7 @@ bool silly::geo::utils::intersect(const silly_multi_poly& mpoly1, const silly_mu
 std::vector<silly_poly> silly::geo::utils::intersection(const silly_multi_poly& mpoly1, const silly_multi_poly& mpoly2)
 {
     std::vector<silly_poly> result;
-
+#if ENABLE_GDAL
     // 创建 OGRPolygon 对象
     OGRMultiPolygon org_ploy_1 = silly::geo::utils::silly_multi_poly_to_ogr(mpoly1);
     OGRMultiPolygon org_ploy_2 = silly::geo::utils::silly_multi_poly_to_ogr(mpoly2);
@@ -1023,6 +1051,7 @@ std::vector<silly_poly> silly::geo::utils::intersection(const silly_multi_poly& 
         default:
             break;
     }
+#endif
 
     return result;
 }
@@ -1387,11 +1416,13 @@ double silly::geo::utils::distance_sq(const silly_point& p1, const silly_point& 
 
 silly_geo_coll silly::geo::utils::buffer(const silly_geo_coll& coll, const double& distance)
 {
+    silly_geo_coll ret;
+#if ENABLE_GDAL
     OGRGeometry* resOGRGeom = silly_geo_coll_to_ogr(coll);
     if (resOGRGeom == nullptr)
     {
         SLOG_ERROR("Failed to convert silly_geo_coll to OGRGeometry");
-        return silly_geo_coll();
+        return ret;
     }
     OGRGeometry* bufferedGeom = resOGRGeom->Buffer(distance);  // 创建缓冲区
     if (bufferedGeom == nullptr)
@@ -1399,9 +1430,9 @@ silly_geo_coll silly::geo::utils::buffer(const silly_geo_coll& coll, const doubl
         OGRGeometryFactory::destroyGeometry(resOGRGeom);
         resOGRGeom = nullptr;
         SLOG_ERROR("Failed to buffer OGRGeometry");
-        return silly_geo_coll();
+        return ret;
     }
-    silly_geo_coll buffer_coll = silly_geo_coll_from_ogr(bufferedGeom);
+    ret = silly_geo_coll_from_ogr(bufferedGeom);
     if (resOGRGeom != nullptr)
     {
         OGRGeometryFactory::destroyGeometry(resOGRGeom);
@@ -1412,5 +1443,6 @@ silly_geo_coll silly::geo::utils::buffer(const silly_geo_coll& coll, const doubl
         OGRGeometryFactory::destroyGeometry(bufferedGeom);
         bufferedGeom = nullptr;
     }
-    return buffer_coll;
+#endif
+    return ret;
 }

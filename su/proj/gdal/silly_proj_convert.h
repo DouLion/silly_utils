@@ -10,10 +10,12 @@
 #ifndef SILLY_UTILS_SILLY_PROJ_CONVERT_H
 #define SILLY_UTILS_SILLY_PROJ_CONVERT_H
 #include <proj/gdal/silly_projection_define.h>
+#if ENABLE_GDAL
 #include <gdal_priv.h>
 #include <gdal_alg.h>
 #include <ogr_spatialref.h>
 #include <cpl_conv.h>
+#endif
 
 struct spc_srs_param
 {
@@ -50,7 +52,9 @@ class silly_proj_convert
     bool close();
 
   private:
+#if ENABLE_GDAL
     OGRCoordinateTransformation *m_poTransform{nullptr};
+#endif
 };
 
 #endif  // SILLY_UTILS_SILLY_PROJ_CONVERT_H
