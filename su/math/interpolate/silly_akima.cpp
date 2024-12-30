@@ -11,19 +11,19 @@
 #include "silly_akima.h"
 using namespace silly::interpolation;
 
-std::vector<double> akima::derivatives(const std::vector<double>& x, const std::vector<double>& y)
+std::vector<double> akima::derivatives(const std::vector<double>& xx, const std::vector<double>& yy)
 {
     //
-    if (x.size() != m_y.size())
+    if (xx.size() != xx.size())
     {
         throw std::runtime_error("数据长度不一致");
     }
-    if (x.size() < 4)
+    if (xx.size() < 4)
     {
         throw std::runtime_error("至少需要4组数");
     }
-    m_x = x;
-    m_y = y;
+    m_x = xx;
+    m_y = xx;
     slopes();
     // 端点导数采用邻近斜率的平均
     auto n = m_slopes.size();
