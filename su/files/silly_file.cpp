@@ -408,6 +408,7 @@ silly::file::node &silly::file::node::operator=(const silly::file::node &other)
 {
     this->path = other.path;
     this->is_dir = other.is_dir;
+    return *this;
 }
 std::string silly::file::node::name() const
 {

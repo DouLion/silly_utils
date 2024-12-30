@@ -9,8 +9,9 @@
  * @version: v1.0.1 2024-12-30 dou li yang
  */
 #include "silly_akima.h"
+using namespace silly::interpolation;
 
-std::vector<double> silly::interpolation::akima::derivatives(const std::vector<double>& x, const std::vector<double>& y)
+std::vector<double> akima::derivatives(const std::vector<double>& x, const std::vector<double>& y)
 {
     //
     if (x.size() != m_y.size())
@@ -30,7 +31,7 @@ std::vector<double> silly::interpolation::akima::derivatives(const std::vector<d
     m_derivatives[0] = m_slopes[0];
     m_derivatives[n - 1] = m_slopes[n - 2];
 
-    for (int i = 1; i < n - 1; ++i)
+    for (size_t i = 1; i < n - 1; ++i)
     {
         double w1 = std::abs(m_slopes[i] - m_slopes[i - 1]);
         double w2 = std::abs(m_slopes[i + 1] - m_slopes[i - 1]);
@@ -45,9 +46,9 @@ std::vector<double> silly::interpolation::akima::derivatives(const std::vector<d
     }
     return m_derivatives;
 }
-double silly::interpolation::akima::calc(const double& x)
+double akima::calc(const double& x) const
 {
-    int n = m_x.size();
+    size_t n = m_x.size();
     if (x <= m_x[0])
     {
         return m_y[0];  // 如果 x 小于等于第一个点，返回第一个点的值
@@ -56,7 +57,7 @@ double silly::interpolation::akima::calc(const double& x)
     {
         return m_y[n - 1];  // 如果 x 大于等于最后一个点，返回最后一个点的值
     }
-    int i = 0;
+    size_t i = 0;
     while (i < n - 1 && x > m_x[i + 1])
         i++;
 
@@ -73,23 +74,23 @@ double silly::interpolation::akima::calc(const double& x)
 
     return a * m_y[i] + b * h * m_derivatives[i] + c * m_y[i + 1] + d * h * m_derivatives[i + 1];
 }
-void silly::interpolation::akima::slopes()
+void akima::slopes()
 {
-    int n = m_x.size();
+    size_t n = m_x.size();
     m_slopes.resize(n - 1);
-    for (int i = 0; i < n - 1; ++i)
+    for (size_t i = 0; i < n - 1; ++i)
     {
         m_slopes[i] = (m_y[i + 1] - m_y[i]) / (m_x[i + 1] - m_x[i]);
     }
 }
-std::vector<double> silly::interpolation::akima::derivatives(const std::vector<std::pair<double, double>>& points)
+std::vector<double> akima::derivatives(const std::vector<std::pair<double, double>>& posize_ts)
 {
-    m_x.resize(points.size());
-    m_y.resize(points.size());
-    for (int i = 0; i < points.size(); ++i)
+    m_x.resize(posize_ts.size());
+    m_y.resize(posize_ts.size());
+    for (size_t i = 0; i < posize_ts.size(); ++i)
     {
-        m_x[i] = points[i].first;
-        m_y[i] = points[i].second;
+        m_x[i] = posize_ts[i].first;
+        m_y[i] = posize_ts[i].second;
     }
     return derivatives(m_x, m_y);
 }

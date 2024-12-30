@@ -18,14 +18,26 @@ namespace interpolation
 class akima
 {
   public:
-    // 计算阿基马导数
+    /// <summary>
+    /// 计算akima导数
+    /// </summary>
+    /// <param name="x"></param>
+    /// <param name="y"></param>
+    /// <returns></returns>
     std::vector<double> derivatives(const std::vector<double>& x, const std::vector<double>& y);
     std::vector<double> derivatives(const std::vector<std::pair<double, double>>& points);
 
-    // 计算插值结果
-    double calc(const double& x);
+    /// <summary>
+    /// 计算插值结果
+    /// </summary>
+    /// <param name="x"></param>
+    /// <returns></returns>
+    double calc(const double& x) const;
 
   private:
+    /// <summary>
+    /// 计算斜率
+    /// </summary>
     void slopes();
 
   private:
