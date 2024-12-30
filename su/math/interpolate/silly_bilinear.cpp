@@ -11,7 +11,7 @@
 #include "silly_bilinear.h"
 using namespace silly::interpolation;
 
-bilinear::calc(double q0, double q1, double q2, double q3, double dx, double dy)
+double bilinear::calc(double q0, double q1, double q2, double q3, double dx, double dy)
 {
     // 计算权重
     double alpha = dx;  // x 方向的权重
