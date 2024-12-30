@@ -38,17 +38,9 @@ int64_t nmea ::seconds(const std::string& time)
 
 double nmea::degree(const std::string& degree)
 {
-    auto pos = degree.find('.');
-    if (pos == std::string::npos)
-    {
-        return std::stod(degree);
-    }
-    else
-    {
-        double val = std::stod(degree.substr(0, pos));
-        double fraction = std::stod(degree.substr(pos));
-        return val + fraction / 60;
-    }
+    double val = std::stod(degree);
+    int64_t d = std::floor(val / 100);
+    return d + (val - d * 100) / 60;
 }
 
 bool nmea::open(const std::string& file)
