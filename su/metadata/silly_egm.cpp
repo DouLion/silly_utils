@@ -9,6 +9,7 @@
  * @version: v1.0.1 2024-12-13 dou li yang
  */
 #include "silly_egm.h"
+#include <math/interpolate/silly_bilinear.h>
 bool silly_egm::open(const std::string& file)
 {
     if (m_mmap.open_m(file))
@@ -21,7 +22,7 @@ double silly_egm::geoid(const double& lgtd, const double& lttd)
 {
     double result = 0;
     double dr = (m_headers.origin_lat - lttd) / m_lat_ratio;
-    double dc = ((lgtd > 0.? lgtd : lgtd + 360.)- m_headers.origin_lon) / m_lon_ratio;
+    double dc = ((lgtd > 0. ? lgtd : lgtd + 360.) - m_headers.origin_lon) / m_lon_ratio;
 
     std::cout << dr << "," << dc << std::endl;
 
@@ -67,12 +68,7 @@ double silly_egm::geoid(const double& lgtd, const double& lttd)
     g10 = g10 * 0.003 - 108.0;
     g11 = g11 * 0.003 - 108.0;
 
-   // std::cout << g00 << "\n" << g01 << "\n" << g10 << "\n" << g11 << "\n" << std::endl;
-
-
-    double geoid0 = g00 * (1 - ddc) + g01 * ddc;
-    double geoid1 = g10 * (1 - ddc) + g11 * ddc;
-    result = geoid0 * (1 - ddr) + geoid1 * ddr;
+    result = silly::interpolation::bilinear::calc(g00, g01, g10, g11, ddc, ddr);
     return result;
 }
 bool silly_egm::close()

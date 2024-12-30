@@ -14,7 +14,7 @@ using namespace silly::interpolation;
 std::vector<double> akima::derivatives(const std::vector<double>& xx, const std::vector<double>& yy)
 {
     //
-    if (xx.size() != xx.size())
+    if (xx.size() != yy.size())
     {
         throw std::runtime_error("数据长度不一致");
     }
@@ -23,7 +23,7 @@ std::vector<double> akima::derivatives(const std::vector<double>& xx, const std:
         throw std::runtime_error("至少需要4组数");
     }
     m_x = xx;
-    m_y = xx;
+    m_y = yy;
     slopes();
     // 端点导数采用邻近斜率的平均
     auto n = m_slopes.size();
