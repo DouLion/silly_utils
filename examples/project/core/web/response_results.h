@@ -5,35 +5,35 @@
 #ifndef RESPONSE_RESULT_H
 #define RESPONSE_RESULT_H
 
-// web返回值构造
 #include <project_marco.h>
+#include "network/http/silly_http_server.h"
 
-class response_result {
-public:
-    virtual Json::Value dump() = 0;
-
-    virtual Json::Value example() = 0;
-
-public:
-    std::string err{"ok"};
-    int status{1};
-};
-
-
-class get_latest_data_resp_result : public response_result
+namespace fupload
 {
-public:
-    Json::Value dump() override;
-    Json::Value example() override;
+namespace web
+{
+namespace result
+{
 
-public:
-    double left;
-    double top;
-    double right;
-    double bottom;
+class upload_single final : public silly::http::post_result
+{
+  public:
+    Json::Value jsonify() override
+    {
+        // 实现
+        return Json::Value();
+    }
+
+    Json::Value example() override
+    {
+        // 实现
+        return Json::Value();
+    }
 };
 
-
+}  // namespace result
+}  // namespace web
+}  // namespace fupload
 
 
 #endif //RESPONSE_RESULT_H

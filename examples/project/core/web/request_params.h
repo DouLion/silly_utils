@@ -4,31 +4,43 @@
 
 #ifndef REQUEST_PARAM_H
 #define REQUEST_PARAM_H
-// web请求参数解析
+
+// web返回值构造
 #include <project_marco.h>
-const static std::string GET_REQUEST_ERR = "GET请求仅显示用法, 请使用POST请求数据";
-const static std::string GET_REQUEST_PARAM_DEMO = "请求参数示例";
-const static std::string GET_REQUEST_RESULT_DEMO = "返回结果示例";
-class request_param {
+#include "network/http/silly_http_server.h"
 
-public:
-    virtual bool load(const std::string& params);
-    virtual Json::Value example();
-public:
-    std::string err{"ok"};
-    std::string param1;
-protected:
-    Json::Value jv_tmp;
+namespace fupload
+{
+namespace web
+{
+namespace param
+{
+
+class upload_single final : public silly::http::post_param
+{
+  public:
+    bool parse(const std::string& str) override
+    {
+        bool status = false;
+        // 实现
+
+        // status = true;
+        return status;
+    }
+
+    Json::Value example() override
+    {
+        bool status = false;
+        // 实现
+
+        status = true;
+        return status;
+    }
 };
 
-class get_lasest_data_param : public request_param {
-public:
-    bool load(const std::string& params) override;
-    Json::Value example() override;
-public:
-    std::string param2;
-};
-
+}  // namespace param
+}  // namespace web
+}  // namespace fupload
 
 
 #endif //REQUEST_PARAM_H
