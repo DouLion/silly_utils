@@ -9,36 +9,73 @@
  * @version: v1.0.1 2024-12-13 dou li yang
  */
 #include "silly_nmea.h"
-silly_nmea::silly_nmea()
+
+using namespace silly::meta;
+nmea::nmea()
 {
 }
-silly_nmea::~silly_nmea()
+
+nmea::~nmea()
 {
 }
-bool silly_nmea::open(const std::string& file)
+
+nmea::nmea(const std::string& file)
+{
+    open(file);
+}
+
+int64_t nmea ::seconds(const std::string& time)
+{
+    int64_t val = std::stod(time);
+    int hours = (val / 10000);
+    val = val % 10000;
+    int minutes = (val / 100);
+    val = val % 100;
+    double seconds = (val % 100);
+
+    return hours * 3600 + minutes * 60 + seconds;
+}
+
+double nmea::degree(const std::string& degree)
+{
+    auto pos = degree.find('.');
+    if (pos == std::string::npos)
+    {
+        return std::stod(degree);
+    }
+    else
+    {
+        double val = std::stod(degree.substr(0, pos));
+        double fraction = std::stod(degree.substr(pos));
+        return val + fraction / 60;
+    }
+}
+
+bool nmea::open(const std::string& file)
 {
     m_path = file;
     return true;
 }
-std::vector<std::string> silly_nmea::read(const std::string& type, const size_t& offset, const size_t& size)
+
+std::vector<std::string> nmea::read(const std::string& type, const size_t& offset, const size_t& size)
 {
     std::vector<std::string> ret;
     int _offset = 0, _size = 0;
     std::ifstream _file(m_path);
-    if(!_file.is_open())
+    if (!_file.is_open())
     {
         return ret;
     }
     std::string line;
-    while(std::getline(_file, line))
+    while (std::getline(_file, line))
     {
-        if(match(line, type))
+        if (match(line, type))
         {
             _offset++;
-            if(_offset>=offset)
+            if (_offset >= offset)
             {
                 _size++;
-                if(_size>size)
+                if (_size > size)
                 {
                     return ret;
                 }
@@ -51,26 +88,24 @@ std::vector<std::string> silly_nmea::read(const std::string& type, const size_t&
     }
     return ret;
 }
-bool silly_nmea::close()
+
+bool nmea::close()
 {
     return false;
 }
-bool silly_nmea::match(const std::string& str, const std::string& base)
+
+bool nmea::match(const std::string& str, const std::string& base)
 {
-    if(str.size()< base.size())
+    if (str.size() < base.size())
     {
         return false;
     }
-    for(size_t i=0;i<base.size();i++)
+    for (size_t i = 0; i < base.size(); i++)
     {
-        if(str[i]!=base[i])
+        if (str[i] != base[i])
         {
             return false;
         }
     }
     return true;
-}
-silly_nmea::silly_nmea(const std::string& file)
-{
-    open(file);
 }

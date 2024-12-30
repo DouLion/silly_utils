@@ -21,16 +21,34 @@
 #define GBGSV "GBGSV"
 #define GAGSV "GAGSV"
 #define GQGSV "GQGSV"
-
-class silly_nmea
+namespace silly
+{
+namespace meta
+{
+class nmea
 {
   public:
-    silly_nmea();
-    silly_nmea(const std::string& file);
-    ~silly_nmea();
+    nmea();
+    nmea(const std::string& file);
+    ~nmea();
 
     /// <summary>
-    /// 
+    /// NMEA时间转秒
+    /// </summary>
+    /// <param name="time"></param>
+    /// <returns></returns>
+    static int64_t seconds(const std::string& time);
+
+    /// <summary>
+    /// NMEA经纬度转百分制经纬度
+    /// </summary>
+    /// <param name="degree"></param>
+    /// <returns></returns>
+    static double degree(const std::string& degree);
+
+
+    /// <summary>
+    ///
     /// </summary>
     /// <param name="file"></param>
     /// <returns></returns>
@@ -43,14 +61,17 @@ class silly_nmea
     /// <param name="offset">跳过n条数据</param>
     /// <param name="size">最多读取n条数据</param>
     /// <returns></returns>
-    std::vector<std::string> read(const std::string& type, const size_t &offset = 0, const size_t &size = SIZE_MAX);
+    std::vector<std::string> read(const std::string& type, const size_t& offset = 0, const size_t& size = SIZE_MAX);
 
     bool close();
 
   private:
     bool match(const std::string& str, const std::string& base);
+
   private:
     std::string m_path;
 };
+}  // namespace meta
+}  // namespace silly
 
 #endif  // SILLY_UTILS_SILLY_NMEA_H
