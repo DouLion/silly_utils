@@ -11,16 +11,26 @@
 #ifndef SILLY_UTILS_TABLE_H
 #define SILLY_UTILS_TABLE_H
 #include <def/ColDesc.h>
-#include <def/ColVal.h>
+#include <def/Row.h>
 #include <json/silly_jsonpp.h>
 #include <files/silly_file.h>
 
 namespace X
 {
 
-typedef std::vector<ColVal> Row;
 class Table
 {
+    class Info
+    {
+      public:
+        std::string sql;
+        std::string db;
+        size_t rows=0;
+        size_t cols=0;
+        uint32_t  crc32 = 0;
+
+    };
+
   public:
 
     bool Connect(const std::string& otlCfg);
@@ -41,10 +51,11 @@ class Table
     void ReadColDesc(otl_stream* stream);
     void ReadRowData(otl_stream* stream);
 
-
     bool WriteHeader(std::string& file);
 
     bool WriteRowData(std::string& file);
+
+    bool Write(const std::string& file, std::stringstream & ss);
 
   public:
     std::string name;
@@ -53,8 +64,8 @@ class Table
     bool crc32 = false;
     silly_otl m_otl;
 
-
-
+    Info m_info;
+    std::mutex m_rw_mutex;
 };
 
 }  // namespace X

@@ -20,7 +20,9 @@ class DateTime
     ~DateTime() = default;
     DateTime(const otl_datetime& dt);
 
-    std::string AsBin();
+    std::string AsBin() const;
+
+    bool FromBin(const std::string& bin);
 
     std::string StrFTime();
 

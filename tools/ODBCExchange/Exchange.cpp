@@ -46,7 +46,7 @@ bool X::PullOpt::load(const std::string& file)
         return false;
     }
 
-    otl = otl_tools::conn_opt_from_json(jvdb);
+    otl.from_json(jvdb);
 
     SLOG_INFO("ODBC: " + otl.odbc(true));
     if (!otl.check())

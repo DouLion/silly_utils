@@ -17,6 +17,6 @@
     "user": "SYSDBA",
     "password": "3edc9ijn~"
   },
-  "sql": "select * from \"TZX_FloodDisaster_XJ_FWQ\".\"WarnRecord_R\""
+  "sql": "select * from \"TZX_FloodDisaster_XJ_FWQ\".\"WarnRecord_R\" limit 10;"
 
 }

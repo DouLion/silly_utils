@@ -15,27 +15,50 @@ X::DateTime::DateTime(const otl_datetime& dt)
     FromOTL(dt);
 }
 
-std::string X::DateTime::AsBin()
+std::string X::DateTime::AsBin() const
 
 {
     std::string ret;
     ret.resize(LEN);
     char* p = ret.data();
-    *(uint16_t*)p  = year;
+    *(uint16_t*)p = year;
     p += sizeof(uint16_t);
-    *(uint8_t*)p  = month;
+    *(uint8_t*)p = month;
     p += sizeof(uint8_t);
-    *(uint8_t*)p  = day;
+    *(uint8_t*)p = day;
     p += sizeof(uint8_t);
-    *(uint8_t*)p  = hour;
+    *(uint8_t*)p = hour;
     p += sizeof(uint8_t);
-    *(uint8_t*)p  = minute;
+    *(uint8_t*)p = minute;
     p += sizeof(uint8_t);
-    *(uint8_t*)p  = second;
+    *(uint8_t*)p = second;
     p += sizeof(uint8_t);
-    *(uint16_t*)p  = millisecond;
+    *(uint16_t*)p = millisecond;
     return ret;
 }
+bool X::DateTime::FromBin(const std::string& bin)
+{
+    if (bin.size() == LEN)
+    {
+        const char* p = bin.data();
+        year = *(uint16_t*)p;
+        p += sizeof(uint16_t);
+        month = *(uint8_t*)p;
+        p += sizeof(uint8_t);
+        day = *(uint8_t*)p;
+        p += sizeof(uint8_t);
+        hour = *(uint8_t*)p;
+        p += sizeof(uint8_t);
+        minute =*(uint8_t*)p;
+        p += sizeof(uint8_t);
+        second = *(uint8_t*)p;
+        p += sizeof(uint8_t);
+        millisecond = *(uint16_t*)p;
+        return true;
+    }
+    return false;
+}
+
 void X::DateTime::FromOTL(const otl_datetime& dt)
 {
     year = dt.year;
@@ -44,7 +67,7 @@ void X::DateTime::FromOTL(const otl_datetime& dt)
     hour = dt.hour;
     minute = dt.minute;
     second = dt.second;
-    millisecond = dt.fraction/1e6;
+    millisecond = dt.fraction / 1e6;
     // frac_precision = dt.frac_precision;
 }
 std::string X::DateTime::StrFTime()
@@ -53,5 +76,4 @@ std::string X::DateTime::StrFTime()
 
     sprintf(buff, "%04d-%02d-%02d %02d:%02d:%02d.%03d", year, month, day, hour, minute, second, millisecond);
     return std::string(buff);
-
 }

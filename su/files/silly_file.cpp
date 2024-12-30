@@ -14,13 +14,28 @@ namespace sfs = std::filesystem;
 // 为什么用notepad++ 打开时 有些是中文编码(GBK23..)有些是ANSI
 //
 
-size_t silly_file::read(const std::string &u8path, std::string &content, const size_t &offset, const size_t &len)
+std::string _wildcard2regex(const std::string& pattern) {
+    std::string regexPattern;
+    for (char c : pattern) {
+        switch (c) {
+            case '*': regexPattern += ".*"; break;  // * 匹配任意数量的字符
+            case '?': regexPattern += "."; break;   // ? 匹配单个字符
+            case '.': regexPattern += "\\."; break; // . 需要转义
+            case '\\': regexPattern += "\\\\"; break; // \ 需要转义
+            default: regexPattern += c; break;
+        }
+    }
+    return "^" + regexPattern + "$";  // 确保整个字符串匹配
+}
+
+
+size_t silly::file::tools::read(const std::string &u8path, std::string &content, const size_t &offset, const size_t &len)
 {
     size_t ret_read_size = 0;
     content.clear();
     std::fstream input;
 #if IS_WIN32
-    if(silly_encode::is_utf8(u8path))
+    if (silly_encode::is_utf8(u8path))
     {
         input.open(silly_encode::cxx11_string_wstring(u8path), std::ios::binary | std::ios::in);
     }
@@ -51,7 +66,7 @@ size_t silly_file::read(const std::string &u8path, std::string &content, const s
     return ret_read_size;
 }
 
-size_t silly_file::read(const std::string &u8path, unsigned char **content, const size_t &offset, const size_t &len)
+size_t silly::file::tools::read(const std::string &u8path, unsigned char **content, const size_t &offset, const size_t &len)
 {
     size_t read_size = 0;
     if ((*content))  // content 不能有内容
@@ -59,7 +74,7 @@ size_t silly_file::read(const std::string &u8path, unsigned char **content, cons
         return read_size;
     }
     std::string s_cont;
-    read_size = silly_file::read(u8path, s_cont, offset, len);
+    read_size = silly::file::tools::read(u8path, s_cont, offset, len);
     if (read_size)
     {
         *content = (unsigned char *)malloc(read_size);
@@ -75,7 +90,7 @@ size_t silly_file::read(const std::string &u8path, unsigned char **content, cons
     return read_size;
 }
 
-bool silly_file::read(const std::string &u8path, std::vector<std::string> &lines)
+bool silly::file::tools::read(const std::string &u8path, std::vector<std::string> &lines)
 {
     std::fstream input;
 #if IS_WIN32
@@ -99,7 +114,7 @@ bool silly_file::read(const std::string &u8path, std::vector<std::string> &lines
     return true;
 }
 
-size_t silly_file::write(const std::string &u8path, const std::string &content)
+size_t silly::file::tools::write(const std::string &u8path, const std::string &content)
 {
     size_t write_len = 0;
 #if IS_WIN32
@@ -116,7 +131,7 @@ size_t silly_file::write(const std::string &u8path, const std::string &content)
     return content.size();
 }
 
-size_t silly_file::write(const std::string &u8path, const std::vector<std::string> &lines)
+size_t silly::file::tools::write(const std::string &u8path, const std::vector<std::string> &lines)
 {
     size_t write_len = 0;
 #if IS_WIN32
@@ -136,7 +151,7 @@ size_t silly_file::write(const std::string &u8path, const std::vector<std::strin
     return write_len;
 }
 
-std::vector<std::string> silly_file::list_all(const std::string &u8path, const std::string &filter)
+std::vector<std::string> silly::file::tools::list(const std::string &u8path, const std::string &filter)
 {
     std::vector<std::string> vs_ret_list;
     sfs::path sfp_root(silly_encode::cxx11_string_wstring(u8path));
@@ -175,7 +190,7 @@ std::vector<std::string> silly_file::list_all(const std::string &u8path, const s
     return vs_ret_list;
 }
 
-std::vector<std::string> silly_file::list_all_recurse(const std::string &u8path, const std::string &filter)
+std::vector<std::string> silly::file::tools::relist(const std::string &u8path, const std::string &filter)
 {
     std::vector<std::string> vs_ret_list;
     sfs::path sfp_root(u8path);
@@ -213,7 +228,7 @@ std::vector<std::string> silly_file::list_all_recurse(const std::string &u8path,
     return vs_ret_list;
 }
 
-std::string silly_file::file_filter_regex(const std::string &filter)
+std::string silly::file::tools::file_filter_regex(const std::string &filter)
 {
     std::string s_result;
     for (const auto c : filter)
@@ -233,7 +248,7 @@ std::string silly_file::file_filter_regex(const std::string &filter)
     }
     return s_result;
 }
-size_t silly_file::last_modify_stamp_sec(const std::string &u8path)
+size_t silly::file::tools::last_modify_sec(const std::string &u8path)
 {
     size_t stamp = 0;
     try
@@ -263,7 +278,7 @@ size_t silly_file::last_modify_stamp_sec(const std::string &u8path)
 
     return stamp;
 }
-size_t silly_file::last_modify_stamp_ms(const std::string &u8path)
+size_t silly::file::tools::last_modify_ms(const std::string &u8path)
 {
     size_t stamp = 0;
     try
@@ -295,7 +310,7 @@ size_t silly_file::last_modify_stamp_ms(const std::string &u8path)
 
     return stamp;
 }
-size_t silly_file::size(const std::string &u8path)
+size_t silly::file::tools::size(const std::string &u8path)
 {
     size_t file_size = 0;
     std::fstream input;
@@ -312,11 +327,11 @@ size_t silly_file::size(const std::string &u8path)
     file_size = input.gcount();
     return file_size;
 }
-bool silly_file::exist(const std::string &u8path)
+bool silly::file::tools::exist(const std::string &u8path)
 {
     return exist(std::filesystem::path(u8path));
 }
-bool silly_file::exist(const std::filesystem::path &u8path)
+bool silly::file::tools::exist(const std::filesystem::path &u8path)
 {
     try
     {
@@ -328,11 +343,11 @@ bool silly_file::exist(const std::filesystem::path &u8path)
     }
     return false;
 }
-bool silly_file::create_dir(const std::string &u8path)
+bool silly::file::tools::mkdir(const std::string &u8path)
 {
-    return create_dir(std::filesystem::path(u8path));
+    return mkdir(std::filesystem::path(u8path));
 }
-bool silly_file::create_dir(const std::filesystem::path &u8path)
+bool silly::file::tools::mkdir(const std::filesystem::path &u8path)
 {
     try
     {
@@ -344,11 +359,11 @@ bool silly_file::create_dir(const std::filesystem::path &u8path)
     }
     return false;
 }
-void silly_file::remove_file(const std::string &u8path)
+void silly::file::tools::rm(const std::string &u8path)
 {
-    remove_file(std::filesystem::path(u8path));
+    rm(std::filesystem::path(u8path));
 }
-void silly_file::remove_file(const std::filesystem::path &u8path)
+void silly::file::tools::rm(const std::filesystem::path &u8path)
 {
     try
     {
@@ -359,11 +374,11 @@ void silly_file::remove_file(const std::filesystem::path &u8path)
         std::cerr << e.what() << '\n';
     }
 }
-void silly_file::remove_dir(const std::string &u8path)
+void silly::file::tools::rm_r(const std::string &u8path)
 {
-    remove_dir(std::filesystem::path(u8path));
+    rm_r(std::filesystem::path(u8path));
 }
-void silly_file::remove_dir(const std::filesystem::path &u8path)
+void silly::file::tools::rm_r(const std::filesystem::path &u8path)
 {
     try
     {
@@ -372,5 +387,50 @@ void silly_file::remove_dir(const std::filesystem::path &u8path)
     catch (const std::exception &e)
     {
         std::cerr << e.what() << '\n';
+    }
+}
+silly::file::node::node(std::string path)
+{
+    this->path = path;
+    this->is_dir = std::filesystem::is_directory(path);
+}
+silly::file::node::node(std::filesystem::path path)
+{
+    this->path = path.u8string();
+    this->is_dir = std::filesystem::is_directory(path);
+}
+silly::file::node::node(const silly::file::node &other)
+{
+    this->path = other.path;
+    this->is_dir = other.is_dir;
+}
+silly::file::node &silly::file::node::operator=(const silly::file::node &other)
+{
+    this->path = other.path;
+    this->is_dir = other.is_dir;
+}
+std::string silly::file::node::name() const
+{
+    return std::filesystem::path(this->path).filename().u8string();
+}
+std::string silly::file::node::stem() const
+{
+    return std::filesystem::path(this->path).stem().u8string();
+}
+std::string silly::file::node::ext() const
+{
+    return std::filesystem::path(this->path).extension().u8string();
+}
+
+void silly::file::node::trace()
+{
+    is_dir = std::filesystem::is_directory(this->path);
+    if (is_dir)
+    {
+        for (auto &p : std::filesystem::directory_iterator(this->path))
+        {
+            children.emplace_back(std::make_unique<node>(p.path()));
+            children.back()->trace();  // 递归构建子节点
+        }
     }
 }

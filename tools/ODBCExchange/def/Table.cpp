@@ -32,7 +32,7 @@ void Table::Print(const uint64_t &num)
         std::cout << "-----------------------";
         std::cout << i + 1;
         std::cout << "-----------------------" << std::endl;
-        for (auto &col : row)
+        for (auto &col : row.items)
         {
             switch (col.type)
             {
@@ -99,7 +99,7 @@ void Table::ReadRowData(otl_stream *stream)
     otl_value<otl_datetime> dt;
     ColVal cv;
     int colNum = cols.size();
-    std::vector<ColVal> row(colNum);
+    X::Row row(colNum);
     for (auto &s : *stream)
     {
         for (int i = 0; i < colNum; ++i)
@@ -109,44 +109,44 @@ void Table::ReadRowData(otl_stream *stream)
                 case otl_var_int:
                     s >> i32;
                     cv.Int32(i32);
-                    row[i] = cv;
+                    row.items[i] = cv;
                     break;
                 case otl_var_unsigned_int:
                     s >> u32;
                     cv.UInt32(u32);
-                    row[i] = cv;
+                    row.items[i] = cv;
                     break;
                 case otl_var_short:
                     s >> i16;
                     cv.Int16(i16);
-                    row[i] = cv;
+                    row.items[i] = cv;
                     break;
                 case otl_var_long_int:
                     s >> i64;
                     cv.Int64(i64);
-                    row[i] = cv;
+                    row.items[i] = cv;
                     break;
                 case otl_var_double:
                 case otl_var_float:
                     s >> p1;
                     cv.Double(p1);
-                    row[i] = cv;
+                    row.items[i] = cv;
                     break;
                 case otl_var_char:
                     s >> str;
                     cv.Str(str);
-                    row[i] = cv;
+                    row.items[i] = cv;
                     break;
                 case otl_var_timestamp:
                     s >> dt;
                     cv.Time(dt);
-                    row[i] = cv;
+                    row.items[i] = cv;
                     break;
                 case otl_var_varchar_long:
                 case otl_var_raw_long:
                     s >> olstring;
                     cv.LStr(olstring);
-                    row[i] = cv;
+                    row.items[i] = cv;
                     break;
                 case otl_var_blob:
                     s >> olstream;
@@ -181,24 +181,23 @@ Json::Value X::Table::Jsonify()
                 case otl_var_varchar_long:
                 case otl_var_raw_long:
                 case otl_var_blob:
-                    jvrow[cols[j].name] = rows[i][j].str;
+                    jvrow[cols[j].name] = rows[i].items[j].str;
                     break;
                 case otl_var_timestamp:
-                    jvrow[cols[j].name] = rows[i][j].dt.StrFTime() ;
+                    jvrow[cols[j].name] = rows[i].items[j].dt.StrFTime();
                     break;
                 case otl_var_double:
                 case otl_var_float:
-                    jvrow[cols[j].name] = rows[i][j].d;
+                    jvrow[cols[j].name] = rows[i].items[j].d;
                     break;
                 case otl_var_int:
-                    jvrow[cols[j].name] = rows[i][j].i32;
+                    jvrow[cols[j].name] = rows[i].items[j].i32;
                     break;
-                
+
                 default:
                     jvrow[cols[j].name] = Json::nullValue;
                     break;
             }
-            
         }
         ret.append(jvrow);
     }
@@ -208,33 +207,39 @@ Json::Value X::Table::Jsonify()
 bool Table::WriteHeader(std::string &file)
 {
     std::ofstream out;
-
     // 覆盖写
     out.open(file, std::ios::out | std::ios::trunc | std::ios::binary);
+    out << "## Tzx ODBC Exchange\n";
+    out << "## Header Begin\n";
+    out << "## " << silly_posix_time::now().to_string() << "\n";
+    out << "## " << m_info.db << "\n";
+    out << "## " << m_info.sql << "\n";
+    out << "## Col Begin\n";
+    for(auto col : cols)
+    {
+        out << "## " << col.name << " " << col.type << "\n";
+    }
+    out << "## Col End\n";
+    out << "## " << "Rows: " << m_info.rows << "\n";
+    out << "## " << "Cols: " << m_info.cols << "\n";
+    out << "## " << "CRC32: " << m_info.crc32 << "\n";
+    out << "## Header End\n";
     return false;
 }
 bool Table::WriteRowData(std::string &file)
 {
-    const static int64_t LIMIT_SIZE = 10 * SU_MB; // 超过10M就写入文件一次,避免过多占用内存
+    const static int64_t LIMIT_SIZE = 50 * SU_MB;  // 超过50M就写入文件一次,避免过多占用内存
     int64_t totalSize = 0;
-    std::string buff;
+    std::stringstream ss;
 
-    for(auto &row : rows)
+    for (auto &row : rows)
     {
         // TODO: 将每一行记录转为二进制, 并且 使用CRC32检验数据
-        for(auto &col : row)
+        ss << row.AsBin();
+        if (ss.str().size() > LIMIT_SIZE)
         {
+            // totalSize += buff.size();
 
-        }
-
-        if(buff.size()> LIMIT_SIZE)
-        {
-            totalSize += buff.size();
-            std::ofstream out;
-            out.open(file, std::ios::out | std::ios::app | std::ios::binary);
-            out.write(buff.c_str(), buff.size());
-            buff.clear();
-            out.close();
         }
     }
 
@@ -271,27 +276,43 @@ void Table::Pull(const std::string &sql)
 
         stream.close();
     }
-    catch (otl_exception& e)
+    catch (otl_exception &e)
     {
-
         db.rollback();
         m_err = "OTL_ERR \nCONN:";
         m_err.append(m_otl.odbc());
         m_err.append("\nCODE:").append(std::to_string(e.code));
-        m_err.append("\nMSG:").append(std::string((char*)e.msg));
-        m_err.append("\nSTATE:").append(std::string((char*)e.sqlstate));
-        m_err.append("\nSTMT:").append(std::string((char*)e.stm_text));
+        m_err.append("\nMSG:").append(std::string((char *)e.msg));
+        m_err.append("\nSTATE:").append(std::string((char *)e.sqlstate));
+        m_err.append("\nSTMT:").append(std::string((char *)e.stm_text));
     }
-    catch (std::exception& p)
+    catch (std::exception &p)
     {
         db.rollback();
         m_err = "OTL_UNKNOWN " + std::string(p.what());
     }
     stream.close();
     db.logoff();
-    if(!m_err.empty())
+    if (!m_err.empty())
     {
         SLOG_ERROR(m_err);
     }
     SLOG_INFO("共{}条数据", rows.size())
+}
+bool Table::Write(const std::string& file, std::stringstream &ss)
+{
+    try{
+        std::ofstream out;
+        out.open(file, std::ios::out | std::ios::app | std::ios::binary);
+        out.write(ss.str().data(), ss.str().size());
+        ss.clear();
+        out.close();
+    }
+    catch (std::exception &e)
+    {
+        SLOG_ERROR(e.what())
+        return false;
+    }
+
+    return true;
 }
