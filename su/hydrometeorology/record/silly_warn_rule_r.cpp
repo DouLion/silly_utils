@@ -18,16 +18,16 @@ bool sliiy_warn_rule_record::serialize(unsigned char** c_in, size_t& len)
         return false;
     }
     i += SILLY_WARN_RULE_CODE_LENGTH;
-    SU_MEMCPY_AUTO_INC(buff, i, ymd);
-    SU_MEMCPY_AUTO_INC(buff, i, hms);
+    SU_MEMCPY_NEXT(buff, i, ymd);
+    SU_MEMCPY_NEXT(buff, i, hms);
     char c_intv = (char)(intv * 2);
     char c_grade = (char)grade;
 
-    SU_MEMCPY_AUTO_INC(buff, i, c_intv);
-    SU_MEMCPY_AUTO_INC(buff, i, c_grade);
-    SU_MEMCPY_AUTO_INC(buff, i, drrp);
-    SU_MEMCPY_AUTO_INC(buff, i, swc);
-    SU_MEMCPY_AUTO_INC(buff, i, drp);
+    SU_MEMCPY_NEXT(buff, i, c_intv);
+    SU_MEMCPY_NEXT(buff, i, c_grade);
+    SU_MEMCPY_NEXT(buff, i, drrp);
+    SU_MEMCPY_NEXT(buff, i, swc);
+    SU_MEMCPY_NEXT(buff, i, drp);
 
     *c_in = (unsigned char*)malloc(SILLY_WARN_RULE_R_LENGTH);
     if (!c_in)
