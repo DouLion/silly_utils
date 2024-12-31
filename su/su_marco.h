@@ -175,19 +175,16 @@
 /// 2的平方根
 #define SQRT_2 (1.4142135623730950488016887242097f)
 
+#define DEG2RAD(deg) (deg * PI / 180.0)
+#define RAD2DEG(rad) (rad * 180.0 / PI)
+
 #define SU_RGB(r, g, b) ((unsigned int)(((unsigned char)(r) | ((unsigned int)((unsigned char)(g)) << 8)) | (((unsigned int)(unsigned char)(b)) << 16)))
 #define SU_ARGB(a, r, g, b) (unsigned int)(((a) & 0xff) << 24 | ((r) & 0xff) << 16 | ((g) & 0xff) << 8 | (b & 0xff))
 #define SU_RGBA(r, g, b, a) SU_ARGB(a, r, g, b)
 #define SU_XRGB(r, g, b) SU_ARGB(0xff, r, g, b)
 
-#ifndef SU_CONSOLE_DEFAULT_ENCODE
-#if IS_WIN32
-#define SU_CONSOLE_DEFAULT_ENCODE "chcp 65001"
-#else
-#define SU_CONSOLE_DEFAULT_ENCODE "export LANG=zh_CN.UTF-8"
-#endif
-#endif
 
+/// 输入输出相关
 #ifndef SU_PRINT_COLORS
 #define SU_PRINT_COLORS                                                    \
     printf(SU_PRINTF_COLOR_NONE "SU_PRINTF_COLOR_NONE\n");                 \
@@ -229,6 +226,22 @@
 #endif
 #endif
 
+#if WIN32
+#define WINDOWS_UTF8_PAGE \
+    {                     \
+SetConsoleOutputCP(65001);\
+CONSOLE_FONT_INFOEX info = {0};\
+info.cbSize = sizeof(info);\
+info.dwFontSize.Y = 16; \
+info.FontWeight = FW_NORMAL;\
+wcscpy_s(info.FaceName, L"Consolas");\
+SetCurrentConsoleFontEx(GetStdHandle(STD_OUTPUT_HANDLE), NULL, &info);\
+    }
+#else
+#define WINDOWS_UTF8_PAGE
+#endif
+
+
 #ifndef SU_PRINTF
 // 打印信息 未封装
 #define SU_PRINTF(s, ...)
@@ -247,16 +260,10 @@
 #ifndef SU_MARK_LINE
 // 标记一行
 #define SU_MARK_LINE printf(SU_PRINTF_COLOR_LIGHT_CYAN "\n[MARK] %s:%I32d \n" SU_PRINTF_COLOR_NONE, SU_FILE_NAME, __LINE__);
-
 #endif
 
-#define SU_RETURN_OK \
-    printf("OK.\n"); \
-    return 0;
-#define SU_RETURN_ERR \
-    printf("ERR.\n"); \
-    return 1;
 
+// std::max(a, b) 需要 a b同类型,
 #ifndef SU_MAX
 #define SU_MAX(a, b) (((a) > (b)) ? (a) : (b))
 #define SU_MIN(a, b) (((a) < (b)) ? (a) : (b))
@@ -266,21 +273,21 @@
 #endif
 
 // 按照小端序转换
-#define SU_LE_64(p) (p[7] << 56 | (p[6] << 48) | (p[5] << 40) | (p[4] << 32) | (p[3] << 24) | (p[2] << 16) | (p[1] << 8) | p[0])
-#define SU_LE_32(p) (p[3] << 24 | (p[2] << 16) | p[1] << 8 | p[0])
-#define SU_LE_16(p) (p[1] << 8 | p[0])
+#define SU_LE_I64(p) ((p)[7] << 56 | ((p)[6] << 48) | ((p)[5] << 40) | ((p)[4] << 32) | ((p)[3] << 24) | ((p)[2] << 16) | ((p)[1] << 8) | (p)[0])
+#define SU_LE_I32(p) ((p)[3] << 24 | ((p)[2] << 16) | (p)[1] << 8 | (p)[0])
+#define SU_LE_I16(p) ((p)[1] << 8 | (p)[0])
 // 按照大端序转换
-#define SU_BE_64(p) (p[0] << 56 | (p[1] << 48) | (p[2] << 40) | (p[3] << 32) | (p[4] << 24) | (p[5] << 16) | (p[6] << 8) | p[7])
-#define SU_BE_32(p) (p[0] << 24 | (p[1] << 16) | p[2] << 8 | p[3])
-#define SU_BE_16(p) (p[0] << 8 | p[1])
+#define SU_BE_I64(p) ((p)[0] << 56 | ((p)[1] << 48) | ((p)[2] << 40) | ((p)[3] << 32) | ((p)[4] << 24) | ((p)[5] << 16) | ((p)[6] << 8) | (p)[7])
+#define SU_BE_I32(p) ((p)[0] << 24 | ((p)[1] << 16) | (p)[2] << 8 | (p)[3])
+#define SU_BE_I16(p) ((p)[0] << 8 | (p)[1])
 
 #ifndef SU_MEMCPY
-#define SU_MEMCPY(p, off, v) memcpy(p + off, &v, sizeof(v));
+#define SU_MEMCPY(p, off, v) memcpy((p) + off, &(v), sizeof(v));
 #endif
 
-#ifndef SU_MEMCPY_AUTO_INC
-#define SU_MEMCPY_AUTO_INC(p, off, v) \
-    memcpy(p + off, &v, sizeof(v));   \
+#ifndef SU_MEMCPY_NEXT
+#define SU_MEMCPY_NEXT(p, off, v) \
+    memcpy((p) + off, &(v), sizeof(v));   \
     off += sizeof(v);
 #endif
 

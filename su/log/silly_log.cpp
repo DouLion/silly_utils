@@ -17,15 +17,7 @@ const static std::string log_pattern = "%^[%Y-%m-%d %H:%M:%S.%e]: %v%$";
 
 silly_log::silly_log()
 {
-#if WIN32
-    SetConsoleOutputCP(65001);
-    CONSOLE_FONT_INFOEX info = { 0 }; // 以下设置字体来支持中文显示。
-    info.cbSize = sizeof(info);
-    info.dwFontSize.Y = 16; // leave X as zero
-    info.FontWeight = FW_NORMAL;
-    wcscpy_s(info.FaceName, L"Consolas");
-    SetCurrentConsoleFontEx(GetStdHandle(STD_OUTPUT_HANDLE), NULL, &info);
-#endif
+    WINDOWS_UTF8_PAGE
     // init();
     try
     {
