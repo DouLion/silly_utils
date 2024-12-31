@@ -13,51 +13,58 @@
 #include <regex>
 #include <encode/silly_encode.h>
 
-// #define IS_##varname(utf8s) std::regex_match(utf8s, std::regex(varname))
+// #define IS_##varname( str) std::regex_match( str, std::regex(varname))
 
-/// 一些常用正则表达式
+namespace silly
+{
+namespace str
+{
+class valid
+{
+  public:
+    /// <summary>
+    /// 是否是QQ格式
+    /// </summary>
+    /// <param name="str"></param>
+    /// <returns></returns>
+    static bool QQ(const std::string& str);
 
-// 空模板
-#ifndef SILLY_REGEX_EMPTY
-#define SILLY_REGEX_EMPTY ""
-#define IS_SILLY_REGEX_EMPTY(utf8s) std::regex_match(utf8s, std::regex(SILLY_REGEX_EMPTY))
-#endif
+    /// <summary>
+    /// 是否是邮箱格式
+    /// </summary>
+    /// <param name="str"></param>
+    /// <returns></returns>
+    static bool email(const std::string& str);
 
-// QQ号
-#ifndef SILLY_REGEX_QQ
-#define SILLY_REGEX_QQ "^[1-9]{1}[0-9]{4,14}$"
-#define IS_SILLY_REGEX_QQ(utf8s) std::regex_match(utf8s, std::regex(SILLY_REGEX_QQ))
-#endif
+    /// <summary>
+    /// 是否是大陆身份证格式
+    /// </summary>
+    /// <param name="str"></param>
+    /// <returns></returns>
+    static bool mainland_id(const std::string& str);
 
-// 邮箱
-#ifndef SILLY_REGEX_EMAIL
-#define SILLY_REGEX_EMAIL "^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+$"
-#define IS_SILLY_REGEX_EMAIL(utf8s) std::regex_match(utf8s, std::regex(SILLY_REGEX_EMAIL))
-#endif
+    /// <summary>
+    /// 是否是大陆手机号格式
+    /// </summary>
+    /// <param name="str"></param>
+    /// <returns></returns>
+    static bool mainland_mobile(const std::string& str);
 
-// 以下标记为内地的仅适用于中国内地地区, 港澳台地区不清楚
-// 内地身份证
-#ifndef SILLY_REGEX_CN_INLAND_ID_CARD_NUM
-#define SILLY_REGEX_CN_INLAND_ID_CARD_NUM "^[1-9]\\d{5}(18|19|20)\\d{2}((0[1-9])|(1[0-2]))(([0-2][1-9])|10|20|30|31)\\d{3}[0-9Xx]$"
-#define IS_SILLY_REGEX_CN_INLAND_ID_CARD_NUM(utf8s) std::regex_match(utf8s, std::regex(SILLY_REGEX_CN_INLAND_ID_CARD_NUM))
-#endif
+    /// <summary>
+    /// 是否是大陆邮编格式
+    /// </summary>
+    /// <param name="str"></param>
+    /// <returns></returns>
+    static bool mainland_post(const std::string& str);
 
-// 内地手机号
-#ifndef SILLY_REGEX_CN_INLAND_MOBILE
-#define SILLY_REGEX_CN_INLAND_MOBILE "^[1]{1}[0-9]{10}$"
-#define IS_SILLY_REGEX_CN_INLAND_MOBILE(utf8s) std::regex_match(utf8s, std::regex(SILLY_REGEX_CN_INLAND_MOBILE))
-#endif
-
-// 内地邮编
-#ifndef SILLY_REGEX_CN_INLAND_POST_CODE
-#define SILLY_REGEX_CN_INLAND_POST_CODE "^[0-9]{6}$"
-#define IS_SILLY_REGEX_CN_INLAND_POST_CODE(utf8s) std::regex_match(utf8s, std::regex(SILLY_REGEX_CN_INLAND_POST_CODE))
-#endif
-
-// 内地车牌号, 输入的中文必须是UTF8编码,省份市编码最多有一个特殊字符 (' ', '+', '-','.', 不包含'_')隔开 例如 "京A 12345"
-#ifndef SILLY_REGEX_CN_INLAND_LICENSE_PLATE_NUMBER
-#define SILLY_REGEX_CN_INLAND_LICENSE_PLATE_NUMBER L"^[\\u4e00-\\u9fa5][A-Z]([\\W]{0,1})[A-Z0-9]{5}$"
-#define IS_SILLY_REGEX_CN_INLAND_LICENSE_PLATE_NUMBER(utf8s) silly_encode::check_text_utf8(utf8s.c_str(), utf8s.size()) ? std::regex_match(silly_encode::cxx11_string_wstring(utf8s), std::wregex(SILLY_REGEX_CN_INLAND_LICENSE_PLATE_NUMBER)) : false
-#endif
+    /// <summary>
+    /// 是否是大陆车牌号格式
+    /// </summary>
+    /// <param name="str"></param>
+    /// <returns></returns>
+    static bool mainland_vehicle(const std::string& str);
+};
+}  // namespace str
+}  // namespace silly
 
 #endif  // SILLY_UTILS_SILLY_REGEX_H

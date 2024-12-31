@@ -4,7 +4,7 @@
 
 #include "silly_algorithm.h"
 
-std::vector<std::string> silly_string_algo::split(const std::string &str, const char &c)
+std::vector<std::string> silly::str::algo::split(const std::string &str, const char &c)
 {
     std::vector<std::string> results;
     size_t pos1 = 0;
@@ -29,7 +29,7 @@ std::vector<std::string> silly_string_algo::split(const std::string &str, const 
     return results;
 }
 
-std::vector<std::string> silly_string_algo::split(const std::string &str, const std::string &s)
+std::vector<std::string> silly::str::algo::split(const std::string &str, const std::string &s)
 {
     std::vector<std::string> results;
     size_t pos_s = s.size();
@@ -78,7 +78,7 @@ std::vector<std::string> silly_string_algo::split(const std::string &str, const 
     return results;
 }
 
-std::string silly_string_algo::replace(const std::string &src, const std::string &find, const std::string rep)
+std::string silly::str::algo::replace(const std::string &src, const std::string &find, const std::string rep)
 {
     std::string result = src;
     size_t pos = 0;
@@ -90,7 +90,7 @@ std::string silly_string_algo::replace(const std::string &src, const std::string
     return result;
 }
 
-size_t silly_string_algo::count_with_chinese_character(const std::string &u8str)
+size_t silly::str::algo::count_with_chinese_character(const std::string &u8str)
 {
     size_t count = 0;
     for (size_t i = 0; i < u8str.size(); ++i)
@@ -113,7 +113,7 @@ size_t silly_string_algo::count_with_chinese_character(const std::string &u8str)
     return count;
 }
 
-std::string silly_string_algo::ltrim(std::string str)
+std::string silly::str::algo::ltrim(std::string str)
 {
     auto it = std::find_if(str.begin(), str.end(), [](char ch) {
         return !std::isspace<char>(ch, std::locale::classic());
@@ -121,7 +121,7 @@ std::string silly_string_algo::ltrim(std::string str)
     return std::string(it, str.end());
 }
 
-std::string silly_string_algo::rtrim(std::string str)
+std::string silly::str::algo::rtrim(std::string str)
 {
     auto it = std::find_if(str.rbegin(), str.rend(), [](char ch) {
                   return !std::isspace<char>(ch, std::locale::classic());
@@ -129,12 +129,12 @@ std::string silly_string_algo::rtrim(std::string str)
     return std::string(str.begin(), it);
 }
 
-std::string silly_string_algo::trim(std::string str)
+std::string silly::str::algo::trim(std::string str)
 {
     return ltrim(rtrim(str));
 }
 
-std::string silly_string_algo::trim_all(std::string str)
+std::string silly::str::algo::trim_all(std::string str)
 {
     std::string result;
     std::remove_copy_if(str.begin(), str.end(), std::back_inserter(result), ::isspace);

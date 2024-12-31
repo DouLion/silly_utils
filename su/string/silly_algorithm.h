@@ -11,8 +11,11 @@
 #define SILLY_UTILS_SILLY_ALGORITHM_H
 #include <su_marco.h>
 #include <vector>
-
-class silly_string_algo
+namespace silly
+{
+namespace str
+{
+class algo
 {
   public:
     /// <summary>
@@ -75,5 +78,7 @@ class silly_string_algo
     /// <returns></returns>
     static std::string trim_all(std::string str);
 };
+}
+}
 
 #endif  // SILLY_UTILS_SILLY_ALGORITHM_H
