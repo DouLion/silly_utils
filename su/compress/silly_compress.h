@@ -38,7 +38,15 @@ enum class CPS_ERR
     GZipDecompressErr = 301,
 
     // 7z的错误
-    Z7zDecompressErr = 401
+    Z7zDecompressErr = 401,
+
+    // rar的错误
+    RAROpenErr = 501,
+    RARCreatDirErr= 502,
+    RARSuportFormatErr = 503,
+    RARWriteErr = 504,
+    RARReadErr = 505
+
 
 };
 }

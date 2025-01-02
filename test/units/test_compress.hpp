@@ -15,10 +15,34 @@
 #include "files/silly_file.h"
 #include "compress/silly_bz2.h"
 #include "compress/silly_minizip.h"
+#include "compress/silly_rar.h"
+
 TEST_CASE("TestCompress")
 {
 
+SECTION("RAR_DECOMPRESS")  // 大文件解压缩
+{
+    std::cout << "\r\n\r\n****************"
+                << "BIG_FILE_DECOMPRESS"
+                << "****************" << std::endl;
 
+    std::string g4_5 = "D:/1_wangyingjie/readfile/cpmpress/big4_5g.rar";
+    std::string g4_5_out = "D:/1_wangyingjie/readfile/cpmpress/big4_5g";
+
+    silly_compress::CPS_ERR result1 = silly_compress::silly_rar::decompress(g4_5);  // 压缩
+    if (result1 == silly_compress::CPS_ERR::Ok)
+    {
+        std::cout << "Compression completed successfully." << std::endl;
+    }
+    else
+    {
+        std::cout << "Compression failed." << std::endl;
+    }
+
+    int r = 0;
+    int e = 0;
+    int f = 0;
+};
 
 
 SECTION("BIG_FILE_DECOMPRESS")  // 大文件解压缩
