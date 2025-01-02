@@ -11,7 +11,7 @@
 #define SILLY_UTILS_SILLY_RENDER_H
 
 #include <math/silly_matrix.h>
-#include <image/png_utils.h>
+#include <image/silly_png.h>
 #include <image/silly_color.h>
 
 class silly_render

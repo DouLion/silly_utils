@@ -34,6 +34,7 @@
 // 文件和流库
 #include <fstream>
 #include <filesystem>
+#include <dirent.h>
 // 异常处理库
 #include <stdexcept>
 // 内存管理库
@@ -71,7 +72,6 @@
 #include <codecvt>
 #include <cstring>
 #include <locale>
-#include <su_global.h>
 
 // 数据库
 // #include <sql.h>
@@ -84,12 +84,19 @@
 #pragma comment(lib, "ws2_32")
 
 #include <psapi.h>
+#include <io.h>
 #else
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <unistd.h>
+#ifndef O_BINARY
+#define O_BINARY 0
+#endif
 #endif
 
 #define SU_VAR_NAME(var) #var

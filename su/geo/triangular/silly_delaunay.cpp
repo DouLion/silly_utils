@@ -108,7 +108,7 @@ void silly_delaunay::draw(const std::string& path)
     sc.create(2000, 2000);
     silly_geo_rect rect{xmin, ymax, xmax, ymin};
     rect.correct();
-    sc.set_color({0, 180, 255, 230});
+    sc.set({0, 180, 255, 230});
     for (auto tri : m_tris)
     {
         sc.draw_line({tri.p0, tri.p1}, rect);

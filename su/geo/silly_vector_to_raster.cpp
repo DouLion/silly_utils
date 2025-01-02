@@ -241,14 +241,14 @@ bool xscan::rasterization(const silly_geo_coll& geo_coll)
 }
 
 #ifndef NDEBUG
-#include <image/png_utils.h>
+#include <image/silly_png.h>
 #endif
 
 void xscan::image(const std::string& path)
 {
 #ifndef NDEBUG
-    png_data png = png_utils::create_empty(m_height, m_width, PNG_COLOR_TYPE_RGB_ALPHA);
-    // #pragma omp parallel for num_threads(8)
+    silly::png::data pd;
+    pd.create(m_height, m_width, silly::color::type::eptGRAYA);
     for (int r = 0; r < m_height; ++r)
     {
         int old = 0;
@@ -256,14 +256,14 @@ void xscan::image(const std::string& path)
         {
             for (int i = p.beg; i <= p.end; ++i)
             {
-                png.set_pixel(r, i, silly_color(255, 0, 0, 255));
+                pd.pixel(r, i, silly::color(255, 0, 0, 255));
             }
             old = p.end;
         }
     }
 
-    png_utils::write(path.c_str(), png);
-    png.release();
+    pd.write(path);
+    pd.release();
 #endif
 }
 void xscan::set(const silly_geo_rect& rect, const double& cell_size)

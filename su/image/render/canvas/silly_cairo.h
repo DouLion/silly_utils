@@ -11,11 +11,11 @@
 #define SILLY_UTILS_SILLY_CAIRO_H
 
 #include <cairo/cairo.h>
-#include <image/png_utils.h>
-#include <image/silly_font.h>
 #include <geo/silly_geo.h>
 #include <cairo/cairo-ft.h>
 #include <ft2build.h>
+#include <image/silly_color.h>
+#include <image/silly_font.h>
 #include FT_FREETYPE_H
 
 
@@ -45,8 +45,8 @@ class silly_cairo
   public:
     silly_cairo() = default;
 
-    bool create(const size_t ww, const size_t& hh, const int& type = png_data::color_type::eptRGBA);
-    void clean(silly_color color = {0, 0, 0, 0});
+    bool create(const size_t ww, const size_t& hh, const int& type = silly::color::type::eptRGBA);
+    void clean(silly::color color = {0, 0, 0, 0});
     bool read(const std::string& path);
     bool write(const std::string& path);
     bool decode(const std::string& bin);
@@ -68,9 +68,9 @@ class silly_cairo
     /// 设置颜色, 自动由 0-255转为 0-1.0
     /// </summary>
     /// <param name="color"></param>
-    void set_color(silly_color color);
+    void set(const silly::color& color);
 
-    void set_operator(const int& opt);
+    void set(const int& opt);
 
     /// <summary>
     /// 将另一张图片绘制到当前图片上

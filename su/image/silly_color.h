@@ -5,7 +5,7 @@
  * @author: dou li yang
  * @date: 2024/6/17 20:42
  * @version: 1.0.1
- * @description: silly_color 类声明
+ * @description: color 类声明
  */
 #ifndef SILLY_UTILS_SILLY_COLOR_H
 #define SILLY_UTILS_SILLY_COLOR_H
@@ -13,34 +13,45 @@
 #include <su_marco.h>
 #include <string/silly_format.h>
 
-class silly_color
+namespace silly
+{
+class color
 {
   public:
-    silly_color(unsigned char r, unsigned char g, unsigned char b, unsigned char a) : red(r), green(g), blue(b), alpha(a), gray(0)
+    color(uint8_t r, uint8_t g, uint8_t b, uint8_t a) : red(r), green(g), blue(b), alpha(a), gray(0)
     {
     }
 
-    silly_color(unsigned char r, unsigned char g, unsigned char b) : red(r), green(g), blue(b), alpha(0), gray(0)
+    color(uint8_t r, uint8_t g, uint8_t b) : red(r), green(g), blue(b), alpha(0), gray(0)
     {
     }
 
-    silly_color(unsigned char g, unsigned char a) : red(0), green(0), blue(0), alpha(a), gray(g)
+    color(uint8_t g, uint8_t a) : red(0), green(0), blue(0), alpha(a), gray(g)
     {
     }
 
-    silly_color(unsigned char g) : red(0), green(0), blue(0), alpha(0), gray(g)
+    color(uint8_t g) : red(0), green(0), blue(0), alpha(0), gray(g)
     {
     }
-    silly_color() : red(0), green(0), blue(0), alpha(0), gray(0)
+    color() : red(0), green(0), blue(0), alpha(0), gray(0)
     {
     }
+
+  public:
+    enum type : uint8_t
+    {
+        eptRGB = 1,   // PNG_COLOR_TYPE_RGB,
+        eptRGBA = 2,  // PNG_COLOR_TYPE_RGB_ALPHA,
+        eptGRAY = 3,  // PNG_COLOR_TYPE_GRAY,
+        eptGRAYA = 4  // PNG_COLOR_TYPE_GRAY_ALPHA
+    };
 
   public:
     /// <summary>
     /// 从字符串加载  如 ABE0457B
     /// </summary>
     /// <param name="color"></param>
-    bool from_hex_argb(const char* color)
+    bool hex2argb(const char* color)
     {
         unsigned int v = 0;
         if (1 != sscanf(color, "%x", &v) || strlen(color) != 8)
@@ -56,7 +67,7 @@ class silly_color
         return true;
     }
 
-    bool from_hex_rgb(const char* color)
+    bool hex2rgb(const char* color)
     {
         unsigned int v = 0;
         if (1 != sscanf(color, "%x", &v) || strlen(color) != 6)
@@ -69,7 +80,7 @@ class silly_color
         return true;
     }
 
-    bool from_hex_rgba(const char* color)
+    bool hex2rgba(const char* color)
     {
         unsigned int v = 0;
         if (1 != sscanf(color, "%x", &v) || strlen(color) != 8)
@@ -83,55 +94,56 @@ class silly_color
         return true;
     }
 
-    bool from_hex_argb(const std::string& color)
+    bool hex2argb(const std::string& color)
     {
-        return from_hex_argb(color.c_str());
+        return hex2argb(color.c_str());
     }
 
-    bool from_hex_rgb(const std::string& color)
+    bool hex2rgb(const std::string& color)
     {
-        return from_hex_rgb(color.c_str());
+        return hex2rgb(color.c_str());
     }
 
-    bool from_hex_rgba(const std::string& color)
+    bool hex2rgba(const std::string& color)
     {
-        return from_hex_rgba(color.c_str());
+        return hex2rgba(color.c_str());
     }
 
-    std::string to_hex_argb()
+    std::string argb2hex()
     {
         return silly_format::format("{:02X}{:02X}{:02X}{:02X}", alpha, red, green, blue);
     }
 
-    std::string to_hex_rgb()
+    std::string rgb2hex()
     {
         return silly_format::format("{:02X}{:02X}{:02X}", red, green, blue);
     }
 
-    std::string to_hex_rgba()
+    std::string rgba2hex()
     {
         return silly_format::format("{:02X}{:02X}{:02X}{:02X}", red, green, blue, alpha);
     }
 
-    std::string to_hex_abgr()
+    std::string abgr2hex()
     {
         return silly_format::format("{:02X}{:02X}{:02X}{:02X}", alpha, blue, green, red);
     }
-    std::string to_hex_bgra()
+    std::string bgra2hex()
     {
         return silly_format::format("{:02X}{:02X}{:02X}{:02X}", blue, green, red, alpha);
     }
 
-    std::string to_hex_bgr()
+    std::string bgr2hex()
     {
         return silly_format::format("{:02X}{:02X}{:02X}", blue, green, red);
     }
 
-    unsigned char gray{0};
-    unsigned char red{0};
-    unsigned char green{0};
-    unsigned char blue{0};
-    unsigned char alpha{0};
+  public:
+    uint8_t gray{0};
+    uint8_t red{0};
+    uint8_t green{0};
+    uint8_t blue{0};
+    uint8_t alpha{0};
 };
-
+}  // namespace silly
 #endif  // SILLY_UTILS_SILLY_COLOR_H
