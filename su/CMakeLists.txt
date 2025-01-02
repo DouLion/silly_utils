@@ -52,10 +52,12 @@ target_link_libraries(${PROJECT_NAME} PUBLIC BZip2::BZip2)
 
 find_package(minizip CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC minizip::minizip)
-
-find_package(LibArchive REQUIRED)
-target_include_directories(${PROJECT_NAME} PUBLIC ${LibArchive_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} PUBLIC ${LibArchive_LIBRARIES})
+if(ENABLE_LIBARCHIVE)
+    find_package(LibArchive REQUIRED)
+    target_include_directories(${PROJECT_NAME} PUBLIC ${LibArchive_INCLUDE_DIRS})
+    target_link_libraries(${PROJECT_NAME} PUBLIC ${LibArchive_LIBRARIES})
+    add_definitions(-DENABLE_LIBARCHIVE)
+endif()
 
 find_path(GZIP_HPP_INCLUDE_DIRS "gzip/compress.hpp")
 target_include_directories(${PROJECT_NAME} PUBLIC ${GZIP_HPP_INCLUDE_DIRS})

@@ -3,11 +3,10 @@
 //
 
 #include "silly_rar.h"
-#include <fstream>
+#if ENABLE_LIBARCHIVE
 #include <archive.h>
 #include <archive_entry.h>
-#include <filesystem>
-#include "su_marco.h"
+#endif
 #include <log/silly_log.h>
 
 using namespace silly_compress;
@@ -21,6 +20,7 @@ using namespace silly_compress;
 CPS_ERR silly_rar::compress(const std::string& s_src, const std::string& s_dst, const bool& append)
 {
     auto status = CPS_ERR::MiniZUnknowErr;
+#if ENABLE_LIBARCHIVE
     try
     {
         if (!std::filesystem::exists(s_src))
@@ -50,12 +50,14 @@ CPS_ERR silly_rar::compress(const std::string& s_src, const std::string& s_dst, 
     {
         SLOG_ERROR("未知错误")
     }
+#endif
 
     return status;
 }
 
 CPS_ERR silly_rar::decompress(const std::string& s_src, const std::string& s_dst)
 {
+#if ENABLE_LIBARCHIVE
     if (!std::filesystem::exists(s_src))  // 解压文件不存在
     {
         SLOG_ERROR("not exist {}", s_src.c_str());
@@ -187,6 +189,7 @@ CPS_ERR silly_rar::decompress(const std::string& s_src, const std::string& s_dst
 
     // 清理资源
     archive_read_free(archive_ptr);
+#endif
     return CPS_ERR::Ok;
 }
 
