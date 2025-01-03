@@ -11,12 +11,6 @@
 #ifndef SILLY_UTILS_SILLY_JPEG_H
 #define SILLY_UTILS_SILLY_JPEG_H
 
-#if ENABLE_JPEG
-#include "jpeglib.h"
-#include "jerror.h"
-#include <setjmp.h>
-#endif
-
 #include <image/silly_image_base.h>
 namespace silly
 {

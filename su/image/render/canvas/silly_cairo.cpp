@@ -15,6 +15,12 @@
 #include <image/silly_png.h>
 #include <image/silly_jpeg.h>
 
+#if ENABLE_JPEG
+#include "jpeglib.h"
+#include "jerror.h"
+#include <setjmp.h>
+#endif
+
 #include FT_FREETYPE_H
 
 const static double COLOR_UNSIGNED_CHAR_DOUBLE = 255.0;
@@ -70,6 +76,7 @@ static cairo_status_t write_func(void *closure, const unsigned char *data, uint3
     return CAIRO_STATUS_SUCCESS;
 }
 }  // namespace png
+#if ENABLE_JPEG
 namespace jpeg
 {
 /// https://github.com/rahra/cairo_jpg/blob/master/src/cairo_jpg.c
@@ -410,6 +417,7 @@ static cairo_surface_t *cairo_image_surface_create_from_jpeg_stream(cairo_read_f
 }
 
 }  // namespace jpeg
+#endif
 }  // namespace cairo
 }  // namespace silly
 
@@ -481,7 +489,9 @@ bool silly_cairo::decode(const char *data, const size_t size)
     }
     else if (silly::jpeg::data().valid(data, size))
     {
+#if ENABLE_JPEG
         m_surface = silly::cairo::jpeg::from_binary((void *)data, size);
+#endif
         if (!m_surface)
         {
             return false;

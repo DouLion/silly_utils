@@ -12,25 +12,28 @@
 #include <files/silly_file.h>
 
 #if ENABLE_JPEG
+#include "jpeglib.h"
+#include "jerror.h"
+#include <setjmp.h>
+
 struct my_error_mgr
 {
     struct jpeg_error_mgr pub; /* "public" fields */
     jmp_buf setjmp_buffer;     /* for return to caller */
 };
 using my_error_ptr = my_error_mgr*;
-#endif
+
 
 void my_error_exit(j_common_ptr cinfo)
 {
-#if ENABLE_JPEG
+
     my_error_ptr myerr = (my_error_ptr)cinfo->err;
 
     (*cinfo->err->output_message)(cinfo);
     longjmp(myerr->setjmp_buffer, 1);
-#endif
+
 }
 
-#if ENABLE_JPEG
 static silly::color::type jpeg2sillyctype(const J_COLOR_SPACE& type)
 {
     switch (type)
@@ -45,11 +48,10 @@ static silly::color::type jpeg2sillyctype(const J_COLOR_SPACE& type)
             throw std::exception("不支持的类型");
     }
 }
-#endif
+
 
 static J_COLOR_SPACE silly2jpegctype(const silly::color::type& type)
 {
-#if ENABLE_JPEG
     switch (type)
     {
         case silly::color::type::eptGRAY:
@@ -61,10 +63,9 @@ static J_COLOR_SPACE silly2jpegctype(const silly::color::type& type)
         default:
             throw std::exception("不支持的类型");
     }
-#endif
     return J_COLOR_SPACE::JCS_UNKNOWN;
 }
-
+#endif
 void silly::jpeg::data::pixel(const size_t& row, const size_t& col, const silly::color& pixel)
 {
 #if ENABLE_JPEG
@@ -92,8 +93,6 @@ void silly::jpeg::data::pixel(const size_t& row, const size_t& col, const silly:
 silly::color silly::jpeg::data::pixel(const size_t& row, const size_t& col) const
 {
     silly::color pixel = {0, 0, 0};
-#if ENABLE_JPEG
-
     if (row >= m_height || col >= m_width)
     {
         std::cout << "Coordinates out of bounds " << std::endl;
@@ -112,7 +111,6 @@ silly::color silly::jpeg::data::pixel(const size_t& row, const size_t& col) cons
         pixel.gray = m_bytes[start];
     }
 
-#endif
     return pixel;
 }
 
