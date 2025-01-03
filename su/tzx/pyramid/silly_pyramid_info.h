@@ -25,13 +25,16 @@
 #define BOUND_INFO_LEN 128
 /** Tiling format info length */
 #define TILING_FORMAT_INFO_LEN 12
-
-class silly_pyramid_info : public silly_pyramid_base
+namespace silly
+{
+namespace pyramid
+{
+class info : public silly::pyramid::base
 {
   public:
-    silly_pyramid_info();
+    info();
 
-    bool read_info();
+    bool read();
 
   protected:
     /// Datasrc info.
@@ -43,5 +46,7 @@ class silly_pyramid_info : public silly_pyramid_base
     /// Tiling format info.
     char m_tiling_format[TILING_FORMAT_INFO_LEN];
 };
+}  // namespace pyramid
+}  // namespace silly
 
 #endif  // SILLY_UTILS_SILLY_PYRAMID_INFO_H

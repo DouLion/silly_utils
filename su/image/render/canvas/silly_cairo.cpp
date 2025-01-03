@@ -291,7 +291,7 @@ static cairo_status_t cairo_image_surface_write_to_jpeg(cairo_surface_t *sfc, co
  * @return Returns a pointer to a cairo_surface_t structure. It should be
  * checked with cairo_surface_status() for errors.
  */
-static cairo_surface_t *cairo_image_surface_create_from_jpeg_mem(void *data, size_t len)
+static cairo_surface_t *from_binary(void *data, size_t len)
 {
     struct jpeg_decompress_struct cinfo;
     struct jpeg_error_mgr jerr;
@@ -402,7 +402,7 @@ static cairo_surface_t *cairo_image_surface_create_from_jpeg_stream(cairo_read_f
     }
 
     // call jpeg decompression and return surface
-    sfc = cairo_image_surface_create_from_jpeg_mem(data, len);
+    sfc = from_binary(data, len);
     if (cairo_surface_status(sfc) != CAIRO_STATUS_SUCCESS)
         free(data);
 
@@ -481,6 +481,11 @@ bool silly_cairo::decode(const char *data, const size_t size)
     }
     else if (silly::jpeg::data().valid(data, size))
     {
+        m_surface = silly::cairo::jpeg::from_binary((void *)data, size);
+        if (!m_surface)
+        {
+            return false;
+        }
     }
 
     m_width = cairo_image_surface_get_width(m_surface);

@@ -11,13 +11,33 @@
 #ifndef SILLY_UTILS_SILLY_PYRAMID_BLOCK_H
 #define SILLY_UTILS_SILLY_PYRAMID_BLOCK_H
 
-class silly_pyramid_block
+namespace silly
+{
+namespace pyramid
+{
+class block
 {
   public:
-    silly_pyramid_block();
-    ~silly_pyramid_block();
+    uint32_t zoom{0};
+    uint64_t row{0};
+    uint64_t col{0};
+    uint64_t pos{0};
+    uint64_t offset{0};
+    uint32_t size{0};
+    char* data{nullptr};
+  public:
+    bool create()
+    {
+        return malloc(size) != nullptr;
+    }
 
-  private:
+    void release()
+    {
+        SU_MEM_FREE(data)
+    }
 };
+
+}  // namespace pyramid
+}  // namespace silly
 
 #endif  // SILLY_UTILS_SILLY_PYRAMID_BLOCK_H

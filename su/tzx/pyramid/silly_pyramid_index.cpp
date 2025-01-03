@@ -3,8 +3,8 @@
 //
 
 #include "silly_pyramid_index.h"
-
-silly_pyramid_index::silly_pyramid_index()
+using namespace silly::pyramid;
+index::index()
 {
     m_desc[0] = 'I';
     m_desc[1] = 'H';
@@ -16,9 +16,9 @@ silly_pyramid_index::silly_pyramid_index()
     }
 }
 
-bool silly_pyramid_index::open(const char* file, const silly_mmap::enum_mmap_open_mode& mode, const bool& usemmap)
+bool index::open(const char* file, const silly_mmap::enum_mmap_open_mode& mode, const bool& usemmap)
 {
-    if (!silly_pyramid_base::open(file, mode, usemmap))
+    if (!base::open(file, mode, usemmap))
     {
         return false;
     }
@@ -29,36 +29,31 @@ bool silly_pyramid_index::open(const char* file, const silly_mmap::enum_mmap_ope
     return true;
 }
 
-err_code silly_pyramid_index::read_block_pos(uint32_t layer, uint64_t row, uint64_t col, uint32_t& datasize, uint64_t& datapos)
+error index::read_block(block& blk)
 {
-    if (row > m_layer_infos[layer].end_row || row < m_layer_infos[layer].start_row || col > m_layer_infos[layer].end_col || col < m_layer_infos[layer].start_col)
+    if (m_layer_infos[blk.zoom].out(blk))
     {
-        datasize = 0;
-        datapos = 0;
-        return err_code::OK;
+        return error::OK;
     }
 
-    uint64_t pos = m_layer_bpos[layer];
+    uint64_t pos = m_layer_bpos[blk.zoom];
     if (0 == pos)
     {
-        datasize = 0;
-        datapos = 0;
-        return err_code::OK;
+        return error::OK;
     }
-    pos += ((m_layer_infos[layer].end_col - m_layer_infos[layer].start_col + 1) * (row - m_layer_infos[layer].start_row) + (col - m_layer_infos[layer].start_col)) * (TZX_IMAGE_DATA_POS_SIZE + TZX_IMAGE_DATA_SIZE_SIZE);
+    pos += m_layer_infos[blk.zoom].index(blk) * (TZX_IMAGE_DATA_POS_SIZE + TZX_IMAGE_DATA_SIZE_SIZE);
 
-    datasize = datapos = 0;
     char buff[TZX_IMAGE_DATA_POS_SIZE + TZX_IMAGE_DATA_SIZE_SIZE] = {0};
-    read(pos, buff, TZX_IMAGE_DATA_POS_SIZE + TZX_IMAGE_DATA_SIZE_SIZE);
+    base::read(pos, buff, TZX_IMAGE_DATA_POS_SIZE + TZX_IMAGE_DATA_SIZE_SIZE);
     // read(pos + TZX_IMAGE_DATA_POS_SIZE, (char*)(&datasize), TZX_IMAGE_DATA_SIZE_SIZE);
-    datapos = ((uint64_t*)buff)[0];
-    datasize = ((uint32_t*)buff)[2];
-    return err_code::OK;
+    blk.pos = ((uint64_t*)buff)[0];
+    blk.size = ((uint32_t*)buff)[2];
+    return error::OK;
 }
 
-bool silly_pyramid_index::init_layer_info()
+bool index::init_layer_info()
 {
-    if (pyramid_version::Version_2 == m_major_ver)
+    if (version::Version_2 == m_major_ver)
     {
         uint64_t pos = TZX_IMAGE_INDEX_INFO_SIZE;
         for (uint8_t l = 0; l < TZX_IMAGE_MAX_LEVEL; ++l)
@@ -71,14 +66,15 @@ bool silly_pyramid_index::init_layer_info()
             uint64_t endcol = ((uint64_t*)(buff))[3];
             uint64_t begpos = ((uint64_t*)(buff))[4];
             pos += 5 * sizeof(uint64_t);
-            m_layer_infos[l].start_row = begrow;
-            m_layer_infos[l].start_col = begcol;
-            m_layer_infos[l].end_row = endrow;
-            m_layer_infos[l].end_col = endcol;
+            m_layer_infos[l].rbeg = begrow;
+            m_layer_infos[l].cbeg = begcol;
+            m_layer_infos[l].rend = endrow;
+            m_layer_infos[l].cend = endcol;
+            m_layer_infos[l].fill();
             m_layer_bpos[l] = begpos;
         }
     }
-    else if (pyramid_version::Version_1 == m_major_ver)
+    else if (version::Version_1 == m_major_ver)
     {
         uint8_t beglyr, endlyr = 0;
 
@@ -93,17 +89,17 @@ bool silly_pyramid_index::init_layer_info()
         {
             char buff[16];
             read(pos, buff, 16);
-            m_layer_infos[l].start_row = ((uint32_t*)(buff))[0];
-            m_layer_infos[l].start_col = ((uint32_t*)(buff))[1];
-            m_layer_infos[l].end_row = ((uint32_t*)(buff))[2];
-            m_layer_infos[l].end_col = ((uint32_t*)(buff))[3];
+            m_layer_infos[l].rbeg = ((uint32_t*)(buff))[0];
+            m_layer_infos[l].cbeg = ((uint32_t*)(buff))[1];
+            m_layer_infos[l].rend = ((uint32_t*)(buff))[2];
+            m_layer_infos[l].cend = ((uint32_t*)(buff))[3];
             pos += TZX_IMAGE_COLROW_SIZE * 4;
         }
 
         for (uint8_t l = beglyr; l <= endlyr; ++l)
         {
             m_layer_bpos[l] = pos;
-            pos += (m_layer_infos[l].end_row - m_layer_infos[l].start_row + 1) * (m_layer_infos[l].end_col - m_layer_infos[l].start_col + 1) * (TZX_IMAGE_DATA_SIZE_SIZE + TZX_IMAGE_DATA_POS_SIZE);
+            pos += (m_layer_infos[l].rend - m_layer_infos[l].rbeg + 1) * (m_layer_infos[l].cend - m_layer_infos[l].cbeg + 1) * (TZX_IMAGE_DATA_SIZE_SIZE + TZX_IMAGE_DATA_POS_SIZE);
         }
     }
     else
@@ -114,11 +110,11 @@ bool silly_pyramid_index::init_layer_info()
     return true;
 }
 
-uint64_t silly_pyramid_index::get_layer_start_pos(const uint32_t& layer)
+uint64_t index::get_layer_start_pos(const uint32_t& layer)
 {
     return 0;
 }
-void silly_pyramid_index::set_layer_info(const uint32_t& layer, const layer_info& linfo)
+void index::set_layer_info(const uint32_t& layer, const layer_info& linfo)
 {
     m_layer_infos[layer] = linfo;
     uint64_t pos = TZX_IMAGE_INDEX_DATA_BEGIN_POS;
@@ -126,45 +122,45 @@ void silly_pyramid_index::set_layer_info(const uint32_t& layer, const layer_info
     for (auto [l, info] : m_layer_infos)
     {
         m_layer_bpos[l] = pos;
-        uint64_t rows = info.end_row - info.start_row + 1;
-        uint64_t cols = info.end_col - info.start_col + 1;
+        uint64_t rows = info.rend - info.rbeg + 1;
+        uint64_t cols = info.cend - info.cbeg + 1;
         pos += (rows * cols * (TZX_IMAGE_DATA_POS_SIZE + TZX_IMAGE_DATA_SIZE_SIZE));
     }
 }
-bool silly_pyramid_index::write_block(const uint32_t& layer, const uint64_t& row, const uint64_t& col, const block_index& idata)
+bool index::write_block(const block& blk)
 {
-    write(idata.offset, (char*)(&idata.pos), sizeof(idata.pos), 0);
-    write(sizeof(idata.pos), (char*)(&idata.size), sizeof(idata.size), 0);
+    base::write(blk.offset, (char*)(&blk.pos), sizeof(blk.pos), 0);
+    base::write(sizeof(blk.pos), (char*)(&blk.size), sizeof(blk.size), 0);
     return true;
 }
 
-void silly_pyramid_index::write_layer_info()
+void index::write_layer_info()
 {
     if (m_stream)
     {
         size_t pos = PYRAMID_DESC_LENGTH + PYRAMID_MVER_LENGTH + PYRAMID_PVER_LENGTH;
         for (auto [l, info] : m_layer_infos)
         {
-            write(pos, (char*)(&info.start_row), sizeof(info.start_row), 0);
-            pos += sizeof(info.start_row);
-            write(pos, (char*)(&info.start_col), sizeof(info.start_col), 0);
-            pos += sizeof(info.start_col);
-            write(pos, (char*)(&info.end_row), sizeof(info.end_row), 0);
-            pos += sizeof(info.end_row);
-            write(pos, (char*)(&info.end_col), sizeof(info.end_col), 0);
-            pos += sizeof(info.end_col);
-            write(pos, (char*)(&m_layer_bpos[l]), sizeof(m_layer_bpos[l]), 0);
+            base::write(pos, (char*)(&info.rbeg), sizeof(info.rbeg), 0);
+            pos += sizeof(info.rbeg);
+            base::write(pos, (char*)(&info.cbeg), sizeof(info.cbeg), 0);
+            pos += sizeof(info.cbeg);
+            base::write(pos, (char*)(&info.rend), sizeof(info.rend), 0);
+            pos += sizeof(info.rend);
+            base::write(pos, (char*)(&info.cend), sizeof(info.cend), 0);
+            pos += sizeof(info.cend);
+            base::write(pos, (char*)(&m_layer_bpos[l]), sizeof(m_layer_bpos[l]), 0);
             pos += sizeof(m_layer_bpos[l]);
         }
     }
 }
 
-bool silly_pyramid_index::close()
+bool index::close()
 {
     if (m_mode != silly_mmap::enum_mmap_open_mode::emomRead)
     {
         write_layer_info();
     }
 
-    return silly_pyramid_base::close();
+    return base::close();
 }

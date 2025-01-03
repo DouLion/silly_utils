@@ -1,7 +1,7 @@
 #include "silly_pyramid_tools.h"
-#include <filesystem>
+using namespace silly::pyramid;
 
-bool silly_pyramid::open(const std::string& root, const silly_mmap::enum_mmap_open_mode& mode, bool usemmap)
+bool tools::open(const std::string& root, const silly_mmap::enum_mmap_open_mode& mode, bool usemmap)
 {
     std::filesystem::path pyrmid_root(root);
     auto info_path = pyrmid_root;
@@ -65,28 +65,24 @@ bool silly_pyramid::open(const std::string& root, const silly_mmap::enum_mmap_op
     return false;
 }
 
-void silly_pyramid::close()
+void tools::close()
 {
     m_info.close();
     m_data.m_index.close();
     m_data.close();
 }
 
-char* silly_pyramid::read_data(const uint32_t& layer, const uint64_t& row, const uint64_t& col, size_t& size)
+std::string tools::read(const block& blk)
 {
-    // char* ret = nullptr;
-    uint32_t ss = 0;
-    char* ret = m_data.read_block(layer, row, col, ss);
-    size = ss;
-    return ret;
+    return m_data.read(blk);
 }
 
-bool silly_pyramid::write(const uint32_t& layer, const uint64_t& row, const uint64_t& col, const size_t& size, const char* data)
+bool tools::write(const block& blk)
 {
     return false;
 }
 
-bool silly_pyramid::rebuild_to_v2(const std::string& target_root)
+bool tools::rebuild_to_v2(const std::string& target_root)
 {
     return false;
 }

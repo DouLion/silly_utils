@@ -15,8 +15,8 @@
 
 #define TZX_IMAGE_DATA_INDEX_NAME "TzxImage.index"
 
-#include "tzx/pyramid/silly_pyramid_base.h"
-#include <map>
+#include <tzx/pyramid/silly_pyramid_base.h>
+#include <tzx/pyramid/silly_pyramid_block.h>
 
 #define TZX_IMAGE_DATA_POS_SIZE 8   // 记录data数据位置的数据大小
 #define TZX_IMAGE_DATA_SIZE_SIZE 4  // 记录data数据大小的数据的大小
@@ -27,34 +27,59 @@
 #define TZX_IMAGE_MAX_LEVEL 24
 #define TZX_IMAGE_INDEX_DATA_BEGIN_POS 1024
 
-struct block_index
+namespace silly
 {
-    uint64_t offset;
-    uint64_t pos;
-    uint32_t size;
-};
+namespace pyramid
+{
 
 struct layer_info
 {
-    uint64_t start_row{0};
-    uint64_t end_row{0};
-    uint64_t start_col{0};
-    uint64_t end_col{0};
+    uint64_t rbeg{0};
+    uint64_t cbeg{0};
 
-    layer_info& operator=(const layer_info& other)
+    uint64_t rend{0};
+    uint64_t cend{0};
+
+    uint64_t rows{0};
+    uint64_t cols{0};
+
+    layer_info& operator=(const layer_info& rh)
     {
-        this->start_row = other.start_row;
-        this->end_row = other.end_row;
-        this->start_col = other.start_col;
-        this->end_col = other.end_col;
+        this->rbeg = rh.rbeg;
+        this->cbeg = rh.cbeg;
+        this->rows = rh.rows;
+        this->cols = rh.cols;
+        this->rend = rh.rend;
+        this->cend = rh.cend;
         return *this;
+    }
+
+    bool out(block blk)
+    {
+        return blk.row > rend || blk.row < rbeg || blk.col > cend|| blk.col < cbeg;
+    }
+
+    bool in(block blk)
+    {
+        return blk.row >= rbeg && blk.row <= rend && blk.col >= cbeg && blk.col <= cend;
+    }
+
+    bool index(block blk)
+    {
+        return cols * (blk.row - rbeg) + blk.col - cbeg;
+    }
+
+    void fill()
+    {
+        rows = rend - rbeg + 1;
+        cols = cend - cbeg + 1;
     }
 };
 
-class silly_pyramid_index : public silly_pyramid_base
+class index : public silly::pyramid::base
 {
   public:
-    silly_pyramid_index();
+    index();
 
     /// <summary>
     /// 初始化各层的关键信息, 加快后面的计算
@@ -64,7 +89,7 @@ class silly_pyramid_index : public silly_pyramid_base
 
     bool open(const char* file, const silly_mmap::enum_mmap_open_mode& mode, const bool& usemmap);
 
-    err_code read_block_pos(uint32_t layer, uint64_t row, uint64_t col, uint32_t& datasize, uint64_t& datapos);
+    error read_block(block& blk);
 
     /// <summary>
     /// 获取索引文件,对应层数的起始位置
@@ -77,7 +102,7 @@ class silly_pyramid_index : public silly_pyramid_base
     /// 设置每层的起始信息
     /// </summary>
     /// <param name="linfo"></param>
-    void set_layer_info(const uint32_t& layer, const layer_info& linfo);
+    void set_layer_info(const uint32_t& level, const layer_info& linfo);
 
     /// <summary>
     /// 写入数据块中的指定块的索引数据 索引偏移量和数据块大小
@@ -87,7 +112,7 @@ class silly_pyramid_index : public silly_pyramid_base
     /// <param name="col"></param>
     /// <param name="idata"></param>
     /// <returns></returns>
-    bool write_block(const uint32_t& layer, const uint64_t& row, const uint64_t& col, const block_index& idata);
+    bool write_block(const block& blk);
 
     void write_layer_info();
 
@@ -98,5 +123,7 @@ class silly_pyramid_index : public silly_pyramid_base
     // 索引文件中,每层存储data信息的起始位置
     std::map<uint32_t, uint64_t> m_layer_bpos;
 };
+}  // namespace pyramid
+}  // namespace silly
 
 #endif  // SILLY_UTILS_SILLY_PYRAMID_INDEX_H

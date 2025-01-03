@@ -125,6 +125,7 @@ bool silly_mmap::windows_open_read()
 {
     bool status = false;
 #if IS_WIN32
+    //m_h_file = CreateFile(s2ws(m_file).c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     m_h_file = CreateFile(s2ws(m_file).c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     if (m_h_file == INVALID_HANDLE_VALUE)
     {

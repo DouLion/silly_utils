@@ -10,8 +10,8 @@
  */
 #pragma once
 
-#ifndef SILLY_UTILS_SILLY_IMAGE_BASE_H
-#define SILLY_UTILS_SILLY_IMAGE_BASE_H
+#ifndef SILLY_UTILS_PYRAMID_BASE_H
+#define SILLY_UTILS_PYRAMID_BASE_H
 
 #include "files/silly_mmap.h"
 #include <mutex>
@@ -26,14 +26,18 @@
 #define PYRAMID_PVER_OFFSET 8
 #define PYRAMID_PVER_LENGTH 4
 
-enum err_code
+namespace silly
+{
+namespace pyramid
+{
+enum error
 {
     OK = 0,
     UNKNOWN = 1,
     NOT_OPEN = 2
 };
 
-enum pyramid_version
+enum version
 {
     Version_1 = 1,
     Version_2 = 2,
@@ -43,13 +47,13 @@ enum pyramid_version
     Version_6 = 6
 };
 
-class silly_pyramid_base
+class base
 {
     /// <summary>
     /// 读取时使用mmap, 创建和修改时使用普通文件流
     /// </summary>
   public:
-    silly_pyramid_base() = default;
+    base() = default;
     /// <summary>
     ///
     /// </summary>
@@ -151,13 +155,13 @@ class silly_pyramid_base
     /// 关闭内存文件映射
     /// </summary>
     void mmap_close();
-    err_code read_info();
+    error read_info();
 
     void write_info();
 
   protected:
     // 文件名称
-    std::string m_pfile;
+    std::string m_file;
 
     // 是否已经打开
     bool m_opened{false};
@@ -179,5 +183,7 @@ class silly_pyramid_base
     // 加载类型
     silly_mmap::enum_mmap_open_mode m_mode;
 };
+}  // namespace pyramid
+}  // namespace silly
 
-#endif  // SILLY_UTILS_SILLY_IMAGE_BASE_H
+#endif  // SILLY_UTILS_PYRAMID_BASE_H

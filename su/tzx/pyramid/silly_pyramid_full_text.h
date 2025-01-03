@@ -13,8 +13,14 @@
 #ifndef SILLY_UTILS_SILLY_PYRAMID_FULL_TEXT_H
 #define SILLY_UTILS_SILLY_PYRAMID_FULL_TEXT_H
 #include "tzx/pyramid/silly_pyramid_base.h"
-class silly_pyramid_full_text : public silly_pyramid_base
+namespace silly
+{
+namespace pyramid
+{
+class full_text : public silly::pyramid::base
 {
 };
+}  // namespace pyramid
+}  // namespace silly
 
 #endif  // SILLY_UTILS_SILLY_PYRAMID_FULL_TEXT_H

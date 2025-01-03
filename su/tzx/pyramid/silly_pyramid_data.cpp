@@ -3,8 +3,8 @@
 //
 
 #include "silly_pyramid_data.h"
-
-silly_pyramid_data::silly_pyramid_data()
+using namespace silly::pyramid;
+data::data()
 {
     m_desc[0] = 'I';
     m_desc[1] = 'D';
@@ -12,57 +12,53 @@ silly_pyramid_data::silly_pyramid_data()
     m_desc[3] = 'T';
 }
 
-bool silly_pyramid_data::open(const char* file, const silly_mmap::enum_mmap_open_mode& mode, const bool& usemmap)
+bool data::open(const char* file, const silly_mmap::enum_mmap_open_mode& mode, const bool& usemmap)
 {
-    return silly_pyramid_base::open(file, mode, usemmap);
+    return base::open(file, mode, usemmap);
 }
 
-std::string silly_pyramid_data::read_block(const uint32_t& layer, const uint64_t& row, const uint64_t& col)
+std::string data::read(const block& blk)
 {
     std::string ret_data = "";
-    uint64_t datapos = 0;
-    uint32_t datasize = 0;
-    if (err_code::OK != m_index.read_block_pos(layer, row, col, datasize, datapos))
+    block nbkl = blk;
+    if (error::OK != m_index.read_block(nbkl))
     {
         return ret_data;
     }
-    if (datasize == 0 || datapos == 0)
+    if (nbkl.size == 0 || nbkl.pos == 0)
     {
         return ret_data;
     }
 
-    ret_data.resize(datasize);
-    read(datapos, &ret_data[0], datasize);
+    ret_data.resize(nbkl.size);
+    base::read(nbkl.pos, &ret_data[0], nbkl.size);
     return ret_data;
 }
 
-char* silly_pyramid_data::read_block(const uint32_t& layer, const uint64_t& row, const uint64_t& col, uint32_t& datasize)
+bool data::read(block& blk)
 {
-    char* ret_data = nullptr;
-    uint64_t datapos = 0;
-    if (err_code::OK != m_index.read_block_pos(layer, row, col, datasize, datapos))
+    if (error::OK != m_index.read_block(blk))
     {
-        return ret_data;
+        return false;
     }
-    if (datasize == 0 || datapos == 0)
+    if (blk.size == 0 || blk.pos == 0)
     {
-        return ret_data;
+        return false;
     }
-
-    ret_data = (char*)malloc(datasize);
-    if (ret_data)
+    if (blk.create())
     {
-        read(datapos, ret_data, datasize);
+        base::read(blk.pos, blk.data, blk.size);
+        return true;
     }
 
-    return ret_data;
+    return false;
 }
 
-bool silly_pyramid_data::write_block(const uint32_t& layer, const uint64_t& row, const uint64_t& col, const block_data& bdata)
+bool data::write(const block& blk)
 {
-    if (bdata.size && bdata.data)
+    if (blk.size && blk.data)
     {
-        return write(bdata.offset, bdata.data, bdata.size, 0);
+        return base::write(blk.offset, blk.data, blk.size, 0);
     }
 
     return true;

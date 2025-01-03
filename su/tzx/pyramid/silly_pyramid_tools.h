@@ -25,16 +25,14 @@
 #include "tzx/pyramid/silly_pyramid_index.h"
 #include "tzx/pyramid/silly_pyramid_data.h"
 
-#include <mutex>
-#include <thread>
-
-/// <summary>
-/// TzxImage 格式的文件组
-/// </summary>
-class silly_pyramid
+namespace silly
+{
+namespace pyramid
+{
+class tools
 {
   public:
-    silly_pyramid(void) = default;
+    tools(void) = default;
 
     bool open(const std::string& root, const silly_mmap::enum_mmap_open_mode& mode = silly_mmap::enum_mmap_open_mode::emomRead, bool usemmap = false);
     void close();
@@ -47,7 +45,7 @@ class silly_pyramid
     /// <param name="col">块所在列号 0 - 2^layer-1</param>
     /// <param name="size">块数据大小</param>
     /// <returns>数据内容</returns>
-    char* read_data(const uint32_t& layer, const uint64_t& row, const uint64_t& col, size_t& size);
+    std::string read(const block& blk);
 
     /// <summary>
     /// 向指定块写入数据
@@ -58,7 +56,7 @@ class silly_pyramid
     /// <param name="size"></param>
     /// <param name="data"></param>
     /// <returns></returns>
-    bool write(const uint32_t& layer, const uint64_t& row, const uint64_t& col, const size_t& size, const char* data);
+    bool write(const block& blk);
 
     /// <summary>
     /// 将版本1的金字塔转为版本2的金字塔
@@ -70,12 +68,10 @@ class silly_pyramid
   private:
     silly_mmap::enum_mmap_open_mode m_mode;
     std::string m_root;
-    silly_pyramid_info m_info;
-    silly_pyramid_data m_data;
+    info m_info;
+    data m_data;
 };
-
-class silly_pyramid_tools
-{
-};
+}  // namespace pyramid
+}  // namespace silly
 
 #endif  // SILLY_UTILS_SILLY_PYRAMID_TOOLS_H

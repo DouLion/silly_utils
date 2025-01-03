@@ -3,9 +3,9 @@
 //
 
 #include "silly_pyramid_base.h"
-#include <cstring>
 
-bool silly_pyramid_base::open(const char* file, const silly_mmap::enum_mmap_open_mode& mode, const bool& usemmap)
+using namespace silly::pyramid;
+bool base::open(const char* file, const silly_mmap::enum_mmap_open_mode& mode, const bool& usemmap)
 {
     m_mode = mode;
     if (silly_mmap::enum_mmap_open_mode::emomRead == mode)
@@ -29,7 +29,7 @@ bool silly_pyramid_base::open(const char* file, const silly_mmap::enum_mmap_open
     return m_opened;
 }
 
-bool silly_pyramid_base::close()
+bool base::close()
 {
     m_opened = false;
     if (m_normal)
@@ -43,7 +43,7 @@ bool silly_pyramid_base::close()
     return true;
 }
 
-bool silly_pyramid_base::read(size_t seek_offset, char* data, const size_t& size, const size_t& offset)
+bool base::read(size_t seek_offset, char* data, const size_t& size, const size_t& offset)
 {
     if (m_normal)
     {
@@ -53,10 +53,9 @@ bool silly_pyramid_base::read(size_t seek_offset, char* data, const size_t& size
     {
         return mmap_read(seek_offset, data, size, offset);
     }
-    return false;
 }
 
-bool silly_pyramid_base::write(size_t seek_offset, char* data, const size_t& size, const size_t& offset)
+bool base::write(size_t seek_offset, char* data, const size_t& size, const size_t& offset)
 {
     if (m_normal)
     {
@@ -65,7 +64,7 @@ bool silly_pyramid_base::write(size_t seek_offset, char* data, const size_t& siz
     return false;
 }
 
-void silly_pyramid_base::seek(const size_t& pos, const int& flag)
+void base::seek(const size_t& pos, const int& flag)
 {
     if (m_stream)
     {
@@ -73,7 +72,7 @@ void silly_pyramid_base::seek(const size_t& pos, const int& flag)
     }
 }
 
-bool silly_pyramid_base::stream_open(const char* file, const char* mode)
+bool base::stream_open(const char* file, const char* mode)
 {
     m_stream = fopen(file, mode);
     if (m_stream)
@@ -83,7 +82,7 @@ bool silly_pyramid_base::stream_open(const char* file, const char* mode)
     return m_opened;
 }
 
-bool silly_pyramid_base::mmap_open(const char* file)
+bool base::mmap_open(const char* file)
 {
     m_normal = false;
     m_opened = m_mmap.open_m(file);
@@ -91,7 +90,7 @@ bool silly_pyramid_base::mmap_open(const char* file)
     return m_opened;
 }
 
-bool silly_pyramid_base::stream_read(size_t seek_offset, char* data, const size_t& size, const size_t& offset)
+bool base::stream_read(size_t seek_offset, char* data, const size_t& size, const size_t& offset)
 {
     std::scoped_lock lock(m_mutex);
     if (m_stream && m_opened)
@@ -102,7 +101,7 @@ bool silly_pyramid_base::stream_read(size_t seek_offset, char* data, const size_
     return false;
 }
 
-bool silly_pyramid_base::mmap_read(size_t seek_offset, char* data, const size_t& size, const size_t& offset)
+bool base::mmap_read(size_t seek_offset, char* data, const size_t& size, const size_t& offset)
 {
     if (m_opened)
     {
@@ -116,7 +115,7 @@ bool silly_pyramid_base::mmap_read(size_t seek_offset, char* data, const size_t&
     return false;
 }
 
-bool silly_pyramid_base::stream_write(size_t seek_offset, char* data, const size_t& size, const size_t& offset)
+bool base::stream_write(size_t seek_offset, char* data, const size_t& size, const size_t& offset)
 {
     if (m_stream && m_opened)
     {
@@ -126,12 +125,12 @@ bool silly_pyramid_base::stream_write(size_t seek_offset, char* data, const size
     return false;
 }
 
-bool silly_pyramid_base::mmap_write(size_t seek_offset, char* data, const size_t& size, const size_t& offset)
+bool base::mmap_write(size_t seek_offset, char* data, const size_t& size, const size_t& offset)
 {
     return false;
 }
 
-void silly_pyramid_base::stream_close()
+void base::stream_close()
 {
     if (m_mode != silly_mmap::enum_mmap_open_mode::emomRead)  // 写打开时需要将信息保存回去
     {
@@ -143,7 +142,7 @@ void silly_pyramid_base::stream_close()
     }
 }
 
-void silly_pyramid_base::mmap_close()
+void base::mmap_close()
 {
     if (m_opened)
     {
@@ -151,26 +150,26 @@ void silly_pyramid_base::mmap_close()
     }
 }
 
-err_code silly_pyramid_base::read_info()
+error base::read_info()
 {
     if (!read(PYRAMID_DESC_OFFSET, m_desc, PYRAMID_DESC_LENGTH))
     {
-        return err_code::UNKNOWN;
+        return error::UNKNOWN;
     }
 
     if (!read(PYRAMID_MVER_OFFSET, (char*)(&m_major_ver), PYRAMID_MVER_LENGTH))
     {
-        return err_code::UNKNOWN;
+        return error::UNKNOWN;
     }
     if (!read(PYRAMID_PVER_OFFSET, (char*)(&m_primary_ver), PYRAMID_PVER_LENGTH))
     {
-        return err_code::UNKNOWN;
+        return error::UNKNOWN;
     }
 
-    return err_code::OK;
+    return error::OK;
 }
 
-void silly_pyramid_base::write_info()
+void base::write_info()
 {
     write(0, m_desc, PYRAMID_DESC_LENGTH, 0);
     write(PYRAMID_MVER_OFFSET, (char*)(&m_major_ver), PYRAMID_MVER_LENGTH, 0);

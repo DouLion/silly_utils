@@ -3,8 +3,8 @@
 //
 
 #include "silly_pyramid_info.h"
-#include <cstring>
-silly_pyramid_info::silly_pyramid_info()
+
+silly::pyramid::info::info()
 {
     m_desc[0] = 'I';
     m_desc[1] = 'I';
@@ -19,7 +19,7 @@ silly_pyramid_info::silly_pyramid_info()
     memset(m_tiling_format, 0, sizeof(m_tiling_format));
 }
 
-bool silly_pyramid_info::read_info()
+bool silly::pyramid::info::read()
 {
     /*if (m_mmap)
     {
