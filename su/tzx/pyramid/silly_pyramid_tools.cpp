@@ -59,7 +59,7 @@ bool tools::open(const std::string& root, const silly_mmap::enum_mmap_open_mode&
             return false;
         }
     }
-    return false;
+    return true;
 }
 
 void tools::close()
