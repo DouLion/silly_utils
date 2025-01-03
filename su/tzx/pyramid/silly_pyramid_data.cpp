@@ -29,7 +29,7 @@ std::string data::read(const block& blk)
     {
         return ret_data;
     }
-
+    // std::cout << nbkl.zoom << " " << nbkl.row << " " << nbkl.col << " "<<  nbkl.pos << " " << nbkl.size << std::endl;
     ret_data.resize(nbkl.size);
     base::read(nbkl.pos, &ret_data[0], nbkl.size);
     return ret_data;

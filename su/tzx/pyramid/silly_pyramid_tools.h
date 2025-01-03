@@ -65,11 +65,14 @@ class tools
     /// <returns></returns>
     bool rebuild_to_v2(const std::string& target_root);
 
+    std::string err();
+
   private:
     silly_mmap::enum_mmap_open_mode m_mode;
     std::string m_root;
     info m_info;
     data m_data;
+    std::string m_err;
 };
 }  // namespace pyramid
 }  // namespace silly

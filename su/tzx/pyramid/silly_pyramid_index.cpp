@@ -31,23 +31,31 @@ bool index::open(const char* file, const silly_mmap::enum_mmap_open_mode& mode, 
 
 error index::read_block(block& blk)
 {
-    if (m_layer_infos[blk.zoom].out(blk))
+    auto iter = m_layer_infos.find(blk.zoom);
+    if (iter == std::end(m_layer_infos))
+    {
+        return error::OK;
+    }
+    if (iter->second.out(blk))
     {
         return error::OK;
     }
 
-    uint64_t pos = m_layer_bpos[blk.zoom];
+    uint64_t pos = m_layer_bpos.find(blk.zoom)->second;
     if (0 == pos)
     {
         return error::OK;
     }
-    pos += m_layer_infos[blk.zoom].index(blk) * (TZX_IMAGE_DATA_POS_SIZE + TZX_IMAGE_DATA_SIZE_SIZE);
-
+    auto ii = iter->second.index(blk);
+    // std::cout << "Index: " << ii << std::endl;
+    pos += ii * (TZX_IMAGE_DATA_POS_SIZE + TZX_IMAGE_DATA_SIZE_SIZE);
+    // std::cout << "Pos: " << pos << std::endl;
     char buff[TZX_IMAGE_DATA_POS_SIZE + TZX_IMAGE_DATA_SIZE_SIZE] = {0};
     base::read(pos, buff, TZX_IMAGE_DATA_POS_SIZE + TZX_IMAGE_DATA_SIZE_SIZE);
     // read(pos + TZX_IMAGE_DATA_POS_SIZE, (char*)(&datasize), TZX_IMAGE_DATA_SIZE_SIZE);
     blk.pos = ((uint64_t*)buff)[0];
     blk.size = ((uint32_t*)buff)[2];
+    // std::cout << blk.zoom << " " << blk.row << " " << blk.col << " " << blk.pos << " " << blk.size << std::endl;
     return error::OK;
 }
 
@@ -93,13 +101,14 @@ bool index::init_layer_info()
             m_layer_infos[l].cbeg = ((uint32_t*)(buff))[1];
             m_layer_infos[l].rend = ((uint32_t*)(buff))[2];
             m_layer_infos[l].cend = ((uint32_t*)(buff))[3];
+            m_layer_infos[l].fill();
             pos += TZX_IMAGE_COLROW_SIZE * 4;
         }
 
         for (uint8_t l = beglyr; l <= endlyr; ++l)
         {
             m_layer_bpos[l] = pos;
-            pos += (m_layer_infos[l].rend - m_layer_infos[l].rbeg + 1) * (m_layer_infos[l].cend - m_layer_infos[l].cbeg + 1) * (TZX_IMAGE_DATA_SIZE_SIZE + TZX_IMAGE_DATA_POS_SIZE);
+            pos += m_layer_infos[l].rows * m_layer_infos[l].cols * (TZX_IMAGE_DATA_SIZE_SIZE + TZX_IMAGE_DATA_POS_SIZE);
         }
     }
     else

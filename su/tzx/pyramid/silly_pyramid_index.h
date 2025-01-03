@@ -54,22 +54,22 @@ struct layer_info
         return *this;
     }
 
-    bool out(block blk)
+    bool out(block blk) const
     {
         return blk.row > rend || blk.row < rbeg || blk.col > cend|| blk.col < cbeg;
     }
 
-    bool in(block blk)
+    bool in(block blk) const
     {
         return blk.row >= rbeg && blk.row <= rend && blk.col >= cbeg && blk.col <= cend;
     }
 
-    bool index(block blk)
+    size_t index(block blk) const
     {
         return cols * (blk.row - rbeg) + blk.col - cbeg;
     }
 
-    void fill()
+    void fill() 
     {
         rows = rend - rbeg + 1;
         cols = cend - cbeg + 1;

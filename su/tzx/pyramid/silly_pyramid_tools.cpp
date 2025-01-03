@@ -4,34 +4,31 @@ using namespace silly::pyramid;
 bool tools::open(const std::string& root, const silly_mmap::enum_mmap_open_mode& mode, bool usemmap)
 {
     std::filesystem::path pyrmid_root(root);
-    auto info_path = pyrmid_root;
-    info_path.append(TZX_IMAGE_DATA_INFO_NAME);
-    auto index_path = pyrmid_root;
-    index_path.append(TZX_IMAGE_DATA_INDEX_NAME);
-    auto data_path = pyrmid_root;
-    data_path.append(TZX_IMAGE_DATA_DATA_NAME);
+    std::string info_path = std::filesystem::path(root).append(TZX_IMAGE_DATA_INFO_NAME).string();
+    std::string index_path = std::filesystem::path(root).append(TZX_IMAGE_DATA_INDEX_NAME).string();
+    std::string data_path = std::filesystem::path(root).append(TZX_IMAGE_DATA_DATA_NAME).string();
     if (silly_mmap::enum_mmap_open_mode::emomRead == mode)  //
     {
         if (!std::filesystem::exists(info_path) || !std::filesystem::exists(index_path) || !std::filesystem::exists(data_path))
         {
-            printf("%s_%d: Cannot read %s with read mode.", __FILE__, __LINE__, std::filesystem::absolute(pyrmid_root).string().c_str());
+            m_err = "路径不存在: " + root;
             return false;
         }
 
-        if (!m_info.open(info_path.string().c_str(), silly_mmap::enum_mmap_open_mode::emomRead, usemmap))
+        if (!m_info.open(info_path.c_str(), silly_mmap::enum_mmap_open_mode::emomRead, usemmap))
         {
             m_info.close();
             return false;
         }
 
-        if (!m_data.m_index.open(index_path.string().c_str(), silly_mmap::enum_mmap_open_mode::emomRead, usemmap))
+        if (!m_data.m_index.open(index_path.c_str(), silly_mmap::enum_mmap_open_mode::emomRead, usemmap))
         {
             m_info.close();
             m_data.m_index.close();
             return false;
         }
 
-        if (!m_data.open(data_path.string().c_str(), silly_mmap::enum_mmap_open_mode::emomRead, usemmap))
+        if (!m_data.open(data_path.c_str(), silly_mmap::enum_mmap_open_mode::emomRead, usemmap))
         {
             m_info.close();
             m_data.m_index.close();
@@ -41,20 +38,20 @@ bool tools::open(const std::string& root, const silly_mmap::enum_mmap_open_mode&
     }
     else
     {
-        if (!m_info.open(info_path.string().c_str(), mode, usemmap))
+        if (!m_info.open(info_path.c_str(), mode, usemmap))
         {
             m_info.close();
             return false;
         }
 
-        if (!m_data.m_index.open(index_path.string().c_str(), silly_mmap::enum_mmap_open_mode::emomRead, usemmap))
+        if (!m_data.m_index.open(index_path.c_str(), silly_mmap::enum_mmap_open_mode::emomRead, usemmap))
         {
             m_info.close();
             m_data.m_index.close();
             return false;
         }
 
-        if (!m_data.open(data_path.string().c_str(), silly_mmap::enum_mmap_open_mode::emomRead, usemmap))
+        if (!m_data.open(data_path.c_str(), silly_mmap::enum_mmap_open_mode::emomRead, usemmap))
         {
             m_info.close();
             m_data.m_index.close();
@@ -85,4 +82,9 @@ bool tools::write(const block& blk)
 bool tools::rebuild_to_v2(const std::string& target_root)
 {
     return false;
+}
+
+std::string tools::err()
+{
+    return m_err;
 }
