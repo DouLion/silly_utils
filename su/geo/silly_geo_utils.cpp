@@ -662,6 +662,7 @@ bool silly::geo::utils::read_geo_coll(const std::string& u8file, std::vector<sil
         }
 
     }  // 一个图层结束
+    GDALClose(dataset);
 #endif
     return status;
 }
