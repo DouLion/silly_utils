@@ -8,3 +8,4 @@ set(ENABLE_WEBSOCKET_PP ON) # websocket支持
 set(ENABLE_PAHO_MQTT ON) # mqtt支持
 set(ENABLE_ICONV ON) # iconv支持
 set(ENABLE_LIBARCHIVE ON) # rar支持
+set(ENABLE_JPEG ON) # jpeg

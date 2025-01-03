@@ -15,7 +15,8 @@ namespace silly
 {
 namespace image
 {
-class base {
+class base
+{
   public:
     /// <summary>
     /// 创建指定宽高和颜色类型的空图像,颜色为全为0
@@ -74,8 +75,8 @@ class base {
     /// </summary>
     /// <param name="bin"></param>
     /// <returns></returns>
-    bool valid(const std::string &bin);
-    bool valid(const char *data, const size_t len);
+    bool valid(const std::string& bin);
+    bool valid(const char* data, const size_t len);
 
     /// <summary>
     /// 判断是否为空
@@ -107,7 +108,7 @@ class base {
         return m_depth;
     }
     silly::color::type type() const
-    { 
+    {
         return m_type;
     }
     uint8_t* bytes() const
@@ -115,25 +116,25 @@ class base {
         return m_bytes;
     }
 
-    std::string  err() const
+    std::string err() const
     {
         return m_err;
     }
+
   protected:
-    uint8_t* m_bytes{nullptr}; // 二进制数据
-    size_t m_width{0}; // 宽度
-    size_t m_height{0}; // 高度
-    uint8_t m_channels{0};  // 通道数
-    uint8_t m_depth{0};  // 位深度
+    uint8_t* m_bytes{nullptr};  // 二进制数据
+    size_t m_width{0};          // 宽度
+    size_t m_height{0};         // 高度
+    uint8_t m_channels{0};      // 通道数
+    uint8_t m_depth{0};         // 位深度
     uint8_t m_pixel_size{0};
-    silly::color::type m_type{2}; // 颜色类型
-    std::vector<uint8_t> HEADER;  // 固定头部,由于判断类型
+    silly::color::type m_type{2};  // 颜色类型
+    std::vector<uint8_t> HEADER;   // 固定头部,由于判断类型
     std::string m_err;
-    std::vector<unsigned char *> m_nbytes;
+    std::vector<unsigned char*> m_nbytes;
 };
-}
+}  // namespace image
 
-}
-
+}  // namespace silly
 
 #endif  // SILLY_UTILS_SILLY_IMAGE_BASE_H

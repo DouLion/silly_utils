@@ -12,7 +12,7 @@
 
 bool silly::image::base::valid(const std::string& bin)
 {
-    return valid(bin);
+    return valid(bin.c_str(), bin.size());
 }
 
 bool silly::image::base::valid(const char* data, const size_t len)
@@ -21,9 +21,9 @@ bool silly::image::base::valid(const char* data, const size_t len)
     {
         return false;
     }
-    for (size_t i =0; i < HEADER.size(); ++i)
+    for (size_t i = 0; i < HEADER.size(); ++i)
     {
-        if (HEADER[i] != data[i])
+        if (static_cast<uint8_t>(data[i]) != HEADER[i])
         {
             return false;
         }

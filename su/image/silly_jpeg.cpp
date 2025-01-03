@@ -9,25 +9,28 @@
  * @version: v1.0.1 2025-01-02 dou li yang
  */
 #include "silly_jpeg.h"
-#include "jpeglib.h"
-#include "jerror.h"
-#include <setjmp.h>
 #include <files/silly_file.h>
 
+#if ENABLE_JPEG
 struct my_error_mgr
 {
     struct jpeg_error_mgr pub; /* "public" fields */
     jmp_buf setjmp_buffer;     /* for return to caller */
 };
 using my_error_ptr = my_error_mgr*;
+#endif
+
 void my_error_exit(j_common_ptr cinfo)
 {
+#if ENABLE_JPEG
     my_error_ptr myerr = (my_error_ptr)cinfo->err;
 
     (*cinfo->err->output_message)(cinfo);
     longjmp(myerr->setjmp_buffer, 1);
+#endif
 }
 
+#if ENABLE_JPEG
 static silly::color::type jpeg2sillyctype(const J_COLOR_SPACE& type)
 {
     switch (type)
@@ -42,9 +45,11 @@ static silly::color::type jpeg2sillyctype(const J_COLOR_SPACE& type)
             throw std::exception("不支持的类型");
     }
 }
+#endif
 
 static J_COLOR_SPACE silly2jpegctype(const silly::color::type& type)
 {
+#if ENABLE_JPEG
     switch (type)
     {
         case silly::color::type::eptGRAY:
@@ -56,11 +61,13 @@ static J_COLOR_SPACE silly2jpegctype(const silly::color::type& type)
         default:
             throw std::exception("不支持的类型");
     }
+#endif
     return J_COLOR_SPACE::JCS_UNKNOWN;
 }
 
 void silly::jpeg::data::pixel(const size_t& row, const size_t& col, const silly::color& pixel)
 {
+#if ENABLE_JPEG
     if (row >= m_height || col >= m_width)
     {
         return;
@@ -78,12 +85,14 @@ void silly::jpeg::data::pixel(const size_t& row, const size_t& col, const silly:
         m_bytes[start] = pixel.gray;
     }
 
+#endif
     return;
 }
 
 silly::color silly::jpeg::data::pixel(const size_t& row, const size_t& col) const
 {
     silly::color pixel = {0, 0, 0};
+#if ENABLE_JPEG
 
     if (row >= m_height || col >= m_width)
     {
@@ -103,6 +112,7 @@ silly::color silly::jpeg::data::pixel(const size_t& row, const size_t& col) cons
         pixel.gray = m_bytes[start];
     }
 
+#endif
     return pixel;
 }
 
@@ -138,16 +148,14 @@ bool silly::jpeg::data::create(const size_t& width, const size_t& height, const 
         default:
             return false;
     }
+    m_width = width;
+    m_height = height;
     if (!(m_width > 0 && m_height > 0))
     {
         return false;
     }
-    m_width = width;
-    m_height = height;
-
     m_bytes = new uint8_t[m_width * m_height * m_channels];
-    memset(m_bytes, 0, sizeof(unsigned char*) * m_width * m_height * m_channels);
-
+    memset(m_bytes, 0, sizeof(uint8_t) * m_width * m_height * m_channels);
     return true;
 }
 bool silly::jpeg::data::read(const std::string& file)
@@ -173,9 +181,12 @@ bool silly::jpeg::data::write(const std::string& file) const
 }
 bool silly::jpeg::data::decode(const std::string& bin)
 {
+    bool status = false;
+#if ENABLE_JPEG
+
     if (!valid(bin))
     {
-        return false;
+        return status;
     }
 
     // 创建 JPEG 解压缩结构体
@@ -210,12 +221,15 @@ bool silly::jpeg::data::decode(const std::string& bin)
     // 完成解压缩
     jpeg_finish_decompress(&cinfo);
     jpeg_destroy_decompress(&cinfo);
+    status = true;
 
-    return true;
+#endif
+    return status;
 }
 std::string silly::jpeg::data::encode() const
 {
     std::string ret;
+#if ENABLE_JPEG
     if (!(m_bytes && m_width > 0 && m_height > 0))
     {
         return ret;
@@ -230,13 +244,13 @@ std::string silly::jpeg::data::encode() const
 
     // 分配内存缓冲区
     unsigned long mem_size = 0;
-    jpeg_mem_dest(&cinfo, (unsigned char**)(&ret), &mem_size);
+    unsigned char* buffer = nullptr;
+    jpeg_mem_dest(&cinfo, &buffer, &mem_size);
 
     cinfo.image_width = m_width;
     cinfo.image_height = m_height;
     cinfo.input_components = m_channels;
     cinfo.in_color_space = silly2jpegctype(m_type);
-    ;
     cinfo.data_precision = m_depth;
 
     jpeg_set_defaults(&cinfo);
@@ -257,5 +271,8 @@ std::string silly::jpeg::data::encode() const
     jpeg_finish_compress(&cinfo);
     jpeg_destroy_compress(&cinfo);
 
+    ret.assign(reinterpret_cast<char*>(buffer), mem_size);
+
+#endif
     return ret;
 }

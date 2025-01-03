@@ -12,7 +12,7 @@
 
 #ifdef CATCH2_UNIT_TEST
 #include <catch2/catch_test_macros.hpp>
-#include "image/jpeg_utils.h"
+#include "image/silly_jpeg.h"
 
 std::string readFile(const std::string& filePath)
 {
@@ -35,142 +35,127 @@ std::string readFile(const std::string& filePath)
     return content;
 }
 
+#include <ctime>
+#include <cstdlib>
+void initialize_random_generator()
+
+{
+    std::srand(static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count()));
+}
 
 TEST_CASE("TestJPEG")
 {
-
-
-
-SECTION("dencode_to_memory")
-{
+    SECTION("read")  // 根据二维数组value 创建一个jpeg图片
+    {
+        initialize_random_generator();
         std::filesystem::path data_root(DEFAULT_SU_DATA_DIR);
         data_root += "/jpeg/1.jpeg";
-        std::string jpeg_string = readFile(data_root.string());
-
-
-        jpeg_data jpeg_info;
-        if (jpeg_utils::memory_decode(jpeg_string, jpeg_info))
+        for (int i = 0; i < 100; i++)
         {
-            std::cout << "Width: " << jpeg_info.jpeg_width << std::endl;
-            std::cout << "Height: " << jpeg_info.jpeg_height << std::endl;
-            std::cout << "Components: " << jpeg_info.jpeg_components << std::endl;
-            std::cout << "Color Space: " << jpeg_info.color_space << std::endl;
-            std::cout << "File Size: " << jpeg_info.fileSize << std::endl;
+            silly::jpeg::data jped_data_1;
+            if (!jped_data_1.read(data_root.string()))
+            {
+                std::cout << "read jpeg failed" << std::endl;
+            }
+            std::filesystem::path write_p(DEFAULT_SU_DATA_DIR);
+            write_p += "/jpeg/create/";
+            write_p += std::to_string(i) + ".jpeg";
+            if (!jped_data_1.write(write_p.string()))
+            {
+                std::cout << "create jpeg failed" << std::endl;
+            }
+            jped_data_1.release();
+
         }
-        else
+
+        int a = 0;
+        int b = 0;
+        int c = 0;
+    }
+
+    SECTION("create and write")
+    {
+        initialize_random_generator();
+        std::filesystem::path data_root(DEFAULT_SU_DATA_DIR);
+        data_root += "/jpeg/create/";
+
+        for (int index = 0; index < 100; index++)
         {
-            std::cerr << "Failed to decode JPEG data." << std::endl;
+            silly::jpeg::data jped_data_1;
+            if (!jped_data_1.create(100, 100, silly::color::eptGRAY))
+            {
+                std::cout << "create jpeg failed" << std::endl;
+            }
+            for (int i = 0; i < 100; i++)
+            {
+                for (int j = 0; j < 100; j++)
+                {
+                    jped_data_1.pixel(i, j, silly::color(std::rand() % 256));
+                }
+            }
+            std::filesystem::path temp = data_root;
+            temp += std::to_string(index) + ".jpeg";
+            if (jped_data_1.write(temp.string()))
+            {
+                std::cout << "create jpeg success" << std::endl;
+            }
+            else
+            {
+                std::cout << "create jpeg failed" << std::endl;
+            }
+            jped_data_1.release();
         }
 
-        std::filesystem::path path_root(DEFAULT_SU_DATA_DIR);
-        path_root += "/jpeg/22.jpeg";
-        jpeg_utils::write(path_root.string().c_str(), jpeg_info);
+        int a = 0;
+        int b = 0;
+        int c = 0;
+    }
 
-		int a = 0;
+    SECTION("JPEG_READ")  // 根据二维数组value 创建一个jpeg图片
+    {
+        // std::cout << "\r\n\r\n****************" << "JPEG_READ" << "****************" << std::endl;
+        //// 对边读一张图片，并另存
+        // jpeg_utils ju;
+        // std::filesystem::path data_root(DEFAULT_SU_DATA_DIR);
+        // data_root += "/jpeg/color_1.jpeg";
+        ////std::string ru_1 = "./jpeg/color_1.jpeg";
+        // jpeg_data temp_jpeg_7 = ju.read(data_root.string().c_str());
+        // std::filesystem::path data_root_2(DEFAULT_SU_DATA_DIR);
+        // data_root_2+="/jpeg/color_2.jpeg";
+        // ju.write(data_root_2.string().c_str(), temp_jpeg_7);
+        // temp_jpeg_7.release();
+    }
 
+    SECTION("WRITE_JPEG")  // 写入 JPEG
+    {
+        // std::cout << "\r\n\r\n****************" << "WRITE_JPEG" << "****************" << std::endl;
+        //// 创建空白图片并写入
+        // jpeg_utils ju;
+        // jpeg_data temp_jpeg_2 = ju.creat_empty(300, 300, 3, JCS_RGB);
+        // std::filesystem::path data_root_3(DEFAULT_SU_DATA_DIR);
+        // data_root_3+="/jpeg/empty_while.jpeg";
+        // ju.write(data_root_3.string().c_str(), temp_jpeg_2);
+        // temp_jpeg_2.release();
+    }
+
+    SECTION("SET_PIXEL_COLOR")  // 设置像素点颜色
+    {
+        // std::cout << "\r\n\r\n****************" << "SET_PIXEL_COLOR" << "****************" << std::endl;
+        //// 改变某像素点坐标
+        // jpeg_utils ju;
+        // std::filesystem::path data_root_4(DEFAULT_SU_DATA_DIR);
+        // data_root_4+="/jpeg/empty_while.jpeg";
+        // jpeg_data temp_jpeg_8 = ju.read(data_root_4.string().c_str());
+
+        // std::filesystem::path data_root_5(DEFAULT_SU_DATA_DIR);
+        // data_root_5+="/jpeg/one_blace.jpeg";
+        // int row = 50; // 第几行
+        // int col = 30; // 第几列
+        // jpeg_pixel jp(0,0,0);
+        // temp_jpeg_8.set_pixel(row, col, jp);
+        // ju.write(data_root_5.string().c_str(), temp_jpeg_8);
+        // temp_jpeg_8.release();
+    }
 }
 
-SECTION("encode_to_memory")      // 根据二维数组value 创建一个jpeg图片
-{
-	std::cout << "\r\n\r\n****************" << "encode_to_memory" << "****************" << std::endl;
-	// 对边读一张图片，并另存
-	jpeg_utils ju;
-	std::filesystem::path data_root(DEFAULT_SU_DATA_DIR);
-	data_root += "/jpeg/color_2.jpeg";
-
-	jpeg_data temp_jpeg_7 = ju.read(data_root.string().c_str());
-	
-	char* buf = nullptr;
-	size_t len = 0;
-
-	if (ju.memory_encode(temp_jpeg_7, &buf, len))
-	{
-		std::cout << "转换完成" << std::endl;
-
-		std::filesystem::path path_root(DEFAULT_SU_DATA_DIR);
-		path_root += "/jpeg/1.jpeg";
-
-		std::ofstream outfile(path_root.string().c_str(), std::ios::binary);
-		if (!outfile)
-		{
-			std::cout << "文件打开失败" << std::endl;
-		}
-
-		outfile.write(buf, len);
-		outfile.close();
-
-		free(buf);
-	}
-	else
-	{
-		std::cout << "转换失败" << std::endl;
-
-		// 编码到内存失败
-	}
-	//std::filesystem::path data_root_2(DEFAULT_SU_DATA_DIR);
-	//data_root_2 += "/jpeg/color_2.jpeg";
-	//ju.write_jpeg_data(data_root_2.string().c_str(), temp_jpeg_7);
-	temp_jpeg_7.release();
-
-	int a = 0;
-
-
-}
-
-
-
-SECTION("JPEG_READ")      // 根据二维数组value 创建一个jpeg图片
-{
-	std::cout << "\r\n\r\n****************" << "JPEG_READ" << "****************" << std::endl;
-	// 对边读一张图片，并另存
-	jpeg_utils ju;
-	std::filesystem::path data_root(DEFAULT_SU_DATA_DIR);
-	data_root += "/jpeg/color_1.jpeg";
-	//std::string ru_1 = "./jpeg/color_1.jpeg";
-	jpeg_data temp_jpeg_7 = ju.read(data_root.string().c_str());
-	std::filesystem::path data_root_2(DEFAULT_SU_DATA_DIR);
-	data_root_2+="/jpeg/color_2.jpeg";
-	ju.write(data_root_2.string().c_str(), temp_jpeg_7);
-	temp_jpeg_7.release();
-
-
-}
-
-
-SECTION("WRITE_JPEG")      // 写入 JPEG
-{
-	std::cout << "\r\n\r\n****************" << "WRITE_JPEG" << "****************" << std::endl;
-	// 创建空白图片并写入
-	jpeg_utils ju;
-	jpeg_data temp_jpeg_2 = ju.creat_empty(300, 300, 3, JCS_RGB);
-	std::filesystem::path data_root_3(DEFAULT_SU_DATA_DIR);
-	data_root_3+="/jpeg/empty_while.jpeg";
-	ju.write(data_root_3.string().c_str(), temp_jpeg_2);
-	temp_jpeg_2.release();
-
-}
-
-
-SECTION("SET_PIXEL_COLOR")      // 设置像素点颜色
-{
-	std::cout << "\r\n\r\n****************" << "SET_PIXEL_COLOR" << "****************" << std::endl;
-	// 改变某像素点坐标
-	jpeg_utils ju;
-	std::filesystem::path data_root_4(DEFAULT_SU_DATA_DIR);
-	data_root_4+="/jpeg/empty_while.jpeg";
-	jpeg_data temp_jpeg_8 = ju.read(data_root_4.string().c_str());
-
-	std::filesystem::path data_root_5(DEFAULT_SU_DATA_DIR);
-	data_root_5+="/jpeg/one_blace.jpeg";
-	int row = 50; // 第几行
-	int col = 30; // 第几列
-	jpeg_pixel jp(0,0,0);
-	temp_jpeg_8.set_pixel(row, col, jp);
-	ju.write(data_root_5.string().c_str(), temp_jpeg_8);
-	temp_jpeg_8.release();
-}
-
-}
-
-
-#endif //SILLY_UTILS_TEST_JPEG_HPP
+#endif  // SILLY_UTILS_TEST_JPEG_HPP
