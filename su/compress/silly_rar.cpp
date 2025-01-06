@@ -8,6 +8,7 @@
 #include <archive_entry.h>
 #endif
 #include <log/silly_log.h>
+#include "encode/silly_encode.h"
 
 using namespace silly_compress;
 
@@ -106,9 +107,19 @@ CPS_ERR silly_rar::decompress(const std::string& s_src, const std::string& s_dst
     while ((r = archive_read_next_header(archive_ptr, &entry)) == ARCHIVE_OK)
     {
         // 获取文件名和路径
-        std::string entry_name = archive_entry_pathname(entry);
-        std::string full_path = (outputDir / entry_name).string();
-
+        std::string entry_name = archive_entry_pathname_utf8(entry);
+        std::string gbk_entry_name;
+        if (silly_encode::is_utf8(entry_name))
+        {
+            gbk_entry_name = silly_encode::utf8_gbk(entry_name);
+        }
+        else
+        {
+            gbk_entry_name = entry_name;
+        }
+        std::filesystem::path temp_path(outputDir);
+        temp_path.append(gbk_entry_name);
+        std::string full_path = temp_path.string();
         // 处理文件或目录
         std::filesystem::path f_full_path(full_path);
         if (!std::filesystem::exists(f_full_path.parent_path()))  // 解压文件不存在
