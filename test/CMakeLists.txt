@@ -10,6 +10,8 @@ endforeach()
 
 if(CATCH2_UNITS_DISABLED)
   add_executable(${PROJECT_NAME} test.cpp)
+   find_package(glfw3 CONFIG REQUIRED)
+    target_link_libraries(${PROJECT_NAME} PUBLIC glfw)
 else()
   add_executable(${PROJECT_NAME} ${SU_TEST_SRC_FILES})
   add_definitions("-DCATCH2_UNIT_TEST")
@@ -17,9 +19,6 @@ else()
 endif()
 
 target_link_libraries(${PROJECT_NAME} PUBLIC sutils)
-if(ENABLE_LUCENEPP)
-  target_link_libraries(${PROJECT_NAME} PUBLIC lucenepp lucenepp-contrib)
-endif()
 find_package(Catch2 CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC Catch2::Catch2
                                              Catch2::Catch2WithMain)

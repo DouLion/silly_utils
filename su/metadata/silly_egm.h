@@ -69,7 +69,7 @@ class silly_egm
   private:
     header m_headers;
     size_t m_doffs = 0;  // 数据块起始位置在文件中的偏移
-    silly_mmap m_mmap;
+    silly::mmap m_mmap;
     double m_lat_ratio = 0;
     double m_lon_ratio = 0;
 };

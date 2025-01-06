@@ -23,7 +23,7 @@ SECTION("PYRAMID_WRITE")
 	std::filesystem::path pyramid_dir(DEFAULT_SU_DATA_DIR);
 	pyramid_dir.append("000VM_1");
 	/*silly_pyramid sp;
-	sp.open("//192.168.0.80/MapRoot/public/union_bitmap_pyramid/basemap/00_P", enum_mmap_open_mode::READ, true);
+	sp.open("//192.168.0.80/MapRoot/public/union_bitmap_pyramid/basemap/00_P", mapmode::READ, true);
 	size_t size = 0;
 	char* data = sp.read_data(3, 3, 6, size);
 	silly_file::write("E:/read.jpeg", data, size);

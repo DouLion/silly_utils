@@ -38,7 +38,7 @@ class silly_ascii_grid
     DMatrix m_data;
 
   private:
-    silly_mmap m_mmap;
+    silly::mmap m_mmap;
 };
 
 #endif  // SILLY_UTILS_SILLY_ASCII_GRID_H

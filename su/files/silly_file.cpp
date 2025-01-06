@@ -323,8 +323,11 @@ size_t silly::file::tools::size(const std::string &u8path)
     {
         return file_size;
     }
-    input.ignore(std::numeric_limits<std::streamsize>::max());
-    file_size = input.gcount();
+    // 移动到文件末尾
+    input.seekg(0, std::ios::end);
+
+    // 获取文件大小
+    file_size = input.tellg();
     return file_size;
 }
 bool silly::file::tools::exist(const std::string &u8path)

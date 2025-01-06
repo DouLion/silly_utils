@@ -5,10 +5,10 @@
 #include "silly_pyramid_base.h"
 
 using namespace silly::pyramid;
-bool base::open(const char* file, const silly_mmap::enum_mmap_open_mode& mode, const bool& usemmap)
+bool base::open(const char* file, const silly::mmap::param::flags& mode, const bool& usemmap)
 {
     m_mode = mode;
-    if (silly_mmap::enum_mmap_open_mode::emomRead == mode)
+    if (silly::mmap::param::flags::ReadOnly == mode)
     {
         if (usemmap)
         {
@@ -21,7 +21,7 @@ bool base::open(const char* file, const silly_mmap::enum_mmap_open_mode& mode, c
 
         read_info();
     }
-    else if (silly_mmap::enum_mmap_open_mode::emomWrite == mode)
+    else if (silly::mmap::param::flags::ReadWrite == mode)
     {
         stream_open(file, "wb+");
     }
@@ -31,7 +31,7 @@ bool base::open(const char* file, const silly_mmap::enum_mmap_open_mode& mode, c
 
 bool base::close()
 {
-    m_opened = false;
+
     if (m_normal)
     {
         stream_close();
@@ -40,6 +40,7 @@ bool base::close()
     {
         mmap_close();
     }
+    m_opened = false;
     return true;
 }
 
@@ -85,7 +86,7 @@ bool base::stream_open(const char* file, const char* mode)
 bool base::mmap_open(const char* file)
 {
     m_normal = false;
-    m_opened = m_mmap.open_m(file);
+    m_opened = m_mmap.open(file, m_mode);
 
     return m_opened;
 }
@@ -105,7 +106,7 @@ bool base::mmap_read(size_t seek_offset, char* data, const size_t& size, const s
 {
     if (m_opened)
     {
-        mmap_cur* cur = m_mmap.at_m(seek_offset + size);  // 追踪到数据尾部,防止访问越界
+        silly::mmap::cur* cur = m_mmap.at(seek_offset + size);  // 追踪到数据尾部,防止访问越界
         if (cur)
         {
             memcpy(data, cur - size, size);
@@ -132,7 +133,7 @@ bool base::mmap_write(size_t seek_offset, char* data, const size_t& size, const 
 
 void base::stream_close()
 {
-    if (m_mode != silly_mmap::enum_mmap_open_mode::emomRead)  // 写打开时需要将信息保存回去
+    if (m_mode != silly::mmap::param::flags::ReadOnly)  // 写打开时需要将信息保存回去
     {
         write_info();
     }
@@ -144,9 +145,9 @@ void base::stream_close()
 
 void base::mmap_close()
 {
-    if (m_opened)
+    //if (m_opened)
     {
-        m_mmap.close_m();
+        m_mmap.close();
     }
 }
 

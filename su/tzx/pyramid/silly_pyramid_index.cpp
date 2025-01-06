@@ -16,13 +16,13 @@ index::index()
     }
 }
 
-bool index::open(const char* file, const silly_mmap::enum_mmap_open_mode& mode, const bool& usemmap)
+bool index::open(const char* file, const silly::mmap::param::flags& mode, const bool& usemmap)
 {
     if (!base::open(file, mode, usemmap))
     {
         return false;
     }
-    if (mode == silly_mmap::enum_mmap_open_mode::emomRead)
+    if (mode == silly::mmap::param::flags::ReadOnly)
     {
         return init_layer_info();
     }
@@ -166,7 +166,7 @@ void index::write_layer_info()
 
 bool index::close()
 {
-    if (m_mode != silly_mmap::enum_mmap_open_mode::emomRead)
+    if (m_mode != silly::mmap::param::flags::ReadOnly)
     {
         write_layer_info();
     }

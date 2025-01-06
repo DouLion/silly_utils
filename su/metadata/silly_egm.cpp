@@ -12,7 +12,7 @@
 #include <math/interpolate/silly_bilinear.h>
 bool silly_egm::open(const std::string& file)
 {
-    if (m_mmap.open_m(file))
+    if (m_mmap.open(file))
     {
         return read_header();
     }
@@ -38,7 +38,7 @@ double silly_egm::geoid(const double& lgtd, const double& lttd)
     size_t idx00 = (r0 * m_headers.cols + c0) * m_headers.dlen + m_doffs;
     size_t idx10 = (r1 * m_headers.cols + c0) * m_headers.dlen + m_doffs;
     unsigned char buffer[4] = {0};
-    m_mmap.read_m((char*)buffer, 4, idx00);
+    m_mmap.read((char*)buffer, 4, idx00);
     if (m_headers.dlen == 1)
     {
         g00 = (buffer[0]);
@@ -50,7 +50,7 @@ double silly_egm::geoid(const double& lgtd, const double& lttd)
         g01 = ((buffer[2] << 8) | (buffer[3]));
     }
     memset(buffer, 0, 4);
-    m_mmap.read_m((char*)buffer, 4, idx10);
+    m_mmap.read((char*)buffer, 4, idx10);
 
     if (m_headers.dlen == 1)
     {
@@ -73,7 +73,7 @@ double silly_egm::geoid(const double& lgtd, const double& lttd)
 }
 bool silly_egm::close()
 {
-    m_mmap.close_m();
+    m_mmap.close();
     return true;
 }
 bool silly_egm::read_header()
@@ -102,7 +102,7 @@ P5
     buffer.resize(buffer_size);
     size_t offset = 0;
     std::regex re1(R"(^(\d+)\s+(\d+)$)");
-    if (m_mmap.read_m(buffer.data(), buffer_size, offset))
+    if (m_mmap.read(buffer.data(), buffer_size, offset))
     {
         std::string line;
 

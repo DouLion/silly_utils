@@ -191,7 +191,7 @@ void latest_task()
         {
             continue;
         }
-        size_t tm = silly_file::last_modify_stamp_ms(it.path().string());
+        size_t tm = silly_file::last_modify_ms(it.path().string());
         std::string filename = it.path().filename().stem().string();
         time_filename[tm] = filename;
     }

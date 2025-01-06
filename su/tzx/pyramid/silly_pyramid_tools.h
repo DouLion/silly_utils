@@ -34,7 +34,7 @@ class tools
   public:
     tools(void) = default;
 
-    bool open(const std::string& root, const silly_mmap::enum_mmap_open_mode& mode = silly_mmap::enum_mmap_open_mode::emomRead, bool usemmap = false);
+    bool open(const std::string& root, const silly::mmap::param::flags& mode = silly::mmap::param::flags::ReadOnly, bool usemmap = false);
     void close();
 
     /// <summary>
@@ -68,7 +68,7 @@ class tools
     std::string err();
 
   private:
-    silly_mmap::enum_mmap_open_mode m_mode;
+    silly::mmap::param::flags m_mode;
     std::string m_root;
     info m_info;
     data m_data;

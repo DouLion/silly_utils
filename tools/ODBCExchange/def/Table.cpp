@@ -156,6 +156,10 @@ void Table::ReadRowData(otl_stream *stream)
             }
         }
         rows.push_back(row);
+        if (rows.size() > 10000)
+        {
+
+        }
         row.clear();
         row.resize(colNum);
     }
@@ -315,4 +319,9 @@ bool Table::Write(const std::string& file, std::stringstream &ss)
     }
 
     return true;
+}
+
+bool X::Table::Write(const std::vector<Row> &tmp)
+{
+    return false;
 }

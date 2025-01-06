@@ -12,7 +12,7 @@ data::data()
     m_desc[3] = 'T';
 }
 
-bool data::open(const char* file, const silly_mmap::enum_mmap_open_mode& mode, const bool& usemmap)
+bool data::open(const char* file, const silly::mmap::param::flags& mode, const bool& usemmap)
 {
     return base::open(file, mode, usemmap);
 }

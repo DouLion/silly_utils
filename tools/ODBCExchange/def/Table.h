@@ -57,14 +57,16 @@ class Table
 
     bool Write(const std::string& file, std::stringstream & ss);
 
+    bool Write(const std::vector<Row>& tmp);
+
   public:
     std::string name;
     std::vector<ColDesc> cols;
     std::vector<Row> rows;
     bool crc32 = false;
     silly_otl m_otl;
-
     Info m_info;
+    std::stringstream m_ss;
     std::mutex m_rw_mutex;
 };
 

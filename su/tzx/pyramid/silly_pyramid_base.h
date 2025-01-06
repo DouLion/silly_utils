@@ -61,7 +61,7 @@ class base
     /// <param name="mode">1 读 2 写</param>
     /// <param name="usemmap">读取时默认 使用mmap, 写总是使用文件流</param>
     /// <returns></returns>
-    bool open(const char* file, const silly_mmap::enum_mmap_open_mode& mode, const bool& usemmap);
+    bool open(const char* file, const silly::mmap::param::flags& mode, const bool& usemmap);
 
     /// <summary>
     /// 关闭文件
@@ -168,7 +168,7 @@ class base
     // 是否为普通文件流
     bool m_normal;
     // mmap文件
-    silly_mmap m_mmap;
+    silly::mmap m_mmap;
     // 文件流
     FILE* m_stream;
     // 主版本号	这两个再文件中总是为小端序 读写, 与文档描述中有出入
@@ -181,7 +181,7 @@ class base
     // 多线程读写时用的锁
     std::mutex m_mutex;
     // 加载类型
-    silly_mmap::enum_mmap_open_mode m_mode;
+    silly::mmap::param::flags m_mode;
 };
 }  // namespace pyramid
 }  // namespace silly
