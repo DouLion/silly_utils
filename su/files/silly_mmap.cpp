@@ -106,7 +106,7 @@ void mmap::cleanup_and_throw(const char* msg)
 {
 #ifdef WIN32
     DWORD error = GetLastError();
-    if (m_h_map_file != NULL)
+    if (m_h_map_file != INVALID_HANDLE_VALUE)
         ::CloseHandle(m_h_map_file);
     if (m_h_file != INVALID_HANDLE_VALUE)
         ::CloseHandle(m_h_file);
@@ -185,12 +185,11 @@ bool mmap::unmap_file()
     bool error = false;
     if (m_mmap)
         error = !::UnmapViewOfFile(m_mmap) || error;
-    if (m_h_file != INVALID_HANDLE_VALUE)
+    if (m_h_map_file > 0)
         error = !::CloseHandle(m_h_map_file) || error;
     if (m_fd > 0)
         ::close(m_fd);
-    m_fd = 0;
-    m_h_map_file = NULL;
+    clear();
     return !error;
 #else
     return ::munmap(m_mmap, m_filesize) == 0;
@@ -202,9 +201,8 @@ void mmap::clear()
     m_filesize = 0;
 #ifdef WIN32
     m_h_file = INVALID_HANDLE_VALUE;
-    m_h_map_file = NULL;
-#else
-    m_h_file = 0;
+    m_h_map_file = INVALID_HANDLE_VALUE;
+    m_fd = -1;
 #endif
 }
 std::uintmax_t mmap::filesize()

@@ -117,10 +117,10 @@ class mmap
     bool m_is_wide{false};
     param m_param;
 
-    int m_fd;
-#if IS_WIN32
-    HANDLE m_h_file;
-    HANDLE m_h_map_file;
+    int m_fd = -1;
+#if WIN32
+    HANDLE m_h_file = INVALID_HANDLE_VALUE;
+    HANDLE m_h_map_file = INVALID_HANDLE_VALUE;
 #endif
 };
 }
