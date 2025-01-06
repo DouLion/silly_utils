@@ -12,15 +12,19 @@
 #include <su_marco.h>
 #include <json/json.h>
 
-class silly_jsonpp_opt
+namespace silly
+{
+
+class jsonpp
 {
   public:
-    bool utf8{true};
-    size_t precision{0};  // 小数精度, 为0则不处理
-};
+    class opt
+    {
+      public:
+        bool utf8{true};
+        size_t precision{0};  // 小数精度, 为0则不处理
+    };
 
-class silly_jsonpp
-{
   public:
     /// <summary>
     /// 从文件加载json内容
@@ -41,18 +45,21 @@ class silly_jsonpp
     /// </summary>
     /// <param name="root"></param>
     /// <param name="opt">格式化方式</param>
-    static std::string dumps(const Json::Value& root, const silly_jsonpp_opt& opt = {true, 0});
+    static std::string dumps(const Json::Value& root, const jsonpp::opt& _opt = {true, 0});
 
-    static std::string to_string(const Json::Value root, const silly_jsonpp_opt& opt = {true, 0});
+    static std::string to_string(const Json::Value root, const jsonpp::opt& _opt = {true, 0});
 
-    static std::string stringify(const Json::Value root, const silly_jsonpp_opt& opt = {true, 0});
+    static std::string stringify(const Json::Value root, const jsonpp::opt& _opt = {true, 0});
+
+    static std::string string(const Json::Value root, const jsonpp::opt& _opt = {true, 0});
 
     /// <summary>
     /// 将json内容写入到文件
     /// </summary>
     /// <param name="root"></param>
     /// <param name="indentation">是否为紧凑型字符串,默认为紧凑型</param>
-    static bool dumpf(const std::string& file, const Json::Value& root, const silly_jsonpp_opt& opt = {true, 0});
+    static bool dumpf(const std::string& file, const Json::Value& root, const jsonpp::opt& _opt = {true, 0});
+    static bool savef(const std::string& file, const Json::Value& root, const jsonpp::opt& _opt = {true, 0});
 
     static void find_by_key(const std::string& json, const std::string& key, const std::string& filter, std::vector<std::string>& arr);
 
@@ -68,7 +75,9 @@ class silly_jsonpp
     static bool check_member_bool(const Json::Value& root, const std::string& key, bool& val);
     static bool check_member_array(const Json::Value& root, const std::string& key, Json::Value& jv_arr);
     static bool check_member_object(const Json::Value& root, const std::string& key, Json::Value& jv_obj);
-
 };
+}  // namespace silly
+
+using silly_jsonpp = silly::jsonpp;
 
 #endif  // SILLY_UTILS_SILLY_JSONPP_H

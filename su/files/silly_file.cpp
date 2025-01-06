@@ -374,11 +374,11 @@ void silly::file::tools::rm(const std::filesystem::path &u8path)
         std::cerr << e.what() << '\n';
     }
 }
-void silly::file::tools::rm_r(const std::string &u8path)
+void silly::file::tools::rrm(const std::string &u8path)
 {
-    rm_r(std::filesystem::path(u8path));
+    rrm(std::filesystem::path(u8path));
 }
-void silly::file::tools::rm_r(const std::filesystem::path &u8path)
+void silly::file::tools::rrm(const std::filesystem::path &u8path)
 {
     try
     {

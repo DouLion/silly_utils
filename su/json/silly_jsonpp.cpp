@@ -5,8 +5,9 @@
 #include <json/silly_jsonpp.h>
 #include <files/silly_file.h>
 #include <log/silly_log.h>
+using namespace silly;
 
-Json::Value silly_jsonpp::loadf(const std::string& file)
+Json::Value jsonpp::loadf(const std::string& file)
 {
     std::fstream input;
     input.open(file, std::ios::binary | std::ios::in);
@@ -29,7 +30,7 @@ Json::Value silly_jsonpp::loadf(const std::string& file)
     return root;
 }
 
-Json::Value silly_jsonpp::loads(const std::string& content)
+Json::Value jsonpp::loads(const std::string& content)
 {
     Json::Reader reader;
     Json::Value root;
@@ -41,17 +42,17 @@ Json::Value silly_jsonpp::loads(const std::string& content)
     return Json::nullValue;
 }
 
-std::string silly_jsonpp::to_string(const Json::Value root, const silly_jsonpp_opt& opt)
+std::string jsonpp::to_string(const Json::Value root, const jsonpp::opt& _opt)
 {
     Json::StreamWriterBuilder stream_builder;
-    if (opt.utf8)
+    if (_opt.utf8)
     {
         stream_builder["emitUTF8"] = true;
     }
 
-    if (opt.precision)
+    if (_opt.precision)
     {
-        stream_builder["precision"] = opt.precision;
+        stream_builder["precision"] = _opt.precision;
         // decimal 仅小小数位保留    123456.789 保留 1位 是123456.7
         // significant 整个数字保留  123456.789 保留 7位 是123456.7
         stream_builder["precisionType"] = "decimal";  //
@@ -64,20 +65,24 @@ std::string silly_jsonpp::to_string(const Json::Value root, const silly_jsonpp_o
     return stream.str();
 }
 
-
-std::string silly_jsonpp::stringify(const Json::Value root, const silly_jsonpp_opt& opt)
+std::string jsonpp::stringify(const Json::Value root, const jsonpp::opt& _opt)
 {
-    return silly_jsonpp::to_string(root, opt);
+    return jsonpp::to_string(root, _opt);
 }
 
-std::string silly_jsonpp::dumps(const Json::Value& root, const silly_jsonpp_opt& opt)
+std::string jsonpp::dumps(const Json::Value& root, const jsonpp::opt& _opt)
 {
-    return silly_jsonpp::to_string(root, opt);
+    return jsonpp::to_string(root, _opt);
 }
 
-bool silly_jsonpp::dumpf(const std::string& file, const Json::Value& root, const silly_jsonpp_opt& opt)
+bool jsonpp::dumpf(const std::string& file, const Json::Value& root, const jsonpp::opt& _opt)
 {
-    return silly_file::write(file, silly_jsonpp::to_string(root, opt)) > 0;
+    return silly_file::write(file, jsonpp::to_string(root, _opt)) > 0;
+}
+
+bool jsonpp::savef(const std::string& file, const Json::Value& root, const jsonpp::opt& _opt)
+{
+    return dumpf(file, jsonpp::to_string(root, _opt)) > 0;
 }
 
 void find_object(const Json::Value jv_obj, const std::string& key, const std::string& filter, std::vector<std::string>& arr);
@@ -131,13 +136,13 @@ void find_object(const Json::Value jv_obj, const std::string& key, const std::st
     }
 }
 
-void silly_jsonpp::find_by_key(const std::string& json, const std::string& key, const std::string& filter, std::vector<std::string>& arr)
+void jsonpp::find_by_key(const std::string& json, const std::string& key, const std::string& filter, std::vector<std::string>& arr)
 {
     Json::Value root = loads(json);
     find_by_key(root, key, filter, arr);
 }
 
-void silly_jsonpp::find_by_key(const Json::Value& root, const std::string& key, const std::string& filter, std::vector<std::string>& arr)
+void jsonpp::find_by_key(const Json::Value& root, const std::string& key, const std::string& filter, std::vector<std::string>& arr)
 {
     if (root.isNull())
     {
@@ -153,10 +158,9 @@ void silly_jsonpp::find_by_key(const Json::Value& root, const std::string& key, 
     }
 }
 
-
-bool silly_jsonpp::check_member_string(const Json::Value& root, const std::string& key, std::string& val)
+bool jsonpp::check_member_string(const Json::Value& root, const std::string& key, std::string& val)
 {
-    if(root.isNull())
+    if (root.isNull())
     {
         SLOG_DEBUG("json 为空")
         return false;
@@ -181,9 +185,9 @@ bool silly_jsonpp::check_member_string(const Json::Value& root, const std::strin
     return false;
 }
 
-bool silly_jsonpp::check_member_double(const Json::Value& root, const std::string& key, double& val)
+bool jsonpp::check_member_double(const Json::Value& root, const std::string& key, double& val)
 {
-    if(root.isNull())
+    if (root.isNull())
     {
         SLOG_DEBUG("json 为空")
         return false;
@@ -207,9 +211,9 @@ bool silly_jsonpp::check_member_double(const Json::Value& root, const std::strin
     }
     return false;
 }
-bool silly_jsonpp::check_member_bool(const Json::Value& root, const std::string& key, bool& val)
+bool jsonpp::check_member_bool(const Json::Value& root, const std::string& key, bool& val)
 {
-    if(root.isNull())
+    if (root.isNull())
     {
         SLOG_DEBUG("json 为空")
         return false;
@@ -232,9 +236,9 @@ bool silly_jsonpp::check_member_bool(const Json::Value& root, const std::string&
     }
     return false;
 }
-bool silly_jsonpp::check_member_array(const Json::Value& root, const std::string& key, Json::Value& jv_arr)
+bool jsonpp::check_member_array(const Json::Value& root, const std::string& key, Json::Value& jv_arr)
 {
-    if(root.isNull())
+    if (root.isNull())
     {
         SLOG_DEBUG("json 为空")
         return false;
@@ -258,9 +262,9 @@ bool silly_jsonpp::check_member_array(const Json::Value& root, const std::string
     }
     return false;
 }
-bool silly_jsonpp::check_member_object(const Json::Value& root, const std::string& key, Json::Value& jv_obj)
+bool jsonpp::check_member_object(const Json::Value& root, const std::string& key, Json::Value& jv_obj)
 {
-    if(root.isNull())
+    if (root.isNull())
     {
         SLOG_DEBUG("json 为空")
         return false;
@@ -285,9 +289,9 @@ bool silly_jsonpp::check_member_object(const Json::Value& root, const std::strin
     return false;
 }
 
-bool silly_jsonpp::check_member_int(const Json::Value& root, const std::string& key, int32_t& val)
+bool jsonpp::check_member_int(const Json::Value& root, const std::string& key, int32_t& val)
 {
-    if(root.isNull())
+    if (root.isNull())
     {
         SLOG_DEBUG("json 为空")
         return false;
@@ -310,9 +314,9 @@ bool silly_jsonpp::check_member_int(const Json::Value& root, const std::string& 
     }
     return false;
 }
-bool silly_jsonpp::check_member_uint(const Json::Value& root, const std::string& key, int32_t& val)
+bool jsonpp::check_member_uint(const Json::Value& root, const std::string& key, int32_t& val)
 {
-    if(root.isNull())
+    if (root.isNull())
     {
         SLOG_DEBUG("json 为空")
         return false;
@@ -335,9 +339,9 @@ bool silly_jsonpp::check_member_uint(const Json::Value& root, const std::string&
     }
     return false;
 }
-bool silly_jsonpp::check_member_long(const Json::Value& root, const std::string& key, int64_t& val)
+bool jsonpp::check_member_long(const Json::Value& root, const std::string& key, int64_t& val)
 {
-    if(root.isNull())
+    if (root.isNull())
     {
         SLOG_DEBUG("json 为空")
         return false;
@@ -360,9 +364,9 @@ bool silly_jsonpp::check_member_long(const Json::Value& root, const std::string&
     }
     return false;
 }
-bool silly_jsonpp::check_member_ulong(const Json::Value& root, const std::string& key, uint64_t& val)
+bool jsonpp::check_member_ulong(const Json::Value& root, const std::string& key, uint64_t& val)
 {
-    if(root.isNull())
+    if (root.isNull())
     {
         SLOG_DEBUG("json 为空")
         return false;

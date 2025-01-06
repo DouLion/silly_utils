@@ -46,13 +46,11 @@ class node
 
     std::string name() const;
 
-
     std::string stem() const;
 
     std::string ext() const;
 
     void trace();
-
 
   public:
     std::string path;
@@ -122,13 +120,43 @@ class tools
     static bool exist(const std::string &u8path);
     static bool exist(const std::filesystem::path &u8path);
 
+    /// <summary>
+    /// 创建目录,如果存在多个未存在的路径,均会创建
+    /// </summary>
+    /// <param name="u8path"></param>
+    /// <returns></returns>
     static bool mkdir(const std::string &u8path);
     static bool mkdir(const std::filesystem::path &u8path);
 
+    /// <summary>
+    /// 删除单个文件
+    /// </summary>
+    /// <param name="u8path"></param>
     static void rm(const std::string &u8path);
     static void rm(const std::filesystem::path &u8path);
-    static void rm_r(const std::string &u8path);
-    static void rm_r(const std::filesystem::path &u8path);
+
+    /// <summary>
+    /// 删除目录
+    /// </summary>
+    /// <param name="u8path"></param>
+    static void rrm(const std::string &u8path);
+    static void rrm(const std::filesystem::path &u8path);
+
+    /// <summary>
+    /// 拷贝文件
+    /// </summary>
+    /// <param name="src"></param>
+    /// <param name="dst"></param>
+    static void copy(const std::string &src, const std::string &dst);
+    static void copy(const std::filesystem::path &src, const std::filesystem::path &dst);
+
+    /// <summary>
+    /// 拷贝目录
+    /// </summary>
+    /// <param name="src"></param>
+    /// <param name="dst"></param>
+    static void rcopy(const std::string &src, const std::string &dst);
+    static void rcopy(const std::filesystem::path &src, const std::filesystem::path &dst);
 
   private:
     static std::string file_filter_regex(const std::string &filter);
