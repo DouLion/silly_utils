@@ -65,6 +65,8 @@ class tools
     /// <returns></returns>
     bool rebuild_to_v2(const std::string& target_root);
 
+    bool backup();
+
     std::string err();
 
   private:

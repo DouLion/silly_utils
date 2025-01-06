@@ -3,6 +3,8 @@ using namespace silly::pyramid;
 
 bool tools::open(const std::string& root, const silly::mmap::param::flags& mode, bool usemmap)
 {
+    /*m_root = root;
+    return true;*/
     std::filesystem::path pyrmid_root(root);
     std::string info_path = std::filesystem::path(root).append(TZX_IMAGE_DATA_INFO_NAME).string();
     std::string index_path = std::filesystem::path(root).append(TZX_IMAGE_DATA_INDEX_NAME).string();
@@ -35,6 +37,7 @@ bool tools::open(const std::string& root, const silly::mmap::param::flags& mode,
             m_data.close();
             return false;
         }
+
     }
     else
     {
@@ -59,6 +62,7 @@ bool tools::open(const std::string& root, const silly::mmap::param::flags& mode,
             return false;
         }
     }
+    m_root = root;
     return true;
 }
 
@@ -88,3 +92,25 @@ std::string tools::err()
 {
     return m_err;
 }
+
+bool tools::backup()
+{
+    int i = 0;
+    while (++i)
+    {
+        std::string path = m_root + std::to_string(i);
+        try
+        {
+            if (!std::filesystem::exists(path))
+            {
+                std::filesystem::rename(m_root, path);
+                return true;
+            }
+        }catch (const std::exception& e)
+        {
+            SLOG_ERROR(e.what())
+        }
+      
+    }
+    return false;
+  }

@@ -26,7 +26,8 @@ using namespace silly;
 #define MS_SYNC 2
 #define MS_INVALIDATE 4
 #endif
-mmap::~mmap()
+
+mmap::mmap(void){SLOG_INFO(std::string("{:p}"), (void*)this)} mmap::~mmap(void)
 {
     close();
 }
@@ -37,9 +38,9 @@ bool mmap::open(const std::string& file, const int& mode, const int64_t& off)
      {
          return false;
      }*/
-    if(mode != param::ReadOnly)
+    if (mode != param::ReadOnly)
     {
-         std::cerr << "目前仅完整支持读取功能" << std::endl;
+        std::cerr << "目前仅完整支持读取功能" << std::endl;
         return false;
     }
     m_param.path = std::filesystem::path(file);
@@ -106,8 +107,8 @@ void mmap::cleanup_and_throw(const char* msg)
 {
 #ifdef WIN32
     DWORD error = GetLastError();
-    if (m_h_map_file != INVALID_HANDLE_VALUE)
-        ::CloseHandle(m_h_map_file);
+    if (m_h_map != INVALID_HANDLE_VALUE)
+        ::CloseHandle(m_h_map);
     if (m_h_file != INVALID_HANDLE_VALUE)
         ::CloseHandle(m_h_file);
     SetLastError(error);
@@ -142,38 +143,59 @@ bool mmap::map_file()
 }
 void mmap::try_map_file()
 {
-#ifdef WIN32
-#ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable : 4293)
-#endif
-    const DWORD dwFileOffsetLow = (sizeof(int64_t) <= sizeof(DWORD)) ? (DWORD)m_param.offset : (DWORD)(m_param.offset & 0xFFFFFFFFL);
-    const DWORD dwFileOffsetHigh = (sizeof(int64_t) <= sizeof(DWORD)) ? (DWORD)0 : (DWORD)((m_param.offset >> 32) & 0xFFFFFFFFL);
+    // 1. 打开文件
+    m_h_file = CreateFile(m_param.path.wstring().c_str(),       // 文件路径
+                          GENERIC_READ,                         // 访问模式：只读
+                          FILE_SHARE_READ | FILE_SHARE_DELETE,  // 共享模式：允许其他进程读取
+                          NULL,                                 // 安全属性：默认
+                          OPEN_EXISTING,                        // 创建方式：打开现有文件
+                          FILE_ATTRIBUTE_NORMAL,                // 文件属性：普通文件
+                          NULL                                  // 模板文件：无
+    );
 
-    const int64_t maxSize = m_param.offset + (int64_t)m_size;
+    if (m_h_file == INVALID_HANDLE_VALUE)
+    {
+        throw std::runtime_error("Failed to open file: " + m_param.path.string());
+    }
 
-    const DWORD dwMaxSizeLow = (sizeof(int64_t) <= sizeof(DWORD)) ? (DWORD)maxSize : (DWORD)(maxSize & 0xFFFFFFFFL);
-    const DWORD dwMaxSizeHigh = (sizeof(int64_t) <= sizeof(DWORD)) ? (DWORD)0 : (DWORD)((maxSize >> 32) & 0xFFFFFFFFL);
-    // Create mapping
-    DWORD protect = m_param.flag == param::ReadOnly ? PAGE_READONLY : PAGE_READWRITE;
-    DWORD desired = m_param.flag == param::ReadOnly ? 0 | FILE_MAP_READ : 0 | FILE_MAP_WRITE;
+    // 2. 获取文件大小
+    LARGE_INTEGER file_size;
+    if (!GetFileSizeEx(m_h_file, &file_size))
+    {
+        CloseHandle(m_h_file);
+        throw std::runtime_error("Failed to get file size");
+    }
 
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
-    m_h_map_file = ::CreateFileMapping(m_h_file, NULL, protect, dwMaxSizeHigh, dwMaxSizeLow, NULL);
-    if (m_h_map_file == NULL)
-        cleanup_and_throw("failed create mapping");
+    // 3. 创建文件映射对象
+    m_h_map = CreateFileMapping(m_h_file,       // 文件句柄
+                                NULL,           // 安全属性：默认
+                                PAGE_READONLY,  // 保护属性：只读
+                                0,              // 最大对象大小的高 32 位
+                                0,              // 最大对象大小的低 32 位（0 表示使用文件的实际大小）
+                                NULL            // 映射对象名称：无
+    );
 
-    void* data = ::MapViewOfFile(m_h_map_file, desired, dwFileOffsetHigh, dwFileOffsetLow, (SIZE_T)m_size);
-    if (!data)
-        cleanup_and_throw("failed mapping view");
-#else
-    void* data = ::BOOST_IOSTREAMS_FD_MMAP(const_cast<char*>(m_param.hint), m_size, readonly ? PROT_READ : (PROT_READ | PROT_WRITE), priv ? MAP_PRIVATE : MAP_SHARED, m_h_file, m_param.offset);
-    if (data == MAP_FAILED)
-        cleanup_and_throw("failed mapping file");
-#endif
-    m_mmap = static_cast<char*>(data);
+    if (m_h_map == NULL)
+    {
+        CloseHandle(m_h_file);
+        throw std::runtime_error("Failed to create file mapping");
+    }
+
+    // 4. 映射文件到内存
+    void* mapped_data = MapViewOfFile(m_h_map,        // 映射对象句柄
+                                      FILE_MAP_READ,  // 访问模式：只读
+                                      0,              // 文件偏移量的高 32 位
+                                      0,              // 文件偏移量的低 32 位
+                                      0               // 映射区域的大小（0 表示映射整个文件）
+    );
+
+    if (mapped_data == NULL)
+    {
+        CloseHandle(m_h_map);
+        CloseHandle(m_h_file);
+        throw std::runtime_error("Failed to map view of file");
+    }
+    m_mmap = static_cast<char*>(mapped_data);
 }
 bool mmap::resize(size_t size)
 {
@@ -183,12 +205,10 @@ bool mmap::unmap_file()
 {
 #ifdef WIN32
     bool error = false;
-    if (m_mmap)
-        error = !::UnmapViewOfFile(m_mmap) || error;
-    if (m_h_map_file > 0)
-        error = !::CloseHandle(m_h_map_file) || error;
-    if (m_fd > 0)
-        ::close(m_fd);
+    // 6. 清理资源
+    UnmapViewOfFile(m_mmap);  // 解除内存映射
+    CloseHandle(m_h_map);     // 关闭映射对象句柄
+    CloseHandle(m_h_file);    // 关闭文件句柄
     clear();
     return !error;
 #else
@@ -201,8 +221,7 @@ void mmap::clear()
     m_filesize = 0;
 #ifdef WIN32
     m_h_file = INVALID_HANDLE_VALUE;
-    m_h_map_file = INVALID_HANDLE_VALUE;
-    m_fd = -1;
+    m_h_map = INVALID_HANDLE_VALUE;
 #endif
 }
 std::uintmax_t mmap::filesize()
@@ -216,89 +235,9 @@ std::uintmax_t mmap::filesize()
 }
 bool mmap::open_file()
 {
+    SLOG_INFO(std::string("打开 : {:p} ") + m_param.path.string(), (void*)this)
 #if WIN32
-    // Open file
-    int oflag = m_param.flag == param::ReadOnly ? O_RDONLY : O_RDWR | _O_CREAT;
-    int prot = m_param.flag == param::ReadOnly ? PROT_READ : PROT_WRITE;
-    int ipriv = m_param.flag == param::Private ? MAP_PRIVATE : MAP_SHARED;
-    m_fd = _open(m_param.path.string().c_str(), oflag);
-    if (m_fd <= 0)
-    {
-        return false;
-    }
-    struct _stat64 stat;
-    int ret = _fstati64(m_fd, &stat);
-
-    if (stat.st_size == 0
-        /* Usupported protection combinations */
-        || prot == PROT_EXEC)
-    {
-        return false;
-    }
-    else
-    {
-        m_size = stat.st_size;
-    }
-
-
-    m_h_file = ((ipriv & MAP_ANONYMOUS) == 0) ? (HANDLE)_get_osfhandle(m_fd) : INVALID_HANDLE_VALUE;
-
-    if ((ipriv & MAP_ANONYMOUS) == 0 && m_h_file == INVALID_HANDLE_VALUE)
-    {
-        return false;
-    }
-    /*DWORD dwDesiredAccess = readonly ? GENERIC_READ : (GENERIC_READ | GENERIC_WRITE);
-    DWORD dwCreationDisposition = (m_param.new_file_size != 0 && !readonly) ? CREATE_ALWAYS : OPEN_EXISTING;
-    DWORD dwFlagsandAttributes = readonly ? FILE_ATTRIBUTE_READONLY : FILE_ATTRIBUTE_TEMPORARY;
-    m_h_file = m_is_wide ? ::CreateFileW(m_param.path.wstring().c_str(), dwDesiredAccess, FILE_SHARE_READ, NULL, dwCreationDisposition, dwFlagsandAttributes, NULL)
-                         : ::CreateFileA(m_param.path.string().c_str(), dwDesiredAccess, FILE_SHARE_READ, NULL, dwCreationDisposition, dwFlagsandAttributes, NULL);
-    if (m_h_file == INVALID_HANDLE_VALUE)
-        cleanup_and_throw("failed opening file");
-
-    // Set file size
-    if (m_param.new_file_size != 0 && !readonly)
-    {
-        LONG sizehigh = (m_param.new_file_size >> (sizeof(LONG) * 8));
-        LONG sizelow = (m_param.new_file_size & 0xffffffff);
-        DWORD result = ::SetFilePointer(m_h_file, sizelow, &sizehigh, FILE_BEGIN);
-        if ((result == INVALID_SET_FILE_POINTER && ::GetLastError() != NO_ERROR) || !::SetEndOfFile(m_h_file))
-            cleanup_and_throw("failed setting file size");
-    }
-
-    // Determine file size. Dynamically locate GetFileSizeEx for compatibility
-    // with old Platform SDK (thanks to Pavel Vozenilik).
-    typedef BOOL(WINAPI * func)(HANDLE, PLARGE_INTEGER);
-    HMODULE hmod = ::GetModuleHandleA("kernel32.dll");
-    func get_size = reinterpret_cast<func>(::GetProcAddress(hmod, "GetFileSizeEx"));
-    if (get_size)
-    {
-        LARGE_INTEGER info;
-        if (get_size(m_h_file, &info))
-        {
-            std::intmax_t size = ((static_cast<std::intmax_t>(info.HighPart) << 32) | info.LowPart);
-            m_size = static_cast<std::size_t>(m_param.length != SIZE_MAX ? std::min<std::intmax_t>(m_param.length, size) : size);
-        }
-        else
-        {
-            cleanup_and_throw("failed querying file size");
-            return;
-        }
-    }
-    else
-    {
-        DWORD hi;
-        DWORD low;
-        if ((low = ::GetFileSize(m_h_file, &hi)) != INVALID_FILE_SIZE)
-        {
-            std::intmax_t size = (static_cast<std::intmax_t>(hi) << 32) | low;
-            m_size = static_cast<std::size_t>(m_param.length != SIZE_MAX ? std::min<std::intmax_t>(m_param.length, size) : size);
-        }
-        else
-        {
-            cleanup_and_throw("failed querying file size");
-            return;
-        }
-    }*/
+    try_map_file();
 #else
     // Open file
     int flags = (readonly ? O_RDONLY : O_RDWR);

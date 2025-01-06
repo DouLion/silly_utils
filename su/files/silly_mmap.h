@@ -51,8 +51,8 @@ class mmap
         enum flags { ReadOnly, ReadWrite, Private } flag;
     };
   public:
-    mmap() = default;
-    ~mmap();
+    mmap(void);
+    ~mmap(void);
 
     bool open(const param& p);
     /// <summary>
@@ -117,10 +117,12 @@ class mmap
     bool m_is_wide{false};
     param m_param;
 
-    int m_fd = -1;
+   
 #if WIN32
     HANDLE m_h_file = INVALID_HANDLE_VALUE;
-    HANDLE m_h_map_file = INVALID_HANDLE_VALUE;
+    HANDLE m_h_map = INVALID_HANDLE_VALUE;
+#else
+    int m_fd = -1;
 #endif
 };
 }
