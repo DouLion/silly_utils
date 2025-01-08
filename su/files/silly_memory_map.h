@@ -28,6 +28,26 @@ namespace silly
 {
 namespace file
 {
+static inline size_t page_size()
+{
+    static const size_t page_size = [] {
+#ifdef _WIN32
+        SYSTEM_INFO SystemInfo;
+        GetSystemInfo(&SystemInfo);
+        return SystemInfo.dwAllocationGranularity;
+#else
+        return sysconf(_SC_PAGE_SIZE);
+#endif
+    }();
+    return page_size;
+}
+size_t inline make_offset_page_aligned(size_t offset) noexcept
+{
+    const size_t page_size_ = page_size();
+    // Use integer division to round down to the nearest page alignment.
+    return offset / page_size_ * page_size_;
+}
+
 
 class memory_map
 {
@@ -112,26 +132,7 @@ class memory_map
     }
 
     bool resize(size_t size);
-    size_t make_offset_page_aligned(size_t offset) noexcept
-    {
-        const size_t page_size_ = page_size();
-        // Use integer division to round down to the nearest page alignment.
-        return offset / page_size_ * page_size_;
-    }
 
-    inline size_t page_size()
-    {
-        static const size_t page_size = [] {
-#ifdef _WIN32
-            SYSTEM_INFO SystemInfo;
-            GetSystemInfo(&SystemInfo);
-            return SystemInfo.dwAllocationGranularity;
-#else
-            return sysconf(_SC_PAGE_SIZE);
-#endif
-        }();
-        return page_size;
-    }
 
   private:
     bool is_open();
@@ -149,7 +150,6 @@ class memory_map
     size_t m_len{0};       // 文件大小
     cur* m_mmap{nullptr};  // 映射头位置
     std::mutex m_w_mutex;  // 写互斥
-    bool m_is_wide{false};
     param m_param;
 
     handle_type m_hdl_file = INVALID_HANDLE_VALUE;
