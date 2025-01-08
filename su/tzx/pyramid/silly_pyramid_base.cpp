@@ -5,10 +5,10 @@
 #include "silly_pyramid_base.h"
 
 using namespace silly::pyramid;
-bool base::open(const char* file, const silly::mmap::param::flags& mode, const bool& usemmap)
+bool base::open(const char* file, const silly::file::memory_map::param::eAccess& mode, const bool& usemmap)
 {
     m_mode = mode;
-    if (silly::mmap::param::flags::ReadOnly == mode)
+    if (silly::file::memory_map::param::eAccess::ReadOnly == mode)
     {
         if (usemmap)
         {
@@ -21,7 +21,7 @@ bool base::open(const char* file, const silly::mmap::param::flags& mode, const b
 
         read_info();
     }
-    else if (silly::mmap::param::flags::ReadWrite == mode)
+    else if (silly::file::memory_map::param::eAccess::ReadWrite == mode)
     {
         stream_open(file, "wb+");
     }
@@ -106,7 +106,7 @@ bool base::mmap_read(size_t seek_offset, char* data, const size_t& size, const s
 {
     if (m_opened)
     {
-        silly::mmap::cur* cur = m_mmap.at(seek_offset + size);  // 追踪到数据尾部,防止访问越界
+        silly::file::memory_map::cur* cur = m_mmap.at(seek_offset + size);  // 追踪到数据尾部,防止访问越界
         if (cur)
         {
             memcpy(data, cur - size, size);
@@ -133,7 +133,7 @@ bool base::mmap_write(size_t seek_offset, char* data, const size_t& size, const 
 
 void base::stream_close()
 {
-    if (m_mode != silly::mmap::param::flags::ReadOnly)  // 写打开时需要将信息保存回去
+    if (m_mode != silly::file::memory_map::param::eAccess::ReadOnly)  // 写打开时需要将信息保存回去
     {
         write_info();
     }

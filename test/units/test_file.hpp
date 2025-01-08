@@ -13,7 +13,7 @@
 #ifdef CATCH2_UNIT_TEST
 #include <catch2/catch_test_macros.hpp>
 #include "files/silly_file.h"
-#include "files/silly_mmap.h"
+#include "files/silly_memory_map.h"
 
 TEST_CASE("TestFiles")
 {

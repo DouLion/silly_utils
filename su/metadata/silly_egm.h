@@ -12,7 +12,7 @@
 #define SILLY_UTILS_SILLY_EGM_H
 #include <su_marco.h>
 #include <files/silly_file.h>
-#include <files/silly_mmap.h>
+#include <files/silly_memory_map.h>
 
 class silly_egm
 {
@@ -69,7 +69,7 @@ class silly_egm
   private:
     header m_headers;
     size_t m_doffs = 0;  // 数据块起始位置在文件中的偏移
-    silly::mmap m_mmap;
+    silly::file::memory_map m_mmap;
     double m_lat_ratio = 0;
     double m_lon_ratio = 0;
 };

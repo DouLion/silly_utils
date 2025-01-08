@@ -12,17 +12,7 @@
 
 #ifndef SILLY_UTILS_SILLY_MMAP_H
 #define SILLY_UTILS_SILLY_MMAP_H
-#include <iostream>
-#include <mutex>
-#if IS_WIN32
-#include <windows.h>
-#else
-#include <sys/mman.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
-#endif
-
+#include <su_marco.h>
 
 /// <summary>
 /// 内存文件映射功能.
@@ -34,10 +24,18 @@
 /// https://learn.microsoft.com/en-us/windows/win32/debug/system-error-codes--0-499-
 /// boost/libs/iostreams/src/mapped_file.cpp
 /// </summary>
-namespace silly{
-
-class mmap
+namespace silly
 {
+namespace file
+{
+
+class memory_map
+{
+#if WIN32
+    using handle_type = HANDLE;
+#else
+    using handle_type = int;
+#endif
   public:
     using cur = char;
     class param
@@ -47,12 +45,19 @@ class mmap
         std::uintmax_t new_file_size = 0;
         std::size_t length = std::numeric_limits<std::size_t>::max();
         int64_t offset = 0;
-        char* hint = nullptr;
-        enum flags { ReadOnly, ReadWrite, Private } flag;
+        enum eAccess
+        {
+            ReadOnly,
+            ReadWrite
+        } flag;
     };
+
   public:
-    mmap(void);
-    ~mmap(void);
+    memory_map(void);
+    ~memory_map(void);
+    // 禁用拷贝构造函数和赋值运算符
+    memory_map(const memory_map& rh) = delete;
+    memory_map& operator=(const memory_map& rh) = delete;
 
     bool open(const param& p);
     /// <summary>
@@ -89,42 +94,70 @@ class mmap
     bool write(cur* src, const size_t& size, const size_t& offset = 0);
 
     /// <summary>
+    /// 同步内存文件映射到本地文件
+    /// </summary>
+    /// <returns></returns>
+    bool sync();
+
+    bool unmap();
+
+    /// <summary>
     /// 关闭,析构函数已经调用此函数,要注意
     /// </summary>
-    void close ();
+    void close();
 
     size_t size()
     {
-        return m_size;
+        return m_len;
     }
 
     bool resize(size_t size);
+    size_t make_offset_page_aligned(size_t offset) noexcept
+    {
+        const size_t page_size_ = page_size();
+        // Use integer division to round down to the nearest page alignment.
+        return offset / page_size_ * page_size_;
+    }
+
+    inline size_t page_size()
+    {
+        static const size_t page_size = [] {
+#ifdef _WIN32
+            SYSTEM_INFO SystemInfo;
+            GetSystemInfo(&SystemInfo);
+            return SystemInfo.dwAllocationGranularity;
+#else
+            return sysconf(_SC_PAGE_SIZE);
+#endif
+        }();
+        return page_size;
+    }
 
   private:
+    bool is_open();
+    bool is_mapped();
     bool open();
     bool open_file();
     bool map_file();
     void try_map_file();
-    bool unmap_file();
     void cleanup_and_throw(const char* msg);
     void clear();
     std::uintmax_t filesize();
+
   private:
-    size_t m_size{200 * SU_MB};           // 映射大小
-    size_t m_filesize{0};       // 文件大小
+    size_t m_map_len = 0;  // 映射大小
+    size_t m_len{0};       // 文件大小
     cur* m_mmap{nullptr};  // 映射头位置
-    std::mutex m_w_mutex;       // 写互斥
+    std::mutex m_w_mutex;  // 写互斥
     bool m_is_wide{false};
     param m_param;
 
-   
+    handle_type m_hdl_file = INVALID_HANDLE_VALUE;
 #if WIN32
-    HANDLE m_h_file = INVALID_HANDLE_VALUE;
-    HANDLE m_h_map = INVALID_HANDLE_VALUE;
-#else
-    int m_fd = -1;
+    handle_type m_hdl_map = INVALID_HANDLE_VALUE;
 #endif
+    // bool m_is_hdl_internal = false;
 };
-}
-
+}  // namespace file
+}  // namespace silly
 #endif  // SILLY_UTILS_SILLY_MMAP_H

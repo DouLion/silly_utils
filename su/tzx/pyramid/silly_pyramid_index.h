@@ -87,7 +87,7 @@ class index : public silly::pyramid::base
     /// <returns></returns>
     bool init_layer_info();
 
-    bool open(const char* file, const silly::mmap::param::flags& mode, const bool& usemmap);
+    bool open(const char* file, const silly::file::memory_map::param::eAccess& mode, const bool& usemmap);
 
     error read_block(block& blk);
 

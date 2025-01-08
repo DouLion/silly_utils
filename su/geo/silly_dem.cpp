@@ -5,7 +5,7 @@
 
 #include "silly_dem.h"
 #include "files/silly_file.h"
-#include "files/silly_mmap.h"
+#include "files/silly_memory_map.h"
 #include <string>
 
 #define SILLY_DEM_DEF_NCOLS "ncols"
@@ -34,7 +34,7 @@ bool silly_dem_utils::read(const std::string& path, silly_dem_frame& dem_frm)
 
 bool silly_dem_utils::mmap_read(const std::string& path, silly_dem_frame& dem_frm)
 {
-    silly::mmap dem_mmap;
+    silly::file::memory_map dem_mmap;
     /*if (!dem_mmap.mopen(path))
     {
         return false;

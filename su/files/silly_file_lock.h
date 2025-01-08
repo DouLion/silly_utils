@@ -11,21 +11,33 @@
 #ifndef SILLY_UTILS_SILLY_FILE_LOCK_H
 #define SILLY_UTILS_SILLY_FILE_LOCK_H
 #include <su_marco.h>
-
-class silly_file_lock
+namespace silly
+{
+namespace file
+{
+class lock
 {
   public:
-    bool lock(const std::string& u8file);
+
+    /// 构造函数 锁定文件
+    lock(const std::string& u8file);
 
     void unlock();
-
-    std::string err();
 
   private:
     std::string m_err;
 #if WIN32
     HANDLE hFile = nullptr;
+    // 获取文件大小
+    LARGE_INTEGER fileSize;
+    // 设置锁定参数
+    OVERLAPPED overlapped = {0};
+#else
+    int fd = -1;
 #endif
 };
+}
+}
+
 
 #endif  // SILLY_UTILS_SILLY_FILE_LOCK_H

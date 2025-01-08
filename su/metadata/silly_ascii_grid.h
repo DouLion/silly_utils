@@ -11,7 +11,7 @@
 #define SILLY_UTILS_SILLY_ASCII_GRID_H
 #include "math/silly_matrix.h"
 #include "files/silly_file.h"
-#include "files/silly_mmap.h"
+#include "files/silly_memory_map.h"
 using namespace silly_math;
 
 class silly_ascii_grid
@@ -38,7 +38,7 @@ class silly_ascii_grid
     DMatrix m_data;
 
   private:
-    silly::mmap m_mmap;
+    silly::file::memory_map m_mmap;
 };
 
 #endif  // SILLY_UTILS_SILLY_ASCII_GRID_H
