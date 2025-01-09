@@ -10,8 +10,8 @@ data::data()
     m_head[1] = 'D';
     m_head[2] = 'A';
     m_head[3] = 'T';
-    m_version[0] = 0x00;
-    m_version[1] = 0x02;
+    m_version[0] = 0x01;
+    m_version[1] = 0x00;
     m_version[2] = 0x00;
     m_version[3] = 0x00;
 }
@@ -50,8 +50,12 @@ bool data::write(block& blk)
     if (blk.size> 0)
     {
         std::scoped_lock lck(m_mutex);
-        return base::write(blk.offset, blk.data.data(), blk.size, 0);
+        return base::write(blk.pos, blk.data.data(), blk.size, 0);
     }
 
     return true;
+}
+void data::write()
+{
+    base::write();
 }

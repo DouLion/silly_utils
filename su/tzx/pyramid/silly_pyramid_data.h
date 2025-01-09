@@ -55,6 +55,8 @@ class data : public silly::pyramid::base
     /// <returns></returns>
     bool write(block& blk);
 
+    void write();
+
   public:
     index m_index;
 };

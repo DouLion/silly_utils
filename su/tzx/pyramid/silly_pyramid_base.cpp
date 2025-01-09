@@ -17,14 +17,14 @@ bool base::open(const char* file, const memory_map::access_mode& mode, const boo
         }
         else
         {
-            stream_open(file, "rb");
+            stream_open(file, std::ios::in | std::ios::binary);
         }
 
         read_info();
     }
     else if (memory_map::access_mode::ReadWrite == mode)
     {
-        stream_open(file, "wb+");
+        stream_open(file, std::ios::out | std::ios::binary);
     }
 
     return m_opened;
@@ -70,14 +70,22 @@ void base::seek(const size_t& pos, const int& flag)
 {
     if (m_stream)
     {
-        fseek(m_stream, pos, SEEK_SET);
+        if(m_mode == memory_map::access_mode::ReadWrite)
+        {
+            m_stream.seekp(pos);
+        }
+        else
+        {
+            m_stream.seekg(pos);
+        }
+
     }
 }
 
-bool base::stream_open(const char* file, const char* mode)
+bool base::stream_open(const char* file, const int& mode)
 {
-    m_stream = fopen(file, mode);
-    if (m_stream)
+    m_stream.open(file, mode);
+    if (m_stream.is_open())
     {
         m_opened = true;
     }
@@ -98,7 +106,8 @@ bool base::stream_read(size_t seek_offset, char* data, const size_t& size, const
     if (m_stream && m_opened)
     {
         seek(seek_offset);
-        return fread(data + offset, size, 1, m_stream);
+        m_stream.read(data + offset, size);
+        return true;
     }
     return false;
 }
@@ -122,7 +131,7 @@ bool base::stream_write(size_t seek_offset, char* data, const size_t& size, cons
     if (m_stream && m_opened)
     {
         seek(seek_offset);
-        fwrite(data + offset, size, 1, m_stream);
+        m_stream.write(data + offset, size);
     }
     return false;
 }
@@ -140,7 +149,7 @@ void base::stream_close()
     }
     if (m_stream && m_opened)
     {
-        fclose(m_stream);
+        m_stream.close();
     }
 }
 
@@ -174,4 +183,19 @@ void base::write_info()
 void base::write()
 {
     write_info();
+}
+size_t base::end()
+{
+    if (m_normal)
+    {
+        if(m_mode == memory_map::access_mode::ReadWrite)
+        {
+            return m_stream.tellp();
+        }
+        else
+        {
+            return m_stream.tellg();
+        }
+    }
+    return 0;
 }

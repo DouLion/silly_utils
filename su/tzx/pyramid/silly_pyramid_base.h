@@ -28,7 +28,7 @@ constexpr size_t VER = 4;        // 版本信息长度
 constexpr size_t MAX_ZOOM = 25;  // 最大层级数
 }  // namespace len
 constexpr char PYRAMID_VERSION_1[len::VER] = {0x00, 0x01, 0x00, 0x00};   // 0x00010000;
-constexpr char PYRAMID_VERSION_2[len::VER] = {0x00, 0x02, 0x00, 0x00};   // 0x00020000;
+constexpr char PYRAMID_VERSION_2[len::VER] = {0x02, 0x00, 0x00, 0x00};   // 0x00020000;
 constexpr char PYRAMID_VERSION_11[len::VER] = {0x01, 0x00, 0x00, 0x00};  // 0x01000000;
 
 class base
@@ -81,7 +81,9 @@ class base
     /// <param name="flag"></param>
     void seek(const size_t& pos = 0, const int& flag = SEEK_SET);
 
-    virtual void write();
+    size_t end();
+
+    void write();
 
   protected:
     /// <summary>
@@ -90,7 +92,7 @@ class base
     /// <param name="file"></param>
     /// <param name="mode"></param>
     /// <returns></returns>
-    bool stream_open(const char* file, const char* mode);
+    bool stream_open(const char* file, const int& mode);
 
     /// <summary>
     /// 内存文件映射打开
@@ -164,7 +166,7 @@ class base
     // mmap文件
     silly::file::memory_map m_mmap;
     // 文件流
-    FILE* m_stream;
+    std::fstream m_stream;
     // 多线程读写时用的锁
     std::mutex m_mutex;
 };

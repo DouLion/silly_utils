@@ -32,6 +32,8 @@ struct writeopt
 {
     std::string root;
     bool mmap= false;
+    uint8_t blayer = 0;
+    uint8_t elayer = 0;
     std::string src = "TianZhiXiang";
     std::string proj = "Default Projection";
     silly_rect bound;

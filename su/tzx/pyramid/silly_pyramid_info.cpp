@@ -10,8 +10,8 @@ silly::pyramid::info::info()
     m_head[1] = 'I';
     m_head[2] = 'N';
     m_head[3] = 'F';
-    m_version[0] = 0x00;
-    m_version[1] = 0x02;
+    m_version[0] = 0x01;
+    m_version[1] = 0x00;
     m_version[2] = 0x00;
     m_version[3] = 0x00;
 }
@@ -44,21 +44,21 @@ void silly::pyramid::info::write()
     char buff[len::INFO_TOTAL] = {0};
     size_t p = 0;
     memcpy(buff, m_head, len::HEAD);
-    p+= len::HEAD;
+    p += len::HEAD;
     memcpy(buff + p, m_version, len::VER);
     p += len::VER;
-    memcpy(buff + p, m_source, len::INFO_SRC);
+    memcpy(buff + p, m_source, strlen(m_source));
     p += len::INFO_SRC;
-    memcpy(buff + p, m_projection, len::INFO_PROJ);
+    memcpy(buff + p, m_projection, strlen(m_projection));
     p += len::INFO_PROJ;
-    memcpy(buff + p, m_bound, len::INFO_BOUND);
+    memcpy(buff + p, m_bound, strlen(m_bound));
     p += len::INFO_BOUND;
     /* if ((uint64_t)m_version == 0x00010000)
      {
      }
      else if ((uint64_t)m_version == 0x00020000)*/
     {
-        memcpy(buff + p, m_format, len::INFO_FMT);
+        memcpy(buff + p, m_format, strlen(m_format));
     }
     base::write(0, buff, len::INFO_TOTAL);
 }
@@ -93,4 +93,26 @@ void silly::pyramid::info::format(const silly::pyramid::info::tile_format& fmt)
         default:
             throw std::runtime_error("未支持的瓦片格式");
     }
+}
+
+void silly::pyramid::info::format(const std::string fmt)
+{
+    memcpy(m_format, fmt.c_str(), fmt.size());
+}
+
+std::string silly::pyramid::info::source()
+{
+    return m_source;
+}
+std::string silly::pyramid::info::project()
+{
+    return m_projection;
+}
+std::string silly::pyramid::info::bound()
+{
+    return m_bound;
+}
+std::string silly::pyramid::info::format()
+{
+    return m_format;
 }

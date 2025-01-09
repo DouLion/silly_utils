@@ -56,7 +56,7 @@ class idx_pack
         size_t offset(size_t row, size_t col) const;
         void fill();
 
-      protected:
+      public:
         size_t brow = 0;
         size_t bcol = 0;
         size_t erow = 0;
@@ -81,7 +81,8 @@ class idx_pack
   public:
     // version 1
     uint8_t blayer = 0;
-    uint8_t elayer = 0;
+    uint8_t elayer = len::MAX_ZOOM;
+    size_t  indexpos = len::IDXFIXED;
     silly_rect bound;
     layer layers[len::MAX_ZOOM];
 };
@@ -98,6 +99,8 @@ class index : public silly::pyramid::base
     bool parse();
 
     bool open(const char* file, const silly::file::memory_map::access_mode& mode, const bool& usemmap);
+
+    bool init();
 
     bool seek(block& blk);
 

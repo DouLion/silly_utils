@@ -15,15 +15,6 @@
 
 #include "tzx/pyramid/silly_pyramid_base.h"
 
-
-/** Datasrc info length */
-#define DATASRC_INFO_LEN 512
-/** Projection info length */
-#define PRJ_INFO_LEN 1024
-/** Bound info length */
-#define BOUND_INFO_LEN 128
-/** Tiling format info length */
-#define TILING_FORMAT_INFO_LEN 12
 namespace silly
 {
 namespace pyramid
@@ -54,6 +45,7 @@ class info : public silly::pyramid::base
     };
     info();
 
+
     bool read();
 
     void write();
@@ -65,6 +57,13 @@ class info : public silly::pyramid::base
     void bound(const std::string& bound);
 
     void format(const tile_format& fmt);
+
+    void format(const std::string fmt);
+
+    std::string source();
+    std::string project();
+    std::string bound();
+    std::string format();
 
 
 

@@ -1,4 +1,6 @@
+#include <string/silly_algorithm.h>
 #include "silly_pyramid_accessor.h"
+#include <files/silly_file.h>
 using namespace silly::pyramid;
 
 bool accessor::open(const std::string& root, const silly::file::memory_map::access_mode& mode, bool usemmap)
@@ -22,7 +24,7 @@ bool accessor::open(const std::string& root, const silly::file::memory_map::acce
             m_info.close();
             return false;
         }
-
+        m_info.read();
         if (!m_data.m_index.open(index_path.c_str(), silly::file::memory_map::access_mode::ReadOnly, usemmap))
         {
             m_info.close();
@@ -37,7 +39,6 @@ bool accessor::open(const std::string& root, const silly::file::memory_map::acce
             m_data.close();
             return false;
         }
-
     }
     else
     {
@@ -85,7 +86,69 @@ bool accessor::write(const block& blk)
 
 bool accessor::rebuild_to_v2(const std::string& target_root)
 {
-    return false;
+    writeopt wo;
+    accessor accv2;
+    accv2.m_root = target_root;
+    accv2.m_mode = silly::file::memory_map::access_mode::ReadWrite;
+    if (!accv2.open())
+    {
+        return false;
+    }
+    auto bdstr = silly::str::algo::split(m_info.bound(), ',');
+    silly_rect bound;
+    bound.min.x = std::stod(bdstr[0]);
+    bound.max.y = std::stod(bdstr[1]);
+    bound.max.x = std::stod(bdstr[2]);
+    bound.min.y = std::stod(bdstr[3]);
+    accv2.m_info.format(m_info.format());
+    accv2.m_info.bound(m_info.bound());
+    accv2.m_info.source(m_info.source());
+    accv2.m_info.project(m_info.project());
+    //// index
+    accv2.m_data.m_index.m_pack.blayer = m_data.m_index.m_pack.blayer;
+    accv2.m_data.m_index.m_pack.elayer = m_data.m_index.m_pack.elayer;
+    // accv2.m_data.m_index.m_pack.elayer = 7;
+    accv2.m_data.m_index.m_pack.bound = bound;
+    if (!accv2.m_data.m_index.init())
+    {
+        return false;
+    }
+    accv2.m_data.write();
+    size_t pos = len::VER + len::HEAD;
+    idx_pack* pack = &accv2.m_data.m_index.m_pack;
+    for(uint8_t l = pack->blayer; l <= pack->elayer; ++l)
+    {
+        SLOG_DEBUG("处理: {} 层", l)
+        for(size_t r = pack->layers[l].brow; r <= pack->layers[l].erow; ++r)
+        {
+            for(size_t c = pack->layers[l].bcol; c <= pack->layers[l].ecol; ++c)
+            {
+                block blk;
+                blk.zoom = l;
+                blk.row = r;
+                blk.col = c;
+                if(m_data.read(blk))
+                {
+                   /* std::string path = std::filesystem::path(accv2.m_root).append(std::to_string(l)+ "." +std::to_string(r)+ "." +std::to_string(c) +".jpeg").string();
+                    silly::file::tools::write(path, blk.data);*/
+                   if(pos == blk.pos)
+                   {
+                       int aa = 0;
+                   }
+                    blk.pos = pos;
+                    accv2.m_data.write(blk);
+                    pos+= blk.size;
+                    accv2.m_data.m_index.write(blk);
+                }
+
+            }
+        }
+    }
+    accv2.m_info.write();
+    accv2.close();
+    return true;
+
+
 }
 
 std::string accessor::err()
@@ -106,24 +169,25 @@ bool accessor::backup()
                 std::filesystem::rename(m_root, path);
                 return true;
             }
-        }catch (const std::exception& e)
+        }
+        catch (const std::exception& e)
         {
             SLOG_ERROR(e.what())
         }
-      
     }
     return false;
-  }
+}
 bool accessor::begin_read(const readopt& opt)
 {
     return false;
 }
 bool accessor::begin_write(const writeopt& opt)
 {
-    try{
+    try
+    {
         m_root = opt.root;
         m_mode = silly::file::memory_map::access_mode::ReadWrite;
-        if(opt.clean)
+        if (opt.clean)
         {
             std::filesystem::remove_all(opt.root);
         }
@@ -131,7 +195,7 @@ bool accessor::begin_write(const writeopt& opt)
         {
             backup();
         }
-        if(!open())
+        if (!open())
         {
             return false;
         }
@@ -139,18 +203,18 @@ bool accessor::begin_write(const writeopt& opt)
         m_info.format(opt.format);
         char bound_buff[len::INFO_BOUND] = {0};
         // left top right bottom
-        sprintf(bound_buff, "left:%.10f,top:%.10f,right:%.10f,bottom:%.10f", opt.bound.min.x, opt.bound.max.y, opt.bound.max.x, opt.bound.min.y);
+        sprintf(bound_buff, "%.10f,%.10f,%.10f,%.10f", opt.bound.min.x, opt.bound.max.y, opt.bound.max.x, opt.bound.min.y);
         m_info.bound(bound_buff);
         m_info.source(opt.src);
         m_info.project(opt.proj);
         //// index
-
+        m_data.m_index.m_pack.blayer = opt.blayer;
+        m_data.m_index.m_pack.elayer = opt.elayer;
         m_data.m_index.m_pack.bound = opt.bound;
-        if(!m_data.m_index.m_pack.init())
+        if (!m_data.m_index.m_pack.init())
         {
             return false;
         }
-
     }
     catch (const std::exception& e)
     {
@@ -194,7 +258,6 @@ bool accessor::open()
             m_data.close();
             return false;
         }
-
     }
     else if (silly::file::memory_map::access_mode::ReadWrite == m_mode)
     {
