@@ -1,11 +1,4 @@
-/*
- * @Author: douliyang 734546831@qq.com
- * @Date: 2024-01-09 10:14:17
- * @LastEditors: douliyang 734546831@qq.com
- * @LastEditTime: 2024-04-18 14:32:33
- * @FilePath: \pyramid\silly_pyramid_tools.h
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
- */
+
 /*
  * @copyright: Beijing tianzhixiang Information Technology Co., Ltd. All rights
  * reserved.
@@ -18,22 +11,41 @@
  */
 #pragma once
 
-#ifndef SILLY_UTILS_SILLY_PYRAMID_TOOLS_H
-#define SILLY_UTILS_SILLY_PYRAMID_TOOLS_H
+#ifndef SILLY_UTILS_SILLY_PYRAMID_ACCESSOR_H
+#define SILLY_UTILS_SILLY_PYRAMID_ACCESSOR_H
 
-#include "tzx/pyramid/silly_pyramid_info.h"
-#include "tzx/pyramid/silly_pyramid_index.h"
-#include "tzx/pyramid/silly_pyramid_data.h"
-
+#include <tzx/pyramid/silly_pyramid_info.h>
+#include <tzx/pyramid/silly_pyramid_index.h>
+#include <tzx/pyramid/silly_pyramid_data.h>
 namespace silly
 {
 namespace pyramid
 {
-class tools
+
+struct readopt
+{
+    std::string root;
+    bool mmap= true;
+};
+
+struct writeopt
+{
+    std::string root;
+    bool mmap= false;
+    std::string src = "TianZhiXiang";
+    std::string proj = "Default Projection";
+    silly_rect bound;
+    info::tile_format format;
+    bool clean = true; // 清除原文件 或者将原文件备份
+};
+class accessor
 {
   public:
-    tools(void) = default;
-
+    accessor(void) = default;
+    bool begin_read(const readopt& opt);
+    bool begin_write(const writeopt& opt);
+    bool end_read();
+    bool end_write();
     bool open(const std::string& root, const silly::file::memory_map::access_mode& mode = silly::file::memory_map::access_mode::ReadOnly, bool usemmap = false);
     void close();
 
@@ -68,6 +80,8 @@ class tools
     bool backup();
 
     std::string err();
+  private:
+    bool open();
 
   private:
     silly::file::memory_map::access_mode m_mode;
@@ -79,4 +93,4 @@ class tools
 }  // namespace pyramid
 }  // namespace silly
 
-#endif  // SILLY_UTILS_SILLY_PYRAMID_TOOLS_H
+#endif  // SILLY_UTILS_SILLY_PYRAMID_ACCESSOR_H

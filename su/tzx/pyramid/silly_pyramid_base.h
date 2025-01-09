@@ -14,37 +14,22 @@
 #define SILLY_UTILS_PYRAMID_BASE_H
 
 #include <files/silly_memory_map.h>
-
-/// 金字塔文件描述信息偏移量即信息长度
-#define PYRAMID_DESC_OFFSET 0
-#define PYRAMID_DESC_LENGTH 4
-/// 金字塔文件主版本信息偏移量即信息长度
-#define PYRAMID_MVER_OFFSET 4
-#define PYRAMID_MVER_LENGTH 4
-/// 金字塔文件次版本信息偏移量即信息长度
-#define PYRAMID_PVER_OFFSET 8
-#define PYRAMID_PVER_LENGTH 4
+#define PYRAMID_MATCH_VERSION(a, b) ((a)[0] == (b)[0] && (a)[1] == (b)[1] && (a)[2] == (b)[2] && (a)[3] == (b)[3])
 
 namespace silly
 {
 namespace pyramid
 {
-enum error
-{
-    OK = 0,
-    UNKNOWN = 1,
-    NOT_OPEN = 2
-};
 
-enum version
+namespace len
 {
-    Version_1 = 1,
-    Version_2 = 2,
-    Version_3 = 3,
-    Version_4 = 4,
-    Version_5 = 5,
-    Version_6 = 6
-};
+constexpr size_t HEAD = 4;       // 头长度
+constexpr size_t VER = 4;        // 版本信息长度
+constexpr size_t MAX_ZOOM = 25;  // 最大层级数
+}  // namespace len
+constexpr char PYRAMID_VERSION_1[len::VER] = {0x00, 0x01, 0x00, 0x00};   // 0x00010000;
+constexpr char PYRAMID_VERSION_2[len::VER] = {0x00, 0x02, 0x00, 0x00};   // 0x00020000;
+constexpr char PYRAMID_VERSION_11[len::VER] = {0x01, 0x00, 0x00, 0x00};  // 0x01000000;
 
 class base
 {
@@ -95,6 +80,8 @@ class base
     /// <param name="pos"></param>
     /// <param name="flag"></param>
     void seek(const size_t& pos = 0, const int& flag = SEEK_SET);
+
+    virtual void write();
 
   protected:
     /// <summary>
@@ -157,11 +144,16 @@ class base
     /// 关闭内存文件映射
     /// </summary>
     void mmap_close();
-    error read_info();
+    bool read_info();
 
     void write_info();
 
   protected:
+    char m_head[len::HEAD] = {0};
+    char m_version[len::VER] = {0x00, 0x02, 0x00, 0x00};
+    // 读写类型
+    silly::file::memory_map::access_mode m_mode;
+    // private:
     // 文件名称
     std::string m_file;
 
@@ -173,17 +165,8 @@ class base
     silly::file::memory_map m_mmap;
     // 文件流
     FILE* m_stream;
-    // 主版本号	这两个再文件中总是为小端序 读写, 与文档描述中有出入
-    unsigned int m_major_ver{2};
-    // 次版本号
-    unsigned int m_primary_ver{0};
-
-    // 头信息
-    char m_desc[4];
     // 多线程读写时用的锁
     std::mutex m_mutex;
-    // 加载类型
-    silly::file::memory_map::access_mode m_mode;
 };
 }  // namespace pyramid
 }  // namespace silly

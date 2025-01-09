@@ -15,12 +15,11 @@
 
 #include <tzx/pyramid/silly_pyramid_index.h>
 
-#define TZX_IMAGE_DATA_DATA_NAME "TzxImage.data"
 namespace silly
 {
 namespace pyramid
 {
-
+const static std::string DATA_NAME ="TzxImage.data";
 class data : public silly::pyramid::base
 {
   public:
@@ -45,14 +44,16 @@ class data : public silly::pyramid::base
     /// <summary>
     ///
     /// </summary>
-    /// <param name="layer"></param>
-    /// <param name="row"></param>
-    /// <param name="col"></param>
-    /// <param name="datasize"></param>
+    /// <param name="blk"></param>
     /// <returns></returns>
     bool read(block& blk);
 
-    bool write(const block& blk);
+    /// <summary>
+    /// 写入,需要将偏移位置等信息返回
+    /// </summary>
+    /// <param name="blk"></param>
+    /// <returns></returns>
+    bool write(block& blk);
 
   public:
     index m_index;

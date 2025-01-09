@@ -13,67 +13,77 @@
 #ifndef SILLY_UTILS_SILLY_PYRAMID_INDEX_H
 #define SILLY_UTILS_SILLY_PYRAMID_INDEX_H
 
-#define TZX_IMAGE_DATA_INDEX_NAME "TzxImage.index"
-
 #include <tzx/pyramid/silly_pyramid_base.h>
 #include <tzx/pyramid/silly_pyramid_block.h>
-
-#define TZX_IMAGE_DATA_POS_SIZE 8   // 记录data数据位置的数据大小
-#define TZX_IMAGE_DATA_SIZE_SIZE 4  // 记录data数据大小的数据的大小
-#define TZX_IMAGE_INDEX_INFO_SIZE 8
-#define TZX_IMAGE_LAYER_SIZE 1
-#define TZX_IMAGE_COLROW_SIZE 4
-
-#define TZX_IMAGE_MAX_LEVEL 24
-#define TZX_IMAGE_INDEX_DATA_BEGIN_POS 1024
-
+#include <geo/silly_geo.h>
 namespace silly
 {
 namespace pyramid
 {
-
-struct layer_info
+const static std::string INDEX_NAME = "TzxImage.index";
+namespace len
 {
-    uint64_t rbeg{0};
-    uint64_t cbeg{0};
+constexpr size_t DATA_POS = 8;  // 记录data数据位置的数据大小
+constexpr size_t DATA_LEN = 4;  // 记录data数据大小的数据的大小
+constexpr size_t IDXFIXED = 1024;
+}  // namespace len
 
-    uint64_t rend{0};
-    uint64_t cend{0};
+#pragma pack(1)
+struct position
+{
+    size_t offset = 0;
+    uint32_t size = 0;
+};
+#pragma pack()
 
-    uint64_t rows{0};
-    uint64_t cols{0};
+class index;
+class idx_pack
+{
+    friend class index;
 
-    layer_info& operator=(const layer_info& rh)
+  public:
+    class layer
     {
-        this->rbeg = rh.rbeg;
-        this->cbeg = rh.cbeg;
-        this->rows = rh.rows;
-        this->cols = rh.cols;
-        this->rend = rh.rend;
-        this->cend = rh.cend;
-        return *this;
-    }
+        friend class idx_pack;
+        friend class index;
 
-    bool out(block blk) const
-    {
-        return blk.row > rend || blk.row < rbeg || blk.col > cend|| blk.col < cbeg;
-    }
+      public:
+        /// 给定行列号是否在本层中
+        bool in(size_t row, size_t col) const;
+        /// 获取index中的数据
+        position seek(size_t row, size_t col) const;
+        /// 计算在文件中的偏移位置
+        size_t offset(size_t row, size_t col) const;
+        void fill();
 
-    bool in(block blk) const
-    {
-        return blk.row >= rbeg && blk.row <= rend && blk.col >= cbeg && blk.col <= cend;
-    }
+      protected:
+        size_t brow = 0;
+        size_t bcol = 0;
+        size_t erow = 0;
+        size_t ecol = 0;
+        size_t pos0 = 0;
 
-    size_t index(block blk) const
-    {
-        return cols * (blk.row - rbeg) + blk.col - cbeg;
-    }
+        //
+        uint32_t rows = 0;
+        uint32_t cols = 0;
 
-    void fill() 
-    {
-        rows = rend - rbeg + 1;
-        cols = cend - cbeg + 1;
-    }
+      private:
+        // 这部分数据可能会很大,暂时不考虑使用其实现
+        std::vector<position> index = {};
+    };
+
+  public:
+    bool init();
+    /* bool write(const std::string& file) = 0;
+    virtual bool read(const std::string& file) = 0;*/
+    /*virtual position seek(size_t row, size_t col) const = 0;
+    virtual size_t offset(size_t row, size_t col) const = 0;*/
+  public:
+    // version 1
+    uint8_t blayer = 0;
+    uint8_t elayer = 0;
+    silly_rect bound;
+    layer layers[len::MAX_ZOOM];
 };
 
 class index : public silly::pyramid::base
@@ -82,27 +92,14 @@ class index : public silly::pyramid::base
     index();
 
     /// <summary>
-    /// 初始化各层的关键信息, 加快后面的计算
+    /// 解析数据
     /// </summary>
     /// <returns></returns>
-    bool init_layer_info();
+    bool parse();
 
     bool open(const char* file, const silly::file::memory_map::access_mode& mode, const bool& usemmap);
 
-    error read_block(block& blk);
-
-    /// <summary>
-    /// 获取索引文件,对应层数的起始位置
-    /// </summary>
-    /// <param name="layer"></param>
-    /// <returns></returns>
-    uint64_t get_layer_start_pos(const uint32_t& layer);
-
-    /// <summary>
-    /// 设置每层的起始信息
-    /// </summary>
-    /// <param name="linfo"></param>
-    void set_layer_info(const uint32_t& level, const layer_info& linfo);
+    bool seek(block& blk);
 
     /// <summary>
     /// 写入数据块中的指定块的索引数据 索引偏移量和数据块大小
@@ -112,16 +109,19 @@ class index : public silly::pyramid::base
     /// <param name="col"></param>
     /// <param name="idata"></param>
     /// <returns></returns>
-    bool write_block(const block& blk);
+    bool write(const block& blk);
 
-    void write_layer_info();
+    /// <summary>
+    /// 写入基本信息
+    /// </summary>
+    /// <returns></returns>
+    void write();
 
     bool close();
 
+  private:
   public:
-    std::map<uint32_t, layer_info> m_layer_infos;
-    // 索引文件中,每层存储data信息的起始位置
-    std::map<uint32_t, uint64_t> m_layer_bpos;
+    idx_pack m_pack;
 };
 }  // namespace pyramid
 }  // namespace silly

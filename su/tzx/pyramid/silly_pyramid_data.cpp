@@ -6,10 +6,14 @@
 using namespace silly::pyramid;
 data::data()
 {
-    m_desc[0] = 'I';
-    m_desc[1] = 'D';
-    m_desc[2] = 'A';
-    m_desc[3] = 'T';
+    m_head[0] = 'I';
+    m_head[1] = 'D';
+    m_head[2] = 'A';
+    m_head[3] = 'T';
+    m_version[0] = 0x00;
+    m_version[1] = 0x02;
+    m_version[2] = 0x00;
+    m_version[3] = 0x00;
 }
 
 bool data::open(const char* file, const silly::file::memory_map::access_mode& mode, const bool& usemmap)
@@ -19,46 +23,34 @@ bool data::open(const char* file, const silly::file::memory_map::access_mode& mo
 
 std::string data::read(const block& blk)
 {
-    std::string ret_data = "";
+    std::string ret = "";
     block nbkl = blk;
-    if (error::OK != m_index.read_block(nbkl))
+    if (!m_index.seek(nbkl))
     {
-        return ret_data;
-    }
-    if (nbkl.size == 0 || nbkl.pos == 0)
-    {
-        return ret_data;
+        return ret;
     }
     // std::cout << nbkl.zoom << " " << nbkl.row << " " << nbkl.col << " "<<  nbkl.pos << " " << nbkl.size << std::endl;
-    ret_data.resize(nbkl.size);
-    base::read(nbkl.pos, &ret_data[0], nbkl.size);
-    return ret_data;
+    ret.resize(nbkl.size);
+    base::read(nbkl.pos, ret.data(), nbkl.size);
+    return ret;
 }
 
 bool data::read(block& blk)
 {
-    if (error::OK != m_index.read_block(blk))
+    if (!m_index.seek(blk))
     {
         return false;
     }
-    if (blk.size == 0 || blk.pos == 0)
-    {
-        return false;
-    }
-    if (blk.create())
-    {
-        base::read(blk.pos, blk.data, blk.size);
-        return true;
-    }
-
-    return false;
+    blk.create();
+    return base::read(blk.pos, blk.data.data(), blk.size);
 }
 
-bool data::write(const block& blk)
+bool data::write(block& blk)
 {
-    if (blk.size && blk.data)
+    if (blk.size> 0)
     {
-        return base::write(blk.offset, blk.data, blk.size, 0);
+        std::scoped_lock lck(m_mutex);
+        return base::write(blk.offset, blk.data.data(), blk.size, 0);
     }
 
     return true;

@@ -2,174 +2,258 @@
 // Created by dell on 2023/8/14.
 //
 
+#include <geo/silly_pyramid.h>
 #include "silly_pyramid_index.h"
 using namespace silly::pyramid;
+using namespace silly::file;
 index::index()
 {
-    m_desc[0] = 'I';
-    m_desc[1] = 'H';
-    m_desc[2] = 'D';
-    m_desc[3] = 'R';
-    for (int i = 0; i <= TZX_IMAGE_MAX_LEVEL; ++i)
-    {
-        m_layer_infos[i] = layer_info();
-    }
+    m_head[0] = 'I';
+    m_head[1] = 'H';
+    m_head[2] = 'D';
+    m_head[3] = 'R';
+    m_version[0] = 0x00;
+    m_version[1] = 0x02;
+    m_version[2] = 0x00;
+    m_version[3] = 0x00;
 }
 
-bool index::open(const char* file, const silly::file::memory_map::access_mode& mode, const bool& usemmap)
+bool index::open(const char* file, const memory_map::access_mode& mode, const bool& usemmap)
 {
     if (!base::open(file, mode, usemmap))
     {
         return false;
     }
-    if (mode == silly::file::memory_map::access_mode::ReadOnly)
+
+    if (mode == memory_map::access_mode::ReadOnly)
     {
-        return init_layer_info();
+        // 读取时需要从文件中接卸
+        return parse();
+    }
+    else
+    {
+        // 写入时需要根据给定数据自动初始化好索引
+        // return m_pack.init();
     }
     return true;
 }
 
-error index::read_block(block& blk)
+bool index::seek(block& blk)
 {
-    auto iter = m_layer_infos.find(blk.zoom);
-    if (iter == std::end(m_layer_infos))
+    if (blk.zoom >= len::MAX_ZOOM)
     {
-        return error::OK;
+        return false;
     }
-    if (iter->second.out(blk))
+    if (!m_pack.layers[blk.zoom].in(blk.row, blk.col))
     {
-        return error::OK;
+        return false;
     }
 
-    uint64_t pos = m_layer_bpos.find(blk.zoom)->second;
-    if (0 == pos)
-    {
-        return error::OK;
-    }
-    auto ii = iter->second.index(blk);
-    // std::cout << "Index: " << ii << std::endl;
-    pos += ii * (TZX_IMAGE_DATA_POS_SIZE + TZX_IMAGE_DATA_SIZE_SIZE);
-    // std::cout << "Pos: " << pos << std::endl;
-    char buff[TZX_IMAGE_DATA_POS_SIZE + TZX_IMAGE_DATA_SIZE_SIZE] = {0};
-    base::read(pos, buff, TZX_IMAGE_DATA_POS_SIZE + TZX_IMAGE_DATA_SIZE_SIZE);
-    // read(pos + TZX_IMAGE_DATA_POS_SIZE, (char*)(&datasize), TZX_IMAGE_DATA_SIZE_SIZE);
-    blk.pos = ((uint64_t*)buff)[0];
-    blk.size = ((uint32_t*)buff)[2];
-    // std::cout << blk.zoom << " " << blk.row << " " << blk.col << " " << blk.pos << " " << blk.size << std::endl;
-    return error::OK;
+    size_t offset = m_pack.layers[blk.zoom].offset(blk.row, blk.col);
+    position pos;
+    base::read(offset, (char*)&pos, sizeof(position));
+    blk.pos = pos.offset;
+    blk.size = pos.size;
+    return blk.size > 0;
 }
 
-bool index::init_layer_info()
+bool index::parse()
 {
-    if (version::Version_2 == m_major_ver)
+    size_t p = len::HEAD + len::VER;
+    if (PYRAMID_MATCH_VERSION(PYRAMID_VERSION_2, m_version))
     {
-        uint64_t pos = TZX_IMAGE_INDEX_INFO_SIZE;
-        for (uint8_t l = 0; l < TZX_IMAGE_MAX_LEVEL; ++l)
+        for (uint8_t l = 0; l < len::MAX_ZOOM; ++l)
         {
-            char buff[40];
-            read(pos, buff, 40);
-            uint64_t begrow = ((uint64_t*)(buff))[0];
-            uint64_t begcol = ((uint64_t*)(buff))[1];
-            uint64_t endrow = ((uint64_t*)(buff))[2];
-            uint64_t endcol = ((uint64_t*)(buff))[3];
-            uint64_t begpos = ((uint64_t*)(buff))[4];
-            pos += 5 * sizeof(uint64_t);
-            m_layer_infos[l].rbeg = begrow;
-            m_layer_infos[l].cbeg = begcol;
-            m_layer_infos[l].rend = endrow;
-            m_layer_infos[l].cend = endcol;
-            m_layer_infos[l].fill();
-            m_layer_bpos[l] = begpos;
+            std::vector<size_t> buff(5);
+            read(p, (char*)&buff[0], sizeof(size_t) * 5);
+            m_pack.layers[l].brow = buff[0];
+            m_pack.layers[l].bcol = buff[1];
+            m_pack.layers[l].erow = buff[2];
+            m_pack.layers[l].ecol = buff[3];
+            m_pack.layers[l].pos0 =  buff[4];
+            m_pack.layers[l].fill();
+            SLOG_DEBUG("Layer: {}, BR: {}, ER: {}, BC: {}, EC: {}", (int)l, (int)m_pack.layers[l].brow, (int)m_pack.layers[l].erow, (int)m_pack.layers[l].bcol, (int)m_pack.layers[l].ecol)
+            p += 5 * sizeof(size_t);
         }
     }
-    else if (version::Version_1 == m_major_ver)
+    else if (PYRAMID_MATCH_VERSION(PYRAMID_VERSION_1, m_version) || PYRAMID_MATCH_VERSION(PYRAMID_VERSION_11, m_version))
     {
-        uint8_t beglyr, endlyr = 0;
+        read(p, (char*)(&m_pack.blayer), sizeof(m_pack.blayer));
+        p += sizeof(m_pack.blayer);
+        read(p, (char*)(&m_pack.elayer), sizeof(m_pack.elayer));
+        p += sizeof(m_pack.elayer);
 
-        uint64_t pos = TZX_IMAGE_INDEX_INFO_SIZE;
-        read(pos, (char*)(&beglyr), TZX_IMAGE_LAYER_SIZE);
-        pos += TZX_IMAGE_LAYER_SIZE;
-        read(pos, (char*)(&endlyr), TZX_IMAGE_LAYER_SIZE);
-        pos += TZX_IMAGE_LAYER_SIZE;
-
-        int sss = sizeof(uint32_t);
-        for (uint8_t l = beglyr; l <= endlyr; ++l)
+        size_t p0 = len::IDXFIXED;
+        for (uint8_t l = m_pack.blayer; l <= m_pack.elayer; ++l)
         {
-            char buff[16];
-            read(pos, buff, 16);
-            m_layer_infos[l].rbeg = ((uint32_t*)(buff))[0];
-            m_layer_infos[l].cbeg = ((uint32_t*)(buff))[1];
-            m_layer_infos[l].rend = ((uint32_t*)(buff))[2];
-            m_layer_infos[l].cend = ((uint32_t*)(buff))[3];
-            m_layer_infos[l].fill();
-            pos += TZX_IMAGE_COLROW_SIZE * 4;
+            uint32_t buff[4];
+            read(p, (char*)&buff, sizeof(uint32_t) * 4);
+            m_pack.layers[l].brow = ((uint32_t*)(buff))[0];
+            m_pack.layers[l].bcol = ((uint32_t*)(buff))[1];
+            m_pack.layers[l].erow = ((uint32_t*)(buff))[2];
+            m_pack.layers[l].ecol = ((uint32_t*)(buff))[3];
+            m_pack.layers[l].pos0 = p0;
+            m_pack.layers[l].fill();
+            SLOG_DEBUG("Layer: {}, BR: {}, ER: {}, BC: {}, EC: {}", (int)l, (int)m_pack.layers[l].brow, (int)m_pack.layers[l].erow, (int)m_pack.layers[l].bcol, (int)m_pack.layers[l].ecol)
+            p0+= m_pack.layers[l].rows * m_pack.layers[l].cols * (sizeof(position));
+            p+= sizeof(uint32_t) * 4;
         }
 
-        for (uint8_t l = beglyr; l <= endlyr; ++l)
-        {
-            m_layer_bpos[l] = pos;
-            pos += m_layer_infos[l].rows * m_layer_infos[l].cols * (TZX_IMAGE_DATA_SIZE_SIZE + TZX_IMAGE_DATA_POS_SIZE);
-        }
     }
     else
     {
+        SLOG_ERROR("无效的版本号")
         return false;
     }
 
     return true;
 }
 
-uint64_t index::get_layer_start_pos(const uint32_t& layer)
+bool index::write(const block& blk)
 {
-    return 0;
-}
-void index::set_layer_info(const uint32_t& layer, const layer_info& linfo)
-{
-    m_layer_infos[layer] = linfo;
-    uint64_t pos = TZX_IMAGE_INDEX_DATA_BEGIN_POS;
-    // 重新构建索引
-    for (auto [l, info] : m_layer_infos)
+    if (blk.zoom >= len::MAX_ZOOM)
     {
-        m_layer_bpos[l] = pos;
-        uint64_t rows = info.rend - info.rbeg + 1;
-        uint64_t cols = info.cend - info.cbeg + 1;
-        pos += (rows * cols * (TZX_IMAGE_DATA_POS_SIZE + TZX_IMAGE_DATA_SIZE_SIZE));
+        return false;
     }
-}
-bool index::write_block(const block& blk)
-{
-    base::write(blk.offset, (char*)(&blk.pos), sizeof(blk.pos), 0);
-    base::write(sizeof(blk.pos), (char*)(&blk.size), sizeof(blk.size), 0);
-    return true;
-}
+    if (!m_pack.layers[blk.zoom].in(blk.row, blk.col))
+    {
+        return false;
+    }
 
-void index::write_layer_info()
-{
-    if (m_stream)
-    {
-        size_t pos = PYRAMID_DESC_LENGTH + PYRAMID_MVER_LENGTH + PYRAMID_PVER_LENGTH;
-        for (auto [l, info] : m_layer_infos)
-        {
-            base::write(pos, (char*)(&info.rbeg), sizeof(info.rbeg), 0);
-            pos += sizeof(info.rbeg);
-            base::write(pos, (char*)(&info.cbeg), sizeof(info.cbeg), 0);
-            pos += sizeof(info.cbeg);
-            base::write(pos, (char*)(&info.rend), sizeof(info.rend), 0);
-            pos += sizeof(info.rend);
-            base::write(pos, (char*)(&info.cend), sizeof(info.cend), 0);
-            pos += sizeof(info.cend);
-            base::write(pos, (char*)(&m_layer_bpos[l]), sizeof(m_layer_bpos[l]), 0);
-            pos += sizeof(m_layer_bpos[l]);
-        }
-    }
+    size_t offset = m_pack.layers[blk.zoom].offset(blk.row, blk.col);
+    position pos;
+    pos.offset = blk.pos;
+    pos.size = blk.size;
+    base::write(offset, (char*)&pos, sizeof(position));
+
+    return true;
 }
 
 bool index::close()
 {
-    if (m_mode != silly::file::memory_map::access_mode::ReadOnly)
+    if (m_mode == memory_map::access_mode::ReadWrite)
     {
-        write_layer_info();
+        write();
     }
 
     return base::close();
+}
+void index::write()
+{
+
+    char buffer[len::IDXFIXED] = {0};
+    memcpy(buffer, m_head, len::HEAD);
+    memcpy(buffer + len::HEAD, m_version, len::VER);
+    size_t p = len::HEAD + len::VER;
+    for(uint8_t l = 0; l < len::MAX_ZOOM; ++l)
+    {
+        std::vector<size_t> buff;
+        buff.push_back(m_pack.layers[l].brow);
+        buff.push_back(m_pack.layers[l].bcol);
+        buff.push_back(m_pack.layers[l].erow);
+        buff.push_back(m_pack.layers[l].ecol);
+        buff.push_back(m_pack.layers[l].pos0);
+        memcpy(buffer+ p, (char*)&buff[0], sizeof(size_t) * 5);
+        p+= sizeof(size_t) * 5;
+    }
+    base::write(0, buffer, len::IDXFIXED);
+}
+
+////////////////////////////////////////////////////
+/// idx_pack
+////////////////////////////////////////////////////
+bool idx_pack::layer::in(size_t row, size_t col) const
+{
+    return row >= brow && row <= erow && col >= bcol && col <= ecol;
+}
+position idx_pack::layer::seek(size_t row, size_t col) const
+{
+    size_t pos = cols * (row - brow) + col - bcol;
+    if (pos >= index.size())
+        return {0, 0};
+
+    return index[cols * (row - brow) + col - bcol];
+}
+size_t idx_pack::layer::offset(size_t row, size_t col) const
+{
+    size_t pos = cols * (row - brow) + col - bcol;
+    if (pos >= index.size())
+        return 0;
+    return pos0 + pos * sizeof(position);
+}
+void idx_pack::layer::fill()
+{
+    rows = erow - brow + 1;
+    cols = ecol - bcol + 1;
+}
+
+void lonlat2tile(double lon, double lat, int zoom, long long *x, long long *y) {
+    // Place infinite and NaN coordinates off the edge of the Mercator plane
+
+    int lat_class = fpclassify(lat);
+    int lon_class = fpclassify(lon);
+    bool bad_lon = false;
+
+    if (lat_class == FP_INFINITE || lat_class == FP_NAN) {
+        lat = 89.9;
+    }
+    if (lon_class == FP_INFINITE || lon_class == FP_NAN) {
+        // Keep these far enough from the plane that they don't get
+        // moved back into it by 360-degree offsetting
+
+        lon = 720;
+        bad_lon = true;
+    }
+
+    // Must limit latitude somewhere to prevent overflow.
+    // 89.9 degrees latitude is 0.621 worlds beyond the edge of the flat earth,
+    // hopefully far enough out that there are few expectations about the shape.
+    if (lat < -89.9) {
+        lat = -89.9;
+    }
+    if (lat > 89.9) {
+        lat = 89.9;
+    }
+
+    if (lon < -360 && !bad_lon) {
+        lon = -360;
+    }
+    if (lon > 360 && !bad_lon) {
+        lon = 360;
+    }
+
+    double lat_rad = lat * M_PI / 180;
+    unsigned long long n = 1LL << zoom;
+
+    long long llx = n * ((lon + 180) / 360);
+    long long lly = n * (1 - (log(tan(lat_rad) + 1 / cos(lat_rad)) / M_PI)) / 2;
+
+    *x = llx;
+    *y = lly;
+}
+bool idx_pack::init()
+{
+    // 根据经纬度范围初始化索引
+    size_t pos0 = len::IDXFIXED;
+    for (int i = 0; i < len::MAX_ZOOM; ++i)
+    {
+        long long brow, bcol, erow, ecol;
+        lonlat2tile(bound.min.x, bound.max.y, i, &bcol, &brow);
+        lonlat2tile(bound.max.x, bound.min.y, i, &ecol, &erow);
+
+        if (erow < brow || ecol < bcol)
+        {
+            return false;
+        }
+        layers[i].brow = brow;
+        layers[i].bcol = bcol;
+        layers[i].erow = erow;
+        layers[i].ecol = ecol;
+        layers[i].pos0 = pos0;
+        layers[i].fill();
+        SLOG_DEBUG("Layer: {}, BR: {}, ER: {}, BC: {}, EC: {}", (int)i, (int)layers[i].brow, (int)layers[i].erow, (int)layers[i].bcol, (int)layers[i].ecol)
+        pos0 += layers[i].rows * layers[i].cols * sizeof(position);
+    }
+
+    return true;
 }

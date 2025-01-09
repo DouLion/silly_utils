@@ -134,9 +134,9 @@ bool base::mmap_write(size_t seek_offset, char* data, const size_t& size, const 
 
 void base::stream_close()
 {
-    if (m_mode != memory_map::access_mode::ReadOnly)  // 写打开时需要将信息保存回去
+    if (m_mode == memory_map::access_mode::ReadWrite)  // 写打开时需要将信息保存回去
     {
-        write_info();
+        write();
     }
     if (m_stream && m_opened)
     {
@@ -152,28 +152,26 @@ void base::mmap_close()
     }
 }
 
-error base::read_info()
+bool base::read_info()
 {
-    if (!read(PYRAMID_DESC_OFFSET, m_desc, PYRAMID_DESC_LENGTH))
+    if (!read(0, m_head, len::HEAD))
     {
-        return error::UNKNOWN;
+        return false;
     }
 
-    if (!read(PYRAMID_MVER_OFFSET, (char*)(&m_major_ver), PYRAMID_MVER_LENGTH))
+    if (!read(len::HEAD, (char*)(&m_version), len::VER))
     {
-        return error::UNKNOWN;
+        return false;
     }
-    if (!read(PYRAMID_PVER_OFFSET, (char*)(&m_primary_ver), PYRAMID_PVER_LENGTH))
-    {
-        return error::UNKNOWN;
-    }
-
-    return error::OK;
+    return true;
 }
 
 void base::write_info()
 {
-    write(0, m_desc, PYRAMID_DESC_LENGTH, 0);
-    write(PYRAMID_MVER_OFFSET, (char*)(&m_major_ver), PYRAMID_MVER_LENGTH, 0);
-    write(PYRAMID_PVER_OFFSET, (char*)(&m_primary_ver), PYRAMID_PVER_LENGTH, 0);
+    write(0, m_head, len::HEAD, 0);
+    write(len::HEAD, (char*)(&m_version), len::VER, 0);
+}
+void base::write()
+{
+    write_info();
 }
