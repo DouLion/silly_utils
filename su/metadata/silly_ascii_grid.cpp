@@ -111,7 +111,8 @@ bool silly_ascii_grid::read_asc(const std::string& path)
 bool silly_ascii_grid::read_bin()
 {
     bool status = false;
-    size_t total = m_mmap.size();
+    // TODO: Fix
+    size_t total ;//= m_mmap.size();
     double* curr = ((double*)m_mmap.at(0));
     nrows = curr[0];
     curr++;

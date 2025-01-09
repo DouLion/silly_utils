@@ -60,7 +60,8 @@ class base
     /// <param name="mode">1 读 2 写</param>
     /// <param name="usemmap">读取时默认 使用mmap, 写总是使用文件流</param>
     /// <returns></returns>
-    bool open(const char* file, const silly::file::memory_map::param::eAccess& mode, const bool& usemmap);
+    // TODO: 目前 读使用mmap, 写使用文件流, 第三个参数暂时没用,后续测试完成后需要支持
+    bool open(const char* file, const silly::file::memory_map::access_mode& mode, const bool& usemmap);
 
     /// <summary>
     /// 关闭文件
@@ -71,23 +72,25 @@ class base
     /// <summary>
     /// 读取指定大小的数据块
     /// </summary>
+    /// <param name="seek_offset"></param>
     /// <param name="data"></param>
-    /// <param name="size"></param>
-    /// <param name="offset"></param>
+    /// <param name="read_size"></param>
+    /// <param name="offset_in_data"></param>
     /// <returns></returns>
-    bool read(size_t seek_offset, char* data, const size_t& size, const size_t& offset = 0);
+    bool read(size_t seek_offset, char* data, const size_t& read_size, const size_t& offset_in_data = 0);
 
     /// <summary>
     /// 写入指定大小的数据库
     /// </summary>
+    /// <param name="seek_offset"></param>
     /// <param name="data"></param>
-    /// <param name="size"></param>
-    /// <param name="offset"></param>
+    /// <param name="write_size"></param>
+    /// <param name="offset_in_data"></param>
     /// <returns></returns>
-    bool write(size_t seek_offset, char* data, const size_t& size, const size_t& offset = 0);
+    bool write(size_t seek_offset, char* data, const size_t& write_size, const size_t& offset_in_data = 0);
 
     /// <summary>
-    /// fseek
+    /// fseek,仅对stream有效
     /// </summary>
     /// <param name="pos"></param>
     /// <param name="flag"></param>
@@ -180,7 +183,7 @@ class base
     // 多线程读写时用的锁
     std::mutex m_mutex;
     // 加载类型
-    silly::file::memory_map::param::eAccess m_mode;
+    silly::file::memory_map::access_mode m_mode;
 };
 }  // namespace pyramid
 }  // namespace silly

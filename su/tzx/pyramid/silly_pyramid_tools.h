@@ -34,7 +34,7 @@ class tools
   public:
     tools(void) = default;
 
-    bool open(const std::string& root, const silly::file::memory_map::param::eAccess& mode = silly::file::memory_map::param::eAccess::ReadOnly, bool usemmap = false);
+    bool open(const std::string& root, const silly::file::memory_map::access_mode& mode = silly::file::memory_map::access_mode::ReadOnly, bool usemmap = false);
     void close();
 
     /// <summary>
@@ -70,7 +70,7 @@ class tools
     std::string err();
 
   private:
-    silly::file::memory_map::param::eAccess m_mode;
+    silly::file::memory_map::access_mode m_mode;
     std::string m_root;
     info m_info;
     data m_data;

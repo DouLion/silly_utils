@@ -21,17 +21,6 @@ inline DWORD int64_low(int64_t n) noexcept
     return n & 0xffffffff;
 }
 
-inline std::wstring s_2_ws(const std::string& s)
-{
-    std::wstring ret;
-    if (!s.empty())
-    {
-        ret.resize(s.size());
-        int wide_char_count = MultiByteToWideChar(CP_UTF8, 0, s.c_str(), static_cast<int>(s.size()), &ret[0], static_cast<int>(s.size()));
-        ret.resize(wide_char_count);
-    }
-    return ret;
-}
 }  // namespace win
 #endif
 
@@ -44,17 +33,17 @@ memory_map::~memory_map(void)
 
 memory_map::cur* memory_map::at(const size_t& offset)
 {
-    if (m_mmap && m_param.offset < m_map_len)
+    if (m_mmap && offset < m_map_len)
     {
-        return m_mmap + m_param.offset;
+        return m_mmap + offset;
     }
     return nullptr;
 }
 bool memory_map::read(memory_map::cur* dst, const size_t& size, const size_t& offset)
 {
-    if (m_mmap && dst && size + m_param.offset < m_map_len)
+    if (m_mmap && dst && size + offset < m_map_len)
     {
-        memcpy(dst, m_mmap + m_param.offset, size);
+        memcpy(dst, m_mmap + offset, size);
         return true;
     }
     return false;
@@ -65,8 +54,8 @@ bool memory_map::write(memory_map::cur* src, const size_t& size, const size_t& o
     if (m_mmap)
     {
         std::unique_lock lock(m_w_mutex);
-        // if (!strcpy_s(m_mmap + m_param.offset, size, src))
-        if (memcpy(m_mmap + m_param.offset, src, size))
+        // if (!strcpy_s(m_mmap + offset, size, src))
+        if (memcpy(m_mmap + offset, src, size))
         {
             m_map_len += size;
             status = true;
@@ -160,13 +149,13 @@ void memory_map::try_map_file()
     SLOG_DEBUG(ss.str())
 #endif
     const int64_t max_file_size = m_param.offset + length;
-    m_hdl_map = ::CreateFileMapping(m_hdl_file, 0, m_param.flag == param::eAccess::ReadOnly ? PAGE_READONLY : PAGE_READWRITE, win::int64_high(max_file_size), win::int64_low(max_file_size), 0);
+    m_hdl_map = ::CreateFileMapping(m_hdl_file, 0, m_param.flag == access_mode::ReadOnly ? PAGE_READONLY : PAGE_READWRITE, win::int64_high(max_file_size), win::int64_low(max_file_size), 0);
     if (m_hdl_map == INVALID_HANDLE_VALUE)
     {
         throw std::runtime_error("Failed to create file mapping");
     }
-    //void* mapping_start = ::MapViewOfFile(m_hdl_map, m_param.flag == param::eAccess::ReadOnly ? FILE_MAP_READ : FILE_MAP_WRITE, win::int64_high(aligned_offset), win::int64_low(aligned_offset), length_to_map);
-    void* mapping_start = ::MapViewOfFile(m_hdl_map, m_param.flag == param::eAccess::ReadOnly ? FILE_MAP_READ : FILE_MAP_WRITE, 0, 0,0);
+    // void* mapping_start = ::MapViewOfFile(m_hdl_map, m_param.flag == access_mode::ReadOnly ? FILE_MAP_READ : FILE_MAP_WRITE, win::int64_high(aligned_offset), win::int64_low(aligned_offset), length_to_map);
+    void* mapping_start = ::MapViewOfFile(m_hdl_map, m_param.flag == access_mode::ReadOnly ? FILE_MAP_READ : FILE_MAP_WRITE, 0, 0, 0);
     if (mapping_start == nullptr)
     {
         // Close file handle if mapping it failed.
@@ -175,11 +164,11 @@ void memory_map::try_map_file()
     }
 #else  // POSIX
     char* mapping_start = static_cast<char*>(::memory_map(0,  // Don't give hint as to where to map.
-                                                    length_to_map,
-                                                    m_param.flag == param::eAccess::read ? PROT_READ : PROT_WRITE,
-                                                    MAP_SHARED,
-                                                    m_hdl_file,
-                                                    aligned_offset));
+                                                          length_to_map,
+                                                          m_param.flag == access_mode::read ? PROT_READ : PROT_WRITE,
+                                                          MAP_SHARED,
+                                                          m_hdl_file,
+                                                          aligned_offset));
     if (mapping_start == MAP_FAILED)
     {
         error = detail::last_error();
@@ -225,7 +214,7 @@ bool memory_map::open_file()
     ss << "OpenFile, 线程: " << std::this_thread::get_id();
     SLOG_DEBUG(ss.str())
 #endif
-    DWORD access = m_param.flag == param::eAccess::ReadOnly ? GENERIC_READ : GENERIC_READ | GENERIC_WRITE;
+    DWORD access = m_param.flag == access_mode::ReadOnly ? GENERIC_READ : GENERIC_READ | GENERIC_WRITE;
 
     m_hdl_file = ::CreateFileW(m_param.path.wstring().c_str(), access, FILE_SHARE_READ | FILE_SHARE_WRITE, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
     if (m_hdl_file == INVALID_HANDLE_VALUE)
@@ -333,13 +322,13 @@ bool memory_map::open(const std::string& file, const int& mode, const int64_t& o
     {
         return false;
     }
-    if (mode != param::ReadOnly)
+    if (mode != access_mode::ReadOnly)
     {
         std::cerr << "目前仅完整支持读取功能" << std::endl;
         return false;
     }
     m_param.path = std::filesystem::path(file);
-    m_param.flag = static_cast<memory_map::param::eAccess>(m_param.flag);
+    m_param.flag = static_cast<memory_map::access_mode>(m_param.flag);
     m_param.offset = off;
     m_map_len = file::tools::size(m_param.path.string());
     return open();

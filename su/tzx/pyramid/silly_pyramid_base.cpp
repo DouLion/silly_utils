@@ -5,10 +5,11 @@
 #include "silly_pyramid_base.h"
 
 using namespace silly::pyramid;
-bool base::open(const char* file, const silly::file::memory_map::param::eAccess& mode, const bool& usemmap)
+using namespace silly::file;
+bool base::open(const char* file, const memory_map::access_mode& mode, const bool& usemmap)
 {
     m_mode = mode;
-    if (silly::file::memory_map::param::eAccess::ReadOnly == mode)
+    if (memory_map::access_mode::ReadOnly == mode)
     {
         if (usemmap)
         {
@@ -21,7 +22,7 @@ bool base::open(const char* file, const silly::file::memory_map::param::eAccess&
 
         read_info();
     }
-    else if (silly::file::memory_map::param::eAccess::ReadWrite == mode)
+    else if (memory_map::access_mode::ReadWrite == mode)
     {
         stream_open(file, "wb+");
     }
@@ -44,23 +45,23 @@ bool base::close()
     return true;
 }
 
-bool base::read(size_t seek_offset, char* data, const size_t& size, const size_t& offset)
+bool base::read(size_t seek_offset, char* data, const size_t& read_size, const size_t& offset_in_data)
 {
     if (m_normal)
     {
-        return stream_read(seek_offset, data, size, offset);
+        return stream_read(seek_offset, data, read_size, offset_in_data);
     }
     else
     {
-        return mmap_read(seek_offset, data, size, offset);
+        return mmap_read(seek_offset, data, read_size, offset_in_data);
     }
 }
 
-bool base::write(size_t seek_offset, char* data, const size_t& size, const size_t& offset)
+bool base::write(size_t seek_offset, char* data, const size_t& write_size, const size_t& offset_in_data)
 {
     if (m_normal)
     {
-        return stream_write(seek_offset, data, size, offset);
+        return stream_write(seek_offset, data, write_size, offset_in_data);
     }
     return false;
 }
@@ -106,7 +107,7 @@ bool base::mmap_read(size_t seek_offset, char* data, const size_t& size, const s
 {
     if (m_opened)
     {
-        silly::file::memory_map::cur* cur = m_mmap.at(seek_offset + size);  // 追踪到数据尾部,防止访问越界
+        memory_map::cur* cur = m_mmap.at(seek_offset + size);  // 追踪到数据尾部,防止访问越界
         if (cur)
         {
             memcpy(data, cur - size, size);
@@ -133,7 +134,7 @@ bool base::mmap_write(size_t seek_offset, char* data, const size_t& size, const 
 
 void base::stream_close()
 {
-    if (m_mode != silly::file::memory_map::param::eAccess::ReadOnly)  // 写打开时需要将信息保存回去
+    if (m_mode != memory_map::access_mode::ReadOnly)  // 写打开时需要将信息保存回去
     {
         write_info();
     }

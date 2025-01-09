@@ -31,7 +31,7 @@ class data : public silly::pyramid::base
     /// <param name=""></param>
     /// <param name="mode"></param>
     /// <returns></returns>
-    bool open(const char* file, const silly::file::memory_map::param::eAccess& mode, const bool& usemmap);
+    bool open(const char* file, const silly::file::memory_map::access_mode& mode, const bool& usemmap);
 
     /// <summary>
     ///

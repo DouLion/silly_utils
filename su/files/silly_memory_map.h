@@ -48,9 +48,14 @@ size_t inline make_offset_page_aligned(size_t offset) noexcept
     return offset / page_size_ * page_size_;
 }
 
-
 class memory_map
 {
+  public:
+    enum access_mode
+    {
+        ReadOnly = 1,
+        ReadWrite = 2
+    };
 #if WIN32
     using handle_type = HANDLE;
 #else
@@ -65,11 +70,7 @@ class memory_map
         std::uintmax_t new_file_size = 0;
         std::size_t length = std::numeric_limits<std::size_t>::max();
         int64_t offset = 0;
-        enum eAccess
-        {
-            ReadOnly,
-            ReadWrite
-        } flag;
+        access_mode flag;
     };
 
   public:
@@ -86,7 +87,7 @@ class memory_map
     /// <param name="file"></param>
     /// <param name="mode"></param>
     /// <returns></returns>
-    bool open(const std::string& file, const int& mode = param::ReadOnly, const int64_t& off = 0);
+    bool open(const std::string& file, const int& mode = access_mode::ReadOnly, const int64_t& off = 0);
 
     /// <summary>
     /// 根据偏移量索引到内存位置
@@ -126,13 +127,12 @@ class memory_map
     /// </summary>
     void close();
 
-    size_t size()
-    {
-        return m_len;
-    }
+    /* size_t size()
+     {
+         return m_len;
+     }*/
 
     bool resize(size_t size);
-
 
   private:
     bool is_open();
@@ -146,10 +146,11 @@ class memory_map
     std::uintmax_t filesize();
 
   private:
-    size_t m_map_len = 0;  // 映射大小
-    size_t m_len{0};       // 文件大小
-    cur* m_mmap{nullptr};  // 映射头位置
-    std::mutex m_w_mutex;  // 写互斥
+    size_t m_map_len = 0;     // 映射大小
+    size_t m_file_len{0};     // 文件大小 只读时, 映射大小不超过文件大小
+    size_t m_map_offset = 0;  // 映射偏移位置
+    cur* m_mmap{nullptr};     // 映射头位置
+    std::mutex m_w_mutex;     // 写互斥
     param m_param;
 
     handle_type m_hdl_file = INVALID_HANDLE_VALUE;

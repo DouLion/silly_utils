@@ -73,7 +73,7 @@
 
 + 文件操作[silly_file.h](http://192.168.0.60/douliyang/silly_utils/blob/master/su/files/silly_file.h)
 
-+ 内存文件映射(windows写有问题)[silly_mmap.h](http://192.168.0.60/douliyang/silly_utils/blob/master/su/files/silly_mmap.h)
++ 内存文件映射(windows写有问题)[silly_memory_map.h](http://192.168.0.60/douliyang/silly_utils/blob/master/su/files/silly_memory_map.h)
 
 + 文件操作(有些用法旧或者效率低)[TFF_FileUtils.h](http://192.168.0.60/douliyang/silly_utils/blob/master/su/files/TFF_FileUtils.h)
 

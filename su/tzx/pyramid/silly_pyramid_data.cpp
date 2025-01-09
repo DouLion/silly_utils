@@ -12,7 +12,7 @@ data::data()
     m_desc[3] = 'T';
 }
 
-bool data::open(const char* file, const silly::file::memory_map::param::eAccess& mode, const bool& usemmap)
+bool data::open(const char* file, const silly::file::memory_map::access_mode& mode, const bool& usemmap)
 {
     return base::open(file, mode, usemmap);
 }
