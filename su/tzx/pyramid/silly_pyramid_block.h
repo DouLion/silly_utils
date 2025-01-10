@@ -21,9 +21,11 @@ class block
     uint32_t zoom{0};
     uint64_t row{0};
     uint64_t col{0};
+
+    // 索引中的偏移位置
+    uint64_t offset{0};
     // 位置信息
     uint64_t pos{0};
-    uint64_t offset{0};
     // 数据信息
     uint32_t size{0};
     std::string data;

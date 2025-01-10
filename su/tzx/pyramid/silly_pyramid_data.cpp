@@ -50,6 +50,7 @@ bool data::write(block& blk)
     if (blk.size> 0)
     {
         std::scoped_lock lck(m_mutex);
+
         return base::write(blk.pos, blk.data.data(), blk.size, 0);
     }
 

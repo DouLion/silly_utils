@@ -94,6 +94,7 @@ bool accessor::rebuild_to_v2(const std::string& target_root)
     {
         return false;
     }
+    //// info
     auto bdstr = silly::str::algo::split(m_info.bound(), ',');
     silly_rect bound;
     bound.min.x = std::stod(bdstr[0]);
@@ -113,6 +114,7 @@ bool accessor::rebuild_to_v2(const std::string& target_root)
     {
         return false;
     }
+    //// data
     accv2.m_data.write();
     size_t pos = len::VER + len::HEAD;
     idx_pack* pack = &accv2.m_data.m_index.m_pack;
@@ -127,14 +129,20 @@ bool accessor::rebuild_to_v2(const std::string& target_root)
                 blk.zoom = l;
                 blk.row = r;
                 blk.col = c;
+                // 从多个源中读 read
+                // std::string merge_pbf 合并多个 (vector<std::string>& pbf数据)
+                // 数据写  pos size  merge_pbf;
+                // 索引写 zoom  row col pos  size
+                // N
+                // 合并多个层的数据
                 if(m_data.read(blk))
                 {
                    /* std::string path = std::filesystem::path(accv2.m_root).append(std::to_string(l)+ "." +std::to_string(r)+ "." +std::to_string(c) +".jpeg").string();
                     silly::file::tools::write(path, blk.data);*/
                     blk.pos = pos;
                     accv2.m_data.write(blk);
-                    pos+= blk.size;
                     accv2.m_data.m_index.write(blk);
+                    pos+= blk.size;
                 }
 
             }
