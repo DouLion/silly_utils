@@ -126,10 +126,6 @@ bool index::write(const block& blk)
 
     size_t offset = m_pack.layers[blk.zoom].offset(blk.row, blk.col);
     position pos;
-    if(pos.offset < 0)
-    {
-        int a = 0;
-    }
     pos.offset = blk.pos;
     pos.size = blk.size;
     base::write(offset, (char*)&pos, sizeof(position));

@@ -131,10 +131,6 @@ bool accessor::rebuild_to_v2(const std::string& target_root)
                 {
                    /* std::string path = std::filesystem::path(accv2.m_root).append(std::to_string(l)+ "." +std::to_string(r)+ "." +std::to_string(c) +".jpeg").string();
                     silly::file::tools::write(path, blk.data);*/
-                   if(pos == blk.pos)
-                   {
-                       int aa = 0;
-                   }
                     blk.pos = pos;
                     accv2.m_data.write(blk);
                     pos+= blk.size;
