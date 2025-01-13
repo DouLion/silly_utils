@@ -9,6 +9,7 @@ using namespace silly::file;
 bool base::open(const char* file, const memory_map::access_mode& mode, const bool& usemmap)
 {
     m_mode = mode;
+    m_normal = !usemmap;
     if (memory_map::access_mode::ReadOnly == mode)
     {
         if (usemmap)
@@ -88,7 +89,6 @@ bool base::stream_open(const char* file, const int& mode)
     if (m_stream.is_open())
     {
         m_opened = true;
-        m_normal = true;
     }
     else
     {
