@@ -88,6 +88,12 @@ bool base::stream_open(const char* file, const int& mode)
     if (m_stream.is_open())
     {
         m_opened = true;
+        m_normal = true;
+    }
+    else
+    {
+        m_opened = false;
+        SLOG_ERROR("open file failed:{}", file);
     }
     return m_opened;
 }
