@@ -113,6 +113,11 @@ bool base::stream_open(const char* file, const int& mode)
     {
         m_opened = true;
     }
+    else
+    {
+        m_opened = false;
+        SLOG_ERROR("open file failed:{}", file);
+    }
     return m_opened;
 }
 
