@@ -31,7 +31,7 @@ memory_map::~memory_map(void)
 {
 }
 
-memory_map::cur* memory_map::at(const size_t& offset)
+memory_map::cur* memory_map::ptr(const size_t& offset)
 {
     if (m_mmap && offset < m_map_len)
     {
@@ -149,13 +149,13 @@ void memory_map::try_map_file()
     SLOG_DEBUG(ss.str())
 #endif
     const int64_t max_file_size = m_param.offset + length;
-    m_hdl_map = ::CreateFileMapping(m_hdl_file, 0, m_param.flag == access_mode::ReadOnly ? PAGE_READONLY : PAGE_READWRITE, win::int64_high(max_file_size), win::int64_low(max_file_size), 0);
+    m_hdl_map = ::CreateFileMapping(m_hdl_file, 0, m_param.flag == access_mode::Read ? PAGE_READONLY : PAGE_READWRITE, win::int64_high(max_file_size), win::int64_low(max_file_size), 0);
     if (m_hdl_map == INVALID_HANDLE_VALUE)
     {
         throw std::runtime_error("Failed to create file mapping");
     }
-    // void* mapping_start = ::MapViewOfFile(m_hdl_map, m_param.flag == access_mode::ReadOnly ? FILE_MAP_READ : FILE_MAP_WRITE, win::int64_high(aligned_offset), win::int64_low(aligned_offset), length_to_map);
-    void* mapping_start = ::MapViewOfFile(m_hdl_map, m_param.flag == access_mode::ReadOnly ? FILE_MAP_READ : FILE_MAP_WRITE, 0, 0, 0);
+    // void* mapping_start = ::MapViewOfFile(m_hdl_map, m_param.flag == access_mode::Read ? FILE_MAP_READ : FILE_MAP_WRITE, win::int64_high(aligned_offset), win::int64_low(aligned_offset), length_to_map);
+    void* mapping_start = ::MapViewOfFile(m_hdl_map, m_param.flag == access_mode::Read ? FILE_MAP_READ : FILE_MAP_WRITE, 0, 0, 0);
     if (mapping_start == nullptr)
     {
         // Close file handle if mapping it failed.
@@ -214,7 +214,7 @@ bool memory_map::open_file()
     ss << "OpenFile, 线程: " << std::this_thread::get_id();
     SLOG_DEBUG(ss.str())
 #endif
-    DWORD access = m_param.flag == access_mode::ReadOnly ? GENERIC_READ : GENERIC_READ | GENERIC_WRITE;
+    DWORD access = m_param.flag == access_mode::Read ? GENERIC_READ : GENERIC_READ | GENERIC_WRITE;
 
     m_hdl_file = ::CreateFileW(m_param.path.wstring().c_str(), access, FILE_SHARE_READ | FILE_SHARE_WRITE, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
     if (m_hdl_file == INVALID_HANDLE_VALUE)
@@ -322,7 +322,7 @@ bool memory_map::open(const std::string& file, const int& mode, const int64_t& o
     {
         return false;
     }
-    if (mode != access_mode::ReadOnly)
+    if (mode != access_mode::Read)
     {
         std::cerr << "目前仅完整支持读取功能" << std::endl;
         return false;

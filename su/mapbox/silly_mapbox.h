@@ -12,9 +12,17 @@
 
 #ifndef SILLY_UTILS_SILLY_MAPBOX_H
 #define SILLY_UTILS_SILLY_MAPBOX_H
+# include <mapbox/mbtiles/silly_mvt.h>
 
 class silly_mapbox
 {
+    class merge_opt
+    {
+        std::map<std::string, std::string> renames;
+    };
+
+    /// 合并同一块的tile
+    static mvt_tile merge(const std::vector<mvt_tile>& tiles);
 };
 
 #endif  // SILLY_UTILS_SILLY_MAPBOX_H

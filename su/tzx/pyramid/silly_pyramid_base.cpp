@@ -9,7 +9,8 @@ using namespace silly::file;
 bool base::open(const char* file, const memory_map::access_mode& mode, const bool& usemmap)
 {
     m_mode = mode;
-    if (memory_map::access_mode::ReadOnly == mode)
+    m_normal = !usemmap;
+    if (memory_map::access_mode::Read == mode)
     {
         if (usemmap)
         {
@@ -22,17 +23,30 @@ bool base::open(const char* file, const memory_map::access_mode& mode, const boo
 
         read_info();
     }
-    else if (memory_map::access_mode::ReadWrite == mode)
+    else if (memory_map::access_mode::Write == mode)
     {
+        if (usemmap)
+        {
+            SLOG_WARN("写入功能目前不支持内存文件映射方式(MMAP)")
+        }
         stream_open(file, std::ios::out | std::ios::binary);
+        // 写入头部信息,
     }
 
     return m_opened;
 }
 
-bool base::close()
+bool base::open(const std::string& file, const silly::file::memory_map::access_mode& mode, const bool& usemmap)
 {
+    return open(file.c_str(), mode, usemmap);
+}
+bool base::open(const std::filesystem::path& file, const silly::file::memory_map::access_mode& mode, const bool& usemmap)
+{
+    return open(file.string(), mode, usemmap);
+}
 
+void base::close()
+{
     if (m_normal)
     {
         stream_close();
@@ -42,35 +56,46 @@ bool base::close()
         mmap_close();
     }
     m_opened = false;
-    return true;
 }
 
-bool base::read(size_t seek_offset, char* data, const size_t& read_size, const size_t& offset_in_data)
+bool base::read(const size_t& seek_offset, char* data, const size_t& read_size)
 {
     if (m_normal)
     {
-        return stream_read(seek_offset, data, read_size, offset_in_data);
+        return stream_read(seek_offset, data, read_size);
     }
     else
     {
-        return mmap_read(seek_offset, data, read_size, offset_in_data);
+        return mmap_read(seek_offset, data, read_size);
     }
 }
 
-bool base::write(size_t seek_offset, char* data, const size_t& write_size, const size_t& offset_in_data)
+
+bool base::write(const size_t& seek_offset, const char* data, const size_t& write_size)
 {
-    if (m_normal)
+    if (m_normal && m_stream.is_open())
     {
-        return stream_write(seek_offset, data, write_size, offset_in_data);
+        stream_write(seek_offset, data, write_size);
+        return true;
     }
     return false;
 }
+size_t base::append(const char* data, const size_t& write_size)
+{
+    if (m_normal && m_stream.is_open())
+    {
+        m_stream.seekg(0, std::ios::end);
+        m_stream.write(data, write_size);
+        return m_stream.tellp();
+    }
+    return 0;
+}
 
-void base::seek(const size_t& pos, const int& flag)
+void base::seek(const size_t& pos)
 {
     if (m_stream)
     {
-        if(m_mode == memory_map::access_mode::ReadWrite)
+        if (m_mode == memory_map::access_mode::Write)
         {
             m_stream.seekp(pos);
         }
@@ -78,7 +103,6 @@ void base::seek(const size_t& pos, const int& flag)
         {
             m_stream.seekg(pos);
         }
-
     }
 }
 
@@ -100,23 +124,23 @@ bool base::mmap_open(const char* file)
     return m_opened;
 }
 
-bool base::stream_read(size_t seek_offset, char* data, const size_t& size, const size_t& offset)
+bool base::stream_read(const size_t& seek_offset, char* data, const size_t& size)
 {
     std::scoped_lock lock(m_mutex);
     if (m_stream && m_opened)
     {
         seek(seek_offset);
-        m_stream.read(data + offset, size);
+        m_stream.read(data, size);
         return true;
     }
     return false;
 }
 
-bool base::mmap_read(size_t seek_offset, char* data, const size_t& size, const size_t& offset)
+bool base::mmap_read(const size_t& seek_offset, char* data, const size_t& size)
 {
     if (m_opened)
     {
-        memory_map::cur* cur = m_mmap.at(seek_offset + size);  // 追踪到数据尾部,防止访问越界
+        memory_map::cur* cur = m_mmap.ptr(seek_offset + size);  // 追踪到数据尾部,防止访问越界
         if (cur)
         {
             memcpy(data, cur - size, size);
@@ -126,39 +150,25 @@ bool base::mmap_read(size_t seek_offset, char* data, const size_t& size, const s
     return false;
 }
 
-bool base::stream_write(size_t seek_offset, char* data, const size_t& size, const size_t& offset)
+void base::stream_write(const size_t& seek_offset, const char* data, const size_t& size)
 {
-    if (m_stream && m_opened)
-    {
-        seek(seek_offset);
-        m_stream.write(data + offset, size);
-    }
-    return false;
+    seek(seek_offset);
+    m_stream.write(data, size);
 }
 
-bool base::mmap_write(size_t seek_offset, char* data, const size_t& size, const size_t& offset)
+bool base::mmap_write(const size_t& seek_offset, const char* data, const size_t& size)
 {
     return false;
 }
 
 void base::stream_close()
 {
-    if (m_mode == memory_map::access_mode::ReadWrite)  // 写打开时需要将信息保存回去
-    {
-        write();
-    }
-    if (m_stream && m_opened)
-    {
-        m_stream.close();
-    }
+    m_stream.close();
 }
 
 void base::mmap_close()
 {
-    //if (m_opened)
-    {
-        m_mmap.close();
-    }
+    m_mmap.close();
 }
 
 bool base::read_info()
@@ -177,18 +187,14 @@ bool base::read_info()
 
 void base::write_info()
 {
-    write(0, m_head, len::HEAD, 0);
-    write(len::HEAD, (char*)(&m_version), len::VER, 0);
-}
-void base::write()
-{
-    write_info();
+    write(0, m_head, len::HEAD);
+    write(len::HEAD, (char*)(&m_version), len::VER);
 }
 size_t base::end()
 {
     if (m_normal)
     {
-        if(m_mode == memory_map::access_mode::ReadWrite)
+        if (m_mode == memory_map::access_mode::Write)
         {
             return m_stream.tellp();
         }
@@ -198,4 +204,11 @@ size_t base::end()
         }
     }
     return 0;
+}
+
+void base::version(const char ver[4])
+{
+    std::scoped_lock lock(m_mutex);
+    memcpy(m_version, ver, len::VER);
+    write_info();
 }

@@ -13,6 +13,7 @@
 #ifndef SILLY_UTILS_SILLY_MMAP_H
 #define SILLY_UTILS_SILLY_MMAP_H
 #include <su_marco.h>
+#include <files/silly_file.h>
 
 /// <summary>
 /// 内存文件映射功能.
@@ -53,8 +54,8 @@ class memory_map
   public:
     enum access_mode
     {
-        ReadOnly = 1,
-        ReadWrite = 2
+        Read = 1,
+        Write = 2
     };
 #if WIN32
     using handle_type = HANDLE;
@@ -87,14 +88,14 @@ class memory_map
     /// <param name="file"></param>
     /// <param name="mode"></param>
     /// <returns></returns>
-    bool open(const std::string& file, const int& mode = access_mode::ReadOnly, const int64_t& off = 0);
+    bool open(const std::string& file, const int& mode = access_mode::Read, const int64_t& off = 0);
 
     /// <summary>
     /// 根据偏移量索引到内存位置
     /// </summary>
     /// <param name="offset"></param>
     /// <returns></returns>
-    cur* at(const size_t& offset = 0);
+    cur* ptr(const size_t& offset = 0);
 
     /// <summary>
     /// 读取内容

@@ -32,6 +32,8 @@ namespace silly
 namespace file
 {
 
+// using path = std::variant<std::string, std::filesystem::path, std::wstring, char*>;
+
 class node
 {
   public:

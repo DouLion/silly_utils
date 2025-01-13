@@ -46,44 +46,54 @@ class base
     /// <param name="usemmap">读取时默认 使用mmap, 写总是使用文件流</param>
     /// <returns></returns>
     // TODO: 目前 读使用mmap, 写使用文件流, 第三个参数暂时没用,后续测试完成后需要支持
-    bool open(const char* file, const silly::file::memory_map::access_mode& mode, const bool& usemmap);
+    virtual bool open(const char* file, const silly::file::memory_map::access_mode& mode, const bool& usemmap);
+    virtual bool open(const std::string& file, const silly::file::memory_map::access_mode& mode, const bool& usemmap);
+    virtual bool open(const std::filesystem::path& file, const silly::file::memory_map::access_mode& mode, const bool& usemmap);
 
     /// <summary>
     /// 关闭文件
     /// </summary>
     /// <returns></returns>
-    bool close();
+    void close();
 
     /// <summary>
-    /// 读取指定大小的数据块
+    /// 读取指定大小的数据
     /// </summary>
     /// <param name="seek_offset"></param>
     /// <param name="data"></param>
     /// <param name="read_size"></param>
-    /// <param name="offset_in_data"></param>
     /// <returns></returns>
-    bool read(size_t seek_offset, char* data, const size_t& read_size, const size_t& offset_in_data = 0);
+    bool read(const size_t& seek_offset, char* data, const size_t& read_size);
 
     /// <summary>
-    /// 写入指定大小的数据库
+    /// 写入指定大小的数据
     /// </summary>
     /// <param name="seek_offset"></param>
     /// <param name="data"></param>
     /// <param name="write_size"></param>
-    /// <param name="offset_in_data"></param>
     /// <returns></returns>
-    bool write(size_t seek_offset, char* data, const size_t& write_size, const size_t& offset_in_data = 0);
+    bool write(const size_t& seek_offset, const char* data, const size_t& write_size);
 
     /// <summary>
-    /// fseek,仅对stream有效
+    /// 文件末尾写入
     /// </summary>
-    /// <param name="pos"></param>
-    /// <param name="flag"></param>
-    void seek(const size_t& pos = 0, const int& flag = SEEK_SET);
+    /// <param name="data"></param>
+    /// <param name="write_size"></param>
+    /// <returns></returns>
+    size_t append(const char* data, const size_t& write_size);
 
+    /// <summary>
+    /// 设置版本信息
+    /// </summary>
+    /// <param name="ver"></param>
+    void version(const char ver[4]);
+
+    /// <summary>
+    /// 获取文件末尾的位置
+    /// </summary>
+    /// <returns></returns>
     size_t end();
 
-    void write();
 
   protected:
     /// <summary>
@@ -108,7 +118,7 @@ class base
     /// <param name="size"></param>
     /// <param name="offset"></param>
     /// <returns></returns>
-    bool stream_read(size_t seek_offset, char* data, const size_t& size, const size_t& offset);
+    bool stream_read(const size_t& seek_offset, char* data, const size_t& size);
 
     /// <summary>
     /// 内存文件映射读取
@@ -117,7 +127,7 @@ class base
     /// <param name="size"></param>
     /// <param name="offset"></param>
     /// <returns></returns>
-    bool mmap_read(size_t seek_offset, char* data, const size_t& size, const size_t& offset);
+    bool mmap_read(const size_t& seek_offset, char* data, const size_t& size);
 
     /// <summary>
     /// 文件流写入
@@ -126,7 +136,7 @@ class base
     /// <param name="size"></param>
     /// <param name="offset"></param>
     /// <returns></returns>
-    bool stream_write(size_t seek_offset, char* data, const size_t& size, const size_t& offset);
+    void stream_write(const size_t& seek_offset, const char* data, const size_t& size);
 
     /// <summary>
     /// TODO: 内存文件映射写入, 这个目前有问题,暂不实现
@@ -135,7 +145,13 @@ class base
     /// <param name="size"></param>
     /// <param name="offset"></param>
     /// <returns></returns>
-    bool mmap_write(size_t seek_offset, char* data, const size_t& size, const size_t& offset);
+    bool mmap_write(const size_t& seek_offset, const char* data, const size_t& size);
+
+    /// <summary>
+    /// fseek,仅对stream有效
+    /// </summary>
+    /// <param name="pos"></param>
+    void seek(const size_t& pos = 0);
 
     /// <summary>
     /// 关闭文件流
@@ -167,7 +183,7 @@ class base
     silly::file::memory_map m_mmap;
     // 文件流
     std::fstream m_stream;
-    // 多线程读写时用的锁
+    // 多线程写时用的锁
     std::mutex m_mutex;
 };
 }  // namespace pyramid

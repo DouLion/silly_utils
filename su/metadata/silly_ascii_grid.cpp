@@ -22,7 +22,7 @@ bool silly_ascii_grid::read(const std::string& path)
     {
         return status;
     }
-    if (m_mmap.at(0)[0] == SAG_ASC_BEG[0] && m_mmap.at(1)[0] == SAG_ASC_BEG[1] && m_mmap.at(2)[0] == SAG_ASC_BEG[2] && m_mmap.at(3)[0] == SAG_ASC_BEG[3] && m_mmap.at(4)[0] == SAG_ASC_BEG[4])
+    if (m_mmap.ptr(0)[0] == SAG_ASC_BEG[0] && m_mmap.ptr(1)[0] == SAG_ASC_BEG[1] && m_mmap.ptr(2)[0] == SAG_ASC_BEG[2] && m_mmap.ptr(3)[0] == SAG_ASC_BEG[3] && m_mmap.ptr(4)[0] == SAG_ASC_BEG[4])
     {
         status = read_asc(path);
     }
@@ -113,7 +113,7 @@ bool silly_ascii_grid::read_bin()
     bool status = false;
     // TODO: Fix
     size_t total ;//= m_mmap.size();
-    double* curr = ((double*)m_mmap.at(0));
+    double* curr = ((double*)m_mmap.ptr(0));
     nrows = curr[0];
     curr++;
     ncols = curr[0];

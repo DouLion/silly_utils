@@ -25,20 +25,23 @@ namespace pyramid
 struct readopt
 {
     std::string root;
-    bool mmap= true;
+    bool mmap = true;
 };
 
 struct writeopt
 {
     std::string root;
-    bool mmap= false;
+    bool mmap = false;
     uint8_t blayer = 0;
     uint8_t elayer = 0;
+    char vdata[len::VER] = {0x01, 0x00, 0x00, 0x00};
+    char vinfo[len::VER] = {0x01, 0x00, 0x00, 0x00};
+    char vindex[len::VER] = {0x02, 0x00, 0x00, 0x00};
     std::string src = "TianZhiXiang";
     std::string proj = "Default Projection";
     silly_rect bound;
     info::tile_format format;
-    bool clean = true; // 清除原文件 或者将原文件备份
+    bool clean = true;  // 清除原文件 或者将原文件备份
 };
 class accessor
 {
@@ -48,7 +51,7 @@ class accessor
     bool begin_write(const writeopt& opt);
     bool end_read();
     bool end_write();
-    bool open(const std::string& root, const silly::file::memory_map::access_mode& mode = silly::file::memory_map::access_mode::ReadOnly, bool usemmap = false);
+    bool open(const std::string& root, const silly::file::memory_map::access_mode& mode = silly::file::memory_map::access_mode::Read, bool usemmap = false);
     void close();
 
     /// <summary>
@@ -75,18 +78,19 @@ class accessor
     /// <summary>
     /// 将版本1的金字塔转为版本2的金字塔
     /// </summary>
-    /// <param name="target_root"></param>
+    /// <param name="dst">目标目录</param>
     /// <returns></returns>
-    bool rebuild_to_v2(const std::string& target_root);
+    bool rebuild_to_v2(const std::string& dst);
 
     bool backup();
 
     std::string err();
+
   private:
     bool open();
 
   private:
-    silly::file::memory_map::access_mode m_mode;
+    silly::file::memory_map::access_mode m_mode = silly::file::memory_map::access_mode::Read;
     std::string m_root;
     info m_info;
     data m_data;

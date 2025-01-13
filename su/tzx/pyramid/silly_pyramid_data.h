@@ -19,8 +19,8 @@ namespace silly
 {
 namespace pyramid
 {
-const static std::string DATA_NAME ="TzxImage.data";
-class data : public silly::pyramid::base
+const static std::string DATA_NAME = "TzxImage.data";
+class data final : public silly::pyramid::base
 {
   public:
     data();
@@ -30,7 +30,9 @@ class data : public silly::pyramid::base
     /// <param name=""></param>
     /// <param name="mode"></param>
     /// <returns></returns>
-    bool open(const char* file, const silly::file::memory_map::access_mode& mode, const bool& usemmap);
+    bool open(const char* file, const silly::file::memory_map::access_mode& mode, const bool& usemmap) override;
+    bool open(const std::string& file, const silly::file::memory_map::access_mode& mode, const bool& usemmap) override;
+    bool open(const std::filesystem::path& file, const silly::file::memory_map::access_mode& mode, const bool& usemmap) override;
 
     /// <summary>
     ///
@@ -55,10 +57,12 @@ class data : public silly::pyramid::base
     /// <returns></returns>
     bool write(block& blk);
 
-    void write();
+    void set(index* idx);
 
-  public:
-    index m_index;
+    void close();
+
+  private:
+    index* m_index;
 };
 }  // namespace pyramid
 }  // namespace silly

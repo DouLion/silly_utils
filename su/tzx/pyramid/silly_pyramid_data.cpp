@@ -18,14 +18,24 @@ data::data()
 
 bool data::open(const char* file, const silly::file::memory_map::access_mode& mode, const bool& usemmap)
 {
+    // std::filesystem:::
     return base::open(file, mode, usemmap);
+}
+
+bool data::open(const std::string& file, const silly::file::memory_map::access_mode& mode, const bool& usemmap)
+{
+    return open(file.c_str(), mode, usemmap);
+}
+bool data::open(const std::filesystem::path& file, const silly::file::memory_map::access_mode& mode, const bool& usemmap)
+{
+    return open(file.string().c_str(), mode, usemmap);
 }
 
 std::string data::read(const block& blk)
 {
     std::string ret = "";
     block nbkl = blk;
-    if (!m_index.seek(nbkl))
+    if (!m_index->read(nbkl))
     {
         return ret;
     }
@@ -37,7 +47,7 @@ std::string data::read(const block& blk)
 
 bool data::read(block& blk)
 {
-    if (!m_index.seek(blk))
+    if (!m_index->read(blk))
     {
         return false;
     }
@@ -47,16 +57,28 @@ bool data::read(block& blk)
 
 bool data::write(block& blk)
 {
-    if (blk.size> 0)
+    if (blk.size > 0)
     {
-        std::scoped_lock lck(m_mutex);
-
-        return base::write(blk.pos, blk.data.data(), blk.size, 0);
+        std::scoped_lock lock(m_mutex);
+        blk.pos = append(blk.data.data(), blk.size);
+        blk.pos -= blk.size;
+        m_index->write(blk);
     }
 
     return true;
 }
-void data::write()
+
+
+void data::set(index* idx)
 {
-    base::write();
+    m_index = idx;
+}
+
+void data::close()
+{
+    if (m_mode == silly::file::memory_map::access_mode::Write)
+    {
+        base::write_info();
+    }
+    base::close();
 }

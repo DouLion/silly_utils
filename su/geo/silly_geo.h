@@ -249,6 +249,37 @@ class silly_rect  // 普通坐标点
         }
     }
 
+    std::string stringify(const int precision = 8, const char& delimiter = ',') const
+    {
+        std::stringstream ss;
+        ss << std::fixed << std::setprecision(precision) << min.x << delimiter << max.y << delimiter << max.x << delimiter << min.y;
+        return ss.str();
+    }
+
+    bool destringify(const std::string& str, const char& delimiter = ',')
+    {
+        auto split = [&delimiter](const std::string& str) {
+            std::vector<std::string> tokens;
+            std::string token;
+            std::stringstream ss(str);
+            while (std::getline(ss, token, delimiter))
+            {
+                tokens.push_back(token);
+            }
+            return tokens;
+        };
+        std::vector<std::string> tokens = split(str);
+        if (tokens.size() == 4)
+        {
+            min.x = std::stod(tokens[0]);
+            max.y = std::stod(tokens[1]);
+            max.x = std::stod(tokens[2]);
+            min.y = std::stod(tokens[3]);
+            return true;
+        }
+        return false;
+    }
+
   public:
     silly_point min;
     silly_point max;

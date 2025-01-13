@@ -82,7 +82,7 @@ bool jsonpp::dumpf(const std::string& file, const Json::Value& root, const jsonp
 
 bool jsonpp::savef(const std::string& file, const Json::Value& root, const jsonpp::opt& _opt)
 {
-    return dumpf(file, jsonpp::to_string(root, _opt)) > 0;
+    return dumpf(file, jsonpp::to_string(root, _opt));
 }
 
 void find_object(const Json::Value jv_obj, const std::string& key, const std::string& filter, std::vector<std::string>& arr);

@@ -19,7 +19,7 @@ namespace silly
 {
 namespace pyramid
 {
-const static std::string INFO_NAME ="TzxImage.info";
+const static std::string INFO_NAME = "TzxImage.info";
 namespace len
 {
 constexpr size_t INFO_SRC = 512;
@@ -45,27 +45,43 @@ class info : public silly::pyramid::base
     };
     info();
 
+    /// <summary>
+    /// 打开文件, 如果是读模式,读完会自动关闭
+    /// </summary>
+    /// <param name="file"></param>
+    /// <param name="mode"></param>
+    /// <param name="usemmap"></param>
+    /// <returns></returns>
+    bool open(const char* file, const silly::file::memory_map::access_mode& mode, const bool& usemmap) override;
+    bool open(const std::string& file, const silly::file::memory_map::access_mode& mode, const bool& usemmap) override;
+    bool open(const std::filesystem::path& file, const silly::file::memory_map::access_mode& mode, const bool& usemmap) override;
 
     bool read();
 
-    void write();
+    void close();
 
     void source(const std::string& src);
 
     void project(const std::string& proj);
 
-    void bound(const std::string& bound);
+    void bound(const std::string& bd);
+    void bound(const silly_rect& bd);
 
-    void format(const tile_format& fmt);
+    void format(const tile_format& fmt) throw(std::invalid_argument);
 
     void format(const std::string fmt);
 
     std::string source();
     std::string project();
-    std::string bound();
+    silly_rect bound();
+
     std::string format();
 
-
+  private:
+    /// <summary>
+    /// 写入信息
+    /// </summary>
+    void write_info();
 
   protected:
     char m_source[len::INFO_SRC] = {0};
