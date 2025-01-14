@@ -24,7 +24,7 @@ double silly_egm::geoid(const double& lgtd, const double& lttd)
     double dr = (m_headers.origin_lat - lttd) / m_lat_ratio;
     double dc = ((lgtd > 0. ? lgtd : lgtd + 360.) - m_headers.origin_lon) / m_lon_ratio;
 
-    std::cout << dr << "," << dc << std::endl;
+    // std::cout << dr << "," << dc << std::endl;
 
     int r0 = std::floor(dr);
     int c0 = std::floor(dc);
