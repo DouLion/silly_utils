@@ -778,6 +778,6 @@ void silly_cairo::draw_point(const silly_point &p, const double &size, const sil
     double y = (rect.max.y - p.y) / (rect.max.y - rect.min.y) * m_height;
 
     // 绘制圆点
-    cairo_arc(m_cr, x, y, size / 2., 0, 2 * M_PI);  // 圆心位置 (100, 100), 半径 5
+    cairo_arc(m_cr, x, y, size / 2., 0, 2 * silly::math::pi);  // 圆心位置 (100, 100), 半径 5
     cairo_stroke(m_cr);
 }

@@ -98,52 +98,28 @@
 #define O_BINARY 0
 #endif
 #endif
+// 本项目中的常量
+#include <math/silly_math_const.h>
+#include <geo/silly_geo_const.h>
 
-#define SU_VAR_NAME(var) #var
-
-#define SU_PRINTF_COLOR_NONE "\033[m"
-#define SU_PRINTF_COLOR_RED "\033[0;32;31m"
-#define SU_PRINTF_COLOR_LIGHT_RED "\033[1;31m"
-#define SU_PRINTF_COLOR_GREEN "\033[0;32;32m"
-#define SU_PRINTF_COLOR_LIGHT_GREEN "\033[1;32m"
-#define SU_PRINTF_COLOR_BLUE "\033[0;32;34m"
-#define SU_PRINTF_COLOR_LIGHT_BLUE "\033[1;34m"
-#define SU_PRINTF_COLOR_DARK_GRAY "\033[1;30m"
-#define SU_PRINTF_COLOR_CYAN "\033[0;36m"
-#define SU_PRINTF_COLOR_LIGHT_CYAN "\033[1;36m"
-#define SU_PRINTF_COLOR_PURPLE "\033[0;35m"
-#define SU_PRINTF_COLOR_LIGHT_PURPLE "\033[1;35m"
-#define SU_PRINTF_COLOR_BROWN "\033[0;33m"
-#define SU_PRINTF_COLOR_YELLOW "\033[1;33m"
-#define SU_PRINTF_COLOR_LIGHT_GRAY "\033[0;37m"
-#define SU_PRINTF_COLOR_WHITE "\033[1;37m"
-
-#define SU_STD_TIME_FORMAT1 "%04d-%02d-%02d %02d:%02d:%02d"
-
+// 数学常用常量 math/silly_math_const.h
 #ifndef PI
-#define PI (3.1415926535897932384626433832795028841971693993751)
+#define PI silly::math::pi
 #endif
 
-#define SU_PI PI
-#define SU_2PI (SU_PI * 2.)
-
-#ifndef M_PI
-#define M_PI PI
-#endif
-
-#ifndef M_PI_2
-#define M_PI_2 (PI / 2.)
-#endif
-
-#ifndef M_2PI
-#define M_2PI (PI * 2.)
-#endif
+#define SU_PI silly::math::pi
 
 // 自然指数e
 #ifndef BASE_E
-#define BASE_E 2.71828182845904523536
+#define BASE_E silly::math::e
 #endif
-#define SU_BASE_E BASE_E
+#define SU_BASE_E silly::math::e
+
+/// 2的平方根
+#define SQRT_2 silly::math::sqrt_2
+
+#define DEG2RAD(deg) ((deg) * silly::math::pi / 180.0)
+#define RAD2DEG(rad) ((rad) * 180.0 / silly::math::pi)
 
 #ifndef TINY
 #define TINY (1e-18)
@@ -171,50 +147,40 @@
 #define SU_GB (1024 * 1024 * 1024)
 #endif
 
-/** earth radius */
+/// 地理常量 geo/silly_geo_const.h
 #ifndef EARTH_RADIUS
-#define EARTH_RADIUS (6378.137)
+#define EARTH_RADIUS silly::geo::earth_radius::equatorial
 #endif
-#define SU_EARTH_RADIUS (6378.137f)
+#define SU_EARTH_RADIUS silly::geo::earth_radius::equatorial
 
 #define LN_2 (0.693147180559945f)
-
-/// 2的平方根
-#define SQRT_2 (1.4142135623730950488016887242097f)
-
-#define DEG2RAD(deg) (deg * PI / 180.0)
-#define RAD2DEG(rad) (rad * 180.0 / PI)
 
 #define SU_RGB(r, g, b) ((unsigned int)(((unsigned char)(r) | ((unsigned int)((unsigned char)(g)) << 8)) | (((unsigned int)(unsigned char)(b)) << 16)))
 #define SU_ARGB(a, r, g, b) (unsigned int)(((a) & 0xff) << 24 | ((r) & 0xff) << 16 | ((g) & 0xff) << 8 | (b & 0xff))
 #define SU_RGBA(r, g, b, a) SU_ARGB(a, r, g, b)
 #define SU_XRGB(r, g, b) SU_ARGB(0xff, r, g, b)
 
+#define SU_VAR_NAME(var) #var
 
-/// 输入输出相关
-#ifndef SU_PRINT_COLORS
-#define SU_PRINT_COLORS                                                    \
-    printf(SU_PRINTF_COLOR_NONE "SU_PRINTF_COLOR_NONE\n");                 \
-    printf(SU_PRINTF_COLOR_RED "SU_PRINTF_COLOR_RED\n");                   \
-    printf(SU_PRINTF_COLOR_LIGHT_RED "SU_PRINTF_COLOR_LIGHT_RED\n");       \
-    printf(SU_PRINTF_COLOR_GREEN "SU_PRINTF_COLOR_GREEN\n");               \
-    printf(SU_PRINTF_COLOR_LIGHT_GREEN "SU_PRINTF_COLOR_LIGHT_GREEN\n");   \
-    printf(SU_PRINTF_COLOR_BLUE "SU_PRINTF_COLOR_BLUE\n");                 \
-    printf(SU_PRINTF_COLOR_LIGHT_BLUE "SU_PRINTF_COLOR_LIGHT_BLUE\n");     \
-    printf(SU_PRINTF_COLOR_DARK_GRAY "SU_PRINTF_COLOR_DARK_GRAY\n");       \
-    printf(SU_PRINTF_COLOR_CYAN "SU_PRINTF_COLOR_CYAN\n");                 \
-    printf(SU_PRINTF_COLOR_LIGHT_CYAN "SU_PRINTF_COLOR_LIGHT_CYAN\n");     \
-    printf(SU_PRINTF_COLOR_PURPLE "SU_PRINTF_COLOR_PURPLE\n");             \
-    printf(SU_PRINTF_COLOR_LIGHT_PURPLE "SU_PRINTF_COLOR_LIGHT_PURPLE\n"); \
-    printf(SU_PRINTF_COLOR_BROWN "SU_PRINTF_COLOR_BROWN\n");               \
-    printf(SU_PRINTF_COLOR_YELLOW "SU_PRINTF_COLOR_YELLOW\n");             \
-    printf(SU_PRINTF_COLOR_LIGHT_GRAY "SU_PRINTF_COLOR_LIGHT_GRAY\n");     \
-    printf(SU_PRINTF_COLOR_WHITE "SU_PRINTF_COLOR_WHITE\n");
-
-#endif
+#define SU_CONSOLE_NONE "\033[m"
+#define SU_CONSOLE_RED "\033[0;32;31m"
+#define SU_CONSOLE_LIGHT_RED "\033[1;31m"
+#define SU_CONSOLE_GREEN "\033[0;32;32m"
+#define SU_CONSOLE_LIGHT_GREEN "\033[1;32m"
+#define SU_CONSOLE_BLUE "\033[0;32;34m"
+#define SU_CONSOLE_LIGHT_BLUE "\033[1;34m"
+#define SU_CONSOLE_DARK_GRAY "\033[1;30m"
+#define SU_CONSOLE_CYAN "\033[0;36m"
+#define SU_CONSOLE_LIGHT_CYAN "\033[1;36m"
+#define SU_CONSOLE_PURPLE "\033[0;35m"
+#define SU_CONSOLE_LIGHT_PURPLE "\033[1;35m"
+#define SU_CONSOLE_BROWN "\033[0;33m"
+#define SU_CONSOLE_YELLOW "\033[1;33m"
+#define SU_CONSOLE_LIGHT_GRAY "\033[0;37m"
+#define SU_CONSOLE_WHITE "\033[1;37m"
 
 #ifndef SU_FILE_NAME
-// 获取当前文件名称
+/// 获取当前文件名称
 #if IS_WIN32
 #define SU_FILE_NAME (strrchr(__FILE__, '\\') ? (strrchr(__FILE__, '\\') + 1) : __FILE__)
 #else
@@ -222,30 +188,31 @@
 #endif
 #endif
 
-#ifndef SU_DEBUG_PRINT
-// 打印调试信息
-#ifndef NDEBUG
-#define SU_DEBUG_PRINT(s, ...) printf(SU_PRINTF_COLOR_BROWN "\n[DEBUG] %s:%I32d \n ... " s SU_PRINTF_COLOR_NONE " \n", SU_FILE_NAME, __LINE__, ##__VA_ARGS__);
-
-#else
-#define SU_DEBUG_PRINT(s, ...)
-
-#endif
-#endif
-
+/// 控制台信息print, 如果需要记录日志,使用 log/silly_log.h
 #if WIN32
-#define WINDOWS_UTF8_PAGE \
-    {                     \
-SetConsoleOutputCP(65001);\
-CONSOLE_FONT_INFOEX info = {0};\
-info.cbSize = sizeof(info);\
-info.dwFontSize.Y = 16; \
-info.FontWeight = FW_NORMAL;\
-wcscpy_s(info.FaceName, L"Consolas");\
-SetCurrentConsoleFontEx(GetStdHandle(STD_OUTPUT_HANDLE), NULL, &info);\
+// windows 在控制台,以utf8编码输出
+#define WINDOWS_UTF8_PAGE                                                      \
+    {                                                                          \
+        SetConsoleOutputCP(65001);                                             \
+        CONSOLE_FONT_INFOEX info = {0};                                        \
+        info.cbSize = sizeof(info);                                            \
+        info.dwFontSize.Y = 16;                                                \
+        info.FontWeight = FW_NORMAL;                                           \
+        wcscpy_s(info.FaceName, L"Consolas");                                  \
+        SetCurrentConsoleFontEx(GetStdHandle(STD_OUTPUT_HANDLE), NULL, &info); \
     }
 #else
 #define WINDOWS_UTF8_PAGE
+#endif
+
+#ifndef SU_DEBUG_PRINT
+// 打印调试信息
+#ifndef NDEBUG
+#define SU_DEBUG_PRINT(s, ...) printf(SU_CONSOLE_BROWN "\n[DEBUG] %s:%I32d \n ... " s SU_CONSOLE_NONE " \n", SU_FILE_NAME, __LINE__, ##__VA_ARGS__);
+
+#else
+#define SU_DEBUG_PRINT(s, ...)
+#endif
 #endif
 
 
@@ -256,20 +223,21 @@ SetCurrentConsoleFontEx(GetStdHandle(STD_OUTPUT_HANDLE), NULL, &info);\
 
 #ifndef SU_INFO_PRINT
 // 打印提示信息
-#define SU_INFO_PRINT(s, ...) printf(SU_PRINTF_COLOR_CYAN "\n[INFO] %s:%I32d \n " s SU_PRINTF_COLOR_NONE " \n", SU_FILE_NAME, __LINE__, ##__VA_ARGS__);
+#define SU_INFO_PRINT(s, ...) printf(SU_CONSOLE_CYAN "\n[INFO] %s:%I32d \n " s SU_CONSOLE_NONE " \n", SU_FILE_NAME, __LINE__, ##__VA_ARGS__);
+#define SU_INFO SU_INFO_PRINT
 #endif
 
 #ifndef SU_ERROR_PRINT
 // 打印错误信息
-#define SU_ERROR_PRINT(s, ...) printf(SU_PRINTF_COLOR_RED "\n[ERROR] %s:%I32d \n ... " s SU_PRINTF_COLOR_NONE, SU_FILE_NAME, __LINE__, ##__VA_ARGS__);
+#define SU_ERROR_PRINT(s, ...) printf(SU_CONSOLE_RED "\n[ERROR] %s:%I32d \n ... " s SU_CONSOLE_NONE, SU_FILE_NAME, __LINE__, ##__VA_ARGS__);
 #endif
 
 #ifndef SU_MARK_LINE
 // 标记一行
-#define SU_MARK_LINE printf(SU_PRINTF_COLOR_LIGHT_CYAN "\n[MARK] %s:%I32d \n" SU_PRINTF_COLOR_NONE, SU_FILE_NAME, __LINE__);
+#define SU_MARK_LINE printf(SU_CONSOLE_LIGHT_CYAN "\n[MARK] %s:%I32d \n" SU_CONSOLE_NONE, SU_FILE_NAME, __LINE__);
 #endif
 
-
+/// 常用函数
 // std::max(a, b) 需要 a b同类型,
 #ifndef SU_MAX
 #define SU_MAX(a, b) (((a) > (b)) ? (a) : (b))
@@ -293,8 +261,8 @@ SetCurrentConsoleFontEx(GetStdHandle(STD_OUTPUT_HANDLE), NULL, &info);\
 #endif
 
 #ifndef SU_MEMCPY_NEXT
-#define SU_MEMCPY_NEXT(p, off, v) \
-    memcpy((p) + off, &(v), sizeof(v));   \
+#define SU_MEMCPY_NEXT(p, off, v)       \
+    memcpy((p) + off, &(v), sizeof(v)); \
     off += sizeof(v);
 #endif
 

@@ -9,7 +9,7 @@
  */
 #ifndef SILLY_UTILS_SILLY_PROJ_CONVERT_H
 #define SILLY_UTILS_SILLY_PROJ_CONVERT_H
-#include <proj/gdal/silly_projection_define.h>
+#include <geo/proj/gdal/silly_projection_define.h>
 #if ENABLE_GDAL
 #include <gdal_priv.h>
 #include <gdal_alg.h>

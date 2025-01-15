@@ -10,7 +10,7 @@
 #ifndef SILLY_UTILS_SILLY_ISO_LINE_H
 #define SILLY_UTILS_SILLY_ISO_LINE_H
 
-#include <gpc/gpc.h>
+#include <geo/gpc/gpc.h>
 #include <geo/silly_geo_utils.h>
 
 class iso_point

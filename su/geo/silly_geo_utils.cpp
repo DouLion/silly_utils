@@ -12,9 +12,8 @@
 
 #include <polyclipping/clipper.hpp>
 #include <encode/silly_encode.h>
-#include "su_marco.h"
-#include "files/silly_file.h"
-#include <proj/silly_proj.h>
+#include <files/silly_file.h>
+#include <geo/proj/silly_proj.h>
 
 using namespace ClipperLib;
 

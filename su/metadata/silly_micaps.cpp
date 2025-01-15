@@ -4,12 +4,11 @@
 
 #include "silly_micaps.h"
 #include <files/silly_file.h>
-#include <cstring>
-#include <string>
 
-#define SILLY_MICAPS_DIAMOND_4_FORMAT "diamond 4"
+#define TIME_FORMAT "%04d-%02d-%02d %02d:%02d:%02d"
+#define MICAPS_DIAMOND_4_FORMAT "diamond 4"
 
-#define SILLY_MICAPS_SKIP_BLANK(s, off, idx)                     \
+#define MICAPS_SKIP_BLANK(s, off, idx)                     \
     off = idx;                                                   \
     while (s[off] == ' ' || s[off] == '\r' || s[off] == '\n')    \
     {                                                            \
@@ -24,57 +23,57 @@
 bool silly_micaps_diamond_4::check_head(const std::string &content, size_t &offset)
 {
     bool status = false;
-    offset = strlen(SILLY_MICAPS_DIAMOND_4_FORMAT);
+    offset = strlen(MICAPS_DIAMOND_4_FORMAT);
     format = content.substr(0, offset);
-    if (SILLY_MICAPS_DIAMOND_4_FORMAT != format)
+    if (MICAPS_DIAMOND_4_FORMAT != format)
     {
         return status;
     }
     size_t i = offset;
-    SILLY_MICAPS_SKIP_BLANK(content, offset, i);
+    MICAPS_SKIP_BLANK(content, offset, i);
     desc = content.substr(offset, i - offset + 1);
-    SILLY_MICAPS_SKIP_BLANK(content, offset, i);
+    MICAPS_SKIP_BLANK(content, offset, i);
     int year = std::stoi(content.substr(offset, i - offset + 1));
-    SILLY_MICAPS_SKIP_BLANK(content, offset, i);
+    MICAPS_SKIP_BLANK(content, offset, i);
     int month = std::stoi(content.substr(offset, i - offset + 1));
-    SILLY_MICAPS_SKIP_BLANK(content, offset, i);
+    MICAPS_SKIP_BLANK(content, offset, i);
     int day = std::stoi(content.substr(offset, i - offset + 1));
-    SILLY_MICAPS_SKIP_BLANK(content, offset, i);
+    MICAPS_SKIP_BLANK(content, offset, i);
     int hour = std::stoi(content.substr(offset, i - offset + 1));
     char time_buff[32] = {0};
-    sprintf(time_buff, SU_STD_TIME_FORMAT1, year, month, day, hour, 0, 0);
+    sprintf(time_buff, TIME_FORMAT, year, month, day, hour, 0, 0);
     base_tm = time_buff;
-    SILLY_MICAPS_SKIP_BLANK(content, offset, i);
+    MICAPS_SKIP_BLANK(content, offset, i);
     aging = std::stoi(content.substr(offset, i - offset + 1));
-    SILLY_MICAPS_SKIP_BLANK(content, offset, i);
+    MICAPS_SKIP_BLANK(content, offset, i);
     layer = std::stoi(content.substr(offset, i - offset + 1));
-    SILLY_MICAPS_SKIP_BLANK(content, offset, i);
+    MICAPS_SKIP_BLANK(content, offset, i);
     lng_step = std::stof(content.substr(offset, i - offset + 1));
-    SILLY_MICAPS_SKIP_BLANK(content, offset, i);
+    MICAPS_SKIP_BLANK(content, offset, i);
     lat_step = std::stof(content.substr(offset, i - offset + 1));
-    SILLY_MICAPS_SKIP_BLANK(content, offset, i);
+    MICAPS_SKIP_BLANK(content, offset, i);
     left = std::stof(content.substr(offset, i - offset + 1));
-    SILLY_MICAPS_SKIP_BLANK(content, offset, i);
+    MICAPS_SKIP_BLANK(content, offset, i);
     right = std::stof(content.substr(offset, i - offset + 1));
-    SILLY_MICAPS_SKIP_BLANK(content, offset, i);
+    MICAPS_SKIP_BLANK(content, offset, i);
     bottom = std::stof(content.substr(offset, i - offset + 1));
-    SILLY_MICAPS_SKIP_BLANK(content, offset, i);
+    MICAPS_SKIP_BLANK(content, offset, i);
     top = std::stof(content.substr(offset, i - offset + 1));
-    SILLY_MICAPS_SKIP_BLANK(content, offset, i);
+    MICAPS_SKIP_BLANK(content, offset, i);
     lat_size = std::stof(content.substr(offset, i - offset + 1));
-    SILLY_MICAPS_SKIP_BLANK(content, offset, i);
+    MICAPS_SKIP_BLANK(content, offset, i);
     lng_size = std::stof(content.substr(offset, i - offset + 1));
-    SILLY_MICAPS_SKIP_BLANK(content, offset, i);
+    MICAPS_SKIP_BLANK(content, offset, i);
     iso_step = std::stof(content.substr(offset, i - offset + 1));
-    SILLY_MICAPS_SKIP_BLANK(content, offset, i);
+    MICAPS_SKIP_BLANK(content, offset, i);
     iso_bv = std::stof(content.substr(offset, i - offset + 1));
-    SILLY_MICAPS_SKIP_BLANK(content, offset, i);
+    MICAPS_SKIP_BLANK(content, offset, i);
     iso_ev = std::stof(content.substr(offset, i - offset + 1));
-    SILLY_MICAPS_SKIP_BLANK(content, offset, i);
+    MICAPS_SKIP_BLANK(content, offset, i);
     smooth = std::stof(content.substr(offset, i - offset + 1));
-    SILLY_MICAPS_SKIP_BLANK(content, offset, i);
+    MICAPS_SKIP_BLANK(content, offset, i);
     bold = std::stof(content.substr(offset, i - offset + 1));
-    SILLY_MICAPS_SKIP_BLANK(content, offset, i);
+    MICAPS_SKIP_BLANK(content, offset, i);
     status = true;
     return status;
 }

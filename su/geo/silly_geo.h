@@ -418,19 +418,19 @@ class silly_triangle
     /// 顶点a的角度
     double angle_a() const
     {
-        return std::acos((b.x - a.x) * (c.x - a.x) + (b.y - a.y) * (c.y - a.y)) * 180 / M_PI;
+        return std::acos((b.x - a.x) * (c.x - a.x) + (b.y - a.y) * (c.y - a.y)) * 180 / silly::math::pi;
     }
 
     /// 顶点b的角度
     double angle_b() const
     {
-        return std::acos((a.x - b.x) * (c.x - b.x) + (a.y - b.y) * (c.y - b.y)) * 180 / M_PI;
+        return std::acos((a.x - b.x) * (c.x - b.x) + (a.y - b.y) * (c.y - b.y)) * 180 / silly::math::pi;
     }
 
     /// 顶点c的角度
     double angle_c() const
     {
-        return std::acos((a.x - c.x) * (b.x - c.x) + (a.y - c.y) * (b.y - c.y)) * 180 / M_PI;
+        return std::acos((a.x - c.x) * (b.x - c.x) + (a.y - c.y) * (b.y - c.y)) * 180 / silly::math::pi;
     }
 
   public:
@@ -450,7 +450,7 @@ class silly_ellipse
 
     double area() const
     {
-        return M_PI * rx * ry;
+        return silly::math::pi * rx * ry;
     }
 
     /// 周长
@@ -459,10 +459,10 @@ class silly_ellipse
     {
         if (Ramanujan == 1)
         {
-            return M_PI * (3 * (rx + ry) - sqrt((3 * rx + ry) * (rx + 3 * ry)));
+            return silly::math::pi * (3 * (rx + ry) - sqrt((3 * rx + ry) * (rx + 3 * ry)));
         }
 
-        return 2 * M_PI * sqrt((rx * rx + ry * ry) / 2);
+        return 2 * silly::math::pi * sqrt((rx * rx + ry * ry) / 2);
     }
 
   public:
@@ -811,19 +811,19 @@ class silly_triangle
     /// 顶点a的角度
     double angle_a()
     {
-        return std::acos((b.x - a.x) * (c.x - a.x) + (b.y - a.y) * (c.y - a.y)) * 180 / M_PI;
+        return std::acos((b.x - a.x) * (c.x - a.x) + (b.y - a.y) * (c.y - a.y)) * 180 / silly::math::pi;
     }
 
     /// 顶点b的角度
     double angle_b()
     {
-        return std::acos((a.x - b.x) * (c.x - b.x) + (a.y - b.y) * (c.y - b.y)) * 180 / M_PI;
+        return std::acos((a.x - b.x) * (c.x - b.x) + (a.y - b.y) * (c.y - b.y)) * 180 / silly::math::pi;
     }
 
     /// 顶点c的角度
     double angle_c()
     {
-        return std::acos((a.x - c.x) * (b.x - c.x) + (a.y - c.y) * (b.y - c.y)) * 180 / M_PI;
+        return std::acos((a.x - c.x) * (b.x - c.x) + (a.y - c.y) * (b.y - c.y)) * 180 / silly::math::pi;
     }
 
   public:

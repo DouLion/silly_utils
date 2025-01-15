@@ -297,12 +297,12 @@ void lonlat2tile(double lon, double lat, int zoom, long long* x, long long* y)
         lon = 360;
     }
 
-    double lat_rad = lat * M_PI / 180;
+    double lat_rad = lat * SU_PI / 180;
     unsigned long long n = 1LL << zoom;
 
     // Adjusted formula for y-coordinate calculation
-    double my = log(tan(M_PI / 4 + lat_rad / 2));
-    long long lly = n * (1 - (my / M_PI)) / 2;
+    double my = log(tan(SU_PI / 4 + lat_rad / 2));
+    long long lly = n * (1 - (my / SU_PI)) / 2;
 
     long long llx = n * ((lon + 180) / (360. + std::pow(2, -24)));
 

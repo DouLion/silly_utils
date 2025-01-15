@@ -106,22 +106,22 @@ class silly_tzx_grid
     bool lz4_dcps_data(const char* srcd, const size_t& srcl, char** dstd, size_t& dstl);
 
   public:
-    size_t total{0};
-    float left{0.};
-    float right{0.};
-    float top{0.};
-    float bottom{0.};
+    size_t total = 0;
+    float left = 0.0;
+    float right = 0.0;
+    float top = 0.0;
+    float bottom = 0.0;
 
-    float xdelta{0.};
-    float ydelta{0.};
+    float xdelta = 0.0;
+    float ydelta = 0.0;
 
-    char name[32]{0};
-    char units[32]{0};
+    char name[32] = {0};
+    char units[32] = {0};
 
-    size_t row{0};
-    size_t col{0};
-    size_t cpsl{0};  // 网格点数据的压缩后占用大小
-    size_t srcl{0};  // 网格点数据的压缩前占用大小
+    size_t row = 0;
+    size_t col = 0;
+    size_t cpsl = 0;  // 网格点数据的压缩后占用大小
+    size_t srcl = 0;  // 网格点数据的压缩前占用大小
     FMatrix grid;
 
   private:
