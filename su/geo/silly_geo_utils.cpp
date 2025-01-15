@@ -649,6 +649,11 @@ bool silly::geo::utils::read_geo_coll(const std::string& u8file, std::vector<sil
         {
             silly_geo_coll temp_geo_coll;
             OGRGeometry* geometry = feature->GetGeometryRef();  // 获取矢量数据
+            if (geometry == nullptr)
+            {
+                OGRFeature::DestroyFeature(feature);
+                continue;
+            }
             auto feature_type = (enum_geometry_type)wkbFlatten(geometry->getGeometryType());
             temp_geo_coll.m_type = feature_type;  // 添加矢量数据类型
             if (ignore_prop)

@@ -12,10 +12,14 @@
 class silly_polar
 {
   public:
-    static void normal_to_polar(const double& x, const double& y, double& r, double& azimuth);
-    static void normal_to_polar(const double& x0, const double& y0, const double& x, const double& y, double& r, double& azimuth);
 
+    // 将笛卡尔坐标转换为极坐标
+    static void normal_to_polar(const double& x, const double& y, double& r, double& azimuth);
+    // 将极坐标转换为笛卡尔坐标
+    static void normal_to_polar(const double& x0, const double& y0, const double& x, const double& y, double& r, double& azimuth);
+    // 将极坐标转换为笛卡尔坐标
     static void normal_to_coord(const double& r, const double& azimuth, double& x, double& y);
+    // 将极坐标转换为笛卡尔坐标
     static void normal_to_coord(const double& r, const double& azimuth, const double& x0, const double& y0, double& x, double& y);
 };
 

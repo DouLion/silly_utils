@@ -45,6 +45,46 @@ void initialize_random_generator()
 
 TEST_CASE("TestJPEG")
 {
+    SECTION("get pixel")  // 根据二维数组value 创建一个jpeg图片
+    {
+        std::filesystem::path data_root(DEFAULT_SU_DATA_DIR);
+        data_root += "/jpeg/1.jpeg";
+        silly::jpeg::data jped_data_1;
+        if (!jped_data_1.read(data_root.string()))
+        {
+            std::cout << "read jpeg failed" << std::endl;
+        }
+        for (int index = 0; index < 100; index++)
+        {
+            silly::jpeg::data jped_data_2;
+            if (!jped_data_2.create(jped_data_1.width(), jped_data_1.height(), jped_data_1.type()))
+            {
+                std::cout << "create jpeg failed" << std::endl;
+            }
+
+            for (int i = 0; i < jped_data_1.width(); i++)
+            {
+                for (int j = 0; j < jped_data_1.height(); j++)
+                {
+                    silly::color tc = jped_data_1.pixel(i, j);
+                    jped_data_2.pixel(i, j, tc);
+                }
+            }
+
+            std::filesystem::path temp = data_root;
+            temp += std::to_string(index) + ".jpeg";
+            if (!jped_data_2.write(temp.string()))
+            {
+                std::cout << "create jpeg failed" << std::endl;
+            }
+            jped_data_2.release();
+        }
+        jped_data_1.release();
+        int a = 0;
+        int b = 0;
+        int c = 0;
+    }
+
     SECTION("read")  // 根据二维数组value 创建一个jpeg图片
     {
         initialize_random_generator();
@@ -65,7 +105,6 @@ TEST_CASE("TestJPEG")
                 std::cout << "create jpeg failed" << std::endl;
             }
             jped_data_1.release();
-
         }
 
         int a = 0;
@@ -109,21 +148,6 @@ TEST_CASE("TestJPEG")
         int a = 0;
         int b = 0;
         int c = 0;
-    }
-
-    SECTION("JPEG_READ")  // 根据二维数组value 创建一个jpeg图片
-    {
-        // std::cout << "\r\n\r\n****************" << "JPEG_READ" << "****************" << std::endl;
-        //// 对边读一张图片，并另存
-        // jpeg_utils ju;
-        // std::filesystem::path data_root(DEFAULT_SU_DATA_DIR);
-        // data_root += "/jpeg/color_1.jpeg";
-        ////std::string ru_1 = "./jpeg/color_1.jpeg";
-        // jpeg_data temp_jpeg_7 = ju.read(data_root.string().c_str());
-        // std::filesystem::path data_root_2(DEFAULT_SU_DATA_DIR);
-        // data_root_2+="/jpeg/color_2.jpeg";
-        // ju.write(data_root_2.string().c_str(), temp_jpeg_7);
-        // temp_jpeg_7.release();
     }
 
     SECTION("WRITE_JPEG")  // 写入 JPEG
