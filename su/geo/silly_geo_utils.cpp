@@ -472,6 +472,11 @@ bool read_property(const OGRFeature* feature, const std::map<std::string, silly_
 #if ENABLE_GDAL
     for (const auto& [key, p_type] : properties)
     {
+        std::string utf8_key = key;
+        if (!silly_encode::is_utf8(utf8_key))
+        {
+            utf8_key = silly_encode::gbk_utf8(utf8_key);
+        }
         switch (p_type)
         {
             case silly_geo_prop::enum_prop_type::eptNone:
@@ -479,19 +484,23 @@ bool read_property(const OGRFeature* feature, const std::map<std::string, silly_
             case silly_geo_prop::enum_prop_type::eptInt:
             {
                 int value = feature->GetFieldAsInteger(key.c_str());
-                props[key] = {value};
+                props[utf8_key] = {value};
             }
             break;
             case silly_geo_prop::enum_prop_type::eptNumeric:
             {
                 double value = feature->GetFieldAsDouble(key.c_str());
-                props[key] = {value};
+                props[utf8_key] = {value};
             }
             break;
             case silly_geo_prop::enum_prop_type::eptString:
             {
                 std::string value = feature->GetFieldAsString(key.c_str());
-                props[key] = {value};
+                if (!silly_encode::is_utf8(value))
+                {
+                    value = silly_encode::gbk_utf8(value);
+                }
+                props[utf8_key] = {value};
             }
             break;
             case silly_geo_prop::enum_prop_type::eptTime:
@@ -507,14 +516,14 @@ bool read_property(const OGRFeature* feature, const std::map<std::string, silly_
                 }
                 else
                 {
-                    props[key] = {""};
+                    props[utf8_key] = {""};
                 }
             }
             break;
             case silly_geo_prop::enum_prop_type::eptLong:
             {
                 long long value = feature->GetFieldAsInteger64(key.c_str());
-                props[key] = {value};
+                props[utf8_key] = {value};
             }
             break;
             default:
