@@ -113,7 +113,6 @@
 #include <image/render/symbol/silly_render_symbol.h>
 #include <image/silly_bmp.h>
 #include <image/silly_color.h>
-#include <image/silly_font.h>
 #include <image/silly_gif.h>
 #include <image/silly_icon.h>
 #include <image/silly_image_base.h>

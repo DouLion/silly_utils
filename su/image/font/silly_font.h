@@ -17,12 +17,36 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
+#if IS_WIN32
+// 宋体
+#define SimSun "SimSun"
+// 微软雅黑常规
+#define MicroSoftYaHei "Microsoft YaHei"
+// 楷体
+#define KaiTi "KaiTi"
+// 隶书
+#define LiSu "LiSu"
+#elif IS_MACOS
+
+#define SimSun "SimSun"
+#define MicroSoftYaHei "Microsoft YaHei"
+#define KaiTi "KaiTi"
+#define LiSu "LiSu"
+
+#else
+
+#define SimSun "SimSun"
+#define MicroSoftYaHei "Microsoft YaHei"
+#define KaiTi "KaiTi"
+#define LiSu "LiSu"
+
+#endif
+
 class silly_font
 {
   public:
     silly_font();
     ~silly_font();
-
 
     bool add(const std::string& name, const std::string& tff_file);
     bool remove(const std::string& name);
@@ -35,5 +59,6 @@ class silly_font
     std::map<std::string, FT_Face> m_name_font{};
     FT_Library m_ft_library;
 };
+
 
 #endif  // SILLY_UTILS_SILLY_FONT_H

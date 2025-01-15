@@ -15,7 +15,7 @@
 #include <cairo/cairo-ft.h>
 #include <ft2build.h>
 #include <image/silly_color.h>
-#include <image/silly_font.h>
+#include <image/font/silly_font.h>
 #include FT_FREETYPE_H
 
 

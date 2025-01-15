@@ -1,6 +1,7 @@
 
 #include "su_marco.h"
 #include "string/silly_format.h"
+#include <su.h>
 
 int main()
 {
