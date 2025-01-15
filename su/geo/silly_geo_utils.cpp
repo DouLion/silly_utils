@@ -665,7 +665,7 @@ bool silly::geo::utils::read_geo_coll(const std::string& u8file, std::vector<sil
             }
             auto feature_type = (enum_geometry_type)wkbFlatten(geometry->getGeometryType());
             temp_geo_coll.m_type = feature_type;  // 添加矢量数据类型
-            if (ignore_prop)
+            if (!ignore_prop)
             {
                 read_property(feature, properties, temp_geo_coll.m_props);  // 读取属性数据
             }
