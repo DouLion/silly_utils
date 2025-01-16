@@ -13,11 +13,9 @@
 #include "psimpl.h"
 
 using namespace psimpl;
+using namespace silly::geo;
 
-#include <iterator>
-#include "silly_vacuate.h"
-
-bool silly_vacuate::n_point(const int& n, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
+bool vacuate::n_point(const int& n, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
 {
     try
     {
@@ -43,7 +41,7 @@ bool silly_vacuate::n_point(const int& n, const std::vector<double>& inputs, std
     return true;
 }
 
-bool silly_vacuate::radial_distance(const double& radialDistance, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
+bool vacuate::radial_distance(const double& radialDistance, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
 {
     try
     {
@@ -69,7 +67,7 @@ bool silly_vacuate::radial_distance(const double& radialDistance, const std::vec
     return true;
 }
 
-bool silly_vacuate::perpendicular_distance(const int& repeat, const double& distance, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
+bool vacuate::perpendicular_distance(const int& repeat, const double& distance, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
 {
     try
     {
@@ -95,7 +93,7 @@ bool silly_vacuate::perpendicular_distance(const int& repeat, const double& dist
     return true;
 }
 
-bool silly_vacuate::reumann_witkam(const double& distance, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
+bool vacuate::reumann_witkam(const double& distance, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
 {
     try
     {
@@ -121,7 +119,7 @@ bool silly_vacuate::reumann_witkam(const double& distance, const std::vector<dou
     return true;
 }
 
-bool silly_vacuate::opheim(const double& minDistance, const double& maxDistance, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
+bool vacuate::opheim(const double& minDistance, const double& maxDistance, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
 {
     try
     {
@@ -147,7 +145,7 @@ bool silly_vacuate::opheim(const double& minDistance, const double& maxDistance,
     return true;
 }
 
-bool silly_vacuate::lang(const int& lookAhead, const double& distance, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
+bool vacuate::lang(const int& lookAhead, const double& distance, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
 {
     try
     {
@@ -173,7 +171,7 @@ bool silly_vacuate::lang(const int& lookAhead, const double& distance, const std
     return true;
 }
 
-bool silly_vacuate::douglas_peucker(const double& distance, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
+bool vacuate::douglas_peucker(const double& distance, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
 {
     try
     {
@@ -199,7 +197,7 @@ bool silly_vacuate::douglas_peucker(const double& distance, const std::vector<do
     return true;
 }
 
-bool silly_vacuate::douglas_peucker_variant(const int& pointNum, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
+bool vacuate::douglas_peucker_variant(const int& pointNum, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
 {
     try
     {

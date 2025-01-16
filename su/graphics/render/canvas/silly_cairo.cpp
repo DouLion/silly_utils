@@ -12,8 +12,8 @@
 #include <cairo/cairo-ft.h>
 #include <ft2build.h>
 #include "geo/silly_projection.h"
-#include <image/silly_png.h>
-#include <image/silly_jpeg.h>
+#include <graphics/silly_png.h>
+#include <graphics/silly_jpeg.h>
 
 #if ENABLE_JPEG
 #include "jpeglib.h"

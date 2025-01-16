@@ -1028,7 +1028,7 @@ silly_ring silly_vectorizer::simplify_ring_douglas(const silly_ring &ring, doubl
         inputs.emplace_back(p.y);
     }
     std::vector<double> outputs;
-    silly_vacuate::douglas_peucker(dist, inputs, outputs);
+    silly::geo::vacuate::douglas_peucker(dist, inputs, outputs);
     for (auto i = 0; i < outputs.size() / 2; i++)
     {
         result.points.push_back({outputs[i * 2], outputs[i * 2 + 1]});

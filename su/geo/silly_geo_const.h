@@ -14,11 +14,11 @@ namespace silly
 {
 namespace geo
 {
-namespace earth_radius
+namespace EarthRadius
 {
-constexpr double mean = 6371000.0;        // 平均半径 米
-constexpr double equatorial = 6378137.0;  // 赤道半径 米
-constexpr double polar = 6356752.3142;    // 极地半径 米
+constexpr double MEAN = 6371000.0;        // 平均半径 米
+constexpr double EQUATORIAL = 6378137.0;  // 赤道半径 米
+constexpr double POLAR = 6356752.3142;    // 极地半径 米
 }  // namespace earth_radius
 namespace WGS84
 {

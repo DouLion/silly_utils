@@ -21,8 +21,6 @@ extern "C" {
 #endif
     TZX_DLL_EXPORT void convert_image(double ncols, double nrows, double xllcorner, double yllcorner, double cellsize, double mid, double* data, double* qx, double* qy, char* img_path);
 
-TZX_DLL_EXPORT void convert_image_test(double ncols, double nrows);
-
 #ifdef __cplusplus
 }
 #endif

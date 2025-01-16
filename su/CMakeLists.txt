@@ -18,7 +18,7 @@ target_precompile_headers(
         ${SU_FILE_ROOT}/su/geo/silly_geo.h
         ${SU_FILE_ROOT}/su/log/silly_log.h
         ${SU_FILE_ROOT}/su/string/silly_format.h
-        ${SU_FILE_ROOT}/su/database/otl/otl_tools.h
+        ${SU_FILE_ROOT}/su/database/otl/silly_otl.h
         ${SU_FILE_ROOT}/su/datetime/silly_posix_time.h
         ${SU_FILE_ROOT}/su/json/silly_jsonpp.h
 )

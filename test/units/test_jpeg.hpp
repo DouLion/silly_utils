@@ -12,7 +12,7 @@
 
 #ifdef CATCH2_UNIT_TEST
 #include <catch2/catch_test_macros.hpp>
-#include "image/silly_jpeg.h"
+#include "graphics/silly_jpeg.h"
 
 std::string readFile(const std::string& filePath)
 {

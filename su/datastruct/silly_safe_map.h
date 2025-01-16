@@ -14,7 +14,7 @@
 template <typename K, typename V>
 class silly_safe_map
 {
-    typedef std::map<K, V> MapType;
+    typedef std::map<K, V> type;
 
   public:
     /// Default constructor.
@@ -23,18 +23,18 @@ class silly_safe_map
     virtual ~silly_safe_map(void){};
 
     /// Add item.
-    void AddItem(const K& key, const V& value)
+    void add(const K& key, const V& value)
     {
-        std::scoped_lock lock(m_recMutex);
+        std::scoped_lock lock(m_mutex);
         m_map[key] = value;
     }
 
     /// Get item.
-    bool GetItem(const K& key, V& value)
+    bool get(const K& key, V& value)
     {
         bool bFind = false;
-        std::scoped_lock lock(m_recMutex);
-        typename MapType::iterator iter = m_map.find(key);
+        std::scoped_lock lock(m_mutex);
+        typename type::iterator iter = m_map.find(key);
         if (iter != m_map.end())
         {
             value = iter->second;
@@ -45,7 +45,7 @@ class silly_safe_map
     }
 
     /// Whether the key is exist.
-    bool IsExistItem(const K& key)
+    bool exist(const K& key)
     {
         if (m_map.find(key) != m_map.end())
         {
@@ -56,28 +56,30 @@ class silly_safe_map
     }
 
     /// Remove key.
-    void RemoveKey(const K& key)
+    void erase(const K& key)
     {
-        std::scoped_lock lock(m_recMutex);
+        std::scoped_lock lock(m_mutex);
         m_map.erase(key);
     }
 
     /// Clear map.
-    void Clear()
+    void clear()
     {
-        std::scoped_lock lock(m_recMutex);
+        std::scoped_lock lock(m_mutex);
         m_map.clear();
     }
 
     /// Get map size.
-    int Size()
+    size_t size()
     {
-        std::scoped_lock lock(m_recMutex);
         return m_map.size();
     }
 
-    /// Get keys.
-    std::vector<K> GetKeys()
+    /// <summary>
+    /// 获取所有的主键
+    /// </summary>
+    /// <returns></returns>
+    std::vector<K> keys()
     {
         std::vector<K> keys;
         typename std::map<K, V>::iterator it;
@@ -90,9 +92,9 @@ class silly_safe_map
 
   protected:
     /// Boost recursive mutex.
-    std::mutex m_recMutex;
+    std::mutex m_mutex;
     /// Map structure.
-    MapType m_map;
+    type m_map;
 };
 
 #endif  // SILLY_UTILS_SILLY_SAFE_MAP_H

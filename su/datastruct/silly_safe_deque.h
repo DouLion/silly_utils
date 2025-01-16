@@ -11,78 +11,65 @@
 #ifndef SILLY_UTILS_SILLY_SAFE_DEQUE_H
 #define SILLY_UTILS_SILLY_SAFE_DEQUE_H
 #include <su_marco.h>
-template <typename V>
+template <typename T>
 class silly_safe_deque
 {
-    typedef std::deque<V> DequeType;
+    typedef std::deque<T> type;
 
   public:
     /// Default Constructor.
-    silly_safe_deque(void){};
+    silly_safe_deque(void) {};
     /// Destructor.
-    virtual ~silly_safe_deque(void){};
+    virtual ~silly_safe_deque(void) {};
 
     /// Push item to deque tail.
-    bool PushItem(const V& value)
+    void push_back(const T& value)
     {
-        std::scoped_lock lock(m_recMutex);
+        std::scoped_lock lock(m_mutex);
         m_deque.push_back(value);
-
-        return true;
     }
 
     /// Push item to deque head.
-    bool PushItemToFront(const V& value)
+    void push_front(const T& value)
     {
-        std::scoped_lock lock(m_recMutex);
+        std::scoped_lock lock(m_mutex);
         m_deque.push_front(value);
-
-        return true;
     }
 
     /// Pop item from deque.
-    bool PopItem(V& value)
+    void pop_front(T& value)
     {
-        std::scoped_lock lock(m_recMutex);
+        std::scoped_lock lock(m_mutex);
         if (!m_deque.empty())
         {
-            value = m_deque.front();
             m_deque.pop_front();
-
-            return true;
         }
-
-        return true;
     }
 
     /// Get deque size.
-    int GetSize()
+    size_t size()
     {
-        int size = m_deque.size();
-        return size;
+        return m_deque.size();
     }
 
     /// Whether the deque is empty.
-    bool IsEmpty()
+    bool empty()
     {
-        bool bEmpty = m_deque.empty();
-        return bEmpty;
+        return m_deque.empty();
     }
 
     /// Clear deque.
-    bool Clear()
+    void clear()
     {
-        std::scoped_lock lock(m_recMutex);
+        std::scoped_lock lock(m_mutex);
         m_deque.clear();
-
-        return true;
     }
 
   protected:
     /// Boost recursive mutex.
-    std::mutex m_recMutex;
+    std::mutex m_mutex;
     /// Deque structure.
-    DequeType m_deque;
+    type m_deque;
 };
 
 #endif  // SILLY_UTILS_SILLY_SAFE_DEQUE_H

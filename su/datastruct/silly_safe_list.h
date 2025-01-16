@@ -11,10 +11,10 @@
 #ifndef SILLY_UTILS_SILLY_SAFE_LIST_H
 #define SILLY_UTILS_SILLY_SAFE_LIST_H
 #include <su_marco.h>
-template <typename V>
+template <typename T>
 class silly_safe_list
 {
-    typedef std::list<V> ListType;
+    typedef std::list<T> type;
 
   public:
     /// Default constructor.
@@ -23,51 +23,47 @@ class silly_safe_list
     virtual ~silly_safe_list(void){};
 
     /// Add item.
-    bool AddItem(const V& value)
+    void push_back(const T& value)
     {
-        std::scoped_lock lock(m_recMutex);
+        std::scoped_lock lock(m_mutex);
         m_list.push_back(value);
 
         return true;
     }
 
     /// Remove item.
-    bool RemoveItem(const V& value)
+    bool remove(const T& value)
     {
-        std::scoped_lock lock(m_recMutex);
+        std::scoped_lock lock(m_mutex);
         m_list.remove(value);
 
         return true;
     }
 
     /// Get list size.
-    int GetSize()
+    size_t size()
     {
-        int size = m_list.size();
-        return size;
+        return m_list.size();
     }
 
     /// Whether is empty.
-    bool IsEmpty()
+    bool empty()
     {
-        bool bEmpty = m_list.empty();
-        return bEmpty;
+        return m_list.empty();
     }
 
     /// Clear list.
-    bool Clear()
+    void clear()
     {
-        std::scoped_lock lock(m_recMutex);
+        std::scoped_lock lock(m_mutex);
         m_list.clear();
-
-        return true;
     }
 
   protected:
     /// Boost recursive mutex.
-    std::mutex m_recMutex;
+    std::mutex m_mutex;
     /// List structure.
-    ListType m_list;
+    type m_list;
 };
 
 #endif  // SILLY_UTILS_SILLY_SAFE_LIST_H

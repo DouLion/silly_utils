@@ -13,8 +13,8 @@
 #include <catch2/catch_test_macros.hpp>
 #include "weather/geotiff_utils.h"
 #include "weather/grib_utils.h"
-#include "image/png_utils.h"
-#include "image/silly_color.h"
+#include "graphics/png_utils.h"
+#include "graphics/silly_color.h"
 #include "weather/silly_tzx_grid.h"
 #include "render/silly_grid_render.h"
 

@@ -11,6 +11,12 @@
 #ifndef SILLY_UTILS_SU_H
 #define SILLY_UTILS_SU_H
 
+// json
+#include <json/silly_jsonpp.h>  // json文件,json字符串,json对象处理
+
+// log
+#include <log/silly_log.h>  // 日志
+
 // compress (压缩/解压缩)
 #include <compress/silly_compress.h>  // 压缩 错误码定义
 #include <compress/silly_7z.h>        // 7z压缩/解压缩, 未实现
@@ -25,19 +31,18 @@
 #include <database/dm8/dm8_pro_c.h>             // 未实现
 #include <database/kb/kb_odbc.h>                // 未实现
 #include <database/otl/otlv4.h>                 // otl库源码
-#include <database/otl/otl_tools.h>             // 未实现
-#include <database/otl/silly_otl.h>             // otl实现数据库的增删改查模板函数
+#include <database/otl/silly_otl.h>             // 基于otl的数据库操作
 #include <database/redis/silly_redis_client.h>  // 未实现
 #include <database/redis/silly_redis_cpool.h>   // 未实现
-#include <database/silly_sql.h>                 // 操作不同数据库的SQL语句常量集合
+#include <database/silly_sql.h>                 // 常用数据库的SQL
 #include <database/sqlite3/silly_sqlite3.h>     // sqlite3 的一些常用用法
 
 // datastruct (数据结构)
 #include <datastruct/silly_safe_bimap.h>  // 双向map模板类
-#include <datastruct/silly_safe_deque.h>  // 双向队列模板类
-#include <datastruct/silly_safe_list.h>   // list模板类
-#include <datastruct/silly_safe_map.h>    // map模板类
-#include <datastruct/silly_safe_stack.h>  // 栈模板类
+#include <datastruct/silly_safe_deque.h>  // 线程安全的deque模板类
+#include <datastruct/silly_safe_list.h>   // 线程安全的list模板类
+#include <datastruct/silly_safe_map.h>    // 线程安全的map模板类
+#include <datastruct/silly_safe_stack.h>  // 线程安全的栈模板类
 
 // datetime (时间)
 #include <datetime/silly_posix_time.h>  // 时间工具类 (统一时间为时间戳类型)
@@ -56,7 +61,7 @@
 #include <files/silly_schedule_file.h>  // 定时生成文件, 结构确定内容未实现
 #include <files/silly_xlsx.h>           // xlsx文件操作 未实现
 
-// geo (几何矢量)
+// 几何(平面几何,地理空间空间)
 #include <geo/gpc/gpc.h>                               // gpc源码
 #include <geo/proj/gdal/silly_projection_define.h>     // 投影坐标系的 wtk
 #include <geo/proj/gdal/silly_proj_convert.h>          // 地理坐标系的转换
@@ -90,37 +95,31 @@
 #include <geo/vacuate/psimpl.h>                        // psimpl源码
 #include <geo/vacuate/silly_vacuate.h>                 // 抽稀算法
 
-// image (图片)
-#include <image/font/silly_font.h>                           // 处理字体
-#include <image/grid/silly_render.h>                         // 未实现
-#include <image/render/canvas/silly_cairo.h>                 // cairo库处理图片工具
-#include <image/render/pattern/cairo/silly_cairo_pattern.h>  // 未实现
-#include <image/render/shape/silly_render_shapes.h>          // 未实现
-#include <image/render/silly_grid_render.h>                  // png 图片渲染
-#include <image/render/silly_render_brush.h>                 // 未实现
-#include <image/render/silly_render_pen.h>                   // 未实现
-#include <image/render/style/silly_render_style.h>           // 未实现
-#include <image/render/symbol/silly_render_symbol.h>         // 未实现
-#include <image/silly_bmp.h>                                 // 未实现
-#include <image/silly_color.h>                               // color类 自定义的统一颜色类型
-#include <image/silly_gif.h>                                 // 未实现
-#include <image/silly_icon.h>                                // 未实现
-#include <image/silly_image_base.h>                          // 处理图片类的基类
-#include <image/silly_jpeg.h>                                // jpeg图片处理
-#include <image/silly_png.h>                                 // png图片处理
-#include <image/silly_raw.h>                                 // 未实现
-#include <image/silly_tif.h>                                 // 为实现
-#include <image/tools/silly_huge_stitcher.h>                 // 超大图像拼接 未实现
-#include <image/tools/silly_stitcher.h>                      // 图像拼接 未实现
-
-// json
-#include <json/silly_jsonpp.h>  // json文件,json字符串,json对象处理
-
-// log
-#include <log/silly_log.h>  // 日志
+// 图像处理
+#include <graphics/font/silly_font.h>                           // 处理字体
+#include <graphics/grid/silly_render.h>                         // 未实现
+#include <graphics/render/canvas/silly_cairo.h>                 // cairo库处理图片工具
+#include <graphics/render/pattern/cairo/silly_cairo_pattern.h>  // 未实现
+#include <graphics/render/shape/silly_render_shapes.h>          // 未实现
+#include <graphics/render/silly_grid_render.h>                  // png 图片渲染
+#include <graphics/render/silly_render_brush.h>                 // 未实现
+#include <graphics/render/silly_render_pen.h>                   // 未实现
+#include <graphics/render/style/silly_render_style.h>           // 未实现
+#include <graphics/render/symbol/silly_render_symbol.h>         // 未实现
+#include <graphics/silly_bmp.h>                                 // 未实现
+#include <graphics/silly_color.h>                               // color类 自定义的统一颜色类型
+#include <graphics/silly_gif.h>                                 // 未实现
+#include <graphics/silly_icon.h>                                // 未实现
+#include <graphics/silly_image_base.h>                          // 处理图片类的基类
+#include <graphics/silly_jpeg.h>                                // jpeg图片处理
+#include <graphics/silly_png.h>                                 // png图片处理
+#include <graphics/silly_raw.h>                                 // 未实现
+#include <graphics/silly_tif.h>                                 // 为实现
+#include <graphics/tools/silly_huge_stitcher.h>                 // 超大图像拼接 未实现
+#include <graphics/tools/silly_stitcher.h>                      // 图像拼接 未实现
 
 // mapbox
-#include <mapbox/mbtiles/dtoa_milo.h>               // double转字符串
+#include <mapbox/mbtiles/dtoa_milo.h>               // 高效且精确的 double 到 ASCII 字符串（以及反向）的转换
 #include <mapbox/mbtiles/silly_mbtiles_metadata.h>  // mapbox中metadata数据
 #include <mapbox/mbtiles/silly_mbtiles_sqlite3.h>   // mapbox中mbtiles读取写入
 #include <mapbox/mbtiles/silly_mbtiles_text.h>      //
@@ -147,11 +146,11 @@
 #include <math/spline/silly_parabolic_spline.h>    // 未实现
 #include <math/spline/silly_pqs_interp_spline.h>   // 未实现
 
-// metadata (元数据)
-#include <metadata/geotiff_utils.h>           // geotiff 读写工具
-#include <metadata/grib_utils.h>              // grid 读写工具
-#include <metadata/narui_radar_grid_utils.h>  // 纳睿达网格文件读写工具
-#include <metadata/netcdf_utils.h>            // netcdf 读写工具
+// 常用气象,地理信息树读写
+#include <metadata/geotiff_utils.h>           // geotiff 
+#include <metadata/grib_utils.h>              // grid 
+#include <metadata/narui_radar_grid_utils.h>  // 纳睿达网格文件
+#include <metadata/netcdf_utils.h>            // netcdf 
 #include <metadata/silly_ascii_grid.h>        // ascii网格文件
 #include <metadata/silly_egm.h>               // 地球重力场文件数据
 #include <metadata/silly_geotiff.h>           // 未实现
@@ -183,16 +182,15 @@
 #include <network/tcp/ftp_utils.h>                     // ftp 工具
 #include <network/tcp/silly_curl.h>                    // curl 工具
 #include <network/tcp/silly_ftp.h>                     // ftp客户端工具
-#include <network/tcp/silly_http.h>                    // http server 工具头文件
 #include <network/tools/silly_captcha.h>               // 验证码
 #include <network/websocket/silly_websocket_client.h>  // websocket 客户端
 #include <network/websocket/silly_websocket_data.h>    // 未实现
 #include <network/websocket/silly_websocket_server.h>  // websocket 服务端 未实现
 
-// parser (解析器)
+// INI配置文件
 #include <parser/ini/INIReader.h>                // ini解析源码
-#include <parser/ini/silly_boost_ini_parser.h>   // 基于boost的ini工具
 #include <parser/ini/silly_ini_parser_base.h>    // ini文件解析 基类
+#include <parser/ini/silly_boost_ini_parser.h>   // 基于boost的ini工具
 #include <parser/ini/silly_simple_ini_parser.h>  // 基于SimpleIni的ini文件解析
 #include <parser/ini/silly_tzx_ini_parser.h>     // tzx ini文件解析工具
 
@@ -229,20 +227,22 @@
 // test (测试)
 #include <test/silly_unit_test.h>  // 单元测试模块 未实现
 
-// tzx
-#include <tzx/dynamic_rule/silly_dynamic_rule.h>
-#include <tzx/moisture/silly_moisture.h>          // moisture表对象
+// 公司自定义的格式 
+#include <tzx/dynamic_rule/silly_dynamic_rule.h>  // 使用本地文件实现的动态指标快速读写
+#include <tzx/moisture/silly_moisture.h>          // 使用本地文件实现的土壤含水量快速读写
 #include <tzx/pyramid/silly_pyramid_base.h>       // 金字塔基类
 #include <tzx/pyramid/silly_pyramid_block.h>      // 金字塔数据块
 #include <tzx/pyramid/silly_pyramid_data.h>       // 金字塔data
-#include <tzx/pyramid/silly_pyramid_full_text.h>  // 未实现
-#include <tzx/pyramid/silly_pyramid_handle.h>     // 处理金字塔数据的对象, 读取写入功能
+#include <tzx/pyramid/silly_pyramid_full_text.h>  // 金字塔全文检索
 #include <tzx/pyramid/silly_pyramid_index.h>      // 金字塔索引类
 #include <tzx/pyramid/silly_pyramid_info.h>       // 金字塔info
+#include <tzx/pyramid/silly_pyramid_handle.h>     // 金字塔文件统一处理类,支持mmap读和作为普通文件写入,不限制大小
+
+
+#include <tzx/rwdb/silly_rwdb_record.h>           // 数据库记录基类
 #include <tzx/rwdb/silly_pptn.h>                  // pptn表对象类
 #include <tzx/rwdb/silly_river.h>                 // river表对象类
 #include <tzx/rwdb/silly_rsvr.h>                  // rsvr表对象类
-#include <tzx/rwdb/silly_rwdb_record.h>           // 数据库记录基类
 #include <tzx/rwdb/silly_stbprp.h>                // stbprp表对象类
 #include <tzx/rwdb/silly_turn_tool.h>             // 字符串与二进制数据互转
 #include <tzx/silly_adcd.h>                       // adcd对象类

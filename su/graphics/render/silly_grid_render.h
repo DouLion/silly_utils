@@ -10,7 +10,7 @@
 #ifndef SILLY_UTILS_SILLY_GRID_RENDER_H
 #define SILLY_UTILS_SILLY_GRID_RENDER_H
 
-#include "image/silly_png.h"
+#include <graphics/silly_png.h>
 #include <geo/silly_geo_convert.h>
 
 using namespace silly_math;

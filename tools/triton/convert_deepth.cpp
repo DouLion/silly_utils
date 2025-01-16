@@ -9,7 +9,7 @@
  * @version: v1.0.1 2024-09-13 dou li yang
  */
 
-#include <image/png_utils.h>
+#include <graphics/png_utils.h>
 #include <weather/silly_ascii_grid.h>
 #include <proj/silly_proj.h>
 #include <pool/silly_thread_pool.h>

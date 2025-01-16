@@ -133,33 +133,3 @@ std::string silly_encrypt::base64_text_decode(const std::string &text)
     CryptoPP::StringSource ss(text, true, new CryptoPP::Base64Decoder(new CryptoPP::StringSink(ret)));
     return ret;
 }
-std::string silly_encrypt::crc32_text_encode(const std::string &text)
-{
-    /*// 创建 CRC-16 对象
-    CryptoPP::CRC32 crc32;
-
-    // 计算 CRC-16 哈希值
-    CryptoPP::byte digest[CryptoPP::crc32::DIGESTSIZE];
-    StringSource ss(input, true, new HashFilter(crc32, new ArraySink(digest, sizeof(digest))));
-
-    // 将哈希值转换为十六进制字符串
-    std::string output;
-    HexEncoder encoder(new StringSink(output));
-    encoder.Put(digest, sizeof(digest));
-    encoder.MessageEnd();
-
-    return output;*/
-    return std::string();
-}
-std::string silly_encrypt::crc32_file_encode(const std::string &file_path)
-{
-    return std::string();
-}
-std::string silly_encrypt::crc16_text_encode(const std::string &text)
-{
-    return std::string();
-}
-std::string silly_encrypt::crc16_file_encode(const std::string &file_path)
-{
-    return std::string();
-}

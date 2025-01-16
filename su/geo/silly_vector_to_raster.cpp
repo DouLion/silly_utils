@@ -241,7 +241,7 @@ bool xscan::rasterization(const silly_geo_coll& geo_coll)
 }
 
 #ifndef NDEBUG
-#include <image/silly_png.h>
+#include <graphics/silly_png.h>
 #endif
 
 void xscan::image(const std::string& path)

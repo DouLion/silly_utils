@@ -13,21 +13,21 @@
 #define SILLY_UTILS_SILLY_SAFE_BIMAP_H
 #include <su_marco.h>
 
-template <typename KeyType, typename ValueType>
+template <typename KT, typename VT>
 class silly_safe_bimap
 {
     /// 默认以key为主
   public:
-    using key_iterator = typename std::unordered_map<KeyType, ValueType>::iterator;
-    using const_key_iterator = typename std::unordered_map<KeyType, ValueType>::const_iterator;
-    using value_iterator = typename std::unordered_map<ValueType, KeyType>::iterator;
-    using const_value_iterator = typename std::unordered_map<ValueType, KeyType>::const_iterator;
+    using key_iterator = typename std::unordered_map<KT, VT>::iterator;
+    using const_key_iterator = typename std::unordered_map<KT, VT>::const_iterator;
+    using value_iterator = typename std::unordered_map<VT, KT>::iterator;
+    using const_value_iterator = typename std::unordered_map<VT, KT>::const_iterator;
 
   public:
     silly_safe_bimap() = default;
     ~silly_safe_bimap() = default;
 
-    bool insert(const KeyType& key, const ValueType& value)
+    bool insert(const KT& key, const VT& value)
     {
         std::lock_guard<std::mutex> lock(m_mutex);
         if (m_key_map.find(key) != m_key_map.end())
@@ -43,17 +43,17 @@ class silly_safe_bimap
         return true;
     }
 
-    bool contains(const KeyType& key) const
+    bool contains(const KT& key) const
     {
         return m_key_map.find(key) != m_key_map.end();
     }
 
-    bool contains_value(const ValueType& value) const
+    bool contains_value(const VT& value) const
     {
         return m_value_map.find(value) != m_value_map.end();
     }
 
-    bool erase(const KeyType& key)
+    bool erase(const KT& key)
     {
         std::lock_guard<std::mutex> lock(m_mutex);
         auto it = m_key_map.find(key);
@@ -61,13 +61,13 @@ class silly_safe_bimap
         {
             return false;
         }
-        ValueType value = it->second;
+        VT value = it->second;
         m_key_map.erase(it);
         m_value_map.erase(value);
         return true;
     }
 
-    bool erase_value(const ValueType& value)
+    bool erase_value(const VT& value)
     {
         std::lock_guard<std::mutex> lock(m_mutex);
         auto it = m_value_map.find(value);
@@ -75,13 +75,13 @@ class silly_safe_bimap
         {
             return false;
         }
-        KeyType key = it->second;
+        KT key = it->second;
         m_key_map.erase(key);
         m_value_map.erase(it);
         return true;
     }
 
-    bool get(const ValueType& value, KeyType& key) const
+    bool get(const VT& value, KT& key) const
     {
         auto it = m_value_map.find(value);
         if (it == m_value_map.end())
@@ -92,7 +92,7 @@ class silly_safe_bimap
         return true;
     }
 
-    bool get_value(const KeyType& key, ValueType& value) const
+    bool get_value(const KT& key, VT& value) const
     {
         auto it = m_key_map.find(key);
         if (it == m_key_map.end())
@@ -110,7 +110,7 @@ class silly_safe_bimap
         m_value_map.clear();
     }
 
-    void for_each(std::function<void(const KeyType&, const ValueType&)> func) const
+    void for_each(std::function<void(const KT&, const VT&)> func) const
     {
         for (auto& item : m_key_map)
         {
@@ -118,7 +118,7 @@ class silly_safe_bimap
         }
     }
 
-    void for_each(std::function<void(ValueType&, KeyType&)> func)
+    void for_each(std::function<void(VT&, KT&)> func)
     {
         std::lock_guard<std::mutex> lock(m_mutex);
         for (auto& item : m_value_map)
@@ -147,7 +147,7 @@ class silly_safe_bimap
         return m_key_map.begin();
     }
 
-    const_key_iterator find(const KeyType& key) const
+    const_key_iterator find(const KT& key) const
     {
         return m_key_map.find(key);
     }
@@ -162,7 +162,7 @@ class silly_safe_bimap
         return m_key_map.begin();
     }
 
-    const_key_iterator find(const KeyType& key)
+    const_key_iterator find(const KT& key)
     {
         return m_key_map.find(key);
     }
@@ -177,7 +177,7 @@ class silly_safe_bimap
         return m_value_map.begin();
     }
 
-    const_value_iterator find_value(const ValueType& value) const
+    const_value_iterator find_value(const VT& value) const
     {
         return m_value_map.find(value);
     }
@@ -192,14 +192,14 @@ class silly_safe_bimap
         return m_value_map.begin();
     }
 
-    const_value_iterator find_value(const ValueType& value)
+    const_value_iterator find_value(const VT& value)
     {
         return m_value_map.find(value);
     }
 
   protected:
-    std::unordered_map<KeyType, ValueType> m_key_map;
-    std::unordered_map<ValueType, KeyType> m_value_map;
+    std::unordered_map<KT, VT> m_key_map;
+    std::unordered_map<VT, KT> m_value_map;
     std::mutex m_mutex;
 };
 

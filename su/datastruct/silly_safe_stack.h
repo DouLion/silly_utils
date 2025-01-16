@@ -12,10 +12,10 @@
 #define SILLY_UTILS_SILLY_SAFE_STACK_H
 
 #include <su_marco.h>
-template <typename V>
+template <typename T>
 class silly_safe_stack
 {
-    typedef std::stack<V> StackType;
+    typedef std::stack<T> type;
 
   public:
     /// Default Constructor.
@@ -24,50 +24,42 @@ class silly_safe_stack
     virtual ~silly_safe_stack(void){};
 
     /// Push stack.
-    bool Push(const V& value)
+    void push(const T& value)
     {
-        std::scoped_lock lock(m_recMutex);
+        std::scoped_lock lock(m_mutex);
         m_stack.push(value);
-
-        return true;
     }
 
     /// Pop stack.
-    bool Pop(V& value)
+    void pop(T& value)
     {
-        std::scoped_lock lock(m_recMutex);
+        std::scoped_lock lock(m_mutex);
         if (!m_stack.empty())
         {
             value = m_stack.top();
             m_stack.pop();
-
-            return true;
         }
-
-        return true;
     }
 
     /// Get stack size.
-    int GetSize()
+    size_t size()
     {
-        int size = m_stack.size();
-        return size;
+        return m_stack.size();
     }
 
     /// Whether is empty.
-    bool IsEmpty()
+    bool empty()
     {
-        bool bEmpty = m_stack.empty();
-        return bEmpty;
+        return m_stack.empty();
     }
 
     /// Clear stack.
-    bool Clear()
+    void clear()
     {
-        std::scoped_lock lock(m_recMutex);
+        std::scoped_lock lock(m_mutex);
         while (!m_stack.empty())
         {
-            V& value = m_stack.top();
+            T& value = m_stack.top();
             m_stack.pop();
         }
         return true;
@@ -75,9 +67,9 @@ class silly_safe_stack
 
   protected:
     /// Boost recursive mutex.
-    std::mutex m_recMutex;
+    std::mutex m_mutex;
     /// Stack structure.
-    StackType m_stack;
+    type m_stack;
 };
 
 #endif  // SILLY_UTILS_SILLY_SAFE_STACK_H

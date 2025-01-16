@@ -10,7 +10,7 @@
  */
 #ifndef SILLY_UTILS_SILLY_IMAGE_BASE_H
 #define SILLY_UTILS_SILLY_IMAGE_BASE_H
-#include <image/silly_color.h>
+#include <graphics/silly_color.h>
 namespace silly
 {
 namespace image

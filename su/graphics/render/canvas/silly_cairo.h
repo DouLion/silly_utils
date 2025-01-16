@@ -14,8 +14,8 @@
 #include <geo/silly_geo.h>
 #include <cairo/cairo-ft.h>
 #include <ft2build.h>
-#include <image/silly_color.h>
-#include <image/font/silly_font.h>
+#include <graphics/silly_color.h>
+#include <graphics/font/silly_font.h>
 #include FT_FREETYPE_H
 
 
