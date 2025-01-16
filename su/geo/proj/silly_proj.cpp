@@ -69,11 +69,11 @@ void proj::gauss_to_lonlat(const double& central, const double& gx, const double
     // 经纬度计算
     double phi = phi1 - (N1 * tan(phi1) / R1) * (D * D / 2 - (5 + 3 * T1 + 10 * C1 - 4 * C1 * C1 - 9 * e1) * D * D * D * D / 24 + (61 + 90 * T1 + 298 * C1 + 45 * T1 * T1 - 252 * e1 - 3 * C1 * C1) * D * D * D * D * D * D / 720);
 
-    double lambda = central * SU_PI / 180.0 + (D - (1 + 2 * T1 + C1) * D * D * D / 6 + (5 - 2 * C1 + 28 * T1 - 3 * C1 * C1 + 8 * e1 + 24 * T1 * T1) * D * D * D * D * D / 120) / cos(phi1);
+    double lambda = DEG2RAD(central) + (D - (1 + 2 * T1 + C1) * D * D * D / 6 + (5 - 2 * C1 + 28 * T1 - 3 * C1 * C1 + 8 * e1 + 24 * T1 * T1) * D * D * D * D * D / 120) / cos(phi1);
 
     // 转换为度
-    lat = phi * 180.0 / SU_PI;
-    lon = lambda * 180.0 / SU_PI;
+    lat = RAD2DEG(phi);
+    lon = RAD2DEG(lambda);
 }
 
 void proj::lonlat_to_gauss(const double& lon, const double& lat, double& gx, double& gy, const proj::param& p)
@@ -82,11 +82,11 @@ void proj::lonlat_to_gauss(const double& lon, const double& lat, double& gx, dou
     double L0 = p.central;
 
     // 将经纬度转换为弧度
-    double lon_rad = lon * SU_PI / 180.0;
-    double lat_rad = lat * SU_PI / 180.0;
+    double lon_rad = DEG2RAD(lon);
+    double lat_rad = DEG2RAD(lat);
 
     // 计算经差
-    double lambda = (lon_rad - L0 * SU_PI / 180.0);
+    double lambda = (lon_rad - DEG2RAD(L0));
 
     // 辅助项
     double n = (p.major_axis - p.major_axis * (1 - 1 / p.flatten)) / (p.major_axis + p.major_axis * (1 - 1 / p.flatten));
@@ -116,11 +116,11 @@ void proj::lonlat_to_gauss(const double& lon, const double& lat, double& gx, dou
 
 void proj::lonlat_to_gauss(const double& central, const double& lon, const double& lat, double& gx, double& gy)
 {
-    double lamb = lat * SU_PI / 180.0;
-    double phi = lon * SU_PI / 180.0;
+    double lamb = DEG2RAD(lat);
+    double phi = DEG2RAD(lon);
 
     // 将中央子午线转换为弧度
-    double centralMeridianRad = central * SU_PI / 180.0;
+    double centralMeridianRad = DEG2RAD(central);
 
     // 计算高斯-克吕格投影公式中的参数
     double N = WGS84::A / sqrt(1 - WGS84::E2 * sin(lamb) * sin(lamb));
