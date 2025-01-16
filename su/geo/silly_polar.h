@@ -13,13 +13,44 @@ class silly_polar
 {
   public:
 
-    // 将笛卡尔坐标转换为极坐标
+    /// <summary>
+    /// 将笛卡尔坐标转换为极坐标
+    /// </summary>
+    /// <param name="x"></param>
+    /// <param name="y"></param>
+    /// <param name="r"></param>
+    /// <param name="azimuth"></param>
     static void normal_to_polar(const double& x, const double& y, double& r, double& azimuth);
-    // 将极坐标转换为笛卡尔坐标
+    
+    /// <summary>
+    /// 将笛卡尔坐标转换为极坐标
+    /// </summary>
+    /// <param name="x0"></param>
+    /// <param name="y0"></param>
+    /// <param name="x"></param>
+    /// <param name="y"></param>
+    /// <param name="r"></param>
+    /// <param name="azimuth"></param>
     static void normal_to_polar(const double& x0, const double& y0, const double& x, const double& y, double& r, double& azimuth);
-    // 将极坐标转换为笛卡尔坐标
+    
+    /// <summary>
+    /// 将极坐标转换为笛卡尔坐标
+    /// </summary>
+    /// <param name="r"></param>
+    /// <param name="azimuth"></param>
+    /// <param name="x"></param>
+    /// <param name="y"></param>
     static void normal_to_coord(const double& r, const double& azimuth, double& x, double& y);
-    // 将极坐标转换为笛卡尔坐标
+    
+    /// <summary>
+    /// 将极坐标转换为笛卡尔坐标
+    /// </summary>
+    /// <param name="r"></param>
+    /// <param name="azimuth"></param>
+    /// <param name="x0"></param>
+    /// <param name="y0"></param>
+    /// <param name="x"></param>
+    /// <param name="y"></param>
     static void normal_to_coord(const double& r, const double& azimuth, const double& x0, const double& y0, double& x, double& y);
 };
 

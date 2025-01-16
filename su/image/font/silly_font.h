@@ -48,17 +48,36 @@ class silly_font
     silly_font();
     ~silly_font();
 
+    /// <summary>
+    /// 向字体集合中添加字体
+    /// </summary>
+    /// <param name="name">字体的名称</param>
+    /// <param name="tff_file">字体文件的路径</param>
+    /// <returns></returns>
     bool add(const std::string& name, const std::string& tff_file);
+
+    /// <summary>
+    /// 从字体集合中删除一个字体
+    /// </summary>
+    /// <param name="name">删除的字体的名称</param>
+    /// <returns></returns>
     bool remove(const std::string& name);
 
+    /// <summary>
+    /// 根据名称返回字体对象
+    /// </summary>
+    /// <param name="name"></param>
+    /// <returns></returns>
     FT_Face* face(const std::string& name);
 
+    /// <summary>
+    /// 清空字体集合
+    /// </summary>
     void clean();
 
   private:
     std::map<std::string, FT_Face> m_name_font{};
     FT_Library m_ft_library;
 };
-
 
 #endif  // SILLY_UTILS_SILLY_FONT_H
