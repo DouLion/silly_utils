@@ -47,6 +47,7 @@ int main()
         outFile << std::endl;
     }
     outFile.close();
+    std::cout << "all_header.txt 生成成功" << std::endl;
 
     return 0;
 }

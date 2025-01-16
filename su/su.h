@@ -11,253 +11,243 @@
 #ifndef SILLY_UTILS_SU_H
 #define SILLY_UTILS_SU_H
 
-///// 日志
-//#include <log/silly_log.h>
-//
-///// json
-//#include <json/silly_jsonpp.h> // json文件,json字符串.json对象处理
-//
-///// 数据库
-//#include <database/otl/silly_otl.h>  // otl实现的odbc 数据库操作
-
-
 // compress (压缩/解压缩)
-#include <compress/silly_compress.h> // 压缩 错误码定义
-#include <compress/silly_7z.h>	// 7z压缩/解压缩, 未实现
-#include <compress/silly_bz2.h> // bz2 压缩/解压缩 (文件,内存数据)
-#include <compress/silly_gzip.h> // gzip 压缩/解压缩(内存数据), 文件的压缩解压缩未实现
-#include <compress/silly_minizip.h> // minizip 压缩/解压缩(文件,内存数据)
-#include <compress/silly_rar.h>  // rar 压缩/解压缩(文件), 内存数据的压缩解压缩未实现
-#include <compress/silly_zip.h>  // 未实现
+#include <compress/silly_compress.h>  // 压缩 错误码定义
+#include <compress/silly_7z.h>        // 7z压缩/解压缩, 未实现
+#include <compress/silly_bz2.h>       // bz2 压缩/解压缩 (文件,内存数据)
+#include <compress/silly_gzip.h>      // gzip 压缩/解压缩(内存数据), 文件的压缩解压缩未实现
+#include <compress/silly_minizip.h>   // minizip 压缩/解压缩(文件,内存数据)
+#include <compress/silly_rar.h>       // rar 压缩/解压缩(文件), 内存数据的压缩解压缩未实现
+#include <compress/silly_zip.h>       // 未实现
 
 // database (数据库)
-#include <database/dm8/dm8_dpi.h> // dm8 数据库登录,登出,错误信息提示
-#include <database/dm8/dm8_pro_c.h> // 未实现
-#include <database/kb/kb_odbc.h> // 未实现
-#include <database/otl/otlv4.h> // otl库源码
-#include <database/otl/otl_tools.h> // 未实现
-#include <database/otl/silly_otl.h> // otl实现数据库的增删改查模板函数
-#include <database/redis/silly_redis_client.h> // 未实现
-#include <database/redis/silly_redis_cpool.h> // 未实现
-#include <database/silly_sql.h> // 操作不同数据库的SQL语句常量集合
-#include <database/sqlite3/silly_sqlite3.h> // sqlite3数据库 打开,备份,关闭,错误信息提示
+#include <database/dm8/dm8_dpi.h>               // 达梦数据库dpi接口
+#include <database/dm8/dm8_pro_c.h>             // 未实现
+#include <database/kb/kb_odbc.h>                // 未实现
+#include <database/otl/otlv4.h>                 // otl库源码
+#include <database/otl/otl_tools.h>             // 未实现
+#include <database/otl/silly_otl.h>             // otl实现数据库的增删改查模板函数
+#include <database/redis/silly_redis_client.h>  // 未实现
+#include <database/redis/silly_redis_cpool.h>   // 未实现
+#include <database/silly_sql.h>                 // 操作不同数据库的SQL语句常量集合
+#include <database/sqlite3/silly_sqlite3.h>     // sqlite3 的一些常用用法
 
 // datastruct (数据结构)
-#include <datastruct/silly_safe_bimap.h> // 双向map模板类
-#include <datastruct/silly_safe_deque.h> // 双向队列模板类
-#include <datastruct/silly_safe_list.h> // list模板类
-#include <datastruct/silly_safe_map.h> // map模板类
-#include <datastruct/silly_safe_stack.h> // 栈模板类
+#include <datastruct/silly_safe_bimap.h>  // 双向map模板类
+#include <datastruct/silly_safe_deque.h>  // 双向队列模板类
+#include <datastruct/silly_safe_list.h>   // list模板类
+#include <datastruct/silly_safe_map.h>    // map模板类
+#include <datastruct/silly_safe_stack.h>  // 栈模板类
 
 // datetime (时间)
-#include <datetime/silly_posix_time.h> // 统一时间为时间戳类型, 包含时间点的获取,时间戳和字符串的互转
-#include <datetime/silly_timer.h> // 定时器
+#include <datetime/silly_posix_time.h>  // 时间工具类 (统一时间为时间戳类型)
+#include <datetime/silly_timer.h>       // 定时器
 
 // encode (编码)
-#include <encode/silly_crc.h> // CRC校验 (crc16 crc32 crc64)
-#include <encode/silly_encode.h> // 编码转换, 字符串 编码检测 与 编码转换
-#include <encode/silly_encrypt.h> // 加密解密 (md5, AES)
-#include <encode/silly_pinyin.h> // 汉字转拼音
+#include <encode/silly_crc.h>      // CRC校验 (crc16 crc32 crc64)
+#include <encode/silly_encode.h>   // 编码转换, 字符串 编码检测 与 编码转换
+#include <encode/silly_encrypt.h>  // 加密解密 (md5, AES)
+#include <encode/silly_pinyin.h>   // 汉字转拼音
 
 // files (文件)
-#include <files/silly_file.h> // 文件读取(完整读取,读取指定字节,逐行读取,文件大小), 写入(完整写入,逐行写入), 获取/递归获取 目录下的所有文件, 文件最新更新时间, 文件删除,复制
-#include <files/silly_file_lock.h> // 文件锁
-#include <files/silly_memory_map.h> // 内存映射文件 (读取,写入)
-#include <files/silly_schedule_file.h> // 定时生成文件, 结构确定内容未实现
-#include <files/silly_xlsx.h> // xlsx文件操作 未实现
+#include <files/silly_file.h>           // 文件/目录 工具类(读写,复制,删除)
+#include <files/silly_file_lock.h>      // 文件锁
+#include <files/silly_memory_map.h>     // 内存映射文件 (读取,写入)
+#include <files/silly_schedule_file.h>  // 定时生成文件, 结构确定内容未实现
+#include <files/silly_xlsx.h>           // xlsx文件操作 未实现
 
-// geo (地理矢量)
-#include <geo/gpc/gpc.h>  // gpc源码
-#include <geo/proj/gdal/silly_projection_define.h> // 投影坐标系的 wtk
-#include <geo/proj/gdal/silly_proj_convert.h> // 地理坐标系的转换
-#include <geo/proj/silly_proj.h> // (高斯投影, 墨卡托投影)转经纬度坐标
-#include <geo/silly_dem.h>  // dem文件读取 未实现
-#include <geo/silly_geo.h>  // 自定义点线面多线多面矢量类型
-#include <geo/silly_geojson.h> // geojson处理类, 未实现
-#include <geo/silly_geo_coll.h> // 复合适量类型定义
-#include <geo/silly_geo_const.h> // 地球基本信息常量定义: 平均半径, 赤道半径, 极半径, 长半轴, 扁率
-#include <geo/silly_geo_convert.h> // 矢量数据转换: shp与geojson互转, 地理坐标系与墨卡托坐标系互转
-#include <geo/silly_geo_prop.h> // 矢量数据的属性定义
-#include <geo/silly_geo_utils.h> // 基于gdal的矢量数据工具类: 形心, 方向角, 面积, 矢量的读取写入, 矢量信息的加载, 矢量相交判断, 点线距离, 平滑线, 自定义矢量与gdal中的矢量互转, 矢量缓冲区
-#include <geo/silly_iso_poly.h> // 等值面读取和写入
-#include <geo/silly_map_layer.h> // 地图图层类
-#include <geo/silly_polar.h> // 极坐标与经纬度坐标互转
-#include <geo/silly_projection.h> // 经纬度坐标与墨卡托投影的互转
-#include <geo/silly_pyramid.h> // 矢量金字塔:经纬度转金字塔层块号,瓦片经纬度范围, 屏幕坐标与经纬度坐标互转, 瓦片转屏幕范围
-#include <geo/silly_raster_to_vector.h> // Marching squares 算法
-#include <geo/silly_spatialite.h> // spatialite数据库操作: 创建, 删除,  矢量数据的读取写入, 查询, 修改
-#include <geo/silly_vector_to_raster.h> // 矢量转栅格,扫描线算法
-#include <geo/thiessen/jc_voronoi.h> // voronoi图
-#include <geo/thiessen/jvc_struct.h> // jvc数据类型定义
-#include <geo/thiessen/thiessen_creator.h> // 泰森多边形（Voronoi 图）
-#include <geo/triangular/silly_delaunay.h> // 德劳内三角剖分的基础数据结构和工具类:从字符串中提取双精度浮点数, 从文件或字符串读取和解析点数据, 两点间距离
-#include <geo/triangular/silly_delaunay_2d.h> // 未实现
-#include <geo/triangular/silly_delaunay_3d.h> // 未实现
-#include <geo/triangular/silly_delaunay_bowyer.h> // Bowyer-Watson 算法
-#include <geo/triangular/silly_delaunay_divide.h> // 未实现
-#include <geo/triangular/silly_delaunay_sweep_line.h> // 德劳内三角扫线算法 (点的扫描线算法)
-#include <geo/triangular/silly_iso_line.h> // 等值线: 等值线的生成、插值、裁剪和绘制
-#include <geo/vacuate/psimpl.h> // psimpl源码
-#include <geo/vacuate/silly_vacuate.h> // 抽稀算法
+// geo (几何矢量)
+#include <geo/gpc/gpc.h>                               // gpc源码
+#include <geo/proj/gdal/silly_projection_define.h>     // 投影坐标系的 wtk
+#include <geo/proj/gdal/silly_proj_convert.h>          // 地理坐标系的转换
+#include <geo/proj/silly_proj.h>                       // (高斯投影, 墨卡托投影)转经纬度坐标
+#include <geo/silly_dem.h>                             // dem数据读写 未实现
+#include <geo/silly_geo.h>                             // 自定义点线面多线多面矢量类型
+#include <geo/silly_geojson.h>                         // geojson处理类, 未实现
+#include <geo/silly_geo_coll.h>                        // 复合矢量类型定义
+#include <geo/silly_geo_const.h>                       // 地球基本信息常量定义
+#include <geo/silly_geo_convert.h>                     // 矢量数据转换: shp与geojson互转, 地理坐标系与墨卡托坐标系互转
+#include <geo/silly_geo_prop.h>                        // 矢量数据的属性定义
+#include <geo/silly_geo_utils.h>                       // 基于gdal的矢量读写和算法
+#include <geo/silly_iso_poly.h>                        // 一种txt文件格式的矢量面
+#include <geo/silly_map_layer.h>                       // 地图图层类
+#include <geo/silly_polar.h>                           // 极坐标与经纬度坐标互转
+#include <geo/silly_projection.h>                      // 经纬度坐标与墨卡托投影的互转
+#include <geo/silly_pyramid.h>                         // 矢量金字塔:经纬度转金字塔层块号,瓦片经纬度范围, 屏幕坐标与经纬度坐标互转, 瓦片转屏幕范围
+#include <geo/silly_raster_to_vector.h>                // Marching squares 算法
+#include <geo/silly_spatialite.h>                      // spatialite数据库操作: 创建, 删除,  矢量数据的读取写入, 查询, 修改
+#include <geo/silly_vector_to_raster.h>                // 矢量转栅格,扫描线算法
+#include <geo/thiessen/jc_voronoi.h>                   // voronoi图
+#include <geo/thiessen/jvc_struct.h>                   // jvc数据类型定义
+#include <geo/thiessen/thiessen_creator.h>             // 泰森多边形（Voronoi 图）
+#include <geo/triangular/silly_delaunay.h>             // 德劳内三角剖分的基础数据结构和工具类
+#include <geo/triangular/silly_delaunay_2d.h>          // 未实现
+#include <geo/triangular/silly_delaunay_3d.h>          // 未实现
+#include <geo/triangular/silly_delaunay_bowyer.h>      // Bowyer-Watson 算法
+#include <geo/triangular/silly_delaunay_divide.h>      // 未实现
+#include <geo/triangular/silly_delaunay_sweep_line.h>  // 德劳内三角扫线算法 (点的扫描线算法)
+#include <geo/triangular/silly_iso_line.h>             // 等值线: 等值线的生成、插值、裁剪和绘制
+#include <geo/vacuate/psimpl.h>                        // psimpl源码
+#include <geo/vacuate/silly_vacuate.h>                 // 抽稀算法
 
-// image
-#include <image/font/silly_font.h>
-#include <image/grid/silly_render.h>
-#include <image/render/canvas/silly_cairo.h>
-#include <image/render/pattern/cairo/silly_cairo_pattern.h>
-#include <image/render/shape/silly_render_shapes.h>
-#include <image/render/silly_grid_render.h>
-#include <image/render/silly_render_brush.h>
-#include <image/render/silly_render_pen.h>
-#include <image/render/style/silly_render_style.h>
-#include <image/render/symbol/silly_render_symbol.h>
-#include <image/silly_bmp.h>
-#include <image/silly_color.h>
-#include <image/silly_gif.h>
-#include <image/silly_icon.h>
-#include <image/silly_image_base.h>
-#include <image/silly_jpeg.h>
-#include <image/silly_png.h>
-#include <image/silly_raw.h>
-#include <image/silly_tif.h>
-#include <image/tools/silly_huge_stitcher.h>
-#include <image/tools/silly_stitcher.h>
+// image (图片)
+#include <image/font/silly_font.h>                           // 处理字体
+#include <image/grid/silly_render.h>                         // 未实现
+#include <image/render/canvas/silly_cairo.h>                 // cairo库处理图片工具
+#include <image/render/pattern/cairo/silly_cairo_pattern.h>  // 未实现
+#include <image/render/shape/silly_render_shapes.h>          // 未实现
+#include <image/render/silly_grid_render.h>                  // png 图片渲染
+#include <image/render/silly_render_brush.h>                 // 未实现
+#include <image/render/silly_render_pen.h>                   // 未实现
+#include <image/render/style/silly_render_style.h>           // 未实现
+#include <image/render/symbol/silly_render_symbol.h>         // 未实现
+#include <image/silly_bmp.h>                                 // 未实现
+#include <image/silly_color.h>                               // color类 自定义的统一颜色类型
+#include <image/silly_gif.h>                                 // 未实现
+#include <image/silly_icon.h>                                // 未实现
+#include <image/silly_image_base.h>                          // 处理图片类的基类
+#include <image/silly_jpeg.h>                                // jpeg图片处理
+#include <image/silly_png.h>                                 // png图片处理
+#include <image/silly_raw.h>                                 // 未实现
+#include <image/silly_tif.h>                                 // 为实现
+#include <image/tools/silly_huge_stitcher.h>                 // 超大图像拼接 未实现
+#include <image/tools/silly_stitcher.h>                      // 图像拼接 未实现
 
 // json
-#include <json/silly_jsonpp.h>
+#include <json/silly_jsonpp.h>  // json文件,json字符串,json对象处理
 
 // log
-#include <log/silly_log.h>
+#include <log/silly_log.h>  // 日志
 
 // mapbox
-#include <mapbox/mbtiles/dtoa_milo.h>
-#include <mapbox/mbtiles/silly_mbtiles_metadata.h>
-#include <mapbox/mbtiles/silly_mbtiles_sqlite3.h>
-#include <mapbox/mbtiles/silly_mbtiles_text.h>
-#include <mapbox/mbtiles/silly_mvt.h>
-#include <mapbox/mbtiles/silly_vector_tile.h>
-#include <mapbox/mbtiles/vector_tile_21_pb.h>
-#include <mapbox/silly_mapbox.h>
+#include <mapbox/mbtiles/dtoa_milo.h>               // double转字符串
+#include <mapbox/mbtiles/silly_mbtiles_metadata.h>  // mapbox中metadata数据
+#include <mapbox/mbtiles/silly_mbtiles_sqlite3.h>   // mapbox中mbtiles读取写入
+#include <mapbox/mbtiles/silly_mbtiles_text.h>      //
+#include <mapbox/mbtiles/silly_mvt.h>               // mapbox中mvt_tile类
+#include <mapbox/mbtiles/silly_vector_tile.h>       // 未实现
+#include <mapbox/mbtiles/vector_tile_21_pb.h>       // 未实现
+#include <mapbox/silly_mapbox.h>                    // mapbox工具
 
-// math
-#include <math/interpolate/silly_akima.h>
-#include <math/interpolate/silly_bicubic.h>
-#include <math/interpolate/silly_bilinear.h>
-#include <math/silly_bezier_curve.h>
-#include <math/silly_interpolate.h>
-#include <math/silly_math_const.h>
-#include <math/silly_matrix.h>
-#include <math/spline/siily_least_squares_fit.h>
-#include <math/spline/silly_bezier_spline.h>
-#include <math/spline/silly_b_spline.h>
-#include <math/spline/silly_catmull_rom_spline.h>
-#include <math/spline/silly_cube_spline.h>
-#include <math/spline/silly_hermite_spline.h>
-#include <math/spline/silly_lagrange_spline.h>
-#include <math/spline/silly_parabolic_spline.h>
-#include <math/spline/silly_pqs_interp_spline.h>
+// math (数学)
+#include <math/interpolate/silly_akima.h>          // akima插值
+#include <math/interpolate/silly_bicubic.h>        // 双三次插值
+#include <math/interpolate/silly_bilinear.h>       // 双线性插值
+#include <math/silly_bezier_curve.h>               // 贝塞尔曲线
+#include <math/silly_interpolate.h>                // 插值函数
+#include <math/silly_math_const.h>                 // 数学计算中的常量
+#include <math/silly_matrix.h>                     // 矩阵类
+#include <math/spline/siily_least_squares_fit.h>   // 未实现
+#include <math/spline/silly_bezier_spline.h>       // 未实现
+#include <math/spline/silly_b_spline.h>            // 二次 B 样条插值
+#include <math/spline/silly_catmull_rom_spline.h>  // 未实现
+#include <math/spline/silly_cube_spline.h>         // 未实现
+#include <math/spline/silly_hermite_spline.h>      // 未实现
+#include <math/spline/silly_lagrange_spline.h>     // 未实现
+#include <math/spline/silly_parabolic_spline.h>    // 未实现
+#include <math/spline/silly_pqs_interp_spline.h>   // 未实现
 
-// metadata
-#include <metadata/geotiff_utils.h>
-#include <metadata/grib_utils.h>
-#include <metadata/narui_radar_grid_utils.h>
-#include <metadata/netcdf_utils.h>
-#include <metadata/silly_ascii_grid.h>
-#include <metadata/silly_egm.h>
-#include <metadata/silly_geotiff.h>
-#include <metadata/silly_grib2.h>
-#include <metadata/silly_micaps.h>
-#include <metadata/silly_netcdf.h>
-#include <metadata/silly_nmea.h>
-#include <metadata/silly_tzx_grid.h>
+// metadata (元数据)
+#include <metadata/geotiff_utils.h>           // geotiff 读写工具
+#include <metadata/grib_utils.h>              // grid 读写工具
+#include <metadata/narui_radar_grid_utils.h>  // 纳睿达网格文件读写工具
+#include <metadata/netcdf_utils.h>            // netcdf 读写工具
+#include <metadata/silly_ascii_grid.h>        // ascii网格文件
+#include <metadata/silly_egm.h>               // 地球重力场文件数据
+#include <metadata/silly_geotiff.h>           // 未实现
+#include <metadata/silly_grib2.h>             // grib2读取工具
+#include <metadata/silly_micaps.h>            // 中国气象局Micaps系统的数据
+#include <metadata/silly_netcdf.h>            // netcdf读取工具
+#include <metadata/silly_nmea.h>              // GPGSA GPS数据传输标准
+#include <metadata/silly_tzx_grid.h>          // tzx网格文件
 
-// network
-#include <network/ftp/silly_ftp_client.h>
-#include <network/ftp/silly_ftp_server.h>
-#include <network/http/silly_http_client.h>
-#include <network/http/silly_http_headers.h>
-#include <network/http/silly_http_server.h>
-#include <network/lora/silly_lora_client.h>
-#include <network/lora/silly_lora_gateway.h>
-#include <network/lora/silly_lora_server.h>
-#include <network/mail/CSendMail.h>
-#include <network/mail/silly_imap.h>
-#include <network/mail/silly_mail.h>
-#include <network/mail/silly_mail_receive.h>
-#include <network/mail/silly_mail_send.h>
-#include <network/mail/silly_pop3.h>
-#include <network/mail/silly_smtp.h>
-#include <network/mqtt/silly_mqtt_client.h>
-#include <network/mqtt/silly_mqtt_server.h>
-#include <network/socket/silly_socket.h>
-#include <network/tcp/ftp_utils.h>
-#include <network/tcp/silly_curl.h>
-#include <network/tcp/silly_ftp.h>
-#include <network/tcp/silly_http.h>
-#include <network/tools/silly_captcha.h>
-#include <network/websocket/silly_websocket_client.h>
-#include <network/websocket/silly_websocket_data.h>
-#include <network/websocket/silly_websocket_server.h>
+// network (网络)
+#include <network/ftp/silly_ftp_client.h>              // 未实现
+#include <network/ftp/silly_ftp_server.h>              // 未实现
+#include <network/http/silly_http_client.h>            // http(https)客户端 类声明
+#include <network/http/silly_http_headers.h>           // 未实现
+#include <network/http/silly_http_server.h>            // drogon请求头宏定义
+#include <network/lora/silly_lora_client.h>            // 未实现
+#include <network/lora/silly_lora_gateway.h>           // 未实现
+#include <network/lora/silly_lora_server.h>            // 未实现
+#include <network/mail/CSendMail.h>                    // 实现邮件的发送功能，支持多个用户接收，支持附件
+#include <network/mail/silly_imap.h>                   // 未实现
+#include <network/mail/silly_mail.h>                   // 邮件发送与接收的工具,结构定义内容未实现
+#include <network/mail/silly_mail_receive.h>           // 未实现
+#include <network/mail/silly_mail_send.h>              //
+#include <network/mail/silly_pop3.h>                   // 未实现
+#include <network/mail/silly_smtp.h>                   // SMTP客户端,与邮件服务器进行连接、登录、发送邮件和附件等操作
+#include <network/mqtt/silly_mqtt_client.h>            // mqtt 客户端
+#include <network/mqtt/silly_mqtt_server.h>            // 未实现
+#include <network/socket/silly_socket.h>               // socket工具
+#include <network/tcp/ftp_utils.h>                     // ftp 工具
+#include <network/tcp/silly_curl.h>                    // curl 工具
+#include <network/tcp/silly_ftp.h>                     // ftp客户端工具
+#include <network/tcp/silly_http.h>                    // http server 工具头文件
+#include <network/tools/silly_captcha.h>               // 验证码
+#include <network/websocket/silly_websocket_client.h>  // websocket 客户端
+#include <network/websocket/silly_websocket_data.h>    // 未实现
+#include <network/websocket/silly_websocket_server.h>  // websocket 服务端 未实现
 
-// parser
-#include <parser/ini/INIReader.h>
-#include <parser/ini/silly_boost_ini_parser.h>
-#include <parser/ini/silly_ini_parser_base.h>
-#include <parser/ini/silly_simple_ini_parser.h>
-#include <parser/ini/silly_tzx_ini_parser.h>
+// parser (解析器)
+#include <parser/ini/INIReader.h>                // ini解析源码
+#include <parser/ini/silly_boost_ini_parser.h>   // 基于boost的ini工具
+#include <parser/ini/silly_ini_parser_base.h>    // ini文件解析 基类
+#include <parser/ini/silly_simple_ini_parser.h>  // 基于SimpleIni的ini文件解析
+#include <parser/ini/silly_tzx_ini_parser.h>     // tzx ini文件解析工具
 
-// pool
-#include <pool/silly_bst_pool.h>
-#include <pool/silly_bst_pool_utils.h>
-#include <pool/silly_obj_pool.h>
-#include <pool/silly_pool_manager.h>
-#include <pool/silly_thread_pool.h>
+// pool (线程池)
+#include <pool/silly_bst_pool.h>        // 线程池源码
+#include <pool/silly_bst_pool_utils.h>  // 线程池源码
+#include <pool/silly_obj_pool.h>        // 对象池
+#include <pool/silly_pool_manager.h>    // 连接池
+#include <pool/silly_thread_pool.h>     // 线程池
 
 // pretty
-#include <pretty/wrapper/silly_decorator.h>
+#include <pretty/wrapper/silly_decorator.h>  // 异常捕获模板函数
 
-// radar
-#include <radar/silly_radar_grid.h>
-#include <radar/silly_radar_polar.h>
-#include <radar/silly_radar_proj.h>
-#include <radar/silly_radar_proj_ez.h>
+// radar (雷达)
+#include <radar/silly_radar_grid.h>     // 雷达网格数据存储
+#include <radar/silly_radar_polar.h>    // 雷达极坐标系数据存储
+#include <radar/silly_radar_proj.h>     // 雷达坐标系
+#include <radar/silly_radar_proj_ez.h>  // 雷达坐标系简化用法 未实现
 
-// singleton
-#include <singleton/silly_singleton.h>
+// singleton (单例)
+#include <singleton/silly_singleton.h>  // 单例类
 
-// string
-#include <string/silly_algorithm.h>
-#include <string/silly_format.h>
-#include <string/silly_regex.h>
+// string (字符串)
+#include <string/silly_algorithm.h>  // 字符串算法
+#include <string/silly_format.h>     // 字符串格式化
+#include <string/silly_regex.h>      // 正则表达式
 
-// system
-#include <system/silly_disk.h>
-#include <system/silly_dll.h>
-#include <system/silly_process.h>
-#include <system/silly_uuid.h>
+// system (系统)
+#include <system/silly_disk.h>     // 获取磁盘信息工具
+#include <system/silly_dll.h>      // 动态链接库工具
+#include <system/silly_process.h>  // 进程工具
+#include <system/silly_uuid.h>     // guid(唯一标识码)
 
-// test
-#include <test/silly_unit_test.h>
+// test (测试)
+#include <test/silly_unit_test.h>  // 单元测试模块 未实现
 
 // tzx
 #include <tzx/dynamic_rule/silly_dynamic_rule.h>
-#include <tzx/moisture/silly_moisture.h>
-#include <tzx/pyramid/silly_pyramid_base.h>
-#include <tzx/pyramid/silly_pyramid_block.h>
-#include <tzx/pyramid/silly_pyramid_data.h>
-#include <tzx/pyramid/silly_pyramid_full_text.h>
-#include <tzx/pyramid/silly_pyramid_handle.h>
-#include <tzx/pyramid/silly_pyramid_index.h>
-#include <tzx/pyramid/silly_pyramid_info.h>
-#include <tzx/rwdb/silly_pptn.h>
-#include <tzx/rwdb/silly_river.h>
-#include <tzx/rwdb/silly_rsvr.h>
-#include <tzx/rwdb/silly_rwdb_record.h>
-#include <tzx/rwdb/silly_stbprp.h>
-#include <tzx/rwdb/silly_turn_tool.h>
-#include <tzx/silly_adcd.h>
-#include <tzx/silly_grid_index.h>
-#include <tzx/warn/silly_simple_warn.h>
-#include <tzx/warn/silly_ultimate_warn.h>
+#include <tzx/moisture/silly_moisture.h>          // moisture表对象
+#include <tzx/pyramid/silly_pyramid_base.h>       // 金字塔基类
+#include <tzx/pyramid/silly_pyramid_block.h>      // 金字塔数据块
+#include <tzx/pyramid/silly_pyramid_data.h>       // 金字塔data
+#include <tzx/pyramid/silly_pyramid_full_text.h>  // 未实现
+#include <tzx/pyramid/silly_pyramid_handle.h>     // 处理金字塔数据的对象, 读取写入功能
+#include <tzx/pyramid/silly_pyramid_index.h>      // 金字塔索引类
+#include <tzx/pyramid/silly_pyramid_info.h>       // 金字塔info
+#include <tzx/rwdb/silly_pptn.h>                  // pptn表对象类
+#include <tzx/rwdb/silly_river.h>                 // river表对象类
+#include <tzx/rwdb/silly_rsvr.h>                  // rsvr表对象类
+#include <tzx/rwdb/silly_rwdb_record.h>           // 数据库记录基类
+#include <tzx/rwdb/silly_stbprp.h>                // stbprp表对象类
+#include <tzx/rwdb/silly_turn_tool.h>             // 字符串与二进制数据互转
+#include <tzx/silly_adcd.h>                       // adcd对象类
+#include <tzx/silly_grid_index.h>                 // 网格点索引统一
+#include <tzx/warn/silly_simple_warn.h>           // 一个告警必要的属性内容
+#include <tzx/warn/silly_ultimate_warn.h>         // 告警内容的终极信息, 尽量包含目前已知的信息
 
 #endif  // SILLY_UTILS_SU_H
