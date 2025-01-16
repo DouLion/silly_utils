@@ -147,7 +147,7 @@ class proj
     static void gauss_to_mercator(const double& central, const double& gx, const double& gy, double& mctx, double& mcty);
 
     /// <summary>
-    /// 地心坐标系转经纬度高程
+    /// 地心地固直角坐标系 转 经纬高坐标系
     /// </summary>
     /// <param name="x"></param>
     /// <param name="y"></param>
@@ -158,7 +158,7 @@ class proj
     static void ecef_to_lonlat(const double& x, const double& y, const double& z, double& lon, double& lat, double& height);
 
     /// <summary>
-    /// 经纬度,高程 转地心坐标系
+    /// 经纬高坐标系 转 地心地固直角坐标系
     /// </summary>
     /// <param name="lon"></param>
     /// <param name="lat"></param>
