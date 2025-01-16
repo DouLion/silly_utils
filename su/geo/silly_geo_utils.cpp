@@ -355,6 +355,36 @@ bool silly::geo::utils::is_valid_shp(const std::string& u8file)
     return false;
 }
 
+bool silly::geo::utils::is_complete_shp(const std::string& u8file, std::vector<std::string>& miss_files, const bool& ignore_prop)
+{
+    // 获取文件的父级目录和文件名不包含后缀名
+    std::filesystem::path shp_path(u8file);
+    if (!std::filesystem::exists(shp_path))
+    {
+        miss_files.push_back(shp_path.filename().string());
+    }
+    //std::filesystem::path shp_parent_dir = shp_path.parent_path();
+    std::string shp_name = shp_path.stem().string();
+
+    // 判断同级目录是否有 还存在 同名的 .dbf .shx 文件
+    std::filesystem::path shx = shp_path.parent_path().append(shp_name + ".shx"); // 集合索引
+    std::filesystem::path dbf = shp_path.parent_path().append(shp_name + ".dbf"); // 属性信息
+    if (!std::filesystem::exists(shx))
+    {
+        miss_files.push_back(shx.filename().string());
+    }
+    if (!ignore_prop)
+    {
+        if (!std::filesystem::exists(dbf))
+        {
+            miss_files.push_back(dbf.filename().string());
+        }
+    }
+
+    return miss_files.empty();
+}
+
+
 bool silly::geo::utils::check_shp_info(const std::string& u8file, enum_geometry_type& type, std::map<std::string, silly_geo_prop::enum_prop_type>& properties)
 {
     bool status = false;
