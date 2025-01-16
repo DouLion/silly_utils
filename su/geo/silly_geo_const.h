@@ -20,40 +20,47 @@ constexpr double mean = 6371000.0;        // 平均半径 米
 constexpr double equatorial = 6378137.0;  // 赤道半径 米
 constexpr double polar = 6356752.3142;    // 极地半径 米
 }  // namespace earth_radius
-namespace wgs84
+namespace WGS84
 {
-constexpr double semi_major_axis = 6378137.0;              // 长半轴 米
-constexpr double inverse_flattening = 298.257223563;       // 扁率的倒数
-constexpr double flattening = (1.0 / inverse_flattening);  // 扁率
-constexpr double e2 = (2 * flattening - flattening * flattening);
-}  // namespace wgs84
-namespace cgcs2000
+constexpr double A = 6378137.0;        // 长半轴 米
+constexpr double INVF = 298.257223563;  // 扁率的倒数
+constexpr double F = (1.0 / INVF);      // 扁率
+constexpr double B = (A * (1.0 - F));  // 短半轴
+constexpr double E2 = (2 * F - F * F); // 第一偏心扁率的平方
+constexpr double GM = 3.986004418e14;  // 地心引力常数 立方米/秒的平方
+constexpr double W = 7.2921151467e-5; // 自转角速度 弧度每秒
+constexpr double J2 = 1.08262983226e-3;
+}  // namespace WGS84
+namespace CGCS2000
 {
-
-constexpr double semi_major_axis = 6378137.0;
-constexpr double inverse_flattening = 298.257222101;
-constexpr double flattening = (1.0 / inverse_flattening);
-constexpr double e2 = (2 * flattening - flattening * flattening);
-constexpr double gm = 3.986004418 * 1014;  // 地心引力常数 立方米/秒的平方
-constexpr double w = 7.2921151467e-5;      // 自转角速度 弧度每秒
-constexpr double j = 1.08262983226e-3;     // 重力场谐系数
-}  // namespace cgcs2000
-namespace xian80
-{
-
-constexpr double semi_major_axis = 6378140.0;              // 长半轴
-constexpr double inverse_flattening = 298.257;             // 扁率的倒数
-constexpr double flattening = (1.0 / inverse_flattening);  // 扁率
-constexpr double e2 = (2 * flattening - flattening * flattening);
-}  // namespace xian80
-namespace beijing54
+// CGCS2000 大多数参数跟WGS84 一致
+constexpr double A = 6378137.0;
+constexpr double INVF = 298.257222101;
+constexpr double F = (1.0 / INVF);
+constexpr double B = (A * (1.0 - F));
+constexpr double E2 = (2 * F - F * F);
+constexpr double GM = 3.9860044181e14;  // 地心引力常数 立方米/秒的平方
+constexpr double W = 7.2921151467e-5;      // 自转角速度 弧度每秒
+constexpr double J2 = 1.08262983226e-3;     // 重力场谐系数
+}  // namespace CGCS2000
+namespace XIAN80
 {
 
-constexpr double semi_major_axis = 6378245.0;              // 长半轴
-constexpr double inverse_flattening = 298.3;               // 扁率的倒数
-constexpr double flattening = (1.0 / inverse_flattening);  // 扁率
-constexpr double e2 = (2 * flattening - flattening * flattening);
-}  // namespace beijing54
+constexpr double A = 6378140.0;    // 长半轴
+constexpr double INVF = 298.257;    // 扁率的倒数
+constexpr double F = (1.0 / INVF);  // 扁率
+constexpr double B = (A * (1.0 - F));
+constexpr double E2 = (2 * F - F * F);
+}  // namespace XIAN80
+namespace BEIJING54
+{
+
+constexpr double A = 6378245.0;    // 长半轴
+constexpr double INVF = 298.3;      // 扁率的倒数
+constexpr double F = (1.0 / INVF);  // 扁率
+constexpr double B = (A * (1.0 - F));
+constexpr double E2 = (2 * F - F * F);
+}  // namespace BEIJING54
 
 }  // namespace geo
 }  // namespace silly

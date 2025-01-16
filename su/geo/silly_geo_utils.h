@@ -93,16 +93,14 @@ class utils
 
   
     /// <summary>
-    /// 判断shp文件是否包含了全部所需的文件: .shp .dbf .shx
+    /// 检查shp文件组中缺失的文件
     /// .shp: 存储几何矢量
     /// .dbf: 存储属性信息 (该文件不存在 gdal也能打开shp,成功读取矢量,但是无法读取属性信息)
     /// .shx: 存储几何矢量索引
     /// </summary>
     /// <param name="u8file"></param>
-    /// <param name="miss_files"></param>
-    /// <param name="ignore_prop">默认不忽略属性,即默认检测.dbf文件的存在</param>
     /// <returns></returns>
-    static bool is_complete_shp(const std::string& u8file, std::vector<std::string>& miss_files, const bool& ignore_prop = false);
+    static std::vector<std::string> shp_missing_file(const std::string& u8file);
 
     /// <summary>
     /// 加载shp文件中的属性信息

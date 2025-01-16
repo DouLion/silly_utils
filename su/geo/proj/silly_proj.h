@@ -10,47 +10,33 @@
 #ifndef SILLY_UTILS_SILLY_PROJ_H
 #define SILLY_UTILS_SILLY_PROJ_H
 #include <su_marco.h>
+#include <geo/silly_geo_const.h>
 
 #define SU_GAUSS3_NO(lon) static_cast<int>(lon / 3.0 + 1)
 #define SU_GAUSS6_NO(lon) static_cast<int>(lon / 6.0 + 1)
 #define SU_GAUSS3_L0(no) static_cast<double>(3 * no - 1.5)
 #define SU_GAUSS6_L0(no) static_cast<double>(6 * no - 3.0)
 
-// 地球椭球体参数
-// 长半轴
-#define WGS84_SEMI_MAJOR_AXIS 6378137.0f
-// 扁率
-#define WGS84_FLATTENING_R (1.0 / 298.257222101f)
-
-#define WGS84_E2 (2 * WGS84_FLATTENING_R - WGS84_FLATTENING_R * WGS84_FLATTENING_R)
-
-// 54年北京坐标系参数
-#define ELLIPSOID_54_BJ_A 6378245.0f
-#define ELLIPSOID_54_BJ_F 0.0033523298692591f
-
-// 80年西安坐标系参数
-#define ELLIPSOID_80_XA_A 6378140.0f
-#define ELLIPSOID_80_XA_F 0.0033528131778969f
-
-// WGS84坐标系参数
-#define ELLIPSOID_84_WGS_A 6378137.0f
-#define ELLIPSOID_84_WGS_F 0.0033528106647475f
-
-
-struct silly_gauss_param
+namespace silly
 {
-    // 中央经度线
-    double central{117.0};
-    double scale{0.9996};
-    double easting{500000.0};  // 东偏移
-    // 长半轴
-    double major_axis{WGS84_SEMI_MAJOR_AXIS};
-    // 扁率
-    double flatten{WGS84_FLATTENING_R};
-};
-
-class silly_proj
+namespace geo
 {
+
+class proj
+{
+  public:
+    struct param
+    {
+        // 中央经度线
+        double central{117.0};
+        double scale{0.9996};
+        double easting{500000.0};  // 东偏移
+        // 长半轴
+        double major_axis{silly::geo::WGS84::A};
+        // 扁率
+        double flatten{silly::geo::WGS84::F};
+    };
+
   public:
     /// <summary>
     /// 高斯投影反算经纬度
@@ -60,7 +46,7 @@ class silly_proj
     /// <param name="lon"></param>
     /// <param name="lat"></param>
     /// <param name="p"></param>
-    static void gauss_to_lonlat(const double& gx, const double& gy, double& lon, double& lat, const silly_gauss_param& p);
+    static void gauss_to_lonlat(const double& gx, const double& gy, double& lon, double& lat, const param& p);
 
     /// <summary>
     /// 高斯投影反算经纬度,使用静态值速度会更快
@@ -79,7 +65,7 @@ class silly_proj
     /// <param name="gx"></param>
     /// <param name="gy"></param>
     /// <param name="p"></param>
-    static void lonlat_to_gauss(const double& lon, const double& lat, double& gx, double& gy, const silly_gauss_param& p);
+    static void lonlat_to_gauss(const double& lon, const double& lat, double& gx, double& gy, const param& p);
 
     /// <summary>
     /// 经纬度转高斯投影,使用静态值速度会更快
@@ -116,7 +102,7 @@ class silly_proj
     /// <param name="gx"></param>
     /// <param name="gy"></param>
     /// <param name="p"></param>
-    static void mercator_to_gauss(const double& mctx, const double& mcty, double& gx, double& gy, const silly_gauss_param& p = silly_gauss_param());
+    static void mercator_to_gauss(const double& mctx, const double& mcty, double& gx, double& gy, const param& p = param());
 
     /// <summary>
     /// 高斯投影转墨卡托
@@ -126,7 +112,7 @@ class silly_proj
     /// <param name="mctx"></param>
     /// <param name="mcty"></param>
     /// <param name="p"></param>
-    static void gauss_to_mercator(const double& gx, const double& gy, double& mctx, double& mcty, const silly_gauss_param& p = silly_gauss_param());
+    static void gauss_to_mercator(const double& gx, const double& gy, double& mctx, double& mcty, const param& p = param());
 
     /// <summary>
     /// 墨卡托转高斯投影,使用静态值速度会更快
@@ -148,7 +134,32 @@ class silly_proj
     /// <param name="mcty"></param>
     static void gauss_to_mercator(const double& central, const double& gx, const double& gy, double& mctx, double& mcty);
 
+    /// <summary>
+    /// 地心坐标系转经纬度高程
+    /// </summary>
+    /// <param name="x"></param>
+    /// <param name="y"></param>
+    /// <param name="z"></param>
+    /// <param name="lon"></param>
+    /// <param name="lat"></param>
+    /// <param name="height"></param>
+    static void ecef_to_lonlat(const double& x, const double& y, const double& z, double& lon, double& lat, double& height);
+
+    /// <summary>
+    /// 经纬度,高程 转地心坐标系
+    /// </summary>
+    /// <param name="lon"></param>
+    /// <param name="lat"></param>
+    /// <param name="height"></param>
+    /// <param name="x"></param>
+    /// <param name="y"></param>
+    /// <param name="z"></param>
+    static void lonlat_to_ecef(const double& lon, const double& lat, const double& height, double& x, double& y, double& z);
+
   private:
 };
+
+}  // namespace geo
+}  // namespace silly
 
 #endif  // SILLY_UTILS_SILLY_PROJ_H
