@@ -163,8 +163,7 @@ bool client::request(const std::string& url, std::string& resp)
         {
             headers = curl_slist_append(headers, std::string(k + ": " + v).c_str());
         }
-        curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, headers);
-
+        
         if (m_type == silly::http::Post)
         {
             // 指定这是一个 POST 请求
@@ -173,6 +172,10 @@ bool client::request(const std::string& url, std::string& resp)
             // 设置Post请求数据
             if (!m_body.empty())
             {
+                if (!m_req_content_type.empty())
+                {
+                    headers = curl_slist_append(headers, ("Content-Type: " + m_req_content_type).c_str());
+                }
                 curl_easy_setopt(hnd, CURLOPT_POSTFIELDS, m_body.c_str());
             }
             else if (!m_files.empty())
@@ -196,6 +199,7 @@ bool client::request(const std::string& url, std::string& resp)
                 curl_easy_setopt(hnd, CURLOPT_HTTPPOST, formpost);
             }
         }
+        curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, headers);
 
         /* send all data to this function  */
         curl_easy_setopt(hnd, CURLOPT_WRITEFUNCTION, silly_curl_write_memory_callback);
@@ -424,6 +428,36 @@ void client::clear_upload()
 void client::body(const std::string& body)
 {
     m_body = body;
+}
+void client::from(const std::string& body)
+{
+    m_body = body;
+    m_req_content_type = "application/x-www-form-urlencoded";
+}
+void client::json(const std::string& body)
+{
+    m_body = body;
+    m_req_content_type = "application/json; charset=utf-8";
+}
+void client::xml(const std::string& body)
+{
+    m_body = body;
+    m_req_content_type = "application/xml; charset=utf-8";
+}
+void client::plain(const std::string& body)
+{
+    m_body = body;
+    m_req_content_type = "text/plain; charset=utf-8";
+}
+void client::javascript(const std::string& body)
+{
+    m_body = body;
+    m_req_content_type = "application/x-javascript; charset=utf-8";
+}
+void client::html(const std::string& body)
+{
+    m_body = body;
+    m_req_content_type = "text/html; charset=utf-8";
 }
 std::string client::err() const
 {

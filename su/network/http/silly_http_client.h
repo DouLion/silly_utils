@@ -65,9 +65,9 @@ class client
     /// </summary>
     /// <param name="url"></param>
     /// <param name="copyname">
-    ///     一般多文件为 `files[]`, 单文件为 `file`, 根据服务端的要求设置此名称
-    ///     Generally, when upload multiple files, use `files[]`, otherwise, use `file`, 
-    ///     set the value according to the requirements of the server
+    ///  一般多文件为 `files[]`, 单文件为 `file`, 根据服务端的要求设置此名称
+    ///  Generally, when upload multiple files, use `files[]`, otherwise, use `file`. 
+    ///  Set the value according to the requirements of the server
     /// </param>
     /// <param name="resp"></param>
     /// <returns></returns>
@@ -95,10 +95,17 @@ class client
     void clear_upload();
 
     /// <summary>
-    /// 设置请求体
+    /// 设置请求体, 必须使用UTF-8编码. 
+    /// form需要自行转换urlencode, silly_encode::url_encode
     /// </summary>
     /// <param name="body"></param>
     void body(const std::string& body);
+    void from(const std::string& body);
+    void json(const std::string& body);
+    void xml(const std::string& body);
+    void plain(const std::string& body);
+    void javascript(const std::string& body);
+    void html(const std::string& body);
 
     /// <summary>
     /// 设置用户名密码
@@ -181,6 +188,7 @@ class client
     std::unordered_map<std::string, std::string> m_hrequest;
     std::unordered_map<std::string, std::string> m_hresponse;
     std::unordered_map<std::string, std::filesystem::path> m_files;
+    std::string m_req_content_type;
     std::string m_copyname;
     std::string m_user;
     std::string m_password;
@@ -219,8 +227,9 @@ cli.header("Accept-Encoding", "gzip, deflate, br");
 
 3.2 普通POST
     std::string param = "name=su&age=18"; 表单提交
+    cli.form(param);
     param = R"({"user":"zs"})" json数据
-    cli.body(param);
+    cli.body(param);或者 cli.json(param);
     cli.post("https://su.tzx.com?token=12345", resp)
 
 3.3 文件上传
