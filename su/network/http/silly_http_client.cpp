@@ -141,6 +141,12 @@ bool client::request(const std::string& url, std::string& resp)
     {
         SILLY_CURL_ERR_BREAK(curl_easy_setopt(hnd, CURLOPT_URL, url.c_str()))
         SILLY_CURL_ERR_BREAK(curl_easy_setopt(hnd, CURLOPT_ERRORBUFFER, err_buffer))
+        if (!m_user.empty() && !m_password.empty())
+        {
+            // 提供账号和密码用于HTTP认证
+            std::string auth = m_user + ":" + m_password;
+            curl_easy_setopt(hnd, CURLOPT_USERPWD, auth.c_str());
+        }
         if (m_verbose)
         {
             /* Switch on full protocol/debug output while testing */
@@ -189,7 +195,6 @@ bool client::request(const std::string& url, std::string& resp)
                 // 设置POST方法和表单数据
                 curl_easy_setopt(hnd, CURLOPT_HTTPPOST, formpost);
             }
-            
         }
 
         /* send all data to this function  */
@@ -272,6 +277,12 @@ bool client::download(const std::string& url, const std::string& file, const std
     {
         SILLY_CURL_ERR_BREAK(curl_easy_setopt(hnd, CURLOPT_URL, url.c_str()))
         SILLY_CURL_ERR_BREAK(curl_easy_setopt(hnd, CURLOPT_ERRORBUFFER, err_buffer))
+        if (!m_user.empty() && !m_password.empty())
+        {
+            // 提供账号和密码用于HTTP认证
+            std::string auth = m_user + ":" + m_password;
+            curl_easy_setopt(hnd, CURLOPT_USERPWD, auth.c_str());
+        }
         if (m_verbose)
         {
             /* Switch on full protocol/debug output while testing */
@@ -417,6 +428,15 @@ void client::body(const std::string& body)
 std::string client::err() const
 {
     return m_err;
+}
+
+void client::user(const std::string& user)
+{
+    m_user = user;
+}
+void client::password(const std::string& pwd)
+{
+    m_password = pwd;
 }
 
 void client::type(const silly::http::type& tp)

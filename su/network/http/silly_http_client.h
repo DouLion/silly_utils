@@ -101,6 +101,13 @@ class client
     void body(const std::string& body);
 
     /// <summary>
+    /// 设置用户名密码
+    /// </summary>
+    /// <param name="user"></param>
+    void user(const std::string& user);
+    void password(const std::string& pwd);
+
+    /// <summary>
     /// 设置请求头
     /// </summary>
     /// <param name="key"></param>
@@ -194,3 +201,35 @@ class client
 typedef silly::http::client silly_http_client;
 
 #endif  // SILLY_UTILS_SILLY_HTTP_CLIENT_H
+
+/* 用例 Usecase
+
+1. 声明客户端
+silly::http::client cli;
+cli.verbose(true); // 输出详细日志
+
+2. 设置请求头
+cli.header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36");
+cli.header("Accept-Encoding", "gzip, deflate, br");
+
+3. 发起请求
+3.1 GET
+    std::string resp;
+    cli.get("https://su.tzx.com?token=12345", resp)
+
+3.2 普通POST
+    std::string param = "name=su&age=18"; 表单提交
+    param = R"({"user":"zs"})" json数据
+    cli.body(param);
+    cli.post("https://su.tzx.com?token=12345", resp)
+
+3.3 文件上传
+    cli.add_upload("file1", "path/file1");
+    cli.add_upload("file2", "path/file2");
+    cli.copyname("files[]");
+    cli.upload("https://su.tzx.co?token=12345m", resp);
+
+3.4 文件下载
+    cli.download("https://su.tzx.com/file.txt", "path/file.txt");
+
+*/
