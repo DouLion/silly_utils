@@ -103,20 +103,20 @@ client::client()
     // curl_global_init(CURL_GLOBAL_DEFAULT);
 }
 
-client::client(const enum_http_type& type)
+client::client(const silly::http::type& tp)
 {
     client();
-    m_type = type;
+    m_type = tp;
 }
 
 bool client::get(const std::string& url, std::string& resp)
 {
-    m_type = enum_http_type::Get;
+    m_type = silly::http::Get;
     return request(url, resp);
 }
 bool client::post(const std::string& url, std::string& resp)
 {
-    m_type = enum_http_type::Post;
+    m_type = silly::http::Post;
     return request(url, resp);
 }
 bool client::request(const std::string& url, std::string& resp)
@@ -127,6 +127,9 @@ bool client::request(const std::string& url, std::string& resp)
 
     CURL* hnd = curl_easy_init();
     struct curl_slist* headers = NULL;
+    // 构建多部分表单
+    struct curl_httppost* formpost = NULL;
+    struct curl_httppost* lastptr = NULL;
     if (nullptr == hnd)
     {
         m_err = "初始化curl错误";
@@ -150,13 +153,13 @@ bool client::request(const std::string& url, std::string& resp)
         }
 
         // 设置请求头
-        for (auto [k, v] : m_req_headers)
+        for (auto [k, v] : m_hrequest)
         {
             headers = curl_slist_append(headers, std::string(k + ": " + v).c_str());
         }
         curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, headers);
 
-        if (m_type == enum_http_type::Post)
+        if (m_type == silly::http::Post)
         {
             // 指定这是一个 POST 请求
             curl_easy_setopt(hnd, CURLOPT_POST, 1L);
@@ -166,6 +169,27 @@ bool client::request(const std::string& url, std::string& resp)
             {
                 curl_easy_setopt(hnd, CURLOPT_POSTFIELDS, m_body.c_str());
             }
+            else if (!m_files.empty())
+            {
+                if (m_copyname.empty())
+                {
+                    m_copyname = "files[]";
+                }
+                // https://curl.se/libcurl/c/postit2-formadd.html
+                for (auto [k, f] : m_files)
+                {
+                    curl_formadd(&formpost,
+                                 &lastptr,
+                                 CURLFORM_COPYNAME,
+                                 m_copyname.c_str(),
+                                 CURLFORM_FILE,
+                                 f.string().c_str(), /* 文件路径 */
+                                 CURLFORM_END);
+                }
+                // 设置POST方法和表单数据
+                curl_easy_setopt(hnd, CURLOPT_HTTPPOST, formpost);
+            }
+            
         }
 
         /* send all data to this function  */
@@ -190,7 +214,7 @@ bool client::request(const std::string& url, std::string& resp)
         SILLY_CURL_ERR_BREAK(curl_easy_setopt(hnd, CURLOPT_NOPROGRESS, 1L))
         // 设置响应头回调函数
         SILLY_CURL_ERR_BREAK(curl_easy_setopt(hnd, CURLOPT_HEADERFUNCTION, silly_curl_resp_header_callback))
-        SILLY_CURL_ERR_BREAK(curl_easy_setopt(hnd, CURLOPT_HEADERDATA, &m_resp_headers))
+        SILLY_CURL_ERR_BREAK(curl_easy_setopt(hnd, CURLOPT_HEADERDATA, &m_hresponse))
 
         ////////////////////////////////////
         /// 执行请求, 请求设置在此之前设置完成
@@ -201,7 +225,7 @@ bool client::request(const std::string& url, std::string& resp)
         int resp_code = 0;
         SILLY_CURL_ERR_BREAK(curl_easy_getinfo(hnd, CURLINFO_RESPONSE_CODE, &resp_code))
 
-        if (resp_code != enum_http_code::OK_200)
+        if (resp_code != silly::http::OK_200)
         {
             memcpy(&m_err[0], err_buffer, CURL_ERROR_SIZE);
             break;
@@ -290,7 +314,7 @@ bool client::download(const std::string& url, const std::string& file, const std
         SILLY_CURL_ERR_BREAK(curl_easy_setopt(hnd, CURLOPT_NOPROGRESS, 0L))
         // 设置响应头回调函数
         SILLY_CURL_ERR_BREAK(curl_easy_setopt(hnd, CURLOPT_HEADERFUNCTION, silly_curl_resp_header_callback))
-        SILLY_CURL_ERR_BREAK(curl_easy_setopt(hnd, CURLOPT_HEADERDATA, &m_resp_headers))
+        SILLY_CURL_ERR_BREAK(curl_easy_setopt(hnd, CURLOPT_HEADERDATA, &m_hresponse))
 
         if (m_max_recv_speed > 0)
         {
@@ -307,7 +331,7 @@ bool client::download(const std::string& url, const std::string& file, const std
         int resp_code = 0;
         SILLY_CURL_ERR_BREAK(curl_easy_getinfo(hnd, CURLINFO_RESPONSE_CODE, &resp_code))
 
-        if (resp_code != enum_http_code::OK_200)
+        if (resp_code != silly::http::OK_200)
         {
             memcpy(&m_err[0], err_buffer, CURL_ERROR_SIZE);
             break;
@@ -341,11 +365,51 @@ bool client::download(const std::string& url, const std::string& file, const std
     curl_easy_cleanup(hnd);
     return status;
 }
-bool client::upload(const std::string& url, const std::string& file, const std::string& filename)
+bool client::upload(const std::string& url, const std::string& copyname, std::string& resp)
 {
     bool status = false;
-    return status;
+    m_type = silly::http::type::Post;
+    m_copyname = copyname;
+    m_body.clear();
+    return request(url, resp);
 }
+
+bool client::add_upload(const std::string& name, std::filesystem::path path)
+{
+    if (m_files.find(name) == m_files.end())
+    {
+        if (std::filesystem::exists(path))
+        {
+            m_files[name] = path;
+            return true;
+        }
+        else
+        {
+            m_err = "重复的Key: " + name;
+        }
+    }
+    else
+    {
+        m_err = "文件不存在: " + path.string();
+    }
+    return false;
+}
+
+bool client::remove_upload(const std::string& name)
+{
+    if (m_files.find(name) != m_files.end())
+    {
+        m_files.erase(name);
+    }
+
+    return true;
+}
+
+void client::clear_upload()
+{
+    m_files.clear();
+}
+
 void client::body(const std::string& body)
 {
     m_body = body;
@@ -355,30 +419,30 @@ std::string client::err() const
     return m_err;
 }
 
-void client::type(const enum_http_type& type)
+void client::type(const silly::http::type& tp)
 {
-    m_type = type;
+    m_type = tp;
 }
 void client::header(const std::string& key, const std::string& val)
 {
-    m_req_headers.insert({key, val});
+    m_hrequest.insert({key, val});
 }
 void client::headers(const std::unordered_map<std::string, std::string>& headers)
 {
-    m_req_headers = headers;
+    m_hrequest = headers;
 }
 std::string client::header(const std::string& key) const
 {
-    auto it = m_resp_headers.find(key);
-    if (it == m_resp_headers.end())
+    auto it = m_hresponse.find(key);
+    if (it == m_hresponse.end())
         return "";
     return it->second;
 }
-void client::headers(std::unordered_map<std::string, std::string>& h) const
+std::unordered_map<std::string, std::string> client::headers() const
 {
-    h = m_resp_headers;
+    return m_hresponse;
 }
-enum_http_code client::code()
+silly::http::status_code client::code()
 {
     return m_code;
 }

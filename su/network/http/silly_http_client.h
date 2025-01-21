@@ -11,88 +11,7 @@
 #ifndef SILLY_UTILS_SILLY_HTTP_CLIENT_H
 #define SILLY_UTILS_SILLY_HTTP_CLIENT_H
 #include <su_marco.h>
-
-enum enum_http_type
-{
-    Get = 1,
-    Post = 2,
-    Option = 3,
-    Delete = 4
-};
-enum enum_http_code
-{
-    Continue_100 = 100,
-    SwitchingProtocol_101 = 101,
-    Processing_102 = 102,
-    EarlyHints_103 = 103,
-
-    // Successful responses
-    OK_200 = 200,
-    Created_201 = 201,
-    Accepted_202 = 202,
-    NonAuthoritativeInformation_203 = 203,
-    NoContent_204 = 204,
-    ResetContent_205 = 205,
-    PartialContent_206 = 206,
-    MultiStatus_207 = 207,
-    AlreadyReported_208 = 208,
-    IMUsed_226 = 226,
-
-    // Redirection messages
-    MultipleChoices_300 = 300,
-    MovedPermanently_301 = 301,
-    Found_302 = 302,
-    SeeOther_303 = 303,
-    NotModified_304 = 304,
-    UseProxy_305 = 305,
-    unused_306 = 306,
-    TemporaryRedirect_307 = 307,
-    PermanentRedirect_308 = 308,
-
-    // Client error responses
-    BadRequest_400 = 400,
-    Unauthorized_401 = 401,
-    PaymentRequired_402 = 402,
-    Forbidden_403 = 403,
-    NotFound_404 = 404,
-    MethodNotAllowed_405 = 405,
-    NotAcceptable_406 = 406,
-    ProxyAuthenticationRequired_407 = 407,
-    RequestTimeout_408 = 408,
-    Conflict_409 = 409,
-    Gone_410 = 410,
-    LengthRequired_411 = 411,
-    PreconditionFailed_412 = 412,
-    PayloadTooLarge_413 = 413,
-    UriTooLong_414 = 414,
-    UnsupportedMediaType_415 = 415,
-    RangeNotSatisfiable_416 = 416,
-    ExpectationFailed_417 = 417,
-    ImATeapot_418 = 418,
-    MisdirectedRequest_421 = 421,
-    UnprocessableContent_422 = 422,
-    Locked_423 = 423,
-    FailedDependency_424 = 424,
-    TooEarly_425 = 425,
-    UpgradeRequired_426 = 426,
-    PreconditionRequired_428 = 428,
-    TooManyRequests_429 = 429,
-    RequestHeaderFieldsTooLarge_431 = 431,
-    UnavailableForLegalReasons_451 = 451,
-
-    // Server error responses
-    InternalServerError_500 = 500,
-    NotImplemented_501 = 501,
-    BadGateway_502 = 502,
-    ServiceUnavailable_503 = 503,
-    GatewayTimeout_504 = 504,
-    HttpVersionNotSupported_505 = 505,
-    VariantAlsoNegotiates_506 = 506,
-    InsufficientStorage_507 = 507,
-    LoopDetected_508 = 508,
-    NotExtended_510 = 510,
-    NetworkAuthenticationRequired_511 = 511,
-};
+#include <network/http/silly_http_headers.h>
 
 namespace silly
 {
@@ -105,7 +24,7 @@ class client
   public:
     client();
     ~client() = default;
-    client(const enum_http_type& type);
+    client(const silly::http::type& tp);
 
     /// <summary>
     /// 执行Get请求
@@ -140,14 +59,40 @@ class client
     /// <returns></returns>
     bool download(const std::string& url, const std::string& file, const std::string& filename = "");
 
+
     /// <summary>
-    /// 上传
+    /// 上传文件 Upload files
     /// </summary>
     /// <param name="url"></param>
-    /// <param name="file"></param>
-    /// <param name="filename"></param>
+    /// <param name="copyname">
+    ///     一般多文件为 `files[]`, 单文件为 `file`, 根据服务端的要求设置此名称
+    ///     Generally, when upload multiple files, use `files[]`, otherwise, use `file`, 
+    ///     set the value according to the requirements of the server
+    /// </param>
+    /// <param name="resp"></param>
     /// <returns></returns>
-    bool upload(const std::string& url, const std::string& file, const std::string& filename = "");
+    bool upload(const std::string& url, const std::string& copyname, std::string& resp);
+
+    /// <summary>
+    /// 添加上传文件
+    /// </summary>
+    /// <param name="name">一般为文件名, 不应该重复, 不能确定服务端如何实现</param>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    bool add_upload(const std::string& name, std::filesystem::path path);
+
+    /// <summary>
+    /// 移除上传文件
+    /// </summary>
+    /// <param name="name"></param>
+    /// <returns></returns>
+    bool remove_upload(const std::string& name);
+
+    /// <summary>
+    /// 清空上传文件
+    /// </summary>
+    /// <returns></returns>
+    void clear_upload();
 
     /// <summary>
     /// 设置请求体
@@ -168,7 +113,7 @@ class client
     /// </summary>
     /// <returns></returns>
     std::string header(const std::string& key) const;
-    void headers(std::unordered_map<std::string, std::string>& h) const;
+    std::unordered_map<std::string, std::string> headers() const;
 
     /// <summary>
     /// 错误信息
@@ -177,16 +122,16 @@ class client
     std::string err() const;
 
     /// <summary>
-    /// http错误码
+    /// http 状态码
     /// </summary>
     /// <returns></returns>
-    enum_http_code code();
+    silly::http::status_code code();
 
     /// <summary>
     /// http请求类型
     /// </summary>
     /// <param name="type"></param>
-    void type(const enum_http_type& type);
+    void type(const silly::http::type& tp);
 
     /// <summary>
     /// http请求代理
@@ -226,16 +171,22 @@ class client
   private:
     std::string m_body;
     std::string m_err;
-    std::unordered_map<std::string, std::string> m_req_headers;
-    std::unordered_map<std::string, std::string> m_resp_headers;
-    enum_http_code m_code = enum_http_code::BadRequest_400;
+    std::unordered_map<std::string, std::string> m_hrequest;
+    std::unordered_map<std::string, std::string> m_hresponse;
+    std::unordered_map<std::string, std::filesystem::path> m_files;
+    std::string m_copyname;
+    std::string m_user;
+    std::string m_password;
+    silly::http::status_code m_code = silly::http::BadRequest_400;
     std::string m_agent;
-    enum_http_type m_type{enum_http_type::Get};
+    silly::http::type m_type{silly::http::Get};
     int64_t m_timeout{120L};
     double m_speed_mps{0};  // 传输速度Mb/s
     double m_total_seconds{0};
     bool m_verbose{false};
     size_t m_max_recv_speed{0};  // kb/s   0为不做设置
+
+  
 };
 }  // namespace http
 }  // namespace silly
