@@ -180,7 +180,6 @@
 #include <network/mqtt/silly_mqtt_server.h>            // 未实现
 #include <network/socket/silly_socket.h>               // socket工具
 #include <network/tcp/ftp_utils.h>                     // ftp 工具
-#include <network/tcp/silly_curl.h>                    // curl 工具
 #include <network/tcp/silly_ftp.h>                     // ftp客户端工具
 #include <network/tools/silly_captcha.h>               // 验证码
 #include <network/websocket/silly_websocket_client.h>  // websocket 客户端
