@@ -6,6 +6,7 @@
 
 #pragma once
 #include <su_marco.h>
+#if 0
 #if WIN32
 //类型定义
 const int MAX_BUFFER_SIZE = 255;                            //send和recv的缓存buffer的size
@@ -68,11 +69,11 @@ class CSendMail
     bool SendFileBody();                                    //发送邮件附件
     bool SendEnd();                                            //发送邮件结尾
 
-    #if WIN32
+#if WIN32
     SOCKET _socket;
-    #else
+#else
     SOCKET _socket;
-    #endif
+#endif
 
     /////////////////////////邮件信息///////////////////////////////////
     /////////////////////////connent///////////////////////////////////
@@ -92,4 +93,5 @@ class CSendMail
     /////////////////////////邮件信息///////////////////////////////////
 };
 
+#endif
 #endif

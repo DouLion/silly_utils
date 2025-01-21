@@ -5,6 +5,7 @@
 */
 
 // #include <afx.h>
+#if 0
 #include "CSendMail.h"
 #if WIN32
 #include "time.h"
@@ -523,5 +524,7 @@ bool CSendMail::SendEnd()
 
     return true;
 }
+
+#endif
 
 #endif
