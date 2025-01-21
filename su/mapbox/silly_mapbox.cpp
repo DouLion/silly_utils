@@ -3,9 +3,10 @@
 //
 
 #include "silly_mapbox.h"
+
 mvt_tile silly_mapbox::merge(const std::vector<mvt_tile>& tiles)
 {
     mvt_tile ret;
-    
+   
     return ret;
 }
