@@ -136,8 +136,8 @@ struct mvt_tile
 {
     std::vector<mvt_layer> layers{};
 
-    std::string encode();
-    bool decode(std::string &message, bool &was_compressed);
+    std::string encode(const bool& compressed = true);
+    bool decode(const std::string &message, bool &was_compressed);
 };
 
 // 计划转移到其他地方

@@ -127,7 +127,7 @@ int compress(std::string const &input, std::string &output)
     return 0;
 }
 
-bool mvt_tile::decode(std::string &message, bool &was_compressed)
+bool mvt_tile::decode(const std::string &message, bool &was_compressed)
 {
     layers.clear();
     std::string src;
@@ -337,7 +337,7 @@ bool mvt_tile::decode(std::string &message, bool &was_compressed)
     return true;
 }
 
-std::string mvt_tile::encode()
+std::string mvt_tile::encode(const bool &compressed)
 {
     std::string data;
 
@@ -488,6 +488,14 @@ std::string mvt_tile::encode()
         writer.add_message(3, layer_string);
     }
 
+    if (compressed)
+    {
+        std::string output;
+        if (compress(data, output))
+        {
+            data = output;
+        }
+    }
     return data;
 }
 
