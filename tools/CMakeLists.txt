@@ -36,6 +36,9 @@ target_link_libraries(2DTask sutils)
 add_executable(ListHeader header/ListHeader.cpp)
 target_link_libraries(ListHeader sutils)
 
+add_executable(TzxNTP NTP/TzxNTP.cpp)
+target_link_libraries(TzxNTP sutils)
+
 add_subdirectory(ODBCExchange)
 
 
