@@ -12,7 +12,7 @@
 
 #ifndef SILLY_UTILS_SILLY_MAPBOX_H
 #define SILLY_UTILS_SILLY_MAPBOX_H
-# include <mapbox/mbtiles/silly_mvt.h>
+#include <mapbox/mbtiles/silly_mvt.h>
 
 class silly_mapbox
 {
