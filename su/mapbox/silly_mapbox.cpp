@@ -134,33 +134,62 @@ bool silly_mapbox::merge(const mvt_tile& tile, mvt_tile& outtile)
     return false;
 }
 
-// 从二进数据中提取出属性值
+#ifdef WIN32
+int vasprintf(char** strp, const char* fmt, va_list ap)
+{
+    int n;
+    int size = 100;
+    char* p;
+    char* np;
+
+    if ((p = (char*)malloc(size * sizeof(char))) == NULL)
+        return -1;
+
+    while (1)
+    {
+#ifdef _MSC_VER
+        n = vsnprintf_s(p, size, size - 1, fmt, ap);
+#else
+        n = vsnprintf(p, size, fmt, ap);
+#endif
+        if (n > -1 && n < size)
+        {
+            *strp = p;
+            return n;
+        }
+        if (n > -1)
+            size = n + 1;
+        else
+            size *= 2;
+        if ((np = (char*)realloc(p, size * sizeof(char))) == NULL)
+        {
+            free(p);
+            return -1;
+        }
+        else
+            p = np;
+    }
+}
+
+#endif
+
 void aprintf(std::string* buf, const char* format, ...)
 {
+#ifdef WIN32
+
     va_list ap;
-    char* tmp = nullptr;
+    char* tmp;
+
     va_start(ap, format);
-
-    // 先计算需要的缓冲区大小
-    int size = vsnprintf(nullptr, 0, format, ap);  // +1 是为了包含字符串终止符
-    if (size <= 0)
+    if (vasprintf(&tmp, format, ap) < 0)
     {
-        fprintf(stderr, "Error calculating the size for the string\n");
-        exit(EXIT_FAILURE);
+        fprintf(stderr, "memory allocation failure\n");
+        va_end(ap);
+        return;
     }
-
-    // 分配内存
-    tmp = (char*)malloc(size);
-    if (tmp == nullptr)
-    {
-        fprintf(stderr, "Memory allocation failure\n");
-        exit(EXIT_FAILURE);
-    }
-
-    // 再次格式化字符串到 tmp
-    vsnprintf(tmp, size, format, ap);
     va_end(ap);
 
     buf->append(tmp, strlen(tmp));
     free(tmp);
+#endif
 }
