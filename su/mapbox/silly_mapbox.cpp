@@ -3,8 +3,8 @@
 //
 
 #include "silly_mapbox.h"
-#include "mapbox/mbtiles/silly_mbtiles_metadata.h"
-#include "mapbox/mbtiles/dtoa_milo.h"
+#include <mapbox/mbtiles/silly_mbtiles_metadata.h>
+#include <mapbox/mbtiles/dtoa_milo.h>
 
 // 从二进数据中提取出属性值
 void aprintf(std::string* buf, const char* format, ...);
@@ -15,12 +15,12 @@ mvt_tile silly_mapbox::merge(const std::vector<mvt_tile>& tiles)
 
     for (const auto& tile : tiles)
     {
-        merge_handle(tile, ret);
+        merge(tile, ret);
     }
     return ret;
 }
 
-void silly_mapbox::merge_handle(const mvt_tile& tile, mvt_tile& outtile)
+void silly_mapbox::merge(const mvt_tile& tile, mvt_tile& outtile)
 {
     int features_added = 0;
     for (size_t l = 0; l < tile.layers.size(); l++)
@@ -130,6 +130,8 @@ void silly_mapbox::merge_handle(const mvt_tile& tile, mvt_tile& outtile)
             outlayer.features.push_back(outfeature);
         }
     }
+
+    return false;
 }
 
 // 从二进数据中提取出属性值
