@@ -175,8 +175,6 @@ int vasprintf(char** strp, const char* fmt, va_list ap)
 
 void aprintf(std::string* buf, const char* format, ...)
 {
-#ifdef WIN32
-
     va_list ap;
     char* tmp;
 
@@ -191,5 +189,4 @@ void aprintf(std::string* buf, const char* format, ...)
 
     buf->append(tmp, strlen(tmp));
     free(tmp);
-#endif
 }
