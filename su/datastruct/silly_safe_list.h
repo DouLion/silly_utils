@@ -27,8 +27,6 @@ class silly_safe_list
     {
         std::scoped_lock lock(m_mutex);
         m_list.push_back(value);
-
-        return true;
     }
 
     /// Remove item.

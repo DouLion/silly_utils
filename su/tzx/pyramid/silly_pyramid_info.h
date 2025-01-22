@@ -67,7 +67,7 @@ class info : public silly::pyramid::base
     void bound(const std::string& bd);
     void bound(const silly_rect& bd);
 
-    void format(const tile_format& fmt) throw(std::invalid_argument);
+    void format(const tile_format& fmt);
 
     void format(const std::string fmt);
 

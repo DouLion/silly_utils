@@ -29,7 +29,7 @@ static silly::color::type png2sillyctype(const int &type)
         case PNG_COLOR_TYPE_RGB_ALPHA:
             return silly::color::type::eptRGBA;
         default:
-            throw std::exception("不支持的类型");
+            throw std::runtime_error("不支持的类型");
     }
 }
 
@@ -46,7 +46,7 @@ static int silly2pngctype(silly::color::type &type)
         case silly::color::type::eptRGBA:
             return PNG_COLOR_TYPE_RGB_ALPHA;
         default:
-            throw std::exception("不支持的类型");
+            throw std::runtime_error("不支持的类型");
     }
 }
 

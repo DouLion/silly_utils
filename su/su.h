@@ -62,6 +62,7 @@
 #include <files/silly_xlsx.h>           // xlsx文件操作 未实现
 
 // 几何(平面几何,地理空间空间)
+#include <geo/silly_geo_const.h>                       // 地球基本信息常量定义
 #include <geo/gpc/gpc.h>                               // gpc源码
 #include <geo/proj/gdal/silly_projection_define.h>     // 投影坐标系的 wtk
 #include <geo/proj/gdal/silly_proj_convert.h>          // 地理坐标系的转换
@@ -70,7 +71,6 @@
 #include <geo/silly_geo.h>                             // 自定义点线面多线多面矢量类型
 #include <geo/silly_geojson.h>                         // geojson处理类, 未实现
 #include <geo/silly_geo_coll.h>                        // 复合矢量类型定义
-#include <geo/silly_geo_const.h>                       // 地球基本信息常量定义
 #include <geo/silly_geo_convert.h>                     // 矢量数据转换: shp与geojson互转, 地理坐标系与墨卡托坐标系互转
 #include <geo/silly_geo_prop.h>                        // 矢量数据的属性定义
 #include <geo/silly_geo_utils.h>                       // 基于gdal的矢量读写和算法

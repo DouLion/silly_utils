@@ -114,7 +114,7 @@ class proj
     /// <param name="gx"></param>
     /// <param name="gy"></param>
     /// <param name="p"></param>
-    static void mercator_to_gauss(const double& mctx, const double& mcty, double& gx, double& gy, const param& p = param());
+    static void mercator_to_gauss(const double& mctx, const double& mcty, double& gx, double& gy, const param& p);
 
     /// <summary>
     /// 高斯投影转墨卡托
@@ -124,7 +124,7 @@ class proj
     /// <param name="mctx"></param>
     /// <param name="mcty"></param>
     /// <param name="p"></param>
-    static void gauss_to_mercator(const double& gx, const double& gy, double& mctx, double& mcty, const param& p = param());
+    static void gauss_to_mercator(const double& gx, const double& gy, double& mctx, double& mcty, const param& p);
 
     /// <summary>
     /// 墨卡托转高斯投影,使用静态值速度会更快

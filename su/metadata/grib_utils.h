@@ -41,8 +41,6 @@ using namespace silly_math;
 // 南沙群岛最南端的纬度
 #define NANSHA_BOTTOM 3
 
-#define PI (3.1415926535897932384626433832795028841971693993751f)
-
 // Noaa数据中几个关键的时间点
 #define FUTURE_HOUR_120 120  // 5天
 #define FUTURE_HOUR_123 123

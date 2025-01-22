@@ -75,7 +75,7 @@ class data : public image::base
     /// <returns></returns>
     std::string encode() const override;
 
-    silly::jpeg::data &silly::jpeg::data::operator=(const silly::jpeg::data &rh);
+    data &operator=(const data &rh);
 
   protected:
     int m_quality{75};

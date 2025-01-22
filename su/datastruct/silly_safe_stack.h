@@ -62,7 +62,6 @@ class silly_safe_stack
             T& value = m_stack.top();
             m_stack.pop();
         }
-        return true;
     }
 
   protected:

@@ -77,7 +77,7 @@ bool memory_map::sync()
 #ifdef _WIN32
         if (::FlushViewOfFile(m_mmap, m_map_len) == 0 || ::FlushFileBuffers(m_hdl_file) == 0)
 #else  // POSIX
-        if (::msync(get_mapping_start(), m_map_len, MS_SYNC) != 0)
+        if (::msync(m_mmap, m_map_len, MS_SYNC) != 0)
 #endif
         {
             return false;
@@ -110,7 +110,7 @@ void memory_map::cleanup_and_throw(const char* msg)
     SetLastError(error);
 #else
     int error = errno;
-    if (m_hdl_file != 0)
+    if (m_hdl_file != INVALID_HANDLE_VALUE)
         ::close(m_hdl_file);
     errno = error;
 #endif
@@ -140,14 +140,15 @@ bool memory_map::map_file()
 void memory_map::try_map_file()
 {
     int64_t length = filesize();  // TODO 这个是假的
-    const int64_t aligned_offset = make_offset_page_aligned(m_param.offset);
-    const int64_t length_to_map = m_param.offset - aligned_offset + length;
+
 #ifdef _WIN32
 #ifndef NDEBUG
     std::stringstream ss;
     ss << "TryMapFile, 线程: " << std::this_thread::get_id();
     SLOG_DEBUG(ss.str())
 #endif
+    const int64_t aligned_offset = make_offset_page_aligned(m_param.offset);
+    const int64_t length_to_map = m_param.offset - aligned_offset + length;
     const int64_t max_file_size = m_param.offset + length;
     m_hdl_map = ::CreateFileMapping(m_hdl_file, 0, m_param.flag == access_mode::Read ? PAGE_READONLY : PAGE_READWRITE, win::int64_high(max_file_size), win::int64_low(max_file_size), 0);
     if (m_hdl_map == INVALID_HANDLE_VALUE)
@@ -163,17 +164,7 @@ void memory_map::try_map_file()
         throw std::runtime_error("Failed to create file mapping");
     }
 #else  // POSIX
-    char* mapping_start = static_cast<char*>(::memory_map(0,  // Don't give hint as to where to map.
-                                                          length_to_map,
-                                                          m_param.flag == access_mode::read ? PROT_READ : PROT_WRITE,
-                                                          MAP_SHARED,
-                                                          m_hdl_file,
-                                                          aligned_offset));
-    if (mapping_start == MAP_FAILED)
-    {
-        error = detail::last_error();
-        return {};
-    }
+    void* mapping_start = ::mmap(0, m_map_len, m_param.flag == access_mode::Read ? PROT_READ : PROT_WRITE, MAP_SHARED, m_hdl_file, m_map_offset);
 #endif
     m_mmap = static_cast<char*>(mapping_start);
 }
@@ -196,13 +187,21 @@ std::uintmax_t memory_map::filesize()
     if (is_open())
     {
     }
-
+#ifdef WIN32
     // 获取文件大小
     LARGE_INTEGER fileSize;
     if (!GetFileSizeEx(m_hdl_file, &fileSize))
     {
         return fileSize.QuadPart;
     }
+#else
+    // 获取文件大小
+    struct stat sb;
+    if (fstat(m_hdl_file, &sb) == -1)
+    {
+        return sb.st_size;
+    }
+#endif
     return 0;
 }
 
@@ -223,43 +222,12 @@ bool memory_map::open_file()
     }
 #else
     // Open file
-    int flags = (readonly ? O_RDONLY : O_RDWR);
-    if (m_param.new_file_size != 0 && !readonly)
-        flags |= (O_CREAT | O_TRUNC);
-#ifdef _LARGEFILE64_SOURCE
-    flags |= O_LARGEFILE;
-#endif
-    errno = 0;
-    if (m_param.path.is_wide())
+    int mode = (m_param.flag == access_mode::Read ? O_RDONLY : O_RDWR);
+    m_hdl_file = ::open(m_param.path.c_str(), mode, (mode_t)0600);
+    if (m_hdl_file == INVALID_HANDLE_VALUE)
     {
-        errno = EINVAL;
-        cleanup_and_throw("wide path not supported here");
-    }  // happens on CYGWIN
-    m_hdl_file = ::open(m_param.path.c_str(), flags, S_IRWXU);
-    if (errno != 0)
-        cleanup_and_throw("failed opening file");
-
-    //--------------Set file size---------------------------------------------//
-
-    if (m_param.new_file_size != 0 && !readonly)
-        if (BOOST_IOSTREAMS_FD_TRUNCATE(m_hdl_file, m_param.new_file_size) == -1)
-            cleanup_and_throw("failed setting file size");
-
-    //--------------Determine file size---------------------------------------//
-
-    bool success = true;
-    if (m_param.length != SIZE_MAX)
-    {
-        m_size = m_param.length;
+        return false;
     }
-    else
-    {
-        struct BOOST_IOSTREAMS_FD_STAT info;
-        success = ::BOOST_IOSTREAMS_FD_FSTAT(m_hdl_file, &info) != -1;
-        m_size = info.st_size;
-    }
-    if (!success)
-        cleanup_and_throw("failed querying file size");
 #endif
     return true;
 }
@@ -283,9 +251,9 @@ bool memory_map::unmap()
         ::CloseHandle(m_hdl_map);
     }
 #else  // POSIX
-    if (data_)
+    if (is_mapped())
     {
-        ::munmap(const_cast<pointer>(get_mapping_start()), m_map_len);
+        ::munmap(m_mmap, m_map_len);
     }
 #endif
 

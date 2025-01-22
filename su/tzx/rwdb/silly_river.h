@@ -19,7 +19,7 @@
 class silly_river : public silly_rwdb_record
 {
   public:
-    std::string serialize(const int& ver = SILLY_RIVER_FORMAT_V1) const override ;
+    std::string serialize(const int& ver = SILLY_RIVER_FORMAT_V1) const override;
     bool deserialize(const std::string& data) override;
 
   private:
@@ -40,10 +40,10 @@ class silly_river : public silly_rwdb_record
     // 固定长度  固定头1 版本信息 1 STCD 索引 4 int64_t 8, 时间戳 int 4, intv  4 uchar 雨量 float 4
     // static constexpr size_t SIZE_V1 = 1 + 1 + 4 + 8 + 4 + 4 + 4;
 
-    static constexpr size_t SIZE_V1 = 1 + 1 + 4 + 4 + 4 + 4;
-    static constexpr size_t SIZE_V2 = 1 + 1 + 4 + 4 + 4 + 4 + 2;
-    static constexpr char PREFIX = 'H';  // 固定头
-    static constexpr char* FILE_NAME = "RIVER.dat";
+    static constexpr const size_t SIZE_V1 = 1 + 1 + 4 + 4 + 4 + 4;
+    static constexpr const size_t SIZE_V2 = 1 + 1 + 4 + 4 + 4 + 4 + 2;
+    static constexpr const char PREFIX = 'H';  // 固定头
+    static constexpr const char* FILE_NAME = "RIVER.dat";
 };
 
 #endif  // SILLY_UTILS_SILLY_RIVER_H

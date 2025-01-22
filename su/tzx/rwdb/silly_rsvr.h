@@ -42,10 +42,10 @@ class silly_rsvr : public silly_rwdb_record
     float blrz{0};        // 4
 
     // 固定长度  固定头1 版本信息 1 STCD 索引 4
-    static constexpr size_t SIZE_V1 = 1 + 1 + 4 + 4 + 4 + 4 + 4 + 4 + 2 + 2 + 4 + 2 + 4;
+    static constexpr const size_t SIZE_V1 = 1 + 1 + 4 + 4 + 4 + 4 + 4 + 4 + 2 + 2 + 4 + 2 + 4;
 
-    static constexpr char PREFIX = 'H';  // 固定头
-    static constexpr char* FILE_NAME = "RSVR.dat";
+    static constexpr const char PREFIX = 'H';  // 固定头
+    static constexpr const char* FILE_NAME = "RSVR.dat";
 };
 
 #endif  // SILLY_UTILS_SILLY_RSVR_H

@@ -49,7 +49,7 @@ class silly_stbprp
     std::string HNNM0;
     std::string ADCD;
     std::string ADDVCD1;
-    static constexpr char* FILE_NAME = "STBPRP.dat";
+    static constexpr const char* FILE_NAME = "STBPRP.dat";
 };
 
 #endif  // SILLY_UTILS_SILLY_STBPRP_H

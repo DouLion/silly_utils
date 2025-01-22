@@ -102,7 +102,7 @@ class base
     /// <param name="file"></param>
     /// <param name="mode"></param>
     /// <returns></returns>
-    bool stream_open(const char* file, const int& mode);
+    bool stream_open(const char* file, const std::ios_base::openmode& mode);
 
     /// <summary>
     /// 内存文件映射打开

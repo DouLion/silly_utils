@@ -26,14 +26,13 @@ class lock
 
   private:
     std::string m_err;
+    silly_handle m_file_hdl = INVALID_HANDLE_VALUE;
 #if WIN32
-    HANDLE hFile = nullptr;
+
     // 获取文件大小
     LARGE_INTEGER fileSize;
     // 设置锁定参数
     OVERLAPPED overlapped = {0};
-#else
-    int fd = -1;
 #endif
 };
 }

@@ -31,19 +31,21 @@ enum class silly_mail_security_type
 class silly_mail_conn_opt
 {
   public:
-    silly_mail_conn_opt() = default;
-    ~silly_mail_conn_opt() = default;
-    silly_mail_conn_opt(const std::string& u, const std::string& p): user(u), pwd(p)
+    silly_mail_conn_opt()
     {
-
+        server = "smtp.qq.com";
     }
-    silly_mail_conn_opt(const std::string& u, const std::string& p, const std::string& s): user(u), pwd(p), server(s)
+    ~silly_mail_conn_opt() = default;
+    silly_mail_conn_opt(const std::string& u, const std::string& p) : user(u), pwd(p)
     {
-
+        server = "smtp.qq.com";
+    }
+    silly_mail_conn_opt(const std::string& u, const std::string& p, const std::string& s) : user(u), pwd(p), server(s)
+    {
     }
     silly_mail_app_type app = silly_mail_app_type::smtp;
     silly_mail_security_type security = silly_mail_security_type::ssl;
-    std::string server = "smtp.qq.com";
+    std::string server;
     int port = 465;  // SSL/TLS: 465  STARTTLS: 587
     std::string user;
     std::string pwd;

@@ -153,13 +153,13 @@ class index : public silly::pyramid::base
     /// 不要使用 PYRAMID_VERSION_11
     /// </summary>
     /// <param name="ver"></param>
-    void version(const char ver[4]) throw(std::invalid_argument);
+    void version(const char ver[4]);
 
     /// <summary>
     /// 设置经纬度范围
     /// </summary>
     /// <param name="rect"></param>
-    void bound(const silly_rect& rect) throw(std::invalid_argument);
+    void bound(const silly_rect& rect);
 
     /// <summary>
     /// 写模式时,构建索引

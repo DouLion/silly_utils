@@ -45,7 +45,7 @@ static silly::color::type jpeg2sillyctype(const J_COLOR_SPACE& type)
         case J_COLOR_SPACE::JCS_EXT_RGBA:
             return silly::color::type::eptRGBA;
         default:
-            throw std::exception("不支持的类型");
+            throw std::runtime_error("不支持的类型");
     }
 }
 
@@ -61,7 +61,7 @@ static J_COLOR_SPACE silly2jpegctype(const silly::color::type& type)
         case silly::color::type::eptRGBA:
             return J_COLOR_SPACE::JCS_EXT_RGBA;
         default:
-            throw std::exception("不支持的类型");
+            throw std::runtime_error("不支持的类型");
     }
     return J_COLOR_SPACE::JCS_UNKNOWN;
 }

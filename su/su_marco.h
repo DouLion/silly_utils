@@ -91,11 +91,20 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <sys/types.h>
+#include <sys/mman.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
 #ifndef O_BINARY
 #define O_BINARY 0
+#endif
+#endif
+#if WIN32
+using silly_handle = HANDLE;
+#else
+using silly_handle = int;
+#ifndef INVALID_HANDLE_VALUE
+#define INVALID_HANDLE_VALUE -1
 #endif
 #endif
 // 本项目中的常量

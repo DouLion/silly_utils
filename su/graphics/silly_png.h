@@ -92,7 +92,7 @@ class data : public image::base
         return (uint8_t **)&m_nbytes;
     }
 
-    silly::png::data &silly::png::data::operator=(const silly::png::data &rh);
+    data &operator=(const data &rh);
 
   protected:
     uint32_t m_pixel_size{0};

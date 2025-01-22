@@ -73,7 +73,7 @@ class silly_grid_render
             SLOG_ERROR("获取矩阵数据块失败")
             return;
         }
-        srp.pd = png_utils::create_empty(srp.mtx.row(), srp.mtx.col());
+        srp.pd.create(srp.mtx.row(), srp.mtx.col());
         for (size_t r = 0; r < srp.mtx.row(); ++r)
         {
             for (size_t c = 0; c < srp.mtx.col(); ++c)
@@ -125,7 +125,7 @@ class silly_grid_render
             SLOG_ERROR("获取矩阵数据块失败")
             return;
         }
-        srp.pd = png_utils::create_empty(srp.mtx.row(), srp.mtx.col());
+        srp.pd.create(srp.mtx.row(), srp.mtx.col());
         for (size_t r = 0; r < srp.mtx.row(); ++r)
         {
             for (size_t c = 0; c < srp.mtx.col(); ++c)

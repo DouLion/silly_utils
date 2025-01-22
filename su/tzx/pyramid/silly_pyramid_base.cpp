@@ -106,7 +106,7 @@ void base::seek(const size_t& pos)
     }
 }
 
-bool base::stream_open(const char* file, const int& mode)
+bool base::stream_open(const char* file, const std::ios_base::openmode& mode)
 {
     m_stream.open(file, mode);
     if (m_stream.is_open())

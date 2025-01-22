@@ -15,7 +15,6 @@
 class silly_rwdb_record
 {
   public:
-
     virtual std::string serialize(const int& ver = 1) const = 0;
     virtual bool deserialize(const std::string& data) = 0;
 
@@ -24,10 +23,9 @@ class silly_rwdb_record
     uint32_t index{0};
     std::time_t stamp{0};
 
-    static constexpr size_t SIZE_V1 = 0;
-
-    static constexpr char PREFIX = 'R';  // 固定头
-    static constexpr char* FILE_NAME = "";
+    static constexpr const size_t SIZE_V1 = 0;
+    static constexpr const char PREFIX = 'R';  // 固定头
+    static constexpr const char* FILE_NAME = "";
 };
 
 #endif  // SILLY_UTILS_RWDB_RECORD_H

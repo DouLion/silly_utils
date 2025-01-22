@@ -57,11 +57,6 @@ class memory_map
         Read = 1,
         Write = 2
     };
-#if WIN32
-    using handle_type = HANDLE;
-#else
-    using handle_type = int;
-#endif
   public:
     using cur = char;
     class param
@@ -154,9 +149,9 @@ class memory_map
     std::mutex m_w_mutex;     // 写互斥
     param m_param;
 
-    handle_type m_hdl_file = INVALID_HANDLE_VALUE;
+    silly_handle m_hdl_file = INVALID_HANDLE_VALUE;
 #if WIN32
-    handle_type m_hdl_map = INVALID_HANDLE_VALUE;
+    silly_handle m_hdl_map = INVALID_HANDLE_VALUE;
 #endif
     // bool m_is_hdl_internal = false;
 };
