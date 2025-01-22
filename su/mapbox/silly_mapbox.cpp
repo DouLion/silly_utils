@@ -20,7 +20,7 @@ mvt_tile silly_mapbox::merge(const std::vector<mvt_tile>& tiles)
     return ret;
 }
 
-void silly_mapbox::merge(const mvt_tile& tile, mvt_tile& outtile)
+bool silly_mapbox::merge(const mvt_tile& tile, mvt_tile& outtile)
 {
     int features_added = 0;
     for (size_t l = 0; l < tile.layers.size(); l++)
@@ -142,7 +142,7 @@ void aprintf(std::string* buf, const char* format, ...)
     va_start(ap, format);
 
     // 先计算需要的缓冲区大小
-    int size = vsnprintf(nullptr, 0, format, ap) + 1;  // +1 是为了包含字符串终止符
+    int size = vsnprintf(nullptr, 0, format, ap);  // +1 是为了包含字符串终止符
     if (size <= 0)
     {
         fprintf(stderr, "Error calculating the size for the string\n");
