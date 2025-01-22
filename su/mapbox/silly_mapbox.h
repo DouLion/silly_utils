@@ -28,6 +28,9 @@ class silly_mapbox
     /// <param name="tiles"></param>
     /// <returns></returns>
     static mvt_tile merge(const std::vector<mvt_tile>& tiles);
+    
+    // 该函数为mapbox中合并块数据的handle函数的改写
+    static void merge_handle(const mvt_tile& tile, mvt_tile& outtile);
 };
 
 #endif  // SILLY_UTILS_SILLY_MAPBOX_H

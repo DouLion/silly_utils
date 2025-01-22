@@ -491,7 +491,7 @@ std::string mvt_tile::encode(const bool &compressed)
     if (compressed)
     {
         std::string output;
-        if (compress(data, output))
+        if (compress(data, output) == 0)
         {
             data = output;
         }
