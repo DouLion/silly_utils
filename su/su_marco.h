@@ -73,6 +73,11 @@
 #include <cstring>
 #include <locale>
 
+#include <stdint.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
 // 数据库
 // #include <sql.h>
 // #include <sqlext.h>
@@ -90,10 +95,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
-#include <sys/types.h>
 #include <sys/mman.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 #include <unistd.h>
 #ifndef O_BINARY
 #define O_BINARY 0

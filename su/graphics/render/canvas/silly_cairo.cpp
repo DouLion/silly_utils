@@ -16,6 +16,7 @@
 #include <graphics/silly_jpeg.h>
 
 #if ENABLE_JPEG
+// 安装的是 libjpeg-turbo
 #include "jpeglib.h"
 #include "jerror.h"
 #include <setjmp.h>
@@ -25,7 +26,24 @@
 
 const static double COLOR_UNSIGNED_CHAR_DOUBLE = 255.0;
 
-#define PC_CC(a) static_cast<double>(a) / COLOR_UNSIGNED_CHAR_DOUBLE
+#define DESTROY_SURFACE(surf)        \
+    if (surf)                        \
+    {                                \
+        cairo_surface_destroy(surf); \
+        surf = nullptr;              \
+    }
+
+#define DESTROY_CONTEXT(ctx) \
+    if (ctx)                 \
+    {                        \
+        cairo_destroy(ctx);  \
+        ctx = nullptr;       \
+    }
+
+#define CLR_CVT(a) static_cast<double>(a) / COLOR_UNSIGNED_CHAR_DOUBLE
+
+// 输出jpeg的压缩质量
+#define JPEG_QUALITY (90)
 
 std::map<std::string, FT_Face> silly_cairo::CAIRO_NAME_FONT = {};
 
@@ -46,7 +64,7 @@ struct st_data
     uint32_t length = 0;
 };
 
-static cairo_status_t read_func(void *closure, unsigned char *data, uint32_t length)
+static cairo_status_t _read_func(void *closure, unsigned char *data, uint32_t length)
 {
     st_data *_data = (st_data *)closure;
     if (_data->length - _data->offset < length)
@@ -60,80 +78,65 @@ static cairo_status_t read_func(void *closure, unsigned char *data, uint32_t len
     return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_surface_t *from_binary(const char *data, const int &size)
-{
-    cairo_surface_t *surface;
-    st_data _data = {(char *)data, 0, (uint32_t)size};
-    surface = cairo_image_surface_create_from_png_stream(read_func, &_data);
-    return surface;
-}
-
-static cairo_status_t write_func(void *closure, const unsigned char *data, uint32_t length)
+static cairo_status_t _write_func(void *closure, const unsigned char *data, uint32_t length)
 {
     std::string &bin = *((std::string *)closure);
     bin.resize(length);
     memcpy(&bin[0], data, length);
     return CAIRO_STATUS_SUCCESS;
 }
+
+static cairo_surface_t *surface_create_from_stream(const unsigned char *data, const int &size)
+{
+    cairo_surface_t *surface;
+    st_data _data = {(char *)data, 0, (uint32_t)size};
+    surface = cairo_image_surface_create_from_png_stream(_read_func, &_data);
+    return surface;
+}
+
+static cairo_surface_t *surface_create_from_file(const char *filename)
+{
+    return cairo_image_surface_create_from_png(filename);
+}
+
+static cairo_status_t surface_to_stream(cairo_surface_t *sfc, std::string &bin)
+{
+    return cairo_surface_write_to_png_stream(sfc, _write_func, (void *)bin.data());
+}
+
+static cairo_status_t surface_write(cairo_surface_t *sfc, const char *filename)
+{
+    return cairo_surface_write_to_png(sfc, filename);
+}
+
 }  // namespace png
 #if ENABLE_JPEG
 namespace jpeg
 {
 /// https://github.com/rahra/cairo_jpg/blob/master/src/cairo_jpg.c
-
-#define CAIRO_JPEG_IO_BLOCK_SIZE 4096
-
-#ifndef LIBJPEG_TURBO_VERSION
-static void pix_conv(unsigned char *dst, int dw, const unsigned char *src, int sw, int num)
-{
-    int si, di;
-
-    // safety check
-    if (dw < 3 || sw < 3 || dst == NULL || src == NULL)
-        return;
-
-    num--;
-    for (si = num * sw, di = num * dw; si >= 0; si -= sw, di -= dw)
-    {
-#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-        dst[di + 2] = src[si];
-        dst[di + 1] = src[si + 1];
-        dst[di + 0] = src[si + 2];
-#else
-        // FIXME: This is untested, it may be wrong.
-        dst[di - 3] = src[si - 3];
-        dst[di - 2] = src[si - 2];
-        dst[di - 1] = src[si - 1];
-#endif
-    }
-}
-#endif
-
 using ssize_t = unsigned int;
+#define CAIRO_JPEG_IO_BLOCK_SIZE 1
 
-/*! This function creates a JPEG file in memory from a Cairo image surface.
- * @param sfc Pointer to a Cairo surface. It should be an image surface of
- * either CAIRO_FORMAT_ARGB32 or CAIRO_FORMAT_RGB24. Other formats are
- * converted to CAIRO_FORMAT_RGB24 before compression.
- * Please note that this may give unexpected results because JPEG does not
- * support transparency. Thus, default background color is used to replace
- * transparent regions. The default background color is black if not specified
- * explicitly. Thus converting e.g. PDF surfaces without having any specific
- * background color set will apear with black background and not white as you
- * might expect. In such cases it is suggested to manually convert the surface
- * to RGB24 before calling this function.
- * @param data Pointer to a memory pointer. This parameter receives a pointer
- * to the memory area where the final JPEG data is found in memory. This
- * function reserves the memory properly and it has to be freed by the caller
- * with free(3).
- * @param len Pointer to a variable of type size_t which will receive the final
- * lenght of the memory buffer.
- * @param quality Compression quality, 0-100.
- * @return On success the function returns CAIRO_STATUS_SUCCESS. In case of
- * error CAIRO_STATUS_INVALID_FORMAT is returned.
- */
-static cairo_status_t surface_to_jpeg_mem(cairo_surface_t *sfc, unsigned char **data, size_t *len, int quality)
+static cairo_status_t _write_func(void *closure, const unsigned char *data, unsigned int length)
 {
+    return ::write((intptr_t)closure, data, (size_t)length) < (ssize_t)length ? CAIRO_STATUS_WRITE_ERROR : CAIRO_STATUS_SUCCESS;
+}
+
+///////////////////////////   下面是 写回 JPEG 图片的代码   ///////////////////////////
+
+/// <summary>
+/// !!!!!! 这个是实现核心 !!!!!!
+/// 将surface 转换成 jpeg内存数据
+/// </summary>
+/// <param name="sfc"></param>
+/// <param name="data"></param>
+/// <param name="len"></param>
+/// <param name="quality"></param>
+/// <returns></returns>
+
+
+static cairo_status_t _surface_to_stream(cairo_surface_t *sfc, unsigned char **data, size_t *len)  // unsigned char **data, size_t *len)
+    {
     struct jpeg_compress_struct cinfo;
     struct jpeg_error_mgr jerr;
     JSAMPROW row_pointer[1];
@@ -175,7 +178,6 @@ static cairo_status_t surface_to_jpeg_mem(cairo_surface_t *sfc, unsigned char **
     jpeg_mem_dest(&cinfo, data, &jpeg_len);
     cinfo.image_width = cairo_image_surface_get_width(sfc);
     cinfo.image_height = cairo_image_surface_get_height(sfc);
-#ifdef LIBJPEG_TURBO_VERSION
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
     // cinfo.in_color_space = JCS_EXT_BGRX;
     cinfo.in_color_space = cairo_image_surface_get_format(sfc) == CAIRO_FORMAT_ARGB32 ? JCS_EXT_BGRA : JCS_EXT_BGRX;
@@ -184,12 +186,9 @@ static cairo_status_t surface_to_jpeg_mem(cairo_surface_t *sfc, unsigned char **
     cinfo.in_color_space = cairo_image_surface_get_format(sfc) == CAIRO_FORMAT_ARGB32 ? JCS_EXT_ARGB : JCS_EXT_XRGB;
 #endif
     cinfo.input_components = 4;
-#else
-    cinfo.in_color_space = JCS_RGB;
-    cinfo.input_components = 3;
-#endif
+
     jpeg_set_defaults(&cinfo);
-    jpeg_set_quality(&cinfo, quality, TRUE);
+    jpeg_set_quality(&cinfo, JPEG_QUALITY, TRUE);
 
     // start compressor
     jpeg_start_compress(&cinfo, TRUE);
@@ -200,13 +199,7 @@ static cairo_status_t surface_to_jpeg_mem(cairo_surface_t *sfc, unsigned char **
     // loop over all lines and compress
     while (cinfo.next_scanline < cinfo.image_height)
     {
-#ifdef LIBJPEG_TURBO_VERSION
         row_pointer[0] = pixels + (cinfo.next_scanline * stride);
-#else
-        unsigned char row_buf[3 * cinfo.image_width];
-        pix_conv(row_buf, 3, pixels + (cinfo.next_scanline * stride), 4, cinfo.image_width);
-        row_pointer[0] = row_buf;
-#endif
         (void)jpeg_write_scanlines(&cinfo, row_pointer, 1);
     }
 
@@ -222,58 +215,24 @@ static cairo_status_t surface_to_jpeg_mem(cairo_surface_t *sfc, unsigned char **
     return CAIRO_STATUS_SUCCESS;
 }
 
-/*! This is the internal write function which is called by
- * cairo_image_surface_write_to_jpeg(). It is not exported.
- */
-static cairo_status_t cj_write(void *closure, const unsigned char *data, unsigned int length)
-{
-    return write((intptr_t)closure, data, (size_t)length) < (ssize_t)length ? CAIRO_STATUS_WRITE_ERROR : CAIRO_STATUS_SUCCESS;
-}
-
-/*! This function writes JPEG file data from a Cairo image surface by using the
- * user-supplied stream writer function write_func().
- * @param sfc Pointer to a Cairo *image* surface. Its format must either be
- * CAIRO_FORMAT_ARGB32 or CAIRO_FORMAT_RGB24. Other formats are not supported
- * by this function, yet.
- * @param write_func Function pointer to a function which is actually writing
- * the data.
- * @param closure Pointer to user-supplied variable which is directly passed to
- * write_func().
- * @param quality Compression quality, 0-100.
- * @return This function calles surface_to_jpeg_mem() and
- * returns its return value.
- */
-static cairo_status_t surface_to_jpeg_stream(cairo_surface_t *sfc, cairo_write_func_t write_func, void *closure, int quality)
+cairo_status_t _surface_to_stream(cairo_surface_t *sfc, cairo_write_func_t wf, void *closure)
 {
     cairo_status_t e;
     unsigned char *data = NULL;
     size_t len = 0;
-
     // create JPEG data in memory from surface
-    if ((e = surface_to_jpeg_mem(sfc, &data, &len, quality)) != CAIRO_STATUS_SUCCESS)
+    if ((e = _surface_to_stream(sfc, &data, &len)) != CAIRO_STATUS_SUCCESS)
         return e;
 
     // write whole memory block with stream function
-    e = write_func(closure, data, len);
+    e = wf(closure, (const unsigned char *)data, len);
 
     // free JPEG memory again and return the return value
-    free(data);
-    return e;
+    ::free(data);
+    return CAIRO_STATUS_SUCCESS;
 }
 
-/*! This function creates a JPEG file from a Cairo image surface.
- * @param sfc Pointer to a Cairo *image* surface. Its format must either be
- * CAIRO_FORMAT_ARGB32 or CAIRO_FORMAT_RGB24. Other formats are not supported
- * by this function, yet.
- * @param filename Pointer to the filename.
- * @param quality Compression quality, 0-100.
- * @return In case of success CAIRO_STATUS_SUCCESS is returned. If an error
- * occured while opening/creating the file CAIRO_STATUS_DEVICE_ERROR is
- * returned. The error can be tracked down by inspecting errno(3). The function
- * internally calles surface_to_jpeg_stream() and returnes
- * its return value respectively (see there).
- */
-static cairo_status_t cairo_image_surface_write_to_jpeg(cairo_surface_t *sfc, const char *filename, int quality)
+static cairo_status_t surface_write(cairo_surface_t *sfc, const char *filename)
 {
     cairo_status_t e;
     int outfile;
@@ -283,22 +242,34 @@ static cairo_status_t cairo_image_surface_write_to_jpeg(cairo_surface_t *sfc, co
         return CAIRO_STATUS_DEVICE_ERROR;
 
     // write surface to file
-    e = surface_to_jpeg_stream(sfc, cj_write, (void *)(intptr_t)outfile, quality);
+    e = _surface_to_stream(sfc, _write_func, (void *)(intptr_t)outfile);
 
     // close file again and return
     close(outfile);
     return e;
 }
+static cairo_status_t surface_to_stream(cairo_surface_t *sfc, std::string &bin)
+{
+    cairo_status_t e;
+    unsigned char *data = NULL;
+    size_t len = 0;
+    // create JPEG data in memory from surface
+    if ((e = _surface_to_stream(sfc, &data, &len)) != CAIRO_STATUS_SUCCESS)
+        return e;
+    bin.assign((char *)data, len);
+    ::free(data);
+    return CAIRO_STATUS_SUCCESS;
+}
+///////////////////////////   下面是 读取 JPEG 图片的代码   ///////////////////////////
 
-/*! This function decompresses a JPEG image from a memory buffer and creates a
- * Cairo image surface.
- * @param data Pointer to JPEG data (i.e. the full contents of a JPEG file read
- * into this buffer).
- * @param len Length of buffer in bytes.
- * @return Returns a pointer to a cairo_surface_t structure. It should be
- * checked with cairo_surface_status() for errors.
- */
-static cairo_surface_t *from_binary(void *data, size_t len)
+/// <summary>
+/// !!!!!! 这个是实现核心 !!!!!!
+/// 在内存中解压JPEG图片,并且创建Cairo image surface
+/// </summary>
+/// <param name="data">JPEG数据的指针</param>
+/// <param name="len">JPEG数据长度</param>
+/// <returns></returns>
+static cairo_surface_t *surface_create_from_stream(void *data, size_t len)
 {
     struct jpeg_decompress_struct cinfo;
     struct jpeg_error_mgr jerr;
@@ -308,17 +279,13 @@ static cairo_surface_t *from_binary(void *data, size_t len)
     // initialize jpeg decompression structures
     cinfo.err = jpeg_std_error(&jerr);
     jpeg_create_decompress(&cinfo);
-    jpeg_mem_src(&cinfo, (unsigned char *)data, len);
+    jpeg_mem_src(&cinfo, (const unsigned char *)data, len);
     (void)jpeg_read_header(&cinfo, TRUE);
 
-#ifdef LIBJPEG_TURBO_VERSION
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
     cinfo.out_color_space = JCS_EXT_BGRA;
 #else
     cinfo.out_color_space = JCS_EXT_ARGB;
-#endif
-#else
-    cinfo.out_color_space = JCS_RGB;
 #endif
 
     // start decompressor
@@ -338,9 +305,6 @@ static cairo_surface_t *from_binary(void *data, size_t len)
         unsigned char *row_address = cairo_image_surface_get_data(sfc) + (cinfo.output_scanline * cairo_image_surface_get_stride(sfc));
         row_pointer[0] = row_address;
         (void)jpeg_read_scanlines(&cinfo, row_pointer, 1);
-#ifndef LIBJPEG_TURBO_VERSION
-        pix_conv(row_address, 4, row_address, 3, cinfo.output_width);
-#endif
     }
 
     // finish and close everything
@@ -349,71 +313,47 @@ static cairo_surface_t *from_binary(void *data, size_t len)
     jpeg_destroy_decompress(&cinfo);
 
     // set jpeg mime data
-    cairo_surface_set_mime_data(sfc, CAIRO_MIME_TYPE_JPEG, (unsigned char *)data, len, free, data);
+    cairo_surface_set_mime_data(sfc, CAIRO_MIME_TYPE_JPEG, (const unsigned char *)data, len, free, data);
 
     return sfc;
 }
 
-/*! This function reads a JPEG image from a stream and creates a Cairo image
- * surface.
- * @param read_func Pointer to function which reads data.
- * @param closure Pointer which is passed to read_func().
- * @return Returns a pointer to a cairo_surface_t structure. It should be
- * checked with cairo_surface_status() for errors.
- * @note If the surface returned is invalid you can use errno(3) to determine
- * further reasons. Errno is set according to realloc(3). If you
- * intend to check errno you shall set it to 0 before calling this function
- * because it modifies errno only in case of an error.
- */
-#ifdef USE_CAIRO_READ_FUNC_LEN_T
-static cairo_surface_t *cairo_image_surface_create_from_jpeg_stream(cairo_read_func_len_t read_func, void *closure)
-#else
-static cairo_surface_t *cairo_image_surface_create_from_jpeg_stream(cairo_read_func_t read_func, void *closure)
-#endif
+cairo_surface_t *surface_create_from_file(const char *filename)
 {
-    cairo_surface_t *sfc;
-    unsigned char *data, *tmp;
-    ssize_t len, rlen;
-    int eof = 0;
+    void *data;
+    int infile;
+    struct stat stat;
 
-    // read all data into memory buffer in blocks of CAIRO_JPEG_IO_BLOCK_SIZE
-    for (len = 0, data = NULL; !eof; len += rlen)
+    // open input file
+    if ((infile = ::open(filename, O_BINARY | O_RDONLY)) == -1)
+        return nullptr;
+
+    // get stat structure for file size
+    if (::fstat(infile, &stat) == -1)
     {
-        // grow memory buffer and check for error
-        if ((tmp = (unsigned char *)realloc(data, len + CAIRO_JPEG_IO_BLOCK_SIZE)) == NULL)
-            break;
-        data = tmp;
-
-        // read bytes into buffer and check for error
-        rlen = read_func(closure, data + len, CAIRO_JPEG_IO_BLOCK_SIZE);
-#ifdef USE_CAIRO_READ_FUNC_LEN_T
-        // check for error
-        if (rlen == -1)
-            break;
-
-        // check if EOF occured
-        if (rlen < CAIRO_JPEG_IO_BLOCK_SIZE)
-            eof++;
-#else
-        // check for error
-        if (rlen == CAIRO_STATUS_READ_ERROR)
-            eof++;
-#endif
+        ::close(infile);
+        return nullptr;
     }
 
-    // check for error in read loop
-    if (!eof)
+    // allocate memory
+    if ((data = ::malloc(stat.st_size)) == NULL)
     {
-        free(data);
-        return cairo_image_surface_create(CAIRO_FORMAT_INVALID, 0, 0);
+        ::close(infile);
+        return nullptr;
     }
 
-    // call jpeg decompression and return surface
-    sfc = from_binary(data, len);
-    if (cairo_surface_status(sfc) != CAIRO_STATUS_SUCCESS)
-        free(data);
+    // read data
+    if (::read(infile, data, stat.st_size) < stat.st_size)
+    {
+        ::close(infile);
+        return nullptr;
+    }
 
-    return sfc;
+    ::close(infile);
+
+    cairo_surface_t *surf = surface_create_from_stream(data, stat.st_size);
+    // ::free(data); 不能释放,会在cairo_surface_destroy释放
+    return surf;
 }
 
 }  // namespace jpeg
@@ -455,47 +395,64 @@ bool silly_cairo::create(const size_t ww, const size_t &hh, const int &type)
     return true;
 }
 
-bool silly_cairo::read(const std::string &path)
+bool silly_cairo::read(const std::string &path, const bool &png)
 {
-    if (!(m_surface = cairo_image_surface_create_from_png(path.c_str())))
+    if (png)
     {
-        return false;
+        if (!(m_surface = silly::cairo::png::surface_create_from_file(path.c_str())))
+        {
+            return false;
+        }
     }
-    m_cr = cairo_create(m_surface);
+#if ENABLE_JPEG
+    else
+    {
+        if (!(m_surface = silly::cairo::jpeg::surface_create_from_file(path.c_str())))
+        {
+            return false;
+        }
+    }
+#endif
+   /* m_cr = cairo_create(m_surface);
     m_width = cairo_image_surface_get_width(m_surface);
-    m_height = cairo_image_surface_get_height(m_surface);
+    m_height = cairo_image_surface_get_height(m_surface);*/
     return true;
 }
 
-bool silly_cairo::write(const std::string &path)
+bool silly_cairo::write(const std::string &path, const bool &png)
 {
-    return (CAIRO_STATUS_SUCCESS == cairo_surface_write_to_png(m_surface, path.c_str()));
+    if (png)
+    {
+        return (CAIRO_STATUS_SUCCESS == silly::cairo::png::surface_write(m_surface, path.c_str()));
+    }
+#if ENABLE_JPEG
+    else
+    {
+        return (CAIRO_STATUS_SUCCESS == silly::cairo::jpeg::surface_write(m_surface, path.c_str()));
+    }
+#endif
 }
 
 bool silly_cairo::decode(const std::string &bin)
 {
-    return decode(bin.c_str(), bin.size());
+    return decode((const unsigned char *)bin.c_str(), bin.size());
 }
 
-bool silly_cairo::decode(const char *data, const size_t size)
+bool silly_cairo::decode(const unsigned char *data, const size_t size)
 {
-    if (silly::png::data().valid(data, size))
+    if (silly::png::data().valid((const char *)data, size))
     {
-        m_surface = silly::cairo::png::from_binary(data, size);
-        if (!m_surface)
-        {
-            return false;
-        }
+        m_surface = silly::cairo::png::surface_create_from_stream(data, size);
     }
-    else if (silly::jpeg::data().valid(data, size))
-    {
 #if ENABLE_JPEG
-        m_surface = silly::cairo::jpeg::from_binary((void *)data, size);
+    else if (silly::jpeg::data().valid((const char *)data, size))
+    {
+        m_surface = silly::cairo::jpeg::surface_create_from_stream((void*)data, size);
+    }
 #endif
-        if (!m_surface)
-        {
-            return false;
-        }
+    if (!m_surface)
+    {
+        return false;
     }
 
     m_width = cairo_image_surface_get_width(m_surface);
@@ -509,26 +466,26 @@ bool silly_cairo::decode(const char *data, const size_t size)
     return true;
 }
 
-bool silly_cairo::encode(std::string &bin)
+bool silly_cairo::encode(std::string &bin, const bool &png)
 {
-    cairo_surface_write_to_png_stream(m_surface, silly::cairo::png::write_func, &bin);
-    if (bin.empty())
+    if (png)
     {
-        return false;
+        silly::cairo::png::surface_to_stream(m_surface, bin);
     }
-    return true;
+#if ENABLE_JPEG
+    else
+    {
+        silly::cairo::jpeg::surface_to_stream(m_surface, bin);
+    }
+#endif
+
+    return !bin.empty();
 }
 
 void silly_cairo::release()
 {
-    if (m_cr)
-    {
-        cairo_destroy(m_cr);
-    }
-    if (m_surface)
-    {
-        cairo_surface_destroy(m_surface);
-    }
+    DESTROY_CONTEXT(m_cr)
+    DESTROY_SURFACE(m_surface)
 }
 
 void silly_cairo::draw_text(silly_cairo_text sct)
@@ -559,13 +516,13 @@ void silly_cairo::set(const silly::color &color)
     switch (m_format)
     {
         case CAIRO_FORMAT_ARGB32:
-            cairo_set_source_rgba(m_cr, PC_CC(color.red), PC_CC(color.green), PC_CC(color.blue), PC_CC(color.alpha));
+            cairo_set_source_rgba(m_cr, CLR_CVT(color.red), CLR_CVT(color.green), CLR_CVT(color.blue), CLR_CVT(color.alpha));
             break;
         case CAIRO_FORMAT_RGB24:
-            cairo_set_source_rgb(m_cr, PC_CC(color.red), PC_CC(color.green), PC_CC(color.blue));
+            cairo_set_source_rgb(m_cr, CLR_CVT(color.red), CLR_CVT(color.green), CLR_CVT(color.blue));
             break;
         case CAIRO_FORMAT_A8:
-            cairo_set_source_rgba(m_cr, PC_CC(color.alpha), PC_CC(color.alpha), PC_CC(color.alpha), PC_CC(color.alpha));
+            cairo_set_source_rgba(m_cr, CLR_CVT(color.alpha), CLR_CVT(color.alpha), CLR_CVT(color.alpha), CLR_CVT(color.alpha));
             break;
         default:
             break;
@@ -732,9 +689,9 @@ size_t silly_cairo::count_span(const std::string &u8str)
     return count;
 }
 
-void silly_cairo::set(const int &opt)
+void silly_cairo::set(const cairo_operator_t &opt)
 {
-    cairo_set_operator(m_cr, static_cast<cairo_operator_t>(opt));
+    cairo_set_operator(m_cr, opt);
 }
 
 void silly_cairo::draw_line(const std::vector<silly_point> &line, const silly_geo_rect &rect)

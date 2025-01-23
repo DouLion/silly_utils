@@ -39,6 +39,9 @@ target_link_libraries(ListHeader sutils)
 add_executable(TzxNTP NTP/TzxNTP.cpp)
 target_link_libraries(TzxNTP sutils)
 
+add_executable(CairoJPEG CairoJPEG/cairo_jpg.cpp CairoJPEG/cairo_jpg.h)
+target_link_libraries(CairoJPEG sutils)
+
 add_subdirectory(ODBCExchange)
 
 

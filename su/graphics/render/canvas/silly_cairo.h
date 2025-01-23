@@ -42,17 +42,54 @@ class silly_cairo_text
 
 class silly_cairo
 {
+  /// <summary>
+  /// 读写均只支持png 和 jpg 图片格式,其他未作兼容
+  /// </summary>
   public:
     silly_cairo() = default;
-
+    /// <summary>
+    /// 创建
+    /// </summary>
+    /// <param name="ww"></param>
+    /// <param name="hh"></param>
+    /// <param name="type"></param>
+    /// <returns></returns>
     bool create(const size_t ww, const size_t& hh, const int& type = silly::color::type::eptRGBA);
-    void clean(silly::color color = {0, 0, 0, 0});
-    bool read(const std::string& path);
-    bool write(const std::string& path);
-    bool decode(const std::string& bin);
-    bool decode(const char* data, const size_t size);
-    bool encode(std::string& bin);
 
+    /// <summary>
+    /// 使用颜色清空画布
+    /// </summary>
+    /// <param name="color"></param>
+    void clean(silly::color color = {0, 0, 0, 0});
+
+    /// <summary>
+    /// 从文件读取图片
+    /// </summary>
+    /// <param name="path"></param>
+    /// <param name="png">true 以png读取, false 以 jpeg 格式读取</param>
+    /// <returns></returns>
+    bool read(const std::string& path, const bool& png = true);
+
+    /// <summary>
+    /// 将图片写入文件
+    /// </summary>
+    /// <param name="path"></param>
+    /// <param name="png">true 写为 png, false 写为 jpeg格式</param>
+    /// <returns></returns>
+    bool write(const std::string& path, const bool& png = true);
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="bin"></param>
+    /// <returns></returns>
+    bool decode(const std::string& bin);
+    bool decode(const unsigned char* data, const size_t size);
+    bool encode(std::string& bin, const bool& png = true);
+
+    /// <summary>
+    /// 启用自定义字体(字体文件不在系统字体中)
+    /// </summary>
     static void enable_fonts();
 
     static void disable_fonts();
@@ -70,7 +107,11 @@ class silly_cairo
     /// <param name="color"></param>
     void set(const silly::color& color);
 
-    void set(const int& opt);
+    /// <summary>
+    /// 设置操作
+    /// </summary>
+    /// <param name="opt"></param>
+    void set(const cairo_operator_t& opt);
 
     /// <summary>
     /// 将另一张图片绘制到当前图片上
