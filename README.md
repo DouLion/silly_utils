@@ -1,8 +1,16 @@
 # silly_utils
 
-通用工具模块,目的是能够再cmake中直接引用该项目代码
+通用工具模块,目的是能够在其他CMake构建的项目中能够直接使用, 以C++ 17为标准.
 
-### Unix 17条基本哲学
+本项目中只做基本功能实现,在设计参数时不要引入业务逻辑,始终希望任意一个类都可以独立工作.
+
+请在Linux和Windows平台上都做测试
+
+### [Unix 17条基本哲学](Unix Philosophy,md)
+
+**原则,约束只对实践起指导作用,而不是决定作用**
+
+**否定一项规则最好的方式就是100%遵循它**
 
 [Basics of the Unix Philosophy](http://www.catb.org/~esr/writings/taoup/html/ch01s06.html)
 
@@ -24,102 +32,79 @@
 - 多样性原则，Diversity：一个问题有很多好的解决方案，没有最好的解决方案！
 - 拓展性原则，Extensible： 设计程序时应该考虑到未来的拓展，因为未来比你想象来的早
 
+# 依赖环境
 
+### 1 Windows
+
++ Visual studio 2015及以上,必须包含的组件 `MSVC v140 -VS 2015 c++ 生成工具` ,语言包必须额外安装`英语`
++ 也可以借助cygwin 或者 mysm2等跨平台编译工具,需要自行探索
++ CMake 3.20+
++ Git 2.30+
++ vcpkg(跨平台C++包管理器)
+
+### 2 Linux
+
++ GCC 6.0+ ,建议GCC 9.10 不要超过 GCC 9.11(曾经有一个库的在高版本编译有问题) 
++ CMake 3.20+
++ Git 2.30+
++ vcpkg(跨平台C++包管理器)
 
 ## 使用方式
 
-+ 拷贝本项目目录下cmake/silly_utils.cmake文件,到目标项目根目录cmake/silly_utils.cmake,或者按照自己的需要修改:
+**下面会使用`UPROJ`表示新项目的根目录**
 
-  ```cmake
-  # 添加第三方依赖包
-  include(FetchContent)
-  # FetchContent_MakeAvailable was not added until CMake 3.14
-  if(${CMAKE_VERSION} VERSION_LESS 3.14)
-      include(add_FetchContent_MakeAvailable.cmake)
-  endif()
-  
-  # 设置silly_utils的下载目录
-  if("${SILLY_UTILS_FETCH_ROOT}" STREQUAL "")
-      set(SILLY_UTILS_FETCH_ROOT ${CMAKE_SOURCE_DIR}/su_ext)
-  endif()
-  
-  # 指定git仓库地址, 如果能连接192.168.0.60,使用该地址,速度会快一点,如果不能,使用123.56.193.136:16080,这个是.net的公网地址
-  if("${SILLY_UTILS_FETCH_IP_PORT}" STREQUAL "")
-      set(SILLY_UTILS_FETCH_IP_PORT "192.168.0.60")
-  endif()
-  
-  # 指定版本
-  set(SILLY_UTIL_TAG  master)  
-  set(SILLY_UTILS_GIT_URL  "http://${SILLY_UTILS_FETCH_IP_PORT}/douliyang/silly_utils.git")  
-  
-  
-  FetchContent_Declare(
-    silly_utils
-    GIT_REPOSITORY    ${SILLY_UTILS_GIT_URL}
-    SOURCE_DIR        ${SILLY_UTILS_FETCH_ROOT}/silly_utils
-  )
-  
-  FetchContent_MakeAvailable(silly_utils)
-  
-  # 下载完成后 拷贝检测环境的.cmake文件
-  IF(NOT EXISTS "${CMAKE_SOURCE_DIR}/su_cmake")
-      FILE(MAKE_DIRECTORY "${CMAKE_SOURCE_DIR}/su_cmake")
-  ENDIF()
-  execute_process(COMMAND ${CMAKE_COMMAND} -E  copy "${SILLY_UTILS_FETCH_ROOT}/silly_utils/cmake/CheckEnv.cmake" "${CMAKE_SOURCE_DIR}/su_cmake/CheckEnv.cmake")
-  execute_process(COMMAND ${CMAKE_COMMAND} -E  copy "${SILLY_UTILS_FETCH_ROOT}/silly_utils/.clang-format" "${CMAKE_SOURCE_DIR}/.clang-format")
-  # 下面这两行需要确认一下是否可以删除
-  execute_process(COMMAND ${CMAKE_COMMAND} -E  copy "${SILLY_UTILS_FETCH_ROOT}/silly_utils/cmake/dm8_check.cmake" "${CMAKE_SOURCE_DIR}/su_cmake/dm8_check.cmake")
-  execute_process(COMMAND ${CMAKE_COMMAND} -E  copy "${SILLY_UTILS_FETCH_ROOT}/silly_utils/cmake/eccodes_check.cmake" "${CMAKE_SOURCE_DIR}/su_cmake/eccodes_check.cmake")
-  
-  set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/su_cmake;${CMAKE_MODULE_PATH}")
-  include(CheckEnv)
-  include(dm8_check)
-  include(eccodes_check)
-  
-  include_directories("${SILLY_UTILS_FETCH_ROOT}/silly_utils/su")
-  
-  
-  ```
+### 1. 自动构建(依赖Python)
 
-+ 在项目根目录的CMakeList.txt添加如下内容
++ `mkdir UPROJ` 或者 新建文件目录 -> `UPROJ`
++ 进入`UPROJ`
 
-  ```cmake
-  # 会完成与silly_utils一致的环境配置,添加silly_utils头文件目录等信息
-  set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
-  include(silly_utils)
-  ```
++ 将本项目`tools/python/auto_gen.py`拷贝到`UPROJ`
++ 运行命令`python auto_gen.py`
++ 按照提示输入,不要与`su`,`su_marco`重名,如果端口号指定为0或者未输入端口号,那么不会自动生成web模块
 
-+ 以[动态预警项目](http://123.56.193.136:16080/Warn/DynamicWarn)为例
+### 2. 手动拷贝
+
++ 拷贝`cmake/FetchSU.cmake`文件,到`UPROJ/cmake/FetchSU.cmake`;
+
++ 本项目依赖很多第三方库,你可能并不需要,拷贝`cmake/ThirdSupport.cmake`到`UPROJ/cmake/ThirdSupport.cmake`,将不需要的第三方库的`ENABLE_XXX`修改为`OFF`,
+
++ 在`UPROJ/CMakeList.txt`中添加如下内容
 
   ```cmake
   cmake_minimum_required(VERSION 3.15)
-  project(DynamicWarn)
+  project(项目名称)
   
-  # 只需要添加如下两行
   set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
-  include(silly_utils)
+  include(ThirdSupport)
+  include(FetchSU)
   
-  
-  if(IS_DEBUG)
-      add_definitions("-DDEFAULT_ROOT_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}\"")
+  ##########################################
+  # global define.
+  ##########################################
+  if(DEBUG_MODE)
+      add_definitions(-DPROJ_ROOT="${CMAKE_SOURCE_DIR}")
   else()
-      # add_definitions("-DDEFAULT_ROOT_DIR=\"\"")
-      add_definitions("-DDEFAULT_ROOT_DIR=\"./\"")
+      add_definitions(-DPROJ_ROOT="./")
   endif()
+  # [[个人习惯, 在服务中使用std::filesystem::current_path(PROJ_ROOT) 切换当前工作目录]]
   
-  set(DEFAULT_CONFIG_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Config")
-  add_definitions("-DDEFAULT_CONFIG_DIR=\"${DEFAULT_CONFIG_DIR}\"")
-  
+  ##########################################.
+  # global include.
+  ##########################################
   include_directories("${CMAKE_SOURCE_DIR}/core")
   
-  add_subdirectory(core)
-  add_subdirectory(web)
-  add_subdirectory(risk_web)
-  add_subdirectory(app)
-  add_subdirectory(tool)
+  ##########################################
+  # Add sub dirs.
+  ######################+####################
+  add_subdirectory(core)  # 自己的业务逻辑
+  add_subdirectory(web) # http请求处理, 依赖drogon, 使用 vcpkg install drogon 安装
+  add_subdirectory(app) # 普通的程序,一般是定时任务等
+  add_subdirectory(test) # 功能测试
+  add_subdirectory(tools) # 
+  
   ```
-
-+ 记得要链接这个库
+  
++ 记得要链接本项目
 
   ```cmake
   target_link_libraries(${PROJECT_NAME} PUBLIC sutils)
@@ -132,7 +117,7 @@
     https://blog.csdn.net/yongbaofeng1234/article/details/88651113
     https://zhuanlan.zhihu.com/p/61857547
 
-## VCPKG依赖库:
+## vcpkg依赖库:
 
 + windows 下执行:
 
@@ -152,5 +137,5 @@
 
 ## 功能列表
 
-+ 见FUNCTIONS.md文件
++ 见`FUNCTIONS.md`文件, 或者 `su/su.h`
 
