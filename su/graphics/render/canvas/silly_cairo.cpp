@@ -134,9 +134,8 @@ static cairo_status_t _write_func(void *closure, const unsigned char *data, unsi
 /// <param name="quality"></param>
 /// <returns></returns>
 
-
 static cairo_status_t _surface_to_stream(cairo_surface_t *sfc, unsigned char **data, size_t *len)  // unsigned char **data, size_t *len)
-    {
+{
     struct jpeg_compress_struct cinfo;
     struct jpeg_error_mgr jerr;
     JSAMPROW row_pointer[1];
@@ -404,15 +403,19 @@ bool silly_cairo::read(const std::string &path, const bool &png)
             return false;
         }
     }
-#if ENABLE_JPEG
     else
     {
+#if ENABLE_JPEG
+
         if (!(m_surface = silly::cairo::jpeg::surface_create_from_file(path.c_str())))
         {
             return false;
         }
-    }
+#else
+        return false;
+
 #endif
+    }
     m_cr = cairo_create(m_surface);
     m_width = cairo_image_surface_get_width(m_surface);
     m_height = cairo_image_surface_get_height(m_surface);
@@ -431,6 +434,7 @@ bool silly_cairo::write(const std::string &path, const bool &png)
         return (CAIRO_STATUS_SUCCESS == silly::cairo::jpeg::surface_write(m_surface, path.c_str()));
     }
 #endif
+    return false;
 }
 
 bool silly_cairo::decode(const std::string &bin)
@@ -447,7 +451,7 @@ bool silly_cairo::decode(const unsigned char *data, const size_t size)
 #if ENABLE_JPEG
     else if (silly::jpeg::data().valid((const char *)data, size))
     {
-        m_surface = silly::cairo::jpeg::surface_create_from_stream((void*)data, size);
+        m_surface = silly::cairo::jpeg::surface_create_from_stream((void *)data, size);
     }
 #endif
     if (!m_surface)
