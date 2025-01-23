@@ -82,16 +82,7 @@
 #include <geo/silly_raster_to_vector.h>                // Marching squares 算法
 #include <geo/silly_spatialite.h>                      // spatialite数据库操作: 创建, 删除,  矢量数据的读取写入, 查询, 修改
 #include <geo/silly_vector_to_raster.h>                // 矢量转栅格,扫描线算法
-#include <geo/thiessen/jc_voronoi.h>                   // voronoi图
-#include <geo/thiessen/jvc_struct.h>                   // jvc数据类型定义
-#include <geo/thiessen/thiessen_creator.h>             // 泰森多边形（Voronoi 图）
 #include <geo/triangular/silly_delaunay.h>             // 德劳内三角剖分的基础数据结构和工具类
-#include <geo/triangular/silly_delaunay_2d.h>          // 未实现
-#include <geo/triangular/silly_delaunay_3d.h>          // 未实现
-#include <geo/triangular/silly_delaunay_bowyer.h>      // Bowyer-Watson 算法
-#include <geo/triangular/silly_delaunay_divide.h>      // 未实现
-#include <geo/triangular/silly_delaunay_sweep_line.h>  // 德劳内三角扫线算法 (点的扫描线算法)
-#include <geo/triangular/silly_iso_line.h>             // 等值线: 等值线的生成、插值、裁剪和绘制
 #include <geo/vacuate/psimpl.h>                        // psimpl源码
 #include <geo/vacuate/silly_vacuate.h>                 // 抽稀算法
 
