@@ -413,9 +413,9 @@ bool silly_cairo::read(const std::string &path, const bool &png)
         }
     }
 #endif
-   /* m_cr = cairo_create(m_surface);
+    m_cr = cairo_create(m_surface);
     m_width = cairo_image_surface_get_width(m_surface);
-    m_height = cairo_image_surface_get_height(m_surface);*/
+    m_height = cairo_image_surface_get_height(m_surface);
     return true;
 }
 
