@@ -4,7 +4,7 @@
 #ifndef JC_VORONOI_H
 #define JC_VORONOI_H
 
-#include <geo/thiessen/jvc_struct.h>
+#include <thiessen/jvc_struct.h>
 
 /**
  * Uses malloc
@@ -12,14 +12,14 @@
  * If rect is null, an automatic bounding box is calculated, with an extra padding of 10 units
  * All points will be culled against the bounding rect, and all edges will be clipped against it.
  */
-extern void jcv_diagram_generate(int num_points, const jcv_point* points, const jcv_rect* rect, const jcv_clipper* clipper, jcv_diagram* diagram);
+extern void jcv_diagram_generate(int num_points, const silly_point* points, const silly_rect* rect, jcv_diagram* diagram);
 
 typedef void* (*FJCVAllocFn)(void* userctx, size_t size);
 
 typedef void (*FJCVFreeFn)(void* userctx, void* p);
 
 // Same as above, but allows the client to use a custom allocator
-extern void jcv_diagram_generate_useralloc(int num_points, const jcv_point* points, const jcv_rect* rect, const jcv_clipper* clipper, void* userallocctx, FJCVAllocFn allocfn, FJCVFreeFn freefn, jcv_diagram* diagram);
+extern void jcv_diagram_generate_useralloc(int num_points, const silly_point* points, const silly_rect* rect, void* userallocctx, FJCVAllocFn allocfn, FJCVFreeFn freefn, jcv_diagram* diagram);
 
 // Uses free (or the registered custom free function)
 extern void jcv_diagram_free(jcv_diagram* diagram);
@@ -42,13 +42,6 @@ jcv_delauney_iter jcv_delauney_begin(const jcv_diagram* diagram);
 // Returns 0 when there are no more edges
 int jcv_delauney_next(jcv_delauney_iter* iter, jcv_delauney_edge* next);
 
-// For the default clipper
-extern int jcv_boxshape_test(const jcv_clipper* clipper, const jcv_point p);
-
-extern int jcv_boxshape_clip(const jcv_clipper* clipper, jcv_edge* e);
-
-extern void jcv_boxshape_fillgaps(const jcv_clipper* clipper, jcv_context_internal* allocator, jcv_site* s);
-
 #endif  // JC_VORONOI_H
 
 #ifdef JC_VORONOI_IMPLEMENTATION
@@ -64,71 +57,71 @@ extern void jcv_boxshape_fillgaps(const jcv_clipper* clipper, jcv_context_intern
 
 static const int JCV_DIRECTION_LEFT = 0;
 static const int JCV_DIRECTION_RIGHT = 1;
-static const jcv_real JCV_INVALID_VALUE = (jcv_real)-JCV_FLT_MAX;
+static const double JCV_INVALID_VALUE = (double)-JCV_FLT_MAX;
 
-// jcv_real
+// double
 
-static jcv_real jcv_abs(jcv_real v)
+static double jcv_abs(double v)
 {
     return (v < 0) ? -v : v;
 }
 
-static int jcv_real_eq(jcv_real a, jcv_real b)
+static int double_eq(double a, double b)
 {
-    return jcv_abs(a - b) < JCV_REAL_TYPE_EPSILON;
+    return jcv_abs(a - b) < double_TYPE_EPSILON;
 }
 
-static jcv_real jcv_real_to_int(jcv_real v)
+static double double_to_int(double v)
 {
-    return (sizeof(jcv_real) == 4) ? (jcv_real)(int)v : (jcv_real)(long long)v;
+    return (double)(long long)v;
 }
 
 // Only used for calculating the initial bounding box
-static jcv_real jcv_floor(jcv_real v)
+static double jcv_floor(double v)
 {
-    jcv_real i = jcv_real_to_int(v);
+    double i = double_to_int(v);
     return (v < i) ? i - 1 : i;
 }
 
 // Only used for calculating the initial bounding box
-static jcv_real jcv_ceil(jcv_real v)
+static double jcv_ceil(double v)
 {
-    jcv_real i = jcv_real_to_int(v);
+    double i = double_to_int(v);
     return (v > i) ? i + 1 : i;
 }
 
-static jcv_real jcv_min(jcv_real a, jcv_real b)
+static double jcv_min(double a, double b)
 {
     return a < b ? a : b;
 }
 
-static jcv_real jcv_max(jcv_real a, jcv_real b)
+static double jcv_max(double a, double b)
 {
     return a > b ? a : b;
 }
 
-// jcv_point
+// silly_point
 
-static int jcv_point_cmp(const void* p1, const void* p2)
+static int silly_point_cmp(const void* p1, const void* p2)
 {
-    const jcv_point* s1 = (const jcv_point*)p1;
-    const jcv_point* s2 = (const jcv_point*)p2;
-    return (s1->y != s2->y) ? (s1->y < s2->y ? -1 : 1) : (s1->x < s2->x ? -1 : 1);
+    const silly_point* s1 = (const silly_point*)p1;
+    const silly_point* s2 = (const silly_point*)p2;
+    return (s1->lttd != s2->lttd) ? (s1->lttd < s2->lttd ? -1 : 1) : (s1->lgtd < s2->lgtd ? -1 : 1);
 }
 
-static int jcv_point_less(const jcv_point* pt1, const jcv_point* pt2)
+static int silly_point_less(const silly_point* pt1, const silly_point* pt2)
 {
-    return (pt1->y == pt2->y) ? (pt1->x < pt2->x) : pt1->y < pt2->y;
+    return (pt1->lttd == pt2->lttd) ? (pt1->lgtd < pt2->lgtd) : pt1->lttd < pt2->lttd;
 }
 
-static int jcv_point_eq(const jcv_point* pt1, const jcv_point* pt2)
+static int silly_point_eq(const silly_point* pt1, const silly_point* pt2)
 {
-    return jcv_real_eq(pt1->y, pt2->y) && jcv_real_eq(pt1->x, pt2->x);
+    return double_eq(pt1->lttd, pt2->lttd) && double_eq(pt1->lgtd, pt2->lgtd);
 }
 
-static int jcv_point_on_box_edge(const jcv_point* pt, const jcv_point* min, const jcv_point* max)
+static int silly_point_on_box_edge(const silly_point* pt, const silly_point* min, const silly_point* max)
 {
-    return pt->x == min->x || pt->y == min->y || pt->x == max->x || pt->y == max->y;
+    return pt->lgtd == min->lgtd || pt->lttd == min->lttd || pt->lgtd == max->lgtd || pt->lttd == max->lttd;
 }
 
 // corners
@@ -144,16 +137,16 @@ static const int JCV_CORNER_BOTTOM_LEFT = 2;
 static const int JCV_CORNER_BOTTOM_RIGHT = 3;
 static const int JCV_CORNER_TOP_RIGHT = 4;
 
-static int jcv_get_edge_flags(const jcv_point* pt, const jcv_point* min, const jcv_point* max)
+static int jcv_get_edge_flags(const silly_point* pt, const silly_point* min, const silly_point* max)
 {
     int flags = 0;
-    if (pt->x == min->x)
+    if (pt->lgtd == min->lgtd)
         flags |= JCV_EDGE_LEFT;
-    else if (pt->x == max->x)
+    else if (pt->lgtd == max->lgtd)
         flags |= JCV_EDGE_RIGHT;
-    if (pt->y == min->y)
+    if (pt->lttd == min->lttd)
         flags |= JCV_EDGE_BOTTOM;
-    else if (pt->y == max->y)
+    else if (pt->lttd == max->lttd)
         flags |= JCV_EDGE_TOP;
     return flags;
 }
@@ -183,47 +176,47 @@ static int jcv_corner_rotate_90(int corner)
     return corner + 1;
 }
 
-static jcv_point jcv_corner_to_point(int corner, const jcv_point* min, const jcv_point* max)
+static silly_point jcv_corner_to_point(int corner, const silly_point* min, const silly_point* max)
 {
-    jcv_point p;
+    silly_point p;
     if (corner == JCV_CORNER_TOP_LEFT)
     {
-        p.x = min->x;
-        p.y = max->y;
+        p.lgtd = min->lgtd;
+        p.lttd = max->lttd;
     }
     else if (corner == JCV_CORNER_TOP_RIGHT)
     {
-        p.x = max->x;
-        p.y = max->y;
+        p.lgtd = max->lgtd;
+        p.lttd = max->lttd;
     }
     else if (corner == JCV_CORNER_BOTTOM_LEFT)
     {
-        p.x = min->x;
-        p.y = min->y;
+        p.lgtd = min->lgtd;
+        p.lttd = min->lttd;
     }
     else if (corner == JCV_CORNER_BOTTOM_RIGHT)
     {
-        p.x = max->x;
-        p.y = min->y;
+        p.lgtd = max->lgtd;
+        p.lttd = min->lttd;
     }
     else
     {
-        p.x = JCV_INVALID_VALUE;
-        p.y = JCV_INVALID_VALUE;
+        p.lgtd = JCV_INVALID_VALUE;
+        p.lttd = JCV_INVALID_VALUE;
     }
     return p;
 }
 
-static jcv_real jcv_point_dist_sq(const jcv_point* pt1, const jcv_point* pt2)
+static double silly_point_dist_sq(const silly_point* pt1, const silly_point* pt2)
 {
-    jcv_real diffx = pt1->x - pt2->x;
-    jcv_real diffy = pt1->y - pt2->y;
+    double diffx = pt1->lgtd - pt2->lgtd;
+    double diffy = pt1->lttd - pt2->lttd;
     return diffx * diffx + diffy * diffy;
 }
 
-static jcv_real jcv_point_dist(const jcv_point* pt1, const jcv_point* pt2)
+static double silly_point_dist(const silly_point* pt1, const silly_point* pt2)
 {
-    return (jcv_real)(JCV_SQRT(jcv_point_dist_sq(pt1, pt2)));
+    return (double)(JCV_SQRT(silly_point_dist_sq(pt1, pt2)));
 }
 
 // Structs
@@ -235,8 +228,8 @@ typedef struct jcv_halfedge_
     jcv_edge* edge;
     struct jcv_halfedge_* left;
     struct jcv_halfedge_* right;
-    jcv_point vertex;
-    jcv_real y;
+    silly_point vertex;
+    double y;
     int direction;  // 0=left, 1=right
     int pqpos;
 } jcv_halfedge;
@@ -277,13 +270,11 @@ struct jcv_context_internal_
     jcv_edge* edgepool;
     jcv_halfedge* halfedgepool;
     void** eventmem;
-    jcv_clipper clipper;
-
     void* memctx;  // Given by the user
     FJCVAllocFn alloc;
     FJCVFreeFn free;
 
-    jcv_rect rect;
+    silly_rect rect;
 };
 
 #pragma pack(pop)
@@ -318,7 +309,7 @@ const jcv_edge* jcv_diagram_get_edges(const jcv_diagram* diagram)
 const jcv_edge* jcv_diagram_get_next_edge(const jcv_edge* edge)
 {
     const jcv_edge* e = edge->next;
-    while (e != 0 && jcv_point_eq(&e->pos[0], &e->pos[1]))
+    while (e != 0 && silly_point_eq(&e->pos[0], &e->pos[1]))
     {
         e = e->next;
     }
@@ -426,9 +417,9 @@ static void jcv_free_fn(void* memctx, void* p)
 
 // jcv_edge
 
-static int jcv_is_valid(const jcv_point* p)
+static int jcv_is_valid(const silly_point* p)
 {
-    return (p->x != JCV_INVALID_VALUE || p->y != JCV_INVALID_VALUE) ? 1 : 0;
+    return (p->lgtd != JCV_INVALID_VALUE || p->lttd != JCV_INVALID_VALUE) ? 1 : 0;
 }
 
 static void jcv_edge_create(jcv_edge* e, jcv_site* s1, jcv_site* s2)
@@ -436,182 +427,45 @@ static void jcv_edge_create(jcv_edge* e, jcv_site* s1, jcv_site* s2)
     e->next = 0;
     e->sites[0] = s1;
     e->sites[1] = s2;
-    e->pos[0].x = JCV_INVALID_VALUE;
-    e->pos[0].y = JCV_INVALID_VALUE;
-    e->pos[1].x = JCV_INVALID_VALUE;
-    e->pos[1].y = JCV_INVALID_VALUE;
+    e->pos[0].lgtd = JCV_INVALID_VALUE;
+    e->pos[0].lttd = JCV_INVALID_VALUE;
+    e->pos[1].lgtd = JCV_INVALID_VALUE;
+    e->pos[1].lttd = JCV_INVALID_VALUE;
 
     // Create line equation between S1 and S2:
-    // jcv_real a = -1 * (s2->p.y - s1->p.y);
-    // jcv_real b = s2->p.x - s1->p.x;
-    // //jcv_real c = -1 * (s2->p.x - s1->p.x) * s1->p.y + (s2->p.y - s1->p.y) * s1->p.x;
+    // double a = -1 * (s2->p.lttd - s1->p.lttd);
+    // double b = s2->p.lgtd - s1->p.lgtd;
+    // //double c = -1 * (s2->p.lgtd - s1->p.lgtd) * s1->p.lttd + (s2->p.lttd - s1->p.lttd) * s1->p.lgtd;
     //
     // // create perpendicular line
-    // jcv_real pa = b;
-    // jcv_real pb = -a;
-    // //jcv_real pc = pa * s1->p.x + pb * s1->p.y;
+    // double pa = b;
+    // double pb = -a;
+    // //double pc = pa * s1->p.lgtd + pb * s1->p.lttd;
     //
     // // Move to the mid point
-    // jcv_real mx = s1->p.x + dx * jcv_real(0.5);
-    // jcv_real my = s1->p.y + dy * jcv_real(0.5);
-    // jcv_real pc = ( pa * mx + pb * my );
+    // double mx = s1->p.lgtd + dx * double(0.5);
+    // double my = s1->p.lttd + dy * double(0.5);
+    // double pc = ( pa * mx + pb * my );
 
-    jcv_real dx = s2->p.x - s1->p.x;
-    jcv_real dy = s2->p.y - s1->p.y;
+    double dx = s2->p.lgtd - s1->p.lgtd;
+    double dy = s2->p.lttd - s1->p.lttd;
     int dx_is_larger = (dx * dx) > (dy * dy);  // instead of fabs
 
     // Simplify it, using dx and dy
-    e->c = dx * (s1->p.x + dx * (jcv_real)0.5) + dy * (s1->p.y + dy * (jcv_real)0.5);
+    e->c = dx * (s1->p.lgtd + dx * (double)0.5) + dy * (s1->p.lttd + dy * (double)0.5);
 
     if (dx_is_larger)
     {
-        e->a = (jcv_real)1;
+        e->a = (double)1;
         e->b = dy / dx;
         e->c /= dx;
     }
     else
     {
         e->a = dx / dy;
-        e->b = (jcv_real)1;
+        e->b = (double)1;
         e->c /= dy;
     }
-}
-
-// CLIPPING
-int jcv_boxshape_test(const jcv_clipper* clipper, const jcv_point p)
-{
-    return p.x >= clipper->min.x && p.x <= clipper->max.x && p.y >= clipper->min.y && p.y <= clipper->max.y;
-}
-
-// The line equation: ax + by + c = 0
-// see jcv_edge_create
-int jcv_boxshape_clip(const jcv_clipper* clipper, jcv_edge* e)
-{
-    jcv_real pxmin = clipper->min.x;
-    jcv_real pxmax = clipper->max.x;
-    jcv_real pymin = clipper->min.y;
-    jcv_real pymax = clipper->max.y;
-
-    jcv_real x1, y1, x2, y2;
-    jcv_point* s1;
-    jcv_point* s2;
-    if (e->a == (jcv_real)1 && e->b >= (jcv_real)0)
-    {
-        s1 = jcv_is_valid(&e->pos[1]) ? &e->pos[1] : 0;
-        s2 = jcv_is_valid(&e->pos[0]) ? &e->pos[0] : 0;
-    }
-    else
-    {
-        s1 = jcv_is_valid(&e->pos[0]) ? &e->pos[0] : 0;
-        s2 = jcv_is_valid(&e->pos[1]) ? &e->pos[1] : 0;
-    }
-
-    if (e->a == (jcv_real)1)  // delta x is larger
-    {
-        y1 = pymin;
-        if (s1 != 0 && s1->y > pymin)
-        {
-            y1 = s1->y;
-        }
-        if (y1 > pymax)
-        {
-            y1 = pymax;
-        }
-        x1 = e->c - e->b * y1;
-        y2 = pymax;
-        if (s2 != 0 && s2->y < pymax)
-            y2 = s2->y;
-
-        if (y2 < pymin)
-        {
-            y2 = pymin;
-        }
-        x2 = (e->c) - (e->b) * y2;
-        // Never occurs according to lcov
-        // if( ((x1 > pxmax) & (x2 > pxmax)) | ((x1 < pxmin) & (x2 < pxmin)) )
-        // {
-        //     return 0;
-        // }
-        if (x1 > pxmax)
-        {
-            x1 = pxmax;
-            y1 = (e->c - x1) / e->b;
-        }
-        else if (x1 < pxmin)
-        {
-            x1 = pxmin;
-            y1 = (e->c - x1) / e->b;
-        }
-        if (x2 > pxmax)
-        {
-            x2 = pxmax;
-            y2 = (e->c - x2) / e->b;
-        }
-        else if (x2 < pxmin)
-        {
-            x2 = pxmin;
-            y2 = (e->c - x2) / e->b;
-        }
-    }
-    else  // delta y is larger
-    {
-        x1 = pxmin;
-        if (s1 != 0 && s1->x > pxmin)
-            x1 = s1->x;
-        if (x1 > pxmax)
-        {
-            x1 = pxmax;
-        }
-        y1 = e->c - e->a * x1;
-        x2 = pxmax;
-        if (s2 != 0 && s2->x < pxmax)
-            x2 = s2->x;
-        if (x2 < pxmin)
-        {
-            x2 = pxmin;
-        }
-        y2 = e->c - e->a * x2;
-        // Never occurs according to lcov
-        // if( ((y1 > pymax) & (y2 > pymax)) | ((y1 < pymin) & (y2 < pymin)) )
-        // {
-        //     return 0;
-        // }
-        if (y1 > pymax)
-        {
-            y1 = pymax;
-            x1 = (e->c - y1) / e->a;
-        }
-        else if (y1 < pymin)
-        {
-            y1 = pymin;
-            x1 = (e->c - y1) / e->a;
-        }
-        if (y2 > pymax)
-        {
-            y2 = pymax;
-            x2 = (e->c - y2) / e->a;
-        }
-        else if (y2 < pymin)
-        {
-            y2 = pymin;
-            x2 = (e->c - y2) / e->a;
-        }
-    }
-
-    e->pos[0].x = x1;
-    e->pos[0].y = y1;
-    e->pos[1].x = x2;
-    e->pos[1].y = y2;
-
-    // If the two points are equal, the result is invalid
-    return (x1 == x2 && y1 == y2) ? 0 : 1;
-}
-
-// The line equation: ax + by + c = 0
-// see jcv_edge_create
-static int jcv_edge_clipline(jcv_context_internal* internal, jcv_edge* e)
-{
-    return internal->clipper.clip_fn(&internal->clipper, e);
 }
 
 static jcv_edge* jcv_edge_new(jcv_context_internal* internal, jcv_site* s1, jcv_site* s2)
@@ -648,7 +502,7 @@ static jcv_halfedge* jcv_halfedge_new(jcv_context_internal* internal, jcv_edge* 
     he->direction = direction;
     he->pqpos = 0;
     // These are set outside
-    // he->y
+    // he->lttd
     // he->vertex
     return he;
 }
@@ -669,52 +523,52 @@ static jcv_site* jcv_halfedge_rightsite(const jcv_halfedge* he)
     return he->edge ? he->edge->sites[1 - he->direction] : 0;
 }
 
-static int jcv_halfedge_rightof(const jcv_halfedge* he, const jcv_point* p)
+static int jcv_halfedge_rightof(const jcv_halfedge* he, const silly_point* p)
 {
     const jcv_edge* e = he->edge;
     const jcv_site* topsite = e->sites[1];
 
-    int right_of_site = (p->x > topsite->p.x) ? 1 : 0;
+    int right_of_site = (p->lgtd > topsite->p.lgtd) ? 1 : 0;
     if (right_of_site && he->direction == JCV_DIRECTION_LEFT)
         return 1;
     if (!right_of_site && he->direction == JCV_DIRECTION_RIGHT)
         return 0;
 
-    jcv_real dxp, dyp, dxs, t1, t2, t3, yl;
+    double dxp, dyp, dxs, t1, t2, t3, yl;
 
     int above;
-    if (e->a == (jcv_real)1)
+    if (e->a == (double)1)
     {
-        dyp = p->y - topsite->p.y;
-        dxp = p->x - topsite->p.x;
+        dyp = p->lttd - topsite->p.lttd;
+        dxp = p->lgtd - topsite->p.lgtd;
         int fast = 0;
-        if ((!right_of_site & (e->b < (jcv_real)0)) | (right_of_site & (e->b >= (jcv_real)0)))
+        if ((!right_of_site & (e->b < (double)0)) | (right_of_site & (e->b >= (double)0)))
         {
             above = dyp >= e->b * dxp;
             fast = above;
         }
         else
         {
-            above = (p->x + p->y * e->b) > e->c;
-            if (e->b < (jcv_real)0)
+            above = (p->lgtd + p->lttd * e->b) > e->c;
+            if (e->b < (double)0)
                 above = !above;
             if (!above)
                 fast = 1;
         }
         if (!fast)
         {
-            dxs = topsite->p.x - e->sites[0]->p.x;
-            above = e->b * (dxp * dxp - dyp * dyp) < dxs * dyp * ((jcv_real)1 + (jcv_real)2 * dxp / dxs + e->b * e->b);
-            if (e->b < (jcv_real)0)
+            dxs = topsite->p.lgtd - e->sites[0]->p.lgtd;
+            above = e->b * (dxp * dxp - dyp * dyp) < dxs * dyp * ((double)1 + (double)2 * dxp / dxs + e->b * e->b);
+            if (e->b < (double)0)
                 above = !above;
         }
     }
     else  // e->b == 1
     {
-        yl = e->c - e->a * p->x;
-        t1 = p->y - yl;
-        t2 = p->x - topsite->p.x;
-        t3 = yl - topsite->p.y;
+        yl = e->c - e->a * p->lgtd;
+        t1 = p->lttd - yl;
+        t2 = p->lgtd - topsite->p.lgtd;
+        t3 = yl - topsite->p.lttd;
         above = t1 * t1 > (t2 * t2 + t3 * t3);
     }
     return (he->direction == JCV_DIRECTION_LEFT ? above : !above);
@@ -724,25 +578,25 @@ static int jcv_halfedge_rightof(const jcv_halfedge* he, const jcv_point* p)
 // Return 1 if the edges needs to be swapped
 static int jcv_halfedge_compare(const jcv_halfedge* he1, const jcv_halfedge* he2)
 {
-    return (he1->y == he2->y) ? he1->vertex.x > he2->vertex.x : he1->y > he2->y;
+    return (he1->y == he2->y) ? he1->vertex.lgtd > he2->vertex.lgtd : he1->y > he2->y;
 }
 
-static int jcv_halfedge_intersect(const jcv_halfedge* he1, const jcv_halfedge* he2, jcv_point* out)
+static int jcv_halfedge_intersect(const jcv_halfedge* he1, const jcv_halfedge* he2, silly_point* out)
 {
     const jcv_edge* e1 = he1->edge;
     const jcv_edge* e2 = he2->edge;
 
-    jcv_real d = e1->a * e2->b - e1->b * e2->a;
-    if (((jcv_real)-JCV_EDGE_INTERSECT_THRESHOLD < d && d < (jcv_real)JCV_EDGE_INTERSECT_THRESHOLD))
+    double d = e1->a * e2->b - e1->b * e2->a;
+    if (((double)-JCV_EDGE_INTERSECT_THRESHOLD < d && d < (double)JCV_EDGE_INTERSECT_THRESHOLD))
     {
         return 0;
     }
-    out->x = (e1->c * e2->b - e1->b * e2->c) / d;
-    out->y = (e1->a * e2->c - e1->c * e2->a) / d;
+    out->lgtd = (e1->c * e2->b - e1->b * e2->c) / d;
+    out->lttd = (e1->a * e2->c - e1->c * e2->a) / d;
 
     const jcv_edge* e;
     const jcv_halfedge* he;
-    if (jcv_point_less(&e1->sites[1]->p, &e2->sites[1]->p))
+    if (silly_point_less(&e1->sites[1]->p, &e2->sites[1]->p))
     {
         he = he1;
         e = e1;
@@ -753,7 +607,7 @@ static int jcv_halfedge_intersect(const jcv_halfedge* he1, const jcv_halfedge* h
         e = e2;
     }
 
-    int right_of_site = out->x >= e->sites[1]->p.x;
+    int right_of_site = out->lgtd >= e->sites[1]->p.lgtd;
     if ((right_of_site && he->direction == JCV_DIRECTION_LEFT) || (!right_of_site && he->direction == JCV_DIRECTION_RIGHT))
     {
         return 0;
@@ -868,7 +722,7 @@ static jcv_site* jcv_nextsite(jcv_context_internal* internal)
     return (internal->currentsite < internal->numsites) ? &internal->sites[internal->currentsite++] : 0;
 }
 
-static jcv_halfedge* jcv_get_edge_above_x(jcv_context_internal* internal, const jcv_point* p)
+static jcv_halfedge* jcv_get_edge_above_x(jcv_context_internal* internal, const silly_point* p)
 {
     // Gets the arc on the beach line at the x coordinate (i.e. right above the new site event)
 
@@ -876,7 +730,7 @@ static jcv_halfedge* jcv_get_edge_above_x(jcv_context_internal* internal, const 
     jcv_halfedge* he = internal->last_inserted;
     if (!he)
     {
-        if (p->x < (internal->rect.max.x - internal->rect.min.x) / 2)
+        if (p->lgtd < (internal->rect.right - internal->rect.left) / 2)
             he = internal->beachline_start;
         else
             he = internal->beachline_end;
@@ -903,7 +757,7 @@ static jcv_halfedge* jcv_get_edge_above_x(jcv_context_internal* internal, const 
     return he;
 }
 
-static int jcv_check_circle_event(const jcv_halfedge* he1, const jcv_halfedge* he2, jcv_point* vertex)
+static int jcv_check_circle_event(const jcv_halfedge* he1, const jcv_halfedge* he2, silly_point* vertex)
 {
     jcv_edge* e1 = he1->edge;
     jcv_edge* e2 = he2->edge;
@@ -935,44 +789,44 @@ static void jcv_site_event(jcv_context_internal* internal, jcv_site* site)
 
     internal->last_inserted = right;
 
-    jcv_point p;
+    silly_point p;
     if (jcv_check_circle_event(left, edge1, &p))
     {
         jcv_pq_remove(internal->eventqueue, left);
         left->vertex = p;
-        left->y = p.y + jcv_point_dist(&site->p, &p);
+        left->y = p.lttd + silly_point_dist(&site->p, &p);
         jcv_pq_push(internal->eventqueue, left);
     }
     if (jcv_check_circle_event(edge2, right, &p))
     {
         edge2->vertex = p;
-        edge2->y = p.y + jcv_point_dist(&site->p, &p);
+        edge2->y = p.lttd + silly_point_dist(&site->p, &p);
         jcv_pq_push(internal->eventqueue, edge2);
     }
 }
 
 // https://cp-algorithms.com/geometry/oriented-triangle-area.html
-static jcv_real jcv_determinant(const jcv_point* a, const jcv_point* b, const jcv_point* c)
+static double jcv_determinant(const silly_point* a, const silly_point* b, const silly_point* c)
 {
-    return (b->x - a->x) * (c->y - a->y) - (b->y - a->y) * (c->x - a->x);
+    return (b->lgtd - a->lgtd) * (c->lttd - a->lttd) - (b->lttd - a->lttd) * (c->lgtd - a->lgtd);
 }
 
-static jcv_real jcv_calc_sort_metric(const jcv_site* site, const jcv_graphedge* edge)
+static double jcv_calc_sort_metric(const jcv_site* site, const jcv_graphedge* edge)
 {
     // We take the average of the two points, since we can better distinguish between very small edges
-    jcv_real half = 1 / (jcv_real)2;
-    jcv_real x = (edge->pos[0].x + edge->pos[1].x) * half;
-    jcv_real y = (edge->pos[0].y + edge->pos[1].y) * half;
-    jcv_real diffy = y - site->p.y;
-    jcv_real angle = JCV_ATAN2(diffy, x - site->p.x);
+    double half = 1 / (double)2;
+    double x = (edge->pos[0].lgtd + edge->pos[1].lgtd) * half;
+    double y = (edge->pos[0].lttd + edge->pos[1].lttd) * half;
+    double diffy = y - site->p.lttd;
+    double angle = JCV_ATAN2(diffy, x - site->p.lgtd);
     if (diffy < 0)
         angle = angle + 2 * JCV_PI;
-    return (jcv_real)angle;
+    return (double)angle;
 }
 
 static int jcv_graphedge_eq(jcv_graphedge* a, jcv_graphedge* b)
 {
-    return jcv_real_eq(a->angle, b->angle) && jcv_point_eq(&a->pos[0], &b->pos[0]) && jcv_point_eq(&a->pos[1], &b->pos[1]);
+    return double_eq(a->angle, b->angle) && silly_point_eq(&a->pos[0], &b->pos[0]) && silly_point_eq(&a->pos[1], &b->pos[1]);
 }
 
 static void jcv_sortedges_insert(jcv_site* site, jcv_graphedge* edge)
@@ -1010,13 +864,8 @@ static void jcv_sortedges_insert(jcv_site* site, jcv_graphedge* edge)
 
 static void jcv_finishline(jcv_context_internal* internal, jcv_edge* e)
 {
-    if (!jcv_edge_clipline(internal, e))
-    {
-        return;
-    }
-
     // Make sure the graph edges are CCW
-    int flip = jcv_determinant(&e->sites[0]->p, &e->pos[0], &e->pos[1]) > (jcv_real)0 ? 0 : 1;
+    int flip = jcv_determinant(&e->sites[0]->p, &e->pos[0], &e->pos[1]) > (double)0 ? 0 : 1;
 
     for (int i = 0; i < 2; ++i)
     {
@@ -1033,7 +882,7 @@ static void jcv_finishline(jcv_context_internal* internal, jcv_edge* e)
     }
 }
 
-static void jcv_endpos(jcv_context_internal* internal, jcv_edge* e, const jcv_point* p, int direction)
+static void jcv_endpos(jcv_context_internal* internal, jcv_edge* e, const silly_point* p, int direction)
 {
     e->pos[direction] = *p;
 
@@ -1048,25 +897,25 @@ static void jcv_create_corner_edge(jcv_context_internal* internal, const jcv_sit
     gap->neighbor = 0;
     gap->pos[0] = current->pos[1];
 
-    if (current->pos[1].x < internal->rect.max.x && current->pos[1].y == internal->rect.min.y)
+    if (current->pos[1].lgtd < internal->rect.right && current->pos[1].lttd == internal->rect.bottom)
     {
-        gap->pos[1].x = internal->rect.max.x;
-        gap->pos[1].y = internal->rect.min.y;
+        gap->pos[1].lgtd = internal->rect.right;
+        gap->pos[1].lttd = internal->rect.bottom;
     }
-    else if (current->pos[1].x > internal->rect.min.x && current->pos[1].y == internal->rect.max.y)
+    else if (current->pos[1].lgtd > internal->rect.left && current->pos[1].lttd == internal->rect.top)
     {
-        gap->pos[1].x = internal->rect.min.x;
-        gap->pos[1].y = internal->rect.max.y;
+        gap->pos[1].lgtd = internal->rect.left;
+        gap->pos[1].lttd = internal->rect.top;
     }
-    else if (current->pos[1].y > internal->rect.min.y && current->pos[1].x == internal->rect.min.x)
+    else if (current->pos[1].lttd > internal->rect.bottom && current->pos[1].lgtd == internal->rect.left)
     {
-        gap->pos[1].x = internal->rect.min.x;
-        gap->pos[1].y = internal->rect.min.y;
+        gap->pos[1].lgtd = internal->rect.left;
+        gap->pos[1].lttd = internal->rect.bottom;
     }
-    else if (current->pos[1].y < internal->rect.max.y && current->pos[1].x == internal->rect.max.x)
+    else if (current->pos[1].lttd < internal->rect.top && current->pos[1].lgtd == internal->rect.right)
     {
-        gap->pos[1].x = internal->rect.max.x;
-        gap->pos[1].y = internal->rect.max.y;
+        gap->pos[1].lgtd = internal->rect.right;
+        gap->pos[1].lttd = internal->rect.top;
     }
 
     gap->angle = jcv_calc_sort_metric(site, gap);
@@ -1085,7 +934,7 @@ static jcv_edge* jcv_create_gap_edge(jcv_context_internal* internal, jcv_site* s
     return edge;
 }
 
-void jcv_boxshape_fillgaps(const jcv_clipper* clipper, jcv_context_internal* allocator, jcv_site* site)
+void jcv_boxshape_fillgaps(jcv_context_internal* allocator, jcv_site* site)
 {
     // They're sorted CCW, so if the current->pos[1] != next->pos[0], then we have a gap
     jcv_graphedge* current = site->edges;
@@ -1097,8 +946,8 @@ void jcv_boxshape_fillgaps(const jcv_clipper* clipper, jcv_context_internal* all
         jcv_graphedge* gap = jcv_alloc_graphedge(allocator);
         gap->neighbor = 0;
         gap->pos[0] = clipper->min;
-        gap->pos[1].x = clipper->max.x;
-        gap->pos[1].y = clipper->min.y;
+        gap->pos[1].lgtd = clipper->right;
+        gap->pos[1].lttd = clipper->bottom;
         gap->angle = jcv_calc_sort_metric(site, gap);
         gap->next = 0;
         gap->edge = jcv_create_gap_edge(allocator, site, gap);
@@ -1123,7 +972,7 @@ void jcv_boxshape_fillgaps(const jcv_clipper* clipper, jcv_context_internal* all
     while (current && next)
     {
         int current_edge_flags = jcv_get_edge_flags(&current->pos[1], &clipper->min, &clipper->max);
-        if (current_edge_flags && !jcv_point_eq(&current->pos[1], &next->pos[0]))
+        if (current_edge_flags && !silly_point_eq(&current->pos[1], &next->pos[0]))
         {
             // Cases:
             //  Current and Next on the same border
@@ -1175,7 +1024,7 @@ void jcv_boxshape_fillgaps(const jcv_clipper* clipper, jcv_context_internal* all
                         corner_flag = JCV_CORNER_TOP_RIGHT;
                     }
                 }
-                jcv_point corner = jcv_corner_to_point(corner_flag, &clipper->min, &clipper->max);
+                silly_point corner = jcv_corner_to_point(corner_flag, &clipper->min, &clipper->max);
 
                 jcv_graphedge* gap = jcv_alloc_graphedge(allocator);
                 gap->neighbor = 0;
@@ -1200,18 +1049,6 @@ void jcv_boxshape_fillgaps(const jcv_clipper* clipper, jcv_context_internal* all
 }
 
 // Since the algorithm leaves gaps at the borders/corner, we want to fill them
-static void jcv_fillgaps(jcv_diagram* diagram)
-{
-    jcv_context_internal* internal = diagram->internal;
-    if (!internal->clipper.fill_fn)
-        return;
-
-    for (int i = 0; i < internal->numsites; ++i)
-    {
-        jcv_site* site = &internal->sites[i];
-        internal->clipper.fill_fn(&internal->clipper, internal, site);
-    }
-}
 
 static void jcv_circle_event(jcv_context_internal* internal)
 {
@@ -1223,7 +1060,7 @@ static void jcv_circle_event(jcv_context_internal* internal)
     jcv_site* bottom = jcv_halfedge_leftsite(left);
     jcv_site* top = jcv_halfedge_rightsite(right);
 
-    jcv_point vertex = left->vertex;
+    silly_point vertex = left->vertex;
     jcv_endpos(internal, left->edge, &vertex, left->direction);
     jcv_endpos(internal, right->edge, &vertex, right->direction);
 
@@ -1236,7 +1073,7 @@ static void jcv_circle_event(jcv_context_internal* internal)
     jcv_halfedge_delete(internal, right);
 
     int direction = JCV_DIRECTION_LEFT;
-    if (bottom->p.y > top->p.y)
+    if (bottom->p.lttd > top->p.lttd)
     {
         jcv_site* temp = bottom;
         bottom = top;
@@ -1252,25 +1089,25 @@ static void jcv_circle_event(jcv_context_internal* internal)
     jcv_halfedge_link(leftleft, he);
     jcv_endpos(internal, edge, &vertex, JCV_DIRECTION_RIGHT - direction);
 
-    jcv_point p;
+    silly_point p;
     if (jcv_check_circle_event(leftleft, he, &p))
     {
         jcv_pq_remove(internal->eventqueue, leftleft);
         leftleft->vertex = p;
-        leftleft->y = p.y + jcv_point_dist(&bottom->p, &p);
+        leftleft->lttd = p.lttd + silly_point_dist(&bottom->p, &p);
         jcv_pq_push(internal->eventqueue, leftleft);
     }
     if (jcv_check_circle_event(he, rightright, &p))
     {
         he->vertex = p;
-        he->y = p.y + jcv_point_dist(&bottom->p, &p);
+        he->lttd = p.lttd + silly_point_dist(&bottom->p, &p);
         jcv_pq_push(internal->eventqueue, he);
     }
 }
 
-void jcv_diagram_generate(int num_points, const jcv_point* points, const jcv_rect* rect, const jcv_clipper* clipper, jcv_diagram* d)
+void jcv_diagram_generate(int num_points, const silly_point* points, const silly_rect* rect, jcv_diagram* d)
 {
-    jcv_diagram_generate_useralloc(num_points, points, rect, clipper, 0, jcv_alloc_fn, jcv_free_fn, d);
+    jcv_diagram_generate_useralloc(num_points, points, rect, 0, jcv_alloc_fn, jcv_free_fn, d);
 }
 
 typedef union jcv_cast_align_struct_
@@ -1279,38 +1116,38 @@ typedef union jcv_cast_align_struct_
     void** voidpp;
 } jcv_cast_align_struct;
 
-static void jcv_rect_union(jcv_rect* rect, const jcv_point* p)
+static void silly_rect_union(silly_rect* rect, const silly_point* p)
 {
-    rect->min.x = jcv_min(rect->min.x, p->x);
-    rect->min.y = jcv_min(rect->min.y, p->y);
-    rect->max.x = jcv_max(rect->max.x, p->x);
-    rect->max.y = jcv_max(rect->max.y, p->y);
+    rect->left = jcv_min(rect->left, p->lgtd);
+    rect->bottom = jcv_min(rect->bottom, p->lttd);
+    rect->right = jcv_max(rect->right, p->lgtd);
+    rect->top = jcv_max(rect->top, p->lttd);
 }
 
-static void jcv_rect_round(jcv_rect* rect)
+static void silly_rect_round(silly_rect* rect)
 {
-    rect->min.x = jcv_floor(rect->min.x);
-    rect->min.y = jcv_floor(rect->min.y);
-    rect->max.x = jcv_ceil(rect->max.x);
-    rect->max.y = jcv_ceil(rect->max.y);
+    rect->left = jcv_floor(rect->left);
+    rect->bottom = jcv_floor(rect->bottom);
+    rect->right = jcv_ceil(rect->right);
+    rect->top = jcv_ceil(rect->top);
 }
 
-static void jcv_rect_inflate(jcv_rect* rect, jcv_real amount)
+static void silly_rect_inflate(silly_rect* rect, double amount)
 {
-    rect->min.x -= amount;
-    rect->min.y -= amount;
-    rect->max.x += amount;
-    rect->max.y += amount;
+    rect->left -= amount;
+    rect->bottom -= amount;
+    rect->right += amount;
+    rect->top += amount;
 }
 
-static int jcv_prune_duplicates(jcv_context_internal* internal, jcv_rect* rect)
+static int jcv_prune_duplicates(jcv_context_internal* internal, silly_rect* rect)
 {
     int num_sites = internal->numsites;
     jcv_site* sites = internal->sites;
 
-    jcv_rect r;
-    r.min.x = r.min.y = JCV_FLT_MAX;
-    r.max.x = r.max.y = -JCV_FLT_MAX;
+    silly_rect r;
+    r.left = r.bottom = JCV_FLT_MAX;
+    r.right = r.top = -JCV_FLT_MAX;
 
     int offset = 0;
     // Prune duplicates first
@@ -1318,7 +1155,7 @@ static int jcv_prune_duplicates(jcv_context_internal* internal, jcv_rect* rect)
     {
         const jcv_site* s = &sites[i];
         // Remove duplicates, to avoid anomalies
-        if (i > 0 && jcv_point_eq(&s->p, &sites[i - 1].p))
+        if (i > 0 && silly_point_eq(&s->p, &sites[i - 1].p))
         {
             offset++;
             continue;
@@ -1326,7 +1163,7 @@ static int jcv_prune_duplicates(jcv_context_internal* internal, jcv_rect* rect)
 
         sites[i - offset] = sites[i];
 
-        jcv_rect_union(&r, &s->p);
+        silly_rect_union(&r, &s->p);
     }
     internal->numsites -= offset;
     if (rect)
@@ -1336,14 +1173,14 @@ static int jcv_prune_duplicates(jcv_context_internal* internal, jcv_rect* rect)
     return offset;
 }
 
-static int jcv_prune_not_in_shape(jcv_context_internal* internal, jcv_rect* rect)
+static int jcv_prune_not_in_shape(jcv_context_internal* internal, silly_rect* rect)
 {
     int num_sites = internal->numsites;
     jcv_site* sites = internal->sites;
 
-    jcv_rect r;
-    r.min.x = r.min.y = JCV_FLT_MAX;
-    r.max.x = r.max.y = -JCV_FLT_MAX;
+    silly_rect r;
+    r.left = r.bottom = JCV_FLT_MAX;
+    r.right = r.top = -JCV_FLT_MAX;
 
     int offset = 0;
     for (int i = 0; i < num_sites; i++)
@@ -1358,7 +1195,7 @@ static int jcv_prune_not_in_shape(jcv_context_internal* internal, jcv_rect* rect
 
         sites[i - offset] = sites[i];
 
-        jcv_rect_union(&r, &s->p);
+        silly_rect_union(&r, &s->p);
     }
     internal->numsites -= offset;
     if (rect)
@@ -1408,7 +1245,7 @@ static jcv_context_internal* jcv_alloc_internal(int num_points, void* userallocc
     return internal;
 }
 
-void jcv_diagram_generate_useralloc(int num_points, const jcv_point* points, const jcv_rect* rect, const jcv_clipper* clipper, void* userallocctx, FJCVAllocFn allocfn, FJCVFreeFn freefn, jcv_diagram* d)
+void jcv_diagram_generate_useralloc(int num_points, const silly_point* points, const silly_rect* rect, void* userallocctx, FJCVAllocFn allocfn, FJCVFreeFn freefn, jcv_diagram* d)
 {
     if (d->internal)
         jcv_diagram_free(d);
@@ -1438,44 +1275,15 @@ void jcv_diagram_generate_useralloc(int num_points, const jcv_point* points, con
         sites[i].index = i;
     }
 
-    qsort(sites, (size_t)num_points, sizeof(jcv_site), jcv_point_cmp);
+    qsort(sites, (size_t)num_points, sizeof(jcv_site), silly_point_cmp);
 
-    jcv_clipper box_clipper;
-    if (clipper == 0)
-    {
-        box_clipper.test_fn = jcv_boxshape_test;
-        box_clipper.clip_fn = jcv_boxshape_clip;
-        box_clipper.fill_fn = jcv_boxshape_fillgaps;
-        clipper = &box_clipper;
-    }
-    internal->clipper = *clipper;
 
-    jcv_rect tmp_rect;
-    tmp_rect.min.x = tmp_rect.min.y = JCV_FLT_MAX;
-    tmp_rect.max.x = tmp_rect.max.y = -JCV_FLT_MAX;
+    silly_rect tmp_rect;
+    tmp_rect.left = tmp_rect.bottom = JCV_FLT_MAX;
+    tmp_rect.right = tmp_rect.top = -JCV_FLT_MAX;
     jcv_prune_duplicates(internal, &tmp_rect);
 
     // Prune using the test second
-    if (internal->clipper.test_fn)
-    {
-        // e.g. used by the box clipper in the test_fn
-        internal->clipper.min = rect ? rect->min : tmp_rect.min;
-        internal->clipper.max = rect ? rect->max : tmp_rect.max;
-
-        jcv_prune_not_in_shape(internal, &tmp_rect);
-
-        // The pruning might have made the bounding box smaller
-        if (!rect)
-        {
-            // In the case of all sites being all on a horizontal or vertical line, the
-            // rect area will be zero, and the diagram generation will most likely fail
-            jcv_rect_round(&tmp_rect);
-            jcv_rect_inflate(&tmp_rect, 10);
-
-            internal->clipper.min = tmp_rect.min;
-            internal->clipper.max = tmp_rect.max;
-        }
-    }
 
     internal->rect = rect ? *rect : tmp_rect;
 
@@ -1492,15 +1300,15 @@ void jcv_diagram_generate_useralloc(int num_points, const jcv_point* points, con
     int finished = 0;
     while (!finished)
     {
-        jcv_point lowest_pq_point;
+        silly_point lowest_pq_point;
         if (!jcv_pq_empty(pq))
         {
             jcv_halfedge* he = (jcv_halfedge*)jcv_pq_top(pq);
-            lowest_pq_point.x = he->vertex.x;
-            lowest_pq_point.y = he->y;
+            lowest_pq_point.lgtd = he->vertex.lgtd;
+            lowest_pq_point.lttd = he->lttd;
         }
 
-        if (site != 0 && (jcv_pq_empty(pq) || jcv_point_less(&site->p, &lowest_pq_point)))
+        if (site != 0 && (jcv_pq_empty(pq) || silly_point_less(&site->p, &lowest_pq_point)))
         {
             jcv_site_event(internal, site);
             site = jcv_nextsite(internal);
@@ -1520,7 +1328,6 @@ void jcv_diagram_generate_useralloc(int num_points, const jcv_point* points, con
         jcv_finishline(internal, he->edge);
     }
 
-    jcv_fillgaps(d);
 }
 
 #endif  // JC_VORONOI_IMPLEMENTATION

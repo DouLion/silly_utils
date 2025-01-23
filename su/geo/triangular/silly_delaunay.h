@@ -5,7 +5,12 @@
  * @author: dou li yang
  * @date: 2024/1/24 11:53
  * @version: 1.0.1
- * @description: 德劳内 Bowyer-Watson algorithm C++ implementation of http://paulbourke.net/papers/triangulate .
+ * @description: 德劳内 Bowyer-Watson algorithm C++ implementation of
+ * http://paulbourke.net/papers/triangulate .
+ * https://dsa.cs.tsinghua.edu.cn/~deng/cg/project/2000f/2000f-e/sweep.htm
+ * https://en.wikipedia.org/wiki/Fortune%27s_algorithm
+ * https://github.com/JCash/voronoi/blob/dev/src/jc_voronoi.h
+ * 扫描线算法
  */
 #ifndef SILLY_UTILS_SILLY_DELAUNAY_H
 #define SILLY_UTILS_SILLY_DELAUNAY_H

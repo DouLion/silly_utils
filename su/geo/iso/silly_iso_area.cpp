@@ -3,9 +3,9 @@
  * reserved. 北京天智祥信息科技有限公司版权所有
  * @website: http://www.tianzhixiang.com.cn/
  * @author: dou li yang
- * @date: 2024-08-14
- * @file: silly_delaunay_2d.cpp
- * @description: silly_delaunay_2d实现
- * @version: v1.0.1 2024-08-14 dou li yang
+ * @date: 2025-01-23
+ * @file: silly_iso_area.cpp
+ * @description: silly_iso_area实现
+ * @version: v1.0.1 2025-01-23 dou li yang
  */
-#include "silly_delaunay_2d.h"
+#include "silly_iso_area.h"
