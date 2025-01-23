@@ -79,13 +79,21 @@ class silly_cairo
     bool write(const std::string& path, const bool& png = true);
 
     /// <summary>
-    /// 
+    /// 从二进制数据创建图片
     /// </summary>
     /// <param name="bin"></param>
     /// <returns></returns>
     bool decode(const std::string& bin);
     bool decode(const unsigned char* data, const size_t size);
+
+    /// <summary>
+    /// 将图片编码为二进制数据
+    /// </summary>
+    /// <param name="bin"></param>
+    /// <param name="png"></param>
+    /// <returns></returns>
     bool encode(std::string& bin, const bool& png = true);
+    // bool encode(unsigned char** data, size_t& size, const bool& png = true); // 不做实现,自行实现
 
     /// <summary>
     /// 启用自定义字体(字体文件不在系统字体中)
@@ -134,7 +142,7 @@ class silly_cairo
     /// 计算字符串占用字符宽度, (约)中文2个宽度,数字字母一个宽度
     /// </summary>
     /// <param name="u8str"></param>
-    static size_t count_span(const std::string& u8str);
+    static size_t count_occupy(const std::string& u8str);
 
     /// <summary>
     /// 绘制矢量面, 这个可以扩展出很多用法,

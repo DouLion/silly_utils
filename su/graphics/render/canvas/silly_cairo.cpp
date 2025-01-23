@@ -486,6 +486,8 @@ bool silly_cairo::encode(std::string &bin, const bool &png)
     return !bin.empty();
 }
 
+
+
 void silly_cairo::release()
 {
     DESTROY_CONTEXT(m_cr)
@@ -665,7 +667,7 @@ void silly_cairo::disable_fonts()
     m_enable_font = false;
 }
 
-size_t silly_cairo::count_span(const std::string &u8str)
+size_t silly_cairo::count_occupy(const std::string &u8str)
 {
     size_t count = 0;
     for (size_t i = 0; i < u8str.size(); ++i)
