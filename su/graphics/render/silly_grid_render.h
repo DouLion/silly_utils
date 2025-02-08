@@ -73,7 +73,7 @@ class silly_grid_render
             SLOG_ERROR("获取矩阵数据块失败")
             return;
         }
-        srp.pd.create(srp.mtx.row(), srp.mtx.col());
+        srp.pd.create(srp.mtx.row(), srp.mtx.col(), silly::color::eptRGBA);
         for (size_t r = 0; r < srp.mtx.row(); ++r)
         {
             for (size_t c = 0; c < srp.mtx.col(); ++c)
@@ -93,7 +93,7 @@ class silly_grid_render
                     }
                 }
                 i--;
-                srp.pd.set_pixel(r, c, srp.v2cs[i].color);
+                srp.pd.pixel(r, c, srp.v2cs[i].color);
             }
         }
     }
