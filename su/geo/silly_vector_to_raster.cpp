@@ -22,7 +22,10 @@ void x_scan_line::rasterize(const silly_point& point)
 {
     int x = static_cast<int>((point.x - m_rect.min.x) / m_cell_size);
     int y = static_cast<int>((m_rect.max.y - point.y) / m_cell_size);
-    add(y, {x, x});
+    if (x >= 0 && x < m_width && y >= 0 && y < m_height)
+    {
+        m_row_colors[y][x] = 1;
+    }
 }
 
 void x_scan_line::rasterize(const silly_multi_point& points)
@@ -36,38 +39,25 @@ void x_scan_line::rasterize(const silly_multi_point& points)
 
 void x_scan_line::rasterize(const silly_line& line)
 {
-    // m_row_pairs.clear();
-    if (line.size() < 2)
+    if (line.empty())
     {
-        return;  // 如果线段小于两个点，则无法处理
+        return;
     }
-    // 遍历线段中的每一对点
-    std::map<int, std::map<int, int>> row_col;
-    int last_x = std::round((line.front().x - m_rect.min.x) / m_cell_size);
-    int last_y = std::round((m_rect.max.y - line.front().y) / m_cell_size);
-    for (auto& point : line)
-    {
-        int x = std::round((point.x - m_rect.min.x) / m_cell_size);
-        int y = std::round((m_rect.max.y - point.y) / m_cell_size);
-        if (x != last_x || y != last_y)
-        {
-            row_col[y][x] = 0;
-        }
-        else
-        {
-            continue;
-        }
+    int i = 0;
 
-        if (x = last_x)
-        {
-            for (int ny = std::min(last_y, y); ny < std::max(last_y, y); ny++)
-            {
-                row_col[ny][x] = 0;
-            }
-        }
-        last_x = x;
-        last_y = y;
+    int bx = static_cast<int>((line[i].x - m_rect.min.x) / m_cell_size);
+    int by = static_cast<int>((m_rect.max.y - line[i].y) / m_cell_size);
+    double dbx = line[i].x;
+    double dby = line[i].y;
+    for (i = 1; i < line.size(); i++)
+    {
+       double dex = line[i].x;
+       double dey = line[i].y;
+       // TODO: 后续再补充. 在同一行可能会占用两个格子
+       std::cerr << "TODO: 未完成" << std::endl;
+       return;
     }
+    
 }
 
 void x_scan_line::rasterize(const silly_multi_silly_line& lines)
@@ -253,6 +243,7 @@ void x_scan_line::set(const silly_geo_rect& rect, const double& cell_size)
     m_cell_size = cell_size;
     m_width = static_cast<int>(std::ceil((m_rect.max.x - m_rect.min.x) / m_cell_size));
     m_height = static_cast<int>(std::ceil((m_rect.max.y - m_rect.min.y) / m_cell_size));
+    m_row_colors.resize(m_height, std::vector<uint8_t>(m_width, 0x00));
 }
 int x_scan_line::width() const
 {
@@ -306,11 +297,6 @@ void x_scan_line::add(const int& row, const std::vector<int>& edges)
         return;
     }
     std::vector<uint8_t>& tmp_rc = m_row_colors[row];
-    if (tmp_rc.size() != m_width)
-    {
-        tmp_rc.resize(m_width, 0x00);
-    }
-
     for (int i = 0; i <= edges.size() - 1; i += 2)
     {
         int b0 = std::max(m_width - 1, std::min(edges[i], 0));
@@ -324,8 +310,9 @@ void x_scan_line::add(const int& row, const std::vector<int>& edges)
 void x_scan_line::fill()
 {
     m_row_pairs.clear();
-    for (auto [r, cs] : m_row_colors)
+    for (int r = 0; r < m_row_colors.size(); ++r)
     {
+        auto& cs = m_row_colors[r];
         for (int i = 0; i < cs.size(); ++i)
         {
             if (cs[i] == 0x01)

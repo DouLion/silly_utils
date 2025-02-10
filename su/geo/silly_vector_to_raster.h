@@ -156,7 +156,7 @@ class x_scan_line
     double m_cell_size{0.000001};
     // 记录每一行在矢量内的多对起始列号
     scan_pairs m_row_pairs;
-    std::map<int, std::vector<uint8_t>> m_row_colors;
+    std::vector<std::vector<uint8_t>> m_row_colors;
 };
 
 }  // namespace rasterization
