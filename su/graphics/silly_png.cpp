@@ -222,12 +222,13 @@ bool silly::png::data::create(const size_t &width, const size_t &height, const s
     }
 
     m_pixel_size = sizeof(png_byte) * m_channels;
+	m_width = width;
+    m_height = height;
     if (!(m_pixel_size > 0 && m_width > 0 && m_height > 0))
     {
         return false;
     }
-    m_width = width;
-    m_height = height;
+
     m_depth = 8;
     m_bytes = new uint8_t[m_width * m_height * m_pixel_size];
     memset(m_bytes, 0, m_width * m_height * m_pixel_size);
