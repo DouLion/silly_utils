@@ -39,9 +39,9 @@ bool silly::image::base::empty()
 void silly::image::base::release()
 {
     SU_MEM_DEL(m_bytes)
-    /*for(auto nb: m_nbytes)
+ /*   for(int i = 0; i < m_height; ++i)
     {
-        nb = nullptr;
+        SU_MEM_DEL(m_nbytes[i])
     }*/
-    m_nbytes.clear();
+    SU_MEM_DEL(m_nbytes)
 }

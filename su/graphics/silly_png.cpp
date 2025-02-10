@@ -33,7 +33,7 @@ static silly::color::type png2sillyctype(const int &type)
     }
 }
 
-static int silly2pngctype(silly::color::type &type)
+static int silly2pngctype(const silly::color::type &type)
 {
     switch (type)
     {
@@ -229,11 +229,11 @@ bool silly::png::data::create(const size_t &width, const size_t &height, const s
         return false;
     }
 
-    m_depth = 8;
+    m_depth = depth;
     m_bytes = new uint8_t[m_width * m_height * m_pixel_size];
     memset(m_bytes, 0, m_width * m_height * m_pixel_size);
     size_t row_bytes = m_width * m_pixel_size;
-    m_nbytes.resize(m_height);
+    m_nbytes = new unsigned char *[m_height];
     for (size_t i = 0; i < m_height; ++i)
     {
         m_nbytes[i] = reinterpret_cast<unsigned char *>(m_bytes + i * row_bytes);
@@ -409,8 +409,9 @@ std::string silly::png::data::encode() const
         return buff;
     }
     // std::vector<uint8_t> buff_vec;
-    png_set_IHDR(png_ptr, info_ptr, m_width, m_height, m_depth, m_type, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
-    png_set_rows(png_ptr, info_ptr, (unsigned char **)&m_nbytes);
+    int pngtype = silly2pngctype(m_type);
+    png_set_IHDR(png_ptr, info_ptr, m_width, m_height, m_depth, pngtype, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+    png_set_rows(png_ptr, info_ptr, m_nbytes);
     png_set_write_fn(png_ptr, &buff, silly_png_write_callback, NULL);
     png_write_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
     png_destroy_write_struct(&png_ptr, &info_ptr);

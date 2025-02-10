@@ -131,7 +131,7 @@ class base
     silly::color::type m_type{2};  // 颜色类型
     std::vector<uint8_t> HEADER;   // 固定头部,由于判断类型
     std::string m_err;
-    std::vector<unsigned char*> m_nbytes;
+    unsigned char** m_nbytes = nullptr;
 };
 }  // namespace image
 
