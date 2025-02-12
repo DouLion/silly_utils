@@ -299,8 +299,8 @@ void x_scan_line::add(const int& row, const std::vector<int>& edges)
     std::vector<uint8_t>& tmp_rc = m_row_colors[row];
     for (int i = 0; i <= edges.size() - 1; i += 2)
     {
-        int b0 = std::max(m_width - 1, std::min(edges[i], 0));
-        int e0 = std::max(m_width - 1, std::min(edges[i + 1], 0));
+        int b0 = std::min(m_width - 1, std::max(edges[i], 0));
+        int e0 = std::min(m_width - 1, std::max(edges[i + 1], 0));
         for (int j = b0; j <= e0; ++j)
         {
             tmp_rc[j] = 0x01;
