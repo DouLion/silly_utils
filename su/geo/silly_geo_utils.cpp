@@ -1047,6 +1047,17 @@ bool utils::write_geo_coll(const std::string& u8file, const std::vector<silly_ge
 bool utils::intersect(const silly_multi_poly& mpoly1, const silly_multi_poly& mpoly2)
 {
     // TODO:
+#if ENABLE_GDAL
+    // 创建 OGRPolygon 对象
+    OGRMultiPolygon p1 = utils::silly_multi_poly_to_ogr(mpoly1);
+    OGRMultiPolygon p2 = utils::silly_multi_poly_to_ogr(mpoly2);
+
+    // 判断两个 OGRPolygon 是否相交
+    if (p1.Intersects(&p2))
+    {
+        return true;
+    }
+#endif
     return false;
 }
 std::vector<silly_poly> utils::intersection(const silly_multi_poly& mpoly1, const silly_multi_poly& mpoly2)
