@@ -591,6 +591,10 @@ void silly_cairo::draw_ring(const silly_ring &ring, const silly_geo_rect &rect)
 
 void silly_cairo::draw_ring_web_mercator(const silly_ring &ring, const silly_geo_rect &rect)
 {
+    if (ring.points.empty())
+    {
+        return;
+    }
     double mc_left, mc_top, mc_right, mc_bottom;  // 多内环的情况这几个变量会重复计算,但是开销很小,可以暂时忽略
     silly_projection::geo_to_mercator(rect.min.x, rect.max.y, mc_left, mc_top);
     silly_projection::geo_to_mercator(rect.max.x, rect.min.y, mc_right, mc_bottom);
