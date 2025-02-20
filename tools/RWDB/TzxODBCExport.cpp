@@ -109,7 +109,7 @@ bool init(const std::string& file)
     }
 
     Json::Value js_db;
-    if (!silly_jsonpp::check_member_object(jv_root, "db", js_db))
+    if (!silly_jsonpp::check_obj(jv_root, "db", js_db))
     {
         SLOG_ERROR("配置文件中缺少 db 字段记录 odbc 链接信息");
         return status;
@@ -131,46 +131,46 @@ bool init(const std::string& file)
 #endif
 
     Json::Value js_sql;
-    if (silly_jsonpp::check_member_object(jv_root, "sql", js_sql))
+    if (silly_jsonpp::check_obj(jv_root, "sql", js_sql))
     {
-        if (!silly_jsonpp::check_member_string(js_sql, "select_stbprp_sql", select_stbprp_sql))
+        if (!silly_jsonpp::check_str(js_sql, "select_stbprp_sql", select_stbprp_sql))
         {
             SLOG_ERROR("配置文件中缺少 select_stbprp_sql 字段");
             return status;
         }
-        if (!silly_jsonpp::check_member_string(js_sql, "select_pptn_sql", select_pptn_sql) && _opt.pptn)
+        if (!silly_jsonpp::check_str(js_sql, "select_pptn_sql", select_pptn_sql) && _opt.pptn)
         {
             SLOG_ERROR("配置文件中缺少 select_pptn_sql 字段");
             return status;
         }
-        if (!silly_jsonpp::check_member_string(js_sql, "select_river_sql", select_river_sql) && _opt.river)
+        if (!silly_jsonpp::check_str(js_sql, "select_river_sql", select_river_sql) && _opt.river)
         {
             SLOG_ERROR("配置文件中缺少 select_river_sql 字段");
             return status;
         }
-        if (!silly_jsonpp::check_member_string(js_sql, "select_rsvr_sql", select_rsvr_sql) && _opt.rsvr)
+        if (!silly_jsonpp::check_str(js_sql, "select_rsvr_sql", select_rsvr_sql) && _opt.rsvr)
         {
             SLOG_ERROR("配置文件中缺少 select_rsvr_sql 字段");
             return status;
         }
     }
 
-    if (!silly_jsonpp::check_member_string(jv_root, "btm", btm))
+    if (!silly_jsonpp::check_str(jv_root, "btm", btm))
     {
         SLOG_ERROR("配置文件中缺少 btm 字段");
         return status;
     }
-    if (!silly_jsonpp::check_member_string(jv_root, "etm", etm))
+    if (!silly_jsonpp::check_str(jv_root, "etm", etm))
     {
         SLOG_ERROR("配置文件中缺少 etm 字段");
         return status;
     }
 
     Json::Value js_encode;
-    if (silly_jsonpp::check_member_object(jv_root, "encode", js_encode))
+    if (silly_jsonpp::check_obj(jv_root, "encode", js_encode))
     {
-        silly_jsonpp::check_member_string(js_encode, "src", src_encode);
-        silly_jsonpp::check_member_string(js_encode, "dst", dst_encode);
+        silly_jsonpp::check_str(js_encode, "src", src_encode);
+        silly_jsonpp::check_str(js_encode, "dst", dst_encode);
     }
 
     status = true;

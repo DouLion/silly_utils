@@ -35,12 +35,12 @@ bool X::PullOpt::load(const std::string& file)
         return false;
     }
     Json::Value jvdb;
-    if (!silly_jsonpp::check_member_object(root, "db", jvdb))
+    if (!silly_jsonpp::check_obj(root, "db", jvdb))
     {
         SLOG_ERROR("配置示例: " + CFG_EXAMPLE);
         return false;
     }
-    if (!silly_jsonpp::check_member_string(root, "sql", sql))
+    if (!silly_jsonpp::check_str(root, "sql", sql))
     {
         SLOG_ERROR("配置示例: " + CFG_EXAMPLE);
         return false;

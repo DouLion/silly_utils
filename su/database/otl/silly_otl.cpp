@@ -605,12 +605,12 @@ bool silly::db::otl::from_json(const std::string& jstr)
 bool silly::db::otl::from_json(const Json::Value& root)
 {
     bool status = false;
-    silly_jsonpp::check_member_string(root, OPT_STR_DSN, m_dsn);
+    silly_jsonpp::check_str(root, OPT_STR_DSN, m_dsn);
     if (m_dsn.empty())  // 非DSN方式
     {
         // 检查类型
         std::string type_str;
-        if (!silly_jsonpp::check_member_string(root, OPT_STR_TYPE, type_str))
+        if (!silly_jsonpp::check_str(root, OPT_STR_TYPE, type_str))
         {
             m_err = "指定链接类型";
             return status;
@@ -628,12 +628,12 @@ bool silly::db::otl::from_json(const Json::Value& root)
             return status;
         }
 
-        if (!silly_jsonpp::check_member_string(root, OPT_STR_IP, m_ip))
+        if (!silly_jsonpp::check_str(root, OPT_STR_IP, m_ip))
         {
             m_err = "未指定IP";
             return status;
         }
-        if (!silly_jsonpp::check_member_string(root, OPT_STR_DRIVER, m_driver))
+        if (!silly_jsonpp::check_str(root, OPT_STR_DRIVER, m_driver))
         {
             m_err = "未指定驱动";
             return status;
@@ -675,23 +675,23 @@ bool silly::db::otl::from_json(const Json::Value& root)
             }
         }
 
-        if (!silly_jsonpp::check_member_string(root, OPT_STR_SCHEMA, m_schema) && (enum_database_type::dbDM8 != m_type))
+        if (!silly_jsonpp::check_str(root, OPT_STR_SCHEMA, m_schema) && (enum_database_type::dbDM8 != m_type))
         {
             m_err = "未指定数据库";
             return status;
         }
     }
-    if (!silly_jsonpp::check_member_string(root, OPT_STR_USER, m_user))
+    if (!silly_jsonpp::check_str(root, OPT_STR_USER, m_user))
     {
         m_err = "未指定用户名";
         return status;
     }
-    if (!silly_jsonpp::check_member_string(root, OPT_STR_PASSWORD, m_password))
+    if (!silly_jsonpp::check_str(root, OPT_STR_PASSWORD, m_password))
     {
         m_err = "未指定密码";
         return status;
     }
-    silly_jsonpp::check_member_bool(root, OPT_STR_VERBOSE, m_verbose);
+    silly_jsonpp::check_bool(root, OPT_STR_VERBOSE, m_verbose);
 
     return true;
 }

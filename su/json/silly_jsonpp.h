@@ -66,15 +66,15 @@ class jsonpp
     static void find_by_key(const Json::Value& root, const std::string& key, const std::string& filter, std::vector<std::string>& arr);
 
     /// 检查json中指定key的数据类型,如果正确,则赋值,并且返回true,否则返回false
-    static bool check_member_string(const Json::Value& root, const std::string& key, std::string& val);
-    static bool check_member_int(const Json::Value& root, const std::string& key, int32_t& val);
-    static bool check_member_uint(const Json::Value& root, const std::string& key, int32_t& val);
-    static bool check_member_long(const Json::Value& root, const std::string& key, int64_t& val);
-    static bool check_member_ulong(const Json::Value& root, const std::string& key, uint64_t& val);
-    static bool check_member_double(const Json::Value& root, const std::string& key, double& val);
-    static bool check_member_bool(const Json::Value& root, const std::string& key, bool& val);
-    static bool check_member_array(const Json::Value& root, const std::string& key, Json::Value& jv_arr);
-    static bool check_member_object(const Json::Value& root, const std::string& key, Json::Value& jv_obj);
+    static bool check_str(const Json::Value& root, const std::string& key, std::string& val);
+    static bool check_int32(const Json::Value& root, const std::string& key, int32_t& val);
+    static bool check_uint32(const Json::Value& root, const std::string& key, uint32_t& val);
+    static bool check_int64(const Json::Value& root, const std::string& key, int64_t& val);
+    static bool check_uint64(const Json::Value& root, const std::string& key, uint64_t& val);
+    static bool check_double(const Json::Value& root, const std::string& key, double& val);
+    static bool check_bool(const Json::Value& root, const std::string& key, bool& val);
+    static bool check_arr(const Json::Value& root, const std::string& key, Json::Value& jv_arr);
+    static bool check_obj(const Json::Value& root, const std::string& key, Json::Value& jv_obj);
 };
 }  // namespace silly
 

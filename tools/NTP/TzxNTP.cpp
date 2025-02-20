@@ -28,7 +28,7 @@ int main(int argc, char** argv)
             Json::Value root = jsonpp::loads(resp);
             Json::Value jvdata;
             SLOG_INFO(resp)
-            if (jsonpp::check_member_object(root, "data", jvdata))
+            if (jsonpp::check_obj(root, "data", jvdata))
             {
                 std::string strt = jvdata["t"].asString();
                 time_t t = static_cast<time_t>(std::stod(strt.c_str()) / 1000);

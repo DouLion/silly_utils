@@ -158,7 +158,7 @@ void jsonpp::find_by_key(const Json::Value& root, const std::string& key, const 
     }
 }
 
-bool jsonpp::check_member_string(const Json::Value& root, const std::string& key, std::string& val)
+bool jsonpp::check_str(const Json::Value& root, const std::string& key, std::string& val)
 {
     if (root.isNull())
     {
@@ -185,7 +185,7 @@ bool jsonpp::check_member_string(const Json::Value& root, const std::string& key
     return false;
 }
 
-bool jsonpp::check_member_double(const Json::Value& root, const std::string& key, double& val)
+bool jsonpp::check_double(const Json::Value& root, const std::string& key, double& val)
 {
     if (root.isNull())
     {
@@ -211,7 +211,7 @@ bool jsonpp::check_member_double(const Json::Value& root, const std::string& key
     }
     return false;
 }
-bool jsonpp::check_member_bool(const Json::Value& root, const std::string& key, bool& val)
+bool jsonpp::check_bool(const Json::Value& root, const std::string& key, bool& val)
 {
     if (root.isNull())
     {
@@ -236,7 +236,7 @@ bool jsonpp::check_member_bool(const Json::Value& root, const std::string& key, 
     }
     return false;
 }
-bool jsonpp::check_member_array(const Json::Value& root, const std::string& key, Json::Value& jv_arr)
+bool jsonpp::check_arr(const Json::Value& root, const std::string& key, Json::Value& jv_arr)
 {
     if (root.isNull())
     {
@@ -262,7 +262,7 @@ bool jsonpp::check_member_array(const Json::Value& root, const std::string& key,
     }
     return false;
 }
-bool jsonpp::check_member_object(const Json::Value& root, const std::string& key, Json::Value& jv_obj)
+bool jsonpp::check_obj(const Json::Value& root, const std::string& key, Json::Value& jv_obj)
 {
     if (root.isNull())
     {
@@ -289,7 +289,7 @@ bool jsonpp::check_member_object(const Json::Value& root, const std::string& key
     return false;
 }
 
-bool jsonpp::check_member_int(const Json::Value& root, const std::string& key, int32_t& val)
+bool jsonpp::check_int32(const Json::Value& root, const std::string& key, int32_t& val)
 {
     if (root.isNull())
     {
@@ -314,7 +314,7 @@ bool jsonpp::check_member_int(const Json::Value& root, const std::string& key, i
     }
     return false;
 }
-bool jsonpp::check_member_uint(const Json::Value& root, const std::string& key, int32_t& val)
+bool jsonpp::check_uint32(const Json::Value& root, const std::string& key, uint32_t& val)
 {
     if (root.isNull())
     {
@@ -339,7 +339,7 @@ bool jsonpp::check_member_uint(const Json::Value& root, const std::string& key, 
     }
     return false;
 }
-bool jsonpp::check_member_long(const Json::Value& root, const std::string& key, int64_t& val)
+bool jsonpp::check_int64(const Json::Value& root, const std::string& key, int64_t& val)
 {
     if (root.isNull())
     {
@@ -364,7 +364,7 @@ bool jsonpp::check_member_long(const Json::Value& root, const std::string& key, 
     }
     return false;
 }
-bool jsonpp::check_member_ulong(const Json::Value& root, const std::string& key, uint64_t& val)
+bool jsonpp::check_uint64(const Json::Value& root, const std::string& key, uint64_t& val)
 {
     if (root.isNull())
     {

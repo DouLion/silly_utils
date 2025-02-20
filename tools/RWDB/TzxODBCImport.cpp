@@ -124,7 +124,7 @@ bool init(const std::string& file)
     }
 
     Json::Value js_db;
-    if (!silly_jsonpp::check_member_object(jv_root, "db", js_db))
+    if (!silly_jsonpp::check_obj(jv_root, "db", js_db))
     {
         SLOG_ERROR("配置文件中缺少 db 字段记录 odbc 链接信息");
         return status;
@@ -148,24 +148,24 @@ bool init(const std::string& file)
 
     // 检查并加载 SQL 配置
     Json::Value js_sql;
-    if (silly_jsonpp::check_member_object(jv_root, "sql", js_sql))
+    if (silly_jsonpp::check_obj(jv_root, "sql", js_sql))
     {
-        if (!silly_jsonpp::check_member_string(js_sql, "insert_stbprp_sql", insert_stbprp_sql) && _opt.stbprp)
+        if (!silly_jsonpp::check_str(js_sql, "insert_stbprp_sql", insert_stbprp_sql) && _opt.stbprp)
         {
             SLOG_ERROR("缺少 insert_stbprp_sql 配置项");
             return status;
         }
-        if (!silly_jsonpp::check_member_string(js_sql, "insert_pptn_sql", insert_pptn_sql) && _opt.pptn)
+        if (!silly_jsonpp::check_str(js_sql, "insert_pptn_sql", insert_pptn_sql) && _opt.pptn)
         {
             SLOG_ERROR("缺少 insert_pptn_sql 配置项");
             return status;
         }
-        if (!silly_jsonpp::check_member_string(js_sql, "insert_river_sql", insert_river_sql) && _opt.river)
+        if (!silly_jsonpp::check_str(js_sql, "insert_river_sql", insert_river_sql) && _opt.river)
         {
             SLOG_ERROR("缺少 insert_river_sql 配置项");
             return status;
         }
-        if (!silly_jsonpp::check_member_string(js_sql, "insert_rsvr_sql", insert_rsvr_sql) && _opt.rsvr)
+        if (!silly_jsonpp::check_str(js_sql, "insert_rsvr_sql", insert_rsvr_sql) && _opt.rsvr)
         {
             SLOG_ERROR("缺少 insert_rsvr_sql 配置项");
             return status;
@@ -173,39 +173,39 @@ bool init(const std::string& file)
     }
 
     // 检查路径配置
-    if (!silly_jsonpp::check_member_string(jv_root, "stbprp_file_path", stbprp_file_path) && _opt.stbprp)
+    if (!silly_jsonpp::check_str(jv_root, "stbprp_file_path", stbprp_file_path) && _opt.stbprp)
     {
         SLOG_ERROR("缺少 stbprp_file_path 配置项");
         return status;
     }
-    if (!silly_jsonpp::check_member_string(jv_root, "pptn_file_path", pptn_file_path) && _opt.pptn)
+    if (!silly_jsonpp::check_str(jv_root, "pptn_file_path", pptn_file_path) && _opt.pptn)
     {
         SLOG_ERROR("缺少 pptn_file_path 配置项");
         return status;
     }
-    if (!silly_jsonpp::check_member_string(jv_root, "river_file_path", river_file_path) && _opt.river)
+    if (!silly_jsonpp::check_str(jv_root, "river_file_path", river_file_path) && _opt.river)
     {
         SLOG_ERROR("缺少 river_file_path 配置项");
         return status;
     }
-    if (!silly_jsonpp::check_member_string(jv_root, "rsvr_file_path", rsvr_file_path) && _opt.rsvr)
+    if (!silly_jsonpp::check_str(jv_root, "rsvr_file_path", rsvr_file_path) && _opt.rsvr)
     {
         SLOG_ERROR("缺少 rsvr_file_path 配置项");
         return status;
     }
 
     // block_byte 配置项
-    if (!silly_jsonpp::check_member_ulong(jv_root, "block_byte", block_byte))
+    if (!silly_jsonpp::check_uint64(jv_root, "block_byte", block_byte))
     {
         SLOG_WARN("配置文件中缺少 block_byte 字段, 默认按照 1G 字节数处理");
     }
 
     // 编码设置
     Json::Value js_encode;
-    if (silly_jsonpp::check_member_object(jv_root, "encode", js_encode))
+    if (silly_jsonpp::check_obj(jv_root, "encode", js_encode))
     {
-        silly_jsonpp::check_member_string(js_encode, "src", src_encode);
-        silly_jsonpp::check_member_string(js_encode, "dst", dst_encode);
+        silly_jsonpp::check_str(js_encode, "src", src_encode);
+        silly_jsonpp::check_str(js_encode, "dst", dst_encode);
     }
 
     status = true;
