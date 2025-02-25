@@ -166,6 +166,14 @@ class utils
     static std::vector<silly_poly> intersection(const silly_multi_poly& mpoly1, const silly_multi_poly& mpoly2);
 
     /// <summary>
+    /// 两个线段相交点
+    /// </summary>
+    /// <param name="s1"></param>
+    /// <param name="s2"></param>
+    /// <returns></returns>
+    static std::optional<silly_point> intersection(const silly_segment& s1, const silly_segment& s2);
+
+    /// <summary>
     /// 两个相交面的 不相交部分, 必须是相交的
     /// </summary>
     /// <param name="mpoly1"></param>

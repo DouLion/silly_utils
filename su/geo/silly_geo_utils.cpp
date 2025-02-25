@@ -1108,100 +1108,41 @@ std::vector<silly_poly> utils::intersection(const silly_multi_poly& mpoly1, cons
 
     return result;
 }
-
-// 判断点是否在线段上
-bool on_segment(const silly_point& point, const silly_point& l_beg, const silly_point& l_end)
+std::optional<silly_point> utils::intersection(const silly_segment& s1, const silly_segment& s2)
 {
-    return std::min(l_beg.x, l_end.x) <= point.x && point.x <= std::max(l_beg.x, l_end.x) && std::min(l_beg.y, l_end.y) <= point.y && point.y <= std::max(l_beg.y, l_end.y);
-}
+    double x1 = s1.p0.x;
+    double y1 = s1.p0.y;
+    double x2 = s1.p1.x;
+    double y2 = s1.p1.y;
 
-// 计算两条线段相交点
-silly_point line_intersection(const silly_point& p1, const silly_point& p2, const silly_point& q1, const silly_point& q2)
-{
-    // 利用直线方程求解交点
-    double a1 = p2.y - p1.y;
-    double b1 = p1.x - p2.x;
-    double c1 = a1 * p1.x + b1 * p1.y;
-    double a2 = q2.y - q1.y;
-    double b2 = q1.x - q2.x;
-    double c2 = a2 * q1.x + b2 * q1.y;
-    double determinant = a1 * b2 - a2 * b1;
-    if (fabs(determinant) < 1e-6)
-    {
-        return silly_point();  // 没有交点或线段重叠
-    }
-    double x = (b2 * c1 - b1 * c2) / determinant;
-    double y = (a1 * c2 - a2 * c1) / determinant;
-    if (on_segment(silly_point(x, y), p1, p2) && on_segment(silly_point(x, y), q1, q2))
-    {
-        return silly_point(x, y);
-    }
-    return silly_point();
-}
+    double x3 = s2.p0.x;
+    double y3 = s2.p0.y;
+    double x4 = s2.p1.x;
+    double y4 = s2.p1.y;
 
-// 两条线段所在的区域是否有重叠部分
-bool segments_overlap(double xa, double xb, double ya, double yb)
-{
-    return std::max(xa, xb) >= std::min(ya, yb) && std::max(ya, yb) >= std::min(xa, xb);
-}
+    // 计算分母
+    double denominator = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
 
-// 计算线段是否相交
-bool segments_intersect(silly_point a1, silly_point a2, silly_point b1, silly_point b2)
-{
-    // 快速排斥测试
-    // 两条线段的覆盖入去要有重叠部分, a线段最大的x要大于b线段最小的x, a线段最小的x要小于b线段最大的x,y轴同理
-    if (!segments_overlap(a1.x, a2.x, b1.x, b2.x) || !segments_overlap(a1.y, a2.y, b1.y, b2.y))
+    // 平行或重合
+    if (std::fabs(denominator) < SU_TINY)
     {
-        return false;
+        return std::nullopt;
     }
 
-    // 计算方向
-    // d1 计算了线段 b1-b2 的方向相对于点 a1 的位置
-    // d2 计算了线段 b1-b2 的方向相对于点 a2 的位置
-    // d3 计算了线段 a1-a2 的方向相对于点 b1 的位置
-    // d4 计算了线段 a1-a2 的方向相对于点 b2 的位置
-    double d1 = (b2.y - b1.y) * (a1.x - b1.x) - (b2.x - b1.x) * (a1.y - b1.y);
-    double d2 = (b2.y - b1.y) * (a2.x - b1.x) - (b2.x - b1.x) * (a2.y - b1.y);
-    double d3 = (a2.y - a1.y) * (b1.x - a1.x) - (a2.x - a1.x) * (b1.y - a1.y);
-    double d4 = (a2.y - a1.y) * (b2.x - a1.x) - (a2.x - a1.x) * (b2.y - a1.y);
+    // 计算交点的参数 t 和 u
+    double t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / denominator;
+    double u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / denominator;
 
-    // 当 d1 * d2 < 0 时，意味着点 a1 和 a2 在线段 b1-b2 的两侧
-    // 当 d3 * d4 < 0 时，意味着点 b1 和 b2 在线段 a1-a2 的两侧
-    // 如果两个条件都满足，那么线段 a1-a2 和 b1-b2 是相交的,但是如果有一个满足可能是有一点重合,
+    // 检查交点是否在线段内
+    if (t >= 0 && t <= 1 && u >= 0 && u <= 1)
+    {
+        double intersectX = x1 + t * (x2 - x1);
+        double intersectY = y1 + t * (y2 - y1);
+        return silly_point(intersectX, intersectY);
+    }
 
-    // 平行或共线的情况
-    if (d1 * d2 == 0 && d3 * d4 == 0)
-    {
-        // 判断点是否在线段上 a1 是否在 b1-b2 上
-        if (on_segment(a1, b1, b2))
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-    else if ((d1 * d2 < 0) && (d3 * d4 < 0))  // 相交
-    {
-        return true;
-    }
-    else  // 线段a上的一个点在线段b上,或者线段b的延长线上
-    {
-        // 求相交点,如果相交点为线段的起点返回true
-        silly_point intersect = line_intersection(a1, a2, b1, b2);
-        // 如果交点为线段b的起始点
-        if ((std::abs(intersect.x - b1.x) <= 1e-8) && (std::abs(intersect.y - b1.y) <= 1e-8))
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-
-        int a = 0;
-    }
+    // 交点不在两条线段上
+    return std::nullopt;
 }
 
 bool utils::intersect(const silly_poly& mpoly, const silly_point& point)
