@@ -287,6 +287,25 @@ class silly_rect  // 普通坐标点
 using silly_geo_rect = silly_rect;
 
 /****************************************/
+/// 线段
+/****************************************/
+
+class silly_segment
+{
+  public:
+    silly_segment() = default;
+    ~silly_segment() = default;
+    silly_segment(silly_point _p0, silly_point _p1)
+    {
+        p0 = _p0;
+        p1 = _p1;
+    }
+  public:
+    silly_point p0;
+    silly_point p1;
+};
+
+/****************************************/
 /// 线
 /****************************************/
 class silly_line : public std::vector<silly_point>
