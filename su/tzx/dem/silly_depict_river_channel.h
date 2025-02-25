@@ -27,27 +27,6 @@ class depict
         double cell_size = 5;  // 单位米
         double l0; // 中央经线
     };
-    struct point_z : public silly_point
-    {
-        point_z() = default;
-        point_z(double xx, double yy)
-        {
-            x = xx;
-            y = yy;
-
-        }
-        point_z(double xx, double yy, double zz)
-        {
-            x = xx;
-        }
-        double z = 0;
-    };
-    struct cross_section
-    {
-        std::vector<double> dists;  // 起点距
-        std::vector<double> elevs;  // 高程
-        point_z p0;                 // 起点的高斯坐标
-    };
 
   public:
     /// <summary>
@@ -57,7 +36,7 @@ class depict
     /// <param name="cs1">结束横断面,高斯坐标</param>
     /// <param name="vsection">两个横断面之间的纵断面,高斯坐标</param>
     /// <returns></returns>
-    bool process(const cross_section& cs0, const cross_section& cs1, std::vector<point_z>& vsection, options& opt);
+    bool process(const silly_linez& cs0, const silly_linez& cs1, silly_linez& vsection, options& opt);
 
     /// <summary>
     /// 根据多个连续的横断面, 画出完整河道
@@ -65,7 +44,7 @@ class depict
     /// <param name="csections">高斯坐标</param>
     /// <param name="vsections">高斯坐标</param>
     /// <returns></returns>
-    std::vector<std::vector<double>> process(const std::vector<cross_section> csections, std::vector<std::vector<point_z>>& vsections, options& opt);
+    std::vector<std::vector<double>> process(const std::vector<silly_linez> csections, std::vector<silly_linez>& vsections, options& opt);
 
     bool write(const std::string& filename, const std::vector<std::vector<double>>& channelData, const options& opt);
 };

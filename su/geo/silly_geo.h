@@ -168,6 +168,33 @@ class silly_point
     double y{0.};
 };
 
+class silly_point_z : public silly_point
+{
+  public:
+    silly_point_z() = default;
+    silly_point_z(double xx, double yy)
+    {
+        x = xx;
+        y = yy;
+    }
+    silly_point_z(double xx, double yy, double zz)
+    {
+        x = xx;
+        y = yy;
+        z = zz;
+    }
+
+    silly_point_z& operator=(const silly_point_z& point)
+    {
+        x = point.x;
+        y = point.y;
+        z = point.z;
+        return *this;
+    }
+
+    double z{0.0};
+};
+
 /****************************************/
 /// 多点
 /****************************************/
@@ -300,6 +327,7 @@ class silly_segment
         p0 = _p0;
         p1 = _p1;
     }
+
   public:
     silly_point p0;
     silly_point p1;
@@ -316,6 +344,20 @@ class silly_line : public std::vector<silly_point>
     silly_line(std::vector<silly_point> points) : std::vector<silly_point>(std::move(points))
     {
     }
+};
+
+/****************************************/
+/// 带高程的线段
+/****************************************/
+class silly_linez : public std::vector<silly_point_z>
+{
+  public:
+    silly_linez() = default;
+    ~silly_linez() = default;
+    silly_linez(std::vector<silly_point_z> points) : std::vector<silly_point_z>(std::move(points))
+    {
+    }
+
 };
 
 /****************************************/
