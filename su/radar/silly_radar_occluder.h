@@ -15,13 +15,20 @@ class silly_radar_occluder
 {
   public:
     /// <summary>
+    /// 读取dem文件
+    /// </summary>
+    /// <param name="file"></param>
+    /// <returns></returns>
+    bool get_dem(const std::string& file);
+
+    /// <summary>
     /// 网格dem转极坐标
     /// </summary>
-    /// <param name="dem"></param>
-    /// <param name="center">中心坐标</param>
-    /// <param name="radius">采样半径</param>
+    /// <param name="center">中心坐标(经纬度)</param>
+    /// <param name="radius">采样半径,雷达扫描半径(km)</param>
     /// <returns></returns>
-    bool dem2polar(const std::string& dem, const silly_point& center, const double& radius);
+    bool dem2polar(const silly_point& center, const double& radius);
+    // bool silly_radar_occluder::dem2polar(const std::string& file, const silly_point& center, const double& radius);
 
     /// <summary>
     /// 提取雷达遮挡范围矢量
@@ -31,9 +38,20 @@ class silly_radar_occluder
     /// <param name="radius">雷达工作扫描半径(km)</param>
     silly_poly occluder_poly(const double& height, const double& deg, const double& radius);
 
-  private:
+  public:
     std::vector<std::vector<double>> m_polar_dem;  // 极坐标DEM
     silly_point m_center;
+
+    // dem二维矩阵数据
+    std::vector<double> m_dem_data;
+    size_t x_size{0};          // x轴大小
+    size_t y_size{0};          // y轴大小
+    silly_point left_top;      // 左上角坐标经纬度
+    silly_point right_bottom;  // 右下角坐标经纬度
+    silly_point left_bottom;   // 左下角坐标经纬度
+    silly_point right_top;     // 右上角坐标经纬度
+    double x_res{0};           // x轴分辨率 // 单位度
+    double y_res{0};           // y轴分辨率 // 单位度
 };
 
 #endif  // SILLY_UTILS_SILLY_RADAR_OCCLUDER_H

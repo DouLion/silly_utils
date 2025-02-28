@@ -196,9 +196,11 @@
 
 // radar (雷达)
 #include <radar/silly_radar_grid.h>     // 雷达网格数据存储
+#include <radar/silly_radar_occluder.h> // 雷达遮挡物分析
 #include <radar/silly_radar_polar.h>    // 雷达极坐标系数据存储
 #include <radar/silly_radar_proj.h>     // 雷达坐标系
 #include <radar/silly_radar_proj_ez.h>  // 雷达坐标系简化用法 未实现
+
 
 // singleton (单例)
 #include <singleton/silly_singleton.h>  // 单例类
