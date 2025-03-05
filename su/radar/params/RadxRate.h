@@ -14,7 +14,7 @@
 class RadxRate
 {
 
-  public:
+  /*public:
 
     bool Read(const std::string& file);
     bool Write(const std::string& file);
@@ -72,7 +72,7 @@ class RadxRate
     double pseudo_earth_radius_ratio = 1.33333;
     std::string instance = "test";
     int procmap_register_interval = 60;
-    int max_realtime_data_age_secs = 300;
+    int max_realtime_data_age_secs = 300;*/
 };
 
 #endif  // SILLY_UTILS_RADXRATE_H

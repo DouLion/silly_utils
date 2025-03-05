@@ -10,10 +10,29 @@
  */
 #ifndef SILLY_UTILS_RADXCOMMON_H
 #define SILLY_UTILS_RADXCOMMON_H
-# include <su_marco.h>
+#include <su_marco.h>
+namespace radar
+{
+typedef enum
+{
+    DEBUG_OFF = 0,
+    DEBUG_NORM = 1,
+    DEBUG_VERBOSE = 2,
+    DEBUG_EXTRA = 3
+} debug_t;
 
-#define START_AND_END_TIMES "START_AND_END_TIMES"
-#define OUTPUT_FORMAT_CFRADIAL "OUTPUT_FORMAT_CFRADIAL"
+
+typedef enum {
+    FILELIST = 0,
+    ARCHIVE = 1,
+    REALTIME = 2
+} mode_t;
+
+typedef enum {
+    pFALSE = 0, pTRUE = 1
+} tdrp_bool_t;
+
+
 struct OutputFiled
 {
     std::string id;
@@ -30,5 +49,7 @@ struct CopyField
     std::string output_name;
     std::string censor_non_weather;
 };
+
+}  // namespace radar
 
 #endif  // SILLY_UTILS_RADXCOMMON_H
