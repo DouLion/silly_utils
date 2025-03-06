@@ -10,6 +10,10 @@
  */
 #ifndef SILLY_UTILS_SLB_DATA_V1_H
 #define SILLY_UTILS_SLB_DATA_V1_H
+
+#include "su_marco.h"
+#include <radar/format/HunanData.h>
+
 namespace radar
 {
 static const char VOL_LABEL_RD[4] = {'R', 'D', 0x00, 0x00};  // 雷达基数据
@@ -251,8 +255,11 @@ struct CommonBlock
 class SLBDataV1
 {
   public:
-    SLBDataV1();
-    ~SLBDataV1();
+    SLBDataV1() = default;
+    ~SLBDataV1() = default;
+
+    // 
+    bool convert(const HunanData& src);
 
   private:
 };
