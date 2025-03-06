@@ -9,3 +9,15 @@
  * @version: v1.0.1 2025-02-28 dou li yang
  */
 #include "SLBDataV1.h"
+
+using namespace radar;
+
+bool SLBDataV1::convert(const HunanData& src)
+{
+    bool status = false;
+
+    // 
+
+
+    return status;
+}

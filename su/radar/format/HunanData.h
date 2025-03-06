@@ -146,6 +146,7 @@ struct bzNewRadarHeader
     struct bzTASKPARAM ObservationInfo;
 };
 
+// 径向头
 struct bzRadialDataHead
 {                         // 径向头块提供数据状态、采集时间等信息，共 64 字节。
     int RadialState;      // 径向数据状态
@@ -165,6 +166,7 @@ struct bzRadialDataHead
     unsigned char Reserved2[14];
 };
 
+// 径向数据头
 struct bzRadialDatab
 {                     // 径向数据块 用来存储雷达探测的径向数据资料，如反射率
     int DataType;     // 数据类型
@@ -226,6 +228,13 @@ struct bzDualRVP9Record
     }
 };
 
+struct radialData
+{
+    bzRadialDataHead RadioHeader;  // 径向数据头
+    bzRadialDatab RadialDatab;     // 径向数据头
+    std::vector<bzDualRVP9Record> Data;
+};
+
 class HunanData
 {
   public:
@@ -255,14 +264,23 @@ class HunanData
     bool ProccessMerge(int ElementID, int *FinishedNum, void *pVoid);
 
   public:
+    // ---- 公共数据块 ----
     bzNewRadarHeader m_Header;
     bzSCANPARAM m_ScanCut[256];
-    bzRadialDataHead m_RadioHeader;
-    bzRadialDatab m_RadialDatab;
+
+    // ---- 径向数据块 ----
+    bzRadialDataHead m_RadioHeader;  // 径向数据头
+    bzRadialDatab m_RadialDatab;     // 径向数据头
     std::vector<bzDualRVP9Record> m_Data;
+
+    //std::vector<radialData> m_RadialBlocks;
 
   private:
 };
+
+
+
+
 
 }  // namespace radar
 #endif  // SILLY_UTILS_HUNANDATA_H
