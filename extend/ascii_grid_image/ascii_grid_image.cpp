@@ -51,13 +51,13 @@ void convert_image(double ncols, double nrows, double xllcorner, double yllcorne
     // std::cout << mid << std::endl;
     {
         double left_top_x, left_top_y;
-        proj::gauss_to_lonlat(mid, gauss_top, gauss_left, left_top_x, left_top_y);
+        proj::gauss_to_lonlat(mid, gauss_left, gauss_top, left_top_x, left_top_y);
         double right_bottom_x, right_bottom_y;
-        proj::gauss_to_lonlat(mid, gauss_bottom, gauss_right, right_bottom_x, right_bottom_y);
+        proj::gauss_to_lonlat(mid, gauss_right, gauss_bottom, right_bottom_x, right_bottom_y);
         double left_bottom_x, left_bottom_y;
-        proj::gauss_to_lonlat(mid, gauss_bottom, gauss_left, left_bottom_x, left_bottom_y);
+        proj::gauss_to_lonlat(mid, gauss_left, gauss_bottom , left_bottom_x, left_bottom_y);
         double right_top_x, right_top_y;
-        proj::gauss_to_lonlat(mid, gauss_top, gauss_right, right_top_x, right_top_y);
+        proj::gauss_to_lonlat(mid, gauss_right, gauss_top , right_top_x, right_top_y);
 
         double geo_left = SU_MAX(left_top_x, left_bottom_x);
 
@@ -72,10 +72,11 @@ void convert_image(double ncols, double nrows, double xllcorner, double yllcorne
         // 26.86;
         // SU_MIN(left_bottom_y, right_bottom_y);
 
-        proj::lonlat_to_mercator(geo_top, geo_left, mct_letf, mct_top);
-        proj::lonlat_to_mercator(geo_bottom, geo_right, mct_right, mct_bottom);
-        /* std::cout << geo_left << " " << geo_top << " " << geo_right << " " << geo_bottom << std::endl;
-         std::cout << mct_letf << " " << mct_top << " " << mct_right << " " << mct_bottom << std::endl;*/
+        proj::lonlat_to_mercator(geo_left, geo_top , mct_letf, mct_top);
+        proj::lonlat_to_mercator(geo_right, geo_bottom , mct_right, mct_bottom);
+        std::cout << mid << std::endl;
+        std::cout << geo_left << " " << geo_top << " " << geo_right << " " << geo_bottom << std::endl;
+        std::cout << mct_letf << " " << mct_top << " " << mct_right << " " << mct_bottom << std::endl;
     }
 
     double mct_x_step = (mct_right - mct_letf) / (ncols - 2);
