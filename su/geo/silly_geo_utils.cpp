@@ -801,6 +801,106 @@ OGRFieldType convertToOGRFieldType(const silly_geo_prop::enum_prop_type& type)
     return result;
 }
 
+OGRSpatialReference utils::get_proj_def(const ProjDef& def)
+{
+    OGRSpatialReference ret;
+    switch (def)
+    {
+        case ProjDef::CGCS2000_GAUSS_E75:
+            ret.SetWellKnownGeogCS("EPSG:4534");
+            ret.SetFromUserInput("+proj=tmerc +lat_0=0 +lon_0=75 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs");
+            break;
+        case ProjDef::CGCS2000_GAUSS_E78:
+            ret.SetWellKnownGeogCS("EPSG:4535");
+            ret.SetFromUserInput("+proj=tmerc +lat_0=0 +lon_0=78 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs");
+            break;
+        case ProjDef::CGCS2000_GAUSS_E81:
+            ret.SetWellKnownGeogCS("EPSG:4536");
+            ret.SetFromUserInput("+proj=tmerc +lat_0=0 +lon_0=81 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs");
+            break;
+        case ProjDef::CGCS2000_GAUSS_E84:
+            ret.SetWellKnownGeogCS("EPSG:4537");
+            ret.SetFromUserInput("+proj=tmerc +lat_0=0 +lon_0=84 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs");
+            break;
+        case ProjDef::CGCS2000_GAUSS_E87:
+            ret.SetWellKnownGeogCS("EPSG:4538");
+            ret.SetFromUserInput("+proj=tmerc +lat_0=0 +lon_0=87 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs");
+            break;
+        case ProjDef::CGCS2000_GAUSS_E90:
+            ret.SetWellKnownGeogCS("EPSG:4539");
+            ret.SetFromUserInput("+proj=tmerc +lat_0=0 +lon_0=90 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs");
+            break;
+        case ProjDef::CGCS2000_GAUSS_E93:
+            ret.SetWellKnownGeogCS("EPSG:4540");
+            ret.SetFromUserInput("+proj=tmerc +lat_0=0 +lon_0=93 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs");
+            break;
+        case ProjDef::CGCS2000_GAUSS_E96:
+            ret.SetWellKnownGeogCS("EPSG:4541");
+            ret.SetFromUserInput("+proj=tmerc +lat_0=0 +lon_0=96 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs");
+            break;
+        case ProjDef::CGCS2000_GAUSS_E99:
+            ret.SetWellKnownGeogCS("EPSG:4542");
+            ret.SetFromUserInput("+proj=tmerc +lat_0=0 +lon_0=99 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs");
+            break;
+        case ProjDef::CGCS2000_GAUSS_E102:
+            ret.SetWellKnownGeogCS("EPSG:4543");
+            ret.SetFromUserInput("+proj=tmerc +lat_0=0 +lon_0=102 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs");
+            break;
+        case ProjDef::CGCS2000_GAUSS_E105:
+            ret.SetWellKnownGeogCS("EPSG:4544");
+            ret.SetFromUserInput("+proj=tmerc +lat_0=0 +lon_0=105 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs");
+            break;
+        case ProjDef::CGCS2000_GAUSS_E108:
+            ret.SetWellKnownGeogCS("EPSG:4545");
+            ret.SetFromUserInput("+proj=tmerc +lat_0=0 +lon_0=108 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs");
+            break;
+        case ProjDef::CGCS2000_GAUSS_E111:
+            ret.SetWellKnownGeogCS("EPSG:4546");
+            ret.SetFromUserInput("+proj=tmerc +lat_0=0 +lon_0=111 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs");
+            break;
+        case ProjDef::CGCS2000_GAUSS_E114:
+            ret.SetWellKnownGeogCS("EPSG:4547");
+            ret.SetFromUserInput("+proj=tmerc +lat_0=0 +lon_0=114 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs");
+            break;
+        case ProjDef::CGCS2000_GAUSS_E117:
+            ret.SetWellKnownGeogCS("EPSG:4548");
+            ret.SetFromUserInput("+proj=tmerc +lat_0=0 +lon_0=117 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs");
+            break;
+        case ProjDef::CGCS2000_GAUSS_E120:
+            ret.SetWellKnownGeogCS("EPSG:4549");
+            ret.SetFromUserInput("+proj=tmerc +lat_0=0 +lon_0=120 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs");
+            break;
+        case ProjDef::CGCS2000_GAUSS_E123:
+            ret.SetWellKnownGeogCS("EPSG:4550");
+            ret.SetFromUserInput("+proj=tmerc +lat_0=0 +lon_0=123 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs");
+            break;
+        case ProjDef::CGCS2000_GAUSS_E126:
+            ret.SetWellKnownGeogCS("EPSG:4551");
+            ret.SetFromUserInput("+proj=tmerc +lat_0=0 +lon_0=126 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs");
+            break;
+        case ProjDef::CGCS2000_GAUSS_E129:
+            ret.SetWellKnownGeogCS("EPSG:4552");
+            ret.SetFromUserInput("+proj=tmerc +lat_0=0 +lon_0=129 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs");
+            break;
+        case ProjDef::CGCS2000_GAUSS_E132:
+            ret.SetWellKnownGeogCS("EPSG:4553");
+            ret.SetFromUserInput("+proj=tmerc +lat_0=0 +lon_0=132 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs");
+            break;
+        case ProjDef::CGCS2000_GAUSS_E135:
+          
+            ret.SetWellKnownGeogCS("EPSG:4554");
+            ret.SetFromUserInput("+proj=tmerc +lat_0=0 +lon_0=135 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs");
+            break;
+        case ProjDef::WGS84:
+        default:
+            ret.SetWellKnownGeogCS("WGS84");                         // 设置WGS84地理坐标系
+            ret.SetFromUserInput("+proj=longlat +datum=WGS84 +no_defs");
+            ret.SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);  // 强制经度-纬度顺序
+            break;
+    }
+    return ret;
+}
+
 #endif
 // 添加属性到shp中
 bool writePropertiesToGeometry(OGRFeature* feature, const std::map<std::string, silly_geo_prop>& m_props)
@@ -962,7 +1062,7 @@ static bool wire_all_types_data(const enum_geometry_type coll_type, OGRLayer* ou
     return false;
 }
 
-bool utils::write_geo_coll(const std::string& u8file, const std::vector<silly_geo_coll>& collections)
+bool utils::write_geo_coll(const std::string& u8file, const std::vector<silly_geo_coll>& collections, const ProjDef& prj)
 {
     bool status = false;
 #if ENABLE_GDAL
@@ -974,13 +1074,13 @@ bool utils::write_geo_coll(const std::string& u8file, const std::vector<silly_ge
     std::string driver_name;
     if (!get_driver_name(u8file, driver_name))
     {
-        SLOG_ERROR("Error: Unable to obtain storage method for this type: %s\n", u8file);
+        SLOG_ERROR("无法确定写入文件类型{}", u8file);
         return status;
     }
     std::string LayerName = std::filesystem::path(u8file).filename().stem().string();
     if (collections.empty())
     {
-        SLOG_ERROR("Error: Vector data is empty\n");
+        SLOG_ERROR("矢量为空");
         return status;
     }
     GDALDriver* outDriver = GetGDALDriverManager()->GetDriverByName(driver_name.c_str());
@@ -996,14 +1096,15 @@ bool utils::write_geo_coll(const std::string& u8file, const std::vector<silly_ge
 #endif
     if (outputData == nullptr)
     {
-        SLOG_ERROR("Error: Failed to create output shapefile\n");
+        SLOG_ERROR("创建输出文件失败");
         return false;
     }
-    OGRLayer* outputLayer = outputData->CreateLayer(LayerName.c_str(), nullptr, wkbUnknown, nullptr);
+    OGRSpatialReference ref = get_proj_def(prj);
+    OGRLayer* outputLayer = outputData->CreateLayer(LayerName.c_str(), &ref, wkbUnknown, nullptr);
     if (outputLayer == nullptr)
     {
         // 处理图层创建失败的情况
-        SLOG_ERROR("Failed to create output layer\n")
+        SLOG_ERROR("创建图层失败")
         GDALClose(outputData);
         return false;
     }
@@ -1015,7 +1116,8 @@ bool utils::write_geo_coll(const std::string& u8file, const std::vector<silly_ge
         OGRFieldDefn fieldDef(k.c_str(), ogrType);
         if (outputLayer->CreateField(&fieldDef) != OGRERR_NONE)
         {
-            SLOG_ERROR("Error: Failed to create color field\n");
+            SLOG_ERROR("创建属性段:{}失败", k);
+            return false;
         }
     }
     for (const auto& coll : collections)
@@ -1028,7 +1130,7 @@ bool utils::write_geo_coll(const std::string& u8file, const std::vector<silly_ge
         {
             if (!writePropertiesToGeometry(feature, coll.m_props))  // 添加属性
             {
-                SLOG_ERROR("Add attribute fail\n")
+                SLOG_ERROR("写入属性失败")
             }
         }
         // 添加矢量数据
@@ -1040,7 +1142,7 @@ bool utils::write_geo_coll(const std::string& u8file, const std::vector<silly_ge
 
     // 关闭数据集
     GDALClose(outputData);
-    SU_INFO_PRINT("Vector data added to shapefile and saved successfully\n");
+    SLOG_DEBUG("写入矢量至{}成功", u8file);
 #endif
     return status;
 }
