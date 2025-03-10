@@ -15,8 +15,23 @@ using namespace radar;
 bool SLBDataV1::convert(const HunanData& src)
 {
     bool status = false;
+    std::string emptyStr="";
+    // ---- 公共数据块 ----
 
-    // 
+    //fileVol.VolumeLabel = ;
+    //fileVol.VersionNo = ;
+    fileVol.FileLength = 10;
+    fileVol.RayOrder = PitchFirst;
+
+    //siteInfo.Country =
+    //siteInfo.Province =
+    //siteInfo.SiteName = src.m_Header.PerformanceInfo.SiteName;
+
+
+
+
+
+    // ---- 径向数据块 ----
 
 
     return status;
