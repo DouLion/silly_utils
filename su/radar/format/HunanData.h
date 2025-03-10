@@ -48,11 +48,6 @@ struct bzRADARSITE
     unsigned char Reserved[46];  // 保留字段
 };
 
-// bzNewRadarHeader _Header;
-// bzSCANPARAM _ScanCut[256];
-// bzRadialDataHead _RadioHeader;
-// bzRadialDatab _RadialDatab;
-
 struct bzTASKPARAM
 {                                        // 任务配置块
     unsigned char TaskName[32];          // 任务名称
@@ -86,6 +81,14 @@ struct bzTASKPARAM
     float LDRCalibration{0.0};         // 系统 LDR标定偏差
     unsigned char Reserved[40];        // 保留字段
 };
+
+struct bzNewRadarHeader
+{
+    struct bzHeader SiteInfo;
+    struct bzRADARSITE PerformanceInfo;
+    struct bzTASKPARAM ObservationInfo;
+};
+
 
 #pragma pack(push, 1)
 struct bzSCANPARAM
@@ -139,12 +142,6 @@ struct bzSCANPARAM
 };
 #pragma pack(pop)
 
-struct bzNewRadarHeader
-{
-    struct bzHeader SiteInfo;
-    struct bzRADARSITE PerformanceInfo;
-    struct bzTASKPARAM ObservationInfo;
-};
 
 // 径向头
 struct bzRadialDataHead
@@ -237,50 +234,45 @@ struct radialData
 
 class HunanData
 {
-  //public:
-  //  HunanData() = default;
-  //  ~HunanData() = default;
+  public:
+    HunanData() = default;
+    ~HunanData() = default;
 
-  //  bool LoadData(const char *FilePath);
-  //  void Clear();
-  //  double GetLjVals(int Degree, int index, int Layer, double &dh, double &ddr);
-  //  double GetVal(int Degree, int cType, int index, int Layer);
-  //  double GetVal(int Degree, int cType, int index);
-  //  int GetClass(int Degree, int cType, int index, int Layer);
-  //  // double GetRain(int Degree, int index, int Layer, int Type);
-  //  // int GetRainClass(int Degree, int index, int Layer, int Type);
-  //  static int GetRainClass(double val);
-  //  std::vector<double> GetAllLayer();
+    bool LoadData(const char *FilePath);
+    void Clear();
+    double GetLjVals(int Degree, int index, int Layer, double &dh, double &ddr);
+    double GetVal(int Degree, int cType, int index, int Layer);
+    double GetVal(int Degree, int cType, int index);
+    int GetClass(int Degree, int cType, int index, int Layer);
+    // double GetRain(int Degree, int index, int Layer, int Type);
+    // int GetRainClass(int Degree, int index, int Layer, int Type);
+    static int GetRainClass(double val);
+    std::vector<double> GetAllLayer();
 
-  //  // double CalcAzimuthAngleFromGeo(double LGTD, double LTTD);
-  //  // double CalcDistance(double LGTD, double LTTD);
-  //  // int GetIndex(double LGTD, double LTTD);
-  //  int GetIndex(double dis);
-  //  void GetSiteCoord(double &LGTD, double &LTTD);
-  //  int Merge();
-  //  int MergeLayer();
+    // double CalcAzimuthAngleFromGeo(double LGTD, double LTTD);
+    // double CalcDistance(double LGTD, double LTTD);
+    // int GetIndex(double LGTD, double LTTD);
+    int GetIndex(double dis);
+    void GetSiteCoord(double &LGTD, double &LTTD);
+    int Merge();
+    int MergeLayer();
 
-  //  std::shared_ptr<std::mutex> m_Mutex;
-  //  bool ProccessMerge(int ElementID, int *FinishedNum, void *pVoid);
+    std::shared_ptr<std::mutex> m_Mutex;
+    bool ProccessMerge(int ElementID, int *FinishedNum, void *pVoid);
 
-  //public:
-  //  // ---- 公共数据块 ----
-  //  bzNewRadarHeader m_Header;
-  //  bzSCANPARAM m_ScanCut[256];
+  public:
+    // ---- 公共数据块 ----
+    bzNewRadarHeader m_Header;
+    bzSCANPARAM m_ScanCut[256];
 
-  //  // ---- 径向数据块 ----
-  //  bzRadialDataHead m_RadioHeader;  // 径向数据头
-  //  bzRadialDatab m_RadialDatab;     // 径向数据头
-  //  std::vector<bzDualRVP9Record> m_Data;
+    // ---- 径向数据块 ----
+    bzRadialDataHead m_RadioHeader;  // 径向数据头
+    bzRadialDatab m_RadialDatab;     // 径向数据头
+    std::vector<bzDualRVP9Record> m_Data;
+    //std::vector<radialData> m_RadialBlocks;
 
-  //  //std::vector<radialData> m_RadialBlocks;
-
-  //private:
+  private:
 };
-
-
-
-
 
 }  // namespace radar
 #endif  // SILLY_UTILS_HUNANDATA_H
