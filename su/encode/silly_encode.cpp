@@ -462,18 +462,46 @@ std::string silly_encode::utf8_gbk(const std::string &text)
 std::string silly_encode::unicode_gbk(const std::string &text)
 {
     std::string ret;
-    if (!iconv_convert("EUC-CN", "GBK", text, ret))
+    std::string u8str = unicode_utf8(text);
+    if (is_utf8(u8str))
     {
-        ret.clear();
+        ret = utf8_gbk(u8str);
     }
     return ret;
 }
 std::string silly_encode::unicode_utf8(const std::string &text)
 {
     std::string ret;
-    if (!iconv_convert("GBK", "EUC-CN", text, ret))
+    for (size_t i = 0; i < text.size(); ++i)
     {
-        ret.clear();
+        if (text[i] == '\\' && i + 5 < text.size())
+        {
+            // 提取4位十六进制数
+            std::string hex = text.substr(i + 2, 4);
+            unsigned long code = std::stoul(hex, nullptr, 16);
+
+            // 转换为UTF-8字节序列
+            if (code <= 0x7F)
+            {
+                ret += static_cast<char>(code);
+            }
+            else if (code <= 0x7FF)
+            {
+                ret += static_cast<char>((code >> 6) | 0xC0);
+                ret += static_cast<char>((code & 0x3F) | 0x80);
+            }
+            else
+            {
+                ret += static_cast<char>((code >> 12) | 0xE0);
+                ret += static_cast<char>(((code >> 6) & 0x3F) | 0x80);
+                ret += static_cast<char>((code & 0x3F) | 0x80);
+            }
+            i += 5;  // 跳过整个转义序列
+        }
+        else
+        {
+            ret.push_back(text[i]);
+        }
     }
     return ret;
 }
