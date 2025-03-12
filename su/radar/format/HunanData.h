@@ -17,6 +17,7 @@ namespace radar
 {
 
 #define ELEMENTNUM 10
+#define MINSHORT -32768
 
 struct bzHeader
 {                                 // 通用头块
