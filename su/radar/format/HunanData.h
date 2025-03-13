@@ -90,7 +90,6 @@ struct bzNewRadarHeader
     struct bzTASKPARAM ObservationInfo;
 };
 
-
 #pragma pack(push, 1)
 struct bzSCANPARAM
 {
@@ -142,7 +141,6 @@ struct bzSCANPARAM
     unsigned char Reserved2[72];
 };
 #pragma pack(pop)
-
 
 // 径向头
 struct bzRadialDataHead
@@ -270,7 +268,7 @@ class HunanData
     bzRadialDataHead m_RadioHeader;  // 径向数据头
     bzRadialDatab m_RadialDatab;     // 径向数据头
     std::vector<bzDualRVP9Record> m_Data;
-    //std::vector<radialData> m_RadialBlocks;
+    // std::vector<radialData> m_RadialBlocks;
 
   private:
 };
