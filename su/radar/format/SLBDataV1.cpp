@@ -17,7 +17,7 @@ bool SLBDataV1::convert(const HunanData& src)
     bool status = false;
     std::string emptyStr = "";
     // ---- 公共数据块 ----
-     //fileVol.VolumeLabel = ;
+    // fileVol.VolumeLabel = ;
     // fileVol.VersionNo = ;
     // fileVol.FileLength = 10;
     // fileVol.RayOrder = PitchFirst;
@@ -92,19 +92,18 @@ bool SLBDataV1::convert(const HunanData& src)
                 switch (elemType)
                 {
                     case 0:  // dBZ → Zh
-                        for (const short val : rawVec)
+                        for (const short hn_stored_val : rawVec)
                         {
-                            if (val == -32768)
+                            if (hn_stored_val == MINSHORT)
                             {
                                 nationalBlock.Zh.push_back(0);
+                                continue;
                             }
-                            else
-                            {
-                                float realValue = (val - elevData.Offset[elemType]) * 1.0f / elevData.Scale[elemType];
-                                // int8_t t_v = static_cast<int8_t>((realValue * 2) + 66);
-                                // short t_v2 = (t_v - 66) / 2;
-                                nationalBlock.Zh.push_back(static_cast<int8_t>((realValue * 2) + 66));
-                            }
+
+                            float hn_real_Val = (hn_stored_val - elevData.Offset[elemType]) * 1.0f / elevData.Scale[elemType];  // 湖南真实数据
+                            float f_c_stored_val = ((hn_real_Val * 2) + 66);
+                            uint8_t i_c_stored_val = static_cast<uint8_t>(f_c_stored_val);
+                            nationalBlock.Zh.push_back(i_c_stored_val);
                         }
                         break;
 
@@ -117,10 +116,11 @@ bool SLBDataV1::convert(const HunanData& src)
                             }
                             else
                             {
-                                // int8_t t_v = static_cast<int8_t>((val * 2) + 66);
-                                //// 测试检验
-                                // short t_v2 = (t_v - 66) / 2;
-                                nationalBlock.Child.push_back(static_cast<int8_t>((val * 2) + 66));
+                                float hn_real_Val = (val - elevData.Offset[elemType]) * 1.0f / elevData.Scale[elemType];  // 湖
+                                float f_c_stored_val = ((hn_real_Val * 2) + 66);
+                                uint8_t i_c_stored_val = static_cast<uint8_t>(f_c_stored_val);
+                                nationalBlock.Child.push_back(i_c_stored_val);
+                                // nationalBlock.Child.push_back(static_cast<int8_t>((val * 2) + 66));
                             }
                         }
                         break;
@@ -128,40 +128,80 @@ bool SLBDataV1::convert(const HunanData& src)
                     case 2:  // V
                         for (const short val : rawVec)
                         {
-                            float realV = (val - elevData.Offset[elemType]) * 1.0f / elevData.Scale[elemType];
-                            nationalBlock.V.push_back(static_cast<int8_t>((realV * 2) + 129));
+                            if (val == MINSHORT)
+                            {
+                                nationalBlock.V.push_back(0);
+                                continue;
+                            }
+                            float hn_real_Val = (val - elevData.Offset[elemType]) * 1.0f / elevData.Scale[elemType];
+                            float f_c_stored_val = ((hn_real_Val * 2) + 129);
+                            uint8_t i_c_stored_val = static_cast<uint8_t>(f_c_stored_val);
+                            nationalBlock.V.push_back(i_c_stored_val);
+                            // nationalBlock.V.push_back(static_cast<int8_t>((realV * 2) + 129));
                         }
                         break;
 
                     case 3:  // W
                         for (const short val : rawVec)
                         {
-                            float realW = (val - elevData.Offset[elemType]) * 1.0f / elevData.Scale[elemType];
-                            nationalBlock.W.push_back(static_cast<int8_t>((realW * 2) + 129));
+                            if (val == MINSHORT)
+                            {
+                                nationalBlock.W.push_back(0);
+                                continue;
+                            }
+                            float hn_realW = (val - elevData.Offset[elemType]) * 1.0f / elevData.Scale[elemType];
+                            float f_c_stored_val = ((hn_realW * 2) + 129);
+                            uint8_t i_c_stored_val = static_cast<uint8_t>(f_c_stored_val);
+                            nationalBlock.W.push_back(i_c_stored_val);
+                            // nationalBlock.W.push_back(static_cast<int8_t>((hn_realW * 2) + 129));
                         }
                         break;
 
                     case 4:  // ZDR
                         for (const short val : rawVec)
                         {
+                            if (val == MINSHORT)
+                            {
+                                nationalBlock.ZDR.push_back(0);
+                                continue;
+                            }
                             float realZDR = (val - elevData.Offset[elemType]) * 1.0f / elevData.Scale[elemType];
-                            nationalBlock.ZDR.push_back(static_cast<int8_t>((realZDR * 16) + 130));
+                            float f_c_stored_val = ((realZDR * 16) + 130);
+                            uint8_t i_c_stored_val = static_cast<uint8_t>(f_c_stored_val);
+                            nationalBlock.ZDR.push_back(i_c_stored_val);
+                            // nationalBlock.ZDR.push_back(static_cast<int8_t>((realZDR * 16) + 130));
                         }
                         break;
 
                     case 5:  // KDP
                         for (const short val : rawVec)
                         {
+                            if (val == MINSHORT)
+                            {
+                                nationalBlock.KDP.push_back(0);
+                                continue;
+                            }
                             float realKDP = (val - elevData.Offset[elemType]) * 1.0f / elevData.Scale[elemType];
-                            nationalBlock.KDP.push_back(static_cast<int8_t>((realKDP * 10) + 50));
+                            float f_c_stored_val = ((realKDP * 10) + 50);
+                            uint8_t i_c_stored_val = static_cast<uint8_t>(f_c_stored_val);
+                            nationalBlock.KDP.push_back(i_c_stored_val);
+                            // nationalBlock.KDP.push_back(static_cast<int8_t>((realKDP * 10) + 50));
                         }
                         break;
 
                     case 6:  // PHIDP
                         for (const short val : rawVec)
                         {
+                            if (val == MINSHORT)
+                            {
+                                nationalBlock.PHIDP.push_back(0);
+                                continue;
+                            }
                             float realPHI = (val - elevData.Offset[elemType]) * 1.0f / elevData.Scale[elemType];
-                            nationalBlock.PHIDP.push_back(static_cast<int16_t>((realPHI * 100) + 50));
+                            float f_c_stored_val = ((realPHI * 100) + 50);
+                            int16_t i_c_stored_val = static_cast<int16_t>(f_c_stored_val);
+                            nationalBlock.PHIDP.push_back(i_c_stored_val);
+                            // nationalBlock.PHIDP.push_back(static_cast<int16_t>((realPHI * 100) + 50));
                         }
                         nationalBlock.DateType.back() = 3;  // SHORT类型
                         break;
@@ -169,23 +209,39 @@ bool SLBDataV1::convert(const HunanData& src)
                     case 7:  // CC
                         for (const short val : rawVec)
                         {
+                            if (val == MINSHORT)
+                            {
+                                nationalBlock.CC.push_back(0);
+                                continue;
+                            }
                             float realCC = (val - elevData.Offset[elemType]) * 1.0f / elevData.Scale[elemType];
-                            nationalBlock.CC.push_back(static_cast<int8_t>((realCC * 200) + 5));
+                            float f_c_stored_val = ((realCC * 200) + 5);
+                            uint8_t i_c_stored_val = static_cast<uint8_t>(f_c_stored_val);
+                            nationalBlock.CC.push_back(i_c_stored_val);
+                            // nationalBlock.CC.push_back(static_cast<uint8_t>((realCC * 200) + 5));
                         }
                         break;
 
                     case 8:  // SNR
                         for (const short val : rawVec)
                         {
-                            nationalBlock.OriginTh = static_cast<int8_t>((val > 4) ? 1 : 4);
+                            nationalBlock.OriginTh = static_cast<uint8_t>((val > 4) ? 1 : 4);
                         }
                         break;
 
                     case 9:  // LDR → Tv
                         for (const short val : rawVec)
                         {
+                            if (val == MINSHORT)
+                            {
+                                nationalBlock.Tv.push_back(0);
+                                continue;
+                            }
                             float realTv = (val - elevData.Offset[elemType]) * 1.0f / elevData.Scale[elemType];
-                            nationalBlock.Tv.push_back(static_cast<int8_t>((realTv * 2) + 66));
+                            float f_c_stored_val = ((realTv * 2) + 66);
+                            uint8_t i_c_stored_val = static_cast<uint8_t>(f_c_stored_val);
+                            nationalBlock.Tv.push_back(i_c_stored_val);
+                            // nationalBlock.Tv.push_back(static_cast<uint8_t>((realTv * 2) + 66));
                         }
                         break;
                 }

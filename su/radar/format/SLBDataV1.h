@@ -225,18 +225,18 @@ struct RadialDataBlock
     std::vector<int32_t> Offset;    // 数据编码的偏移
     char Reserved[12] = {0};
 
-    int8_t OriginTh = 0;  // 原始水平反射率因子Th
+    uint8_t OriginTh = 0;        // 原始水平反射率因子Th
                             // 当[数值]为1时，表示距离模糊数据
                             // 当[数值]为4时，表示无回波数据
-    std::vector<int8_t> Child;   // 解码方式:([数值]-66)/2=[实际值]dBZ
-    std::vector<int8_t> Zh;      // 水平反射率因子Zh;([数值]-66)/2=[实际值]dBZ
-    std::vector<int8_t> V;       // 径向速度V;([数值]-129)/2=[实际值]米/秒
-    std::vector<int8_t> W;       // 谱宽W ;([数值]-129)/2=[实际值]米/秒
-    std::vector<int8_t> ZDR;     // 差分反射率因子ZDR;([数值]-130)/16=[实际值]dB
+    std::vector<uint8_t> Child;  // 解码方式:([数值]-66)/2=[实际值]dBZ
+    std::vector<uint8_t> Zh;     // 水平反射率因子Zh;([数值]-66)/2=[实际值]dBZ
+    std::vector<uint8_t> V;      // 径向速度V;([数值]-129)/2=[实际值]米/秒
+    std::vector<uint8_t> W;      // 谱宽W ;([数值]-129)/2=[实际值]米/秒
+    std::vector<uint8_t> ZDR;    // 差分反射率因子ZDR;([数值]-130)/16=[实际值]dB
     std::vector<int16_t> PHIDP;  // 差分传播相位PHIDP;([数值]-50)/100=[实际值]度
-    std::vector<int8_t> KDP;     // 差分传播相位率KDP;([数值]-50)/10=[实际值]度/千米
-    std::vector<int8_t> CC;      // 相关系数CC;([数值]-5)/200=[实际值]
-    std::vector<int8_t> Tv;      //  原始垂直反射率因子Tv;([数值]-66)/2=[实际值]dBZ
+    std::vector<uint8_t> KDP;    // 差分传播相位率KDP;([数值]-50)/10=[实际值]度/千米
+    std::vector<uint8_t> CC;     // 相关系数CC;([数值]-5)/200=[实际值]
+    std::vector<uint8_t> Tv;     //  原始垂直反射率因子Tv;([数值]-66)/2=[实际值]dBZ
 };
 
 //struct CommonBlock
