@@ -34,16 +34,16 @@ enum ScanMode : int32_t
 
 struct FileVolume  // 文件卷标基本信息结构
 {
-    char VolumeLabel[4] = {0};  // 雷达基数据固定标识符，‘RD’为雷达基数据，‘GD’为衍生数据
-    char VersionNo[4] = {0}; // 数据格式版本号，如‘1.0’
-    uint64_t FileLength = 0;  // 无压缩的数据文件字节数?
-    uint32_t RayOrder = PitchFirst; // 径向数据排序
+    char VolumeLabel[4] = {0};       // 雷达基数据固定标识符，‘RD’为雷达基数据，‘GD’为衍生数据
+    char VersionNo[4] = {0};         // 数据格式版本号，如‘1.0’
+    uint64_t FileLength = 0;         // 无压缩的数据文件字节数?
+    uint32_t RayOrder = PitchFirst;  // 径向数据排序
 };
 
 struct SiteInfo  // 达站基本信息
 {
-    char Country[20] = {0};     // 国家
-    char Province[20] = {0};     // 省份
+    char Country[20] = {0};    // 国家
+    char Province[20] = {0};   // 省份
     char SiteName[32] = {0};   // 水利测雨雷达站名，文本格式输入
     char SiteID[12] = {0};     // 水利测雨雷达站编码，文本格式输入
     char RadarType[20] = {0};  // 雷达型号
@@ -173,11 +173,11 @@ struct Alerts
 // 雷达层参数结构
 struct LayerParam
 {
-    uint32_t Dbegin = 0;            // 本层数据记录开始位置
-    int16_t ElevationAngle = 0; // 本层仰角度数，单位为 1/100度
-    uint16_t MaxV = 0; // 本层的最大可测速度
-    uint16_t MinL = 0; // 本层的最大可测距离
-    int16_t VarCounts = 0; // 本层变量个数
+    uint32_t Dbegin = 0;              // 本层数据记录开始位置
+    int16_t ElevationAngle = 0;       // 本层仰角度数，单位为 1/100度
+    uint16_t MaxV = 0;                // 本层的最大可测速度
+    uint16_t MinL = 0;                // 本层的最大可测距离
+    int16_t VarCounts = 0;            // 本层变量个数
     std::vector<int16_t> VarCode;     // VarCode[VarCounts]变量标识码
     std::vector<int16_t> GateCounts;  // GateCounts[VarCounts]本层变量库数
     char Reserved2[8] = {0};
@@ -196,23 +196,22 @@ struct DataRecordBlock
 
 struct RadialDataBlock
 {
-
-    int32_t RadialState = 0; // 径向数据状态
-                            // 0–仰角开始
-                            // 1–中间数据
-                            // 2–仰角结束
-                            // 3–体扫开始
-                            // 4–体扫结束
-                            // 5–RHI开始
-                            // 6–RHI结束
-    int32_t SequenceNumber = 0; // 径向序号
-    int32_t RadialNumber = 0;  // 方位编号
-    int32_t ElevationNumber = 0;  // 仰角层编号，每个体扫从1计数
-    float Azimuth = 0.0;          // 扫描的方位角度
-    float Elevation = 0.0;        // 扫描的俯仰角度
-    uint32_t Seconds = 0;         // UTC计数的秒数,从1970年1月1日0时开始计数;
-    int32_t LengthOfData = 0;     // 仅本径向数据块所占用的长度
-    int32_t VarCounts = 0;         //  本径向变量个数（最多 9个）
+    int32_t RadialState = 0;        // 径向数据状态
+                                    // 0–仰角开始
+                                    // 1–中间数据
+                                    // 2–仰角结束
+                                    // 3–体扫开始
+                                    // 4–体扫结束
+                                    // 5–RHI开始
+                                    // 6–RHI结束
+    int32_t SequenceNumber = 0;     // 径向序号
+    int32_t RadialNumber = 0;       // 方位编号
+    int32_t ElevationNumber = 0;    // 仰角层编号，每个体扫从1计数
+    float Azimuth = 0.0;            // 扫描的方位角度
+    float Elevation = 0.0;          // 扫描的俯仰角度
+    uint32_t Seconds = 0;           // UTC计数的秒数,从1970年1月1日0时开始计数;
+    int32_t LengthOfData = 0;       // 仅本径向数据块所占用的长度
+    int32_t VarCounts = 0;          //  本径向变量个数（最多 9个）
     std::vector<int32_t> DateType;  // 数值类型
                                     // 1-BYTE
                                     // 2-USHORT
@@ -225,33 +224,33 @@ struct RadialDataBlock
     std::vector<int32_t> Offset;    // 数据编码的偏移
     char Reserved[12] = {0};
 
-    int8_t OriginTh = 0;  // 原始水平反射率因子Th
-                            // 当[数值]为1时，表示距离模糊数据
-                            // 当[数值]为4时，表示无回波数据
-    std::vector<int8_t> Child;   // 解码方式:([数值]-66)/2=[实际值]dBZ
-    std::vector<int8_t> Zh;      // 水平反射率因子Zh;([数值]-66)/2=[实际值]dBZ
-    std::vector<int8_t> V;       // 径向速度V;([数值]-129)/2=[实际值]米/秒
-    std::vector<int8_t> W;       // 谱宽W ;([数值]-129)/2=[实际值]米/秒
-    std::vector<int8_t> ZDR;     // 差分反射率因子ZDR;([数值]-130)/16=[实际值]dB
+    // uint8_t OriginTh = 0;        // 原始水平反射率因子Th
+    //  当[数值]为1时，表示距离模糊数据
+    //  当[数值]为4时，表示无回波数据
+    std::vector<uint8_t> Th;     // 解码方式:([数值]-66)/2=[实际值]dBZ
+    std::vector<uint8_t> Zh;     // 水平反射率因子Zh;([数值]-66)/2=[实际值]dBZ
+    std::vector<uint8_t> V;      // 径向速度V;([数值]-129)/2=[实际值]米/秒
+    std::vector<uint8_t> W;      // 谱宽W ;([数值]-129)/2=[实际值]米/秒
+    std::vector<uint8_t> ZDR;    // 差分反射率因子ZDR;([数值]-130)/16=[实际值]dB
     std::vector<int16_t> PHIDP;  // 差分传播相位PHIDP;([数值]-50)/100=[实际值]度
-    std::vector<int8_t> KDP;     // 差分传播相位率KDP;([数值]-50)/10=[实际值]度/千米
-    std::vector<int8_t> CC;      // 相关系数CC;([数值]-5)/200=[实际值]
-    std::vector<int8_t> Tv;      //  原始垂直反射率因子Tv;([数值]-66)/2=[实际值]dBZ
+    std::vector<uint8_t> KDP;    // 差分传播相位率KDP;([数值]-50)/10=[实际值]度/千米
+    std::vector<uint8_t> CC;     // 相关系数CC;([数值]-5)/200=[实际值]
+    std::vector<uint8_t> Tv;     //  原始垂直反射率因子Tv;([数值]-66)/2=[实际值]dBZ
 };
 
-//struct CommonBlock
+// struct CommonBlock
 //{
-//    // ---- 公共数据块 ----
-//    FileVolume fileVol; // 文件卷信息
-//    SiteInfo siteInfo; // 雷达站基本信息
-//    ObserveTime obTime; // 观测时间
-//    OperationInfo opInfo; // 运维数据信息
-//    Alerts alerts;// 1~M 个告警数据块
-//    std::vector<DataRecordBlock> dataRecords;// 1~N个层结构信息
+//     // ---- 公共数据块 ----
+//     FileVolume fileVol; // 文件卷信息
+//     SiteInfo siteInfo; // 雷达站基本信息
+//     ObserveTime obTime; // 观测时间
+//     OperationInfo opInfo; // 运维数据信息
+//     Alerts alerts;// 1~M 个告警数据块
+//     std::vector<DataRecordBlock> dataRecords;// 1~N个层结构信息
 //
-//    // ---- 径向数据块 ----
-//    std::vector<RadialDataBlock> radialData;  // 径向数据
-//};
+//     // ---- 径向数据块 ----
+//     std::vector<RadialDataBlock> radialData;  // 径向数据
+// };
 
 class SLBDataV1
 {
@@ -266,8 +265,30 @@ class SLBDataV1
     /// <returns></returns>
     bool convert(const HunanData& src);
 
- public:
+    /// <summary>
+    /// 写入国家标准数据到文件中
+    /// </summary>
+    /// <param name="filename"></param>
+    /// <returns></returns>
+    bool write(const std::string& filename);
 
+    template <typename T>
+    void writeVector(std::ofstream& outFile, const std::vector<T>& vec)
+    {
+        uint32_t size = static_cast<uint32_t>(vec.size());
+        // 先写入vector大小
+        outFile.write(reinterpret_cast<const char*>(&size), sizeof(size));
+        for (const auto& item : vec)
+        {
+            outFile.write(reinterpret_cast<const char*>(&item), sizeof(item));  // 再依次写入每个元素
+        }
+    }
+
+    void writeLayerParam(std::ofstream& outFile, const DataRecordBlock& record);
+
+    void writeRadialDataBlock(std::ofstream& outFile, const RadialDataBlock& record);
+
+  public:
     // ---- 公共数据块 ----
     FileVolume fileVol;                        // 文件卷信息
     SiteInfo siteInfo;                         // 雷达站基本信息
