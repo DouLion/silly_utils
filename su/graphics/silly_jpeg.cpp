@@ -160,7 +160,7 @@ bool silly::jpeg::data::read(const std::string& file)
 {
     bool status = false;
     std::string content;
-    if (silly::file::tools::read(file, content) == 0)
+    if (silly::file::utils::read(file, content) == 0)
     {
         return status;
     }
@@ -175,7 +175,7 @@ bool silly::jpeg::data::write(const std::string& file) const
         return false;
     }
 
-    return silly::file::tools::write(file, content) > 0;
+    return silly::file::utils::write(file, content) > 0;
 }
 bool silly::jpeg::data::decode(const std::string& bin)
 {
