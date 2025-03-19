@@ -55,9 +55,8 @@ bool memory_map::write(memory_map::cur* src, const size_t& size, const size_t& o
     {
         std::unique_lock lock(m_w_mutex);
         // if (!strcpy_s(m_mmap + offset, size, src))
-        if (memcpy(m_mmap + offset, src, size))
+        if (memcpy(m_mmap + offset, src, size) && sync())
         {
-            m_map_len += size;
             status = true;
         }
     }
@@ -83,12 +82,6 @@ bool memory_map::sync()
             return false;
         }
     }
-#ifdef _WIN32
-    if (::FlushFileBuffers(m_hdl_file) == 0)
-    {
-        return false;
-    }
-#endif
     return true;
 }
 void memory_map::close()
@@ -150,13 +143,14 @@ void memory_map::try_map_file()
     const int64_t aligned_offset = make_offset_page_aligned(m_param.offset);
     const int64_t length_to_map = m_param.offset - aligned_offset + length;
     const int64_t max_file_size = m_param.offset + length;
-    m_hdl_map = ::CreateFileMapping(m_hdl_file, 0, m_param.flag == access_mode::Read ? PAGE_READONLY : PAGE_READWRITE, win::int64_high(max_file_size), win::int64_low(max_file_size), 0);
+    DWORD access = m_param.flag == access_mode::Read ? PAGE_READONLY : PAGE_READWRITE;
+    m_hdl_map = ::CreateFileMapping(m_hdl_file, 0, access, win::int64_high(max_file_size), win::int64_low(max_file_size), 0);
     if (m_hdl_map == INVALID_HANDLE_VALUE)
     {
         throw std::runtime_error("Failed to create file mapping");
     }
     // void* mapping_start = ::MapViewOfFile(m_hdl_map, m_param.flag == access_mode::Read ? FILE_MAP_READ : FILE_MAP_WRITE, win::int64_high(aligned_offset), win::int64_low(aligned_offset), length_to_map);
-    void* mapping_start = ::MapViewOfFile(m_hdl_map, m_param.flag == access_mode::Read ? FILE_MAP_READ : FILE_MAP_WRITE, 0, 0, 0);
+    void* mapping_start = ::MapViewOfFile(m_hdl_map, FILE_MAP_ALL_ACCESS, 0, 0, 0);
     if (mapping_start == nullptr)
     {
         // Close file handle if mapping it failed.
@@ -213,9 +207,11 @@ bool memory_map::open_file()
     ss << "OpenFile, 线程: " << std::this_thread::get_id();
     SLOG_DEBUG(ss.str())
 #endif
-    DWORD access = m_param.flag == access_mode::Read ? GENERIC_READ : GENERIC_READ | GENERIC_WRITE;
-
-    m_hdl_file = ::CreateFileW(m_param.path.wstring().c_str(), access, FILE_SHARE_READ | FILE_SHARE_WRITE, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+    DWORD access = GENERIC_READ | GENERIC_WRITE;
+    DWORD share = FILE_SHARE_READ | FILE_SHARE_WRITE;
+    DWORD disposition = OPEN_EXISTING;
+    DWORD attr = FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN;
+    m_hdl_file = ::CreateFileW(m_param.path.wstring().c_str(), access, share, 0, disposition, attr, 0);
     if (m_hdl_file == INVALID_HANDLE_VALUE)
     {
         return false;
@@ -288,17 +284,18 @@ bool memory_map::open(const std::string& file, const int& mode, const int64_t& o
 {
     if (!std::filesystem::exists(file))
     {
+        std::cerr << "文件不存在" << std::endl;
         return false;
     }
-    if (mode != access_mode::Read)
+   /* if (mode != access_mode::Read)
     {
         std::cerr << "目前仅完整支持读取功能" << std::endl;
         return false;
-    }
+    }*/
     m_param.path = std::filesystem::path(file);
     m_param.flag = static_cast<memory_map::access_mode>(m_param.flag);
     m_param.offset = off;
-    m_map_len = file::tools::size(m_param.path.string());
+    m_map_len = file::utils::size(m_param.path.string());
     return open();
 }
 bool memory_map::open(const memory_map::param& p)
