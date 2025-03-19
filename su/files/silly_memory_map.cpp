@@ -55,35 +55,42 @@ bool memory_map::write(memory_map::cur* src, const size_t& size, const size_t& o
     {
         std::unique_lock lock(m_w_mutex);
         // if (!strcpy_s(m_mmap + offset, size, src))
-        if (memcpy(m_mmap + offset, src, size) && sync())
+        if (memcpy(m_mmap + offset, src, size))
         {
-            status = true;
+#ifdef _WIN32
+            if (::FlushViewOfFile(m_mmap + offset, size))
+#else  // POSIX
+            if (::msync(m_mmap  +offset, size, MS_SYNC) != 0)
+#endif
+            {
+                status = true;
+            }
         }
     }
 
     return status;
 }
 
-bool memory_map::sync()
-{
-    if (!is_open())
-    {
-        return false;
-    }
-
-    if (m_mmap)
-    {
-#ifdef _WIN32
-        if (::FlushViewOfFile(m_mmap, m_map_len) == 0 || ::FlushFileBuffers(m_hdl_file) == 0)
-#else  // POSIX
-        if (::msync(m_mmap, m_map_len, MS_SYNC) != 0)
-#endif
-        {
-            return false;
-        }
-    }
-    return true;
-}
+// bool memory_map::sync()
+//{
+//     if (!is_open())
+//     {
+//         return false;
+//     }
+//
+//     if (m_mmap)
+//     {
+// #ifdef _WIN32
+//         if (::FlushViewOfFile(m_mmap, m_map_len) == 0 || ::FlushFileBuffers(m_hdl_file) == 0)
+// #else  // POSIX
+//         if (::msync(m_mmap, m_map_len, MS_SYNC) != 0)
+// #endif
+//         {
+//             return false;
+//         }
+//     }
+//     return true;
+// }
 void memory_map::close()
 {
     if (unmap())
@@ -277,7 +284,7 @@ bool memory_map::is_mapped()
     return m_hdl_map != INVALID_HANDLE_VALUE;
 #else  // POSIX
     return is_open();
-#endif
+#endif 
 }
 
 bool memory_map::open(const std::string& file, const int& mode, const int64_t& off)
@@ -287,11 +294,11 @@ bool memory_map::open(const std::string& file, const int& mode, const int64_t& o
         std::cerr << "文件不存在" << std::endl;
         return false;
     }
-   /* if (mode != access_mode::Read)
-    {
-        std::cerr << "目前仅完整支持读取功能" << std::endl;
-        return false;
-    }*/
+    /* if (mode != access_mode::Read)
+     {
+         std::cerr << "目前仅完整支持读取功能" << std::endl;
+         return false;
+     }*/
     m_param.path = std::filesystem::path(file);
     m_param.flag = static_cast<memory_map::access_mode>(m_param.flag);
     m_param.offset = off;

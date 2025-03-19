@@ -114,7 +114,7 @@ class memory_map
     /// 同步内存文件映射到本地文件
     /// </summary>
     /// <returns></returns>
-    bool sync();
+    // bool sync();
 
     bool unmap();
 
