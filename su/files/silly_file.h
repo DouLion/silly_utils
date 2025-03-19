@@ -59,7 +59,7 @@ class node
     bool is_dir = false;
     std::vector<std::unique_ptr<node>> children;
 };
-class tools
+class utils
 {
   public:
     /// <summary>
@@ -166,5 +166,5 @@ class tools
 }  // namespace file
 }  // namespace silly
 
-using silly_file = silly::file::tools;
+using silly_file = silly::file::utils;
 #endif  // SILLY_UTILS_SILLY_FILE_H

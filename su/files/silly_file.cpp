@@ -29,7 +29,7 @@ std::string _wildcard2regex(const std::string& pattern) {
 }
 
 
-size_t silly::file::tools::read(const std::string &u8path, std::string &content, const size_t &offset, const size_t &len)
+size_t silly::file::utils::read(const std::string &u8path, std::string &content, const size_t &offset, const size_t &len)
 {
     size_t ret_read_size = 0;
     content.clear();
@@ -66,7 +66,7 @@ size_t silly::file::tools::read(const std::string &u8path, std::string &content,
     return ret_read_size;
 }
 
-size_t silly::file::tools::read(const std::string &u8path, unsigned char **content, const size_t &offset, const size_t &len)
+size_t silly::file::utils::read(const std::string &u8path, unsigned char **content, const size_t &offset, const size_t &len)
 {
     size_t read_size = 0;
     if ((*content))  // content 不能有内容
@@ -74,7 +74,7 @@ size_t silly::file::tools::read(const std::string &u8path, unsigned char **conte
         return read_size;
     }
     std::string s_cont;
-    read_size = silly::file::tools::read(u8path, s_cont, offset, len);
+    read_size = silly::file::utils::read(u8path, s_cont, offset, len);
     if (read_size)
     {
         *content = (unsigned char *)malloc(read_size);
@@ -90,7 +90,7 @@ size_t silly::file::tools::read(const std::string &u8path, unsigned char **conte
     return read_size;
 }
 
-bool silly::file::tools::read(const std::string &u8path, std::vector<std::string> &lines)
+bool silly::file::utils::read(const std::string &u8path, std::vector<std::string> &lines)
 {
     std::fstream input;
 #if IS_WIN32
@@ -114,7 +114,7 @@ bool silly::file::tools::read(const std::string &u8path, std::vector<std::string
     return true;
 }
 
-size_t silly::file::tools::write(const std::string &u8path, const std::string &content)
+size_t silly::file::utils::write(const std::string &u8path, const std::string &content)
 {
     size_t write_len = 0;
 #if IS_WIN32
@@ -131,7 +131,7 @@ size_t silly::file::tools::write(const std::string &u8path, const std::string &c
     return content.size();
 }
 
-size_t silly::file::tools::write(const std::string &u8path, const std::vector<std::string> &lines)
+size_t silly::file::utils::write(const std::string &u8path, const std::vector<std::string> &lines)
 {
     size_t write_len = 0;
 #if IS_WIN32
@@ -151,7 +151,7 @@ size_t silly::file::tools::write(const std::string &u8path, const std::vector<st
     return write_len;
 }
 
-std::vector<std::string> silly::file::tools::list(const std::string &u8path, const std::string &filter)
+std::vector<std::string> silly::file::utils::list(const std::string &u8path, const std::string &filter)
 {
     std::vector<std::string> vs_ret_list;
     sfs::path sfp_root(silly_encode::cxx11_string_wstring(u8path));
@@ -190,7 +190,7 @@ std::vector<std::string> silly::file::tools::list(const std::string &u8path, con
     return vs_ret_list;
 }
 
-std::vector<std::string> silly::file::tools::relist(const std::string &u8path, const std::string &filter)
+std::vector<std::string> silly::file::utils::relist(const std::string &u8path, const std::string &filter)
 {
     std::vector<std::string> vs_ret_list;
     sfs::path sfp_root(u8path);
@@ -228,7 +228,7 @@ std::vector<std::string> silly::file::tools::relist(const std::string &u8path, c
     return vs_ret_list;
 }
 
-std::string silly::file::tools::file_filter_regex(const std::string &filter)
+std::string silly::file::utils::file_filter_regex(const std::string &filter)
 {
     std::string s_result;
     for (const auto c : filter)
@@ -248,7 +248,7 @@ std::string silly::file::tools::file_filter_regex(const std::string &filter)
     }
     return s_result;
 }
-size_t silly::file::tools::last_modify_sec(const std::string &u8path)
+size_t silly::file::utils::last_modify_sec(const std::string &u8path)
 {
     size_t stamp = 0;
     try
@@ -278,7 +278,7 @@ size_t silly::file::tools::last_modify_sec(const std::string &u8path)
 
     return stamp;
 }
-size_t silly::file::tools::last_modify_ms(const std::string &u8path)
+size_t silly::file::utils::last_modify_ms(const std::string &u8path)
 {
     size_t stamp = 0;
     try
@@ -310,7 +310,7 @@ size_t silly::file::tools::last_modify_ms(const std::string &u8path)
 
     return stamp;
 }
-size_t silly::file::tools::size(const std::string &u8path)
+size_t silly::file::utils::size(const std::string &u8path)
 {
     size_t file_size = 0;
     std::fstream input;
@@ -330,11 +330,11 @@ size_t silly::file::tools::size(const std::string &u8path)
     file_size = input.tellg();
     return file_size;
 }
-bool silly::file::tools::exist(const std::string &u8path)
+bool silly::file::utils::exist(const std::string &u8path)
 {
     return exist(std::filesystem::path(u8path));
 }
-bool silly::file::tools::exist(const std::filesystem::path &u8path)
+bool silly::file::utils::exist(const std::filesystem::path &u8path)
 {
     try
     {
@@ -346,11 +346,11 @@ bool silly::file::tools::exist(const std::filesystem::path &u8path)
     }
     return false;
 }
-bool silly::file::tools::mkdir(const std::string &u8path)
+bool silly::file::utils::mkdir(const std::string &u8path)
 {
     return mkdir(std::filesystem::path(u8path));
 }
-bool silly::file::tools::mkdir(const std::filesystem::path &u8path)
+bool silly::file::utils::mkdir(const std::filesystem::path &u8path)
 {
     try
     {
@@ -362,11 +362,11 @@ bool silly::file::tools::mkdir(const std::filesystem::path &u8path)
     }
     return false;
 }
-void silly::file::tools::rm(const std::string &u8path)
+void silly::file::utils::rm(const std::string &u8path)
 {
     rm(std::filesystem::path(u8path));
 }
-void silly::file::tools::rm(const std::filesystem::path &u8path)
+void silly::file::utils::rm(const std::filesystem::path &u8path)
 {
     try
     {
@@ -377,11 +377,11 @@ void silly::file::tools::rm(const std::filesystem::path &u8path)
         std::cerr << e.what() << '\n';
     }
 }
-void silly::file::tools::rrm(const std::string &u8path)
+void silly::file::utils::rrm(const std::string &u8path)
 {
     rrm(std::filesystem::path(u8path));
 }
-void silly::file::tools::rrm(const std::filesystem::path &u8path)
+void silly::file::utils::rrm(const std::filesystem::path &u8path)
 {
     try
     {
