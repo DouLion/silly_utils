@@ -162,10 +162,10 @@ bool tzx::dynamic_rule_block::write(const std::string& code, const silly_posix_t
     {
         return false;
     }
-    if (m_code_index.find(code) != m_code_index.end())
+    auto iter = m_code_index.find(code);
+    if (iter != m_code_index.end())
     {
-        size_t index = m_code_index[code];
-        size_t offset = index * CODE_SIZE_PER_YEAR;
+        size_t offset = iter->second * CODE_SIZE_PER_YEAR;
 
         size_t pos = offset + index_in_year(time) * sizeof(cell);
         m_year_mmap[year]->write((char*)&data, sizeof(cell), pos);
@@ -174,8 +174,27 @@ bool tzx::dynamic_rule_block::write(const std::string& code, const silly_posix_t
     return false;
 }
 
-bool tzx::dynamic_rule_block::write(const silly_posix_time& time, const std::vector<std::string, cell>& code_data)
+bool tzx::dynamic_rule_block::write(const silly_posix_time& time, const std::map<std::string, cell>& code_data)
 {
+    std::string year = time.to_string(DTFMT_Y);
+    if (!open_dat(year))
+    {
+        return false;
+    }
+    for (const auto& [code, data] : code_data)
+    {
+        auto iter = m_code_index.find(code);
+        if (iter != m_code_index.end())
+        {
+            size_t offset = iter->second * CODE_SIZE_PER_YEAR;
+
+            size_t pos = offset + index_in_year(time) * sizeof(cell);
+            m_year_mmap[year]->write((char*)&data, sizeof(cell), pos);
+        }
+
+        return true;
+    }
+
     return false;
 }
 
@@ -194,9 +213,22 @@ bool tzx::dynamic_rule_block::open_dat(const std::string& year_str)
     if (m_year_mmap.find(year_str) == m_year_mmap.end())
     {
         std::string file = std::filesystem::path(m_root).append(year_str + DAT_SUFFIX).string();
+        bool reset_file = false;
+        size_t total_size = m_num * CODE_SIZE_PER_YEAR;
         if (!std::filesystem::exists(file))
         {
-            size_t total_size = m_num * CODE_SIZE_PER_YEAR;
+            reset_file = true;
+        }
+        else
+        {
+            if (total_size > std::filesystem::file_size(file))
+            {
+                reset_file = true;
+            }
+        }
+        if (reset_file)
+        {
+          
             std::ofstream ofs(file, std::ios::binary | std::ios::out);
             ofs.seekp(total_size, std::ios::beg);
             ofs.write("EOF", 3);
