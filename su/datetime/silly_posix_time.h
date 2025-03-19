@@ -13,14 +13,25 @@
 #define SILLY_UTILS_SILLY_POSIX_TIME_H
 #include <su_marco.h>
 
-const static char* DATE_FORMAT_1 = "%Y-%m-%d %H:%M:%S";
-const static char* DATE_FORMAT_2 = "%Y%m%d%H";
-const static char* DATE_FORMAT_3 = "%H";
-const static char* DATE_FORMAT_4 = "%Y%m%d%H%M";
-const static char* DATE_FORMAT_5 = "%Y-%m-%d %H:%M";
-const static char* DATE_FORMAT_6 = "%Y%m%d";
-const static char* DATE_FORMAT_7 = "%Y-%m-%d-%H-%M-%S";
-const static char* DATE_FORMAT_8 = "%Y-%m-%d %H:00";
+#define DATE_FORMAT_1 "%Y-%m-%d %H:%M:%S"
+#define DATE_FORMAT_2 "%Y%m%d%H"
+#define DATE_FORMAT_3 "%H"
+#define DATE_FORMAT_4 "%Y%m%d%H%M"
+#define DATE_FORMAT_5 "%Y-%m-%d %H:%M"
+#define DATE_FORMAT_6 "%Y%m%d"
+#define DATE_FORMAT_7 "%Y-%m-%d-%H-%M-%S"
+#define DATE_FORMAT_8 "%Y-%m-%d %H:00"
+#define DTFMT_Y "%Y"
+#define DTFMT_YM "%Y-%m"
+#define DTFMT_YMD "%Y-%m-%d"
+#define DTFMT_YMDH "%Y-%m-%d %H"
+#define DTFMT_YMDHM "%Y-%m-%d %H:%M"
+#define DTFMT_YMDHMS "%Y-%m-%d %H:%M:%S"
+#define DTFMT_YM_P "%Y%m"
+#define DTFMT_YMD_P "%Y%m%d"
+#define DTFMT_YMDH_P "%Y%m%d%H"
+#define DTFMT_YMDHM_P "%Y%m%d%H%M"
+#define DTFMT_YMDHMS_P "%Y%m%d%H%M%S"
 
 using silly_time_stamp = std::time_t;  // 始终以秒为准
 // using silly_time_duration = std::chrono::system_clock::duration;
@@ -58,8 +69,6 @@ class silly_posix_time
     static silly_posix_time now();
     static silly_posix_time time_from_string(const std::string& str, const std::string& fmt = DATE_FORMAT_1);
     static std::string time_to_string(const silly_posix_time& pt, const std::string& fmt = DATE_FORMAT_1);
-
-
 
     bool is_not_a_date_time() const;
     bool from_string(const std::string& str, const std::string& fmt = DATE_FORMAT_1);
