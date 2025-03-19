@@ -5,6 +5,7 @@
 
 #include <geo/silly_geo_coll.h>
 #include <log/silly_log.h>
+#include <geo/proj/gdal/silly_projection_define.h>
 #include "gdal_priv.h"
 
 // 矢量文件后缀名
@@ -33,34 +34,6 @@ namespace geo
 {
 class utils
 {
-  public:
-    enum ProjDef : int
-    {
-        WGS84 = 361,
-        CGCS2000_GAUSS_E75 = 1075,
-        CGCS2000_GAUSS_E78 = 1078,
-        CGCS2000_GAUSS_E81 = 1081,
-        CGCS2000_GAUSS_E84 = 1084,
-        CGCS2000_GAUSS_E87 = 1087,
-        CGCS2000_GAUSS_E90 = 1090,
-        CGCS2000_GAUSS_E93 = 1093,
-        CGCS2000_GAUSS_E96 = 1096,
-        CGCS2000_GAUSS_E99 = 1099,
-        CGCS2000_GAUSS_E102 = 1102,
-        CGCS2000_GAUSS_E105 = 1105,
-        CGCS2000_GAUSS_E108 = 1108,
-        CGCS2000_GAUSS_E111 = 1111,
-        CGCS2000_GAUSS_E114 = 1114,
-        CGCS2000_GAUSS_E117 = 1117,
-        CGCS2000_GAUSS_E120 = 1120,
-        CGCS2000_GAUSS_E123 = 1123,
-        CGCS2000_GAUSS_E126 = 1126,
-        CGCS2000_GAUSS_E129 = 1129,
-        CGCS2000_GAUSS_E132 = 1132,
-        CGCS2000_GAUSS_E135 = 1135
-
-    };
-
   public:
     /// <summary>
     /// 初始化 GDAL 环境,只需要初始化一次
@@ -110,7 +83,7 @@ class utils
     /// <param name="collection"></param>
     /// <returns></returns>
     /// 注:写入 shp , geojson 类型文件中经测试可以实现
-    static bool write_geo_coll(const std::string& u8file, const std::vector<silly_geo_coll>& collections, const ProjDef& prj = WGS84);
+    static bool write_geo_coll(const std::string& u8file, const std::vector<silly_geo_coll>& collections, const proj::CRS::type& prj = proj::CRS::GCS_WGS_1984);
 
     /// <summary>
     /// 是否为一个标准的shp文件
@@ -366,8 +339,6 @@ class utils
     static silly_geo_coll buffer(const silly_geo_coll& coll, const double& distance);
 
 #if ENABLE_GDAL
-
-    static OGRSpatialReference get_proj_def(const ProjDef& def);
 
     /// <summary>
     /// 读取shp文件

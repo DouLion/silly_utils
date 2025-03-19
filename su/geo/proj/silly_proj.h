@@ -6,7 +6,7 @@
  * @date: 2024/6/7 13:01
  * @version: 1.0.1
  * @description:
- *  验证数据  
+ *  验证数据
  *  121.5065,31.24396,10.0535
     地心坐标转化
     -2852335.3220309215,4653403.1465016846,3289053.8583770543
@@ -34,7 +34,9 @@ namespace silly
 namespace geo
 {
 
-class proj
+namespace proj
+{
+class convert
 {
   public:
     struct param
@@ -47,6 +49,35 @@ class proj
         double major_axis{silly::geo::WGS84::A};
         // 扁率
         double flatten{silly::geo::WGS84::F};
+    };
+    struct point2d
+    {
+        double x{0.0};
+        double y{0.0};
+    };
+    struct point3d
+    {
+        double x{0.0};
+        double y{0.0};
+        double z{0.0};
+    };
+    struct pfour  // 4参数
+    {
+        double dx{0.0};  // x偏移
+        double dy{0.0};  // y偏移
+        double r{0.0};   // 旋转 弧度
+        double s{0.0};   // 缩放
+    };
+
+    struct helmert  // 7参数
+    {
+        double dx = 0.;
+        double dy = 0.;
+        double dz = 0.;
+        double rx = 0.;
+        double ry = 0.;
+        double rz = 0.;
+        double s = 0.;
     };
 
   public:
@@ -147,7 +178,7 @@ class proj
     static void gauss_to_mercator(const double& central, const double& gx, const double& gy, double& mctx, double& mcty);
 
     /// <summary>
-    /// 地心地固直角坐标系 转 经纬高坐标系
+    /// 地心地固直角(XYZ)坐标系 转 经纬高(LBH)坐标系
     /// </summary>
     /// <param name="x"></param>
     /// <param name="y"></param>
@@ -158,7 +189,7 @@ class proj
     static void ecef_to_lonlat(const double& x, const double& y, const double& z, double& lon, double& lat, double& height);
 
     /// <summary>
-    /// 经纬高坐标系 转 地心地固直角坐标系
+    /// 经纬高(LBH)坐标系 转 地心地固直角(XYZ)坐标系
     /// </summary>
     /// <param name="lon"></param>
     /// <param name="lat"></param>
@@ -168,8 +199,39 @@ class proj
     /// <param name="z"></param>
     static void lonlat_to_ecef(const double& lon, const double& lat, const double& height, double& x, double& y, double& z);
 
-  private:
+    /// <summary>
+    /// 根据测量点集和参考点集构建4参数
+    /// </summary>
+    /// <param name="measures">测量点</param>
+    /// <param name="origins">参考点</param>
+    /// <returns></returns>
+    static pfour build(const std::vector<point2d>& measures, const std::vector<point2d>& origins);
+
+    /// <summary>
+    /// 根据4参数,将测量点转换为参考点
+    /// </summary>
+    /// <param name="meas">测量点</param>
+    /// <param name="p4">四参数</param>
+    /// <returns></returns>
+    static point2d trans(const point2d& meas, const pfour& p4);
+
+    /// <summary>
+    ///  根据测量点集和参考点集 构建7参数
+    /// </summary>
+    /// <param name="measures">测量点</param>
+    /// <param name="origins">参考点</param>
+    /// <returns></returns>
+    static helmert build(const std::vector<point3d>& measures, const std::vector<point3d>& origins);
+
+    /// <summary>
+    /// 根据7参数,将测量点转换为参考点
+    /// </summary>
+    /// <param name="meas"></param>
+    /// <param name="p7">七参数</param>
+    /// <returns></returns>
+    static point3d trans(const point3d& meas, const helmert& p7);
 };
+}  // namespace proj
 
 }  // namespace geo
 }  // namespace silly

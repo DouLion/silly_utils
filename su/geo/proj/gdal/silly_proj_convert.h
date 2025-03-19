@@ -10,37 +10,27 @@
 #ifndef SILLY_UTILS_SILLY_PROJ_CONVERT_H
 #define SILLY_UTILS_SILLY_PROJ_CONVERT_H
 #include <geo/proj/gdal/silly_projection_define.h>
-#if ENABLE_GDAL
-#include <gdal_priv.h>
-#include <gdal_alg.h>
-#include <ogr_spatialref.h>
-#include <cpl_conv.h>
-#endif
 
-struct spc_srs_param
+namespace silly
 {
-    silly_proj_def_enum wk_num;
-    double central{114.0};
-};
+namespace geo
+{
+namespace proj
+{
 
-struct silly_proj_param
-{
-    spc_srs_param from;
-    spc_srs_param to;
-};
-class silly_proj_convert
+class gdal_convert
 {
     friend class silly_projection_define;
 
   public:
-    silly_proj_convert() = default;
-    ~silly_proj_convert();
+    gdal_convert();
+    ~gdal_convert();
     /// <summary>
     /// 根据参数构建转换
     /// </summary>
     /// <param name="p"></param>
     /// <returns></returns>
-    bool begin(const silly_proj_param &p);
+    bool begin(const CRS::type &from, const CRS::type &to);
 
     bool convert(const double &fromX, const double &fromY, double &toX, double &toY);
     bool convert(const std::vector<double> &fromX, const std::vector<double> &fromY, std::vector<double> &toX, std::vector<double> &toY);
@@ -56,5 +46,8 @@ class silly_proj_convert
     OGRCoordinateTransformation *m_poTransform{nullptr};
 #endif
 };
+}  // namespace proj
+}  // namespace geo
+}  // namespace silly
 
 #endif  // SILLY_UTILS_SILLY_PROJ_CONVERT_H

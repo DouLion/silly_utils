@@ -12,40 +12,26 @@
 //
 
 #include "silly_proj_convert.h"
-#include <log/silly_log.h>
-#if ENABLE_GDAL
-static OGRSpatialReference spc_build_srs(const spc_srs_param& ssp)
-{
-    bool status = false;
-
-    OGRSpatialReference res_srs;
-    if (!(res_srs.importFromWkt(silly_projection_define::get(ssp.wk_num)) == OGRERR_NONE))
-    {
-        SLOG_ERROR("\n地理坐标系统: {} , 参数设置错误\n", static_cast<int>(ssp.wk_num))
-    }
-
-    return res_srs;
-}
-#endif
-silly_proj_convert::~silly_proj_convert()
+using namespace silly::geo::proj;
+gdal_convert::~gdal_convert()
 {
     close();
 }
-bool silly_proj_convert::begin(const silly_proj_param& p)
+bool gdal_convert::begin(const CRS::type& from, const CRS::type& to)
 {
     bool status = false;
 #if ENABLE_GDAL
-    OGRSpatialReference src_srs = spc_build_srs(p.from);
-    OGRSpatialReference dst_srs = spc_build_srs(p.to);
+    const OGRSpatialReference src_srs = CRS::reference(from);
+    const OGRSpatialReference dst_srs = CRS::reference(to);
     m_poTransform = OGRCreateCoordinateTransformation(&src_srs, &dst_srs);
     if (status = (m_poTransform == nullptr))
     {
-        SLOG_ERROR("\n地理坐标系统转换: {} -> {}, 构建错误错误\n", static_cast<int>(p.from.wk_num), static_cast<int>(p.to.wk_num))
+        SLOG_ERROR("\n地理坐标系统转换: {} -> {}, 构建错误错误\n", static_cast<int>(from), static_cast<int>(to))
     }
 #endif
     return status;
 }
-bool silly_proj_convert::convert(const double& fromX, const double& fromY, double& toX, double& toY)
+bool gdal_convert::convert(const double& fromX, const double& fromY, double& toX, double& toY)
 {
     bool status = false;
 #if ENABLE_GDAL
@@ -67,7 +53,7 @@ bool silly_proj_convert::convert(const double& fromX, const double& fromY, doubl
     return status;
 }
 
-bool silly_proj_convert::convert(const std::vector<double>& fromX, const std::vector<double>& fromY, std::vector<double>& toX, std::vector<double>& toY)
+bool gdal_convert::convert(const std::vector<double>& fromX, const std::vector<double>& fromY, std::vector<double>& toX, std::vector<double>& toY)
 {
     bool status = false;
 #if ENABLE_GDAL
@@ -93,7 +79,7 @@ bool silly_proj_convert::convert(const std::vector<double>& fromX, const std::ve
 #endif
     return status;
 }
-bool silly_proj_convert::close()
+bool gdal_convert::close()
 {
 #if ENABLE_GDAL
     if (m_poTransform)

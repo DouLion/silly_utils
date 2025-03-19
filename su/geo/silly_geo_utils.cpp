@@ -801,105 +801,6 @@ OGRFieldType convertToOGRFieldType(const silly_geo_prop::enum_prop_type& type)
     return result;
 }
 
-OGRSpatialReference utils::get_proj_def(const ProjDef& def)
-{
-    OGRSpatialReference ret;
-    switch (def)
-    {
-        case ProjDef::CGCS2000_GAUSS_E75:
-            ret.SetWellKnownGeogCS("EPSG:4534");
-            ret.SetFromUserInput("+proj=tmerc +lat_0=0 +lon_0=75 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs");
-            break;
-        case ProjDef::CGCS2000_GAUSS_E78:
-            ret.SetWellKnownGeogCS("EPSG:4535");
-            ret.SetFromUserInput("+proj=tmerc +lat_0=0 +lon_0=78 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs");
-            break;
-        case ProjDef::CGCS2000_GAUSS_E81:
-            ret.SetWellKnownGeogCS("EPSG:4536");
-            ret.SetFromUserInput("+proj=tmerc +lat_0=0 +lon_0=81 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs");
-            break;
-        case ProjDef::CGCS2000_GAUSS_E84:
-            ret.SetWellKnownGeogCS("EPSG:4537");
-            ret.SetFromUserInput("+proj=tmerc +lat_0=0 +lon_0=84 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs");
-            break;
-        case ProjDef::CGCS2000_GAUSS_E87:
-            ret.SetWellKnownGeogCS("EPSG:4538");
-            ret.SetFromUserInput("+proj=tmerc +lat_0=0 +lon_0=87 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs");
-            break;
-        case ProjDef::CGCS2000_GAUSS_E90:
-            ret.SetWellKnownGeogCS("EPSG:4539");
-            ret.SetFromUserInput("+proj=tmerc +lat_0=0 +lon_0=90 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs");
-            break;
-        case ProjDef::CGCS2000_GAUSS_E93:
-            ret.SetWellKnownGeogCS("EPSG:4540");
-            ret.SetFromUserInput("+proj=tmerc +lat_0=0 +lon_0=93 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs");
-            break;
-        case ProjDef::CGCS2000_GAUSS_E96:
-            ret.SetWellKnownGeogCS("EPSG:4541");
-            ret.SetFromUserInput("+proj=tmerc +lat_0=0 +lon_0=96 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs");
-            break;
-        case ProjDef::CGCS2000_GAUSS_E99:
-            ret.SetWellKnownGeogCS("EPSG:4542");
-            ret.SetFromUserInput("+proj=tmerc +lat_0=0 +lon_0=99 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs");
-            break;
-        case ProjDef::CGCS2000_GAUSS_E102:
-            ret.SetWellKnownGeogCS("EPSG:4543");
-            ret.SetFromUserInput("+proj=tmerc +lat_0=0 +lon_0=102 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs");
-            break;
-        case ProjDef::CGCS2000_GAUSS_E105:
-            ret.SetWellKnownGeogCS("EPSG:4544");
-            ret.SetFromUserInput("+proj=tmerc +lat_0=0 +lon_0=105 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs");
-            break;
-        case ProjDef::CGCS2000_GAUSS_E108:
-            ret.SetWellKnownGeogCS("EPSG:4545");
-            ret.SetFromUserInput("+proj=tmerc +lat_0=0 +lon_0=108 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs");
-            break;
-        case ProjDef::CGCS2000_GAUSS_E111:
-            ret.SetWellKnownGeogCS("EPSG:4546");
-            ret.SetFromUserInput("+proj=tmerc +lat_0=0 +lon_0=111 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs");
-            break;
-        case ProjDef::CGCS2000_GAUSS_E114:
-            ret.SetWellKnownGeogCS("EPSG:4547");
-            ret.SetFromUserInput("+proj=tmerc +lat_0=0 +lon_0=114 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs");
-            break;
-        case ProjDef::CGCS2000_GAUSS_E117:
-            ret.SetWellKnownGeogCS("EPSG:4548");
-            ret.SetFromUserInput("+proj=tmerc +lat_0=0 +lon_0=117 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs");
-            break;
-        case ProjDef::CGCS2000_GAUSS_E120:
-            ret.SetWellKnownGeogCS("EPSG:4549");
-            ret.SetFromUserInput("+proj=tmerc +lat_0=0 +lon_0=120 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs");
-            break;
-        case ProjDef::CGCS2000_GAUSS_E123:
-            ret.SetWellKnownGeogCS("EPSG:4550");
-            ret.SetFromUserInput("+proj=tmerc +lat_0=0 +lon_0=123 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs");
-            break;
-        case ProjDef::CGCS2000_GAUSS_E126:
-            ret.SetWellKnownGeogCS("EPSG:4551");
-            ret.SetFromUserInput("+proj=tmerc +lat_0=0 +lon_0=126 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs");
-            break;
-        case ProjDef::CGCS2000_GAUSS_E129:
-            ret.SetWellKnownGeogCS("EPSG:4552");
-            ret.SetFromUserInput("+proj=tmerc +lat_0=0 +lon_0=129 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs");
-            break;
-        case ProjDef::CGCS2000_GAUSS_E132:
-            ret.SetWellKnownGeogCS("EPSG:4553");
-            ret.SetFromUserInput("+proj=tmerc +lat_0=0 +lon_0=132 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs");
-            break;
-        case ProjDef::CGCS2000_GAUSS_E135:
-          
-            ret.SetWellKnownGeogCS("EPSG:4554");
-            ret.SetFromUserInput("+proj=tmerc +lat_0=0 +lon_0=135 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs");
-            break;
-        case ProjDef::WGS84:
-        default:
-            ret.SetWellKnownGeogCS("WGS84");                         // 设置WGS84地理坐标系
-            ret.SetFromUserInput("+proj=longlat +datum=WGS84 +no_defs");
-            ret.SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);  // 强制经度-纬度顺序
-            break;
-    }
-    return ret;
-}
 
 #endif
 // 添加属性到shp中
@@ -1062,7 +963,7 @@ static bool wire_all_types_data(const enum_geometry_type coll_type, OGRLayer* ou
     return false;
 }
 
-bool utils::write_geo_coll(const std::string& u8file, const std::vector<silly_geo_coll>& collections, const ProjDef& prj)
+bool utils::write_geo_coll(const std::string& u8file, const std::vector<silly_geo_coll>& collections, const proj::CRS::type& prj)
 {
     bool status = false;
 #if ENABLE_GDAL
@@ -1099,7 +1000,7 @@ bool utils::write_geo_coll(const std::string& u8file, const std::vector<silly_ge
         SLOG_ERROR("创建输出文件失败");
         return false;
     }
-    OGRSpatialReference ref = get_proj_def(prj);
+    OGRSpatialReference ref = proj::CRS::reference(prj);
     OGRLayer* outputLayer = outputData->CreateLayer(LayerName.c_str(), &ref, wkbUnknown, nullptr);
     if (outputLayer == nullptr)
     {
@@ -1389,7 +1290,7 @@ double utils::area_sqkm(const std::vector<silly_point>& points)
     for (auto p : points)
     {
         silly_point tmp;
-        proj::lonlat_to_gauss(central, p.x, p.y, tmp.y, tmp.x);
+        proj::convert::lonlat_to_gauss(central, p.x, p.y, tmp.y, tmp.x);
         gpoints.push_back(tmp);
     }
     return area(gpoints) / 1e6;

@@ -5,158 +5,104 @@
  * @author: dou li yang
  * @date: 2024/6/7 13:02
  * @version: 1.0.1
- * @description:
+ * @description: https://epsg.io/4534
  */
 //
 // Created by dell on 2024/6/7. 实现
 //
 
 #include "silly_projection_define.h"
+using namespace silly::geo::proj;
 
-char *silly_projection_define::epsg3857Wkt =
-    "PROJCS[\"WGS 84 / Pseudo-Mercator\","
-    "GEOGCS[\"WGS 84\","
-    "DATUM[\"WGS_1984\","
-    "SPHEROID[\"WGS 84\",6378137,298.257223563,"
-    "AUTHORITY[\"EPSG\",\"7030\"]],"
-    "AUTHORITY[\"EPSG\",\"6326\"]],"
-    "PRIMEM[\"Greenwich\",0,"
-    "AUTHORITY[\"EPSG\",\"8901\"]],"
-    "UNIT[\"degree\",0.0174532925199433,"
-    "AUTHORITY[\"EPSG\",\"9122\"]],"
-    "AUTHORITY[\"EPSG\",\"4326\"]],"
-    "PROJECTION[\"Mercator_1SP\"],"
-    "PARAMETER[\"central_meridian\",0],"
-    "PARAMETER[\"scale_factor\",1],"
-    "PARAMETER[\"false_easting\",0],"
-    "PARAMETER[\"false_northing\",0],"
-    "UNIT[\"metre\",1,"
-    "AUTHORITY[\"EPSG\",\"9001\"]],"
-    "AXIS[\"X\",EAST],"
-    "AXIS[\"Y\",NORTH],"
-    "EXTENSION[\"PROJ4\",\"+proj=merc +datum=WGS84 +ellps=WGS84 "
-    "+towgs84=0,0,0 +units=m +no_defs\"],"
-    "AUTHORITY[\"EPSG\",\"3857\"]]";
-
-char *silly_projection_define::epsg4326Wkt =
-    "GEOGCS[\"WGS 84\","
-    "DATUM[\"WGS_1984\","
-    "SPHEROID[\"WGS 84\",6378137,298.257223563,"
-    "AUTHORITY[\"EPSG\",\"7030\"]],"
-    "AUTHORITY[\"EPSG\",\"6326\"]],"
-    "PRIMEM[\"Greenwich\",0,"
-    "AUTHORITY[\"EPSG\",\"8901\"]],"
-    "UNIT[\"degree\",0.0174532925199433,"
-    "AUTHORITY[\"EPSG\",\"9122\"]],"
-    "AUTHORITY[\"EPSG\",\"4326\"]]";
-
-/*
- * 这段代码表示关于"Beijing 2000"地理坐标系统的参数设置。
- * 它包括了关于椭球体（Spheroid）和大地基准（Datum）的信息，
- * 以及基准经线（Prime Meridian）、单位（Unit）和
- * EPSG（European Petroleum Survey Group）的授权信息。
- * */
-char *silly_projection_define::epsg4490Wkt =
-    "GEOGCS[\"China Geodetic Coordinate System 2000\","
-    "DATUM[\"China_2000\","
-    "SPHEROID[\"CGCS2000\",6378137,298.257222101,"
-    "AUTHORITY[\"EPSG\",\"1024\"]],"
-    "AUTHORITY[\"EPSG\",\"1043\"]],"
-    "PRIMEM[\"Greenwich\",0,"
-    "AUTHORITY[\"EPSG\",\"8901\"]],"
-    "UNIT[\"degree\",0.0174532925199433,"
-    "AUTHORITY[\"EPSG\",\"9122\"]],"
-    "AUTHORITY[\"EPSG\",\"4490\"]]";
-
-char *silly_projection_define::epsg4610Wkt =
-    "GEOGCS[\"Xian 1980\","
-    "DATUM[\"Xian_1980\","
-    "SPHEROID[\"IAG 1975\",6378140,298.257,"
-    "AUTHORITY[\"EPSG\",\"7049\"]],"
-    "AUTHORITY[\"EPSG\",\"6610\"]],"
-    "PRIMEM[\"Greenwich\",0,"
-    "AUTHORITY[\"EPSG\",\"8901\"]],"
-    "UNIT[\"degree\",0.0174532925199433,"
-    "AUTHORITY[\"EPSG\",\"9122\"]],"
-    "AUTHORITY[\"EPSG\",\"4610\"]]";
-
-char *silly_projection_define::epsg4214Wkt =
-    "GEOGCS[\"Beijing 1954\","
-    "DATUM[\"Beijing_1954\","
-    "SPHEROID[\"Krassowsky 1940\",6378245,298.3],"
-    "TOWGS84[15.8,-154.4,-82.3,0,0,0,0]],"
-    "PRIMEM[\"Greenwich\",0,"
-    "AUTHORITY[\"EPSG\",\"8901\"]],"
-    "UNIT[\"degree\",0.0174532925199433,"
-    "AUTHORITY[\"EPSG\",\"9122\"]],"
-    "AUTHORITY[\"EPSG\",\"4214\"]]";
-
-char *silly_projection_define::epsgGC03Wkt =
-    "PROJCS[\"Gauss_Kruger_3_Degree_Zone_37\","
-    "GEOGCS[\"GCS_GK_3\","
-    "DATUM[\"D_GK_3\", "
-    "SPHEROID[\"GRS_1980\",6378137,298.257222101]],"
-    "PRIMEM[\"Greenwich\",0],"
-    "UNIT[\"Degree\",0.0174532925199433]],"
-    "PROJECTION[\"Transverse_Mercator\"],"
-    "PARAMETER[\"false_easting\",500000],"
-    "PARAMETER[\"false_northing\",0],"
-    "PARAMETER[\"central_meridian\",111],"
-    "PARAMETER[\"scale_factor\",1],"
-    "PARAMETER[\"latitude_of_origin\",0],"
-    "UNIT[\"Meter\",1]]";
-
-const char *silly_projection_define::get(const silly_proj_def_enum &def)
+const std::string CRS::wkt(const type &def)
 {
-    char *result;
-    switch (def)
-    {
-        case silly_proj_def_enum::GCS_WGS_1984:
-            result = epsg4326Wkt;
-            break;
-        case silly_proj_def_enum::PCS_WGS_1984_WEB_MERCATOR:
-            result = epsg3857Wkt;
-            break;
-        case silly_proj_def_enum::GCS_CHINA_2000:
-            result = epsg4490Wkt;
-            break;
-        case silly_proj_def_enum::GCS_XIAN_1980:
-            result = epsg4610Wkt;
-            break;
-        case silly_proj_def_enum::GCS_BEIJING_1954:
-            result = epsg4214Wkt;
-            break;
-        case silly_proj_def_enum::Gauss_Kruger_3:
-            result = epsgGC03Wkt;
-            break;
-        case silly_proj_def_enum::GCJ02_MC:
-        case silly_proj_def_enum::BaiDu09_LL:
-        case silly_proj_def_enum::GCJ02_LL:
-        case silly_proj_def_enum::Baidu09_MC:
-        default:
-            break;
-    }
-    return "";
+    std::string ret;
+
+    return ret;
 }
-const char *silly_projection_define::get(const int &def)
+const std::string CRS::proj4(const type &def)
 {
-    switch (def)
-    {
-        case 4326:
-            return epsg4326Wkt;
-        case 3857:
-            return epsg3857Wkt;
-        case 4490:
-            return epsg4490Wkt;
-        case 4610:
-            return epsg4610Wkt;
-        case 4214:
-            return epsg4214Wkt;
-        case 910102:
-        case 910101:
-        case 910112:
-        case 910111:
-        default:
-            return "";
-    }
+    std::string ret;
+
+    return ret;
 }
+#if ENABLE_GDAL
+const OGRSpatialReference CRS::reference(const type &def)
+{
+    OGRSpatialReference ret;
+
+    return ret;
+}
+#endif
+
+std::string CRS::EPSG3857WKT = R"()";
+std::string CRS::EPSG3857PROJ4 = R"(+proj=merc +a=6378137 +b=6378137 +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +k=1 +units=m +nadgrids=@null +wktext +no_defs)";
+
+std::string CRS::EPSG4326WKT = R"()";
+std::string CRS::EPSG4326PROJ4 = R"(+proj=longlat +datum=WGS84 +no_defs)";
+
+std::string CRS::EPSG4490WKT = R"()";
+std::string CRS::EPSG4490PROJ4 = R"(+proj=longlat +ellps=GRS80 +no_defs)";
+
+std::string CRS::EPSG4534WKT = R"()";
+std::string CRS::EPSG4534PROJ4 = R"(+proj=tmerc +lat_0=0 +lon_0=75 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs)";
+
+std::string CRS::EPSG4535WKT = R"()";
+std::string CRS::EPSG4535PROJ4 = R"(+proj=tmerc +lat_0=0 +lon_0=78 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs)";
+
+std::string CRS::EPSG4536WKT = R"()";
+std::string CRS::EPSG4536PROJ4 = R"(+proj=tmerc +lat_0=0 +lon_0=81 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs)";
+
+std::string CRS::EPSG4537WKT = R"()";
+std::string CRS::EPSG4537PROJ4 = R"(+proj=tmerc +lat_0=0 +lon_0=84 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs)";
+
+std::string CRS::EPSG4538WKT = R"()";
+std::string CRS::EPSG4538PROJ4 = R"(+proj=tmerc +lat_0=0 +lon_0=87 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs)";
+
+std::string CRS::EPSG4539WKT = R"()";
+std::string CRS::EPSG4539PROJ4 = R"(+proj=tmerc +lat_0=0 +lon_0=90 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs)";
+
+std::string CRS::EPSG4540WKT = R"()";
+std::string CRS::EPSG4540PROJ4 = R"(+proj=tmerc +lat_0=0 +lon_0=93 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs)";
+
+std::string CRS::EPSG4541WKT = R"()";
+std::string CRS::EPSG4541PROJ4 = R"(+proj=tmerc +lat_0=0 +lon_0=96 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs)";
+
+std::string CRS::EPSG4542WKT = R"()";
+std::string CRS::EPSG4542PROJ4 = R"(+proj=tmerc +lat_0=0 +lon_0=99 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs)";
+
+std::string CRS::EPSG4543WKT = R"()";
+std::string CRS::EPSG4543PROJ4 = R"(+proj=tmerc +lat_0=0 +lon_0=102 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs)";
+
+std::string CRS::EPSG4544WKT = R"()";
+std::string CRS::EPSG4544PROJ4 = R"(+proj=tmerc +lat_0=0 +lon_0=105 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs)";
+
+std::string CRS::EPSG4545WKT = R"()";
+std::string CRS::EPSG4545PROJ4 = R"(+proj=tmerc +lat_0=0 +lon_0=108 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs)";
+
+std::string CRS::EPSG4546WKT = R"()";
+std::string CRS::EPSG4546PROJ4 = R"(+proj=tmerc +lat_0=0 +lon_0=111 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs)";
+
+std::string CRS::EPSG4547WKT = R"()";
+std::string CRS::EPSG4547PROJ4 = R"(+proj=tmerc +lat_0=0 +lon_0=114 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs)";
+
+std::string CRS::EPSG4548WKT = R"()";
+std::string CRS::EPSG4548PROJ4 = R"(+proj=tmerc +lat_0=0 +lon_0=117 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs)";
+
+std::string CRS::EPSG4549WKT = R"()";
+std::string CRS::EPSG4549PROJ4 = R"(+proj=tmerc +lat_0=0 +lon_0=120 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs)";
+
+std::string CRS::EPSG4550WKT = R"()";
+std::string CRS::EPSG4550PROJ4 = R"(+proj=tmerc +lat_0=0 +lon_0=123 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs)";
+
+std::string CRS::EPSG4551WKT = R"()";
+std::string CRS::EPSG4551PROJ4 = R"(+proj=tmerc +lat_0=0 +lon_0=126 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs)";
+
+std::string CRS::EPSG4552WKT = R"()";
+std::string CRS::EPSG4552PROJ4 = R"(+proj=tmerc +lat_0=0 +lon_0=129 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs)";
+
+std::string CRS::EPSG4553WKT = R"()";
+std::string CRS::EPSG4553PROJ4 = R"(+proj=tmerc +lat_0=0 +lon_0=132 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs)";
+
+std::string CRS::EPSG4554WKT = R"()";
+std::string CRS::EPSG4554PROJ4 = R"(+proj=tmerc +lat_0=0 +lon_0=135 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs)";
