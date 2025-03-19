@@ -14,7 +14,7 @@
 namespace radar
 {
 
-typedef enum output_format_t
+enum output_format_t
 {
     CF_NETCDF = 0,
     ZEBRA_NETCDF = 1,
@@ -22,7 +22,7 @@ typedef enum output_format_t
     CEDRIC = 3
 };
 
-typedef enum interp_mode_t
+enum interp_mode_t
 {
     INTERP_MODE_CART = 0,
     INTERP_MODE_PPI = 1,
@@ -31,7 +31,7 @@ typedef enum interp_mode_t
     INTERP_MODE_CART_SAT = 4
 };
 
-typedef enum projection_t
+enum projection_t
 {
     PROJ_LATLON = 0,
     PROJ_LAMBERT_CONF = 3,
@@ -45,7 +45,7 @@ typedef enum projection_t
     PROJ_VERT_PERSP = 18
 };
 
-typedef enum interp_transform_t
+enum interp_transform_t
 {
     TRANSFORM_DB_TO_LINEAR = 0,
     TRANSFORM_DB_TO_LINEAR_AND_BACK = 1,
@@ -53,13 +53,13 @@ typedef enum interp_transform_t
     TRANSFORM_LINEAR_TO_DB_AND_BACK = 3
 };
 
-typedef enum logical_t
+enum logical_t
 {
     LOGICAL_AND = 0,
     LOGICAL_OR = 1
 };
 
-typedef enum netcdf_style_t
+enum netcdf_style_t
 {
     CLASSIC = 0,
     NC64BIT = 1,
@@ -69,14 +69,14 @@ typedef enum netcdf_style_t
 
 // struct typedefs
 
-typedef struct grid_z_geom_t
+struct grid_z_geom_t
 {
     int nz;
     double minz;
     double dz;
 };
 
-typedef struct grid_xy_geom_t
+struct grid_xy_geom_t
 {
     int nx = 0;
     int ny = 0;
@@ -86,13 +86,13 @@ typedef struct grid_xy_geom_t
     double dy = 0.0;
 };
 
-typedef struct select_field_t
+struct select_field_t
 {
     std::string input_name;
     tdrp_bool_t process_this_field;
 };
 
-typedef struct transform_field_t
+struct transform_field_t
 {
     std::string input_name;
     std::string output_name;
@@ -100,7 +100,7 @@ typedef struct transform_field_t
     interp_transform_t transform;
 };
 
-typedef struct fold_field_t
+struct fold_field_t
 {
     std::string input_name;
     tdrp_bool_t field_folds;
@@ -109,19 +109,19 @@ typedef struct fold_field_t
     double fold_limit_upper;
 };
 
-typedef struct discrete_field_t
+struct discrete_field_t
 {
     std::string input_name;
     tdrp_bool_t is_discrete;
 };
 
-typedef struct rename_field_t
+struct rename_field_t
 {
     std::string input_name;
     std::string output_name;
 };
 
-typedef struct angle_fields_t
+struct angle_fields_t
 {
     std::string azimuth_field_name;
     std::string elevation_field_name;
@@ -130,7 +130,7 @@ typedef struct angle_fields_t
     std::string gamma_field_name;
 };
 
-typedef struct censoring_field_t
+struct censoring_field_t
 {
     std::string name;
     double min_valid_value;
@@ -138,7 +138,7 @@ typedef struct censoring_field_t
     logical_t combination_method;
 };
 
-typedef struct bound_field_t
+struct bound_field_t
 {
     std::string input_name;
     double min_value;

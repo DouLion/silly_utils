@@ -69,19 +69,19 @@ bool silly_radar_occluder::dem2polar(const silly_point& center, const double& ra
     // 中心点
     silly_point center_point(center.x, center.y);
     // 中心点坐标转高斯坐标
-    silly::geo::proj::lonlat_to_gauss(central_lgtd, center.x, center.y, m_center.x, m_center.y);
+    silly::geo::proj::convert::lonlat_to_gauss(central_lgtd, center.x, center.y, m_center.x, m_center.y);
 
     silly_point gs_left_top;      // 左上 高斯
     silly_point gs_right_bottom;  // 右下 高斯
-    silly::geo::proj::lonlat_to_gauss(central_lgtd, left_top.x, left_top.y, gs_left_top.x, gs_left_top.y);
-    silly::geo::proj::lonlat_to_gauss(central_lgtd, right_bottom.x, right_bottom.y, gs_right_bottom.x, gs_right_bottom.y);
+    silly::geo::proj::convert::lonlat_to_gauss(central_lgtd, left_top.x, left_top.y, gs_left_top.x, gs_left_top.y);
+    silly::geo::proj::convert::lonlat_to_gauss(central_lgtd, right_bottom.x, right_bottom.y, gs_right_bottom.x, gs_right_bottom.y);
     // 手动填入
     // silly_point gs_right_top(gs_right_bottom.x, gs_left_top.y);
     // silly_point gs_left_bottom(gs_left_top.x, gs_right_bottom.y);
     silly_point gs_right_top;    // 右上 高斯
     silly_point gs_left_bottom;  // 左下 高斯
-    silly::geo::proj::lonlat_to_gauss(central_lgtd, right_top.x, right_top.y, gs_right_top.x, gs_right_top.y);
-    silly::geo::proj::lonlat_to_gauss(central_lgtd, left_bottom.x, left_bottom.y, gs_left_bottom.x, gs_left_bottom.y);
+    silly::geo::proj::convert::lonlat_to_gauss(central_lgtd, right_top.x, right_top.y, gs_right_top.x, gs_right_top.y);
+    silly::geo::proj::convert::lonlat_to_gauss(central_lgtd, left_bottom.x, left_bottom.y, gs_left_bottom.x, gs_left_bottom.y);
 
     // 计算横向分辨率,米  / 计算纵向分辨率,米
     // double xResMeters = sqrt((gs_right_top.x - gs_right_bottom.x) * (gs_right_top.x - gs_right_bottom.x) + (gs_right_top.y - gs_right_bottom.y) * (gs_right_top.y - gs_right_bottom.y));
@@ -126,7 +126,7 @@ bool silly_radar_occluder::dem2polar(const silly_point& center, const double& ra
             //// 高斯转经纬度
             // double lon = 0.0, lat = 0.0;
             // silly_point gs_point(x, y);
-            // silly::geo::proj::gauss_to_lonlat(central_lgtd, x, y, lon, lat);
+            // silly::geo::proj::convert::gauss_to_lonlat(central_lgtd, x, y, lon, lat);
             //// 将经纬度转换为栅格索引
             // int col = static_cast<int>((lon - min_x) / abx_x_res);
             // int row = static_cast<int>((lat - max_y) / y_res);
