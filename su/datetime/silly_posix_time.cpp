@@ -84,6 +84,12 @@ silly_posix_time::silly_posix_time(const silly_posix_time& time)
     m_tm = time.m_tm;
     m_time_point = time.m_time_point;
 }
+
+silly_posix_time::silly_posix_time(const std::string& time)
+{
+    from_string(time);
+}
+
 bool silly_posix_time::from_string(const std::string& str, const std::string& fmt)
 {
     std::scoped_lock lock(m_mutex);
@@ -113,6 +119,7 @@ bool silly_posix_time::from_string(const std::string& str, const std::string& fm
     }
     return status;
 }
+
 std::string silly_posix_time::to_string(const std::string& fmt) const
 {
     std::string result;
@@ -272,6 +279,7 @@ silly_posix_time silly_posix_time::operator=(const silly_posix_time& other)
     m_tm = other.m_tm;
     return *this;
 }
+
 silly_posix_time silly_posix_time::now()
 {
     silly_posix_time result;
@@ -279,16 +287,19 @@ silly_posix_time silly_posix_time::now()
     result.fix_tm();
     return result;
 }
+
 silly_posix_time silly_posix_time::time_from_string(const std::string& str, const std::string& fmt)
 {
     silly_posix_time result;
     result.from_string(str, fmt);
     return result;
 }
+
 std::string silly_posix_time::time_to_string(const silly_posix_time& pt, const std::string& fmt)
 {
     return pt.to_string(fmt);
 }
+
 bool silly_posix_time::is_not_a_date_time() const
 {
     try
