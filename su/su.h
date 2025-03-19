@@ -200,8 +200,8 @@
 #include <radar/silly_radar_polar.h>    // 雷达极坐标系数据存储
 #include <radar/silly_radar_proj.h>     // 雷达坐标系
 #include <radar/silly_radar_proj_ez.h>  // 雷达坐标系简化用法 未实现
-#include "radar/format/SLBDataV1.h"
-#include "radar/format/HunanData.h"
+#include <radar/format/SLBDataV1.h>
+#include <radar/format/HunanData.h>
 
 
 // singleton (单例)
@@ -223,6 +223,8 @@
 
 // 公司自定义的格式 
 #include <tzx/dynamic_rule/silly_dynamic_rule.h>  // 使用本地文件实现的动态指标快速读写
+#include <tzx/dynamic_rule/silly_dynamic_rule_block.h>  // 动态指标读写的新方式,一年一个文件
+
 #include <tzx/moisture/silly_moisture.h>          // 使用本地文件实现的土壤含水量快速读写
 #include <tzx/pyramid/silly_pyramid_base.h>       // 金字塔基类
 #include <tzx/pyramid/silly_pyramid_block.h>      // 金字塔数据块
