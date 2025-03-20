@@ -192,10 +192,9 @@ bool tzx::dynamic_rule_block::write(const silly_posix_time& time, const std::map
             m_year_mmap[year]->write((char*)&data, sizeof(cell), pos);
         }
 
-        return true;
     }
 
-    return false;
+    return true;
 }
 
 bool tzx::dynamic_rule_block::open_dat(const silly_posix_time& time)
