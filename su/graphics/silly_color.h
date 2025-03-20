@@ -11,6 +11,7 @@
 #define SILLY_UTILS_SILLY_COLOR_H
 
 #include <su_marco.h>
+// TODO: 改为不依赖 非标准库实现
 #include <string/silly_format.h>
 
 namespace silly
