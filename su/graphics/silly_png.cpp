@@ -16,6 +16,7 @@
 #define png_jmpbuf(png_ptr) ((png_ptr)->png_jmpbuf)
 #endif
 
+/// 自定义的颜色类型与png的类型转换
 static silly::color::type png2sillyctype(const int &type)
 {
     switch (type)
@@ -203,24 +204,11 @@ silly::color silly::png::data::pixel(const size_t &r, const size_t &c) const
 bool silly::png::data::create(const size_t &width, const size_t &height, const silly::color::type &type, const uint8_t &depth)
 {
     m_type = static_cast<silly::color::type>(type);
-    switch (m_type)
+    m_channels = silly::color::channels(m_type);
+    if (!m_channels)
     {
-        case silly::color::type::eptGRAY:
-            m_channels = 1;
-            break;
-        case silly::color::type::eptRGB:
-            m_channels = 3;
-            break;
-        case silly::color::type::eptGRAYA:
-            m_channels = 2;
-            break;
-        case silly::color::type::eptRGBA:
-            m_channels = 4;
-            break;
-        default:
-            break;
+        return false;
     }
-
     m_pixel_size = sizeof(png_byte) * m_channels;
 	m_width = width;
     m_height = height;
@@ -411,6 +399,10 @@ std::string silly::png::data::encode() const
     // std::vector<uint8_t> buff_vec;
     int pngtype = silly2pngctype(m_type);
     png_set_IHDR(png_ptr, info_ptr, m_width, m_height, m_depth, pngtype, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+    // png_set_compression_strategy(png_ptr, PNG_COMPRESSION_STRATEGY_DEFAULT);
+    png_set_compression_level(png_ptr, m_compress_level);
+    png_set_option(png_ptr, PNG_SKIP_sRGB_CHECK_PROFILE, PNG_OPTION_ON);  // 跳过sRGB校验
+    png_set_filter(png_ptr, PNG_FILTER_TYPE_BASE, PNG_NO_FILTERS);  // 禁用滤波
     png_set_rows(png_ptr, info_ptr, m_nbytes);
     png_set_write_fn(png_ptr, &buff, silly_png_write_callback, NULL);
     png_write_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
