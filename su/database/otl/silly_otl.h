@@ -150,7 +150,7 @@ class otl
     /// 检查是否能够正常联通
     /// </summary>
     /// <returns></returns>
-    bool check();
+    bool check(const bool& rebuild_odbc = true);
 
     /// <summary>
     /// 清空所有信息

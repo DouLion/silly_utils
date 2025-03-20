@@ -332,9 +332,13 @@ std::string otl::odbc(const bool& rebuild)
     return m_conn;
 }
 
-bool otl::check()
+bool otl::check(const bool& rebuild_odbc)
 {
     bool status = false;
+    if (rebuild_odbc)
+    {
+        odbc(true);
+    }
     otl_connect db;
     try
     {
