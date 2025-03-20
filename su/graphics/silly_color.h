@@ -18,22 +18,22 @@ namespace silly
 class color
 {
   public:
-    color(uint8_t r, uint8_t g, uint8_t b, uint8_t a) : red(r), green(g), blue(b), alpha(a), gray(0)
+    color(uint8_t r, uint8_t g, uint8_t b, uint8_t a) : red(r), green(g), blue(b), alpha(a)
     {
     }
 
-    color(uint8_t r, uint8_t g, uint8_t b) : red(r), green(g), blue(b), alpha(0), gray(0)
+    color(uint8_t r, uint8_t g, uint8_t b) : red(r), green(g), blue(b)
     {
     }
 
-    color(uint8_t g, uint8_t a) : red(0), green(0), blue(0), alpha(a), gray(g)
+    color(uint8_t g, uint8_t a) :alpha(a), gray(g)
     {
     }
 
-    color(uint8_t g) : red(0), green(0), blue(0), alpha(0), gray(g)
+    color(uint8_t g) :  gray(g)
     {
     }
-    color() : red(0), green(0), blue(0), alpha(0), gray(0)
+    color()
     {
     }
 
@@ -47,52 +47,15 @@ class color
     };
 
   public:
+    static int channels(const type& t);
+
     /// <summary>
     /// 从字符串加载  如 ABE0457B
     /// </summary>
     /// <param name="color"></param>
-    bool hex2argb(const char* color)
-    {
-        unsigned int v = 0;
-        if (1 != sscanf(color, "%x", &v) || strlen(color) != 8)
-        {
-            return false;
-        }
-        // 或者 左移然后 和 0xFF 做与
-        blue = (v << 24) >> 24;
-        green = (v << 16) >> 24;
-        red = (v << 8) >> 24;
-        alpha = v >> 24;
-
-        return true;
-    }
-
-    bool hex2rgb(const char* color)
-    {
-        unsigned int v = 0;
-        if (1 != sscanf(color, "%x", &v) || strlen(color) != 6)
-        {
-            return false;
-        }
-        blue = (v << 16) >> 16;
-        green = (v << 8) >> 16;
-        red = v >> 16;
-        return true;
-    }
-
-    bool hex2rgba(const char* color)
-    {
-        unsigned int v = 0;
-        if (1 != sscanf(color, "%x", &v) || strlen(color) != 8)
-        {
-            return false;
-        }
-        alpha = (v << 24) >> 24;
-        blue = (v << 16) >> 24;
-        green = (v << 8) >> 24;
-        red = v >> 24;
-        return true;
-    }
+    bool hex2argb(const char* color);
+    bool hex2rgb(const char* color);
+    bool hex2rgba(const char* color);
 
     bool hex2argb(const std::string& color)
     {
