@@ -21,7 +21,7 @@ int main(int argc, char** argv)
     if (argc != 4)
     {
         help();
-        return -1;
+        return -1; 
     }
     double left = 74.0, top = 54.0, right = 135.0, bottom = 3.0;
     in_file = __argv[1];
@@ -43,15 +43,15 @@ int main(int argc, char** argv)
 
         silly_poly tmp;
         tmp.outer_ring.points.clear();
-        tmp.outer_ring.points.push_back({coll.m_point.lgtd - cell_size / 2, coll.m_point.lttd + cell_size / 2});
-        tmp.outer_ring.points.push_back({coll.m_point.lgtd + cell_size / 2, coll.m_point.lttd + cell_size / 2});
-        tmp.outer_ring.points.push_back({coll.m_point.lgtd + cell_size / 2, coll.m_point.lttd - cell_size / 2});
-        tmp.outer_ring.points.push_back({coll.m_point.lgtd - cell_size / 2, coll.m_point.lttd - cell_size / 2});
-        tmp.outer_ring.points.push_back({coll.m_point.lgtd - cell_size / 2, coll.m_point.lttd + cell_size / 2});
+        tmp.outer_ring.points.push_back({coll.m_point.x - cell_size / 2, coll.m_point.y + cell_size / 2});
+        tmp.outer_ring.points.push_back({coll.m_point.x + cell_size / 2, coll.m_point.y + cell_size / 2});
+        tmp.outer_ring.points.push_back({coll.m_point.x + cell_size / 2, coll.m_point.y - cell_size / 2});
+        tmp.outer_ring.points.push_back({coll.m_point.x - cell_size / 2, coll.m_point.y - cell_size / 2});
+        tmp.outer_ring.points.push_back({coll.m_point.x - cell_size / 2, coll.m_point.y + cell_size / 2});
 
         silly_geo_coll tmp_gc(tmp);
-        int r = (coll.m_point.lttd - bottom) / cell_size;
-        int c = (coll.m_point.lgtd - left) / cell_size;
+        int r = (coll.m_point.y - bottom) / cell_size;
+        int c = (coll.m_point.x - left) / cell_size;
 
         tmp_gc.m_props["id"] = r * width + c;
 

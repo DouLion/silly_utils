@@ -56,8 +56,8 @@ TEST_CASE("TestGEO")
         //double gb_x, gb_y, ge_x, ge_y;
 
         //double central = (beg.lgtd + end.lgtd) / 2;
-        //silly_proj::lonlat_to_gauss(central, beg.lgtd, beg.lttd, gb_x, gb_y);
-        //silly_proj::lonlat_to_gauss(central, end.lgtd, end.lttd, ge_x, ge_y);
+        //silly_proj::convert::lonlat_to_gauss(central, beg.lgtd, beg.lttd, gb_x, gb_y);
+        //silly_proj::convert::lonlat_to_gauss(central, end.lgtd, end.lttd, ge_x, ge_y);
 
         //    // 计算两点之间的距离
 

@@ -38,11 +38,11 @@ int main(int argc, char** argv)
 
     /*   double x = 112, y = 34;
        double nx, ny;
-       silly_proj::lonlat_to_mercator(x, y, nx, ny);
+       silly_proj::convert::lonlat_to_mercator(x, y, nx, ny);
        std::cout << nx << "," << ny << std::endl;
        // latLonToMercator(y, x, &ny, &nx);
        std::cout << nx << "," << ny << std::endl;
-       silly_proj::mercator_to_lonlat(nx, ny, x, y);
+       silly_proj::convert::mercator_to_lonlat(nx, ny, x, y);
        std::cout << x << "," << y << std::endl;
        mercatorToLatLon(nx, ny, &y, &x);
        std::cout << x << "," << y << std::endl;
@@ -233,8 +233,8 @@ void write_depth_png(double mid, const silly_ascii_grid& sag, std::string dst)
         double geo_right = SU_MIN(right_bottom_x, right_top_x);
         double geo_top = SU_MIN(right_top_y, left_top_y);
         double geo_bottom = SU_MAX(left_bottom_y, right_bottom_y);
-        silly_proj::lonlat_to_mercator(geo_left, geo_top, mct_letf, mct_top);
-        silly_proj::lonlat_to_mercator(geo_right, geo_bottom, mct_right, mct_bottom);
+        silly_proj::convert::lonlat_to_mercator(geo_left, geo_top, mct_letf, mct_top);
+        silly_proj::convert::lonlat_to_mercator(geo_right, geo_bottom, mct_right, mct_bottom);
     }
 
     double mct_x_step = (mct_right - mct_letf) / ncols;
@@ -329,8 +329,8 @@ void write_q_png(double mid, const silly_ascii_grid& dgrid, const silly_ascii_gr
         double geo_right = SU_MIN(right_bottom_x, right_top_x);
         double geo_top = SU_MIN(right_top_y, left_top_y);
         double geo_bottom = SU_MAX(left_bottom_y, right_bottom_y);
-        silly_proj::lonlat_to_mercator(geo_left, geo_top, mct_letf, mct_top);
-        silly_proj::lonlat_to_mercator(geo_right, geo_bottom, mct_right, mct_bottom);
+        silly_proj::convert::lonlat_to_mercator(geo_left, geo_top, mct_letf, mct_top);
+        silly_proj::convert::lonlat_to_mercator(geo_right, geo_bottom, mct_right, mct_bottom);
     }
 
     double mct_x_step = (mct_right - mct_letf) / ncols;
