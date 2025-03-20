@@ -90,10 +90,10 @@ class dynamic_rule_block
     /// <summary>
     /// 写入指定时间一批危险区的数据
     /// </summary>
-    /// <param name="time"></param>
+    /// <param name="code"></param>
     /// <param name="code_data"></param>
     /// <returns></returns>
-    bool write(const silly_posix_time& time, std::map<std::string, cell>& code_data);
+    bool write(const std::string& code, const std::map<std::string, cell>& time_data);
 
     void close();
 

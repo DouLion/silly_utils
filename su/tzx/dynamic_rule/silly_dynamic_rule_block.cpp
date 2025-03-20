@@ -259,6 +259,11 @@ void tzx::dynamic_rule_block::read(const size_t& offset, const size_t& bi, const
     }
 }
 
+bool tzx::dynamic_rule_block::write(const std::string& code, const std::map<std::string, cell>& time_data)
+{
+    return false;
+}
+
 void tzx::dynamic_rule_block::close()
 {
     for (auto& [year, mmap] : m_year_mmap)
