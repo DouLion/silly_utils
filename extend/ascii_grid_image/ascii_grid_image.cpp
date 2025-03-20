@@ -10,6 +10,7 @@
 using namespace silly::geo;
 
 #define DEPTH_TINY 1e-2
+#define AG_COMPRESS_LEVEL 3
 
 thread_local void* png_ptr = nullptr;
 thread_local size_t* png_index = nullptr;
@@ -69,6 +70,7 @@ void convert_image(double ncols, double nrows, double xllcorner, double yllcorne
     {
         return;
     }
+    silly_timer timer;
     {
         for (size_t r = 0; r < nrows; ++r)
         {
@@ -99,13 +101,20 @@ void convert_image(double ncols, double nrows, double xllcorner, double yllcorne
             }
         }
     }
-
-    silly::png::data pd, pd2;
-    pd.create((ncols - 2), (nrows - 2), silly::color::eptRGB);
-    pd2.create((ncols - 2), (nrows - 2), silly::color::eptRGB);
+    
+    silly::png::data pdH, pdXY;
+    pdH.compress_level(AG_COMPRESS_LEVEL);
+    pdXY.compress_level(AG_COMPRESS_LEVEL);
+    pdH.create((ncols - 2), (nrows - 2), silly::color::eptRGB);
+    pdXY.create((ncols - 2), (nrows - 2), silly::color::eptRGB);
     double hstep = (hMax - hMin) / 255;
     double ustep = (uMax - uMin) / 255;
     double vstep = (vMax - vMin) / 255;
+    if (verbose)
+    {
+        SU_INFO_PRINT("Filter Max:  %.2f ms", timer.elapsed_ms())
+        timer.restart();
+    }
     size_t* pi = png_index;
 
     for (size_t r = 0; r < nrows - 2; ++r)
@@ -117,28 +126,30 @@ void convert_image(double ncols, double nrows, double xllcorner, double yllcorne
                 pi++;
                 continue;
             }
-            double v = 0., qu = 0., qv = 0.;
+            double h = 0., qu = 0., qv = 0.;
 
+            h = Hdata[*pi];
+            pi++;
+            if (h > DEPTH_TINY)
             {
-                v = Hdata[*pi];
-                if (v > DEPTH_TINY)
-                {
-                    qu = qx[*pi] / v;
-                    qv = qy[*pi] / v;
-                }
-                else
-                {
-                    v = 0.;
-                }
+                qu = qx[*pi] / h;
+                qv = qy[*pi] / h;
             }
+            else
+            {
+                h = 0.;
+            }
+            
             silly::color cXY, cH;
             cXY.red = (qu - uMin) / ustep;
             cXY.green = (qv - vMin) / vstep;
-            pd2.pixel(r, c, cXY);
+            pdXY.pixel(r, c, cXY);
             // 写入深度数据
-            cH.red = static_cast<unsigned char>(std::min(255., (v - hMin) / hstep));
-            pd.pixel(r, c, cH);
+            cH.red = static_cast<unsigned char>(std::min(255., (h - hMin) / hstep));
+            pdH.pixel(r, c, cH);
         }
+        pi++;
+        pi++;
     }
     std::string h_pd_data;
     {
@@ -152,10 +163,10 @@ void convert_image(double ncols, double nrows, double xllcorner, double yllcorne
         memcpy(&h_pd_data[0] + sizeof(int) * 2, &ihMax, sizeof(ihMax));
         memcpy(&h_pd_data[0] + sizeof(int) * 3, &ihMin, sizeof(ihMin));
     }
-    std::string h_png_data = pd.encode();
+    std::string h_png_data = pdH.encode();
     h_pd_data.append(h_png_data);
     silly_file::write(img_path, h_pd_data);
-    pd.release();
+    pdH.release();
     std::string filename = std::filesystem::path(img_path).filename().string();
     filename[0] = 'Q';
     std::string pd2_path = std::filesystem::path(img_path).parent_path().append(filename).string();
@@ -174,10 +185,10 @@ void convert_image(double ncols, double nrows, double xllcorner, double yllcorne
     memcpy(&pd2_data[0] + sizeof(int) * 3, &iUMin, sizeof(iUMin));
     memcpy(&pd2_data[0] + sizeof(int) * 4, &iVMax, sizeof(iVMax));
     memcpy(&pd2_data[0] + sizeof(int) * 5, &iVMin, sizeof(iVMin));
-    std::string pd2_content = pd2.encode();
+    std::string pd2_content = pdXY.encode();
     pd2_data.append(pd2_content);
     silly_file::write(pd2_path, pd2_data);
-    pd2.release();
+    pdXY.release();
 }
 
 unsigned char* get_image_data(double ncols, double nrows, double xllcorner, double yllcorner, double cellsize, double mid, double* data, int* length, bool verbose)
@@ -208,8 +219,9 @@ unsigned char* get_image_data(double ncols, double nrows, double xllcorner, doub
         timer.restart();
     }
 
-    silly::png::data pd;
-    pd.create((ncols - 2), (nrows - 2), silly::color::eptRGB);
+    silly::png::data pdH;
+    pdH.create((ncols - 2), (nrows - 2), silly::color::eptRGB);
+    pdH.compress_level(AG_COMPRESS_LEVEL);
     double hstep = (hMax - hMin) / 255;
     /* if (verbose)
      {
@@ -236,7 +248,7 @@ unsigned char* get_image_data(double ncols, double nrows, double xllcorner, doub
             silly::color cH;
             // 写入深度数据
             cH.red = static_cast<unsigned char>(std::min(255., (v - hMin) / hstep));
-            pd.pixel(r, c, cH);
+            pdH.pixel(r, c, cH);
         }
         pi++;
         pi++;
@@ -258,7 +270,7 @@ unsigned char* get_image_data(double ncols, double nrows, double xllcorner, doub
         memcpy(&h_pd_data[0] + sizeof(int) * 2, &ihMax, sizeof(ihMax));
         memcpy(&h_pd_data[0] + sizeof(int) * 3, &ihMin, sizeof(ihMin));
     }
-    std::string h_png_data = pd.encode();
+    std::string h_png_data = pdH.encode();
     if (!h_png_data.empty())
     {
         *length = static_cast<int>(h_png_data.size() + 24);
@@ -276,7 +288,7 @@ unsigned char* get_image_data(double ncols, double nrows, double xllcorner, doub
             png_ptr = nullptr;
         }
     }
-    pd.release();
+    pdH.release();
     if (verbose)
     {
         SU_INFO_PRINT("PngConvert: %.2f ms", timer.elapsed_ms())
