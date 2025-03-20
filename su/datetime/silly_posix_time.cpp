@@ -150,7 +150,7 @@ silly_posix_time::silly_posix_time(const silly_time_stamp& stamp)
 silly_posix_time silly_posix_time::operator+(const silly_time_duration& td) const
 {
     silly_posix_time result;
-    result.m_time_point = m_time_point + std::chrono::hours(td.hours()) + std::chrono::minutes(td.minutes()) + std::chrono::seconds(td.seconds());
+    result.m_time_point = m_time_point + std::chrono::seconds(td.total_seconds());
     result.fix_tm();
     return result;
 }

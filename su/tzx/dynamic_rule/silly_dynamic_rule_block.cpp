@@ -107,7 +107,7 @@ bool tzx::dynamic_rule_block::read(const silly_posix_time& time, std::map<std::s
 
 bool tzx::dynamic_rule_block::read(const std::string& code, const silly_posix_time& btm, const silly_posix_time& etm, std::map<std::string, cell>& time_data)
 {
-    if (m_code_index.find(code) != m_code_index.end())
+    if (m_code_index.find(code) == m_code_index.end())
     {
         return false;
     }
@@ -252,9 +252,9 @@ void tzx::dynamic_rule_block::read(const size_t& offset, const size_t& bi, const
     for (size_t i = bi; i <= ei; i++)
     {
         cell tmp;
-        size_t pos = offset + i * sizeof(cell);
+        size_t pos = offset * CODE_SIZE_PER_YEAR + i * sizeof(cell);
         m_year_mmap[year]->read((char*)&tmp, sizeof(cell), pos);
-        std::string tmstr = (time + silly_time_duration(i, 0, 0)).to_string(DTFMT_YMDHM);
+        std::string tmstr = (time + silly_time_duration(i-bi, 0, 0)).to_string(DTFMT_YMDHM);
         time_data[tmstr] = tmp;
     }
 }
