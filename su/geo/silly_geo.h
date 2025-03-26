@@ -28,11 +28,11 @@
 // 多面
 #define GEOJSON_GEOMETRY_MULTI_POLYGON "MultiPolygon"
 // 复合类型
-#define GEOJSON_GEOMETRY_COLLECTION "GeometryCollection"
+// #define GEOJSON_GEOMETRY_COLLECTION "GeometryCollection"
 
 // 参照GDAL
 
-enum class enum_geometry_type
+enum class enum_geometry_type : int
 {
     egtInvalid = 0,          // 无效
     egtPoint = 1,            // 单点
@@ -41,7 +41,7 @@ enum class enum_geometry_type
     egtMultiPoint = 4,       // 多点
     egtMultiLineString = 5,  // 多线
     egtMultiPolygon = 6,     // 多面
-    egtCompositeType = 7,    // 复合数据类型
+    // egtCompositeType = 7,    // 复合数据类型
 
 };
 

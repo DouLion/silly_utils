@@ -611,22 +611,6 @@ bool read_all_types_data(const enum_geometry_type& feature_type, const OGRGeomet
             status = true;
         }
         break;
-        case enum_geometry_type::egtCompositeType:  // 复合数据类型
-        {
-            auto geomCollection = (OGRGeometryCollection*)(geometry);
-            int numGeometries = geomCollection->getNumGeometries();
-            SU_DEBUG_PRINT("Number of Geometries in Collection: %d\n", numGeometries);
-            for (int j = 0; j < numGeometries; j++)
-            {
-                OGRGeometry* collGeometry = geomCollection->getGeometryRef(j);
-                if (collGeometry != nullptr)
-                {
-                    auto feature_type_ = (enum_geometry_type)wkbFlatten(collGeometry->getGeometryType());
-                    status = read_all_types_data(feature_type_, collGeometry, geo_coll);
-                }
-            }
-        }
-        break;
         default:
         {
             SLOG_ERROR("Unprocessable data types: {}\n", static_cast<int>(feature_type));
@@ -938,16 +922,6 @@ static bool wire_all_types_data(const enum_geometry_type coll_type, OGRLayer* ou
         {
             OGRMultiPolygon multiPolygon = utils::silly_multi_poly_to_ogr(geo_coll.m_m_polys);
             feature->SetGeometry(&multiPolygon);
-        }
-        break;
-        case enum_geometry_type::egtCompositeType:
-        {
-            OGRGeometryCollection geomCollection;
-            for (const auto& type : geo_coll.comp_type)
-            {
-                status = process_composite_data(type, geometry, &geomCollection, geo_coll);
-            }
-            feature->SetGeometry(&geomCollection);
         }
         break;
         default:

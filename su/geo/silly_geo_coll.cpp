@@ -41,79 +41,38 @@ silly_geo_coll::silly_geo_coll(silly_multi_poly mp)
 
 void silly_geo_coll::add(silly_point p)
 {
-    if (enum_geometry_type::egtInvalid == m_type)
-    {
-        m_type = enum_geometry_type::egtPoint;
-    }
-    else
-    {
-        m_type = enum_geometry_type::egtCompositeType;
-    }
-
+    m_type = enum_geometry_type::egtPoint;
     m_point = p;
 }
 
 void silly_geo_coll::add(silly_multi_point mp)
 {
-    if (enum_geometry_type::egtInvalid == m_type)
-    {
-        m_type = enum_geometry_type::egtMultiPoint;
-    }
-    else
-    {
-        m_type = enum_geometry_type::egtCompositeType;
-    }
+    m_type = enum_geometry_type::egtMultiPoint;
     m_m_points = mp;
 }
 
 void silly_geo_coll::add(silly_line l)
 {
-    if (enum_geometry_type::egtInvalid == m_type)
-    {
-        m_type = enum_geometry_type::egtLineString;
-    }
-    else
-    {
-        m_type = enum_geometry_type::egtCompositeType;
-    }
+    m_type = enum_geometry_type::egtLineString;
     m_line = l;
 }
 
 void silly_geo_coll::add(silly_multi_silly_line ml)
 {
-    if (enum_geometry_type::egtInvalid == m_type)
-    {
-        m_type = enum_geometry_type::egtMultiLineString;
-    }
-    else
-    {
-        m_type = enum_geometry_type::egtCompositeType;
-    }
+    m_type = enum_geometry_type::egtMultiLineString;
     m_m_lines = ml;
 }
 
 void silly_geo_coll::add(silly_poly p)
 {
-    if (enum_geometry_type::egtInvalid == m_type)
-    {
-        m_type = enum_geometry_type::egtPolygon;
-    }
-    else
-    {
-        m_type = enum_geometry_type::egtCompositeType;
-    }
+    m_type = enum_geometry_type::egtPolygon;
+
     m_poly = p;
 }
 
 void silly_geo_coll::add(silly_multi_poly mp)
 {
-    if (enum_geometry_type::egtInvalid == m_type)
-    {
-        m_type = enum_geometry_type::egtMultiPolygon;
-    }
-    else
-    {
-        m_type = enum_geometry_type::egtCompositeType;
-    }
+    m_type = enum_geometry_type::egtMultiPolygon;
+
     m_m_polys = mp;
 }

@@ -26,13 +26,6 @@ class geojson
     ///////////////////////////////////读
 
     /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="content"></param>
-    /// <returns></returns>
-    static enum_geometry_type check_geojson_type(const std::string& content);
-
-    /// <summary>
     /// 从文件加载所有矢量
     /// </summary>
     /// <param name="file"></param>

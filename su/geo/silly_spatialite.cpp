@@ -408,9 +408,6 @@ int check_geom_type(int type)
         case GAIA_MULTIPOLYGON:
             result = enum_geometry_type::egtMultiPolygon;
             break;
-        case GAIA_GEOMETRYCOLLECTION:
-            result = enum_geometry_type::egtCompositeType;
-            break;
         default:
             result = enum_geometry_type::egtInvalid;
     }
