@@ -1,5 +1,5 @@
 {
-  "db1": {
+  "db": {
     "type": "mysql",
     "ip": "192.168.0.73",
     "port": 3306,
@@ -8,7 +8,7 @@
     "user": "root",
     "password": "3edc9ijn~"
   },
-  "db": {
+  "db1": {
     "type": "dm8",
     "ip": "192.168.0.156",
     "port": 5237,
@@ -17,6 +17,7 @@
     "user": "SYSDBA",
     "password": "3edc9ijn~"
   },
-  "sql": "select * from \"TZX_FloodDisaster_XJ_FWQ\".\"WarnRecord_R\" limit 10;"
+  "sql": "select * from TZX_FloodDisaster_HN.WarnRecord_R limit 10;",
+  "sql1": "select * from \"TZX_FloodDisaster_XJ_FWQ\".\"WarnRecord_R\" limit 10;"
 
 }
