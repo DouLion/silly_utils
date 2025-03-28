@@ -785,7 +785,6 @@ OGRFieldType convertToOGRFieldType(const silly_geo_prop::enum_prop_type& type)
     return result;
 }
 
-
 #endif
 // 添加属性到shp中
 bool writePropertiesToGeometry(OGRFeature* feature, const std::map<std::string, silly_geo_prop>& m_props)
@@ -1415,5 +1414,27 @@ silly_geo_coll utils::buffer(const silly_geo_coll& coll, const double& distance)
         bufferedGeom = nullptr;
     }
 #endif
+    return ret;
+}
+std::vector<std::pair<silly_point, double>> utils::adjust(const std::vector<std::pair<silly_point, double>>& linez, const double& bz, const double& ez)
+{
+    std::vector<std::pair<silly_point, double>> ret;
+    double dzB = (bz - linez.front().second);
+    double dzE = (ez - linez.back().second);
+    double totalDist = 0;
+    for (int i = 1; i < linez.size(); i++)
+    {
+        totalDist += distance(linez[i].first, linez[i - 1].first);
+    }
+    double dist = 0;
+    ret.push_back(std::make_pair(linez.front().first, bz));
+    for (int i = 1; i < linez.size(); i++)
+    {
+        dist += distance(linez[i].first, linez[i - 1].first);
+        double percent = dist / totalDist;
+        double z = linez[i].second - ((1 - percent) * dzB + percent * dzE);
+        ret.push_back(std::make_pair(linez[i].first, z));
+    }
+
     return ret;
 }

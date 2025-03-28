@@ -338,6 +338,15 @@ class utils
     /// <returns></returns>
     static silly_geo_coll buffer(const silly_geo_coll& coll, const double& distance);
 
+    /// <summary>
+    /// 根据首尾高程调整线高程
+    /// </summary>
+    /// <param name="linez">线位置及其高程</param>
+    /// <param name="bz">第一个点的矫正高程</param>
+    /// <param name="ez">最后一个点的矫正高程</param>
+    /// <returns></returns>
+    static std::vector<std::pair<silly_point, double>> adjust(const std::vector<std::pair<silly_point, double>>& linez, const double& bz, const double& ez);
+
 #if ENABLE_GDAL
 
     /// <summary>
