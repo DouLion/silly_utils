@@ -6,7 +6,9 @@
 #include <graphics/silly_png.h>
 #include <files/silly_file.h>
 #include <geo/proj/silly_proj.h>
+#ifndef NDEBUG
 #include <datetime/silly_timer.h>
+#endif
 using namespace silly::geo;
 
 #define DEPTH_TINY 1e-2
@@ -191,24 +193,43 @@ void convert_image(double ncols, double nrows, double xllcorner, double yllcorne
     pdXY.release();
 }
 
-unsigned char* get_image_data(double ncols, double nrows, double xllcorner, double yllcorner, double cellsize, double mid, double* data, int* length, bool verbose)
+unsigned char* get_image_data(double ncols, double nrows, double xllcorner, double yllcorner, double cellsize, double mid, double* hData, double* qxData, double* qyData, int* length, bool verbose)
 {
     *length = 0;
     silly_timer timer;
+    double uMax = -99999.0, uMin = 99999.0, vMax = -99999.0, vMin = 99999.0;
     double hMax = -99999.0, hMin = 99999.0;
-    if (data)
+    if (!hData)
+    {
+        return;
+    }
+    silly_timer timer;
     {
         for (size_t r = 0; r < nrows; ++r)
         {
             for (size_t c = 0; c < ncols; ++c)
             {
                 int pos = SU_MAX(0, SU_MIN(r * ncols + c, nrows * ncols));
-                double h = data[pos];
+                double h = hData[pos];
                 hMax = SU_MAX(hMax, h);
                 hMin = SU_MIN(hMin, h);
                 if (h < DEPTH_TINY)
                 {
                     continue;
+                }
+
+                double u = qxData[pos] / h;
+                double v = qyData[pos] / h;
+
+                // if (u > DEPTH_TINY)
+                {
+                    uMax = SU_MAX(uMax, u);
+                    uMin = SU_MIN(uMin, u);
+                }
+                // if (v > DEPTH_TINY)
+                {
+                    vMax = SU_MAX(vMax, v);
+                    vMin = SU_MIN(vMin, v);
                 }
             }
         }
@@ -219,18 +240,12 @@ unsigned char* get_image_data(double ncols, double nrows, double xllcorner, doub
         timer.restart();
     }
 
-    silly::png::data pdH;
-    pdH.create((ncols - 2), (nrows - 2), silly::color::eptRGB);
-    pdH.compress_level(AG_COMPRESS_LEVEL);
+    silly::png::data pdA;
+    pdA.create((ncols - 2), (nrows - 2), silly::color::eptRGB);
+    pdA.compress_level(AG_COMPRESS_LEVEL);
     double hstep = (hMax - hMin) / 255;
-    /* if (verbose)
-     {
-         SU_INFO_PRINT("mid: %.2f", mid)
-         SU_INFO_PRINT("LonLat:\n\tleft: %.6f, top: %.6f, right: %.6f, bottom: %.6f", geo_left, geo_top, geo_right, geo_bottom)
-         SU_INFO_PRINT("Mct:\n\tleft: %.6f, top: %.6f, right: %.6f, bottom: %.6f", mct_left, mct_top, mct_right, mct_bottom)
-         SU_INFO_PRINT("Depth max:%.6f, min:%6f", hMax, hMin)
-         SU_INFO_PRINT("Step:%.6f", hstep)
-     }*/
+    double ustep = (uMax - uMin) / 255;
+    double vstep = (vMax - vMin) / 255;
     timer.restart();
     size_t* pi = png_index;
     for (size_t r = 0; r < nrows - 2; ++r)
@@ -242,43 +257,59 @@ unsigned char* get_image_data(double ncols, double nrows, double xllcorner, doub
                 pi++;
                 continue;
             }
-            double v = 0.;
-            v = data[*pi];
+            double h = 0., qu = 0., qv = 0.;
+            h = hData[*pi];
+           
+            if (h > DEPTH_TINY)
+            {
+                qu = qxData[*pi] / h;
+                qv = qyData[*pi] / h;
+            }
+            else
+            {
+                h = 0.;
+            }
             pi++;
-            silly::color cH;
-            // 写入深度数据
-            cH.red = static_cast<unsigned char>(std::min(255., (v - hMin) / hstep));
-            pdH.pixel(r, c, cH);
+            silly::color cXYH;
+            cXYH.red = static_cast<unsigned char>((qu - uMin) / ustep);
+            cXYH.green = static_cast<unsigned char>((qv - vMin) / vstep);
+            cXYH.blue = static_cast<unsigned char>(std::min(255., (h - hMin) / hstep));
+            pdA.pixel(r, c, cXYH);
         }
         pi++;
         pi++;
     }
-    if (verbose)
+    std::string header;
+    const size_t header_size = 32;
     {
-        SU_INFO_PRINT("CorrdConvert: %.2f ms", timer.elapsed_ms())
-    }
-    timer.restart();
-    std::string h_pd_data;
-    {
-        h_pd_data.resize(24);
+        // 构建前缀信息
+        header.resize(header_size);
         int ihMax = static_cast<int>(hMax / DEPTH_TINY);
         int ihMin = static_cast<int>(hMin / DEPTH_TINY);
+        int iUMax = static_cast<int>(uMax / DEPTH_TINY);
+        int iVMax = static_cast<int>(vMax / DEPTH_TINY);
+        int iUMin = static_cast<int>(uMin / DEPTH_TINY);
+        int iVMin = static_cast<int>(vMin / DEPTH_TINY);
         int iRow = static_cast<int>(nrows);
         int iCol = static_cast<int>(ncols);
-        memcpy(&h_pd_data[0], &iRow, sizeof(iRow));
-        memcpy(&h_pd_data[0] + sizeof(int) * 1, &iCol, sizeof(iCol));
-        memcpy(&h_pd_data[0] + sizeof(int) * 2, &ihMax, sizeof(ihMax));
-        memcpy(&h_pd_data[0] + sizeof(int) * 3, &ihMin, sizeof(ihMin));
+        memcpy(&header[0] + sizeof(int) * 0, &iRow, sizeof(iRow));
+        memcpy(&header[0] + sizeof(int) * 1, &iCol, sizeof(iCol));
+        memcpy(&header[0] + sizeof(int) * 2, &iUMax, sizeof(iUMax));
+        memcpy(&header[0] + sizeof(int) * 3, &iUMin, sizeof(iUMin));
+        memcpy(&header[0] + sizeof(int) * 4, &iVMax, sizeof(iVMax));
+        memcpy(&header[0] + sizeof(int) * 5, &iVMin, sizeof(iVMin));
+        memcpy(&header[0] + sizeof(int) * 6, &ihMax, sizeof(ihMax));
+        memcpy(&header[0] + sizeof(int) * 7, &ihMin, sizeof(ihMin));
     }
-    std::string h_png_data = pdH.encode();
-    if (!h_png_data.empty())
+    std::string png_data = pdA.encode();
+    if (!png_data.empty())
     {
-        *length = static_cast<int>(h_png_data.size() + 24);
+        *length = static_cast<int>(png_data.size() + header_size);
         unsigned char* tmp = (unsigned char*)malloc(*length);
         if (tmp)
         {
-            memcpy(tmp, h_pd_data.c_str(), 24);
-            memcpy(tmp + 24, h_png_data.c_str(), h_png_data.size());
+            memcpy(tmp, header.c_str(), header_size);
+            memcpy(tmp + header_size, png_data.c_str(), png_data.size());
             png_ptr = tmp;
         }
         else
@@ -288,7 +319,7 @@ unsigned char* get_image_data(double ncols, double nrows, double xllcorner, doub
             png_ptr = nullptr;
         }
     }
-    pdH.release();
+    pdA.release();
     if (verbose)
     {
         SU_INFO_PRINT("PngConvert: %.2f ms", timer.elapsed_ms())
