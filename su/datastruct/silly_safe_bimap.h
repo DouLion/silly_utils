@@ -27,6 +27,12 @@ class silly_safe_bimap
     silly_safe_bimap() = default;
     ~silly_safe_bimap() = default;
 
+    /// <summary>
+    /// 插入一对数据, 如果key或者value已经存在, 则返回false
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
     bool insert(const KT& key, const VT& value)
     {
         std::lock_guard<std::mutex> lock(m_mutex);
@@ -43,16 +49,31 @@ class silly_safe_bimap
         return true;
     }
 
+    /// <summary>
+    /// 是否包含key
+    /// </summary>
+    /// <param name="key"></param>
+    /// <returns></returns>
     bool contains(const KT& key) const
     {
         return m_key_map.find(key) != m_key_map.end();
     }
 
+    /// <summary>
+    /// 是否包含Value
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
     bool contains_value(const VT& value) const
     {
         return m_value_map.find(value) != m_value_map.end();
     }
 
+    /// <summary>
+    /// 根据key删除数据
+    /// </summary>
+    /// <param name="key"></param>
+    /// <returns></returns>
     bool erase(const KT& key)
     {
         std::lock_guard<std::mutex> lock(m_mutex);
@@ -67,6 +88,11 @@ class silly_safe_bimap
         return true;
     }
 
+    /// <summary>
+    /// 根据value删除数据
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
     bool erase_value(const VT& value)
     {
         std::lock_guard<std::mutex> lock(m_mutex);
@@ -81,6 +107,27 @@ class silly_safe_bimap
         return true;
     }
 
+    /// <summary>
+    /// 根据key获取value
+    /// </summary>
+    /// <param name="key"></param>
+    /// <returns></returns>
+    VT get(const KT& key) const
+    {
+        auto it = m_key_map.find(key);
+        if (it == m_key_map.end())
+        {
+            return VT();
+        }
+        return it->second;
+    }
+
+    /// <summary>
+    /// 根据key 获取value, 带验证
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="key"></param>
+    /// <returns></returns>
     bool get(const VT& value, KT& key) const
     {
         auto it = m_value_map.find(value);
@@ -92,6 +139,12 @@ class silly_safe_bimap
         return true;
     }
 
+    /// <summary>
+    /// 根据value获取key
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
     bool get_value(const KT& key, VT& value) const
     {
         auto it = m_key_map.find(key);
@@ -101,6 +154,21 @@ class silly_safe_bimap
         }
         value = it->second;
         return true;
+    }
+
+    /// <summary>
+    /// 根据value获取key
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    KT get(const VT& value) const
+    {
+        auto it = m_value_map.find(value);
+        if (it == m_value_map.end())
+        {
+            return KT();
+        }
+        return it->second;
     }
 
     void clear()
