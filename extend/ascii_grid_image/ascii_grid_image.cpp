@@ -72,7 +72,9 @@ void convert_image(double ncols, double nrows, double xllcorner, double yllcorne
     {
         return;
     }
+#ifndef NDEBUG
     silly_timer timer;
+    #endif
     {
         for (size_t r = 0; r < nrows; ++r)
         {
@@ -114,8 +116,11 @@ void convert_image(double ncols, double nrows, double xllcorner, double yllcorne
     double vstep = (vMax - vMin) / 255;
     if (verbose)
     {
+#ifndef NDEBUG
         SU_INFO_PRINT("Filter Max:  %.2f ms", timer.elapsed_ms())
+            
         timer.restart();
+#endif
     }
     size_t* pi = png_index;
 
@@ -196,14 +201,12 @@ void convert_image(double ncols, double nrows, double xllcorner, double yllcorne
 unsigned char* get_image_data(double ncols, double nrows, double xllcorner, double yllcorner, double cellsize, double mid, double* hData, double* qxData, double* qyData, int* length, bool verbose)
 {
     *length = 0;
-    silly_timer timer;
     double uMax = -99999.0, uMin = 99999.0, vMax = -99999.0, vMin = 99999.0;
     double hMax = -99999.0, hMin = 99999.0;
     if (!hData)
     {
-        return;
+        return nullptr;
     }
-    silly_timer timer;
     {
         for (size_t r = 0; r < nrows; ++r)
         {
@@ -234,11 +237,6 @@ unsigned char* get_image_data(double ncols, double nrows, double xllcorner, doub
             }
         }
     }
-    if (verbose)
-    {
-        SU_INFO_PRINT("Filter Max:  %.2f ms", timer.elapsed_ms())
-        timer.restart();
-    }
 
     silly::png::data pdA;
     pdA.create((ncols - 2), (nrows - 2), silly::color::eptRGB);
@@ -246,7 +244,6 @@ unsigned char* get_image_data(double ncols, double nrows, double xllcorner, doub
     double hstep = (hMax - hMin) / 255;
     double ustep = (uMax - uMin) / 255;
     double vstep = (vMax - vMin) / 255;
-    timer.restart();
     size_t* pi = png_index;
     for (size_t r = 0; r < nrows - 2; ++r)
     {
@@ -320,10 +317,6 @@ unsigned char* get_image_data(double ncols, double nrows, double xllcorner, doub
         }
     }
     pdA.release();
-    if (verbose)
-    {
-        SU_INFO_PRINT("PngConvert: %.2f ms", timer.elapsed_ms())
-    }
     return (unsigned char*)png_ptr;
 }
 void free_image_data()
