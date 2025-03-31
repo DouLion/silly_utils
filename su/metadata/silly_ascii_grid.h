@@ -9,10 +9,7 @@
  */
 #ifndef SILLY_UTILS_SILLY_ASCII_GRID_H
 #define SILLY_UTILS_SILLY_ASCII_GRID_H
-#include "math/silly_matrix.h"
 #include "files/silly_file.h"
-#include "files/silly_memory_map.h"
-using namespace silly_math;
 
 class silly_ascii_grid
 {
@@ -22,23 +19,35 @@ class silly_ascii_grid
 
     bool read(const std::string& path);
 
+    bool write(const std::string& path);
+
   private:
     bool read_asc(const std::string& path);
-    bool read_bin();
+    bool read_bin(const std::string& path);
+
+    bool write_asc(const std::string& path);
+    bool write_bin(const std::string& path);
+
+    bool read_prj(const std::string path);
+    bool write_prj(const std::string path);
 
   public:
-    size_t ncols;
-    size_t nrows;
-    double xllcorner;
-    double yllcorner;
-    double cellsize;
+    int precision = 1;  // 保留小数位
+    double l0 = -9999.0;  // 高斯基带中心线经度
+    size_t ncols = 0;
+    size_t nrows = 0;
+    double xllcorner = 0;
+    double yllcorner = 0;
+    double cellsize = 0;
     double MAXV{-99999999.0};
     double MINV{99999999.0};
-    float NODATA;
-    DMatrix m_data;
+    double NODATA=-9999.0;
+    std::vector<double> m_data;  //
 
   private:
-    silly::file::memory_map m_mmap;
+    std::string m_root;
+    std::string m_name;
+    std::string m_type;
 };
 
 #endif  // SILLY_UTILS_SILLY_ASCII_GRID_H

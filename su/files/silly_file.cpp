@@ -14,7 +14,7 @@ namespace sfs = std::filesystem;
 // 为什么用notepad++ 打开时 有些是中文编码(GBK23..)有些是ANSI
 //
 
-std::string _wildcard2regex(const std::string& pattern) {
+static std::string _wildcard2regex(const std::string& pattern) {
     std::string regexPattern;
     for (char c : pattern) {
         switch (c) {
@@ -28,6 +28,28 @@ std::string _wildcard2regex(const std::string& pattern) {
     return "^" + regexPattern + "$";  // 确保整个字符串匹配
 }
 
+static bool validate_utf8(const std::string& str) {
+    int n;
+    for (size_t i = 0; i < str.length();) {
+        if ((str[i] & 0x80) == 0x00) { // 单字节
+            n = 1;
+        } else if ((str[i] & 0xE0) == 0xC0) { // 两字节
+            n = 2;
+        } else if ((str[i] & 0xF0) == 0xE0) { // 三字节
+            n = 3;
+        } else if ((str[i] & 0xF8) == 0xF0) { // 四字节
+            n = 4;
+        } else {
+            return false;
+        }
+        for (int j = 1; j < n; ++j)
+            if ((str[i + j] & 0xC0) != 0x80)
+                return false;
+        i += n;
+    }
+    return true;
+}
+
 
 size_t silly::file::utils::read(const std::string &u8path, std::string &content, const size_t &offset, const size_t &len)
 {
@@ -39,10 +61,14 @@ size_t silly::file::utils::read(const std::string &u8path, std::string &content,
     {
         input.open(silly_encode::cxx11_string_wstring(u8path), std::ios::binary | std::ios::in);
     }
-
+    else
+    {
+        input.open(u8path, std::ios::binary | std::ios::in);
+    }
 #else
     input.open(u8path, std::ios::binary | std::ios::in);
 #endif
+
     if (!input.is_open())
     {
         return ret_read_size;
@@ -117,10 +143,19 @@ bool silly::file::utils::read(const std::string &u8path, std::vector<std::string
 size_t silly::file::utils::write(const std::string &u8path, const std::string &content)
 {
     size_t write_len = 0;
+    std::fstream ofs_w;
+
 #if IS_WIN32
-    std::ofstream ofs_w(silly_encode::cxx11_string_wstring(u8path), std::ios::out | std::ios::binary);
+    if (silly_encode::is_utf8(u8path))
+    {
+        ofs_w.open(silly_encode::cxx11_string_wstring(u8path), std::ios::binary | std::ios::out);
+    }
+    else
+    {
+        ofs_w.open(u8path, std::ios::binary | std::ios::out);
+    }
 #else
-    std::ofstream ofs_w(u8path);
+    ofs_w.open(u8path, std::ios::binary | std::ios::in);
 #endif
 
     if (!ofs_w.is_open())
