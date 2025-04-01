@@ -101,12 +101,19 @@ class color
     {
         return silly_format::format("{:02X}{:02X}{:02X}", blue, green, red);
     }
-
-    /// 使用RGBA表示 -12000.0 到12000.0之间的数, 这个数值范围在水文,气象领域内应该是足够用的
-    /// 对于 12345.6789  R: 123 + 127, G: 45, B: 67, A: 89
+        
+    /// <summary>
+    /// 无损表示-12799.9999 到 12799.9999 之间的值
+    /// 这个数值范围在水文,气象领域内应该是足够用的
+    /// 使用改实现方式可以在shader方便恢复
+    /// </summary>
+    /// <param name="v"></param>
     void vencode(const double& v);
 
-    /// 恢复double
+    /// <summary>
+    /// 恢复为double
+    /// </summary>
+    /// <returns></returns>
     double vdecode() const;
 
   public:
@@ -118,3 +125,21 @@ class color
 };
 }  // namespace silly
 #endif  // SILLY_UTILS_SILLY_COLOR_H
+
+/* shader中的恢复函数
+
+// 能无损表示-12799.9999 到 12799.9999 之间的值
+float signed_vec4tofloat(vec4 px){
+
+    float value = px.r *25500.0  + px.g*255.0 +px.b*2.55+ px.a * 0.0255 - 12799.9999;
+
+    return value;
+}
+
+// 能无损表示 0 到 25599.9999 之间的值
+float unsigned_vec4tofloat(vec4 px){
+    float value = px.r *25500.0  + px.g*255.0 +px.b*2.55+ px.a * 0.0255;
+    return value;
+}
+
+*/
