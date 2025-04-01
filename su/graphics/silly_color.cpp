@@ -9,6 +9,8 @@
  */
 #include "silly_color.h"
 
+#define MAX_ENCODE_V  12799.9999
+#define MIN_ENCODE_V  (-12799.9999)
 
 int silly::color::channels(const silly::color::type& t)
 {
@@ -68,4 +70,23 @@ bool silly::color::hex2rgb(const char* color)
     green = (v << 8) >> 24;
     red = v >> 24;
     return true;
+}
+
+double silly::color::vdecode() const
+{
+    double ret = 0;
+    ret += red * 1.e2;
+    ret += green;
+    ret += blue / 100.0;
+    ret += alpha / 10000.0;
+    return ret + MIN_ENCODE_V;
+}
+
+void silly::color::vencode(const double& vv)
+{
+    double v = vv - MIN_ENCODE_V;
+    red = static_cast<unsigned char>(static_cast<int>(v / 1e2));
+    green = static_cast<unsigned char>(static_cast<int>(v) % 100);
+    blue = static_cast<unsigned char>(static_cast<int>(v * 100) % 100);
+    alpha = static_cast<unsigned char>(static_cast<int>(v * 10000) % 100);
 }

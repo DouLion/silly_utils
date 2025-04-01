@@ -13,7 +13,7 @@
 #include <su_marco.h>
 // TODO: 改为不依赖 非标准库实现
 #include <string/silly_format.h>
-
+#define COLOR_MAX_D 255.0
 namespace silly
 {
 class color
@@ -27,11 +27,11 @@ class color
     {
     }
 
-    color(uint8_t g, uint8_t a) :alpha(a), gray(g)
+    color(uint8_t g, uint8_t a) : alpha(a), gray(g)
     {
     }
 
-    color(uint8_t g) :  gray(g)
+    color(uint8_t g) : gray(g)
     {
     }
     color()
@@ -54,23 +54,23 @@ class color
     /// 从字符串加载  如 ABE0457B
     /// </summary>
     /// <param name="color"></param>
-    bool hex2argb(const char* color);
-    bool hex2rgb(const char* color);
-    bool hex2rgba(const char* color);
+    bool hex2argb(const char* hex);
+    bool hex2rgb(const char* hex);
+    bool hex2rgba(const char* hex);
 
-    bool hex2argb(const std::string& color)
+    bool hex2argb(const std::string& hex)
     {
-        return hex2argb(color.c_str());
+        return hex2argb(hex.c_str());
     }
 
-    bool hex2rgb(const std::string& color)
+    bool hex2rgb(const std::string& hex)
     {
-        return hex2rgb(color.c_str());
+        return hex2rgb(hex.c_str());
     }
 
-    bool hex2rgba(const std::string& color)
+    bool hex2rgba(const std::string& hex)
     {
-        return hex2rgba(color.c_str());
+        return hex2rgba(hex.c_str());
     }
 
     std::string argb2hex()
@@ -101,6 +101,13 @@ class color
     {
         return silly_format::format("{:02X}{:02X}{:02X}", blue, green, red);
     }
+
+    /// 使用RGBA表示 -12000.0 到12000.0之间的数, 这个数值范围在水文,气象领域内应该是足够用的
+    /// 对于 12345.6789  R: 123 + 127, G: 45, B: 67, A: 89
+    void vencode(const double& v);
+
+    /// 恢复double
+    double vdecode() const;
 
   public:
     uint8_t gray{0};

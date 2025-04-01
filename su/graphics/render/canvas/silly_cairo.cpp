@@ -24,7 +24,7 @@
 
 #include FT_FREETYPE_H
 
-const static double COLOR_UNSIGNED_CHAR_DOUBLE = 255.0;
+
 
 #define DESTROY_SURFACE(surf)        \
     if (surf)                        \
@@ -40,7 +40,7 @@ const static double COLOR_UNSIGNED_CHAR_DOUBLE = 255.0;
         ctx = nullptr;       \
     }
 
-#define CLR_CVT(a) static_cast<double>(a) / COLOR_UNSIGNED_CHAR_DOUBLE
+#define CLR_CVT(a) static_cast<double>(a) / COLOR_MAX_D
 
 // 输出jpeg的压缩质量
 #define JPEG_QUALITY (90)
