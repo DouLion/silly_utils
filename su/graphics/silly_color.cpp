@@ -9,8 +9,8 @@
  */
 #include "silly_color.h"
 
-#define MAX_ENCODE_V  12799.9999
-#define MIN_ENCODE_V  (-12799.9999)
+#define MAX_ENCODE_V 12799.9999
+#define MIN_ENCODE_V (-12799.9999)
 
 int silly::color::channels(const silly::color::type& t)
 {
@@ -58,7 +58,7 @@ bool silly::color::hex2rgb(const char* color)
     return true;
 }
 
- bool silly::color::hex2rgba(const char* color)
+bool silly::color::hex2rgba(const char* color)
 {
     unsigned int v = 0;
     if (1 != sscanf(color, "%x", &v) || strlen(color) != 8)
@@ -89,4 +89,67 @@ void silly::color::vencode(const double& vv)
     green = static_cast<unsigned char>(static_cast<int>(v) % 100);
     blue = static_cast<unsigned char>(static_cast<int>(v * 100) % 100);
     alpha = static_cast<unsigned char>(static_cast<int>(v * 10000) % 100);
+}
+
+std::string silly::color::argb2hex() const
+{
+    std::ostringstream oss;
+    oss << std::uppercase << std::hex << std::setfill('0');
+    oss << std::setw(2) << alpha;
+    oss << std::setw(2) << red;
+    oss << std::setw(2) << green;
+    oss << std::setw(2) << blue;
+    return oss.str();
+}
+
+std::string silly::color::rgb2hex() const
+{
+    std::ostringstream oss;
+    oss << std::uppercase << std::hex << std::setfill('0');
+    oss << std::setw(2) << red;
+    oss << std::setw(2) << green;
+    oss << std::setw(2) << blue;
+    return oss.str();
+}
+
+std::string silly::color::rgba2hex() const
+{
+    std::ostringstream oss;
+    oss << std::uppercase << std::hex << std::setfill('0');
+    oss << std::setw(2) << red;
+    oss << std::setw(2) << green;
+    oss << std::setw(2) << blue;
+    oss << std::setw(2) << alpha;
+    return oss.str();
+}
+
+std::string silly::color::abgr2hex() const
+{
+    std::ostringstream oss;
+    oss << std::uppercase << std::hex << std::setfill('0');
+    oss << std::setw(2) << alpha;
+    oss << std::setw(2) << blue;
+    oss << std::setw(2) << green;
+    oss << std::setw(2) << red;
+    return oss.str();
+}
+std::string silly::color::bgra2hex() const
+{
+    std::ostringstream oss;
+    oss << std::uppercase << std::hex << std::setfill('0');
+    oss << std::setw(2) << blue;
+    oss << std::setw(2) << green;
+    oss << std::setw(2) << red;
+    oss << std::setw(2) << alpha;
+    return oss.str();
+}
+
+std::string silly::color::bgr2hex() const
+{
+    std::ostringstream oss;
+    oss << std::uppercase << std::hex << std::setfill('0');
+    oss << std::setw(2) << blue;
+    oss << std::setw(2) << green;
+    oss << std::setw(2) << red;
+    return oss.str();
 }

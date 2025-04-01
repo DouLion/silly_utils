@@ -11,8 +11,6 @@
 #define SILLY_UTILS_SILLY_COLOR_H
 
 #include <su_marco.h>
-// TODO: 改为不依赖 非标准库实现
-#include <string/silly_format.h>
 #define COLOR_MAX_D 255.0
 namespace silly
 {
@@ -51,7 +49,7 @@ class color
     static int channels(const type& t);
 
     /// <summary>
-    /// 从字符串加载  如 ABE0457B
+    /// 从16进制字符串加载颜色  如 ABE0457B
     /// </summary>
     /// <param name="color"></param>
     bool hex2argb(const char* hex);
@@ -73,35 +71,22 @@ class color
         return hex2rgba(hex.c_str());
     }
 
-    std::string argb2hex()
-    {
-        return silly_format::format("{:02X}{:02X}{:02X}{:02X}", alpha, red, green, blue);
-    }
+    /// <summary>
+    /// 颜色值转16进制字符串
+    /// </summary>
+    /// <returns></returns>
+    std::string argb2hex() const;
 
-    std::string rgb2hex()
-    {
-        return silly_format::format("{:02X}{:02X}{:02X}", red, green, blue);
-    }
+    std::string rgb2hex() const;
 
-    std::string rgba2hex()
-    {
-        return silly_format::format("{:02X}{:02X}{:02X}{:02X}", red, green, blue, alpha);
-    }
+    std::string rgba2hex() const;
 
-    std::string abgr2hex()
-    {
-        return silly_format::format("{:02X}{:02X}{:02X}{:02X}", alpha, blue, green, red);
-    }
-    std::string bgra2hex()
-    {
-        return silly_format::format("{:02X}{:02X}{:02X}{:02X}", blue, green, red, alpha);
-    }
+    std::string abgr2hex() const;
 
-    std::string bgr2hex()
-    {
-        return silly_format::format("{:02X}{:02X}{:02X}", blue, green, red);
-    }
-        
+    std::string bgra2hex() const;
+
+    std::string bgr2hex() const;
+
     /// <summary>
     /// 无损表示-12799.9999 到 12799.9999 之间的值
     /// 这个数值范围在水文,气象领域内应该是足够用的
