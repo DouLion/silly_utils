@@ -12,36 +12,68 @@
 #define VSI_ROOT "/vsimem/tzx_huge_stitcher"
 const int BAND_MAP[4] = {3, 2, 1, 0};
 
+bool silly_huge_stitcher::check(const std::string& data, int& width, int& height, int& bands)
+{
+    GDALDataset* tmp_dataset = nullptr;
+    width = 0;
+    height = 0;
+    bands = 0;
+    {
+        std::scoped_lock loc(m_mutex);
+        GUIntBig _data_size = data.size();
+        GByte* _G_data = reinterpret_cast<GByte*>(const_cast<char*>(data.data()));
+        VSIFCloseL(VSIFileFromMemBuffer(VSI_ROOT, _G_data, _data_size, FALSE));
+        tmp_dataset = (GDALDataset*)GDALOpen(VSI_ROOT, GA_ReadOnly);  // 打开栅格图像
+        VSIUnlink(VSI_ROOT);
+    }
+    if (tmp_dataset)
+    {
+        width = tmp_dataset->GetRasterXSize();   // 图像宽度
+        height = tmp_dataset->GetRasterYSize();  // 图像高度
+        bands = tmp_dataset->GetRasterCount();   // 波段数（JPEG通常为3）
+        GDALClose(tmp_dataset);
+        return true;
+    }
+
+    return false;
+}
+
 bool silly_huge_stitcher::attach(const block& blk)
 {
     if (!m_init)
     {
         return false;
     }
-    GUIntBig _data_size = blk.dIMG.data.size();
-    GByte* _G_data = reinterpret_cast<GByte*>(const_cast<char*>(blk.dIMG.data.data()));
-    VSIFCloseL(VSIFileFromMemBuffer(VSI_ROOT, _G_data, _data_size, FALSE));
-    GDALDataset* tmp_dataset = (GDALDataset*)GDALOpen(VSI_ROOT, GA_ReadOnly);  // 打开栅格图像
-    VSIUnlink(VSI_ROOT);
+    GDALDataset* tmp_dataset = nullptr;
+    {
+        std::scoped_lock loc(m_mutex);
+        GUIntBig _data_size = blk.dIMG.data.size();
+        GByte* _G_data = reinterpret_cast<GByte*>(const_cast<char*>(blk.dIMG.data.data()));
+        VSIFCloseL(VSIFileFromMemBuffer(VSI_ROOT, _G_data, _data_size, FALSE));
+        tmp_dataset = (GDALDataset*)GDALOpen(VSI_ROOT, GA_ReadOnly);  // 打开栅格图像
+        VSIUnlink(VSI_ROOT);
+    }
+
     if (!tmp_dataset)
     {
         return false;
     }
-    {
-        int width = tmp_dataset->GetRasterXSize();  // 图像宽度
-        int height = tmp_dataset->GetRasterYSize();  // 图像高度
-        int bands = tmp_dataset->GetRasterCount();   // 波段数（JPEG通常为3）
-        if (width != blk.dIMG.width || height != blk.dIMG.height || bands != m_bands)
-        {
-            std::cerr << "信息不匹配" << std::endl;
-            return false;
-        }
-    }
-    int size = blk.xSize * blk.ySize * m_bands;
-    std::vector<GByte> _G_buff(size);
+
     bool status = false;
     do
     {
+        {                                                // 判断基本信息是否一致
+            int width = tmp_dataset->GetRasterXSize();   // 图像宽度
+            int height = tmp_dataset->GetRasterYSize();  // 图像高度
+            int bands = tmp_dataset->GetRasterCount();   // 波段数（JPEG通常为3）
+            if (width != blk.dIMG.width || height != blk.dIMG.height || bands != m_bands)
+            {
+                std::cerr << "信息不匹配" << std::endl;
+                break;
+            }
+        }
+        int size = blk.xSize * blk.ySize * m_bands;
+        std::vector<GByte> _G_buff(size);
         // RasterIO 本身包含自动缩放?
         // RasterIO (GDALRWFlag eRWFlag, int nXOff, int nYOff, int nXSize, int nYSize, void *pData,
         // int nBufXSize, int nBufYSize, GDALDataType eBufType, int nBandCount,

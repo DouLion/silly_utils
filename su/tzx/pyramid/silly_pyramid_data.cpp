@@ -62,10 +62,10 @@ bool data::write(block& blk)
         std::scoped_lock lock(m_mutex);
         blk.pos = append(blk.data.data(), blk.size);
         blk.pos -= blk.size;
-        m_index->write(blk);
+        return m_index->write(blk);
     }
 
-    return true;
+    return false;
 }
 
 

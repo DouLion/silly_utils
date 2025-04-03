@@ -31,8 +31,8 @@
 struct screen_point
 {
     uint8_t layer;
-    uint64_t sr;  // 屏幕的行
-    uint64_t sc;  // 屏幕的列
+    int64_t pixX;   // 屏幕的列, 像素位置
+    int64_t pixY;  // 屏幕的行, 像素位置
 };
 
 struct screen_rect
@@ -42,39 +42,36 @@ struct screen_rect
     screen_point min;
 };
 
-struct pyramid_index
+struct tile_index
 {
     uint8_t layer;
     uint64_t col;
     uint64_t row;
 };
 
-class silly_google_pyramid
-{
-  public:
-    /// <summary>
-    /// 获取指定块的经纬范围
-    /// </summary>
-    /// <param name="l"></param>
-    /// <param name="c"></param>
-    /// <param name="r"></param>
-    /// <returns></returns>
-    static silly_rect get_rect(const pyramid_index& index);
-
-    /// <summary>
-    /// 坐标点在指定层所在的块信息
-    /// </summary>
-    /// <param name="layer"></param>
-    /// <param name="point"></param>
-    /// <returns></returns>
-    static pyramid_index get_index(const size_t& layer, const silly_point& point);
-};
-
-class silly_pyramid_proj
+class silly_tile
 {
   public:
 
-    static void size(const pyramid_index& pi1, const pyramid_index& pi2, size_t& width, size_t& height, const uint64_t& tilesize = 256);
+    /// <summary>
+    /// 根据tile块索引计算宽高, [min, max]
+    /// </summary>
+    /// <param name="pi1"></param>
+    /// <param name="pi2"></param>
+    /// <param name="width"></param>
+    /// <param name="height"></param>
+    /// <param name="tilesize"></param>
+    static void size(const tile_index& pi1, const tile_index& pi2, size_t& width, size_t& height, const uint64_t& tilesize = 256);
+
+
+    /// <summary>
+    /// 根据屏幕像素计算宽高
+    /// </summary>
+    /// <param name="sp1"></param>
+    /// <param name="sp2"></param>
+    /// <param name="width"></param>
+    /// <param name="height"></param>
+    static void size(const screen_point& sp1, const screen_point& sp2, size_t& width, size_t& height);
 
     /// <summary>
     /// 经纬度所在的块
@@ -82,7 +79,7 @@ class silly_pyramid_proj
     /// <param name="layer"></param>
     /// <param name="geo"></param>
     /// <returns></returns>
-    static pyramid_index geo2pyramid(const uint8_t& layer, const silly_point& geo, const uint64_t& tilesize = 256);
+    static tile_index geo2tile(const uint8_t& layer, const silly_point& geo, const uint64_t& tilesize = 256);
 
     /// <summary>
     /// 瓦片所在的经纬度范围
@@ -90,7 +87,7 @@ class silly_pyramid_proj
     /// <param name="layer"></param>
     /// <param name="geo"></param>
     /// <returns></returns>
-    static silly_rect pyramid2geo(const pyramid_index& index, const uint64_t& tilesize = 256);
+    static silly_rect tile2geo(const tile_index& index, const uint64_t& tilesize = 256);
 
     /// <summary>
     /// 经纬度对应的屏幕位置
@@ -126,7 +123,7 @@ class silly_pyramid_proj
     /// <param name="geo"></param>
     /// <param name="tilesize">瓦片宽高均为 tilesize</param>
     /// <returns></returns>
-    static pyramid_index screen2pyramid(const uint8_t& layer, const screen_point& point, const uint64_t& tilesize = 256);
+    static tile_index screen2tile(const uint8_t& layer, const screen_point& point, const uint64_t& tilesize = 256);
 
 
     /// <summary>
@@ -136,7 +133,7 @@ class silly_pyramid_proj
     /// <param name="geo"></param>
     /// <param name="tilesize">瓦片宽高均为 tilesize</param>
     /// <returns></returns>
-    static screen_rect pyramid2screen(const pyramid_index& index, const uint64_t& tilesize = 256);
+    static screen_rect tile2screen(const tile_index& index, const uint64_t& tilesize = 256);
 };
 
 #endif  // SILLY_UTILS_SILLY_PYRAMID_H
