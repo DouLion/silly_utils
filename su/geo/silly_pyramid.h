@@ -73,6 +73,9 @@ class silly_google_pyramid
 class silly_pyramid_proj
 {
   public:
+
+    static void size(const pyramid_index& pi1, const pyramid_index& pi2, size_t& width, size_t& height, const uint64_t& tilesize = 256);
+
     /// <summary>
     /// 经纬度所在的块
     /// </summary>

@@ -32,6 +32,13 @@ pyramid_index silly_google_pyramid::get_index(const size_t& layer, const silly_p
     ret.row = ceil((SILLY_GLOBAL_TOP - point.y) / y_delta);
     return ret;
 }
+void silly_pyramid_proj::size(const pyramid_index& pi1, const pyramid_index& pi2, size_t& width, size_t& height, const uint64_t& tilesize)
+{
+    int64_t rows = std::abs(static_cast<int64_t>(pi1.row) - static_cast<int64_t>(pi2.row)) + 1;
+    int64_t cols = std::abs(static_cast<int64_t>(pi1.col) - static_cast<int64_t>(pi2.col)) + 1;
+    width = static_cast<size_t>(cols) * tilesize;
+    height = static_cast<size_t>(rows) * tilesize;
+}
 
 pyramid_index silly_pyramid_proj::geo2pyramid(const uint8_t& layer, const silly_point& gp, const uint64_t& tilesize)
 {
@@ -91,8 +98,9 @@ silly_point silly_pyramid_proj::screen2geo(const uint8_t& layer, const screen_po
 pyramid_index silly_pyramid_proj::screen2pyramid(const uint8_t& layer, const screen_point& sp, const uint64_t& tilesize)
 {
     pyramid_index ret;
-    ret.row = sp.sr % tilesize;
-    ret.col = sp.sc % tilesize;
+    ret.layer = layer;
+    ret.row = sp.sr / tilesize;
+    ret.col = sp.sc / tilesize;
 
     return ret;
 }

@@ -108,26 +108,6 @@ bool silly_vectorizer::recurse_trace_line(int r, int c, silly_ring &ring)
     return false;
 }
 
-/*void silly_vectorizer::trace_one_line(int r0l, int c0l, silly_ring &ring)
-{
-    // 上
-    int r = r0l - 1;
-    int c = c0l;
-    RECURSION_TRACE_LINE(r, c)
-    // 右
-    r = r0l;
-    c = c0l + 1;
-    RECURSION_TRACE_LINE(r, c)
-    // 下
-    r = r0l + 1;
-    c = c0l;
-    RECURSION_TRACE_LINE(r, c)
-    // 左
-    r = r0l;
-    c = c0l - 1;
-    RECURSION_TRACE_LINE(r, c)
-}*/
-
 void silly_vectorizer::trace_one_line(int r0l, int c0l, silly_ring &ring)
 {
     bool has_next = true;
