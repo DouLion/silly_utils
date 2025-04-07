@@ -1,11 +1,7 @@
 //
 // Created by dly on 2023/8/3.
 //
-
 #include "silly_file.h"
-#include <fstream>
-#include <regex>
-#include "encode/silly_encode.h"
 
 namespace sfs = std::filesystem;
 
@@ -14,32 +10,74 @@ namespace sfs = std::filesystem;
 // 为什么用notepad++ 打开时 有些是中文编码(GBK23..)有些是ANSI
 //
 
-static std::string _wildcard2regex(const std::string& pattern) {
+static std::wstring _cxx11_string_wstring(const std::string &str)
+{
+    // 需要c++11 或者c++17
+    std::wstring ws_result;
+    try
+    {
+        using convert_typeX = std::codecvt_utf8<wchar_t>;
+        std::wstring_convert<convert_typeX, wchar_t> converterX;
+
+        ws_result = converterX.from_bytes(str);
+    }
+    catch (std::exception &e)
+    {
+        SU_ERROR_PRINT("%s", e.what());
+        ws_result.clear();
+    }
+    return ws_result;
+}
+static std::string _wildcard2regex(const std::string &pattern)
+{
     std::string regexPattern;
-    for (char c : pattern) {
-        switch (c) {
-            case '*': regexPattern += ".*"; break;  // * 匹配任意数量的字符
-            case '?': regexPattern += "."; break;   // ? 匹配单个字符
-            case '.': regexPattern += "\\."; break; // . 需要转义
-            case '\\': regexPattern += "\\\\"; break; // \ 需要转义
-            default: regexPattern += c; break;
+    for (char c : pattern)
+    {
+        switch (c)
+        {
+            case '*':
+                regexPattern += ".*";
+                break;  // * 匹配任意数量的字符
+            case '?':
+                regexPattern += ".";
+                break;  // ? 匹配单个字符
+            case '.':
+                regexPattern += "\\.";
+                break;  // . 需要转义
+            case '\\':
+                regexPattern += "\\\\";
+                break;  // \ 需要转义
+            default:
+                regexPattern += c;
+                break;
         }
     }
     return "^" + regexPattern + "$";  // 确保整个字符串匹配
 }
 
-static bool validate_utf8(const std::string& str) {
+static bool _is_utf8(const std::string &str)
+{
     int n;
-    for (size_t i = 0; i < str.length();) {
-        if ((str[i] & 0x80) == 0x00) { // 单字节
+    for (size_t i = 0; i < str.length();)
+    {
+        if ((str[i] & 0x80) == 0x00)
+        {  // 单字节
             n = 1;
-        } else if ((str[i] & 0xE0) == 0xC0) { // 两字节
+        }
+        else if ((str[i] & 0xE0) == 0xC0)
+        {  // 两字节
             n = 2;
-        } else if ((str[i] & 0xF0) == 0xE0) { // 三字节
+        }
+        else if ((str[i] & 0xF0) == 0xE0)
+        {  // 三字节
             n = 3;
-        } else if ((str[i] & 0xF8) == 0xF0) { // 四字节
+        }
+        else if ((str[i] & 0xF8) == 0xF0)
+        {  // 四字节
             n = 4;
-        } else {
+        }
+        else
+        {
             return false;
         }
         for (int j = 1; j < n; ++j)
@@ -49,25 +87,23 @@ static bool validate_utf8(const std::string& str) {
     }
     return true;
 }
-
-
-size_t silly::file::utils::read(const std::string &u8path, std::string &content, const size_t &offset, const size_t &len)
+std::filesystem::path realpath(const std::string &path)
+{
+    std::filesystem::path realpath(path);
+#if IS_WIN32
+    if (_is_utf8(path))
+    {
+        realpath = _cxx11_string_wstring(path);
+    }
+#endif
+    return realpath;
+}
+size_t silly::file::utils::read(const std::string &path, std::string &content, const size_t &offset, const size_t &len)
 {
     size_t ret_read_size = 0;
     content.clear();
-    std::fstream input;
-#if IS_WIN32
-    if (silly_encode::is_utf8(u8path))
-    {
-        input.open(silly_encode::cxx11_string_wstring(u8path), std::ios::binary | std::ios::in);
-    }
-    else
-    {
-        input.open(u8path, std::ios::binary | std::ios::in);
-    }
-#else
-    input.open(u8path, std::ios::binary | std::ios::in);
-#endif
+
+    std::fstream input(realpath(path), std::ios::binary | std::ios::in);
 
     if (!input.is_open())
     {
@@ -92,7 +128,7 @@ size_t silly::file::utils::read(const std::string &u8path, std::string &content,
     return ret_read_size;
 }
 
-size_t silly::file::utils::read(const std::string &u8path, unsigned char **content, const size_t &offset, const size_t &len)
+size_t silly::file::utils::read(const std::string &path, unsigned char **content, const size_t &offset, const size_t &len)
 {
     size_t read_size = 0;
     if ((*content))  // content 不能有内容
@@ -100,7 +136,7 @@ size_t silly::file::utils::read(const std::string &u8path, unsigned char **conte
         return read_size;
     }
     std::string s_cont;
-    read_size = silly::file::utils::read(u8path, s_cont, offset, len);
+    read_size = silly::file::utils::read(path, s_cont, offset, len);
     if (read_size)
     {
         *content = (unsigned char *)malloc(read_size);
@@ -116,14 +152,9 @@ size_t silly::file::utils::read(const std::string &u8path, unsigned char **conte
     return read_size;
 }
 
-bool silly::file::utils::read(const std::string &u8path, std::vector<std::string> &lines)
+bool silly::file::utils::read(const std::string &path, std::vector<std::string> &lines)
 {
-    std::fstream input;
-#if IS_WIN32
-    input.open(silly_encode::cxx11_string_wstring(u8path), std::ios::binary | std::ios::in);
-#else
-    input.open(u8path, std::ios::binary | std::ios::in);
-#endif
+    std::fstream input(realpath(path), std::ios::binary | std::ios::in);
     if (input.is_open())
     {
         std::string line;
@@ -140,73 +171,57 @@ bool silly::file::utils::read(const std::string &u8path, std::vector<std::string
     return true;
 }
 
-size_t silly::file::utils::write(const std::string &u8path, const std::string &content)
+size_t silly::file::utils::write(const std::string &path, const std::string &content)
 {
     size_t write_len = 0;
-    std::fstream ofs_w;
+    std::fstream output(realpath(path), std::ios::binary | std::ios::out);
 
-#if IS_WIN32
-    if (silly_encode::is_utf8(u8path))
-    {
-        ofs_w.open(silly_encode::cxx11_string_wstring(u8path), std::ios::binary | std::ios::out);
-    }
-    else
-    {
-        ofs_w.open(u8path, std::ios::binary | std::ios::out);
-    }
-#else
-    ofs_w.open(u8path, std::ios::binary | std::ios::in);
-#endif
-
-    if (!ofs_w.is_open())
+    if (!output.is_open())
     {
         return write_len;
     }
-    ofs_w.write(content.c_str(), content.size());
+    output.write(content.c_str(), content.size());
     return content.size();
 }
 
-size_t silly::file::utils::write(const std::string &u8path, const std::vector<std::string> &lines)
+size_t silly::file::utils::write(const std::string &path, const std::vector<std::string> &lines)
 {
     size_t write_len = 0;
-#if IS_WIN32
-    std::ofstream ofs_w(silly_encode::cxx11_string_wstring(u8path));
-#else
-    std::ofstream ofs_w(u8path);
-#endif
-    if (!ofs_w.is_open())
+    std::fstream output(realpath(path), std::ios::binary | std::ios::out);
+
+    if (!output.is_open())
     {
         return write_len;
     }
     for (auto l : lines)
     {
-        ofs_w.write(l.c_str(), l.size());
+        output.write(l.c_str(), l.size());
         write_len += l.size();
     }
     return write_len;
 }
 
-std::vector<std::string> silly::file::utils::list(const std::string &u8path, const std::string &filter)
+std::vector<std::string> silly::file::utils::list(const std::string &path, const std::string &filter)
 {
-    std::vector<std::string> vs_ret_list;
-    sfs::path sfp_root(silly_encode::cxx11_string_wstring(u8path));
-    if (!sfs::exists(sfp_root))
+    std::vector<std::string> ret;
+    sfs::path _root(_cxx11_string_wstring(path));
+    if (!sfs::exists(_root))
     {
-        return vs_ret_list;
+        return ret;
     }
 
     std::regex reg_filter(file_filter_regex(filter));
-    bool b_match_all = (filter == SILLY_FILE_MATCH_ALL_WILDCHAR);
+    bool match_all = (filter == SILLY_FILE_MATCH_ALL_WILDCHAR);
 
-    if (sfs::is_directory(sfp_root))
+    if (sfs::is_directory(_root))
     {
         try
         {
-            for (auto iter_f : sfs::directory_iterator(sfp_root, sfs::directory_options::skip_permission_denied))
+            for (auto itp : sfs::directory_iterator(_root, sfs::directory_options::skip_permission_denied))
             {
-                if (b_match_all || std::regex_match(iter_f.path().filename().u8string(), reg_filter))
+                if (match_all || std::regex_match(itp.path().filename().u8string(), reg_filter))
                 {
-                    vs_ret_list.push_back(iter_f.path().u8string());
+                    ret.push_back(itp.path().u8string());
                 }
             }
         }
@@ -217,34 +232,34 @@ std::vector<std::string> silly::file::utils::list(const std::string &u8path, con
     }
     else
     {
-        if (b_match_all || std::regex_match(sfp_root.filename().u8string(), reg_filter))
+        if (match_all || std::regex_match(_root.filename().u8string(), reg_filter))
         {
-            vs_ret_list.push_back(sfp_root.u8string());
+            ret.push_back(_root.u8string());
         }
     }
-    return vs_ret_list;
+    return ret;
 }
 
-std::vector<std::string> silly::file::utils::relist(const std::string &u8path, const std::string &filter)
+std::vector<std::string> silly::file::utils::relist(const std::string &path, const std::string &filter)
 {
-    std::vector<std::string> vs_ret_list;
-    sfs::path sfp_root(u8path);
-    if (!sfs::exists(sfp_root))
+    std::vector<std::string> ret;
+    sfs::path _root = realpath(path);
+    if (!sfs::exists(_root))
     {
-        return vs_ret_list;
+        return ret;
     }
 
     std::regex reg_filter(file_filter_regex(filter));
-    bool b_match_all = (filter == SILLY_FILE_MATCH_ALL_WILDCHAR);
-    if (sfs::is_directory(sfp_root))
+    bool match_all = (filter == SILLY_FILE_MATCH_ALL_WILDCHAR);
+    if (sfs::is_directory(_root))
     {
         try
         {
-            for (auto iter_f : sfs::recursive_directory_iterator(sfp_root, sfs::directory_options::skip_permission_denied))
+            for (const auto& itp : sfs::recursive_directory_iterator(_root, sfs::directory_options::skip_permission_denied))
             {
-                if (b_match_all || std::regex_match(iter_f.path().filename().u8string(), reg_filter))
+                if (match_all || std::regex_match(itp.path().filename().u8string(), reg_filter))
                 {
-                    vs_ret_list.push_back(iter_f.path().u8string());
+                    ret.push_back(itp.path().u8string());
                 }
             }
         }
@@ -255,12 +270,12 @@ std::vector<std::string> silly::file::utils::relist(const std::string &u8path, c
     }
     else
     {
-        if (b_match_all || std::regex_match(sfp_root.filename().u8string(), reg_filter))
+        if (match_all || std::regex_match(_root.filename().u8string(), reg_filter))
         {
-            vs_ret_list.push_back(sfp_root.u8string());
+            ret.push_back(_root.u8string());
         }
     }
-    return vs_ret_list;
+    return ret;
 }
 
 std::string silly::file::utils::file_filter_regex(const std::string &filter)
@@ -283,16 +298,17 @@ std::string silly::file::utils::file_filter_regex(const std::string &filter)
     }
     return s_result;
 }
-size_t silly::file::utils::last_modify_sec(const std::string &u8path)
+size_t silly::file::utils::last_modify_sec(const std::string &path)
 {
     size_t stamp = 0;
     try
     {
         // 检查文件是否存在
-        if (std::filesystem::exists(u8path))
+        std::filesystem::path rp = realpath(path);
+        if (std::filesystem::exists(rp))
         {
             // 获取文件的最后修改时间
-            auto ftime = std::filesystem::last_write_time(u8path);
+            auto ftime = std::filesystem::last_write_time(rp);
 
             // 转换为系统时间点
             auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(ftime - std::filesystem::file_time_type::clock::now() + std::chrono::system_clock::now());
@@ -303,7 +319,7 @@ size_t silly::file::utils::last_modify_sec(const std::string &u8path)
         }
         else
         {
-            std::cerr << "文件 " << u8path << " 不存在。" << std::endl;
+            std::cerr << "文件 " << path << " 不存在。" << std::endl;
         }
     }
     catch (const std::filesystem::filesystem_error &e)
@@ -313,16 +329,17 @@ size_t silly::file::utils::last_modify_sec(const std::string &u8path)
 
     return stamp;
 }
-size_t silly::file::utils::last_modify_ms(const std::string &u8path)
+size_t silly::file::utils::last_modify_ms(const std::string &path)
 {
     size_t stamp = 0;
     try
     {
         // 检查文件是否存在
-        if (std::filesystem::exists(u8path))
+        std::filesystem::path rp = realpath(path);
+        if (std::filesystem::exists(rp))
         {
             // 获取文件的最后修改时间
-            auto ftime = std::filesystem::last_write_time(u8path);
+            auto ftime = std::filesystem::last_write_time(rp);
 
             // 转换为系统时间点
             auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(ftime - std::filesystem::file_time_type::clock::now() + std::chrono::system_clock::now());
@@ -335,7 +352,7 @@ size_t silly::file::utils::last_modify_ms(const std::string &u8path)
         }
         else
         {
-            std::cerr << "文件 " << u8path << " 不存在。" << std::endl;
+            std::cerr << "文件 " << path << " 不存在。" << std::endl;
         }
     }
     catch (const std::filesystem::filesystem_error &e)
@@ -345,15 +362,11 @@ size_t silly::file::utils::last_modify_ms(const std::string &u8path)
 
     return stamp;
 }
-size_t silly::file::utils::size(const std::string &u8path)
+size_t silly::file::utils::size(const std::string &path)
 {
     size_t file_size = 0;
-    std::fstream input;
-#if IS_WIN32
-    input.open(silly_encode::cxx11_string_wstring(u8path), std::ios::binary | std::ios::in);
-#else
-    input.open(u8path, std::ios::binary | std::ios::in);
-#endif
+    std::fstream input(realpath(path), std::ios::binary | std::ios::in);
+
     if (!input.is_open())
     {
         return file_size;
@@ -365,15 +378,15 @@ size_t silly::file::utils::size(const std::string &u8path)
     file_size = input.tellg();
     return file_size;
 }
-bool silly::file::utils::exist(const std::string &u8path)
+bool silly::file::utils::exist(const std::string &path)
 {
-    return exist(std::filesystem::path(u8path));
+    return exist(std::filesystem::path(path));
 }
-bool silly::file::utils::exist(const std::filesystem::path &u8path)
+bool silly::file::utils::exist(const std::filesystem::path &path)
 {
     try
     {
-        return std::filesystem::exists(u8path);
+        return std::filesystem::exists(path);
     }
     catch (const std::exception &e)
     {
@@ -381,15 +394,15 @@ bool silly::file::utils::exist(const std::filesystem::path &u8path)
     }
     return false;
 }
-bool silly::file::utils::mkdir(const std::string &u8path)
+bool silly::file::utils::mkdir(const std::string &path)
 {
-    return mkdir(std::filesystem::path(u8path));
+    return mkdir(std::filesystem::path(path));
 }
-bool silly::file::utils::mkdir(const std::filesystem::path &u8path)
+bool silly::file::utils::mkdir(const std::filesystem::path &path)
 {
     try
     {
-        return std::filesystem::create_directories(u8path);
+        return std::filesystem::create_directories(path);
     }
     catch (const std::exception &e)
     {
@@ -397,30 +410,30 @@ bool silly::file::utils::mkdir(const std::filesystem::path &u8path)
     }
     return false;
 }
-void silly::file::utils::rm(const std::string &u8path)
+void silly::file::utils::rm(const std::string &path)
 {
-    rm(std::filesystem::path(u8path));
+    rm(std::filesystem::path(path));
 }
-void silly::file::utils::rm(const std::filesystem::path &u8path)
+void silly::file::utils::rm(const std::filesystem::path &path)
 {
     try
     {
-        std::filesystem::remove(u8path);
+        std::filesystem::remove(path);
     }
     catch (const std::exception &e)
     {
         std::cerr << e.what() << '\n';
     }
 }
-void silly::file::utils::rrm(const std::string &u8path)
+void silly::file::utils::rrm(const std::string &path)
 {
-    rrm(std::filesystem::path(u8path));
+    rrm(std::filesystem::path(path));
 }
-void silly::file::utils::rrm(const std::filesystem::path &u8path)
+void silly::file::utils::rrm(const std::filesystem::path &path)
 {
     try
     {
-        std::filesystem::remove_all(u8path);
+        std::filesystem::remove_all(path);
     }
     catch (const std::exception &e)
     {
