@@ -77,7 +77,7 @@ static bool silly_line_to_gaiageo(const silly_line &line, gaiaGeomCollPtr &ggcp)
 /// <param name="mline">silly类型多线</param>
 /// <param name="ggcp">spatialite类型多线</param>
 /// <returns></returns>
-static bool silly_multi_silly_line_to_gaiageo(const silly_multi_silly_line &mline, gaiaGeomCollPtr &ggcp)
+static bool silly_multi_silly_line_to_gaiageo(const silly_multi_line &mline, gaiaGeomCollPtr &ggcp)
 {
     if (!mline.empty())
     {
@@ -242,7 +242,7 @@ static bool gaiageo_to_silly_line(gaiaGeomCollPtr ggcp, silly_line &line)
 /// <param name="ggcp">spatialite类型多线</param>
 /// <param name="mline">silly类型多线</param>
 /// <returns></returns>
-static bool gaiageo_to_silly_multi_line(gaiaGeomCollPtr ggcp, silly_multi_silly_line &mline)
+static bool gaiageo_to_silly_multi_line(gaiaGeomCollPtr ggcp, silly_multi_line &mline)
 {
     gaiaLinestringPtr line = ggcp->FirstLinestring;
     while (line)

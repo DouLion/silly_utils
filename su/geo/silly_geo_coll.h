@@ -20,7 +20,7 @@ class silly_geo_coll
     silly_geo_coll(silly_point p);
     silly_geo_coll(silly_multi_point mp);
     silly_geo_coll(silly_line l);
-    silly_geo_coll(silly_multi_silly_line ml);
+    silly_geo_coll(silly_multi_line ml);
     silly_geo_coll(silly_poly p);
     silly_geo_coll(silly_multi_poly mp);
 
@@ -28,7 +28,7 @@ class silly_geo_coll
     void add(silly_point p);
     void add(silly_multi_point mp);
     void add(silly_line l);
-    void add(silly_multi_silly_line ml);
+    void add(silly_multi_line ml);
     void add(silly_poly p);
     void add(silly_multi_poly mp);
 
@@ -39,7 +39,7 @@ class silly_geo_coll
     silly_point m_point;                        // 单点
     silly_multi_point m_m_points;               // 多点
     silly_line m_line;                          // 单线
-    silly_multi_silly_line m_m_lines;           // 多线
+    silly_multi_line m_m_lines;           // 多线
     silly_poly m_poly;                          // 单面(内环+外环)
     silly_multi_poly m_m_polys;                 // 多面(多个 单面)
     std::vector<enum_geometry_type> comp_type;  // 用于存储复合数据类型变量中的类型变量

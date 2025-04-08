@@ -180,9 +180,9 @@ OGRLineString utils::silly_line_to_ogr(const silly_line& line)
 }
 
 // OGRMultiLineString(多线)类型转为 silly_multiline(多线)类型
-silly_multi_silly_line utils::silly_multi_line_from_ogr(const OGRMultiLineString* multiLineString)
+silly_multi_line utils::silly_multi_line_from_ogr(const OGRMultiLineString* multiLineString)
 {
-    silly_multi_silly_line multiLine;
+    silly_multi_line multiLine;
     int numLines = multiLineString->getNumGeometries();
     for (int i = 0; i < numLines; i++)
     {
@@ -197,7 +197,7 @@ silly_multi_silly_line utils::silly_multi_line_from_ogr(const OGRMultiLineString
 }
 
 // 将 silly_multiline(多线) 转换为 OGRMultiLineString(多线)类型
-OGRMultiLineString utils::silly_multi_line_to_ogr(const silly_multi_silly_line& multiLine)
+OGRMultiLineString utils::silly_multi_line_to_ogr(const silly_multi_line& multiLine)
 {
     OGRMultiLineString ogrMultiLineString;
 

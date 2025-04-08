@@ -231,9 +231,9 @@ class silly_rect  // 普通坐标点
         {
             std::swap(min.x, max.x);  // 使用 std::swap 简化交换操作
         }
-        if (max.y > max.y)
+        if (min.y > max.y)
         {
-            std::swap(max.y, max.y);  // 使用 std::swap 简化交换操作
+            std::swap(min.y, max.y);  // 使用 std::swap 简化交换操作
         }
     }
 
@@ -363,11 +363,11 @@ class silly_linez : public std::vector<silly_point_z>
 /****************************************/
 /// 多线
 /****************************************/
-class silly_multi_silly_line : public std::vector<silly_line>
+class silly_multi_line : public std::vector<silly_line>
 {
   public:
-    silly_multi_silly_line() = default;
-    ~silly_multi_silly_line() = default;
+    silly_multi_line() = default;
+    ~silly_multi_line() = default;
 
   public:
 };
@@ -757,11 +757,11 @@ class silly_line : public std::vector<silly_point>
 /****************************************/
 /// 多线
 /****************************************/
-class silly_multi_silly_line : public std::vector<silly_line>
+class silly_multi_line : public std::vector<silly_line>
 {
   public:
-    silly_multi_silly_line() = default;
-    ~silly_multi_silly_line() = default;
+    silly_multi_line() = default;
+    ~silly_multi_line() = default;
 
   public:
 };

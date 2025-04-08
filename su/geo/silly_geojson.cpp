@@ -206,7 +206,7 @@ bool geojson::read(const Json::Value& jv, silly_line& line)
     return true;
 }
 
-bool geojson::read(const Json::Value& jv, silly_multi_silly_line& mline)
+bool geojson::read(const Json::Value& jv, silly_multi_line& mline)
 {
     if (!jv.isArray())
         return false;

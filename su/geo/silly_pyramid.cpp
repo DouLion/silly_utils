@@ -69,7 +69,7 @@ screen_point silly_tile::geo2screen(const uint8_t& layer, const silly_point& gp,
     screen_point ret;
     double total_tilesize = tilesize << layer;  // 第layer层的瓦片大小
     ret.layer = layer;
-    ret.pixY = std::floor(total_tilesize * (1.0 - (log(tan((gp.y * PI / 180.0) / 2.0 + PI / 4.0)) / PI)) / 2.0);
+    ret.pixY = std::floor(total_tilesize * (1.0 - (log(tan(DEG2RAD(gp.y) / 2.0 + PI / 4.0)) / PI)) / 2.0);
     ret.pixX = std::floor((gp.x + 180.0) / 360.0 * total_tilesize);
     return ret;
 }
@@ -79,7 +79,7 @@ screen_rect silly_tile::geo2screen(const uint8_t& layer, const silly_rect& rect,
     screen_rect ret;
     double total_tilesize = tilesize << layer;  // 第layer层的瓦片大小
     ret.layer = layer;
-    ret.min.pixY = std::floor(total_tilesize * (1.0 - (log(tan((rect.min.y * PI / 180.0) / 2.0 + PI / 4.0)) / PI)) / 2.0);
+    ret.min.pixY = std::floor(total_tilesize * (1.0 - (log(tan(DEG2RAD(rect.min.y) / 2.0 + PI / 4.0)) / PI)) / 2.0);
     ret.min.pixX = std::floor((rect.min.x + 180.0) / 360.0 * total_tilesize);
     ret.max.pixY = std::ceil(total_tilesize * (1.0 - (log(tan((rect.max.y * PI / 180.0) / 2.0 + PI / 4.0)) / PI)) / 2.0);
     ret.max.pixX = std::ceil((rect.max.x + 180.0) / 360.0 * total_tilesize);

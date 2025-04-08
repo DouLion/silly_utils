@@ -9,7 +9,7 @@
  * @version: v1.0.1 2025-02-14 dou li yang
  */
 #include "silly_radar_occluder.h"
-#include "geo/proj/silly_proj.h"
+#include <geo/proj/silly_proj.h>
 
 // // 将极坐标转换为笛卡尔坐标
 silly_point polar2cartesian(const silly_point& center, const double& r, const double& deg)

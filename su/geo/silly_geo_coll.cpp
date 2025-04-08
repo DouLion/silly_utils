@@ -21,7 +21,7 @@ silly_geo_coll::silly_geo_coll(silly_line l)
     m_line = l;
 }
 
-silly_geo_coll::silly_geo_coll(silly_multi_silly_line ml)
+silly_geo_coll::silly_geo_coll(silly_multi_line ml)
 {
     m_type = enum_geometry_type::egtMultiLineString;
     m_m_lines = ml;
@@ -57,7 +57,7 @@ void silly_geo_coll::add(silly_line l)
     m_line = l;
 }
 
-void silly_geo_coll::add(silly_multi_silly_line ml)
+void silly_geo_coll::add(silly_multi_line ml)
 {
     m_type = enum_geometry_type::egtMultiLineString;
     m_m_lines = ml;

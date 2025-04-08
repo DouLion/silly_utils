@@ -106,8 +106,7 @@
 #include <graphics/silly_png.h>                                 // png图片处理
 #include <graphics/silly_raw.h>                                 // 未实现
 #include <graphics/silly_tif.h>                                 // 为实现
-#include <graphics/tools/silly_huge_stitcher.h>                 // 超大图像拼接 未实现
-#include <graphics/tools/silly_stitcher.h>                      // 图像拼接 未实现
+#include <graphics/tools/silly_huge_stitcher.h>                 // 基于GDAL GTiff驱动的超大图像拼接
 
 // mapbox
 #include <mapbox/mbtiles/dtoa_milo.h>               // 高效且精确的 double 到 ASCII 字符串（以及反向）的转换
@@ -137,7 +136,7 @@
 #include <math/spline/silly_parabolic_spline.h>    // 未实现
 #include <math/spline/silly_pqs_interp_spline.h>   // 未实现
 
-// 常用气象,地理信息树读写
+// 常用气象地理信息元数据读写
 #include <metadata/geotiff_utils.h>           // geotiff 
 #include <metadata/grib_utils.h>              // grid 
 #include <metadata/narui_radar_grid_utils.h>  // 纳睿达网格文件

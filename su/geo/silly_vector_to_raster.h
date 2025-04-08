@@ -81,7 +81,7 @@ class x_scan_line
     /// </summary>
     /// <param name="lines">多线</param>
     /// <returns></returns>
-    void rasterize(const silly_multi_silly_line& lines);
+    void rasterize(const silly_multi_line& lines);
 
     /// <summary>
     /// 光栅化一个单点矢量

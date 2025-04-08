@@ -230,6 +230,28 @@ class convert
     /// <param name="p7">七参数</param>
     /// <returns></returns>
     static point3d trans(const point3d& meas, const helmert& p7);
+
+    /// <summary>
+    /// 笛卡尔坐标系转极坐标系
+    /// </summary>
+    /// <param name="x"></param>
+    /// <param name="y"></param>
+    /// <param name="r"></param>
+    /// <param name="th"></param>
+    /// <param name="x0">原点</param>
+    /// <param name="y0"></param>
+    static void cartesian_to_polar(double x, double y, double& r, double& th, double x0 = 0, double y0 = 0);
+
+    /// <summary>
+    /// 极坐标系转笛卡尔坐标系
+    /// </summary>
+    /// <param name="r"></param>
+    /// <param name="th"></param>
+    /// <param name="x"></param>
+    /// <param name="y"></param>
+    /// <param name="x0"></param>
+    /// <param name="y0"></param>
+    static void polar_to_cartesian(double r, double th, double& x, double& y, double x0 = 0, double y0 = 0);
 };
 }  // namespace proj
 

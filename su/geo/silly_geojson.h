@@ -76,7 +76,7 @@ class geojson
     /// <param name="jv"></param>
     /// <param name="mline"></param>
     /// <returns></returns>
-    static bool read(const Json::Value& jv, silly_multi_silly_line& mline);
+    static bool read(const Json::Value& jv, silly_multi_line& mline);
 
     /// <summary>
     /// 从 Json::Value对象加载环

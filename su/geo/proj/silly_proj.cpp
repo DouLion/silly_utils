@@ -334,3 +334,19 @@ convert::point3d convert::trans(const convert::point3d& meas, const convert::hel
 
     return {p7.dx + R[0][0] * meas.x + R[0][1] * meas.y + R[0][2] * meas.z, p7.dy + R[1][0] * meas.x + R[1][1] * meas.y + R[1][2] * meas.z, p7.dz + R[2][0] * meas.x + R[2][1] * meas.y + R[2][2] * meas.z};
 }
+
+
+void convert::cartesian_to_polar(double x, double y, double& r, double& th, double x0, double y0)
+{
+    const double dx = x - x0;  // 计算原点偏移后的坐标差
+    const double dy = y - y0;
+
+    r = std::hypot(dx, dy);                    // 等效于 sqrt(dx*dx + dy*dy)，精度更高
+    th = (r == 0) ? 0.0 : std::atan2(dy, dx);  // 处理零半径情况
+}
+
+void convert::polar_to_cartesian(double r, double th, double& x, double& y, double x0, double y0)
+{
+    x = x0 + r * std::cos(th);  // 极径投影到x轴
+    y = y0 + r * std::sin(th);  // 极径投影到y轴
+}

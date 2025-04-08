@@ -413,14 +413,14 @@ class utils
     /// </summary>
     /// <param name="multiLineString"></param>
     /// <returns></returns>
-    static silly_multi_silly_line silly_multi_line_from_ogr(const OGRMultiLineString* multiLineString);
+    static silly_multi_line silly_multi_line_from_ogr(const OGRMultiLineString* multiLineString);
 
     /// <summary>
     /// 将 silly_multiline(多线) 转换为 OGRMultiLineString(多线)类型
     /// </summary>
     /// <param name="multiLine"></param>
     /// <returns></returns>
-    static OGRMultiLineString silly_multi_line_to_ogr(const silly_multi_silly_line& multiLine);
+    static OGRMultiLineString silly_multi_line_to_ogr(const silly_multi_line& multiLine);
 
     /// ================ 闭合环 ================
 

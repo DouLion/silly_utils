@@ -60,7 +60,7 @@ void x_scan_line::rasterize(const silly_line& line)
     
 }
 
-void x_scan_line::rasterize(const silly_multi_silly_line& lines)
+void x_scan_line::rasterize(const silly_multi_line& lines)
 {
     // m_row_pairs.clear();
     for (const auto& line : lines)
