@@ -11,47 +11,59 @@
 #ifndef SILLY_UTILS_SILLY_RADAR_OCCLUDER_H
 #define SILLY_UTILS_SILLY_RADAR_OCCLUDER_H
 #include <geo/silly_geo_utils.h>
+
 class silly_radar_occluder
 {
+    struct dem
+    {
+        std::vector<double> data;
+        size_t rows;
+        size_t cols;
+        silly_rect rect;
+        double l0 = -9999; // -9999表示经纬度,否则表示高斯中心线
+    };
+    struct site
+    {
+        double radius = 0;     // 半径 单位(米)
+        silly_point position;  // 位置
+        double elevation = 0;  // 高程
+        double altitude = 0;   // 相对地面高度,这个可以没有
+    };
   public:
     /// <summary>
-    /// 读取dem文件
+    /// 设置雷达站点基本信息
     /// </summary>
-    /// <param name="file"></param>
-    /// <returns></returns>
-    bool get_dem(const std::string& file);
+    /// <param name="info"></param>
+    void set(const site& info);
 
     /// <summary>
-    /// 网格dem转极坐标
+    /// 设置dem信息
     /// </summary>
-    /// <param name="center">中心坐标(经纬度)</param>
-    /// <param name="radius">采样半径,雷达扫描半径(km)</param>
-    /// <returns></returns>
-    bool dem2polar(const silly_point& center, const double& radius);
-    // bool silly_radar_occluder::dem2polar(const std::string& file, const silly_point& center, const double& radius);
+    /// <param name="info"></param>
+    void set(const dem& info);
 
     /// <summary>
     /// 提取雷达遮挡范围矢量
     /// </summary>
-    /// <param name="height">雷达高程</param>
-    /// <param name="deg">俯仰角度(度),指向天空为正,指向地面为负</param>
-    /// <param name="radius">雷达工作扫描半径(km)</param>
-    silly_poly occluder_poly(const double& height, const double& deg, const double& radius);
+    /// <param name="pitch">俯仰角度(度),指向天空为正,指向地面为负</param>
+    /// <param name="elev">雷达高程</param>
+    /// <param name="radius">雷达工作扫描半径(米)</param>
+    silly_poly occluder_poly(const double& pitch, const double& elev = 0.0, const double& radius = 0.0);
 
-  public:
-    std::vector<std::vector<double>> m_polar_dem;  // 极坐标DEM
+  private:
+    void check_beam(size_t deg, double pitch, double elev, double radius, double* stopLen);
+
+  private:
+    std::vector<std::vector<double>> m_polar_dem;  // 极坐标DEM std::vector<弧度, std::vector<半径>>
     silly_point m_center;
+    double m_elevation = 0;
+    double m_radius = 0;
+    double m_l0 = -9999;
 
-    // dem二维矩阵数据
-    std::vector<double> m_dem_data;
-    size_t x_size{0};          // x轴大小
-    size_t y_size{0};          // y轴大小
-    silly_point left_top;      // 左上角坐标经纬度
-    silly_point right_bottom;  // 右下角坐标经纬度
-    silly_point left_bottom;   // 左下角坐标经纬度
-    silly_point right_top;     // 右上角坐标经纬度
-    double x_res{0};           // x轴分辨率 // 单位度
-    double y_res{0};           // y轴分辨率 // 单位度
+    double m_dStep = 0.5; // 角度步长  度 
+    double m_rStep = 25.0; // 半径步长 25 米
+    size_t m_dSize = 720;
+    size_t m_rSize = 0;
 };
 
 #endif  // SILLY_UTILS_SILLY_RADAR_OCCLUDER_H
