@@ -74,7 +74,7 @@ void convert_image(double ncols, double nrows, double xllcorner, double yllcorne
     }
 #ifndef NDEBUG
     silly_timer timer;
-    #endif
+#endif
     {
         for (size_t r = 0; r < nrows; ++r)
         {
@@ -105,7 +105,7 @@ void convert_image(double ncols, double nrows, double xllcorner, double yllcorne
             }
         }
     }
-    
+
     silly::png::data pdH, pdXY;
     pdH.compress_level(AG_COMPRESS_LEVEL);
     pdXY.compress_level(AG_COMPRESS_LEVEL);
@@ -118,7 +118,7 @@ void convert_image(double ncols, double nrows, double xllcorner, double yllcorne
     {
 #ifndef NDEBUG
         SU_INFO_PRINT("Filter Max:  %.2f ms", timer.elapsed_ms())
-            
+
         timer.restart();
 #endif
     }
@@ -146,7 +146,7 @@ void convert_image(double ncols, double nrows, double xllcorner, double yllcorne
             {
                 h = 0.;
             }
-            
+
             silly::color cXY, cH;
             cXY.red = (qu - uMin) / ustep;
             cXY.green = (qv - vMin) / vstep;
@@ -196,6 +196,112 @@ void convert_image(double ncols, double nrows, double xllcorner, double yllcorne
     pd2_data.append(pd2_content);
     silly_file::write(pd2_path, pd2_data);
     pdXY.release();
+}
+
+void convert_hq(double ncols, double nrows, double xllcorner, double yllcorner, double cellsize, double mid, double* hData, double* qxData, double* qyData, char* img_path, bool verbose)
+{
+    double uMax = -99999.0, uMin = 99999.0, vMax = -99999.0, vMin = 99999.0;
+    double hMax = -99999.0, hMin = 99999.0;
+    if (!hData)
+    {
+        return;
+    }
+    {
+        for (size_t r = 0; r < nrows; ++r)
+        {
+            for (size_t c = 0; c < ncols; ++c)
+            {
+                int pos = SU_MAX(0, SU_MIN(r * ncols + c, nrows * ncols));
+                double h = hData[pos];
+                hMax = SU_MAX(hMax, h);
+                hMin = SU_MIN(hMin, h);
+                if (h < DEPTH_TINY)
+                {
+                    continue;
+                }
+
+                double u = qxData[pos] / h;
+                double v = qyData[pos] / h;
+
+                // if (u > DEPTH_TINY)
+                {
+                    uMax = SU_MAX(uMax, u);
+                    uMin = SU_MIN(uMin, u);
+                }
+                // if (v > DEPTH_TINY)
+                {
+                    vMax = SU_MAX(vMax, v);
+                    vMin = SU_MIN(vMin, v);
+                }
+            }
+        }
+    }
+
+    silly::png::data pdA;
+    pdA.create((ncols - 2), (nrows - 2), silly::color::eptRGB);
+    pdA.compress_level(AG_COMPRESS_LEVEL);
+    double hstep = (hMax - hMin) / 255;
+    double ustep = (uMax - uMin) / 255;
+    double vstep = (vMax - vMin) / 255;
+    size_t* pi = png_index;
+    for (size_t r = 0; r < nrows - 2; ++r)
+    {
+        for (size_t c = 0; c < ncols - 2; ++c)
+        {
+            if (*pi == 0)
+            {
+                pi++;
+                continue;
+            }
+            double h = 0., qu = 0., qv = 0.;
+            h = hData[*pi];
+
+            if (h > DEPTH_TINY)
+            {
+                qu = qxData[*pi] / h;
+                qv = qyData[*pi] / h;
+            }
+            else
+            {
+                h = 0.;
+            }
+            pi++;
+            silly::color cXYH;
+
+            cXYH.red = static_cast<unsigned char>(std::min(255., (h - hMin) / hstep));
+            cXYH.green = static_cast<unsigned char>((qu - uMin) / ustep);
+            cXYH.blue = static_cast<unsigned char>((qv - vMin) / vstep);
+            pdA.pixel(r, c, cXYH);
+        }
+        pi++;
+        pi++;
+    }
+    std::string header;
+    const size_t header_size = 32;
+    {
+        // 构建前缀信息
+        header.resize(header_size);
+        int ihMax = static_cast<int>(hMax / DEPTH_TINY);
+        int ihMin = static_cast<int>(hMin / DEPTH_TINY);
+        int iUMax = static_cast<int>(uMax / DEPTH_TINY);
+        int iVMax = static_cast<int>(vMax / DEPTH_TINY);
+        int iUMin = static_cast<int>(uMin / DEPTH_TINY);
+        int iVMin = static_cast<int>(vMin / DEPTH_TINY);
+        int iRow = static_cast<int>(nrows);
+        int iCol = static_cast<int>(ncols);
+        memcpy(&header[0] + sizeof(int) * 0, &iRow, sizeof(iRow));
+        memcpy(&header[0] + sizeof(int) * 1, &iCol, sizeof(iCol));
+        memcpy(&header[0] + sizeof(int) * 2, &ihMax, sizeof(ihMax));
+        memcpy(&header[0] + sizeof(int) * 3, &ihMin, sizeof(ihMin));
+        memcpy(&header[0] + sizeof(int) * 4, &iUMax, sizeof(iUMax));
+        memcpy(&header[0] + sizeof(int) * 5, &iUMin, sizeof(iUMin));
+        memcpy(&header[0] + sizeof(int) * 6, &iVMax, sizeof(iVMax));
+        memcpy(&header[0] + sizeof(int) * 7, &iVMin, sizeof(iVMin));
+    }
+    std::string png_data = pdA.encode();
+    header.append(png_data);
+    silly_file::write(img_path, header);
+    pdA.release();
 }
 
 unsigned char* get_image_data(double ncols, double nrows, double xllcorner, double yllcorner, double cellsize, double mid, double* hData, double* qxData, double* qyData, int* length, bool verbose)
@@ -256,7 +362,7 @@ unsigned char* get_image_data(double ncols, double nrows, double xllcorner, doub
             }
             double h = 0., qu = 0., qv = 0.;
             h = hData[*pi];
-           
+
             if (h > DEPTH_TINY)
             {
                 qu = qxData[*pi] / h;
