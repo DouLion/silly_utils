@@ -120,6 +120,8 @@ class utils
     /// <returns></returns>
     static bool get_driver_name(const std::string& u8file, std::string& driverName);
 
+    static bool intersect(const silly_geo_coll& gc1, const silly_geo_coll& gc2);
+
     /// <summary>
     /// 矢量与面是否相交
     /// </summary>
@@ -347,7 +349,7 @@ class utils
     /// <returns></returns>
     static std::vector<std::pair<silly_point, double>> adjust(const std::vector<std::pair<silly_point, double>>& linez, const double& bz, const double& ez);
 
-#if ENABLE_GDAL
+#if 1
 
     /// <summary>
     /// 读取shp文件

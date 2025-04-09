@@ -87,7 +87,7 @@ static bool _is_utf8(const std::string &str)
     }
     return true;
 }
-std::filesystem::path realpath(const std::string &path)
+std::filesystem::path silly::file::utils::realpath(const std::string &path)
 {
     std::filesystem::path realpath(path);
 #if IS_WIN32

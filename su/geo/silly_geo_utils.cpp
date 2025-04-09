@@ -1020,6 +1020,14 @@ bool utils::write_geo_coll(const std::string& u8file, const std::vector<silly_ge
 #endif
     return status;
 }
+
+bool utils::intersect(const silly_geo_coll& gc1, const silly_geo_coll& gc2)
+{
+
+    return false;
+}
+
+
 bool utils::intersect(const silly_multi_poly& mpoly1, const silly_multi_poly& mpoly2)
 {
     // TODO:

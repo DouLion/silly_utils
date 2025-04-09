@@ -64,6 +64,9 @@ class node
 class utils
 {
   public:
+
+    static std::filesystem::path realpath(const std::string &path);
+
     /// <summary>
     /// 读取文件内容
     /// </summary>

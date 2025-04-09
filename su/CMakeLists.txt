@@ -83,6 +83,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${GEOTIFF_INCLUDE_DIR})
 target_link_libraries(${PROJECT_NAME} PUBLIC ${GEOTIFF_LIBRARIES})
 
 if(ENABLE_GDAL)
+    message(STATUS "启用GDAL")
     find_package(GDAL CONFIG REQUIRED)
     target_link_libraries(${PROJECT_NAME} PUBLIC GDAL::GDAL)
     add_definitions(-DENABLE_GDAL)
