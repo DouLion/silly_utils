@@ -120,9 +120,43 @@ class geojson
 
     ///////////////////////////////////写
 
-    static std::string stringify(const std::vector<silly_point> points);
-    static std::string stringify(const std::vector<silly_line> lines);
-    static std::string stringify(const std::vector<silly_poly> polys);
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="points"></param>
+    /// <param name="precision"></param>
+    /// <returns></returns>
+    static std::string stringify(const std::vector<silly_point> points, const int& precision = 8);
+    static std::string stringify(const std::vector<silly_line> lines, const int& precision = 8);
+    static std::string stringify(const std::vector<silly_poly> polys, const int& precision = 8);
+    static std::string stringify(const std::vector<silly_multi_point> mpoints, const int& precision = 8);
+    static std::string stringify(const std::vector<silly_multi_line> mlines, const int& precision = 8);
+    static std::string stringify(const std::vector<silly_multi_poly> mpolys, const int& precision = 8);
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="point"></param>
+    /// <returns></returns>
+    static Json::Value jsonify(const silly_point point);
+    static Json::Value jsonify(const silly_line line);
+    static Json::Value jsonify(const silly_poly poly);
+    static Json::Value jsonify(const silly_multi_point mpoint);
+    static Json::Value jsonify(const silly_multi_line mline);
+    static Json::Value jsonify(const silly_multi_poly mpoly);
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="point"></param>
+    /// <param name="precision"></param>
+    /// <returns></returns>
+    static std::string stringify(const silly_point point, const int& precision = 8);
+    static std::string stringify(const silly_line line, const int& precision = 8);
+    static std::string stringify(const silly_poly poly, const int& precision = 8);
+    static std::string stringify(const silly_multi_point mpoint, const int& precision = 8);
+    static std::string stringify(const silly_multi_line mline, const int& precision = 8);
+    static std::string stringify(const silly_multi_poly mpoly, const int& precision = 8);
 };
 }  // namespace silly
 
