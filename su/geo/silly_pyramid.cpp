@@ -121,3 +121,13 @@ screen_rect silly_tile::tile2screen(const tile_index& index, const uint64_t& til
     ret.max.pixX = (index.col + 1) * tilesize;
     return ret;
 }
+
+
+silly_point silly_tile::mvt2geo(const tile_index& index, const mvt_geometry geometry, const uint64_t& extent)
+{
+    screen_point sp;
+    sp.layer = index.layer;
+    sp.pixX = index.col * extent + geometry.x;
+    sp.pixY = index.row * extent + geometry.y;
+    return silly_tile::screen2geo(sp.layer, sp, extent);
+}

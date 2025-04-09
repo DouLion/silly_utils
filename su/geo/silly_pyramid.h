@@ -13,6 +13,7 @@
 #ifndef SILLY_UTILS_SILLY_PYRAMID_H
 #define SILLY_UTILS_SILLY_PYRAMID_H
 #include "geo/silly_geo.h"
+#include <mapbox/mbtiles/silly_mvt.h>
 
 #define SILLY_GLOBAL_LEFT -180.0
 #define SILLY_GLOBAL_RIGHT 180.0
@@ -48,6 +49,7 @@ struct tile_index
     uint64_t col;
     uint64_t row;
 };
+struct mvt_geometry;
 
 class silly_tile
 {
@@ -134,6 +136,15 @@ class silly_tile
     /// <param name="tilesize">瓦片宽高均为 tilesize</param>
     /// <returns></returns>
     static screen_rect tile2screen(const tile_index& index, const uint64_t& tilesize = 256);
+
+    /// <summary>
+    /// mbtiles中的点坐标转为实际经纬度
+    /// </summary>
+    /// <param name="index"></param>
+    /// <param name="geometry"></param>
+    /// <param name="extent"></param>
+    /// <returns></returns>
+    static silly_point mvt2geo(const tile_index& index, const mvt_geometry geometry, const uint64_t& extent = 4096);
 };
 
 #endif  // SILLY_UTILS_SILLY_PYRAMID_H
