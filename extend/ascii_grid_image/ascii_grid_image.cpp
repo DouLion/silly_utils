@@ -374,9 +374,10 @@ unsigned char* get_image_data(double ncols, double nrows, double xllcorner, doub
             }
             pi++;
             silly::color cXYH;
-            cXYH.red = static_cast<unsigned char>((qu - uMin) / ustep);
-            cXYH.green = static_cast<unsigned char>((qv - vMin) / vstep);
-            cXYH.blue = static_cast<unsigned char>(std::min(255., (h - hMin) / hstep));
+
+            cXYH.red = static_cast<unsigned char>(std::min(255., (h - hMin) / hstep));
+            cXYH.green = static_cast<unsigned char>((qu - uMin) / ustep);
+            cXYH.blue = static_cast<unsigned char>((qv - vMin) / vstep);
             pdA.pixel(r, c, cXYH);
         }
         pi++;
@@ -397,12 +398,12 @@ unsigned char* get_image_data(double ncols, double nrows, double xllcorner, doub
         int iCol = static_cast<int>(ncols);
         memcpy(&header[0] + sizeof(int) * 0, &iRow, sizeof(iRow));
         memcpy(&header[0] + sizeof(int) * 1, &iCol, sizeof(iCol));
-        memcpy(&header[0] + sizeof(int) * 2, &iUMax, sizeof(iUMax));
-        memcpy(&header[0] + sizeof(int) * 3, &iUMin, sizeof(iUMin));
-        memcpy(&header[0] + sizeof(int) * 4, &iVMax, sizeof(iVMax));
-        memcpy(&header[0] + sizeof(int) * 5, &iVMin, sizeof(iVMin));
-        memcpy(&header[0] + sizeof(int) * 6, &ihMax, sizeof(ihMax));
-        memcpy(&header[0] + sizeof(int) * 7, &ihMin, sizeof(ihMin));
+        memcpy(&header[0] + sizeof(int) * 2, &ihMax, sizeof(ihMax));
+        memcpy(&header[0] + sizeof(int) * 3, &ihMin, sizeof(ihMin));
+        memcpy(&header[0] + sizeof(int) * 4, &iUMax, sizeof(iUMax));
+        memcpy(&header[0] + sizeof(int) * 5, &iUMin, sizeof(iUMin));
+        memcpy(&header[0] + sizeof(int) * 6, &iVMax, sizeof(iVMax));
+        memcpy(&header[0] + sizeof(int) * 7, &iVMin, sizeof(iVMin));
     }
     std::string png_data = pdA.encode();
     if (!png_data.empty())
