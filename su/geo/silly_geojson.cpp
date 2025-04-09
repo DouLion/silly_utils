@@ -86,6 +86,44 @@ std::vector<silly_geo_coll> geojson::loadj(const Json::Value& jv)
             ret.push_back(gc);
         }
     }
+    else
+    {
+        silly_geo_coll gc;
+        switch (geojson::type(type))
+        {
+            case enum_geometry_type::egtPoint:
+                gc.m_type = enum_geometry_type::egtPoint;
+                read(jv[K_COORDINATES], gc.m_point);
+                break;
+            case enum_geometry_type::egtMultiPoint:
+                gc.m_type = enum_geometry_type::egtMultiPoint;
+                read(jv[K_COORDINATES], gc.m_m_points);
+                break;
+            case enum_geometry_type::egtLineString:
+                gc.m_type = enum_geometry_type::egtLineString;
+                read(jv[K_COORDINATES], gc.m_line);
+                break;
+            case enum_geometry_type::egtMultiLineString:
+                gc.m_type = enum_geometry_type::egtMultiLineString;
+                read(jv[K_COORDINATES], gc.m_m_lines);
+                break;
+            case enum_geometry_type::egtPolygon:
+                gc.m_type = enum_geometry_type::egtPolygon;
+                read(jv[K_COORDINATES], gc.m_poly);
+                break;
+            case enum_geometry_type::egtMultiPolygon:
+                gc.m_type = enum_geometry_type::egtMultiPolygon;
+                read(jv[K_COORDINATES], gc.m_m_polys);
+                break;
+            default:
+                gc.m_type = enum_geometry_type::egtInvalid;
+                break;
+        }
+        if (gc.m_type != enum_geometry_type::egtInvalid)
+        {
+            ret.push_back(gc);
+        }
+    }
 
     return ret;
 }
