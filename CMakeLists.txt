@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.15)
-project(silly_utils)
+project(silly_utils CXX)
 
 # 判断当前目录是否为 cmake的根目录,如果不是,则是被其他项目引用的,不需要编译测试,工具模块
-message(STATUS "su 当前文件根目录 (CMAKE_CURRENT_SOURCE_DIR) ${CMAKE_CURRENT_SOURCE_DIR}")
-message(STATUS "su 当前项目根目录 (CMAKE_SOURCE_DIR) ${CMAKE_SOURCE_DIR}")
+message(STATUS "SU当前文件根目录 (CMAKE_CURRENT_SOURCE_DIR) ${CMAKE_CURRENT_SOURCE_DIR}")
+message(STATUS "SU当前项目根目录 (CMAKE_SOURCE_DIR) ${CMAKE_SOURCE_DIR}")
 
 # 当前文件路径
 set(SU_FILE_ROOT "${CMAKE_CURRENT_SOURCE_DIR}")
@@ -30,12 +30,7 @@ if(BUILD_AS_PROJ)
     add_definitions("-DDEFAULT_SU_DATA_DIR=\"${SU_PROJ_ROOT}/data\"")
 	add_subdirectory(su)
 	add_subdirectory(test)
-	if(NOT DISABLE_TOOLS)
-		add_subdirectory(tools)
-		add_subdirectory(extend)
-	endif()
 else()
-
 	include_directories(${SU_FILE_ROOT}/su)
 	add_subdirectory(su)
 endif()

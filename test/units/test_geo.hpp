@@ -926,7 +926,7 @@ SECTION("SILLY_TO_SPATIALITE")
     // std::cout << "=================================" << std::endl;
 
     //// 两条线，每条线包含四个点-----------------
-    // silly_multi_silly_line multi_lines;
+    // silly_multi_line multi_lines;
     // silly_line line1;
     // line1.push_back(silly_point(1.0, 2.0));
     // line1.push_back(silly_point(3.0, 4.0));
@@ -942,7 +942,7 @@ SECTION("SILLY_TO_SPATIALITE")
     // gaiaGeomCollPtr gaia_multi_line;
     ////bool gg = silly_multi_silly_line_to_gaiageo(multi_lines, gaia_multi_line);
     // geometry_printout(gaia_multi_line);
-    // silly_multi_silly_line re_multi_line;
+    // silly_multi_line re_multi_line;
     ////bool hh = gaiageo_to_silly_multi_line(gaia_multi_line, re_multi_line);
     // std::cout << "=================================" << std::endl;
 
