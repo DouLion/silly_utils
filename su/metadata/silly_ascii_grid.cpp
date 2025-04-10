@@ -176,7 +176,7 @@ bool silly_ascii_grid::write_asc(const std::string& path)
     std::string _name = std::filesystem::path(path).stem().string();
     {
         std::stringstream ss;
-        ss << std::fixed << std::setprecision(precision);
+        ss << std::fixed << std::setprecision(15);
         ss << NCOLS << " " << ncols << "\n";
         ss << NROWS << " " << nrows << "\n";
         ss << XLLCORNER << " " << xllcorner << "\n";
