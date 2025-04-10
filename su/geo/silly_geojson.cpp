@@ -344,17 +344,3 @@ bool geojson::read(const Json::Value& jv, std::map<std::string, silly_geo_prop>&
     return false;
 }
 
-std::string geojson::stringify(const std::vector<silly_point> points)
-{
-    return std::string();
-}
-
-std::string geojson::stringify(const std::vector<silly_line> lines)
-{
-    return std::string();
-}
-
-std::string geojson::stringify(const std::vector<silly_poly> polys)
-{
-    return std::string();
-}
