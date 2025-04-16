@@ -359,16 +359,48 @@ bool silly::png::data::decode(const std::string &bin)
     png_set_read_fn(png_ptr, const_cast<std::string *>(&bin), silly_png_read_callback);
 
     // 读取PNG头部信息
+    // 读取图像信息
     png_read_info(png_ptr, info_ptr);
 
-    // 获取PNG图像的基本信息
-    uint32_t width, height;
-    int depth, png_type;
-    png_get_IHDR(png_ptr, info_ptr, &width, &height, &depth, &png_type, NULL, NULL, NULL);
-    png_read_update_info(png_ptr, info_ptr);
-    create(height, width, png2sillyctype(png_type), depth);
+    unsigned int outWidth = png_get_image_width(png_ptr, info_ptr);
+    unsigned int outHeight = png_get_image_height(png_ptr, info_ptr);
+    png_byte colorType = png_get_color_type(png_ptr, info_ptr);
+    png_byte bitDepth = png_get_bit_depth(png_ptr, info_ptr);
 
-    png_read_image(png_ptr, (unsigned char **)&m_nbytes);
+    // 转换为 8-bit 深度
+    if (bitDepth == 16)
+        png_set_strip_16(png_ptr);
+    if (bitDepth < 8)
+        png_set_packing(png_ptr);
+
+    // 添加 Alpha 通道（如果存在）
+    if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS))
+    {
+        png_set_tRNS_to_alpha(png_ptr);
+    }
+
+    // 转换颜色类型为 RGBA
+    if (colorType == PNG_COLOR_TYPE_PALETTE)
+    {
+        png_set_palette_to_rgb(png_ptr);
+    }
+    if (colorType == PNG_COLOR_TYPE_GRAY && bitDepth < 8)
+    {
+        png_set_expand_gray_1_2_4_to_8(png_ptr);
+    }
+    if (colorType == PNG_COLOR_TYPE_GRAY || colorType == PNG_COLOR_TYPE_GRAY_ALPHA)
+    {
+        png_set_gray_to_rgb(png_ptr);
+    }
+    if (colorType == PNG_COLOR_TYPE_RGB || colorType == PNG_COLOR_TYPE_GRAY || colorType == PNG_COLOR_TYPE_PALETTE)
+    {
+        png_set_add_alpha(png_ptr, 0xFF, PNG_FILLER_AFTER);
+    }
+
+    png_read_update_info(png_ptr, info_ptr);
+    create(outHeight, outWidth, png2sillyctype(colorType), bitDepth);
+
+    png_read_image(png_ptr, (unsigned char **)m_nbytes);
 
     // 清理资源
     png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);

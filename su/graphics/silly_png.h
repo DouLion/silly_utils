@@ -94,8 +94,6 @@ class data : public image::base
 
     data &operator=(const data &rh);
 
-  protected:
-    uint32_t m_pixel_size{0};
 };
 
 class tools
