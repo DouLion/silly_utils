@@ -80,9 +80,8 @@ static cairo_status_t _read_func(void *closure, unsigned char *data, uint32_t le
 
 static cairo_status_t _write_func(void *closure, const unsigned char *data, uint32_t length)
 {
-    std::string &bin = *((std::string *)closure);
-    bin.resize(length);
-    memcpy(&bin[0], data, length);
+    std::string *buffer = reinterpret_cast<std::string *>(closure);
+    buffer->append(reinterpret_cast<const char *>(data), length);
     return CAIRO_STATUS_SUCCESS;
 }
 
@@ -101,7 +100,7 @@ static cairo_surface_t *surface_create_from_file(const char *filename)
 
 static cairo_status_t surface_to_stream(cairo_surface_t *sfc, std::string &bin)
 {
-    return cairo_surface_write_to_png_stream(sfc, _write_func, (void *)bin.data());
+    return cairo_surface_write_to_png_stream(sfc, _write_func, (void *)&bin);
 }
 
 static cairo_status_t surface_write(cairo_surface_t *sfc, const char *filename)
