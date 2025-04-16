@@ -441,6 +441,77 @@ void utils::rrm(const std::filesystem::path &path)
         std::cerr << e.what() << '\n';
     }
 }
+size_t utils::read(const std::filesystem::path &path, std::string &content, const size_t &offset, const size_t &len)
+{
+    return read(path.string(), content, offset, len);
+}
+size_t utils::read(const std::filesystem::path &path, unsigned char **content, const size_t &offset, const size_t &len)
+{
+    return read(path.string(), content, offset, len)    ;
+}
+bool utils::read(const std::filesystem::path &path, std::vector<std::string> &lines)
+{
+    return read(path.string(), lines);
+}
+size_t utils::size(const std::filesystem::path &path)
+{
+    return size(path.string());
+}
+size_t utils::write(const std::filesystem::path &path, const std::string &content)
+{
+    return write(path.string(), content);
+}
+size_t utils::write(const std::filesystem::path &path, const std::vector<std::string> &lines)
+{
+    return write(path.string(), lines);
+}
+std::vector<std::string> utils::list(const std::filesystem::path &path, const std::string &filter)
+{
+    return list(path.string(), filter);
+}
+std::vector<std::string> utils::relist(const std::filesystem::path &path, const std::string &filter)
+{
+    return relist(path.string(), filter);
+}
+size_t utils::last_modify_sec(const std::filesystem::path &path)
+{
+    return last_modify_sec(path.string());
+}
+size_t utils::last_modify_ms(const std::filesystem::path &path)
+{
+    return last_modify_ms(path.string());
+}
+void utils::copy(const std::string &src, const std::string &dst)
+{
+    copy(std::filesystem::path(src), std::filesystem::path(dst));
+}
+
+}
+void utils::copy(const std::filesystem::path &src, const std::filesystem::path &dst)
+{
+    try{
+        std::filesystem::copy(src, dst);
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << e.what() << std::endl;
+    }
+}
+void utils::rcopy(const std::string &src, const std::string &dst)
+{
+    rcopy(std::filesystem::path(src), std::filesystem::path(dst));
+}
+void utils::rcopy(const std::filesystem::path &src, const std::filesystem::path &dst)
+{
+    try
+    {
+        std::filesystem::copy(src, dst, std::filesystem::copy_options::recursive);
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << e.what() << std::endl;
+    }
+}
 node::node(std::string path)
 {
     this->path = path;

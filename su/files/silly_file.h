@@ -64,7 +64,6 @@ class node
 class utils
 {
   public:
-
     static std::filesystem::path realpath(const std::string &path);
 
     /// <summary>
@@ -94,7 +93,7 @@ class utils
     /// <param name="content"></param>
     /// <returns></returns>
     static size_t write(const std::string &path, const std::string &content);
-    static size_t write(const std::string &path, const std::string &content);
+    static size_t write(const std::filesystem::path &path, const std::string &content);
 
     static size_t write(const std::string &path, const std::vector<std::string> &lines);
     static size_t write(const std::filesystem::path &path, const std::vector<std::string> &lines);
@@ -125,7 +124,6 @@ class utils
     /// <returns></returns>
     static size_t last_modify_sec(const std::string &path);
     static size_t last_modify_sec(const std::filesystem::path &path);
-
 
     /// <summary>
     /// 最新更新时间
