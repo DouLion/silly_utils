@@ -76,12 +76,16 @@ class utils
     /// <param name="len">预定读取大小,SIZE_MAX 为默认全读取</param>
     /// <returns>实际读取大小</returns>
     static size_t read(const std::string &path, std::string &content, const size_t &offset = 0, const size_t &len = SIZE_MAX);
+    static size_t read(const std::filesystem::path &path, std::string &content, const size_t &offset = 0, const size_t &len = SIZE_MAX);
 
     static size_t read(const std::string &path, unsigned char **content, const size_t &offset = 0, const size_t &len = SIZE_MAX);
+    static size_t read(const std::filesystem::path &path, unsigned char **content, const size_t &offset = 0, const size_t &len = SIZE_MAX);
 
     static bool read(const std::string &path, std::vector<std::string> &lines);
+    static bool read(const std::filesystem::path &path, std::vector<std::string> &lines);
 
     static size_t size(const std::string &path);
+    static size_t size(const std::filesystem::path &path);
 
     /// <summary>
     /// 将内容写入文件
@@ -90,8 +94,10 @@ class utils
     /// <param name="content"></param>
     /// <returns></returns>
     static size_t write(const std::string &path, const std::string &content);
+    static size_t write(const std::string &path, const std::string &content);
 
     static size_t write(const std::string &path, const std::vector<std::string> &lines);
+    static size_t write(const std::filesystem::path &path, const std::vector<std::string> &lines);
 
     /// <summary>
     /// 列出(仅)当前文件夹下所有包含filter的文件
@@ -101,6 +107,7 @@ class utils
     /// <param name="filter"></param>
     /// <returns></returns>
     static std::vector<std::string> list(const std::string &path, const std::string &filter = SILLY_FILE_MATCH_ALL_WILDCHAR);
+    static std::vector<std::string> list(const std::filesystem::path &path, const std::string &filter = SILLY_FILE_MATCH_ALL_WILDCHAR);
 
     /// <summary>
     /// 递归列出当前文件夹下所有包含filter的文件
@@ -109,6 +116,7 @@ class utils
     /// <param name="filter"></param>
     /// <returns></returns>
     static std::vector<std::string> relist(const std::string &path, const std::string &filter = SILLY_FILE_MATCH_ALL_WILDCHAR);
+    static std::vector<std::string> relist(const std::filesystem::path &path, const std::string &filter = SILLY_FILE_MATCH_ALL_WILDCHAR);
 
     /// <summary>
     /// 最新更新时间
@@ -116,6 +124,8 @@ class utils
     /// <param name="path"></param>
     /// <returns></returns>
     static size_t last_modify_sec(const std::string &path);
+    static size_t last_modify_sec(const std::filesystem::path &path);
+
 
     /// <summary>
     /// 最新更新时间
@@ -123,6 +133,7 @@ class utils
     /// <param name="path"></param>
     /// <returns></returns>
     static size_t last_modify_ms(const std::string &path);
+    static size_t last_modify_ms(const std::filesystem::path &path);
 
     static bool exist(const std::string &path);
     static bool exist(const std::filesystem::path &path);
