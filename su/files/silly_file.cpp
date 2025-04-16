@@ -486,7 +486,6 @@ void utils::copy(const std::string &src, const std::string &dst)
     copy(std::filesystem::path(src), std::filesystem::path(dst));
 }
 
-}
 void utils::copy(const std::filesystem::path &src, const std::filesystem::path &dst)
 {
     try{
