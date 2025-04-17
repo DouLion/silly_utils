@@ -82,18 +82,20 @@ class data : public image::base
     /// <returns></returns>
     std::string encode() const override;
 
-   /* uint8_t **nbytes() const
+    uint8_t **nbytes() const
     {
-        return (uint8_t **)&m_nbytes;
+        return (uint8_t **)m_nbytes.data();
     }
 
     uint8_t **nbytes()
     {
-        return (uint8_t **)&m_nbytes;
-    }*/
+        return m_nbytes.data();
+    }
 
     data &operator=(const data &rh);
 
+  protected:
+    std::vector<uint8_t *> m_nbytes;
 };
 
 class tools

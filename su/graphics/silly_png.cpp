@@ -57,7 +57,6 @@ struct PngMemoryReader
     size_t offset;
 };
 
-
 static void silly_png_write_callback(png_structp png_ptr, png_bytep m_bytes, png_size_t length)
 {
     std::string *p = (std::string *)png_get_io_ptr(png_ptr);
@@ -229,7 +228,13 @@ bool silly::png::data::create(const size_t &width, const size_t &height, const s
     }
 
     m_depth = depth;
-    m_bytes.resize(m_width * m_height * m_pixel_size,0);
+    m_bytes.resize(m_width * m_height * m_pixel_size, 0);
+
+    m_nbytes.resize(m_height);
+    for (unsigned int y = 0; y < m_height; y++)
+    {
+        m_nbytes[y] = m_bytes.data() + y * m_width * m_pixel_size;
+    }
 
     return true;
 }
@@ -278,14 +283,8 @@ bool silly::png::data::read(const std::string &file)
     {
         return status;
     }
-    std::vector<png_bytep> rowPtrs(m_height);
-    for (unsigned int y = 0; y < m_height; y++)
-    {
-        rowPtrs[y] = m_bytes.data() + y * m_width * m_pixel_size;
-    }
-
     // 读取PNG图像像素数据
-    png_read_image(png_ptr, rowPtrs.data());
+    png_read_image(png_ptr, m_nbytes.data());
     png_read_end(png_ptr, nullptr);
     png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
 
@@ -324,12 +323,7 @@ bool silly::png::data::write(const std::string &file) const
     png_init_io(png_write_ptr, output_fp);
     png_set_IHDR(png_write_ptr, png_w_info, m_width, m_height, m_depth, silly2pngctype(m_type), PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
     png_write_info(png_write_ptr, png_w_info);
-    std::vector<png_bytep> rowPtrs(m_height);
-    for (unsigned int y = 0; y < m_height; y++)
-    {
-        rowPtrs[y] = (png_bytep)(m_bytes.data() + y * m_width * m_pixel_size);
-    }
-    png_write_image(png_write_ptr, rowPtrs.data());
+    png_write_image(png_write_ptr, (png_bytep*)m_nbytes.data());
     png_write_end(png_write_ptr, nullptr);
 
     png_destroy_write_struct(&png_write_ptr, &png_w_info);
@@ -383,44 +377,44 @@ bool silly::png::data::decode(const std::string &bin)
     m_depth = png_get_bit_depth(png_ptr, info_ptr);
 
     // 转换为 8-bit 深度
-   /* if (bitDepth == 16)
-        png_set_strip_16(png_ptr);
-    if (bitDepth < 8)
-        png_set_packing(png_ptr);*/
+    /* if (bitDepth == 16)
+         png_set_strip_16(png_ptr);
+     if (bitDepth < 8)
+         png_set_packing(png_ptr);*/
 
     //// 添加 Alpha 通道（如果存在）
-    //if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS))
+    // if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS))
     //{
-    //    png_set_tRNS_to_alpha(png_ptr);
-    //}
+    //     png_set_tRNS_to_alpha(png_ptr);
+    // }
 
     //// 转换颜色类型为 RGBA
-    //if (colorType == PNG_COLOR_TYPE_PALETTE)
+    // if (colorType == PNG_COLOR_TYPE_PALETTE)
     //{
-    //    png_set_palette_to_rgb(png_ptr);
-    //}
-    //if (colorType == PNG_COLOR_TYPE_GRAY && bitDepth < 8)
+    //     png_set_palette_to_rgb(png_ptr);
+    // }
+    // if (colorType == PNG_COLOR_TYPE_GRAY && bitDepth < 8)
     //{
-    //    png_set_expand_gray_1_2_4_to_8(png_ptr);
-    //}
-    //if (colorType == PNG_COLOR_TYPE_GRAY || colorType == PNG_COLOR_TYPE_GRAY_ALPHA)
+    //     png_set_expand_gray_1_2_4_to_8(png_ptr);
+    // }
+    // if (colorType == PNG_COLOR_TYPE_GRAY || colorType == PNG_COLOR_TYPE_GRAY_ALPHA)
     //{
-    //    png_set_gray_to_rgb(png_ptr);
-    //}
-    //if (colorType == PNG_COLOR_TYPE_RGB || colorType == PNG_COLOR_TYPE_GRAY || colorType == PNG_COLOR_TYPE_PALETTE)
+    //     png_set_gray_to_rgb(png_ptr);
+    // }
+    // if (colorType == PNG_COLOR_TYPE_RGB || colorType == PNG_COLOR_TYPE_GRAY || colorType == PNG_COLOR_TYPE_PALETTE)
     //{
-    //    png_set_add_alpha(png_ptr, 0xFF, PNG_FILLER_AFTER);
-    //}
+    //     png_set_add_alpha(png_ptr, 0xFF, PNG_FILLER_AFTER);
+    // }
 
     png_read_update_info(png_ptr, info_ptr);
     create(m_width, m_height, m_type, m_depth);
-    std::vector<png_bytep> rowPtrs(m_height);
+    std::vector<png_bytep> m_nbytes(m_height);
     for (unsigned int y = 0; y < m_height; y++)
     {
-        rowPtrs[y] = m_bytes.data() + y * m_width * m_pixel_size;
+        m_nbytes[y] = m_bytes.data() + y * m_width * m_pixel_size;
     }
 
-    png_read_image(png_ptr, rowPtrs.data());
+    png_read_image(png_ptr, m_nbytes.data());
     png_read_end(png_ptr, nullptr);
 
     // 清理资源
@@ -456,12 +450,12 @@ std::string silly::png::data::encode() const
     png_set_compression_level(png_ptr, m_compress_level);
     png_set_option(png_ptr, PNG_SKIP_sRGB_CHECK_PROFILE, PNG_OPTION_ON);  // 跳过sRGB校验
     png_set_filter(png_ptr, PNG_FILTER_TYPE_BASE, PNG_NO_FILTERS);        // 禁用滤波
-    std::vector<png_bytep> rowPtrs(m_height);
+    std::vector<png_bytep> m_nbytes(m_height);
     for (unsigned int y = 0; y < m_height; y++)
     {
-        rowPtrs[y] = (png_bytep)m_bytes.data() + y * m_width * m_pixel_size;
+        m_nbytes[y] = (png_bytep)m_bytes.data() + y * m_width * m_pixel_size;
     }
-    png_set_rows(png_ptr, info_ptr, rowPtrs.data());
+    png_set_rows(png_ptr, info_ptr, m_nbytes.data());
     png_set_write_fn(png_ptr, &buff, silly_png_write_callback, NULL);
     png_write_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
     png_destroy_write_struct(&png_ptr, &info_ptr);
