@@ -139,6 +139,11 @@ silly::png::data &silly::png::data::operator=(const silly::png::data &rh)
     this->m_depth = rh.m_depth;
     this->m_type = rh.m_type;
     this->m_pixel_size = rh.m_pixel_size;
+    this->m_nbytes.resize(this->m_height);
+    for (unsigned int y = 0; y < this->m_height; y++)
+    {
+        this->m_nbytes[y] = this->m_bytes.data() + y * this->m_width * this->m_pixel_size;
+    }
     return *this;
 }
 
