@@ -307,6 +307,16 @@ class silly_rect  // 普通坐标点
         return false;
     }
 
+    silly_rect MBR(const silly_rect& rh)
+    {
+        silly_rect ret;
+        ret.min.x = std::min(min.x, rh.min.x);
+        ret.max.y = std::max(max.y, rh.max.y);
+        ret.max.x = std::max(max.x, rh.max.x);
+        ret.min.y = std::min(min.y, rh.min.y);
+        return ret;
+    }
+
   public:
     silly_point min;
     silly_point max;
