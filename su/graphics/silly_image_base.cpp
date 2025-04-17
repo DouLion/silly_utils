@@ -33,15 +33,15 @@ bool silly::image::base::valid(const char* data, const size_t len)
 
 bool silly::image::base::empty()
 {
-    return !m_bytes || !m_height || !m_width;
+    return m_bytes.empty() || !m_height || !m_width;
 }
 
 void silly::image::base::release()
 {
-    SU_MEM_DEL(m_bytes)
- /*   for(int i = 0; i < m_height; ++i)
-    {
-        SU_MEM_DEL(m_nbytes[i])
-    }*/
-    SU_MEM_DEL(m_nbytes)
+ //   SU_MEM_DEL(m_bytes)
+ ///*   for(int i = 0; i < m_height; ++i)
+ //   {
+ //       SU_MEM_DEL(m_nbytes[i])
+ //   }*/
+ //   SU_MEM_DEL(m_nbytes)
 }

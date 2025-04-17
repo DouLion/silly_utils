@@ -152,8 +152,8 @@ bool silly::jpeg::data::create(const size_t& width, const size_t& height, const 
     {
         return false;
     }
-    m_bytes = new uint8_t[m_width * m_height * m_channels];
-    memset(m_bytes, 0, sizeof(uint8_t) * m_width * m_height * m_channels);
+    m_bytes.resize(m_width * m_height * m_channels, 0);
+    // memset(m_bytes.data(), 0, sizeof(uint8_t) * m_width * m_height * m_channels);
     return true;
 }
 bool silly::jpeg::data::read(const std::string& file)
@@ -204,11 +204,11 @@ bool silly::jpeg::data::decode(const std::string& bin)
     m_type = jpeg2sillyctype(cinfo.out_color_space);
 
     // 计算文件大小并分配内存
-    m_bytes = new unsigned char[m_width * m_height * m_channels];
+    m_bytes.resize(m_width * m_height * m_channels, 0);
 
     // 开始解压缩并读取数据
     jpeg_start_decompress(&cinfo);
-    unsigned char* row_pointer = m_bytes;
+    unsigned char* row_pointer = m_bytes.data();
 
     while (cinfo.output_scanline < cinfo.output_height)
     {
@@ -228,7 +228,7 @@ std::string silly::jpeg::data::encode() const
 {
     std::string ret;
 #if ENABLE_JPEG
-    if (!(m_bytes && m_width > 0 && m_height > 0))
+    if (!(!m_bytes.empty() && m_width > 0 && m_height > 0))
     {
         return ret;
     }
@@ -262,7 +262,7 @@ std::string silly::jpeg::data::encode() const
 
     while (cinfo.next_scanline < cinfo.image_height)
     {
-        row_pointer[0] = &m_bytes[cinfo.next_scanline * row_stride];
+        row_pointer[0] = (uint8_t*)& m_bytes[cinfo.next_scanline * row_stride];
         jpeg_write_scanlines(&cinfo, row_pointer, 1);
     }
 

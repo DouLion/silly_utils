@@ -111,9 +111,9 @@ class base
     {
         return m_type;
     }
-    uint8_t* bytes() const
+    uint8_t* bytes()
     {
-        return m_bytes;
+        return  m_bytes.data();
     }
 
     std::string err() const
@@ -127,7 +127,7 @@ class base
     }
 
   protected:
-    uint8_t* m_bytes{nullptr};  // 二进制数据
+    std::vector<uint8_t> m_bytes;  // 二进制数据
     size_t m_width{0};          // 宽度
     size_t m_height{0};         // 高度
     uint8_t m_channels{0};      // 通道数
@@ -137,7 +137,7 @@ class base
     silly::color::type m_type{2};  // 颜色类型
     std::vector<uint8_t> HEADER;   // 固定头部,由于判断类型
     std::string m_err;
-    unsigned char** m_nbytes = nullptr;
+    //unsigned char** m_nbytes = nullptr;
 };
 }  // namespace image
 

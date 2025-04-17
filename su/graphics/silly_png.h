@@ -82,7 +82,7 @@ class data : public image::base
     /// <returns></returns>
     std::string encode() const override;
 
-    uint8_t **nbytes() const
+   /* uint8_t **nbytes() const
     {
         return (uint8_t **)&m_nbytes;
     }
@@ -90,7 +90,7 @@ class data : public image::base
     uint8_t **nbytes()
     {
         return (uint8_t **)&m_nbytes;
-    }
+    }*/
 
     data &operator=(const data &rh);
 
