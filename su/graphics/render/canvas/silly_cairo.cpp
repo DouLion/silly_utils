@@ -11,7 +11,7 @@
 #include <cairo/cairo.h>
 #include <cairo/cairo-ft.h>
 #include <ft2build.h>
-#include "geo/silly_projection.h"
+#include <geo/proj/silly_proj.h>
 #include <graphics/silly_png.h>
 #include <graphics/silly_jpeg.h>
 
@@ -594,21 +594,21 @@ void silly_cairo::draw_ring_web_mercator(const silly_ring &ring, const silly_geo
     {
         return;
     }
-    double mc_left, mc_top, mc_right, mc_bottom;  // 多内环的情况这几个变量会重复计算,但是开销很小,可以暂时忽略
-    silly_projection::geo_to_mercator(rect.min.x, rect.max.y, mc_left, mc_top);
-    silly_projection::geo_to_mercator(rect.max.x, rect.min.y, mc_right, mc_bottom);
+    silly_rect mcr;
+    silly::geo::proj::convert::lonlat_to_mercator(rect.min.x, rect.max.y, mcr.min.x, mcr.max.y);
+    silly::geo::proj::convert::lonlat_to_mercator(rect.max.x, rect.min.y, mcr.max.x, mcr.min.y);
 
     cairo_new_sub_path(m_cr);
     double mcx, mcy;
 
-    double x_pixel_per_degree = m_width / (mc_right - mc_left);
-    double y_pixel_per_degree = m_height / (mc_top - mc_bottom);
-    silly_projection::geo_to_mercator(ring.points[0].x, ring.points[0].y, mcx, mcy);
-    cairo_move_to(m_cr, (mcx - mc_left) * x_pixel_per_degree, (mc_top - mcy) * y_pixel_per_degree);
+    double xdist = (mcr.max.x - mcr.min.x);
+    double ydist = (mcr.max.y - mcr.min.y);
+    silly::geo::proj::convert::lonlat_to_mercator(ring.points[0].x, ring.points[0].y, mcx, mcy);
+    cairo_move_to(m_cr, (mcx - mcr.min.x) * m_width / xdist, (mcr.max.y - mcy) * m_height / ydist);
     for (int i = 1; i < ring.points.size(); ++i)
     {
-        silly_projection::geo_to_mercator(ring.points[i].x, ring.points[i].y, mcx, mcy);
-        cairo_line_to(m_cr, (mcx - mc_left) * x_pixel_per_degree, (mc_top - mcy) * y_pixel_per_degree);
+        silly::geo::proj::convert::lonlat_to_mercator(ring.points[i].x, ring.points[i].y, mcx, mcy);
+        cairo_line_to(m_cr, (mcx - mcr.min.x) * m_width / xdist, (mcr.max.y - mcy) * m_height / ydist);
     }
     cairo_close_path(m_cr);
 }
@@ -718,20 +718,20 @@ void silly_cairo::draw_line(const std::vector<silly_point> &line, const silly_ge
 
 void silly_cairo::draw_line_web_mercator(const std::vector<silly_point> &line, const silly_geo_rect &rect)
 {
-    double mc_left, mc_top, mc_right, mc_bottom;  // 多内环的情况这几个变量会重复计算,但是开销很小,可以暂时忽略
-    silly_projection::geo_to_mercator(rect.min.x, rect.max.y, mc_left, mc_top);
-    silly_projection::geo_to_mercator(rect.max.x, rect.min.y, mc_right, mc_bottom);
+    silly_rect mcr;
+    silly::geo::proj::convert::lonlat_to_mercator(rect.min.x, rect.max.y, mcr.min.x, mcr.max.y);
+    silly::geo::proj::convert::lonlat_to_mercator(rect.max.x, rect.min.y, mcr.max.x, mcr.min.y);
 
     double mcx, mcy;
 
-    double x_pixel_per_degree = m_width / (mc_right - mc_left);
-    double y_pixel_per_degree = m_height / (mc_top - mc_bottom);
-    silly_projection::geo_to_mercator(line[0].x, line[0].y, mcx, mcy);
-    cairo_move_to(m_cr, (mcx - mc_left) * x_pixel_per_degree, (mc_top - mcy) * y_pixel_per_degree);
+    double x_pixel_per_degree = m_width / (mcr.max.x - mcr.min.x);
+    double y_pixel_per_degree = m_height / (mcr.max.y - mcr.min.y);
+    silly::geo::proj::convert::lonlat_to_mercator(line[0].x, line[0].y, mcx, mcy);
+    cairo_move_to(m_cr, (mcx - mcr.min.x) * x_pixel_per_degree, (mcr.max.y - mcy) * y_pixel_per_degree);
     for (int i = 1; i < line.size(); ++i)
     {
-        silly_projection::geo_to_mercator(line[i].x, line[i].y, mcx, mcy);
-        cairo_line_to(m_cr, (mcx - mc_left) * x_pixel_per_degree, (mc_top - mcy) * y_pixel_per_degree);
+        silly::geo::proj::convert::lonlat_to_mercator(line[i].x, line[i].y, mcx, mcy);
+        cairo_line_to(m_cr, (mcx - mcr.min.x) * x_pixel_per_degree, (mcr.max.y - mcy) * y_pixel_per_degree);
     }
     cairo_stroke(m_cr);
 }

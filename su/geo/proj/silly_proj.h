@@ -252,6 +252,39 @@ class convert
     /// <param name="x0"></param>
     /// <param name="y0"></param>
     static void polar_to_cartesian(double r, double th, double& x, double& y, double x0 = 0, double y0 = 0);
+
+
+    /// <summary>
+    /// 经纬度坐标转墨卡托
+    /// </summary>
+    /// <param name="lgtd"></param>
+    /// <param name="lttd"></param>
+    /// <param name="x"></param>
+    /// <param name="y"></param>
+    template <typename T1, typename T2>
+    static void Tlonlat_to_mercator(const T1& lgtd, const T1& lttd, T2& x, T2& y)
+    {   
+        double nx, ny;
+        lonlat_to_mercator(lgtd, lttd, nx, ny);
+        x= nx;
+        y = ny;
+    }
+
+    /// <summary>
+    /// 墨卡托坐标转经纬度
+    /// </summary>
+    /// <param name="x"></param>
+    /// <param name="y"></param>
+    /// <param name="lgtd"></param>
+    /// <param name="lttd"></param>
+    template <typename T1, typename T2>
+    static void Tmercator_to_geo(const T1& x, const T1& y, T2& lgtd, T2& lttd)
+    {
+        double nlon, nlat;
+        mercator_to_lonlat(x, y, nlon, nlat);
+        lgtd = nlon;
+        lttd = nlat;
+    }
 };
 }  // namespace proj
 

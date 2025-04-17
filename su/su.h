@@ -77,7 +77,6 @@
 #include <geo/silly_iso_poly.h>                        // 一种txt文件格式的矢量面
 #include <geo/silly_map_layer.h>                       // 地图图层类
 #include <geo/silly_polar.h>                           // 极坐标与经纬度坐标互转
-#include <geo/silly_projection.h>                      // 经纬度坐标与墨卡托投影的互转
 #include <geo/silly_pyramid.h>                         // 矢量金字塔:经纬度转金字塔层块号,瓦片经纬度范围, 屏幕坐标与经纬度坐标互转, 瓦片转屏幕范围
 #include <geo/silly_raster_to_vector.h>                // Marching squares 算法
 #include <geo/silly_spatialite.h>                      // spatialite数据库操作: 创建, 删除,  矢量数据的读取写入, 查询, 修改
