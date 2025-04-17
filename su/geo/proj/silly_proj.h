@@ -278,7 +278,7 @@ class convert
     /// <param name="lgtd"></param>
     /// <param name="lttd"></param>
     template <typename T1, typename T2>
-    static void Tmercator_to_geo(const T1& x, const T1& y, T2& lgtd, T2& lttd)
+    static void Tmercator_to_lonlat(const T1& x, const T1& y, T2& lgtd, T2& lttd)
     {
         double nlon, nlat;
         mercator_to_lonlat(x, y, nlon, nlat);

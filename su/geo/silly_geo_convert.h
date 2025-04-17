@@ -85,7 +85,7 @@ bool silly_geo_convert::matrix_geo_to_mercator(silly_math::matrix_2d<T> src, con
             double m_x = c * mc_xdelta + m_left;  // 每个matrix网格点对应的mecator坐标
             double m_y = m_top - r * mc_ydelta;
             double lgtd, lttd;
-            silly_projection::mercator_to_geo(m_x, m_y, lgtd, lttd);
+            silly::geo::proj::convert::Tmercator_to_lonlat(m_x, m_y, lgtd, lttd);
             int dst_c = std::round((lgtd - rect.min.x) / geo_xdelta);
             int dst_r = std::round((rect.max.y - lttd) / geo_ydelta);
             // TODO: 这一步是不是有问题,是否是必须的,防止访问溢出
