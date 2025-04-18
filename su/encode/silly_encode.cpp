@@ -25,10 +25,6 @@ std::string silly_encode::url_encode(const std::string &src)
         {
             dst += ch;
         }
-        else if (src[i] == ' ')
-        {
-            dst += '+';
-        }
         else
         {
             unsigned char c = static_cast<unsigned char>(src[i]);
