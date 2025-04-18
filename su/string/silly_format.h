@@ -17,6 +17,8 @@
 
 namespace silly_format = fmt;
 
+#define SFMT fmt::format
+
 #ifndef SFP_DEBUG
 #ifndef NDEBUG
 #define SFP_DEBUG(s, ...)                                                                                            \
