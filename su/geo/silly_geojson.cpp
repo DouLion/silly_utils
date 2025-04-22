@@ -330,7 +330,7 @@ bool geojson::read(const Json::Value& jv, std::map<std::string, silly_geo_prop>&
         }
         else if (jv[name].isInt64())
         {
-            props[name] = silly_geo_prop(int64_t(jv[name].asInt64()));
+            props[name] = silly_geo_prop(static_cast<long long>(jv[name].asInt64()));
         }
         else if (jv[name].isDouble())
         {
