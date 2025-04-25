@@ -273,6 +273,7 @@ std::vector<silly_poly> x_scan_line::grids() const
         {
             for (int c = b_e.beg; c <= b_e.end; ++c)
             {
+                
                 double lon = m_rect.min.x + c * m_cell_size;
                 double lat = m_rect.max.y - r * m_cell_size;
                 silly_poly poly;
@@ -320,7 +321,7 @@ void x_scan_line::fill()
                 int b = i;
                 for (; i < cs.size(); ++i)
                 {
-                    if (cs[i] == 0x00)
+                    if (cs[i] == 0x00 || i == cs.size() - 1)
                     {
                         m_row_pairs[r].push_back({b, i - 1});
                         break;
