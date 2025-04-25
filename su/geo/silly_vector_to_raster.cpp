@@ -292,9 +292,9 @@ std::vector<silly_poly> x_scan_line::grids() const
 }
 void x_scan_line::add(const int& row, const std::vector<int>& edges)
 {
-    if (edges.size() % 2 == 1)
+    if (edges.size() % 2 == 1 || edges.empty())
     {
-        std::cerr << "无法添加" << std::endl;
+        // std::cerr << "无法添加" << std::endl;
         return;
     }
     std::vector<uint8_t>& tmp_rc = m_row_colors[row];
