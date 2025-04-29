@@ -65,7 +65,13 @@ class jsonpp
 
     static void find_by_key(const Json::Value& root, const std::string& key, const std::string& filter, std::vector<std::string>& arr);
 
+    /// <summary>
     /// 检查json中指定key的数据类型,如果正确,则赋值,并且返回true,否则返回false
+    /// </summary>
+    /// <param name="root"></param>
+    /// <param name="key"></param>
+    /// <param name="val"></param>
+    /// <returns></returns>
     static bool check_str(const Json::Value& root, const std::string& key, std::string& val);
     static bool check_int32(const Json::Value& root, const std::string& key, int32_t& val);
     static bool check_uint32(const Json::Value& root, const std::string& key, uint32_t& val);
@@ -75,6 +81,23 @@ class jsonpp
     static bool check_bool(const Json::Value& root, const std::string& key, bool& val);
     static bool check_arr(const Json::Value& root, const std::string& key, Json::Value& jv_arr);
     static bool check_obj(const Json::Value& root, const std::string& key, Json::Value& jv_obj);
+
+    /// <summary>
+    /// 检查json中指定key的数据类型,如果正确,则赋值,否则抛出异常
+    /// </summary>
+    /// <param name="root"></param>
+    /// <param name="key"></param>
+    /// <param name="val"></param>
+    /// <returns></returns>
+    static void try_str(const Json::Value& root, const std::string& key, std::string& val);
+    static void try_int32(const Json::Value& root, const std::string& key, int32_t& val);
+    static void try_uint32(const Json::Value& root, const std::string& key, uint32_t& val);
+    static void try_int64(const Json::Value& root, const std::string& key, int64_t& val);
+    static void try_uint64(const Json::Value& root, const std::string& key, uint64_t& val);
+    static void try_double(const Json::Value& root, const std::string& key, double& val);
+    static void try_bool(const Json::Value& root, const std::string& key, bool& val);
+    static void try_arr(const Json::Value& root, const std::string& key, Json::Value& jv_arr);
+    static void try_obj(const Json::Value& root, const std::string& key, Json::Value& jv_obj);
 };
 }  // namespace silly
 

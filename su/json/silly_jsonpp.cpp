@@ -390,3 +390,210 @@ bool jsonpp::check_uint64(const Json::Value& root, const std::string& key, uint6
 
     return false;
 }
+
+void jsonpp::try_str(const Json::Value& root, const std::string& key, std::string& val)
+{
+    if (root.isNull())
+    {
+        throw std::runtime_error("json 为空");
+        ;
+    }
+
+    if (root.isMember(key))
+    {
+        if (root[key].isString())
+        {
+            val = root[key].asString();
+        }
+        else
+        {
+            throw std::runtime_error("字段 " + key + " 不是string类型");
+            ;
+        }
+    }
+    else
+    {
+        throw std::runtime_error("不存在字段 " + key);
+    }
+}
+
+void jsonpp::try_double(const Json::Value& root, const std::string& key, double& val)
+{
+    if (root.isNull())
+    {
+        throw std::runtime_error("json 为空");
+    }
+
+    if (root.isMember(key))
+    {
+        if (root[key].isDouble())
+        {
+            val = root[key].asDouble();
+        }
+        else
+        {
+            throw std::runtime_error("字段 " + key + " 不是double类型");
+        }
+    }
+    else
+    {
+        throw std::runtime_error("不存在字段 " + key);
+    }
+}
+void jsonpp::try_bool(const Json::Value& root, const std::string& key, void& val)
+{
+    if (root.isNull())
+    {
+        throw std::runtime_error("json 为空");
+    }
+
+    if (root.isMember(key))
+    {
+        if (root[key].isBool())
+        {
+            val = root[key].asBool();
+        }
+        {
+            throw std::runtime_error("字段 " + key + " 不是bool类型");
+        }
+    }
+    else
+    {
+        throw std::runtime_error("不存在字段 " + key);
+    }
+}
+void jsonpp::try_arr(const Json::Value& root, const std::string& key, Json::Value& jv_arr)
+{
+    if (root.isNull())
+    {
+        throw std::runtime_error("json 为空");
+    }
+
+    if (root.isMember(key))
+    {
+        if (root[key].isArray())
+        {
+            jv_arr = root[key];
+        }
+        else
+        {
+            throw std::runtime_error("字段 " + key + " 不是数组类型");
+        }
+    }
+    else
+    {
+        throw std::runtime_error("不存在字段 " + key);
+    }
+}
+void jsonpp::try_obj(const Json::Value& root, const std::string& key, Json::Value& jv_obj)
+{
+    if (root.isNull())
+    {
+        throw std::runtime_error("json 为空");
+    }
+
+    if (root.isMember(key))
+    {
+        if (root[key].isObject())
+        {
+            jv_obj = root[key];
+        }
+        else
+        {
+            throw std::runtime_error("字段 " + key + " 不是数组类型");
+        }
+    }
+    else
+    {
+        throw std::runtime_error("不存在字段 " + key);
+    }
+}
+
+void jsonpp::try_int32(const Json::Value& root, const std::string& key, int32_t& val)
+{
+    if (root.isNull())
+    {
+        throw std::runtime_error("json 为空");
+    }
+    if (root.isMember(key))
+    {
+        if (root[key].isInt())
+        {
+            val = root[key].asInt();
+        }
+        else
+        {
+            throw std::runtime_error("字段 " + key + " 不是int类型");
+        }
+    }
+    else
+    {
+        throw std::runtime_error("不存在字段 " + key);
+    }
+}
+void jsonpp::try_uint32(const Json::Value& root, const std::string& key, uint32_t& val)
+{
+    if (root.isNull())
+    {
+        throw std::runtime_error("json 为空");
+    }
+    if (root.isMember(key))
+    {
+        if (root[key].isUInt())
+        {
+            val = root[key].asUInt();
+        }
+        else
+        {
+            throw std::runtime_error("字段 " + key + " 不是uint类型");
+        }
+    }
+    else
+    {
+        throw std::runtime_error("不存在字段 " + key);
+    }
+}
+void jsonpp::try_int64(const Json::Value& root, const std::string& key, int64_t& val)
+{
+    if (root.isNull())
+    {
+        throw std::runtime_error("json 为空");
+    }
+    if (root.isMember(key))
+    {
+        if (root[key].isInt64())
+        {
+            val = root[key].asInt64();
+        }
+        else
+        {
+            throw std::runtime_error("字段 " + key + " 不是int64类型");
+        }
+    }
+    else
+    {
+        throw std::runtime_error("不存在字段 " + key);
+    }
+}
+void jsonpp::try_uint64(const Json::Value& root, const std::string& key, uint64_t& val)
+{
+    if (root.isNull())
+    {
+        throw std::runtime_error("json 为空");
+    }
+    if (root.isMember(key))
+    {
+        if (root[key].isUInt64())
+        {
+            val = root[key].asUInt64();
+        }
+        else
+        {
+            throw std::runtime_error("字段 " + key + " 不是uint64类型");
+        }
+    }
+    else
+    {
+        throw std::runtime_error("不存在字段 " + key);
+    }
+}
