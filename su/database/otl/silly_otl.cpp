@@ -850,3 +850,32 @@ std::string otl::type2str(const otl::eType& type)
     }
     return s_ret;
 }
+
+std::string otl::last_insert_id_sql() const
+{
+    if  (eType::dbMYSQL == m_type)
+    {
+        return silly::sql::mysql::LAST_INSERT_ID;
+    }
+    else if (eType::dbSQLSERVER == m_type)
+    {
+        return silly::sql::sqlserver::LAST_INSERT_ID;
+    }
+    else if (eType::dbORACLE == m_type)
+    {
+        return silly::sql::oracle::LAST_INSERT_ID;
+    }
+    else if (eType::dbPG == m_type)
+    {
+        return silly::sql::postgresql::LAST_INSERT_ID;
+    }
+    else if (eType::dbDM8 == m_type)
+    {
+        return silly::sql::dm8::LAST_INSERT_ID;
+    }
+    else if (eType::dbKingB8 == m_type)
+    {
+        return silly::sql::kingb8::LAST_INSERT_ID;
+    }
+    return "";
+}

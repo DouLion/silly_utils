@@ -47,6 +47,7 @@
 #include <database/otl/otlv4.h>
 #include <functional>
 #include <stdexcept>  // 包含标准异常类
+#include <database/silly_sql.h>
 
 #ifdef IS_WIN32
 #pragma comment(lib, "odbc32.lib")
@@ -167,6 +168,9 @@ class otl
     /// </summary>
     /// <returns></returns>
     std::string encode();
+
+
+    std::string last_insert_id_sql() const;
 
     /// <summary>
     /// 非session执行sql的模板函数
