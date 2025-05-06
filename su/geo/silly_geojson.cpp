@@ -136,7 +136,7 @@ bool geojson::read(const Json::Value& jv, silly_geo_coll& gc)
     {
         return false;
     }
-    if(TYPE_FEATURE_COLLECTION == type)
+    if (TYPE_FEATURE_COLLECTION == type)
     {
         // 多元集合 在实现上会优先会使用递归,在结构上会也会递归,避免使用这种矢量结构
         throw std::runtime_error("不支持多元集合,有堆栈溢出风险");
@@ -343,4 +343,104 @@ bool geojson::read(const Json::Value& jv, std::map<std::string, silly_geo_prop>&
     }
     return false;
 }
+std::string geojson::stringify(const std::vector<silly_point> points, const int& precision)
+{
+    return std::string();
+}
+std::string geojson::stringify(const std::vector<silly_line> lines, const int& precision)
+{
+    return std::string();
+}
+std::string geojson::stringify(const std::vector<silly_poly> polys, const int& precision)
+{
+    return std::string();
+}
+std::string geojson::stringify(const std::vector<silly_multi_point> mpoints, const int& precision)
+{
+    return std::string();
+}
+std::string geojson::stringify(const std::vector<silly_multi_line> mlines, const int& precision)
+{
+    return std::string();
+}
+std::string geojson::stringify(const std::vector<silly_multi_poly> mpolys, const int& precision)
+{
+    return std::string();
+}
+Json::Value geojson::jsonify(const silly_point point)
+{
+    return Json::Value();
+}
+Json::Value geojson::jsonify(const silly_line line)
+{
+    return Json::Value();
+}
+Json::Value geojson::jsonify(const silly_poly poly)
+{
+    Json::Value jv = Json::objectValue;
+    jv[K_TYPE] = "Feature";
+    Json::Value jvGeo = Json::objectValue;
+    jvGeo[K_TYPE] = "Polygon";
+    Json::Value jvCoords = Json::arrayValue;
+    Json::Value jvOutRing = Json::arrayValue;
+    for (auto& pt : poly.outer_ring.points)
+    {
+        Json::Value jvPoint = Json::arrayValue;
+        jvPoint.append(pt.x);
+        jvPoint.append(pt.y);
+        jvOutRing.append(jvPoint);
+    }
+    jvCoords.append(jvOutRing);
+    for (auto& ring : poly.inner_rings)
+    {
+        Json::Value jvInRing = Json::arrayValue;
+        for (auto pt : ring.points)
+        {
+            Json::Value jvPoint = Json::arrayValue;
+            jvPoint.append(pt.x);
+            jvPoint.append(pt.y);
+            jvInRing.append(jvPoint);
+        }
+        jvCoords.append(jvInRing);
+    }
 
+    jvGeo[K_COORDINATES] = jvCoords;
+    jv[K_GEOMETRY] = jvGeo;
+    return jv;
+}
+Json::Value geojson::jsonify(const silly_multi_point mpoint)
+{
+    return Json::Value();
+}
+Json::Value geojson::jsonify(const silly_multi_line mline)
+{
+    return Json::Value();
+}
+Json::Value geojson::jsonify(const silly_multi_poly mpoly)
+{
+    return Json::Value();
+}
+std::string geojson::stringify(const silly_point point, const int& precision)
+{
+    return std::string();
+}
+std::string geojson::stringify(const silly_line line, const int& precision)
+{
+    return std::string();
+}
+std::string geojson::stringify(const silly_poly poly, const int& precision)
+{
+    return silly::jsonpp::stringify(jsonify(poly), {true, static_cast<size_t>(precision)});
+}
+std::string geojson::stringify(const silly_multi_point mpoint, const int& precision)
+{
+    return std::string();
+}
+std::string geojson::stringify(const silly_multi_line mline, const int& precision)
+{
+    return std::string();
+}
+std::string geojson::stringify(const silly_multi_poly mpoly, const int& precision)
+{
+    return std::string();
+}
