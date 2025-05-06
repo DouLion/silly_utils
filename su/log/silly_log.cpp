@@ -123,7 +123,7 @@ void silly_log::register_spdlog(const option& opt)
         const std::filesystem::path sfp_log_root(opt.path);
         std::filesystem::create_directories(sfp_log_root);
         size_t rotate_mb = opt.rotate_size * 1024 * 1024;
-        size_t max_files = 10;
+        size_t max_files = 4096; // 最大80G的日志文件
 
         auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
 
@@ -154,10 +154,12 @@ void silly_log::register_spdlog(const option& opt)
     }
     catch (const spdlog::spdlog_ex& ex)
     {
+        std::cerr<< ex.what() << std::endl;
         throw std::runtime_error("SPDLOG初始化失败");
     }
     catch (std::exception& e)
     {
+        std::cerr<< e.what() << std::endl;
         throw std::runtime_error("日志初始化失败");
     }
 }
