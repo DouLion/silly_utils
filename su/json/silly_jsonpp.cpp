@@ -440,7 +440,7 @@ void jsonpp::try_double(const Json::Value& root, const std::string& key, double&
         throw std::runtime_error("不存在字段 " + key);
     }
 }
-void jsonpp::try_bool(const Json::Value& root, const std::string& key, void& val)
+void jsonpp::try_bool(const Json::Value& root, const std::string& key, bool& val)
 {
     if (root.isNull())
     {

@@ -59,6 +59,12 @@ static const std::string DLL = ".schema {}";
 static const std::string LAST_INSERT_ID = "SELECT @@IDENTITY";
 }  // namespace sqlite
 
+namespace kingb8
+{
+//
+static const std::string DLL = "";
+static const std::string LAST_INSERT_ID = "SELECT @@IDENTITY";
+}  // namespace kingb8
 
 
 }  // namespace sql
