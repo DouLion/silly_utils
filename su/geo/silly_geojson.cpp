@@ -444,3 +444,52 @@ std::string geojson::stringify(const silly_multi_poly mpoly, const int& precisio
 {
     return std::string();
 }
+
+bool geojson::check(const Json::Value& jv, silly_point& point)
+{
+    if (GEOJSON_GEOMETRY_POINT == jv[K_TYPE].asString())
+    {
+        return read(jv[K_COORDINATES], point);
+    }
+    return false;
+}
+bool geojson::check(const Json::Value& jv, silly_multi_point& mpoint)
+{
+    if (GEOJSON_GEOMETRY_MULTI_POINT == jv[K_TYPE].asString())
+    {
+        return read(jv[K_COORDINATES], mpoint);
+    }
+    return false;
+}
+bool geojson::check(const Json::Value& jv, silly_line& line)
+{
+    if (GEOJSON_GEOMETRY_LINE_STRING == jv[K_TYPE].asString())
+    {
+        return read(jv[K_COORDINATES], line);
+    }
+    return false;
+}
+bool geojson::check(const Json::Value& jv, silly_multi_line& mline)
+{
+    if (GEOJSON_GEOMETRY_MULTI_LINE_STRING == jv[K_TYPE].asString())
+    {
+        return read(jv[K_COORDINATES], mline);
+    }
+    return false;
+}
+bool geojson::check(const Json::Value& jv, silly_poly& poly)
+{
+    if (GEOJSON_GEOMETRY_POLYGON == jv[K_TYPE].asString())
+    {
+        return read(jv[K_COORDINATES], poly);
+    }
+    return false;
+}
+bool geojson::check(const Json::Value& jv, silly_multi_poly& mpoly)
+{
+    if (GEOJSON_GEOMETRY_MULTI_POLYGON == jv[K_TYPE].asString())
+    {
+        return read(jv[K_COORDINATES], mpoly);
+    }
+    return false;
+}

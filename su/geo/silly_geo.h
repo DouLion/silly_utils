@@ -14,21 +14,6 @@
 #define SILLY_UTILS_SILLY_GEO_H
 #include <su_marco.h>
 
-// geometry types
-// 点
-#define GEOJSON_GEOMETRY_POINT "Point"
-// 线
-#define GEOJSON_GEOMETRY_LINE_STRING "LineString"
-// 面
-#define GEOJSON_GEOMETRY_POLYGON "Polygon"
-// 多点
-#define GEOJSON_GEOMETRY_MULTI_POINT "MultiPoint"
-// 多线
-#define GEOJSON_GEOMETRY_MULTI_LINE_STRING "MultiLineString"
-// 多面
-#define GEOJSON_GEOMETRY_MULTI_POLYGON "MultiPolygon"
-// 复合类型
-// #define GEOJSON_GEOMETRY_COLLECTION "GeometryCollection"
 
 // 参照GDAL
 

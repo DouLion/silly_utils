@@ -12,6 +12,22 @@
 #include <geo/silly_geo_coll.h>
 #include <json/silly_jsonpp.h>
 
+// geometry types
+// 点
+#define GEOJSON_GEOMETRY_POINT "Point"
+// 线
+#define GEOJSON_GEOMETRY_LINE_STRING "LineString"
+// 面
+#define GEOJSON_GEOMETRY_POLYGON "Polygon"
+// 多点
+#define GEOJSON_GEOMETRY_MULTI_POINT "MultiPoint"
+// 多线
+#define GEOJSON_GEOMETRY_MULTI_LINE_STRING "MultiLineString"
+// 多面
+#define GEOJSON_GEOMETRY_MULTI_POLYGON "MultiPolygon"
+// 复合类型
+// #define GEOJSON_GEOMETRY_COLLECTION "GeometryCollection"
+
 namespace silly
 {
 class geojson
@@ -45,6 +61,13 @@ class geojson
     /// <param name="jv"></param>
     /// <returns></returns>
     static std::vector<silly_geo_coll> loadj(const Json::Value& jv);
+
+    static bool check(const Json::Value& jv, silly_point& point);
+    static bool check(const Json::Value& jv, silly_multi_point& mpoint);
+    static bool check(const Json::Value& jv, silly_line& line);
+    static bool check(const Json::Value& jv, silly_multi_line& mline);
+    static bool check(const Json::Value& jv, silly_poly& poly);
+    static bool check(const Json::Value& jv, silly_multi_poly& mpoly);
 
     /// <summary>
     /// 从 Json::Value对象加载点
