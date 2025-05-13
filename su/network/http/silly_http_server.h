@@ -20,10 +20,13 @@
 #define SU_CREATE_JSON_DEFAULT_RESPONSE                                      \
     auto resp = HttpResponse::newHttpResponse();                             \
     resp->setStatusCode(k200OK);                                             \
-    resp->setContentTypeCode(CT_APPLICATION_JSON);                           \
     resp->addHeader("access-control-allow-origin", "*");                     \
     resp->addHeader("access-control-allow-methods", "GET, POST, OPTIONS");   \
     resp->addHeader("access-control-allow-headers", "Origin, Content-Type"); \
+    if(req->getMethod() != HttpMethod::Options) {                            \
+        callback(resp); return;                                              \
+    }                                                                        \
+    resp->setContentTypeCode(CT_APPLICATION_JSON);                           \
     Json::Value respJson;                                                    \
     respJson[SU_HTTP_JSON_RESPONSE_DATA] = Json::objectValue;                \
     respJson[SU_HTTP_JSON_RESPONSE_STATUS] = 0;                              \
