@@ -23,7 +23,7 @@
     resp->addHeader("access-control-allow-origin", "*");                     \
     resp->addHeader("access-control-allow-methods", "GET, POST, OPTIONS");   \
     resp->addHeader("access-control-allow-headers", "Origin, Content-Type"); \
-    if(req->getMethod() != HttpMethod::Options) {                            \
+    if(req->getMethod() == HttpMethod::Options) {                            \
         callback(resp); return;                                              \
     }                                                                        \
     resp->setContentTypeCode(CT_APPLICATION_JSON);                           \
