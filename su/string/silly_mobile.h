@@ -8,8 +8,8 @@
  * @description: silly_mobile 类声明
  * @version: v1.0.1 2025-04-18 dou li yang
  */
-#ifndef XINJIANGMESSAGESERVER_SILLY_MOBILE_H
-#define XINJIANGMESSAGESERVER_SILLY_MOBILE_H
+#ifndef SILLY_MOBILE_H
+#define SILLY_MOBILE_H
 #include <su_marco.h>
 namespace silly
 {
@@ -32,4 +32,4 @@ class mobile
 };
 }  // namespace silly
 
-#endif  // XINJIANGMESSAGESERVER_SILLY_MOBILE_H
+#endif  // SILLY_MOBILE_H
