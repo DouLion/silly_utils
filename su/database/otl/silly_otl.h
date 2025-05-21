@@ -134,6 +134,25 @@ class otl
     /// <returns></returns>
     bool load(const std::string& cfg);
 
+    otl operator=(const otl& rh)
+    {
+       
+        this->m_ip = rh.m_ip;
+        this->m_port = rh.m_port;
+        this->m_type = rh.m_type;
+        this->m_driver = rh.m_driver;
+        this->m_schema = rh.m_schema;
+        this->m_user = rh.m_user;
+        this->m_password = rh.m_password;
+        this->m_dsn = rh.m_dsn;
+        this->m_timeout = rh.m_timeout;
+        this->m_conn = rh.m_conn;
+        this->m_verbose = rh.m_verbose;
+
+        return *this;
+
+    }
+
     /// <summary>
     /// 获取odbc连接串
     /// </summary>
