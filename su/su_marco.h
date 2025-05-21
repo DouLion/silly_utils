@@ -158,6 +158,11 @@ using silly_handle = int;
 #define SU_GB (1024 * 1024 * 1024)
 #endif
 
+#define CN_RECT_LEFT 73.0
+#define CN_RECT_TOP 54.0
+#define CN_RECT_RIGHT 135.0
+#define CN_RECT_BOTTOM 3.0
+
 /// 地理常量 geo/silly_geo_const.h
 #ifndef EARTH_RADIUS
 #define EARTH_RADIUS silly::geo::earth_radius::equatorial
