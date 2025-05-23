@@ -642,7 +642,7 @@ bool silly::db::otl::from_json(const Json::Value& root)
             m_err = "未指定驱动";
             return status;
         }
-
+        
         // 端口
         if (root.isMember(OPT_STR_PORT))
         {
@@ -696,6 +696,7 @@ bool silly::db::otl::from_json(const Json::Value& root)
         return status;
     }
     silly_jsonpp::check_bool(root, OPT_STR_VERBOSE, m_verbose);
+    silly_jsonpp::check_int32(root, "timeout", m_timeout);
 
     return true;
 }
