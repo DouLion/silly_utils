@@ -16,7 +16,7 @@ SU_HANDLER silly_dll::load(const std::string& path)
     h_ret = LoadLibraryA(path.c_str());
 #endif
 #else
-    h_ret = dlopen(path.c_str(), RTLD_LAZY);
+    h_ret = dlopen(path.c_str(), RTLD_LAZY | RTLD_DEEPBIND);
 #endif
     return h_ret;
 }
