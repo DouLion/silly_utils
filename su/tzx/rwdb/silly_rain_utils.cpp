@@ -10,7 +10,7 @@
  */
 #include "silly_rain_utils.h"
 using namespace su;
-std::map<std::string, double> RainUtils::adjust_weight(const std::map<std::string, double>& stcd2weight, const std::map<std::string, double>& stcd2rain, const double& ignore)
+std::map<std::string, double> RainUtils::AdjustWeight(const std::map<std::string, double>& stcd2weight, const std::map<std::string, double>& stcd2rain, const double& ignore)
 {
     std::map<std::string, double> ret;
 
@@ -31,7 +31,7 @@ std::map<std::string, double> RainUtils::adjust_weight(const std::map<std::strin
 
     return ret;
 }
-double RainUtils::weight_rain(const std::map<std::string, double>& stcd2weight, const std::map<std::string, double>& stcd2rain)
+double RainUtils::WeightedRain(const std::map<std::string, double>& stcd2weight, const std::map<std::string, double>& stcd2rain)
 {
     double ret = 0.0;
     for (const auto& [stcd, weight] : stcd2weight)

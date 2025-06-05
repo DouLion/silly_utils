@@ -54,28 +54,15 @@
 #endif
 
 #define SILLY_OTL_ODBC_MAX_LEN 1024
-#define otl_long_str_to_str silly::db::lstr2str
-#define otl_datetime_to_str silly::db::datetime2str
-#define str_to_otl_datetime silly::db::str2datetime
-#define str_to_db_type silly::db::otl::str2type
-#define db_type_to_str silly::db::otl::type2str
+#define otl_long_str_to_str silly::lstr2str
+#define otl_datetime_to_str silly::datetime2str
+#define str_to_otl_datetime silly::str2otltime
+#define str_to_db_type silly::otl::str2type
+#define db_type_to_str silly::otl::type2str
 
 namespace silly
 {
-namespace db
-{
 
-#define SILLY_OLT_LOB_STREAM_TO_STRING(lob, str) \
-    while (!lob.eof())                           \
-    {                                            \
-        std::string tmp;                         \
-        otl_long_string _sols;                   \
-        lob >> _sols;                            \
-        tmp.resize(_sols.len());                 \
-        memcpy(&tmp[0], _sols.v, _sols.len());   \
-        str += tmp;                              \
-    }                                            \
-    lob.close();
 
 /// <summary>
 /// long_string 转换为字符串
@@ -90,7 +77,24 @@ static std::string lstr2str(otl_long_string ls)
     return ret;
 }
 
-static std::string datetime2str(otl_datetime dt, bool millisecond = false)
+static std::string otllob2string(otl_lob_stream* stream)
+{
+    std::string ret;
+    while (!stream->eof())
+    {
+        std::string tmp;
+        otl_long_string _sols;
+        *stream >> _sols;
+        tmp.resize(_sols.len());
+        memcpy(&tmp[0], _sols.v, _sols.len());
+        ret += tmp;
+    }
+    stream->close();
+
+    return ret;
+}
+
+static std::string otltime2str(otl_datetime dt, bool millisecond = false)
 {
     char buff[32];
     if (millisecond)
@@ -104,7 +108,7 @@ static std::string datetime2str(otl_datetime dt, bool millisecond = false)
     return std::string(buff);
 }
 
-static otl_datetime str2datetime(const std::string& str)
+static otl_datetime str2otltime(const std::string& str)
 {
     otl_datetime dt;
     sscanf(str.c_str(), "%04d-%02d-%02d %02d:%02d:%02d.%03d", &dt.year, &dt.month, &dt.day, &dt.hour, &dt.minute, &dt.second, dt.fraction);
@@ -115,7 +119,7 @@ static otl_datetime str2datetime(const std::string& str)
 /// @brief 时间戳转换为+8区时间
 /// @param[in] dt
 /// @return 时间戳
-static std::time_t datetime2stamp(otl_datetime dt)
+static std::time_t otltime2stamp(otl_datetime dt)
 {
     std::tm stm;
     stm.tm_year = dt.year - 1900;
@@ -130,7 +134,7 @@ static std::time_t datetime2stamp(otl_datetime dt)
 /// @brief +8区时间转换为时间戳
 /// @param[in] stamp
 /// @return 时间
-static otl_datetime stamp2datetime(std::time_t stamp)
+static otl_datetime stamp2otltime(std::time_t stamp)
 {
     std::tm* stm = std::localtime(&stamp);
     otl_datetime dt;
@@ -628,12 +632,11 @@ class otl
     bool m_verbose = false;
 };
 
-}  // namespace db
 }  // namespace silly
 
-typedef silly::db::otl silly_otl;
-typedef silly::db::otl otl_conn_opt;
-typedef silly::db::otl::eType enum_database_type;
+typedef silly::otl silly_otl;
+typedef silly::otl otl_conn_opt;
+typedef silly::otl::eType enum_database_type;
 
 /* ODBC 示例
   Driver={DM8 ODBC DRIVER};Server=127.0.0.1;TCP_PORT=5236;UID=SYSDBA;PWD=xxxxxxxx;

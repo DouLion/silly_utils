@@ -3,7 +3,7 @@
 //
 #pragma once
 #include "silly_otl.h"
-using namespace silly::db;
+using namespace silly;
 const static std::string SILLY_OTL_MYSQL_ODBC_FORMAT = "Driver={%s};Server=%s;Port=%d;Database=%s;User=%s;Password=%s;Option=3;charset=UTF8;";
 const static std::string SILLY_OTL_MARIA_ODBC_FORMAT = "Driver={%s};Server=%s;Port=%d;Database=%s;User=%s;Password=%s;Option=3;charset=UTF8;";
 const static std::string SILLY_OTL_MSSQL_ODBC_FORMAT = "Driver={%s};Server=%s;Port=%d;UID=%s;PWD=%s;Database=%s;";
@@ -595,7 +595,7 @@ std::string otl::otl_type_name(const otl_var_enum& ot)
 
 #if USE_JSON_PARSE
 
-bool silly::db::otl::from_json(const std::string& jstr)
+bool otl::from_json(const std::string& jstr)
 {
     Json::Value root = silly_jsonpp::loads(jstr);
     if (root.isNull())
@@ -606,7 +606,7 @@ bool silly::db::otl::from_json(const std::string& jstr)
     return from_json(root);
 }
 
-bool silly::db::otl::from_json(const Json::Value& root)
+bool otl::from_json(const Json::Value& root)
 {
     bool status = false;
     silly_jsonpp::check_str(root, OPT_STR_DSN, m_dsn);
