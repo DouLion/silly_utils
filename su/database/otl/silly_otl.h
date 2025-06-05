@@ -111,6 +111,39 @@ static otl_datetime str2datetime(const std::string& str)
     dt.fraction = dt.fraction * 1e6;
     return dt;
 }
+
+/// @brief 时间戳转换为+8区时间
+/// @param[in] dt
+/// @return 时间戳
+static std::time_t datetime2stamp(otl_datetime dt)
+{
+    std::tm stm;
+    stm.tm_year = dt.year - 1900;
+    stm.tm_mon = dt.month - 1;
+    stm.tm_mday = dt.day;
+    stm.tm_hour = dt.hour;
+    stm.tm_min = dt.minute;
+    stm.tm_sec = dt.second;
+    return std::mktime(&stm);
+}
+
+/// @brief +8区时间转换为时间戳
+/// @param[in] stamp
+/// @return 时间
+static otl_datetime stamp2datetime(std::time_t stamp)
+{
+    std::tm* stm = std::localtime(&stamp);
+    otl_datetime dt;
+    dt.year = stm->tm_year + 1900;
+    dt.month = stm->tm_mon + 1;
+    dt.day = stm->tm_mday;
+    dt.hour = stm->tm_hour;
+    dt.minute = stm->tm_min;
+    dt.second = stm->tm_sec;
+    dt.fraction = 0;
+    return dt;
+}
+
 class otl
 {
   public:
