@@ -10,10 +10,19 @@
 /// <summary>
 /// 数据段必须以这四个字符开头
 /// </summary>
+#include <lz4.h>
+/// <summary>
+/// 数据段必须以这四个字符开头
+/// </summary>
 const static char SILLY_RADAR_GRID_0 = '_';
 const static char SILLY_RADAR_GRID_1 = 'T';
 const static char SILLY_RADAR_GRID_2 = 'Z';
 const static char SILLY_RADAR_GRID_3 = 'X';
+
+/// <summary>
+/// 版本1 压缩grid内容
+/// </summary>
+const static char SILLY_RADAR_GRID_V1 = '1';
 
 const int SILLY_RADAR_GRID_NAMEL = 32;
 const int SILLY_RADAR_GRID_UNITL = 32;
@@ -24,7 +33,7 @@ const int SILLY_RADAR_GRID_UNITL = 32;
 
 silly_radar_grid::silly_radar_grid()
 {
-    m_prefix[0] = SILLY_RADAR_GRID_0;
+    m_prefix[0] = SILLY_RADAR_GRID_V1;
     m_prefix[1] = SILLY_RADAR_GRID_1;
     m_prefix[2] = SILLY_RADAR_GRID_2;
     m_prefix[3] = SILLY_RADAR_GRID_3;
@@ -45,7 +54,7 @@ bool silly_radar_grid::serialize(char** buff, size_t& len)
         free(*buff);
     }
 
-    *buff = (char*)SILLY_RADAR_GRID_MALLOC(total);
+    *buff = (char*)TZX_RADAR_GRID_MALLOC(total);
     if (!*buff)
     {
         return status;
@@ -87,17 +96,89 @@ bool silly_radar_grid::serialize(char** buff, size_t& len)
     return status;
 }
 
+bool silly_radar_grid::serializev1(char** buff, size_t& len)
+{
+    bool status = false;
+    if (!grid.row() || !grid.col())  // 以网格点数据为主
+    {
+        SU_MARK_LINE
+        return status;
+    }
+    SU_MEM_FREE(*buff)
+    // 先计算压缩数据大小
+    char* cps_data = nullptr;
+    size_t cps_len = 0;
+    if (!lz4_cps_data((char*)grid.seek_row(0), grid.row() * grid.col() * sizeof(float), &cps_data, cps_len) || !cps_len)
+    {
+        SU_MARK_LINE
+        SU_MEM_FREE(cps_data)
+        return false;
+    }
+
+    total = sizeof(m_prefix) + sizeof(total) + sizeof(left) * 4 + sizeof(xdelta) * 2 + sizeof(name) + sizeof(units) + sizeof(row) + sizeof(col) + sizeof(cps_len) + cps_len;
+    *buff = (char*)TZX_RADAR_GRID_MALLOC(total);
+    if (!*buff)
+    {
+        SU_MARK_LINE
+        return status;
+    }
+    char* p = *buff;
+
+    memcpy(p, m_prefix, sizeof(m_prefix));
+    p += sizeof(m_prefix);
+
+    SILLY_RADAR_GRID_MEMCPY_TYPE(p, total)
+
+    SILLY_RADAR_GRID_MEMCPY_TYPE(p, left)
+
+    SILLY_RADAR_GRID_MEMCPY_TYPE(p, top)
+
+    SILLY_RADAR_GRID_MEMCPY_TYPE(p, right)
+
+    SILLY_RADAR_GRID_MEMCPY_TYPE(p, bottom)
+
+    SILLY_RADAR_GRID_MEMCPY_TYPE(p, xdelta)
+
+    SILLY_RADAR_GRID_MEMCPY_TYPE(p, ydelta)
+
+    memcpy(p, name, sizeof(name));
+    p += sizeof(name);
+    memcpy(p, units, sizeof(units));
+    p += sizeof(units);
+
+    SILLY_RADAR_GRID_MEMCPY_TYPE(p, row)
+
+    SILLY_RADAR_GRID_MEMCPY_TYPE(p, col)
+
+    SILLY_RADAR_GRID_MEMCPY_TYPE(p, cps_len)
+
+    memcpy(p, cps_data, cps_len);
+    SU_MEM_FREE(cps_data)
+    status = true;
+    len = total;
+    return status;
+}
+
 bool silly_radar_grid::unserialize(const char* buff, const size_t& len)
 {
     bool status = false;
-    if (!(SILLY_RADAR_GRID_0 == buff[0] && SILLY_RADAR_GRID_1 == buff[1] && SILLY_RADAR_GRID_2 == buff[2] && SILLY_RADAR_GRID_3 == buff[3]))
+    if (!(SILLY_RADAR_GRID_1 == buff[1] && SILLY_RADAR_GRID_2 == buff[2] && SILLY_RADAR_GRID_3 == buff[3]))
     {
         return status;
     }
+    if (SILLY_RADAR_GRID_V1 == buff[0])
+    {
+        return unserializev1(buff, len);
+    }
+    else if (SILLY_RADAR_GRID_0 != buff[0])
+    {
+        return false;
+    }
+
     char* p = (char*)buff + 4;
     total = ((size_t*)p)[0];
     p += sizeof(size_t);
-    if (total > len)
+    if (total != len)
     {
         return false;
     }
@@ -125,20 +206,88 @@ bool silly_radar_grid::unserialize(const char* buff, const size_t& len)
     col = ((size_t*)p)[0];
     p += sizeof(size_t);
 
-    grid.create(row, col, true);
+    this->grid.create(row, col, true);
     memcpy(grid.seek_row(0), p, row * col * sizeof(float));
 
     status = true;
     return status;
 }
-void silly_radar_grid::puzzle(const std::vector<silly_radar_grid>& srg_list)
-{
-    // left = 109.47, top = 29.88, right = 112.82, bottom = 27.19;
 
-    left = 109.47;
-    top = 29.88;
-    right = 112.82;
-    bottom = 27.19;
+bool silly_radar_grid::unserializev1(const char* buff, const size_t& len)
+{
+    char* p = (char*)buff + 4;
+
+    total = ((size_t*)p)[0];
+    p += sizeof(size_t);
+    if (total != len)
+    {
+        return false;
+    }
+    left = ((float*)p)[0];
+    p += sizeof(float);
+    top = ((float*)p)[0];
+    p += sizeof(float);
+
+    right = ((float*)p)[0];
+    p += sizeof(float);
+
+    bottom = ((float*)p)[0];
+    p += sizeof(float);
+
+    xdelta = ((float*)p)[0];
+    p += sizeof(float);
+    ydelta = ((float*)p)[0];
+    p += sizeof(float);
+
+    memcpy(name, p, sizeof(name));
+    p += sizeof(name);
+    memcpy(units, p, sizeof(units));
+    p += sizeof(units);
+
+    row = ((size_t*)p)[0];
+    p += sizeof(size_t);
+    col = ((size_t*)p)[0];
+    p += sizeof(size_t);
+    cpsl = ((size_t*)p)[0];
+    p += sizeof(size_t);
+
+    char* dcps_data = nullptr;
+    size_t dcps_len = row * col * sizeof(float);
+    bool dcps_status = lz4_dcps_data(p, cpsl, &dcps_data, dcps_len);
+    if (dcps_status && dcps_data && dcps_len == row * col * sizeof(float))
+    {
+        grid.create(row, col, true);
+        memcpy(grid.seek_row(0), dcps_data, row * col * sizeof(float));
+        SU_MEM_FREE(dcps_data)
+        return true;
+    }
+
+    return false;
+}
+
+void silly_radar_grid::puzzle(const std::vector<silly_radar_grid>& srg_list, const silly_rect& rect)
+{
+    if (srg_list.empty())
+    {
+        return;
+    }
+    left = rect.min.x;
+    top = rect.max.y;
+    right = rect.max.x;
+    bottom = rect.min.y;
+    /*for (const auto& srg : srg_list)
+    {
+        if (srg.grid.row() == 0 || srg.grid.col() == 0)
+        {
+            continue;
+        }
+        left = SU_MIN(left, srg.left);
+        top = SU_MAX(top, srg.top);
+        right = SU_MAX(right, srg.right);
+        bottom = SU_MIN(bottom, srg.bottom);
+    }*/
+
+
     ydelta = 0.0025;
     xdelta = 0.0025;
     row = std::round((top - bottom) / ydelta);
@@ -169,12 +318,29 @@ void silly_radar_grid::puzzle(const std::vector<silly_radar_grid>& srg_list)
     return;
 }
 
+void silly_radar_grid::maxv(int& tr, int& tc, float& tv)
+{
+    tv = -1e10;
+    for (int r = 0; r < row; r++)
+    {
+        for (int c = 0; c < col; c++)
+        {
+            if (grid[r][c] > tv)
+            {
+                tv = grid[r][c];
+                tr = r;
+                tc = c;
+            }
+        }
+    }
+}
+
 bool silly_radar_grid::read(const std::string& path)
 {
     bool status = false;
     char* buff = nullptr;
 #ifndef NDEBUG
-    std::cout << "Read GRID : " << path << std::endl;
+    //  std::cout << "Read GRID : " << path << std::endl;
 #endif
     std::ifstream inputFileStream(path, std::ios::binary | std::ios::ate);
     if (!inputFileStream.is_open())
@@ -194,7 +360,7 @@ bool silly_radar_grid::read(const std::string& path)
         delete[] buff;
     }
     inputFileStream.close();
-    // SILLY_RADAR_GRID_FREE(buff)
+    // TZX_RADAR_GRID_FREE(buff)
     return status;
 }
 bool silly_radar_grid::save(const std::string& path)
@@ -202,7 +368,7 @@ bool silly_radar_grid::save(const std::string& path)
     bool status = false;
     char* buff = nullptr;
     size_t len = 0;
-    if (serialize(&buff, len))
+    if (serializev1(&buff, len))
     {
         FILE* pf = fopen(path.c_str(), "wb");
         if (pf)
@@ -211,9 +377,41 @@ bool silly_radar_grid::save(const std::string& path)
             fclose(pf);
             status = true;
         }
-
         // status = FileUtils::WriteAll(path.c_str(), buff, len);
     }
-    SILLY_RADAR_GRID_FREE(buff)
+    TZX_RADAR_GRID_FREE(buff)
     return status;
+}
+
+bool silly_radar_grid::lz4_cps_data(const char* srcd, const size_t& srcl, char** dstd, size_t& dstl)
+{
+    if (!srcd || !srcl)
+    {
+        return false;
+    }
+    *dstd = (char*)malloc(srcl * 2);
+    int len = LZ4_compress_default(srcd, *dstd, srcl, srcl * 2);
+    if (len > 0)
+    {
+        dstl = static_cast<size_t>(len);
+        return true;
+    }
+    SU_MEM_FREE(*dstd);
+    return false;
+}
+
+bool silly_radar_grid::lz4_dcps_data(const char* srcd, const size_t& srcl, char** dstd, size_t& dstl)
+{
+    if (srcd && srcl)
+    {
+        *dstd = (char*)malloc(dstl * 2);
+        int len = LZ4_decompress_safe(srcd, *dstd, srcl, dstl * 2);
+        if (len > 0)
+        {
+            dstl = static_cast<size_t>(len);
+            return true;
+        }
+        SU_MEM_FREE(*dstd);
+    }
+    return false;
 }

@@ -14,18 +14,19 @@
 #include <math/silly_matrix.h>
 #include <vector>
 using namespace silly_math;
-#define SILLY_RADAR_GRID_FILE_SUFFIX ".rgrid"
+#define TZX_RADAR_GRID_FILE_SUFFIX ".rgrid"
 
-#define SILLY_RADAR_GRID_MALLOC(l) malloc(l);
+#define TZX_RADAR_GRID_MALLOC(l) malloc(l);
 
-#define SILLY_RADAR_GRID_FREE(p) \
-    {                            \
-        if (p)                   \
-        {                        \
-            free(p);             \
-            p = nullptr;         \
-        }                        \
+#define TZX_RADAR_GRID_FREE(p) \
+    {                          \
+        if (p)                 \
+        {                      \
+            free(p);           \
+            p = nullptr;       \
+        }                      \
     }
+
 class silly_radar_grid
 {
   public:
@@ -39,6 +40,8 @@ class silly_radar_grid
     /// <returns></returns>
     bool serialize(char** buff, size_t& len);
 
+    bool serializev1(char** buff, size_t& len);
+
     /// <summary>
     ///
     /// </summary>
@@ -46,12 +49,21 @@ class silly_radar_grid
     /// <param name="len">输入: 数据区域长度</param>
     /// <returns></returns>
     bool unserialize(const char* buff, const size_t& len);
+    bool unserializev1(const char* buff, const size_t& len);
 
     /// <summary>
     /// 将多个网格数据拼接为一个,重叠部分采用最大值
     /// </summary>
     /// <param name="srg_list"></param>
-    void puzzle(const std::vector<silly_radar_grid>& srg_list);
+    void puzzle(const std::vector<silly_radar_grid>& srg_list, const silly_rect& rect);
+
+    /// <summary>
+    /// 获取最大网格点所在的 行列号 和值
+    /// </summary>
+    /// <param name="r"></param>
+    /// <param name="c"></param>
+    /// <param name="v"></param>
+    void maxv(int& tr, int& tc, float& tv);
 
     bool read(const std::string& path);
     bool save(const std::string& path);
@@ -68,36 +80,60 @@ class silly_radar_grid
 
         this->row = other.row;
         this->col = other.col;
-        this->grid.create(other.grid.row(), other.grid.col());
-        for (size_t r = 0; r < this->grid.row(); ++r)
+        this->grid = other.grid;
+        /*.create(other.grid.row(), other.grid.col());
+    for (size_t r = 0; r < this->grid.row(); ++r)
+    {
+        for (size_t c = 0; c < this->grid.col(); ++c)
         {
-            for (size_t c = 0; c < this->grid.col(); ++c)
-            {
-                this->grid.at(r, c) = SU_MAX(other.grid.at(r, c), 0);
-            }
+            this->grid.at(r, c) = SU_MAX(other.grid.at(r, c), 0);
         }
+    }*/
 
         return *this;
     }
 
-  public:
-    /*
-    _TZX
-    总大小
-    高
-    宽
-    上下左右
-    步长
-    缩放
-    偏移
-    名称(UTF8)
-    单位(UTF8)
+    silly_radar_grid copy()
+    {
+        silly_radar_grid result;
+        result.total = total;
+        result.left = left;
+        result.right = right;
+        result.top = top;
+        result.bottom = bottom;
+        result.xdelta = xdelta;
+        result.ydelta = ydelta;
 
-    short的一维网格点,
-    中国境内以x=0度,y=N90度为原点
-    x轴以 0-E180为正  y轴以 N90-S90为正方向
-    顺序,从左到右,从上到下
-    */
+        result.row = row;
+        result.col = col;
+
+        result.grid = grid.copy();
+
+        return result;
+    }
+
+  private:
+    /// <summary>
+    /// 用lz4压缩数据
+    /// </summary>
+    /// <param name="srcd"></param>
+    /// <param name="srcl"></param>
+    /// <param name="dstd"></param>
+    /// <param name="dstl"></param>
+    /// <returns></returns>
+    bool lz4_cps_data(const char* srcd, const size_t& srcl, char** dstd, size_t& dstl);
+
+    /// <summary>
+    /// 用lz4解压数据块
+    /// </summary>
+    /// <param name="srcd"></param>
+    /// <param name="srcl"></param>
+    /// <param name="dstd"></param>
+    /// <param name="dstl"></param>
+    /// <returns></returns>
+    bool lz4_dcps_data(const char* srcd, const size_t& srcl, char** dstd, size_t& dstl);
+
+  public:
     size_t total{0};
     float left{0.};
     float right{0.};
@@ -110,8 +146,10 @@ class silly_radar_grid
     char name[32]{0};
     char units[32]{0};
 
-    size_t row;
-    size_t col;
+    size_t row = 0;
+    size_t col = 0;
+    size_t cpsl = 0;  // 网格点数据的压缩后占用大小
+    size_t srcl = 0;  // 网格点数据的压缩前占用大小
     FMatrix grid;
 
   private:
