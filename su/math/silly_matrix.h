@@ -317,9 +317,10 @@ class matrix
                 i++;
             }
         }
+        return *this;
     }
 
-    matrix<T> operator/(const T &v) const
+    matrix<T> operator/(const T &rh) const
     {
         matrix<T> ret;
         ret.create(m_row, m_col);
