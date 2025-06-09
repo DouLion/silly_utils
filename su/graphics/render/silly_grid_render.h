@@ -99,7 +99,7 @@ class silly_grid_render
 
     void geo_mc_render_greater(silly_render_param<T>& srp)
     {
-        matrix<T> mc_mtx;
+        su::matrix<T> mc_mtx;
         if (!silly_geo_convert::matrix_geo_to_mercator(srp.mtx, srp.rect, mc_mtx))
         {
             SLOG_ERROR("经纬坐标转换墨卡托坐标失败")
@@ -139,7 +139,7 @@ class silly_grid_render
 
     void geo_mc_render(silly_render_param<T>& srp, std::function<silly::color(T, std::vector<silly_val2color<T>>)> func)
     {
-        matrix<T> mc_mtx;
+        su::matrix<T> mc_mtx;
         if (!silly_geo_convert::matrix_geo_to_mercator(srp.mtx, srp.rect, mc_mtx))
         {
             SLOG_ERROR("经纬坐标转换墨卡托坐标失败")
