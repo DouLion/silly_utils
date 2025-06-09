@@ -530,7 +530,6 @@ class matrix
     /// <param name="dst_col"></param>
     /// <param name="flag"></param>
     /// <returns></returns>
-    template <typename T>
     matrix<T> resize(const size_t &row, const size_t &col, const IpolMethod &flag = IpolMethod::INTER_NEAREST) const
     {
         if (flag == INTER_LINEAR)
@@ -542,7 +541,6 @@ class matrix
     }
 
   private:
-    template <typename T>
     matrix<T> inter_nearest(const size_t &row, const size_t &col) const
     {
         matrix<T> ret;
@@ -572,7 +570,6 @@ class matrix
         return ret;
     }
 
-    template <typename T>
     matrix<T> inter_bilinear(const size_t &row, const size_t &col) const
     {
         matrix<T> ret;
