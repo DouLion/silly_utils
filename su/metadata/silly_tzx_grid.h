@@ -13,7 +13,6 @@
 #include <su_marco.h>
 #include <math/silly_matrix.h>
 
-
 #define SILLY_TZX_GRID_FILE_SUFFIX ".rgrid"
 
 #define SILLY_TZX_GRID_MALLOC(l) malloc(l);
@@ -80,27 +79,22 @@ class silly_tzx_grid
     bool read(const std::string& path);
     bool save(const std::string& path);
 
-    silly_tzx_grid operator=(silly_tzx_grid other)
+    silly_tzx_grid operator=(silly_tzx_grid rh)
     {
-        this->total = other.total;
-        this->left = other.left;
-        this->right = other.right;
-        this->top = other.top;
-        this->bottom = other.bottom;
-        this->xdelta = other.xdelta;
-        this->ydelta = other.ydelta;
-
-        this->row = other.row;
-        this->col = other.col;
-        this->grid = other.grid;
-        /*.create(other.grid.row(), other.grid.col());
-    for (size_t r = 0; r < this->grid.row(); ++r)
-    {
-        for (size_t c = 0; c < this->grid.col(); ++c)
+        if (this != &rh)
         {
-            this->grid.at(r, c) = SU_MAX(other.grid.at(r, c), 0);
+            this->total = rh.total;
+            this->left = rh.left;
+            this->right = rh.right;
+            this->top = rh.top;
+            this->bottom = rh.bottom;
+            this->xdelta = rh.xdelta;
+            this->ydelta = rh.ydelta;
+
+            this->row = rh.row;
+            this->col = rh.col;
+            this->grid = rh.grid;
         }
-    }*/
 
         return *this;
     }
