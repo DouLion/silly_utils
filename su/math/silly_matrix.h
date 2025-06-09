@@ -86,6 +86,7 @@ class matrix
         if (this != &rh)
         {  // 需添加此检查
             release();
+            m_total = rh.m_total;
             m_row = rh.m_row;
             m_col = rh.m_col;
             m_data = rh.m_data;  // 仍存在浅拷贝问题
@@ -465,6 +466,9 @@ class matrix
         {
             free(m_data);
             m_data = nullptr;
+            m_total = 0;
+            m_row = 0;
+            m_col = 0;
         }
     }
     const size_t row() const
