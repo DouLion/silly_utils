@@ -430,5 +430,5 @@ nc_mat nc_mat::nc_or(const nc_mat& other, const T& fill)
 template <typename T>
 su::matrix<T> nc_mat::convert_matrix()
 {
-    return matrix<T>();
+    return su::matrix<T>();
 }
