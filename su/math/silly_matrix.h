@@ -122,15 +122,10 @@ class matrix
         }
         ret.create(m_row, m_col);
         size_t i = 0;
-        T *p = ret.m_data;
-        T *pl = this->m_data;
-        T *pr = rh.m_data;
-        while (i++ < m_total)
+        while (i < m_total)
         {
-            *p = *pl + *pr;
-            p++;
-            pl++;
-            pr++;
+            ret.m_data[i] = this->m_data[i] + rh.m_data[i];
+            i++;
         }
         return ret;
     }
@@ -157,6 +152,7 @@ class matrix
         while (i < m_total)
         {
             ret.m_data[i] = this->m_data[i] + rh;
+            i++;
         }
         return ret;
     }
@@ -190,15 +186,10 @@ class matrix
         }
         ret.create(m_row, m_col);
         size_t i = 0;
-        T *p = ret.m_data;
-        T *pl = this->m_data;
-        T *pr = rh.m_data;
-        while (i++ < m_total)
+        while (i < m_total)
         {
-            *p = *pl - *pr;
-            p++;
-            pl++;
-            pr++;
+            ret.m_data[i] = this->m_data[i] - rh.m_data[i];
+            i++;
         }
         return ret;
     }
@@ -225,6 +216,7 @@ class matrix
         while (i < m_total)
         {
             ret.m_data[i] = this->m_data[i] - rh;
+            i++;
         }
         return ret;
     }
@@ -295,7 +287,7 @@ class matrix
             size_t i = 0;
             while (i < m_total)
             {
-                ret.m_data[i] = this->data[i] * rh;
+                ret.m_data[i] = this->m_data[i] * rh;
                 i++;
             }
         }
