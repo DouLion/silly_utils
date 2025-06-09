@@ -67,7 +67,7 @@ class silly_tzx_grid
     /// 将多个网格数据拼接为一个,重叠部分采用最大值
     /// </summary>
     /// <param name="srg_list"></param>
-    void puzzle(const std::vector<silly_tzx_grid>& srg_list, const silly_tzx_grid_rect& rect);
+    void puzzle(const std::vector<silly_tzx_grid>& srg_list, const silly_rect& rect);
 
     /// <summary>
     /// 获取最大网格点所在的 行列号 和值
@@ -80,9 +80,49 @@ class silly_tzx_grid
     bool read(const std::string& path);
     bool save(const std::string& path);
 
-    void release();
+    silly_tzx_grid operator=(silly_tzx_grid other)
+    {
+        this->total = other.total;
+        this->left = other.left;
+        this->right = other.right;
+        this->top = other.top;
+        this->bottom = other.bottom;
+        this->xdelta = other.xdelta;
+        this->ydelta = other.ydelta;
 
-    silly_tzx_grid operator=(silly_tzx_grid other);
+        this->row = other.row;
+        this->col = other.col;
+        this->grid = other.grid;
+        /*.create(other.grid.row(), other.grid.col());
+    for (size_t r = 0; r < this->grid.row(); ++r)
+    {
+        for (size_t c = 0; c < this->grid.col(); ++c)
+        {
+            this->grid.at(r, c) = SU_MAX(other.grid.at(r, c), 0);
+        }
+    }*/
+
+        return *this;
+    }
+
+    silly_tzx_grid copy()
+    {
+        silly_tzx_grid result;
+        result.total = total;
+        result.left = left;
+        result.right = right;
+        result.top = top;
+        result.bottom = bottom;
+        result.xdelta = xdelta;
+        result.ydelta = ydelta;
+
+        result.row = row;
+        result.col = col;
+
+        result.grid = grid.copy();
+
+        return result;
+    }
 
   private:
     /// <summary>
@@ -106,17 +146,17 @@ class silly_tzx_grid
     bool lz4_dcps_data(const char* srcd, const size_t& srcl, char** dstd, size_t& dstl);
 
   public:
-    size_t total = 0;
-    float left = 0.0;
-    float right = 0.0;
-    float top = 0.0;
-    float bottom = 0.0;
+    size_t total{0};
+    float left{0.};
+    float right{0.};
+    float top{0.};
+    float bottom{0.};
 
-    float xdelta = 0.0;
-    float ydelta = 0.0;
+    float xdelta{0.};
+    float ydelta{0.};
 
-    char name[32] = {0};
-    char units[32] = {0};
+    char name[32]{0};
+    char units[32]{0};
 
     size_t row = 0;
     size_t col = 0;
