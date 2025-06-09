@@ -436,7 +436,7 @@ class matrix
         {
             for (size_t i = 0; i < m_total; ++i)
             {
-                m_data[i] = std::max(val, m_data[i]);
+                m_data[i] = std::min(val, m_data[i]);
             }
         }
     }
@@ -451,7 +451,7 @@ class matrix
         {
             for (size_t i = 0; i < m_total; ++i)
             {
-                m_data[i] = std::min(val, m_data[i]);
+                m_data[i] = std::max(val, m_data[i]);
             }
         }
     }

@@ -347,7 +347,6 @@ bool silly_tzx_grid::read(const std::string& path)
     std::ifstream inputFileStream(path, std::ios::binary | std::ios::ate);
     if (!inputFileStream.is_open())
     {
-        std::cout << "Error opening file: " << path << std::endl;
         return false;
     }
 
