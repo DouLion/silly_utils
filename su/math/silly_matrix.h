@@ -242,8 +242,8 @@ class matrix
             throw std::invalid_argument("矩阵维度不匹配：" + std::to_string(m_row) + "x" + std::to_string(m_col) + " * " + std::to_string(rh.m_row) + "x" + std::to_string(rh.m_col));
         }
 
-        matrix<T> result;
-        if (!result.create(m_row, rh.m_col))
+        matrix<T> ret;
+        if (!ret.create(m_row, rh.m_col))
         {
             throw std::runtime_error("结果矩阵创建失败");
         }
@@ -258,11 +258,11 @@ class matrix
                 {
                     sum += m_data[i * m_col + k] * rh.m_data[k * rh.m_col + j];
                 }
-                result.m_data[i * rh.m_col + j] = sum;
+                ret.m_data[i * rh.m_col + j] = sum;
             }
         }
 
-        return result;
+        return ret;
     }
 
     // 原地乘法运算符重载
