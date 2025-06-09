@@ -90,7 +90,7 @@ bool silly_radar_grid::serialize(char** buff, size_t& len)
     memcpy(p, &col, sizeof(col));
     p += sizeof(col);
 
-    memcpy(p, grid.seek_row(0), row * col * sizeof(float));
+    memcpy(p, grid[0], row * col * sizeof(float));
     status = true;
 
     return status;
@@ -108,7 +108,7 @@ bool silly_radar_grid::serializev1(char** buff, size_t& len)
     // 先计算压缩数据大小
     char* cps_data = nullptr;
     size_t cps_len = 0;
-    if (!lz4_cps_data((char*)grid.seek_row(0), grid.row() * grid.col() * sizeof(float), &cps_data, cps_len) || !cps_len)
+    if (!lz4_cps_data((char*)grid[0], grid.row() * grid.col() * sizeof(float), &cps_data, cps_len) || !cps_len)
     {
         SU_MARK_LINE
         SU_MEM_FREE(cps_data)
@@ -207,7 +207,7 @@ bool silly_radar_grid::unserialize(const char* buff, const size_t& len)
     p += sizeof(size_t);
 
     this->grid.create(row, col, true);
-    memcpy(grid.seek_row(0), p, row * col * sizeof(float));
+    memcpy(grid[0], p, row * col * sizeof(float));
 
     status = true;
     return status;
@@ -257,7 +257,7 @@ bool silly_radar_grid::unserializev1(const char* buff, const size_t& len)
     if (dcps_status && dcps_data && dcps_len == row * col * sizeof(float))
     {
         grid.create(row, col, true);
-        memcpy(grid.seek_row(0), dcps_data, row * col * sizeof(float));
+        memcpy(grid[0], dcps_data, row * col * sizeof(float));
         SU_MEM_FREE(dcps_data)
         return true;
     }

@@ -198,11 +198,11 @@ tif_data geotiff_utils::readGeoTiff(std::string filePath)
             strip_buff = new char[res_tif.tif_lineSize];
             for (uint32_t row = 0; row < res_tif.tif_height; ++row)
             {
-                // TIFFReadScanline(tiff, res_tif.tif_matrix2.seek_row(row), row);
+                // TIFFReadScanline(tiff, res_tif.tif_matrix2[row], row);
                 TIFFReadScanline(tiff, strip_buff, row);
                 if (res_tif.tif_sampleFormat == SAMPLEFORMAT_IEEEFP && res_tif.tif_bitsPerSample == 32)
                 {
-                    memcpy(res_tif.tif_matrix2.seek_row(row), strip_buff, res_tif.tif_lineSize);
+                    memcpy(res_tif.tif_matrix2[row], strip_buff, res_tif.tif_lineSize);
                 }
                 else if (res_tif.tif_sampleFormat == SAMPLEFORMAT_IEEEFP && res_tif.tif_bitsPerSample == 64)
                 {
@@ -362,7 +362,7 @@ bool geotiff_utils::writeGeoTiff(std::string filePath, tif_data tif_matrix2)
     // 写入像素数据
     for (size_t row = 0; row < rows; row++)
     {
-        if (TIFFWriteScanline(tiff, tif_matrix2.tif_matrix2.seek_row(row), row, 0) < 0)
+        if (TIFFWriteScanline(tiff, tif_matrix2.tif_matrix2[row], row, 0) < 0)
         {
             std::cout << "TIFFWriteScanline error " << std::endl;
         }
@@ -409,7 +409,7 @@ bool geotiff_utils::writeFourChannelTiff(std::string filePath, tif_data tif_matr
     // 写入像素数据
     for (size_t row = 0; row < rows; row++)
     {
-        if (TIFFWriteScanline(tiff, tif_matrix2.tif_matrix2.seek_row(row), row, 0) < 0)
+        if (TIFFWriteScanline(tiff, tif_matrix2.tif_matrix2[row], row, 0) < 0)
         {
             std::cout << "TIFFWriteScanline error " << std::endl;
             status = false;
