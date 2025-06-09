@@ -20,7 +20,7 @@
 
 //template <typename T>
 
-//png_data generatePNGFromMatrix(matrix_2d<double>& elevation, std::map<int, silly_color, std::greater<int>> colorMap)
+//png_data generatePNGFromMatrix(matrix<double>& elevation, std::map<int, silly_color, std::greater<int>> colorMap)
 //{
 //    int height = elevation.row();
 //    int width = elevation.col();
@@ -62,7 +62,7 @@ bool compareThreshold(const std::pair<int, silly_color>& entry, double value)
     return entry.first >= value;
 }
 
-png_data generatePNGFromMatrix(matrix_2d<double>& elevation, std::map<int, silly_color, std::greater<int>> colorMap)
+png_data generatePNGFromMatrix(matrix<double>& elevation, std::map<int, silly_color, std::greater<int>> colorMap)
 {
     int height = elevation.row();
     int width = elevation.col();
@@ -468,7 +468,7 @@ SECTION("GRID_TO_RGRID")
 //    //std::string t = "D:/1_wangyingjie/code/2_hill_shading/HillShading/dem_data/ETOPO_2022_v1_15s_N60W030_bed.tif";
 //    std::filesystem::path word(t);
 //
-//    matrix_2d<unsigned char> tif_matrix;
+//    matrix<unsigned char> tif_matrix;
 //    //tif_data ti = geotiff_utils::readGeoTiff(tif_data_path.string().c_str());
 //    tif_data ti = geotiff_utils::readGeoTiff(word.string().c_str());
 //    //tif_data ti = geotiff_utils::readGeoTiffTile(word.string().c_str());

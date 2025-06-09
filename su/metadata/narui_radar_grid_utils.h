@@ -13,7 +13,7 @@
 #include <vector>
 #include <su_marco.h>
 #include <math/silly_matrix.h>
-using namespace silly_math;
+
 
 typedef std::vector<std::vector<float>> nrd_grid;
 
@@ -90,7 +90,7 @@ class silly_nrd_grid_utils
     // 头部信息
     nrd_header head;
     // 栅格数据
-    matrix_2d<float> grid;
+    su::matrix<float> grid;
 
   private:
     bool read_header(const std::string& file);

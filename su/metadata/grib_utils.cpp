@@ -9,7 +9,7 @@
 using namespace grib_data;
 #include <filesystem>
 
-bool grib_utils::read(const std::string& grib_file, std::vector<DMatrix>& matrixs, int& type)
+bool grib_utils::read(const std::string& grib_file, std::vector<su::DMatrix>& matrixs, int& type)
 {
     char* grib_def_path = getenv("ECCODES_DEFINITION_PATH");
     if (!strlen(grib_def_path))
@@ -179,7 +179,7 @@ bool grib_utils::read(const std::string& grib_file, std::vector<DMatrix>& matrix
         grib_get_size(gh, "values", &aa);
         grib_get_double_array(gh, "values", data, &tmp_size);
 
-        DMatrix matrix;
+        su::DMatrix matrix;
         matrix.create(m_geo_info.rows, m_geo_info.cols);
         for (std::uint16_t r = 0; r < m_geo_info.rows; ++r)
         {

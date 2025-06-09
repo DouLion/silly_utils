@@ -14,7 +14,7 @@
 #define SILLY_UTILS_GEOTIFF_UTILS_H
 
 #include "math/silly_matrix.h"
-using namespace silly_math;
+
 
 class tif_data
 {
@@ -48,8 +48,8 @@ class tif_data
     double pixelSizeY;      // 纵向分辨率
 
     // 以字节为将tif矩阵存入
-    matrix_2d<double> tif_matrix2;
-    // matrix_2d<unsigned char> tif_matrix2;
+    su::matrix<double> tif_matrix2;
+    // matrix<unsigned char> tif_matrix2;
 
   private:
 };

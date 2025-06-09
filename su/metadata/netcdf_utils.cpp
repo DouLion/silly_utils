@@ -15,7 +15,7 @@ static void convertToLower(std::string& str)
         str[i] = std::tolower(str[i]);  // 将每个字符转换为小写
     }
 }
-bool netcdf_utils::read_netcdf(const std::string& path, const std::string& group, std::map<int, DMatrix>& data, nc_info& info)
+bool netcdf_utils::read_netcdf(const std::string& path, const std::string& group, std::map<int, su::DMatrix>& data, nc_info& info)
 {
     // TODO: 这里不应该假定数据的类型
     float* nc_val_data = nullptr;
@@ -211,7 +211,7 @@ bool netcdf_utils::read_netcdf(const std::string& path, const std::string& group
     return ret_status;
 }
 
-bool netcdf_utils::write_netcdf(const std::string& path, const nc_info& info, const std::string& name, std::map<int, DMatrix>& data)
+bool netcdf_utils::write_netcdf(const std::string& path, const nc_info& info, const std::string& name, std::map<int, su::DMatrix>& data)
 {
     bool status = false;
     try
@@ -316,7 +316,7 @@ bool netcdf_utils::write_netcdf(const std::string& path, const nc_info& info, co
     return status;
 }
 
-bool netcdf_utils::write_netcdf(const std::string& path, const nc_info& info, const std::string& name, DMatrix data)
+bool netcdf_utils::write_netcdf(const std::string& path, const nc_info& info, const std::string& name, su::DMatrix data)
 {
     bool status = false;
     try
@@ -428,7 +428,7 @@ nc_mat nc_mat::nc_or(const nc_mat& other, const T& fill)
 }
 
 template <typename T>
-matrix_2d<T> nc_mat::convert_matrix()
+su::matrix<T> nc_mat::convert_matrix()
 {
-    return matrix_2d<T>();
+    return matrix<T>();
 }

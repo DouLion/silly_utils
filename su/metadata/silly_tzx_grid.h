@@ -12,7 +12,7 @@
 
 #include <su_marco.h>
 #include <math/silly_matrix.h>
-using namespace silly_math;
+
 
 #define SILLY_TZX_GRID_FILE_SUFFIX ".rgrid"
 
@@ -122,7 +122,7 @@ class silly_tzx_grid
     size_t col = 0;
     size_t cpsl = 0;  // 网格点数据的压缩后占用大小
     size_t srcl = 0;  // 网格点数据的压缩前占用大小
-    FMatrix grid;
+    su::FMatrix grid;
 
   private:
     char m_prefix[4];

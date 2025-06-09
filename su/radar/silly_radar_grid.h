@@ -13,7 +13,7 @@
 #include <iostream>
 #include <math/silly_matrix.h>
 #include <vector>
-using namespace silly_math;
+
 #define TZX_RADAR_GRID_FILE_SUFFIX ".rgrid"
 
 #define TZX_RADAR_GRID_MALLOC(l) malloc(l);
@@ -150,7 +150,7 @@ class silly_radar_grid
     size_t col = 0;
     size_t cpsl = 0;  // 网格点数据的压缩后占用大小
     size_t srcl = 0;  // 网格点数据的压缩前占用大小
-    FMatrix grid;
+    su::FMatrix grid;
 
   private:
     char m_prefix[4];

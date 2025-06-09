@@ -14,7 +14,7 @@
 #define SILLY_UTILS_SILLY_HILL_SHADE_HPP
 #include <su_marco.h>
 #include <math/silly_matrix.h>
-using namespace silly_math;
+
 
 class silly_hill_shade
 {
@@ -32,9 +32,9 @@ class silly_hill_shade
     /// <param name="heightDeg">光源的高度角，以度为单位</param>
     /// <returns></returns>
     template <typename T1, typename T2>
-    static bool hill_shading(const matrix_2d<T1>& dem, matrix_2d<T2>& shade, const double& delta_lng, const double& delta_lat, const double& azimuth_deg = 315.0, const double& height_deg = 45.0, double z_factor = 1.0)
+    static bool hill_shading(const matrix<T1>& dem, matrix<T2>& shade, const double& delta_lng, const double& delta_lat, const double& azimuth_deg = 315.0, const double& height_deg = 45.0, double z_factor = 1.0)
     {
-        matrix_2d<T1> tmp_dem = dem;
+        matrix<T1> tmp_dem = dem;
         size_t height = tmp_dem.row();
         size_t width = tmp_dem.col();
         if (!height || !width)

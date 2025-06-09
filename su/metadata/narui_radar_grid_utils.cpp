@@ -226,7 +226,7 @@ bool silly_nrd_grid_utils::read_grid(const std::string& file, const double& dst_
     }
     char* cpptr = idx;
     cpptr += sizeof(nrd_header);
-    matrix_2d<float> tmp_grid;
+    su::matrix<float> tmp_grid;
     if (!tmp_grid.create(head.rows, head.cols))
     {
         SUM_MEM_DEL_ARR(idx)
@@ -272,7 +272,8 @@ bool silly_nrd_grid_utils::read_grid(const std::string& file, const double& dst_
     {
         size_t drows = tmp_grid.row() * head.dlat / dst_scale;
         size_t dcols = tmp_grid.col() * head.dlon / dst_scale;
-        matrix_tools::resize(tmp_grid, grid, drows, dcols);
+        //TODO : DLY
+        // matrix_tools::resize(tmp_grid, grid, drows, dcols);
         tmp_grid.release();
     }
 

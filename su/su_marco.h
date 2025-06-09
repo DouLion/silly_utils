@@ -29,6 +29,7 @@
 #include <cmath>
 #include <numeric>
 #include <random>
+#include <type_traits>
 // 时间库
 #include <chrono>
 // 文件和流库

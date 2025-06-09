@@ -16,7 +16,7 @@
 #include <iostream>
 #include <map>
 #include <math/silly_matrix.h>
-using namespace silly_math;
+
 typedef unsigned char su_ncbyte;
 
 struct nc_geo_rect
@@ -84,7 +84,7 @@ class nc_mat
     nc_mat nc_or(const nc_mat& other, const T& fill);
 
     template <typename T>
-    matrix_2d<T> convert_matrix();
+    su::matrix<T> convert_matrix();
 
   private:
     int m_dims{2};
@@ -99,11 +99,11 @@ class nc_mat
 class netcdf_utils
 {
   public:
-    static bool read_netcdf(const std::string& path, const std::string& group, std::map<int, DMatrix>& data, nc_info& info);
+    static bool read_netcdf(const std::string& path, const std::string& group, std::map<int, su::DMatrix>& data, nc_info& info);
 
-    static bool write_netcdf(const std::string& path, const nc_info& info, const std::string& name, std::map<int, DMatrix>& data);
+    static bool write_netcdf(const std::string& path, const nc_info& info, const std::string& name, std::map<int, su::DMatrix>& data);
 
-    static bool write_netcdf(const std::string& path, const nc_info& info, const std::string& name, DMatrix data);
+    static bool write_netcdf(const std::string& path, const nc_info& info, const std::string& name, su::DMatrix data);
 };
 
 #endif  // SILLY_UTILS_NETCDF_UTILS_H
