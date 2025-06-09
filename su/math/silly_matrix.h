@@ -106,7 +106,7 @@ class matrix
         size_t i = 0;
         while (i < m_total)
         {
-            thi->m_data[i] += rh.m_data[i];
+            this->m_data[i] += rh.m_data[i];
             i++;
         }
 
@@ -120,7 +120,7 @@ class matrix
         {
             throw std::runtime_error("矩阵大小不匹配");
         }
-        matrix<T> ret.create(m_row, m_col);
+        ret.create(m_row, m_col);
         size_t i = 0;
         T *p = ret.m_data;
         T *pl = this->m_data;
@@ -174,7 +174,7 @@ class matrix
         size_t i = 0;
         while (i < m_total)
         {
-            thi->m_data[i] -= rh.m_data[i];
+            this->m_data[i] -= rh.m_data[i];
             i++;
         }
 
@@ -188,7 +188,7 @@ class matrix
         {
             throw std::runtime_error("矩阵大小不匹配");
         }
-        matrix<T> ret.create(m_row, m_col);
+        ret.create(m_row, m_col);
         size_t i = 0;
         T *p = ret.m_data;
         T *pl = this->m_data;
