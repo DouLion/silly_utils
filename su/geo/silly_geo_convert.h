@@ -55,7 +55,7 @@ bool silly_geo_convert::matrix_geo_to_mercator(su::matrix<T> src, const silly_ge
 {
     // 防止传参数进来是src与dst是同一个对象
     su::matrix<T> tmp = src.copy();
-    if (!(tmp.row() && tmp.col() && tmp.seek_row(0)))
+    if (!(tmp.row() && tmp.col() && tmp.data()))
     {
         return false;
     }

@@ -66,7 +66,7 @@ class silly_grid_render
     void normal_render_greater(silly_render_param<T>& srp)
     {
         int color_num = srp.v2cs.size();
-        T* ptr = srp.mtx.get_data();
+        T* ptr = srp.mtx.data();
         if (!ptr)
         {
             SLOG_ERROR("获取矩阵数据块失败")
@@ -118,7 +118,7 @@ class silly_grid_render
     void normal_render(silly_render_param<T>& srp, std::function<silly::color(T, std::vector<silly_val2color<T>>)> func)
     {
         int color_num = srp.v2cs.size();
-        T* ptr = srp.mtx.get_data();
+        T* ptr = srp.mtx.data();
         if (!ptr)
         {
             SLOG_ERROR("获取矩阵数据块失败")
