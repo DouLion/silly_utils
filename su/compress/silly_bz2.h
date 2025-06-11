@@ -22,6 +22,7 @@
  * 程序本身不包含用于多个文件、加密或者文档切分的工具，相反按照UNIX的传统需要使用如tar或者GnuPG这样的外部工具。
  * */
 
+// TODO: 某些情况bz2解压会有问题
 namespace silly_compress
 {
 class BZ2
