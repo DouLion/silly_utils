@@ -213,10 +213,10 @@ using silly_handle = int;
         SetConsoleOutputCP(65001);                                             \
         CONSOLE_FONT_INFOEX info = {0};                                        \
         info.cbSize = sizeof(info);                                            \
-        info.dwFontSize.Y = 16;                                                \
+        info.dwFontSize.Y = 18;                                                \
         info.FontWeight = FW_NORMAL;                                           \
-        wcscpy_s(info.FaceName, L"Consolas");                                  \
-        SetCurrentConsoleFontEx(GetStdHandle(STD_OUTPUT_HANDLE), NULL, &info); \
+        wcscpy_s(info.FaceName, L"Microsoft YaHei"/*需要是系统支持的字体*/);     \
+        GetCurrentConsoleFontEx(GetStdHandle(STD_OUTPUT_HANDLE), NULL, &info);   \
     }
 #else
 #define WINDOWS_UTF8_PAGE

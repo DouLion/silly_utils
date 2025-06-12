@@ -76,7 +76,7 @@ class silly_log : public silly_singleton<silly_log>
     template <typename... Args>
     void error(Args&&... s);
 
-  private:
+  protected:
     silly_log();
 
   private:

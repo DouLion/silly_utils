@@ -13,25 +13,26 @@ const static std::string SU_SINK_NAME_DEBUG = "debug";
 const static std::string SU_SINK_NAME_INFO = "info";
 const static std::string SU_SINK_NAME_WARN = "warn";
 const static std::string SU_SINK_NAME_ERROR = "error";
-const static std::string log_pattern = "%^[%Y-%m-%d %H:%M:%S.%e]: %v%$";
+
+const static std::string CONSOLE_PATTERN = "%^[%m-%d %H:%M:%S.%e]:%$ %v";
+const static std::string FILE_PATTERN = "[%Y-%m-%d %H:%M:%S.%e]: %v";
+
 
 silly_log::silly_log()
 {
-    WINDOWS_UTF8_PAGE
-    // init();
     try
     {
         auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
 #ifndef NDEBUG
         m_spdlog_debug = std::make_shared<spdlog::logger>(SU_SINK_NAME_DEBUG, spdlog::sinks_init_list{console_sink});
-        m_spdlog_debug->set_pattern(log_pattern);
+        m_spdlog_debug->set_pattern(CONSOLE_PATTERN);
 #endif
         m_spdlog_info = std::make_shared<spdlog::logger>(SU_SINK_NAME_INFO, spdlog::sinks_init_list{console_sink});
-        m_spdlog_info->set_pattern(log_pattern);
+        m_spdlog_info->set_pattern(CONSOLE_PATTERN);
         m_spdlog_warn = std::make_shared<spdlog::logger>(SU_SINK_NAME_WARN, spdlog::sinks_init_list{console_sink});
-        m_spdlog_warn->set_pattern(log_pattern);
+        m_spdlog_warn->set_pattern(CONSOLE_PATTERN);
         m_spdlog_error = std::make_shared<spdlog::logger>(SU_SINK_NAME_ERROR, spdlog::sinks_init_list{console_sink});
-        m_spdlog_error->set_pattern(log_pattern);
+        m_spdlog_error->set_pattern(CONSOLE_PATTERN);
 #ifndef NDEBUG
         m_spdlog_debug->set_level(spdlog::level::debug);
         m_spdlog_info->set_level(spdlog::level::debug);
@@ -127,30 +128,31 @@ void silly_log::register_spdlog(const option& opt)
 
         auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
 
-        console_sink->set_pattern(log_pattern);
+        console_sink->set_pattern(CONSOLE_PATTERN);
         // auto debug_file_sink = std::make_shared<su_rotate_log>(std::filesystem::path(sfp_log_root).append(opt.name + ".debug.log").string(), rotate_mb, max_files);
         auto warn_file_sink = std::make_shared<su_rotate_log>(std::filesystem::path(sfp_log_root).append(opt.name + ".warn.log").string(), rotate_mb, max_files);
         auto info_file_sink = std::make_shared<su_rotate_log>(std::filesystem::path(sfp_log_root).append(opt.name + ".info.log").string(), rotate_mb, max_files);
         auto error_file_sink = std::make_shared<su_rotate_log>(std::filesystem::path(sfp_log_root).append(opt.name + ".error.log").string(), rotate_mb, max_files);
+        warn_file_sink->set_pattern(FILE_PATTERN);
+        info_file_sink->set_pattern(FILE_PATTERN);
+        error_file_sink->set_pattern(FILE_PATTERN);
 
         // m_spdlog_debug = std::make_shared<spdlog::logger>(SU_SINK_NAME_DEBUG, spdlog::sinks_init_list{console_sink, debug_file_sink});
         // debug 信息暂时不考虑输出到文件
 #ifndef NDEBUG
         m_spdlog_debug = std::make_shared<spdlog::logger>(SU_SINK_NAME_DEBUG, spdlog::sinks_init_list{console_sink});
-        m_spdlog_debug->set_pattern(log_pattern);
+        m_spdlog_debug->set_pattern(CONSOLE_PATTERN);
 #endif
         m_spdlog_info = std::make_shared<spdlog::logger>(SU_SINK_NAME_INFO, spdlog::sinks_init_list{console_sink, info_file_sink});
-        m_spdlog_info->set_pattern(log_pattern);
         m_spdlog_warn = std::make_shared<spdlog::logger>(SU_SINK_NAME_WARN, spdlog::sinks_init_list{console_sink, warn_file_sink});
-        m_spdlog_warn->set_pattern(log_pattern);
         m_spdlog_error = std::make_shared<spdlog::logger>(SU_SINK_NAME_ERROR, spdlog::sinks_init_list{console_sink, error_file_sink});
-        m_spdlog_error->set_pattern(log_pattern);
 #ifndef NDEBUG
         m_spdlog_debug->set_level(spdlog::level::debug);
         m_spdlog_info->set_level(spdlog::level::debug);
         m_spdlog_warn->set_level(spdlog::level::debug);
         m_spdlog_error->set_level(spdlog::level::debug);
 #endif
+        spdlog::flush_every(std::chrono::seconds(3));
     }
     catch (const spdlog::spdlog_ex& ex)
     {
