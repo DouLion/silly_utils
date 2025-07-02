@@ -124,7 +124,7 @@ int main(int argc, char** argv)
     pd2_data.append(pd_buf);
     sag.m_data.release();
     pd2.release();
-    silly_file::write("Z://tmp//test.png", pd2_data);
+    sufile::write("Z://tmp//test.png", pd2_data);
     return 0;
 
 
@@ -165,7 +165,7 @@ int main(int argc, char** argv)
     {
         content[i] = 0;
     }
-    silly_file::write("Z://tmp//test.txt", content);
+    sufile::write("Z://tmp//test.txt", content);
 
     return 0;
 
@@ -288,9 +288,9 @@ int main(int argc, char** argv)
     silly_log::instance().init(argc, argv);
     geo_utils::init_gdal_env();
 
-    auto ls = silly_file::list_all("C:\\Users\\dell\\Desktop");
+    auto ls = sufile::list_all("C:\\Users\\dell\\Desktop");
     std::string content;
-    silly_file::read("C:\\Users\\dell\\Desktop\\mysql自动分表.sql", content);
+    sufile::read("C:\\Users\\dell\\Desktop\\mysql自动分表.sql", content);
     for (auto l : ls)
     {
         SLOG_INFO(l);

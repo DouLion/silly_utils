@@ -57,7 +57,7 @@ bool silly_ascii_grid::read_asc(const std::string& path)
     bool status = false;
     std::string content;
 
-    if (!silly_file::read(path, content))
+    if (!sufile::read(path, content))
     {
         std::cerr << "读取文件失败: " << path << std::endl;
         return status;
@@ -144,7 +144,7 @@ bool silly_ascii_grid::read_bin(const std::string& path)
 {
     bool status = false;
     std::string content;
-    if (!silly_file::read(path, content))
+    if (!sufile::read(path, content))
     {
         std::cerr << "读取文件失败: " << path << std::endl;
         return status;
@@ -253,7 +253,7 @@ bool silly_ascii_grid::write_prj(const std::string path)
     ss << "0  0  0.0 /* latitude of origin\n";
     ss << "500000.0 /* false easting (meters)\n";
     ss << "0.0 /* false northing (meters)\n";
-    if (silly_file::write(filepath, ss.str()))
+    if (sufile::write(filepath, ss.str()))
     {
         return true;
     }
@@ -264,7 +264,7 @@ bool silly_ascii_grid::read_prj(const std::string path)
 {
     // 提取高斯分带中心线经度
     std::vector<std::string> lines;
-    if(silly_file::read(path, lines))
+    if(sufile::read(path, lines))
     {
         if(lines.size() >= 11)
         {

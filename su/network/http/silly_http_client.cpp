@@ -364,7 +364,7 @@ bool client::download(const std::string& url, const std::string& file, const std
         fflush(out);
         fclose(out);
         out = nullptr;
-        /*  size_t c_file_len = silly_file::size(file);
+        /*  size_t c_file_len = sufile::size(file);
           if (c_file_len != static_cast<size_t>(p_file_len))
           {
               m_err = "文件大小不一致: 响应长度: " + std::to_string(p_file_len) + " 实际长度: " + std::to_string(c_file_len);

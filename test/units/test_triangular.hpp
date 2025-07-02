@@ -67,7 +67,7 @@ SECTION("LAWSON_TRI")      // Delaunay 劳森算法
 	std::filesystem::path data_root(DEFAULT_SU_DATA_DIR);
 	auto hebei_drp_data_path = data_root;
 	hebei_drp_data_path.append("hebei_station.txt");
-	silly_file::read(hebei_drp_data_path.string(), content);
+	sufile::read(hebei_drp_data_path.string(), content);
 	content.append(",\0");
 
 	auto points = get_points(content);
@@ -92,7 +92,7 @@ SECTION("LAWSON_TRI")      // Delaunay 劳森算法
 	std::string geojson = silly_geojson::dump_geojson(polys);
 	auto tri_geojson_path = data_root;
 	tri_geojson_path.append("hebei_tri.geojson");
-        silly_file::write(tri_geojson_path.string(), geojson);*/
+        sufile::write(tri_geojson_path.string(), geojson);*/
 }
 
 }

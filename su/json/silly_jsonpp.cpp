@@ -77,7 +77,7 @@ std::string jsonpp::dumps(const Json::Value& root, const jsonpp::opt& _opt)
 
 bool jsonpp::dumpf(const std::string& file, const Json::Value& root, const jsonpp::opt& _opt)
 {
-    return silly_file::write(file, jsonpp::to_string(root, _opt)) > 0;
+    return sufile::write(file, jsonpp::to_string(root, _opt)) > 0;
 }
 
 bool jsonpp::savef(const std::string& file, const Json::Value& root, const jsonpp::opt& _opt)

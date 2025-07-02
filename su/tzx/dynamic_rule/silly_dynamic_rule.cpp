@@ -15,7 +15,7 @@ bool dynamic_rule_code_index::load(const std::string& path)
     try
     {
         std::string content;
-        if (0 == silly_file::read(path, content))
+        if (0 == sufile::read(path, content))
         {
             return false;
         }
@@ -49,7 +49,7 @@ bool dynamic_rule_code_index::save(const std::string& path)
             //std::cout << "code:" << k << " index:" << v << std::endl;
             ss << " " << k << " " << v << std::endl;
         }
-        silly_file::write(path, ss.str());
+        sufile::write(path, ss.str());
     }
     catch (...)
     {
@@ -230,7 +230,7 @@ bool silly_dynamic_rule::save_code_index(const std::string& path)
 bool silly_dynamic_rule::read_with_code_index(const std::string& path, std::map<std::string, dynamic_rule_record>& records) const
 {
     std::string content;
-    if (0 == silly_file::read(path, content))
+    if (0 == sufile::read(path, content))
     {
         return false;
     }
@@ -314,7 +314,7 @@ bool silly_dynamic_rule::write_with_code_index(const std::string& path, const st
     {
         std::cout << std::hex << std::setfill('0') << std::setw(2) << static_cast<int>((unsigned char)(content.data()[i]))<< " ";
     }*/
-    silly_file::write(path, content);
+    sufile::write(path, content);
     return true;
 }
 void silly_dynamic_rule::add_code_index(const std::string& code,  size_t& index)
@@ -340,7 +340,7 @@ bool silly_dynamic_rule::read_with_code_index(const std::string& path, const std
         return false;
     }
     std::string content;
-    if (0 == silly_file::read(path, content))
+    if (0 == sufile::read(path, content))
     {
         return false;
     }

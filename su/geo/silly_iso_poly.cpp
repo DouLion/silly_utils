@@ -17,7 +17,7 @@ bool silly::geo::iso_poly::read(const std::string& u8file, silly_multi_poly& mpo
     try
     {
         std::string content;
-        if (0 == silly_file::read(u8file, content))
+        if (0 == sufile::read(u8file, content))
         {
             return status;
         }

@@ -3,7 +3,6 @@
 //
 #include "silly_file.h"
 
-
 using namespace silly::file;
 
 // TODO: 需要做些参照解决编码问题 https://blog.csdn.net/qq_36437446/article/details/105279221
@@ -14,20 +13,20 @@ using namespace silly::file;
 static std::wstring _cxx11_string_wstring(const std::string &str)
 {
     // 需要c++11 或者c++17
-    std::wstring ws_result;
+    std::wstring ret;
     try
     {
         using convert_typeX = std::codecvt_utf8<wchar_t>;
         std::wstring_convert<convert_typeX, wchar_t> converterX;
 
-        ws_result = converterX.from_bytes(str);
+        ret = converterX.from_bytes(str);
     }
     catch (std::exception &e)
     {
         SU_ERROR_PRINT("%s", e.what());
-        ws_result.clear();
+        ret.clear();
     }
-    return ws_result;
+    return ret;
 }
 static std::string _wildcard2regex(const std::string &pattern)
 {
@@ -88,32 +87,33 @@ static bool _is_utf8(const std::string &str)
     }
     return true;
 }
-std::filesystem::path utils::realpath(const std::string &path)
+
+std::filesystem::path utils::realpath(const std::filesystem::path &fp)
 {
-    std::filesystem::path realpath(path);
-#if IS_WIN32
-    if (_is_utf8(path))
+    std::filesystem::path ret = fp;
+#if WIN32
+    std::string fullname = fp.string();
+
+    if (_is_utf8(fullname))
     {
-        realpath = _cxx11_string_wstring(path);
+        ret = std::filesystem::path(_cxx11_string_wstring(fullname));
     }
 #endif
-    return realpath;
+    return ret;
 }
-size_t utils::read(const std::string &path, std::string &content, const size_t &offset, const size_t &len)
+
+size_t utils::read(const std::filesystem::path &fp, std::string &content, const size_t &offset, const size_t &len)
 {
     size_t ret_read_size = 0;
     content.clear();
 
-    std::fstream input(realpath(path), std::ios::binary | std::ios::in);
+    std::fstream input(realpath(fp), std::ios::binary | std::ios::in);
 
     if (!input.is_open())
     {
         return ret_read_size;
     }
-    input.ignore(std::numeric_limits<std::streamsize>::max());
-    size_t file_size = input.gcount();
-    input.clear();  //  ignore函数会移动到文件尾部, 需要移动回文件头
-    input.seekg(0, std::ios_base::beg);
+    size_t file_size = utils::size(fp);
     if (offset >= file_size)  // 保证读值不为空
     {
         input.close();
@@ -129,7 +129,7 @@ size_t utils::read(const std::string &path, std::string &content, const size_t &
     return ret_read_size;
 }
 
-size_t utils::read(const std::string &path, unsigned char **content, const size_t &offset, const size_t &len)
+size_t utils::read(const std::filesystem::path &fp, unsigned char **content, const size_t &offset, const size_t &len)
 {
     size_t read_size = 0;
     if ((*content))  // content 不能有内容
@@ -137,7 +137,7 @@ size_t utils::read(const std::string &path, unsigned char **content, const size_
         return read_size;
     }
     std::string s_cont;
-    read_size = utils::read(path, s_cont, offset, len);
+    read_size = utils::read(fp, s_cont, offset, len);
     if (read_size)
     {
         *content = (unsigned char *)malloc(read_size);
@@ -153,9 +153,9 @@ size_t utils::read(const std::string &path, unsigned char **content, const size_
     return read_size;
 }
 
-bool utils::read(const std::string &path, std::vector<std::string> &lines)
+bool utils::read(const std::filesystem::path &fp, std::vector<std::string> &lines)
 {
-    std::fstream input(realpath(path), std::ios::binary | std::ios::in);
+    std::fstream input(realpath(fp), std::ios::binary | std::ios::in);
     if (input.is_open())
     {
         std::string line;
@@ -172,10 +172,10 @@ bool utils::read(const std::string &path, std::vector<std::string> &lines)
     return true;
 }
 
-size_t utils::write(const std::string &path, const std::string &content)
+size_t utils::write(const std::filesystem::path &fp, const std::string &content)
 {
     size_t write_len = 0;
-    std::fstream output(realpath(path), std::ios::binary | std::ios::out);
+    std::fstream output(realpath(fp), std::ios::binary | std::ios::out);
 
     if (!output.is_open())
     {
@@ -185,10 +185,10 @@ size_t utils::write(const std::string &path, const std::string &content)
     return content.size();
 }
 
-size_t utils::write(const std::string &path, const std::vector<std::string> &lines)
+size_t utils::write(const std::filesystem::path &fp, const std::vector<std::string> &lines)
 {
     size_t write_len = 0;
-    std::fstream output(realpath(path), std::ios::binary | std::ios::out);
+    std::fstream output(realpath(fp), std::ios::binary | std::ios::out);
 
     if (!output.is_open())
     {
@@ -202,10 +202,10 @@ size_t utils::write(const std::string &path, const std::vector<std::string> &lin
     return write_len;
 }
 
-std::vector<std::string> utils::list(const std::string &path, const std::string &filter)
+std::vector<std::string> utils::list(const std::filesystem::path &fp, const std::string &filter)
 {
     std::vector<std::string> ret;
-    std::filesystem::path _root(_cxx11_string_wstring(path));
+    std::filesystem::path _root = utils::realpath(fp);
     if (!std::filesystem::exists(_root))
     {
         return ret;
@@ -218,7 +218,7 @@ std::vector<std::string> utils::list(const std::string &path, const std::string 
     {
         try
         {
-            for (auto itp : std::filesystem::directory_iterator(_root, std::filesystem::directory_options::skip_permission_denied))
+            for (const auto &itp : std::filesystem::directory_iterator(_root, std::filesystem::directory_options::skip_permission_denied))
             {
                 if (match_all || std::regex_match(itp.path().filename().u8string(), reg_filter))
                 {
@@ -241,10 +241,10 @@ std::vector<std::string> utils::list(const std::string &path, const std::string 
     return ret;
 }
 
-std::vector<std::string> utils::relist(const std::string &path, const std::string &filter)
+std::vector<std::string> utils::relist(const std::filesystem::path &fp, const std::string &filter)
 {
     std::vector<std::string> ret;
-    std::filesystem::path _root = realpath(path);
+    std::filesystem::path _root = realpath(fp);
     if (!std::filesystem::exists(_root))
     {
         return ret;
@@ -256,7 +256,7 @@ std::vector<std::string> utils::relist(const std::string &path, const std::strin
     {
         try
         {
-            for (const auto& itp : std::filesystem::recursive_directory_iterator(_root, std::filesystem::directory_options::skip_permission_denied))
+            for (const auto &itp : std::filesystem::recursive_directory_iterator(_root, std::filesystem::directory_options::skip_permission_denied))
             {
                 if (match_all || std::regex_match(itp.path().filename().u8string(), reg_filter))
                 {
@@ -299,13 +299,14 @@ std::string utils::file_filter_regex(const std::string &filter)
     }
     return s_result;
 }
-size_t utils::last_modify_sec(const std::string &path)
+
+std::time_t utils::last_modify_sec(const std::filesystem::path &fp)
 {
-    size_t stamp = 0;
+    std::time_t stamp = 0;
     try
     {
         // 检查文件是否存在
-        std::filesystem::path rp = realpath(path);
+        std::filesystem::path rp = realpath(fp);
         if (std::filesystem::exists(rp))
         {
             // 获取文件的最后修改时间
@@ -320,7 +321,7 @@ size_t utils::last_modify_sec(const std::string &path)
         }
         else
         {
-            std::cerr << "文件 " << path << " 不存在。" << std::endl;
+            std::cerr << "文件 " << fp.string() << " 不存在。" << std::endl;
         }
     }
     catch (const std::filesystem::filesystem_error &e)
@@ -330,13 +331,14 @@ size_t utils::last_modify_sec(const std::string &path)
 
     return stamp;
 }
-size_t utils::last_modify_ms(const std::string &path)
+
+std::time_t utils::last_modify_ms(const std::filesystem::path &fp)
 {
-    size_t stamp = 0;
+    std::time_t stamp = 0;
     try
     {
         // 检查文件是否存在
-        std::filesystem::path rp = realpath(path);
+        std::filesystem::path rp = realpath(fp);
         if (std::filesystem::exists(rp))
         {
             // 获取文件的最后修改时间
@@ -353,7 +355,7 @@ size_t utils::last_modify_ms(const std::string &path)
         }
         else
         {
-            std::cerr << "文件 " << path << " 不存在。" << std::endl;
+            std::cerr << "文件 " << fp << " 不存在。" << std::endl;
         }
     }
     catch (const std::filesystem::filesystem_error &e)
@@ -363,26 +365,7 @@ size_t utils::last_modify_ms(const std::string &path)
 
     return stamp;
 }
-size_t utils::size(const std::string &path)
-{
-    size_t file_size = 0;
-    std::fstream input(realpath(path), std::ios::binary | std::ios::in);
 
-    if (!input.is_open())
-    {
-        return file_size;
-    }
-    // 移动到文件末尾
-    input.seekg(0, std::ios::end);
-
-    // 获取文件大小
-    file_size = input.tellg();
-    return file_size;
-}
-bool utils::exist(const std::string &path)
-{
-    return exist(std::filesystem::path(path));
-}
 bool utils::exist(const std::filesystem::path &path)
 {
     try
@@ -395,10 +378,7 @@ bool utils::exist(const std::filesystem::path &path)
     }
     return false;
 }
-bool utils::mkdir(const std::string &path)
-{
-    return mkdir(std::filesystem::path(path));
-}
+
 bool utils::mkdir(const std::filesystem::path &path)
 {
     try
@@ -411,11 +391,8 @@ bool utils::mkdir(const std::filesystem::path &path)
     }
     return false;
 }
-void utils::rm(const std::string &path)
-{
-    rm(std::filesystem::path(path));
-}
-void utils::rm(const std::filesystem::path &path)
+
+void utils::rmfile(const std::filesystem::path &path)
 {
     try
     {
@@ -423,14 +400,9 @@ void utils::rm(const std::filesystem::path &path)
     }
     catch (const std::exception &e)
     {
-        std::cerr << e.what() << '\n';
     }
 }
-void utils::rrm(const std::string &path)
-{
-    rrm(std::filesystem::path(path));
-}
-void utils::rrm(const std::filesystem::path &path)
+void utils::rmdir(const std::filesystem::path &path)
 {
     try
     {
@@ -438,57 +410,26 @@ void utils::rrm(const std::filesystem::path &path)
     }
     catch (const std::exception &e)
     {
-        std::cerr << e.what() << '\n';
     }
 }
-size_t utils::read(const std::filesystem::path &path, std::string &content, const size_t &offset, const size_t &len)
-{
-    return read(path.string(), content, offset, len);
-}
-size_t utils::read(const std::filesystem::path &path, unsigned char **content, const size_t &offset, const size_t &len)
-{
-    return read(path.string(), content, offset, len)    ;
-}
-bool utils::read(const std::filesystem::path &path, std::vector<std::string> &lines)
-{
-    return read(path.string(), lines);
-}
+
 size_t utils::size(const std::filesystem::path &path)
 {
-    return size(path.string());
-}
-size_t utils::write(const std::filesystem::path &path, const std::string &content)
-{
-    return write(path.string(), content);
-}
-size_t utils::write(const std::filesystem::path &path, const std::vector<std::string> &lines)
-{
-    return write(path.string(), lines);
-}
-std::vector<std::string> utils::list(const std::filesystem::path &path, const std::string &filter)
-{
-    return list(path.string(), filter);
-}
-std::vector<std::string> utils::relist(const std::filesystem::path &path, const std::string &filter)
-{
-    return relist(path.string(), filter);
-}
-size_t utils::last_modify_sec(const std::filesystem::path &path)
-{
-    return last_modify_sec(path.string());
-}
-size_t utils::last_modify_ms(const std::filesystem::path &path)
-{
-    return last_modify_ms(path.string());
-}
-void utils::copy(const std::string &src, const std::string &dst)
-{
-    copy(std::filesystem::path(src), std::filesystem::path(dst));
+    size_t ret = 0;
+    try
+    {
+        ret = std::filesystem::file_size(path);
+    }
+    catch (...)
+    {
+    }
+    return ret;
 }
 
-void utils::copy(const std::filesystem::path &src, const std::filesystem::path &dst)
+void utils::copyfile(const std::filesystem::path &src, const std::filesystem::path &dst)
 {
-    try{
+    try
+    {
         std::filesystem::copy(src, dst);
     }
     catch (const std::exception &e)
@@ -496,11 +437,8 @@ void utils::copy(const std::filesystem::path &src, const std::filesystem::path &
         std::cerr << e.what() << std::endl;
     }
 }
-void utils::rcopy(const std::string &src, const std::string &dst)
-{
-    rcopy(std::filesystem::path(src), std::filesystem::path(dst));
-}
-void utils::rcopy(const std::filesystem::path &src, const std::filesystem::path &dst)
+
+void utils::copydir(const std::filesystem::path &src, const std::filesystem::path &dst)
 {
     try
     {
@@ -508,19 +446,21 @@ void utils::rcopy(const std::filesystem::path &src, const std::filesystem::path 
     }
     catch (const std::exception &e)
     {
-        std::cerr << e.what() << std::endl;
     }
 }
+
 node::node(std::string path)
 {
     this->path = path;
     this->is_dir = std::filesystem::is_directory(path);
 }
+
 node::node(std::filesystem::path path)
 {
     this->path = path.u8string();
     this->is_dir = std::filesystem::is_directory(path);
 }
+
 node::node(const node &other)
 {
     this->path = other.path;

@@ -308,7 +308,7 @@ bool silly_smtp::attachments(const silly_mail_content& content)
     {
         std::string fileName = std::filesystem::path(file).filename().string();
         std::string szContent;
-        if (!silly_file::read(file, szContent))
+        if (!sufile::read(file, szContent))
         {
             SLOG_ERROR("读取附件失败：{}", file)
             return false;

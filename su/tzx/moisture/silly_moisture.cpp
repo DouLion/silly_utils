@@ -63,7 +63,7 @@ void silly_moisture::serialize(const std::string& file, const std::vector<soil_m
     if (len * soil_moisture_record::serialized_size + 4 == result.size())
     {
         memcpy(&result[0], &len, sizeof(len));
-        silly_file::write(file, result);
+        sufile::write(file, result);
     }
     else
     {
@@ -73,7 +73,7 @@ void silly_moisture::serialize(const std::string& file, const std::vector<soil_m
 void silly_moisture::deserialize(const std::string& file, std::vector<soil_moisture_record>& records)
 {
     std::string data;
-    if (0 == silly_file::read(file, data))
+    if (0 == sufile::read(file, data))
     {
         return;
     }
@@ -98,7 +98,7 @@ bool silly_moisture::deserialize(const std::string& file, const moisture_index_c
     {
         size_t offset = iter->second.index;
         std::string content;
-        silly_file::read(file, content, offset, soil_moisture_record::serialized_size);
+        sufile::read(file, content, offset, soil_moisture_record::serialized_size);
         record.deserialize(content);
         if (record.pid == pid)
         {
@@ -108,7 +108,7 @@ bool silly_moisture::deserialize(const std::string& file, const moisture_index_c
     // 缓存中没有
     std::cerr << "pid:" << pid << " not found" << std::endl;
     std::string data;
-    if (0 == silly_file::read(file, data))
+    if (0 == sufile::read(file, data))
     {
         return false;
     }
@@ -137,7 +137,7 @@ bool silly_moisture::deserialize(const std::string& file, const moisture_index_c
 bool silly_moisture_index::read(const std::string& file)
 {
     std::string content;
-    silly_file::read(file, content);
+    sufile::read(file, content);
     // assert();
     if (0 != content.size() % sizeof(moisture_index_info))
     {
@@ -167,7 +167,7 @@ bool silly_moisture_index::write(const std::string& file, const moisture_index_c
 
     if (out.size() == cache.size() * sizeof(moisture_index_info))
     {
-        silly_file::write(file, out);
+        sufile::write(file, out);
         return std::filesystem::exists(file);
     }
 

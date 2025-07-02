@@ -105,7 +105,7 @@ bool silly_micaps_utils::read(const std::string &path, silly_micaps_diamond_4 &m
 {
     bool status = false;
     std::string content;
-    if (!silly_file::read(path, content))
+    if (!sufile::read(path, content))
     {
         return status;
     }

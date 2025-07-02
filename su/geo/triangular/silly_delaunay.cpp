@@ -65,7 +65,7 @@ std::vector<silly_dt_point> silly_delaunay_utils::read(const std::string& file)
 {
     std::vector<silly_dt_point> points;
     std::string content;
-    if (!silly_file::read(file, content))
+    if (!sufile::read(file, content))
     {
         return points;
     }
