@@ -90,6 +90,25 @@ silly_posix_time::silly_posix_time(const std::string& time)
     from_string(time);
 }
 
+silly_posix_time::silly_posix_time(const std::tm& stm)
+{
+    std::scoped_lock lock(m_mutex);
+    m_tm = stm;
+    std::time_t stamp = std::mktime(&m_tm);
+    m_time_point = std::chrono::system_clock::from_time_t(stamp);
+}
+
+silly_posix_time::silly_posix_time(const silly_time_stamp& stamp)
+{
+    std::scoped_lock lock(m_mutex);
+    m_time_point = std::chrono::system_clock::from_time_t(stamp);
+    fix_tm();
+}
+bool silly_posix_time::parse(const std::string& str, const std::string& fmt)
+{
+    return from_string(str, fmt);
+}
+
 bool silly_posix_time::from_string(const std::string& str, const std::string& fmt)
 {
     std::scoped_lock lock(m_mutex);
@@ -120,6 +139,11 @@ bool silly_posix_time::from_string(const std::string& str, const std::string& fm
     return status;
 }
 
+std::string silly_posix_time::stringify(const std::string& fmt) const
+{
+    return to_string(fmt);
+}
+
 std::string silly_posix_time::to_string(const std::string& fmt) const
 {
     std::string result;
@@ -139,12 +163,6 @@ std::string silly_posix_time::to_string(const std::string& fmt) const
         std::cerr << e.what() << std::endl;
     }
     return result;
-}
-silly_posix_time::silly_posix_time(const silly_time_stamp& stamp)
-{
-    std::scoped_lock lock(m_mutex);
-    m_time_point = std::chrono::system_clock::from_time_t(stamp);
-    fix_tm();
 }
 
 silly_posix_time silly_posix_time::operator+(const silly_time_duration& td) const
@@ -178,9 +196,9 @@ silly_posix_time& silly_posix_time::operator-=(const silly_time_duration& td)
     return *this;
 }
 
-silly_time_duration silly_posix_time::operator-(const silly_posix_time& other) const
+silly_time_duration silly_posix_time::operator-(const silly_posix_time& rh) const
 {
-    auto td = std::chrono::duration_cast<std::chrono::seconds>(m_time_point - other.m_time_point);
+    auto td = std::chrono::duration_cast<std::chrono::seconds>(m_time_point - rh.m_time_point);
     return silly_time_duration(td.count());
 }
 
@@ -247,36 +265,36 @@ void silly_posix_time::fix_tm()
     m_tm = *std::gmtime(&stt);
 }
 
-bool silly_posix_time::operator>(const silly_posix_time& other) const
+bool silly_posix_time::operator>(const silly_posix_time& rh) const
 {
-    return m_time_point > other.m_time_point;
+    return m_time_point > rh.m_time_point;
 }
 
-bool silly_posix_time::operator==(const silly_posix_time& other) const
+bool silly_posix_time::operator==(const silly_posix_time& rh) const
 {
-    return m_time_point == other.m_time_point;
+    return m_time_point == rh.m_time_point;
 }
 
-bool silly_posix_time::operator<(const silly_posix_time& other) const
+bool silly_posix_time::operator<(const silly_posix_time& rh) const
 {
-    return m_time_point < other.m_time_point;
+    return m_time_point < rh.m_time_point;
 }
 
-bool silly_posix_time::operator>=(const silly_posix_time& other) const
+bool silly_posix_time::operator>=(const silly_posix_time& rh) const
 {
-    return m_time_point >= other.m_time_point;
+    return m_time_point >= rh.m_time_point;
 }
 
-bool silly_posix_time::operator<=(const silly_posix_time& other) const
+bool silly_posix_time::operator<=(const silly_posix_time& rh) const
 {
-    return m_time_point <= other.m_time_point;
+    return m_time_point <= rh.m_time_point;
 }
 
-silly_posix_time silly_posix_time::operator=(const silly_posix_time& other)
+silly_posix_time silly_posix_time::operator=(const silly_posix_time& rh)
 {
     std::scoped_lock lock(m_mutex);
-    m_time_point = other.m_time_point;
-    m_tm = other.m_tm;
+    m_time_point = rh.m_time_point;
+    m_tm = rh.m_tm;
     return *this;
 }
 

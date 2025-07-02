@@ -61,34 +61,47 @@ static void check_std_tm(std::tm stm);
 class silly_posix_time
 {
   public:
+    /// <summary>
+    /// 构造函数
+    /// </summary>
     silly_posix_time();
     silly_posix_time(const silly_posix_time& time);
     silly_posix_time(const std::string& time);
-    // silly_posix_time(const silly_posix_time& other) = default;
+    silly_posix_time(const silly_time_stamp& stamp);
+    silly_posix_time(const std::tm& stm);
+
+    // 析构函数
     ~silly_posix_time() = default;
 
     static silly_posix_time now();
     static silly_posix_time time_from_string(const std::string& str, const std::string& fmt = DATE_FORMAT_1);
     static std::string time_to_string(const silly_posix_time& pt, const std::string& fmt = DATE_FORMAT_1);
 
-    bool is_not_a_date_time() const;
+    bool parse(const std::string& str, const std::string& fmt = DATE_FORMAT_1);
     bool from_string(const std::string& str, const std::string& fmt = DATE_FORMAT_1);
+
     std::string to_string(const std::string& fmt = DATE_FORMAT_1) const;
+    std::string stringify(const std::string& fmt = DATE_FORMAT_1) const;
 
-    silly_posix_time(const silly_time_stamp& stamp);
+    bool is_not_a_date_time() const;
 
-    bool operator>(const silly_posix_time& other) const;
-    bool operator==(const silly_posix_time& other) const;
-    bool operator<(const silly_posix_time& other) const;
-    bool operator>=(const silly_posix_time& other) const;
-    bool operator<=(const silly_posix_time& other) const;
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="rh"></param>
+    /// <returns></returns>
+    bool operator>(const silly_posix_time& rh) const;
+    bool operator==(const silly_posix_time& rh) const;
+    bool operator<(const silly_posix_time& rh) const;
+    bool operator>=(const silly_posix_time& rh) const;
+    bool operator<=(const silly_posix_time& rh) const;
 
-    silly_posix_time operator=(const silly_posix_time& other);
-    silly_posix_time operator+(const silly_time_duration& other) const;
-    silly_posix_time& operator+=(const silly_time_duration& other);
-    silly_posix_time operator-(const silly_time_duration& other) const;
-    silly_posix_time& operator-=(const silly_time_duration& other);
-    silly_time_duration operator-(const silly_posix_time& other) const;
+    silly_posix_time operator=(const silly_posix_time& rh);
+    silly_posix_time operator+(const silly_time_duration& rh) const;
+    silly_posix_time& operator+=(const silly_time_duration& rh);
+    silly_posix_time operator-(const silly_time_duration& rh) const;
+    silly_posix_time& operator-=(const silly_time_duration& rh);
+    silly_time_duration operator-(const silly_posix_time& rh) const;
 
     silly_time_stamp stamp_sec() const;
 
@@ -111,7 +124,7 @@ class silly_posix_time
   private:
     std::string m_err;
     std::chrono::system_clock::time_point m_time_point;  // 这个是不区分时区的时间戳
-    std::tm m_tm{};
+    std::tm m_tm{0, 0, 0, 0, 0, 0};
     std::mutex m_mutex;
 };
 #endif  // SILLY_UTILS_SILLY_POSIX_TIME_H
