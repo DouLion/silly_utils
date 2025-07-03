@@ -52,11 +52,12 @@ size_t inline make_offset_page_aligned(size_t offset) noexcept
 class memory_map
 {
   public:
-    enum access_mode
+    enum access_mode : int
     {
         Read = 1,
         Write = 2
     };
+
   public:
     using cur = char;
     class param
@@ -90,7 +91,7 @@ class memory_map
     /// </summary>
     /// <param name="offset"></param>
     /// <returns></returns>
-    cur* ptr(const size_t& offset = 0);
+    cur* ptr(const size_t& offset = 0) const;
 
     /// <summary>
     /// 读取内容
@@ -99,7 +100,7 @@ class memory_map
     /// <param name="size">读取大小</param>
     /// <param name="offset">偏移位置</param>
     /// <returns></returns>
-    bool read(cur* dst, const size_t& size, const size_t& offset = 0);
+    bool read(cur* dst, const size_t& size, const size_t& offset = 0) const;
 
     /// <summary>
     /// TODO: 写入数据到内存文件映射,并且持久化到本地文件,这个还没有完全实现
@@ -157,4 +158,5 @@ class memory_map
 };
 }  // namespace file
 }  // namespace silly
+using sumemf = silly::file::memory_map;
 #endif  // SILLY_UTILS_SILLY_MMAP_H

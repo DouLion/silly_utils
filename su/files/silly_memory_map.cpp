@@ -31,7 +31,7 @@ memory_map::~memory_map(void)
 {
 }
 
-memory_map::cur* memory_map::ptr(const size_t& offset)
+memory_map::cur* memory_map::ptr(const size_t& offset) const
 {
     if (m_mmap && offset < m_map_len)
     {
@@ -39,7 +39,7 @@ memory_map::cur* memory_map::ptr(const size_t& offset)
     }
     return nullptr;
 }
-bool memory_map::read(memory_map::cur* dst, const size_t& size, const size_t& offset)
+bool memory_map::read(memory_map::cur* dst, const size_t& size, const size_t& offset) const
 {
     if (m_mmap && dst && size + offset < m_map_len)
     {
@@ -60,7 +60,7 @@ bool memory_map::write(memory_map::cur* src, const size_t& size, const size_t& o
 #ifdef _WIN32
             if (::FlushViewOfFile(m_mmap + offset, size))
 #else  // POSIX
-            if (::msync(m_mmap  +offset, size, MS_SYNC) != 0)
+            if (::msync(m_mmap + offset, size, MS_SYNC) != 0)
 #endif
             {
                 status = true;
@@ -239,8 +239,6 @@ bool memory_map::unmap()
 {
 #ifndef NDEBUG
     std::stringstream ss;
-    ss << "Umap, 线程: " << std::this_thread::get_id();
-    SLOG_DEBUG(ss.str())
 #endif
     if (!is_open())
     {
@@ -284,7 +282,7 @@ bool memory_map::is_mapped()
     return m_hdl_map != INVALID_HANDLE_VALUE;
 #else  // POSIX
     return is_open();
-#endif 
+#endif
 }
 
 bool memory_map::open(const std::string& file, const int& mode, const int64_t& off)
