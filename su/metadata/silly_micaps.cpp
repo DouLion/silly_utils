@@ -60,9 +60,9 @@ bool silly_micaps_diamond_4::check_head(const std::string &content, size_t &offs
     MICAPS_SKIP_BLANK(content, offset, i);
     top = std::stof(content.substr(offset, i - offset + 1));
     MICAPS_SKIP_BLANK(content, offset, i);
-    lat_size = std::stof(content.substr(offset, i - offset + 1));
-    MICAPS_SKIP_BLANK(content, offset, i);
     lng_size = std::stof(content.substr(offset, i - offset + 1));
+    MICAPS_SKIP_BLANK(content, offset, i);
+    lat_size = std::stof(content.substr(offset, i - offset + 1));
     MICAPS_SKIP_BLANK(content, offset, i);
     iso_step = std::stof(content.substr(offset, i - offset + 1));
     MICAPS_SKIP_BLANK(content, offset, i);
@@ -136,7 +136,11 @@ bool silly_micaps_utils::read(const std::string &path, silly_micaps_diamond_4 &m
         offset++;
     }
     md4.data.create(md4.lat_size, md4.lng_size);
-    memcpy(md4.data.data(), tmp.data(), md4.lat_size * md4.lng_size * sizeof(float));
+    for(int r = 0; r < md4.lat_size; r++)
+    {
+        memcpy(md4.data.data() + (r * md4.lng_size), tmp.data() + ((md4.lat_size - r -1) * md4.lng_size),  md4.lng_size * sizeof(float));
+    }
+
     
     status = md4.is_valid();
     if (!status)
