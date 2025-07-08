@@ -82,7 +82,7 @@ bool silly_micaps_diamond_4::is_valid()
 {
     bool status = false;
     //
-    if (data.size() != lng_size * lat_size)
+    if (!(data.row() == lat_size && data.col() == lng_size))
     {
         return status;
     }
@@ -97,7 +97,7 @@ bool silly_micaps_diamond_4::reset()
     // 其他数据清空
     lng_size = 0;
     lat_size = 0;
-    data.clear();
+    data.release();
     return false;
 }
 
@@ -118,7 +118,7 @@ bool silly_micaps_utils::read(const std::string &path, silly_micaps_diamond_4 &m
     }
 
     char _dot = '.' - 1;
-
+    std::vector<float> tmp;
     while (offset < total_size)
     {
         if (content[offset] > _dot)
@@ -131,10 +131,13 @@ bool silly_micaps_utils::read(const std::string &path, silly_micaps_diamond_4 &m
                 i++;
                 offset++;
             }
-            md4.data.push_back(std::stof(buff));
+            tmp.push_back(std::stof(buff));
         }
         offset++;
     }
+    md4.data.create(md4.lat_size, md4.lng_size);
+    memcpy(md4.data.data(), tmp.data(), md4.lat_size * md4.lng_size * sizeof(float));
+    
     status = md4.is_valid();
     if (!status)
     {

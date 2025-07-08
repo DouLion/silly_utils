@@ -9,8 +9,7 @@
  */
 #ifndef SILLY_UTILS_SILLY_MICAPS_H
 #define SILLY_UTILS_SILLY_MICAPS_H
-#include <su_marco.h>
-#include <vector>
+#include <math/silly_matrix.h>
 
 /// <summary>
 /// 第四类数据格式：格点数据（文本文件）
@@ -63,7 +62,7 @@ class silly_micaps_diamond_4
     float iso_ev{0.};
     float smooth{0.};
     float bold{0.};
-    std::vector<float> data;
+    su::matrix<float> data;
 };
 
 class silly_micaps_utils
