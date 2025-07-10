@@ -21,6 +21,12 @@ class jsonpp
     class style
     {
       public:
+        style() : utf8(true), precision(8), indentation("  "), commentStyle("None"), enableYAMLCompatibility(false)
+        {
+        }
+        ~style() = default;
+
+      public:
         bool utf8 = true;
         size_t precision = 8;                  // 小数精度, 为0则不处理
         std::string indentation = "  ";        // 无缩进（紧凑模式）
@@ -50,19 +56,19 @@ class jsonpp
     /// </summary>
     /// <param name="root"></param>
     /// <param name="style">格式化方式</param>
-    static std::string dumps(const Json::Value& root, const jsonpp::style& opt = {true, 0});
-    static std::string to_string(const Json::Value root, const jsonpp::style& opt = {true, 0});
-    static std::string stringify(const Json::Value root, const jsonpp::style& opt = {true, 0});
-    static std::string string(const Json::Value root, const jsonpp::style& opt = {true, 0});
+    static std::string dumps(const Json::Value& root, const jsonpp::style& opt = jsonpp::style());
+    static std::string to_string(const Json::Value root, const jsonpp::style& opt = jsonpp::style());
+    static std::string stringify(const Json::Value root, const jsonpp::style& opt = jsonpp::style());
+    static std::string string(const Json::Value root, const jsonpp::style& opt = jsonpp::style());
 
     /// <summary>
     /// 将json内容写入到文件
     /// </summary>
     /// <param name="root"></param>
     /// <param name="indentation">是否为紧凑型字符串,默认为紧凑型</param>
-    static bool dumpf(const std::filesystem::path& file, const Json::Value& root, const jsonpp::style& opt = {true, 0});
-    static bool savef(const std::filesystem::path& file, const Json::Value& root, const jsonpp::style& opt = {true, 0});
-    static bool write(const std::filesystem::path& file, const Json::Value& root, const jsonpp::style& opt = {true, 0});
+    static bool dumpf(const std::filesystem::path& file, const Json::Value& root, const jsonpp::style& opt = jsonpp::style());
+    static bool savef(const std::filesystem::path& file, const Json::Value& root, const jsonpp::style& opt = jsonpp::style());
+    static bool write(const std::filesystem::path& file, const Json::Value& root, const jsonpp::style& opt = jsonpp::style());
 
     /// <summary>
     /// 检查json中指定key的数据类型,如果正确,则赋值,并且返回true,否则返回false

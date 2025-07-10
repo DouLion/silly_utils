@@ -430,7 +430,9 @@ std::string geojson::stringify(const silly_line line, const int& precision)
 }
 std::string geojson::stringify(const silly_poly poly, const int& precision)
 {
-    return silly::jsonpp::stringify(jsonify(poly), {true, static_cast<size_t>(precision)});
+    sujson::style opt;
+    opt.precision = precision;
+    return silly::jsonpp::stringify(jsonify(poly), opt);
 }
 std::string geojson::stringify(const silly_multi_point mpoint, const int& precision)
 {
