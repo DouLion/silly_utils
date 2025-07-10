@@ -3,23 +3,24 @@
 //
 #pragma once
 #include "silly_grib2.h"
-
+#include <files/silly_file.h>
 #if SU_ECCODES_ENABLED
 #include <eccodes.h>
 #define SILL_ECCODES_ENV_DEFINITION_PATH "ECCODES_DEFINITION_PATH"
 #endif
 
-bool silly_grib2_utils::read(const std::string& path, silly_grib2_frame& grb, const size_t& fidx)
+bool silly_grib2_utils::read(const std::filesystem::path& file, silly_grib2_frame& grb, const size_t& fidx)
 {
     bool status = false;
 #if SU_ECCODES_ENABLED
+
     int i = 0;
     FILE* file_h = nullptr;
     codes_context* grb2_c = nullptr;
     codes_handle* grb2_h = nullptr;
-    if (!silly_grib2_utils::open_grib2_handle(path, (void**)&file_h, (void**)&grb2_c, (void**)&grb2_h))
+    if (!silly_grib2_utils::open_grib2_handle(sufile::realpath(file).string(), (void**)&file_h, (void**)&grb2_c, (void**)&grb2_h))
     {
-        SU_ERROR_PRINT("Open GRB2 handle failed: %s", path.c_str());
+        SLOG_ERROR("打开GRIB2文件失败: {}", file.u8string());
         return status;
     }
     while (grb2_h)
@@ -44,7 +45,7 @@ bool silly_grib2_utils::read(const std::string& path, silly_grib2_frame& grb, co
     return status;
 }
 
-bool silly_grib2_utils::read(const std::string& path, std::map<size_t, silly_grib2_frame>& msgf_grb)
+bool silly_grib2_utils::read(const std::filesystem::path& file, std::map<size_t, silly_grib2_frame>& msgf_grb)
 {
     bool status = false;
 #if SU_ECCODES_ENABLED
@@ -52,9 +53,9 @@ bool silly_grib2_utils::read(const std::string& path, std::map<size_t, silly_gri
     FILE* file_h = nullptr;
     codes_context* grb2_c = nullptr;
     codes_handle* grb2_h = nullptr;
-    if (!silly_grib2_utils::open_grib2_handle(path, (void**)&file_h, (void**)&grb2_c,(void**) &grb2_h))
+    if (!silly_grib2_utils::open_grib2_handle(file, (void**)&file_h, (void**)&grb2_c,(void**) &grb2_h))
     {
-        SU_ERROR_PRINT("Open GRB2 handle failed: %s", path.c_str());
+        SLOG_ERROR("打开GRIB2文件失败: {}", file.u8string());
         return status;
     }
     while (grb2_h)
@@ -73,7 +74,7 @@ bool silly_grib2_utils::read(const std::string& path, std::map<size_t, silly_gri
     return status;
 }
 
-bool silly_grib2_utils::open_grib2_handle(const std::string& path, void** file_h, void** grb2_c, void** grb2_h)
+bool silly_grib2_utils::open_grib2_handle(const std::filesystem::path& file, void** file_h, void** grb2_c, void** grb2_h)
 {
     bool status = false;
 #if SU_ECCODES_ENABLED
@@ -85,7 +86,7 @@ bool silly_grib2_utils::open_grib2_handle(const std::string& path, void** file_h
     }
     codes_bufr_header* bheader;
     int mssnum = 0;
-    codes_bufr_extract_headers_malloc(nullptr, path.c_str(), &bheader, &mssnum, 1);
+    codes_bufr_extract_headers_malloc(nullptr, sufile::realpath(file).string().c_str(), &bheader, &mssnum, 1);
     
     // TODO: 检查这个codes_context是否可以为null
     // *grb2_c = codes_context_get_default();
@@ -93,10 +94,10 @@ bool silly_grib2_utils::open_grib2_handle(const std::string& path, void** file_h
     //codes_grib_multi_support_off(NULL);
     //codes_grib_multi_support_on(NULL);  // 多波段读取支持
     int err_code = 0;
-    FILE* in = fopen(path.c_str(), "rb");
+    FILE* in = fopen(sufile::realpath(file).string().c_str(), "rb");
     if (nullptr == in)
     {
-        SU_ERROR_PRINT("Open GRB2 in failed: %s", path.c_str())
+        SLOG_ERROR("打开GRIB2文件失败: {}", file.u8string());
         fclose(in);
         return status;
     }

@@ -10,8 +10,9 @@
  */
 #include "silly_dynamic_rule.h"
 #include "files/silly_file.h"
-bool dynamic_rule_code_index::load(const std::string& path)
+bool dynamic_rule_code_index::load(const std::filesystem::path& file)
 {
+    auto path = sufile::realpath(file);
     try
     {
         std::string content;
@@ -39,8 +40,9 @@ bool dynamic_rule_code_index::load(const std::string& path)
     }
     return true;
 }
-bool dynamic_rule_code_index::save(const std::string& path)
+bool dynamic_rule_code_index::save(const std::filesystem::path& file)
 {
+    auto path = sufile::realpath(file);
     try
     {
         std::stringstream ss;
@@ -219,17 +221,18 @@ silly_dynamic_rule::silly_dynamic_rule()
 silly_dynamic_rule::~silly_dynamic_rule()
 {
 }
-bool silly_dynamic_rule::load_code_index(const std::string& path)
+bool silly_dynamic_rule::load_code_index(const std::filesystem::path& file)
 {
-    return m_index.load(path);
+    return m_index.load(file);
 }
-bool silly_dynamic_rule::save_code_index(const std::string& path)
+bool silly_dynamic_rule::save_code_index(const std::filesystem::path& file)
 {
-    return m_index.save(path);
+    return m_index.save(file);
 }
-bool silly_dynamic_rule::read_with_code_index(const std::string& path, std::map<std::string, dynamic_rule_record>& records) const
+bool silly_dynamic_rule::read_with_code_index(const std::filesystem::path& file, std::map<std::string, dynamic_rule_record>& records) const
 {
     std::string content;
+    auto path = sufile::realpath(file);
     if (0 == sufile::read(path, content))
     {
         return false;
@@ -265,8 +268,9 @@ bool silly_dynamic_rule::read_with_code_index(const std::string& path, std::map<
     return false;
 }
 
-bool silly_dynamic_rule::write_with_code_index(const std::string& path, const std::map<std::string, dynamic_rule_record>& records) const
+bool silly_dynamic_rule::write_with_code_index(const std::filesystem::path& file, const std::map<std::string, dynamic_rule_record>& records) const
 {
+    auto path = sufile::realpath(file);
     std::filesystem::create_directories(std::filesystem::path(path).parent_path());
     std::map<std::string, int> index_map;
     std::map<int, std::string> code_map;
@@ -332,8 +336,9 @@ void silly_dynamic_rule::set_index(const dynamic_rule_code_index& code_index)
         m_index.add(code, idx);
     }
 }
-bool silly_dynamic_rule::read_with_code_index(const std::string& path, const std::string& code, dynamic_rule_record& record) const
+bool silly_dynamic_rule::read_with_code_index(const std::filesystem::path& file, const std::string& code, dynamic_rule_record& record) const
 {
+    auto path = sufile::realpath(file);
     auto iter = m_index.find(code);
     if(iter == m_index.end())
     {

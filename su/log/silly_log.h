@@ -53,7 +53,7 @@ class silly_log : public silly_singleton<silly_log>
     /// </summary>
     /// <param name="path"></param>
     /// <returns></returns>
-    bool init(const std::string& path);
+    bool init(const std::filesystem::path& file);
 
     /// <summary>
     /// 由option对象初始化日志模块

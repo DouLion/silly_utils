@@ -67,7 +67,6 @@
 #include <geo/proj/gdal/silly_projection_define.h>     // 投影坐标系的 wtk
 #include <geo/proj/gdal/silly_proj_convert.h>          // 地理坐标系的转换
 #include <geo/proj/silly_proj.h>                       // (高斯投影, 墨卡托投影)转经纬度坐标
-#include <geo/silly_dem.h>                             // dem数据读写 未实现
 #include <geo/silly_geo.h>                             // 自定义点线面多线多面矢量类型
 #include <geo/silly_geojson.h>                         // geojson处理类, 未实现
 #include <geo/silly_geo_coll.h>                        // 复合矢量类型定义

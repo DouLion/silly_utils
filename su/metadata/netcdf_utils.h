@@ -99,11 +99,11 @@ class nc_mat
 class netcdf_utils
 {
   public:
-    static bool read_netcdf(const std::string& path, const std::string& group, std::map<int, su::DMatrix>& data, nc_info& info);
+    static bool read_netcdf(const std::filesystem::path& file, const std::string& group, std::map<int, su::DMatrix>& data, nc_info& info);
 
-    static bool write_netcdf(const std::string& path, const nc_info& info, const std::string& name, std::map<int, su::DMatrix>& data);
+    static bool write_netcdf(const std::filesystem::path& file, const nc_info& info, const std::string& name, std::map<int, su::DMatrix>& data);
 
-    static bool write_netcdf(const std::string& path, const nc_info& info, const std::string& name, su::DMatrix data);
+    static bool write_netcdf(const std::filesystem::path& file, const nc_info& info, const std::string& name, su::DMatrix data);
 };
 
 #endif  // SILLY_UTILS_NETCDF_UTILS_H

@@ -15,8 +15,8 @@ class RainRates
 {
   public:
 
-    bool Read(const std::string& file);
-    bool Write(const std::string& file);
+    bool Read(const std::filesystem::path& file);
+    bool Write(const std::filesystem::path& file);
 
   private:
     double RATE_snr_threshold = 3;

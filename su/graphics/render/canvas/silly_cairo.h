@@ -68,7 +68,7 @@ class silly_cairo
     /// <param name="path"></param>
     /// <param name="png">true 以png读取, false 以 jpeg 格式读取</param>
     /// <returns></returns>
-    bool read(const std::string& path, const bool& png = true);
+    bool read(const std::filesystem::path& file, const bool& png = true);
 
     /// <summary>
     /// 将图片写入文件
@@ -76,7 +76,7 @@ class silly_cairo
     /// <param name="path"></param>
     /// <param name="png">true 写为 png, false 写为 jpeg格式</param>
     /// <returns></returns>
-    bool write(const std::string& path, const bool& png = true);
+    bool write(const std::filesystem::path& file, const bool& png = true);
 
     /// <summary>
     /// 从二进制数据创建图片
@@ -107,7 +107,7 @@ class silly_cairo
     /// </summary>
     /// <param name="name">自定义字体名称</param>
     /// <param name="path">字体文件(.tff)的路径</param>
-    static bool add_font(const std::string& name, const std::string& path);
+    static bool add_font(const std::string& name, const std::filesystem::path& file);
 
     /// <summary>
     /// 设置颜色, 自动由 0-255转为 0-1.0

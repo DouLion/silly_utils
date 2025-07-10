@@ -14,6 +14,7 @@
 #include <geo/proj/silly_proj.h>
 #include <graphics/silly_png.h>
 #include <graphics/silly_jpeg.h>
+#include <files/silly_file.h>
 
 #if ENABLE_JPEG
 // 安装的是 libjpeg-turbo
@@ -393,11 +394,11 @@ bool silly_cairo::create(const size_t ww, const size_t &hh, const int &type)
     return true;
 }
 
-bool silly_cairo::read(const std::string &path, const bool &png)
+bool silly_cairo::read(const std::filesystem::path& file, const bool &png)
 {
     if (png)
     {
-        if (!(m_surface = silly::cairo::png::surface_create_from_file(path.c_str())))
+        if (!(m_surface = silly::cairo::png::surface_create_from_file(sufile::realpath(file).string().c_str())))
         {
             return false;
         }
@@ -406,7 +407,7 @@ bool silly_cairo::read(const std::string &path, const bool &png)
     {
 #if ENABLE_JPEG
 
-        if (!(m_surface = silly::cairo::jpeg::surface_create_from_file(path.c_str())))
+        if (!(m_surface = silly::cairo::jpeg::surface_create_from_file(sufile::realpath(file).string().c_str())))
         {
             return false;
         }
@@ -421,16 +422,16 @@ bool silly_cairo::read(const std::string &path, const bool &png)
     return true;
 }
 
-bool silly_cairo::write(const std::string &path, const bool &png)
+bool silly_cairo::write(const std::filesystem::path& file, const bool &png)
 {
     if (png)
     {
-        return (CAIRO_STATUS_SUCCESS == silly::cairo::png::surface_write(m_surface, path.c_str()));
+        return (CAIRO_STATUS_SUCCESS == silly::cairo::png::surface_write(m_surface, sufile::realpath(file).string().c_str()));
     }
 #if ENABLE_JPEG
     else
     {
-        return (CAIRO_STATUS_SUCCESS == silly::cairo::jpeg::surface_write(m_surface, path.c_str()));
+        return (CAIRO_STATUS_SUCCESS == silly::cairo::jpeg::surface_write(m_surface, sufile::realpath(file).string().c_str()));
     }
 #endif
     return false;
@@ -629,16 +630,16 @@ size_t silly_cairo::height() const
     return m_height;
 }
 
-bool silly_cairo::add_font(const std::string &name, const std::string &path)
+bool silly_cairo::add_font(const std::string &name, const std::filesystem::path& file)
 {
     bool status = false;
     FT_Face ft_face;
 
     FT_Error ft_error;
 
-    if (!path.empty())
+    if (sufile::exist(file))
     {
-        ft_error = FT_New_Face(CAIRO_FONT_LIB, path.c_str(), 0, &ft_face);
+        ft_error = FT_New_Face(CAIRO_FONT_LIB, sufile::realpath(file).string().c_str(), 0, &ft_face);
         if (!ft_error)
         {
             CAIRO_NAME_FONT[name] = ft_face;

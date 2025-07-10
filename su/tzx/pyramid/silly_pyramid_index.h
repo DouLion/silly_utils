@@ -70,8 +70,8 @@ class idx_pack
 
   public:
     bool init();
-    /* bool write(const std::string& file) = 0;
-    virtual bool read(const std::string& file) = 0;*/
+    /* bool write(const std::filesystem::path& file) = 0;
+    virtual bool read(const std::filesystem::path& file) = 0;*/
     /*virtual position seek(size_t row, size_t col) const = 0;
     virtual size_t offset(size_t row, size_t col) const = 0;*/
   public:
@@ -95,8 +95,6 @@ class index : public silly::pyramid::base
     /// <param name="mode"></param>
     /// <param name="usemmap"></param>
     /// <returns></returns>
-    bool open(const char* file, const sumemf::access_mode& mode, const bool& usemmap) override;
-    bool open(const std::string& file, const sumemf::access_mode& mode, const bool& usemmap) override;
     bool open(const std::filesystem::path& file, const sumemf::access_mode& mode, const bool& usemmap) override;
 
     /// <summary>

@@ -213,7 +213,7 @@ void x_scan_line::rasterize(const silly_geo_coll& geo_coll)
 #include <graphics/silly_png.h>
 #endif
 
-void x_scan_line::image(const std::string& path)
+void x_scan_line::image(const std::filesystem::path& file)
 {
 #ifndef NDEBUG
     silly::png::data pd;
@@ -231,7 +231,7 @@ void x_scan_line::image(const std::string& path)
         }
     }
 
-    pd.write(path);
+    pd.write(file);
     pd.release();
 #endif
 }

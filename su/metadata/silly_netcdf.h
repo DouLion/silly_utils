@@ -11,6 +11,7 @@
 #define SILLY_UTILS_SILLY_NETCDF_H
 #include <netcdf>
 #include <log/silly_log.h>
+#include <files/silly_file.h>
 using namespace netCDF;
 using namespace netCDF::exceptions;
 // lon维度必须在倒数第一个
@@ -83,7 +84,7 @@ class silly_netcdf
     /// </summary>
     /// <param name="path">文件路径</param>
     /// <returns></returns>
-    bool open(const std::string& path);
+    bool open(const std::filesystem::path& file);
 
     std::vector<std::string> members();
 
@@ -104,7 +105,7 @@ class silly_netcdf
     /// <returns></returns>
     bool read(const std::string& group, const std::string& lon, const std::string& lat);
 
-    bool write(const std::string& path, const silly_netcdf_data& snd);
+    bool write(const std::filesystem::path& file, const silly_netcdf_data& snd);
 
     /// <summary>
     /// 关闭netcdf文件

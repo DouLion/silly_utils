@@ -9,7 +9,7 @@
  */
 #ifndef SILLY_UTILS_SILLY_DISK_H
 #define SILLY_UTILS_SILLY_DISK_H
-#include <su_marco.h>
+#include <files/silly_file.h>
 
 enum class storage_unit
 {
@@ -32,21 +32,21 @@ class silly_disk
     /// </summary>
     /// <param name="path"></param>
     /// <returns></returns>
-    static double space_capacity(const std::string& path, const storage_unit& unit = storage_unit::esuByte);
+    static double space_capacity(const std::filesystem::path& file, const storage_unit& unit = storage_unit::esuByte);
 
     /// <summary>
     /// 磁盘可用空间
     /// </summary>
     /// <param name="path"></param>
     /// <returns></returns>
-    static double space_available(const std::string& path, const storage_unit& unit = storage_unit::esuByte);
+    static double space_available(const std::filesystem::path& file, const storage_unit& unit = storage_unit::esuByte);
 
     /// <summary>
     /// 磁盘已用空间
     /// </summary>
     /// <param name="path"></param>
     /// <returns></returns>
-    static double space_used(const std::string& path, const storage_unit& unit = storage_unit::esuByte);
+    static double space_used(const std::filesystem::path& file, const storage_unit& unit = storage_unit::esuByte);
 
     /// <summary>
     /// 磁盘可用空间百分比
@@ -54,7 +54,7 @@ class silly_disk
     /// <param name="path"></param>
     /// <param name="unit"></param>
     /// <returns></returns>
-    static double space_available_percent(const std::string& path);
+    static double space_available_percent(const std::filesystem::path& file);
 
     /// <summary>
     /// 磁盘已用空间百分比
@@ -62,7 +62,7 @@ class silly_disk
     /// <param name="path"></param>
     /// <param name="unit"></param>
     /// <returns></returns>
-    static double space_used_percent(const std::string& path);
+    static double space_used_percent(const std::filesystem::path& file);
 };
 
 #endif  // SILLY_UTILS_SILLY_DISK_H

@@ -17,17 +17,17 @@ using namespace silly_compress;
 /// <summary>
 /// 将一个文件内容写入到一个 ZIP 文件中
 /// </summary>
-/// <param name="zip_handle"></param>
+/// <param name="zipHDL"></param>
 /// <param name="file">需要读取的文件</param>
 /// <returns></returns>
-int write_into_zip_handle(const zipFile& zip_handle, const std::string& file)
+static int write_into_zipHDL(const zipFile& zipHDL, const std::filesystem::path& file)
 {
     int ret = -1;
 
     std::ifstream input(file.c_str(), std::ios::binary | std::ios::in);
     if (!input.is_open())
     {
-        SLOG_ERROR("打开文件错误:{}", file);
+        SLOG_ERROR("打开文件错误:{}", file.u8string());
         return ret;
     }
     size_t predicte = 100 * 1024 * 1024;
@@ -42,7 +42,7 @@ int write_into_zip_handle(const zipFile& zip_handle, const std::string& file)
         {
             break;  // 如果没有读取到任何字节，说明已到达文件末尾或出错
         }
-        int zs = zipWriteInFileInZip(zip_handle, buffer.data(), read_size);
+        int zs = zipWriteInFileInZip(zipHDL, buffer.data(), read_size);
         if (ZIP_OK != zs)
         {
             break;
@@ -78,17 +78,17 @@ void recursive_list_paths(const std::string& recurse_root, std::vector<std::stri
 }
 
 // 压缩文件
-int minizip_compress_file(const zipFile& zip_handle, const std::string& src)
+int minizip_compress_file(const zipFile& zipHDL, const std::string& src)
 {
     std::string srcFileName = std::filesystem::path(src).filename().string();
     zip_fileinfo zFileInfo = {0};
-    int ret = zipOpenNewFileInZip3_64(zip_handle, srcFileName.c_str(), &zFileInfo, nullptr, 0, nullptr, 0, nullptr, Z_DEFLATED, Z_DEFAULT_COMPRESSION, 0, -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY, nullptr, 0, 1);
+    int ret = zipOpenNewFileInZip3_64(zipHDL, srcFileName.c_str(), &zFileInfo, nullptr, 0, nullptr, 0, nullptr, Z_DEFLATED, Z_DEFAULT_COMPRESSION, 0, -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY, nullptr, 0, 1);
     if (ret != ZIP_OK)
     {
         SLOG_ERROR("Failed to open file in zip: {}", src);
         return ret;
     }
-    ret = write_into_zip_handle(zip_handle, src);
+    ret = write_into_zipHDL(zipHDL, src);
     if (ret != ZIP_OK)
     {
         SLOG_ERROR("ailed to write file to zip: {}", src);
@@ -97,7 +97,7 @@ int minizip_compress_file(const zipFile& zip_handle, const std::string& src)
 }
 
 // 压缩文件夹
-int minizip_compress_dir(const zipFile& zip_handle, const std::string& root)
+int minizip_compress_dir(const zipFile& zipHDL, const std::string& root)
 {
     std::vector<std::string> paths;
     auto sfp_relate_root = std::filesystem::path(root).parent_path();
@@ -114,7 +114,7 @@ int minizip_compress_dir(const zipFile& zip_handle, const std::string& root)
         {
             tmp_relate.append("/");  // 添加尾随斜线并在ZIP中创建条目
             zip_fileinfo tmp_zinfo = {};
-            int ret = zipOpenNewFileInZip3_64(zip_handle, tmp_relate.c_str(), &tmp_zinfo, nullptr, 0, nullptr, 0, nullptr, Z_DEFLATED, Z_DEFAULT_COMPRESSION, 0, -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY, nullptr, 0, 1);
+            int ret = zipOpenNewFileInZip3_64(zipHDL, tmp_relate.c_str(), &tmp_zinfo, nullptr, 0, nullptr, 0, nullptr, Z_DEFLATED, Z_DEFAULT_COMPRESSION, 0, -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY, nullptr, 0, 1);
             if (ret != ZIP_OK)
             {
                 SLOG_ERROR("创建ZIP目录条目失败: {}", path);
@@ -125,14 +125,14 @@ int minizip_compress_dir(const zipFile& zip_handle, const std::string& root)
 
         // 处理文件
         zip_fileinfo tmp_zinfo = {};
-        int ret = zipOpenNewFileInZip3_64(zip_handle, tmp_relate.c_str(), &tmp_zinfo, nullptr, 0, nullptr, 0, nullptr, Z_DEFLATED, Z_DEFAULT_COMPRESSION, 0, -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY, nullptr, 0, 1);
+        int ret = zipOpenNewFileInZip3_64(zipHDL, tmp_relate.c_str(), &tmp_zinfo, nullptr, 0, nullptr, 0, nullptr, Z_DEFLATED, Z_DEFAULT_COMPRESSION, 0, -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY, nullptr, 0, 1);
         if (ret != ZIP_OK)
         {
             SLOG_ERROR("打开ZIP文件条目失败: {}", path);
             return ret;
         }
 
-        ret = write_into_zip_handle(zip_handle, path);
+        ret = write_into_zipHDL(zipHDL, path);
         if (ret != ZIP_OK)
         {
             SLOG_ERROR("写入ZIP文件内容失败: {}", path);
@@ -163,8 +163,8 @@ CPS_ERR MiniZip::compress(const std::string& s_src, const std::string& s_dst, co
         {
             std::filesystem::remove(out_dst);
         }
-        zipFile zip_handle = zipOpen64(out_dst.c_str(), APPEND_STATUS_CREATE);
-        if (!zip_handle)
+        zipFile zipHDL = zipOpen64(out_dst.c_str(), APPEND_STATUS_CREATE);
+        if (!zipHDL)
         {
             return CPS_ERR::MiniZCreatZipErr;  //  创建写入的zip失败
         }
@@ -173,7 +173,7 @@ CPS_ERR MiniZip::compress(const std::string& s_src, const std::string& s_dst, co
         {
             if (std::filesystem::is_directory(s_src))  // 压缩文件夹
             {
-                if (ZIP_OK != minizip_compress_dir(zip_handle, s_src))
+                if (ZIP_OK != minizip_compress_dir(zipHDL, s_src))
                 {
                     status = CPS_ERR::MiniZOpenFileErr;
                     break;
@@ -181,7 +181,7 @@ CPS_ERR MiniZip::compress(const std::string& s_src, const std::string& s_dst, co
             }
             else  // 压缩单个文件
             {
-                if (ZIP_OK != minizip_compress_file(zip_handle, s_src))
+                if (ZIP_OK != minizip_compress_file(zipHDL, s_src))
                 {
                     status = CPS_ERR::MiniZOpenFileErr;
                     break;
@@ -189,7 +189,7 @@ CPS_ERR MiniZip::compress(const std::string& s_src, const std::string& s_dst, co
             }
             status = CPS_ERR::Ok;
         } while (0);
-        zipClose(zip_handle, nullptr);
+        zipClose(zipHDL, nullptr);
     }
     catch (std::exception& e)
     {

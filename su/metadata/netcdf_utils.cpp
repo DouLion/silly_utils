@@ -4,7 +4,7 @@
 
 #include "netcdf_utils.h"
 #include <netcdf>
-#include <filesystem>
+#include <files/silly_file.h>
 #include <log/silly_log.h>
 using namespace netCDF;
 using namespace netCDF::exceptions;
@@ -15,9 +15,10 @@ static void convertToLower(std::string& str)
         str[i] = std::tolower(str[i]);  // 将每个字符转换为小写
     }
 }
-bool netcdf_utils::read_netcdf(const std::string& path, const std::string& group, std::map<int, su::DMatrix>& data, nc_info& info)
+bool netcdf_utils::read_netcdf(const std::filesystem::path& file, const std::string& group, std::map<int, su::DMatrix>& data, nc_info& info)
 {
     // TODO: 这里不应该假定数据的类型
+    auto path = sufile::realpath(file);
     float* nc_val_data = nullptr;
     float* nc_lon_data = nullptr;
     float* nc_lat_data = nullptr;
@@ -29,32 +30,32 @@ bool netcdf_utils::read_netcdf(const std::string& path, const std::string& group
     NcFile nc_file;
     try
     {
-        nc_file.open(path, NcFile::read);
+        nc_file.open(path.string(), NcFile::read);
         NcGroup nc_group = nc_file.getGroup("/", NcGroup::GroupLocation::AllGrps);
 
         auto allVars = nc_group.getVars(netCDF::NcGroup::All);
 
         bool found = false;
-        for (auto [k, v] : allVars)
+        for (const auto& [k, v] : allVars)
         {
             std::string nnk = k;
             convertToLower(nnk);
             size_t pos = nnk.find("lon");
             if (pos != std::string::npos)
             {
-                SLOG_INFO("{} YES {}", k, path)
+                SLOG_INFO("{} YES {}", k, path.u8string())
                 found = true;
             }
             if (nnk == "x")
             {
-                SLOG_INFO("{} YES {}", k, path)
+                SLOG_INFO("{} YES {}", k, path.u8string())
                 found = true;
             }
         }
         if (!found)
         {
-            SLOG_ERROR("{}", path);
-            for (auto [k, v] : allVars)
+            SLOG_ERROR("{}", path.u8string());
+            for (const auto& [k, v] : allVars)
             {
                 // std::cout << "\t" << k << std::endl;
             }
@@ -211,14 +212,15 @@ bool netcdf_utils::read_netcdf(const std::string& path, const std::string& group
     return ret_status;
 }
 
-bool netcdf_utils::write_netcdf(const std::string& path, const nc_info& info, const std::string& name, std::map<int, su::DMatrix>& data)
+bool netcdf_utils::write_netcdf(const std::filesystem::path& file, const nc_info& info, const std::string& name, std::map<int, su::DMatrix>& data)
 {
     bool status = false;
+    auto path = sufile::realpath(file);
     try
     {
         // Create the file. The Replace parameter tells netCDF to overwrite
         // this file, if it already exists.
-        NcFile sfc(path, NcFile::replace);
+        NcFile sfc(path.string(), NcFile::replace);
 
         // Define the dimensions. NetCDF will hand back an ncDim object for
         // each.
@@ -316,14 +318,15 @@ bool netcdf_utils::write_netcdf(const std::string& path, const nc_info& info, co
     return status;
 }
 
-bool netcdf_utils::write_netcdf(const std::string& path, const nc_info& info, const std::string& name, su::DMatrix data)
+bool netcdf_utils::write_netcdf(const std::filesystem::path& file, const nc_info& info, const std::string& name, su::DMatrix data)
 {
     bool status = false;
+    auto path = sufile::realpath(file);
     try
     {
         // Create the file. The Replace parameter tells netCDF to overwrite
         // this file, if it already exists.
-        NcFile sfc(path, NcFile::replace);
+        NcFile sfc(path.string(), NcFile::replace);
 
         // Define the dimensions. NetCDF will hand back an ncDim object for
         // each.

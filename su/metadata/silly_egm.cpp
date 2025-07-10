@@ -10,7 +10,7 @@
  */
 #include "silly_egm.h"
 #include <math/interpolate/silly_bilinear.h>
-bool silly_egm::open(const std::string& file)
+bool silly_egm::open(const std::filesystem::path& file)
 {
     if (m_mmap.open(file))
     {

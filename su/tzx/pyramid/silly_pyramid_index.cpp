@@ -18,7 +18,7 @@ index::index()
     m_version[3] = 0x00;
 }
 
-bool index::open(const char* file, const memory_map::access_mode& mode, const bool& usemmap)
+bool index::open(const std::filesystem::path& file, const sumemf::access_mode& mode, const bool& usemmap)
 {
     if (!base::open(file, mode, usemmap))
     {
@@ -36,15 +36,6 @@ bool index::open(const char* file, const memory_map::access_mode& mode, const bo
         // return m_pack.init();
     }
     return true;
-}
-
-bool index::open(const std::string& file, const sumemf::access_mode& mode, const bool& usemmap)
-{
-    return open(file.c_str(), mode, usemmap);
-}
-bool index::open(const std::filesystem::path& file, const sumemf::access_mode& mode, const bool& usemmap)
-{
-    return open(file.string().c_str(), mode, usemmap);
 }
 
 bool index::read(block& blk)

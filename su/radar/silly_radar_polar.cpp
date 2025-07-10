@@ -88,7 +88,7 @@ bool silly_radar_polar::unserialize(const char* buff, const size_t& len)
     return status;
 }
 
-bool silly_radar_polar::read(const std::string& path)
+bool silly_radar_polar::read(const std::filesystem::path& file)
 {
     bool status = false;
     char* buff = nullptr;
@@ -104,14 +104,14 @@ bool silly_radar_polar::read(const std::string& path)
     return status;
 }
 
-bool silly_radar_polar::save(const std::string& path)
+bool silly_radar_polar::save(const std::filesystem::path& file)
 {
     bool status = false;
     char* buff = nullptr;
     size_t len = 0;
     if (serialize(&buff, len))
     {
-        FILE* pf = fopen(path.c_str(), "wb");
+        FILE* pf = fopen(sufile::realpath(file).string().c_str(), "wb");
         if (pf)
         {
             fwrite(buff, 1, len, pf);

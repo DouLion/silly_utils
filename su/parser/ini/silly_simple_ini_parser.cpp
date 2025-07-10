@@ -4,10 +4,11 @@
 
 #include "silly_simple_ini_parser.h"
 
-bool silly_simple_ini_parser::load(const std::string& path)
+bool silly_simple_ini_parser::load(const std::filesystem::path& file)
 {
     bool status = false;
     std::unique_lock<std::mutex> lock(m_write_mtx);
+    std::string path = sufile::realpath(file).string();
     if (m_simple_ini.LoadFile(path.c_str()) == SI_OK)
     {
         m_path = path;

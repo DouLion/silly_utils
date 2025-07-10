@@ -46,7 +46,7 @@ enum_geometry_type geojson::type(const std::string& str)
     return enum_geometry_type::egtInvalid;
 }
 
-std::vector<silly_geo_coll> geojson::loadf(const std::string& file)
+std::vector<silly_geo_coll> geojson::loadf(const std::filesystem::path& file)
 {
     Json::Value jv_root = jsonpp::loadf(file);
     return loadj(jv_root);

@@ -5,6 +5,7 @@
 #include "silly_encode.h"
 #include <log/silly_log.h>
 #include <iconv.h>
+#include <files/silly_file.h>
 
 silly_encode::enum_encode silly_encode::system_encode()
 {
@@ -121,10 +122,10 @@ bool silly_encode::iconv_convert(const std::string &from, const std::string &to,
     return status;
 }
 
-silly_encode::enum_encode silly_encode::check_file_encode(const std::string &path)
+silly_encode::enum_encode silly_encode::check_file_encode(const std::filesystem::path& file)
 {
     silly_encode::enum_encode code = silly_encode::enum_encode::Unknown;
-    std::ifstream fin(path, std::ios::binary);
+    std::ifstream fin(sufile::realpath(file).string(), std::ios::binary);
     if (fin.is_open())
     {
         return code;

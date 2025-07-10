@@ -37,8 +37,8 @@ class soil_moisture_record
 class silly_moisture_index
 {
   public:
-    bool read(const std::string& file);
-    bool write(const std::string& file, const moisture_index_cache& cache);
+    bool read(const std::filesystem::path& file);
+    bool write(const std::filesystem::path& file, const moisture_index_cache& cache);
     moisture_index_cache cache;
 };
 
@@ -48,13 +48,13 @@ class silly_moisture
     silly_moisture() = default;
     ~silly_moisture() = default;
     /// 将同一个时间段的数据,序列化到一个文件中
-    void serialize(const std::string& file, const std::vector<soil_moisture_record>& records);
+    void serialize(const std::filesystem::path& file, const std::vector<soil_moisture_record>& records);
 
     /// 从序列化文件读取一个时间段的数据
-    void deserialize(const std::string& file, std::vector<soil_moisture_record>& records);
+    void deserialize(const std::filesystem::path& file, std::vector<soil_moisture_record>& records);
 
     /// 根据偏移位置读取一个
-    bool deserialize(const std::string& file, const moisture_index_cache& cache, const int& pid, soil_moisture_record& record);
+    bool deserialize(const std::filesystem::path& file, const moisture_index_cache& cache, const int& pid, soil_moisture_record& record);
 
   private:
 };

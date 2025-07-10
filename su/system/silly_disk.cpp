@@ -6,9 +6,10 @@
 #include <filesystem>
 #include <cmath>
 
-double silly_disk::space_capacity(const std::string& path, const storage_unit& unit)
+double silly_disk::space_capacity(const std::filesystem::path& file, const storage_unit& unit)
 {
     double ret = 0;
+    auto path = sufile::realpath(file);
     try
     {
         // 使用filesystem::space函数获取磁盘空间信息
@@ -26,9 +27,10 @@ double silly_disk::space_capacity(const std::string& path, const storage_unit& u
     return ret;
 }
 
-double silly_disk::space_available(const std::string& path, const storage_unit& unit)
+double silly_disk::space_available(const std::filesystem::path& file, const storage_unit& unit)
 {
     double ret = 0;
+    auto path = sufile::realpath(file);
     try
     {
         // 使用filesystem::space函数获取磁盘空间信息
@@ -44,14 +46,16 @@ double silly_disk::space_available(const std::string& path, const storage_unit& 
     return ret;
 }
 
-double silly_disk::space_used(const std::string& path, const storage_unit& unit)
+double silly_disk::space_used(const std::filesystem::path& file, const storage_unit& unit)
 {
+    auto path = sufile::realpath(file);
     return space_capacity(path, unit) - space_available(path, unit);
 }
 
-double silly_disk::space_available_percent(const std::string& path)
+double silly_disk::space_available_percent(const std::filesystem::path& file)
 {
     double ret = 0;
+    auto path = sufile::realpath(file);
     try
     {
         // 使用filesystem::space函数获取磁盘空间信息
@@ -66,9 +70,10 @@ double silly_disk::space_available_percent(const std::string& path)
     return ret;
 }
 
-double silly_disk::space_used_percent(const std::string& path)
+double silly_disk::space_used_percent(const std::filesystem::path& file)
 {
     double ret = 0;
+    auto path = sufile::realpath(file);
     try
     {
         // 使用filesystem::space函数获取磁盘空间信息

@@ -18,12 +18,12 @@ class silly_sqlite3
     silly_sqlite3() = default;
     ~silly_sqlite3();
     /// 默认只在内存中打开
-    bool open(const std::string& file = "：memory：");
+    bool open(const std::filesystem::path& file = "：memory：");
 
     sqlite3* db();
     std::string err();
     /// 备份到另一个数据库文件
-    bool backup(const std::string& file);
+    bool backup(const std::filesystem::path& file);
 
    void close();
 

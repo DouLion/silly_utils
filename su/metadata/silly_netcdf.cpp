@@ -30,12 +30,13 @@
      nc_COMPOUND = NC_COMPOUND //!< "NcCompound type"
    };
  * */
-bool silly_netcdf::open(const std::string& path)
+bool silly_netcdf::open(const std::filesystem::path& file)
 {
     bool status = false;
+    auto fp = sufile::realpath(file);
     try
     {
-        m_nc_file.open(path, NcFile::read);
+        m_nc_file.open(fp.string(), NcFile::read);
         status = true;
     }
     catch (NcException& e)
@@ -447,13 +448,14 @@ double silly_netcdf::ydelta() const
 {
     return m_ydelta;
 }
-bool silly_netcdf::write(const std::string& path, const silly_netcdf_data& nd)
+bool silly_netcdf::write(const std::filesystem::path& file, const silly_netcdf_data& nd)
 {
     bool status{false};
+    auto fp = sufile::realpath(file);
     try
     {
         NcFile sfc;
-        sfc.open(path, NcFile::replace, NcFile::nc4);
+        sfc.open(fp.string(), NcFile::replace, NcFile::nc4);
         // 创建dims
         std::vector<NcDim> dims;
         for (auto tdinfo : nd.dextra)

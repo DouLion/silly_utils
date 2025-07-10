@@ -9,9 +9,8 @@
  */
 #ifndef SILLY_UTILS_SILLY_DLL_H
 #define SILLY_UTILS_SILLY_DLL_H
-#include <su_marco.h>
+#include <files/silly_file.h>
 #if IS_WIN32
-#include <Windows.h>
 #else
 #include <dlfcn.h>
 #endif
@@ -36,7 +35,7 @@ class silly_dll
     /// </summary>
     /// <param name="path"></param>
     /// <returns></returns>
-    static SU_HANDLER load(const std::string& path);
+    static SU_HANDLER load(const std::filesystem::path& file);
 
     /// <summary>
     /// 卸载动态库

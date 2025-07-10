@@ -40,7 +40,7 @@ class silly_egm
   public:
     silly_egm() = default;
     ~silly_egm();
-    bool open(const std::string& file);
+    bool open(const std::filesystem::path& file);
 
     /// <summary>
     /// 获取大地水准面高差, 见文件下方说明

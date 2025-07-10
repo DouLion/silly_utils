@@ -9,6 +9,7 @@
  * @version: v1.0.1 2024-11-05 dou li yang
  */
 #include "silly_huge_stitcher.h"
+#include <files/silly_file.h>
 #define VSI_ROOT "/vsimem/tzx_huge_stitcher"
 const int BAND_MAP[4] = {3, 2, 1, 0};
 
@@ -95,7 +96,7 @@ bool silly_huge_stitcher::attach(const block& blk)
     return status;
 }
 
-bool silly_huge_stitcher::create(const std::string& file, const int& nXSize, const int& nYSize, const int& nBands)
+bool silly_huge_stitcher::create(const std::filesystem::path& file, const int& nXSize, const int& nYSize, const int& nBands)
 {
     GDALDriver* driver = GetGDALDriverManager()->GetDriverByName("GTiff");
     if (driver == nullptr)
@@ -103,7 +104,7 @@ bool silly_huge_stitcher::create(const std::string& file, const int& nXSize, con
         SLOG_ERROR("先初始化GDAL环境,或者当前GDAL不支持GTiff处理");
         return false;
     }
-    m_dateset = driver->Create(file.c_str(), nXSize, nYSize, nBands, GDT_Byte, nullptr);
+    m_dateset = driver->Create(sufile::realpath(file).string().c_str(), nXSize, nYSize, nBands, GDT_Byte, nullptr);
     if (m_dateset)
     {
         m_init = true;

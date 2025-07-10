@@ -85,7 +85,7 @@ bool silly_log::init(int argc, char** argv)
     opt.name = std::filesystem::path(argv[0]).stem().string();
     return init(opt);
 }
-bool silly_log::init(const std::string& path)
+bool silly_log::init(const std::filesystem::path& file)
 {
     option opt;
 

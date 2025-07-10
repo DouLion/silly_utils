@@ -108,7 +108,7 @@ class x_scan_line
     /// 将光栅化结果绘制到灰度图上
     /// </summary>
     /// <param name="path"></param>
-    void image(const std::string& path);
+    void image(const std::filesystem::path& file);
 
     int width() const;
     int height() const;

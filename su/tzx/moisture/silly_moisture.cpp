@@ -44,7 +44,7 @@ bool soil_moisture_record::deserialize(const std::string& data)
     memcpy(&precipitation, &data[index], sizeof(precipitation));
     return true;
 }
-void silly_moisture::serialize(const std::string& file, const std::vector<soil_moisture_record>& records)
+void silly_moisture::serialize(const std::filesystem::path& file, const std::vector<soil_moisture_record>& records)
 {
     std::string result;
     result.resize(4);
@@ -70,7 +70,7 @@ void silly_moisture::serialize(const std::string& file, const std::vector<soil_m
         throw std::runtime_error("serialize_by_time error");
     }
 }
-void silly_moisture::deserialize(const std::string& file, std::vector<soil_moisture_record>& records)
+void silly_moisture::deserialize(const std::filesystem::path& file, std::vector<soil_moisture_record>& records)
 {
     std::string data;
     if (0 == sufile::read(file, data))
@@ -91,7 +91,7 @@ void silly_moisture::deserialize(const std::string& file, std::vector<soil_moist
         records.push_back(record);
     }
 }
-bool silly_moisture::deserialize(const std::string& file, const moisture_index_cache& cache, const int& pid, soil_moisture_record& record)
+bool silly_moisture::deserialize(const std::filesystem::path& file, const moisture_index_cache& cache, const int& pid, soil_moisture_record& record)
 {
     auto iter = cache.find(pid);
     if (iter != cache.end())
@@ -134,7 +134,7 @@ bool silly_moisture::deserialize(const std::string& file, const moisture_index_c
     return false;
 }
 
-bool silly_moisture_index::read(const std::string& file)
+bool silly_moisture_index::read(const std::filesystem::path& file)
 {
     std::string content;
     sufile::read(file, content);
@@ -154,7 +154,7 @@ bool silly_moisture_index::read(const std::string& file)
     return !cache.empty();
 }
 
-bool silly_moisture_index::write(const std::string& file, const moisture_index_cache& cache)
+bool silly_moisture_index::write(const std::filesystem::path& file, const moisture_index_cache& cache)
 {
     std::string out;
     for (auto [_, mi] : cache)

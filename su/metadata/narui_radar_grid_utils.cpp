@@ -10,7 +10,7 @@
 // 转化小端序的short值
 #define CS_CONVERT_NOMAL_SHORT(src_ptr) ((short*)src_ptr)[0]
 
-bool silly_nrd_grid_utils::read(const std::string& file)
+bool silly_nrd_grid_utils::read(const std::filesystem::path& file)
 {
     bool status = false;
     if (read_header(file))
@@ -21,7 +21,7 @@ bool silly_nrd_grid_utils::read(const std::string& file)
     return status;
 }
 
-bool silly_nrd_grid_utils::read_header(const std::string& file)
+bool silly_nrd_grid_utils::read_header(const std::filesystem::path& file)
 {
     bool status = false;
     std::ifstream ifs;
@@ -190,7 +190,7 @@ bool silly_nrd_grid_utils::read_header(const std::string& file)
     return status;
 }
 
-bool silly_nrd_grid_utils::read_grid(const std::string& file, const double& dst_scale)
+bool silly_nrd_grid_utils::read_grid(const std::filesystem::path& file, const double& dst_scale)
 {
     bool status = false;
     std::ifstream ifs;

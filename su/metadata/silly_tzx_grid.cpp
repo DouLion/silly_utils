@@ -337,14 +337,14 @@ void silly_tzx_grid::maxv(int& tr, int& tc, float& tv)
     }
 }
 
-bool silly_tzx_grid::read(const std::string& path)
+bool silly_tzx_grid::read(const std::filesystem::path& file)
 {
     bool status = false;
     char* buff = nullptr;
 #ifndef NDEBUG
     //  std::cout << "Read GRID : " << path << std::endl;
 #endif
-    std::ifstream inputFileStream(path, std::ios::binary | std::ios::ate);
+    std::ifstream inputFileStream(sufile::realpath(file).string(), std::ios::binary | std::ios::ate);
     if (!inputFileStream.is_open())
     {
         return false;
@@ -364,14 +364,14 @@ bool silly_tzx_grid::read(const std::string& path)
     // SILLY_TZX_GRID_FREE(buff)
     return status;
 }
-bool silly_tzx_grid::save(const std::string& path)
+bool silly_tzx_grid::save(const std::filesystem::path& file)
 {
     bool status = false;
     char* buff = nullptr;
     size_t len = 0;
     if (serializev1(&buff, len))
     {
-        FILE* pf = fopen(path.c_str(), "wb");
+        FILE* pf = fopen(sufile::realpath(file).string().c_str(), "wb");
         if (pf)
         {
             fwrite(buff, 1, len, pf);

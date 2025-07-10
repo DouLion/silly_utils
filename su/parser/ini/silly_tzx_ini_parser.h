@@ -15,7 +15,7 @@
 class silly_tzx_ini_parser : public silly_ini_parser
 {
   public:
-    bool load(const std::string& path) override;
+    bool load(const std::filesystem::path& file) override;
 
     bool save() override;
 

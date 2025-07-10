@@ -10,8 +10,7 @@
 #ifndef SILLY_UTILS_SILLY_INI_PARSER_BASE_H
 #define SILLY_UTILS_SILLY_INI_PARSER_BASE_H
 
-#include <iostream>
-#include <mutex>
+#include <files/silly_file.h>
 
 class silly_ini_parser
 {
@@ -21,7 +20,7 @@ class silly_ini_parser
     /// </summary>
     /// <param name="path"></param>
     /// <returns></returns>
-    virtual bool load(const std::string& path) = 0;
+    virtual bool load(const std::filesystem::path& file) = 0;
 
     /// <summary>
     /// 修改后手动进行保存

@@ -18,11 +18,15 @@ namespace silly
 class jsonpp
 {
   public:
-    class opt
+    class style
     {
       public:
-        bool utf8{true};
-        size_t precision{0};  // 小数精度, 为0则不处理
+        bool utf8 = true;
+        size_t precision = 8;  // 小数精度, 为0则不处理
+        std::string indentation = "  ";// 无缩进（紧凑模式）
+        std::string commentStyle = "None";// 不保留注释
+        bool enableYAMLCompatibility = false;// 禁用YAML兼容
+       
     };
 
   public:
@@ -31,7 +35,8 @@ class jsonpp
     /// </summary>
     /// <param name="file"></param>
     /// <returns></returns>
-    static Json::Value loadf(const std::string& file);
+    static Json::Value loadf(const std::filesystem::path& file);
+    static Json::Value read(const std::filesystem::path& file);
 
     /// <summary>
     /// 从字符串加载json内容
@@ -39,31 +44,26 @@ class jsonpp
     /// <param name="content"></param>
     /// <returns></returns>
     static Json::Value loads(const std::string& content);
+    static Json::Value parse(const std::string& content);
 
     /// <summary>
     /// 将json内容解析到字符串中
     /// </summary>
     /// <param name="root"></param>
-    /// <param name="opt">格式化方式</param>
-    static std::string dumps(const Json::Value& root, const jsonpp::opt& _opt = {true, 0});
-
-    static std::string to_string(const Json::Value root, const jsonpp::opt& _opt = {true, 0});
-
-    static std::string stringify(const Json::Value root, const jsonpp::opt& _opt = {true, 0});
-
-    static std::string string(const Json::Value root, const jsonpp::opt& _opt = {true, 0});
+    /// <param name="style">格式化方式</param>
+    static std::string dumps(const Json::Value& root, const jsonpp::style& opt = {true, 0});
+    static std::string to_string(const Json::Value root, const jsonpp::style& opt = {true, 0});
+    static std::string stringify(const Json::Value root, const jsonpp::style& opt = {true, 0});
+    static std::string string(const Json::Value root, const jsonpp::style& opt = {true, 0});
 
     /// <summary>
     /// 将json内容写入到文件
     /// </summary>
     /// <param name="root"></param>
     /// <param name="indentation">是否为紧凑型字符串,默认为紧凑型</param>
-    static bool dumpf(const std::string& file, const Json::Value& root, const jsonpp::opt& _opt = {true, 0});
-    static bool savef(const std::string& file, const Json::Value& root, const jsonpp::opt& _opt = {true, 0});
-
-    static void find_by_key(const std::string& json, const std::string& key, const std::string& filter, std::vector<std::string>& arr);
-
-    static void find_by_key(const Json::Value& root, const std::string& key, const std::string& filter, std::vector<std::string>& arr);
+    static bool dumpf(const std::filesystem::path& file, const Json::Value& root, const jsonpp::style& opt = {true, 0});
+    static bool savef(const std::filesystem::path& file, const Json::Value& root, const jsonpp::style& opt = {true, 0});
+    static bool write(const std::filesystem::path& file, const Json::Value& root, const jsonpp::style& opt = {true, 0});
 
     /// <summary>
     /// 检查json中指定key的数据类型,如果正确,则赋值,并且返回true,否则返回false
@@ -102,5 +102,6 @@ class jsonpp
 }  // namespace silly
 
 using silly_jsonpp = silly::jsonpp;
+using sujson = silly::jsonpp;
 
 #endif  // SILLY_UTILS_SILLY_JSONPP_H

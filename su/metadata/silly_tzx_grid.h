@@ -12,6 +12,7 @@
 
 #include <su_marco.h>
 #include <math/silly_matrix.h>
+#include <files/silly_file.h>
 
 #define SILLY_TZX_GRID_FILE_SUFFIX ".rgrid"
 
@@ -76,8 +77,8 @@ class silly_tzx_grid
     /// <param name="v"></param>
     void maxv(int& tr, int& tc, float& tv);
 
-    bool read(const std::string& path);
-    bool save(const std::string& path);
+    bool read(const std::filesystem::path& file);
+    bool save(const std::filesystem::path& file);
 
     silly_tzx_grid operator=(silly_tzx_grid rh)
     {

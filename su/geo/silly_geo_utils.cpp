@@ -1,13 +1,16 @@
 
 
 #include "silly_geo_utils.h"
+#ifndef NDEBUG
+#include <log/silly_log.h>
+#endif
 #if ENABLE_GDAL
 // GDAL.
-#include "ogr_spatialref.h"
+#include <ogr_spatialref.h>
 // #include "gdal_priv.h"
-#include "ogrsf_frmts.h"
-#include "gdal_alg.h"
-#include "ogr_api.h"
+#include <ogrsf_frmts.h>
+#include <gdal_alg.h>
+#include <ogr_api.h>
 #endif
 
 #include <polyclipping/clipper.hpp>
@@ -342,10 +345,10 @@ void utils::destroy_gdal_env()
 #endif
 }
 
-bool utils::is_valid_shp(const std::string& u8file)
+bool utils::is_valid_shp(const std::filesystem::path& file)
 {
 #if ENABLE_GDAL
-    auto poDSr = (GDALDataset*)GDALOpenEx(u8file.c_str(), GDAL_OF_ALL | GDAL_OF_READONLY, nullptr, nullptr, nullptr);
+    auto poDSr = (GDALDataset*)GDALOpenEx(sufile::realpath(file).string().c_str(), GDAL_OF_ALL | GDAL_OF_READONLY, nullptr, nullptr, nullptr);
     if (nullptr == poDSr)
     {
         return false;
@@ -356,11 +359,11 @@ bool utils::is_valid_shp(const std::string& u8file)
     return false;
 }
 
-std::vector<std::string> utils::shp_missing_file(const std::string& u8file)
+std::vector<std::string> utils::shp_missing_file(const std::filesystem::path& file)
 {
     std::vector<std::string> ret;
     // 获取文件的父级目录和文件名不包含后缀名
-    std::filesystem::path sfp_shp(u8file);
+    std::filesystem::path sfp_shp = sufile::realpath(file);
     if (!std::filesystem::exists(sfp_shp) || sfp_shp.extension() != ".shp")
     {
         return ret;
@@ -383,13 +386,13 @@ std::vector<std::string> utils::shp_missing_file(const std::string& u8file)
     return ret;
 }
 
-bool utils::check_shp_info(const std::string& u8file, enum_geometry_type& type, std::map<std::string, silly_geo_prop::enum_prop_type>& properties)
+bool utils::check_shp_info(const std::filesystem::path& file, enum_geometry_type& type, std::map<std::string, silly_geo_prop::enum_prop_type>& properties)
 {
     bool status = false;
 #if ENABLE_GDAL
     std::map<std::string, std::string> result;
 
-    auto poDSr = (GDALDataset*)GDALOpenEx(u8file.c_str(), GDAL_OF_ALL | GDAL_OF_READONLY, nullptr, nullptr, nullptr);
+    auto poDSr = (GDALDataset*)GDALOpenEx(sufile::realpath(file).string().c_str(), GDAL_OF_ALL | GDAL_OF_READONLY, nullptr, nullptr, nullptr);
     if (nullptr == poDSr)
     {
         return status;
@@ -621,24 +624,27 @@ bool read_all_types_data(const enum_geometry_type& feature_type, const OGRGeomet
     return status;
 }
 
-bool utils::read_geo_coll(const std::string& u8file, std::vector<silly_geo_coll>& collections, const bool& ignore_prop)
+std::vector<silly_geo_coll> utils::read(const std::filesystem::path& file, const bool& ignore_prop)
+{
+    std::vector<silly_geo_coll> ret;
+    utils::read(file, ret, ignore_prop);
+    return ret;
+}
+
+bool utils::read(const std::filesystem::path& file, std::vector<silly_geo_coll>& collections, const bool& ignore_prop)
 {
     bool status = false;
 #if ENABLE_GDAL
-    if (!std::filesystem::exists(std::filesystem::path(u8file)))
-    {
-        SLOG_ERROR("文件[{}]不存在\n", u8file);
-        return status;
-    }
+    std::filesystem::path realfp = sufile::realpath(file);
     enum_geometry_type type;
     std::map<std::string, silly_geo_prop::enum_prop_type> properties;
-    if (!check_shp_info(u8file, type, properties))
+    if (!check_shp_info(realfp.string(), type, properties))
     {
-        SLOG_ERROR("检查矢量[{}]信息失败\n", u8file);
+        SLOG_ERROR("检查矢量[{}]信息失败\n", realfp.u8string());
         return status;
     }
     // 打开现有 shp 文件
-    auto dataset = static_cast<GDALDataset*>(GDALOpenEx(u8file.c_str(), GDAL_OF_ALL | GDAL_OF_READONLY, nullptr, nullptr, nullptr));
+    auto dataset = static_cast<GDALDataset*>(GDALOpenEx(realfp.string().c_str(), GDAL_OF_ALL | GDAL_OF_READONLY, nullptr, nullptr, nullptr));
     if (dataset == nullptr)
     {
         // 处理文件打开失败的情况
@@ -692,17 +698,11 @@ bool utils::read_geo_coll(const std::string& u8file, std::vector<silly_geo_coll>
     return status;
 }
 
-// 根据文件拓展得到对应的存储格式 TODO :
-bool utils::get_driver_name(const std::string& u8file, std::string& driver_name)
+bool utils::get_driver_name(const std::filesystem::path& file, std::string& driver_name)
 {
     bool status = true;
-    // if (!std::filesystem::exists(std::filesystem::path(u8file)))
-    //{
-    //     SLOG_ERROR("Error: u8file does not exist %s ", u8file);
-    //     return status;
-    // }
     //  获取文件扩展名
-    std::string lowerExtension = std::filesystem::path(u8file.c_str()).extension().string();
+    std::string lowerExtension = sufile::realpath(file).extension().string();
     // 将文件扩展名转换为小写
     std::transform(lowerExtension.begin(), lowerExtension.end(), lowerExtension.begin(), ::tolower);
     if (lowerExtension == SILLY_SHP_SUFFIX)
@@ -936,7 +936,7 @@ static bool wire_all_types_data(const enum_geometry_type coll_type, OGRLayer* ou
     return false;
 }
 
-bool utils::write_geo_coll(const std::string& u8file, const std::vector<silly_geo_coll>& collections, const proj::CRS::type& prj)
+bool utils::write(const std::filesystem::path& file, const std::vector<silly_geo_coll>& collections, const proj::CRS::type& prj)
 {
     bool status = false;
 #if ENABLE_GDAL
@@ -944,30 +944,22 @@ bool utils::write_geo_coll(const std::string& u8file, const std::vector<silly_ge
     {
         return status;
     }
+    std::filesystem::path realfp = sufile::realpath(file);
     // 根据拓展名得到存储格式
-    std::string driver_name;
-    if (!get_driver_name(u8file, driver_name))
+    std::string driverName;
+    if (!get_driver_name(realfp.string(), driverName))
     {
-        SLOG_ERROR("无法确定写入文件类型{}", u8file);
+        SLOG_ERROR("无法确定写入文件类型{}", realfp.u8string());
         return status;
     }
-    std::string LayerName = std::filesystem::path(u8file).filename().stem().string();
+    std::string LayerName = realfp.filename().stem().string();
     if (collections.empty())
     {
         SLOG_ERROR("矢量为空");
         return status;
     }
-    GDALDriver* outDriver = GetGDALDriverManager()->GetDriverByName(driver_name.c_str());
-#if IS_WIN32
-    std::string _file_name = u8file;
-    if (silly_encode::is_utf8(_file_name))
-    {
-        _file_name = silly_encode::utf8_gbk(_file_name);
-    }
-    GDALDataset* outputData = outDriver->Create(_file_name.c_str(), 0, 0, 0, GDT_Unknown, nullptr);
-#else
-    GDALDataset* outputData = outDriver->Create(u8file.c_str(), 0, 0, 0, GDT_Unknown, nullptr);
-#endif
+    GDALDriver* outDriver = GetGDALDriverManager()->GetDriverByName(driverName.c_str());
+    GDALDataset* outputData = outDriver->Create(realfp.string().c_str(), 0, 0, 0, GDT_Unknown, nullptr);
     if (outputData == nullptr)
     {
         SLOG_ERROR("创建输出文件失败");
@@ -1016,7 +1008,7 @@ bool utils::write_geo_coll(const std::string& u8file, const std::vector<silly_ge
 
     // 关闭数据集
     GDALClose(outputData);
-    SLOG_DEBUG("写入矢量至{}成功", u8file);
+    SLOG_DEBUG("写入矢量至{}成功", realfp.u8string());
 #endif
     return status;
 }

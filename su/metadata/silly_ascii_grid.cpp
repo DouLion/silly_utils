@@ -24,19 +24,20 @@ static const std::string YLLCORNER = "yllcorner";
 static const std::string CELLSIZE = "cellsize";
 static const std::string NODATA_VALUE = "nodata_value";
 
-bool silly_ascii_grid::read(const std::string& path)
+bool silly_ascii_grid::read(const std::filesystem::path& file)
 {
     bool status = false;
-    m_root = std::filesystem::path(path).parent_path().string();
-    m_name = std::filesystem::path(path).stem().string();
-    m_type = std::filesystem::path(path).extension().string();
+    std::filesystem::path realfp = sufile::realpath(file);
+    m_root = realfp.parent_path().string();
+    m_name = realfp.stem().string();
+    m_type = realfp.extension().string();
     if (ASC == m_type)
     {
-        return read_asc(path);
+        return read_asc(realfp);
     }
     else if (BIN == m_type)
     {
-        return read_bin(path);
+        return read_bin(realfp);
     }
     else
     {
@@ -45,21 +46,21 @@ bool silly_ascii_grid::read(const std::string& path)
     return status;
 }
 
-std::string to_lower(const std::string& str)
+static std::string to_lower(const std::string& str)
 {
     std::string lower_str = str;
     std::transform(lower_str.begin(), lower_str.end(), lower_str.begin(), ::tolower);
     return lower_str;
 }
 
-bool silly_ascii_grid::read_asc(const std::string& path)
+bool silly_ascii_grid::read_asc(const std::filesystem::path& file)
 {
     bool status = false;
     std::string content;
 
-    if (!sufile::read(path, content))
+    if (!sufile::read(file, content))
     {
-        std::cerr << "读取文件失败: " << path << std::endl;
+        std::cerr << "读取文件失败: " << file.u8string() << std::endl;
         return status;
     }
 
@@ -121,17 +122,17 @@ bool silly_ascii_grid::read_asc(const std::string& path)
     return status;
 }
 
-bool silly_ascii_grid::write(const std::string& path)
+bool silly_ascii_grid::write(const std::filesystem::path& file)
 {
     bool status = false;
-    std::string ext = std::filesystem::path(path).extension().string();
+    std::string ext = file.extension().string();
     if (ASC == ext)
     {
-        return write_asc(path);
+        return write_asc(file);
     }
     else if (BIN == ext)
     {
-        return write_bin(path);
+        return write_bin(file);
     }
     else
     {
@@ -140,13 +141,13 @@ bool silly_ascii_grid::write(const std::string& path)
     return status;
 }
 
-bool silly_ascii_grid::read_bin(const std::string& path)
+bool silly_ascii_grid::read_bin(const std::filesystem::path& file)
 {
     bool status = false;
     std::string content;
-    if (!sufile::read(path, content))
+    if (!sufile::read(file, content))
     {
-        std::cerr << "读取文件失败: " << path << std::endl;
+        std::cerr << "读取文件失败: " << file.u8string() << std::endl;
         return status;
     }
     double* p = reinterpret_cast<double*>(content.data());
@@ -165,15 +166,15 @@ bool silly_ascii_grid::read_bin(const std::string& path)
     return true;
 }
 
-bool silly_ascii_grid::write_asc(const std::string& path)
+bool silly_ascii_grid::write_asc(const std::filesystem::path& file)
 {
-    std::ofstream ofs(path);
+    std::ofstream ofs(file);
     if (!ofs.is_open())
     {
         return false;
     }
-    std::string _root = std::filesystem::path(path).parent_path().string();
-    std::string _name = std::filesystem::path(path).stem().string();
+    std::string _root = file.parent_path().string();
+    std::string _name = file.stem().string();
     {
         std::stringstream ss;
         ss << std::fixed << std::setprecision(15);
@@ -204,9 +205,9 @@ bool silly_ascii_grid::write_asc(const std::string& path)
     return true;
 }
 
-bool silly_ascii_grid::write_bin(const std::string& path)
+bool silly_ascii_grid::write_bin(const std::filesystem::path& file)
 {
-    std::ofstream ofs(path);
+    std::ofstream ofs(file);
     if (!ofs.is_open())
     {
         return false;
@@ -226,7 +227,7 @@ bool silly_ascii_grid::write_bin(const std::string& path)
     return true;
 }
 
-bool silly_ascii_grid::write_prj(const std::string path)
+bool silly_ascii_grid::write_prj(const std::filesystem::path& file)
 {
     // Projection    TRANSVERSE
     // Units         METERS
@@ -239,8 +240,7 @@ bool silly_ascii_grid::write_prj(const std::string path)
     // 0  0  0.0 /* latitude of origin
     // 500000.0 /* false easting (meters)
     // 0.0 /* false northing (meters)
-    std::filesystem::path op(path);
-    std::string filepath = op.parent_path().append(op.stem().string() + PRJ).string();
+    std::string filepath = file.parent_path().append(file.stem().string() + PRJ).string();
     std::stringstream ss;
     ss << "Projection    TRANSVERSE\n";
     ss << "Units         METERS\n";
@@ -260,13 +260,13 @@ bool silly_ascii_grid::write_prj(const std::string path)
     return false;
 }
 
-bool silly_ascii_grid::read_prj(const std::string path)
+bool silly_ascii_grid::read_prj(const std::filesystem::path& file)
 {
     // 提取高斯分带中心线经度
     std::vector<std::string> lines;
-    if(sufile::readlines(path, lines))
+    if (sufile::readlines(file, lines))
     {
-        if(lines.size() >= 11)
+        if (lines.size() >= 11)
         {
             std::stringstream ss(lines[7]);
             ss >> l0;

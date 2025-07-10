@@ -823,7 +823,7 @@ bool silly_iso_line::compare_triangle_same_edge(double dx1, double dy1, double d
     return false;
 }
 
-std::string silly_iso_line::geojson(const std::string& path)
+std::string silly_iso_line::geojson(const std::filesystem::path& file)
 {
     std::vector<silly_geo_coll> tri_shps;
     for (int i = 0; i < m_tri_num; ++i)

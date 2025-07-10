@@ -4,9 +4,10 @@
 #define SILLY_UTILS_SILLY_GEO_OPERATION_H
 
 #include <geo/silly_geo_coll.h>
-#include <log/silly_log.h>
 #include <geo/proj/gdal/silly_projection_define.h>
-#include "gdal_priv.h"
+#ifndef ENABLE_GDAL
+#include <gdal_priv.h>
+#endif
 
 // 矢量文件后缀名
 #define SILLY_SHP_SUFFIX ".shp"
@@ -70,27 +71,28 @@ class utils
     /// <summary>
     /// 读取矢量文件中的数据存储到silly_geo_coll数据结构中
     /// </summary>
-    /// <param name="u8file">utf8</param>
+    /// <param name="file"></param>
     /// <param name="collection"></param>
     /// <returns></returns>
     /// 注:读取 shp , geojson 类型文件中可以实现
-    static bool read_geo_coll(const std::string& u8file, std::vector<silly_geo_coll>& collections, const bool& ignore_prop = false);
+    static bool read(const std::filesystem::path& file, std::vector<silly_geo_coll>& collections, const bool& ignore_prop = false);
+    static std::vector<silly_geo_coll> read(const std::filesystem::path& file, const bool& ignore_prop = false);
 
     /// <summary>
     /// 将silly_geo_coll数据结构写入矢量文件(如shp文件)
     /// </summary>
-    /// <param name="u8file">utf8</param>
+    /// <param name="file"></param>
     /// <param name="collection"></param>
     /// <returns></returns>
     /// 注:写入 shp , geojson 类型文件中经测试可以实现
-    static bool write_geo_coll(const std::string& u8file, const std::vector<silly_geo_coll>& collections, const proj::CRS::type& prj = proj::CRS::GCS_WGS_1984);
+    static bool write(const std::filesystem::path& file, const std::vector<silly_geo_coll>& collections, const proj::CRS::type& prj = proj::CRS::GCS_WGS_1984);
 
     /// <summary>
     /// 是否为一个标准的shp文件
     /// </summary>
-    /// <param name="u8file">utf8</param>
+    /// <param name="file"></param>
     /// <returns></returns>
-    static bool is_valid_shp(const std::string& u8file);
+    static bool is_valid_shp(const std::filesystem::path& file);
 
     /// <summary>
     /// 检查shp文件组中缺失的文件
@@ -98,27 +100,27 @@ class utils
     /// .dbf: 存储属性信息 (该文件不存在 gdal也能打开shp,成功读取矢量,但是无法读取属性信息)
     /// .shx: 存储几何矢量索引
     /// </summary>
-    /// <param name="u8file"></param>
+    /// <param name="file"></param>
     /// <returns></returns>
-    static std::vector<std::string> shp_missing_file(const std::string& u8file);
+    static std::vector<std::string> shp_missing_file(const std::filesystem::path& file);
 
     /// <summary>
     /// 加载shp文件中的属性信息
     /// </summary>
-    /// <param name="u8file">utf8</param>
+    /// <param name="file"></param>
     /// <param name="type"></param>
     /// <param name="properties"></param>
     /// <returns></returns>
-    static bool check_shp_info(const std::string& u8file, enum_geometry_type& type, std::map<std::string, silly_geo_prop::enum_prop_type>& properties);
+    static bool check_shp_info(const std::filesystem::path& file, enum_geometry_type& type, std::map<std::string, silly_geo_prop::enum_prop_type>& properties);
 
     /// <summary>
     /// 根据文件类型得到对应的 gdal 中的存储格式
     /// 支持的文件格式对应的存储类型: shp tab geojson sqlite csv kml gml xlsx
     /// </summary>
-    /// <param name="u8file">文件名</param>
+    /// <param name="file">文件名</param>
     /// <param name="driverName">存储类型</param>
     /// <returns></returns>
-    static bool get_driver_name(const std::string& u8file, std::string& driverName);
+    static bool get_driver_name(const std::filesystem::path& file, std::string& driverName);
 
     static bool intersect(const silly_geo_coll& gc1, const silly_geo_coll& gc2);
 
@@ -354,7 +356,7 @@ class utils
     /// <summary>
     /// 读取shp文件
     /// </summary>
-    /// <param name="u8file"></param>
+    /// <param name="file"></param>
     /// <param name="collections"></param>
     /// <param name="ignore_prop"></param>
     /// <returns></returns>
@@ -560,6 +562,7 @@ double utils::area(const int& pnum, const T* xs, const T* ys)
 }  // namespace geo
 }  // namespace silly
 typedef silly::geo::utils silly_geo_utils;
-typedef silly_geo_utils geo_utils;  // 兼容之前的写法
+typedef silly::geo::utils geo_utils;  // 兼容之前的写法
+typedef silly::geo::utils sugeoutils;
 
 #endif  // SILLY_UTILS_SILLY_GEO_OPERATION_H

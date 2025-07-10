@@ -3,12 +3,10 @@
 //
 
 #include "silly_captcha.h"
-#include <ctime>
+#include <files/silly_file.h>
 #include <cairo/cairo.h>
 #include <cairo/cairo-ft.h>
 #include <ft2build.h>
-#include <vector>
-#include <string>
 #include FT_FREETYPE_H
 
 // const char SILLY_POSSIBLE_CHAR[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -95,16 +93,16 @@ silly_captcha::~silly_captcha()
     FT_Done_FreeType(m_ft_library);
 }
 
-bool silly_captcha::add_font(const std::string& name, const std::string& path)
+bool silly_captcha::add_font(const std::string& name, const std::filesystem::path& file)
 {
     bool status = false;
     FT_Face ft_face;
 
     FT_Error ft_error;
-
-    if (!path.empty())
+    auto fp = sufile::realpath(file);
+    if (sufile::exist(fp))
     {
-        if (!FT_New_Face(m_ft_library, path.c_str(), 0, &ft_face))
+        if (!FT_New_Face(m_ft_library, fp.string().c_str(), 0, &ft_face))
         {
             m_name_font[name] = ft_face;
             status = true;

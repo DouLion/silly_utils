@@ -156,18 +156,18 @@ bool silly::jpeg::data::create(const size_t& width, const size_t& height, const 
     // memset(m_bytes.data(), 0, sizeof(uint8_t) * m_width * m_height * m_channels);
     return true;
 }
-bool silly::jpeg::data::read(const std::string& file)
+bool silly::jpeg::data::read(const std::filesystem::path& file)
 {
     bool status = false;
     std::string content;
-    if (silly::file::utils::read(file, content) == 0)
+    if (sufile::read(file, content) == 0)
     {
         return status;
     }
 
     return decode(content);
 }
-bool silly::jpeg::data::write(const std::string& file) const
+bool silly::jpeg::data::write(const std::filesystem::path& file) const
 {
     std::string content = encode();
     if (content.empty())
@@ -175,7 +175,7 @@ bool silly::jpeg::data::write(const std::string& file) const
         return false;
     }
 
-    return silly::file::utils::write(file, content) > 0;
+    return sufile::write(file, content) > 0;
 }
 bool silly::jpeg::data::decode(const std::string& bin)
 {

@@ -62,7 +62,7 @@ class silly_grib2_utils
     /// <param name="grb"></param>
     /// <param name="fidx"></param>
     /// <returns></returns>
-    static bool read(const std::string& path, silly_grib2_frame& grb, const size_t& fidx = 0);
+    static bool read(const std::filesystem::path& file, silly_grib2_frame& grb, const size_t& fidx = 0);
 
     /// <summary>
     /// 读取grib2文件中的所有数据
@@ -70,10 +70,10 @@ class silly_grib2_utils
     /// <param name="path"></param>
     /// <param name="grb"></param>
     /// <returns></returns>
-    static bool read(const std::string& path, std::map<size_t, silly_grib2_frame>& msgf_grb);
+    static bool read(const std::filesystem::path& file, std::map<size_t, silly_grib2_frame>& msgf_grb);
 
   private:
-    static bool open_grib2_handle(const std::string& path, void** file_h, void** grb2_c, void** grb2_h);
+    static bool open_grib2_handle(const std::filesystem::path& file, void** file_h, void** grb2_c, void** grb2_h);
 
     static bool load_grib2_frame(const void* grb2_h, silly_grib2_frame& grb, const bool& skip = true);
 

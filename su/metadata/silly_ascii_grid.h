@@ -9,7 +9,7 @@
  */
 #ifndef SILLY_UTILS_SILLY_ASCII_GRID_H
 #define SILLY_UTILS_SILLY_ASCII_GRID_H
-#include "files/silly_file.h"
+#include <files/silly_file.h>
 
 class silly_ascii_grid
 {
@@ -17,19 +17,19 @@ class silly_ascii_grid
     silly_ascii_grid() = default;
     ~silly_ascii_grid() = default;
 
-    bool read(const std::string& path);
+    bool read(const std::filesystem::path& file);
 
-    bool write(const std::string& path);
+    bool write(const std::filesystem::path& file);
 
   private:
-    bool read_asc(const std::string& path);
-    bool read_bin(const std::string& path);
+    bool read_asc(const std::filesystem::path& file);
+    bool read_bin(const std::filesystem::path& file);
 
-    bool write_asc(const std::string& path);
-    bool write_bin(const std::string& path);
+    bool write_asc(const std::filesystem::path& file);
+    bool write_bin(const std::filesystem::path& file);
 
-    bool read_prj(const std::string path);
-    bool write_prj(const std::string path);
+    bool read_prj(const std::filesystem::path& file);
+    bool write_prj(const std::filesystem::path& file);
 
   public:
     int precision = 1;  // 保留小数位

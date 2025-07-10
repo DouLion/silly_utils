@@ -14,6 +14,7 @@
 #define SILLY_UTILS_PYRAMID_BASE_H
 
 #include <files/silly_memory_map.h>
+
 #define PYRAMID_MATCH_VERSION(a, b) ((a)[0] == (b)[0] && (a)[1] == (b)[1] && (a)[2] == (b)[2] && (a)[3] == (b)[3])
 
 namespace silly
@@ -46,8 +47,6 @@ class base
     /// <param name="usemmap">读取时默认 使用mmap, 写总是使用文件流</param>
     /// <returns></returns>
     // TODO: 目前 读使用mmap, 写使用文件流, 第三个参数暂时没用,后续测试完成后需要支持
-    virtual bool open(const char* file, const sumemf::access_mode& mode, const bool& usemmap);
-    virtual bool open(const std::string& file, const sumemf::access_mode& mode, const bool& usemmap);
     virtual bool open(const std::filesystem::path& file, const sumemf::access_mode& mode, const bool& usemmap);
 
     /// <summary>
@@ -102,14 +101,14 @@ class base
     /// <param name="file"></param>
     /// <param name="mode"></param>
     /// <returns></returns>
-    bool stream_open(const char* file, const std::ios_base::openmode& mode);
+    bool stream_open(const std::filesystem::path& file, const std::ios_base::openmode& mode);
 
     /// <summary>
     /// 内存文件映射打开
     /// </summary>
     /// <param name="file"></param>
     /// <returns></returns>
-    bool mmap_open(const char* file);
+    bool mmap_open(const std::filesystem::path& file);
 
     /// <summary>
     /// 文件流读取

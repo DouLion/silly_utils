@@ -84,7 +84,7 @@ class silly_nrd_grid_utils
     /// </summary>
     /// <param name="file"></param>
     /// <returns></returns>
-    bool read(const std::string& file);
+    bool read(const std::filesystem::path& file);
 
   public:
     // 头部信息
@@ -93,8 +93,8 @@ class silly_nrd_grid_utils
     su::matrix<float> grid;
 
   private:
-    bool read_header(const std::string& file);
-    bool read_grid(const std::string& file, const double& dst_scale = 0.0025);
+    bool read_header(const std::filesystem::path& file);
+    bool read_grid(const std::filesystem::path& file, const double& dst_scale = 0.0025);
 };
 
 #endif  // SILLY_UTILS_NARUI_RADAR_GRID_UTILS_H

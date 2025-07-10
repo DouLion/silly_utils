@@ -243,7 +243,7 @@ bool silly::png::data::create(const size_t &width, const size_t &height, const s
 
     return true;
 }
-bool silly::png::data::read(const std::string &file)
+bool silly::png::data::read(const std::filesystem::path &file)
 {
     bool status = false;
     png_structp png_ptr = nullptr;
@@ -266,7 +266,7 @@ bool silly::png::data::read(const std::string &file)
         png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
         return status;
     }
-    FILE *fp = fopen(file.c_str(), "rb");
+    FILE *fp = fopen(sufile::realpath(file).string().c_str(), "rb");
     if (!fp)
     {
         return status;
@@ -296,7 +296,7 @@ bool silly::png::data::read(const std::string &file)
     fclose(fp);
     return true;
 }
-bool silly::png::data::write(const std::string &file) const
+bool silly::png::data::write(const std::filesystem::path &file) const
 {
     if (!m_height || !m_width || m_bytes.empty())
     {
@@ -305,7 +305,7 @@ bool silly::png::data::write(const std::string &file) const
     }
 
     FILE *output_fp;
-    output_fp = fopen(file.c_str(), "wb");
+    output_fp = fopen(sufile::realpath(file).string().c_str(), "wb");
 
     png_structp png_write_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, 0, 0, 0);
     if (nullptr == png_write_ptr)
@@ -328,7 +328,7 @@ bool silly::png::data::write(const std::string &file) const
     png_init_io(png_write_ptr, output_fp);
     png_set_IHDR(png_write_ptr, png_w_info, m_width, m_height, m_depth, silly2pngctype(m_type), PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
     png_write_info(png_write_ptr, png_w_info);
-    png_write_image(png_write_ptr, (png_bytep*)m_nbytes.data());
+    png_write_image(png_write_ptr, (png_bytep *)m_nbytes.data());
     png_write_end(png_write_ptr, nullptr);
 
     png_destroy_write_struct(&png_write_ptr, &png_w_info);

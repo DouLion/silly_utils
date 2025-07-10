@@ -9,11 +9,11 @@
  * @version: v1.0.1 2025-02-24 dou li yang
  */
 #include "RainRates.h"
-bool RainRates::Read(const std::string& file)
+bool RainRates::Read(const std::filesystem::path& file)
 {
     return false;
 }
-bool RainRates::Write(const std::string& file)
+bool RainRates::Write(const std::filesystem::path& file)
 {
     return false;
 }

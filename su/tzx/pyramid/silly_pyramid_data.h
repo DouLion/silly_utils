@@ -30,8 +30,6 @@ class data final : public silly::pyramid::base
     /// <param name=""></param>
     /// <param name="mode"></param>
     /// <returns></returns>
-    bool open(const char* file, const sumemf::access_mode& mode, const bool& usemmap) override;
-    bool open(const std::string& file, const sumemf::access_mode& mode, const bool& usemmap) override;
     bool open(const std::filesystem::path& file, const sumemf::access_mode& mode, const bool& usemmap) override;
 
     /// <summary>

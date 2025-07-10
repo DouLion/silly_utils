@@ -9,6 +9,7 @@
  * @version: v1.0.1 2024-12-13 dou li yang
  */
 #include "silly_nmea.h"
+#include <files/silly_file.h>
 
 using namespace silly::meta;
 nmea::nmea()
@@ -19,7 +20,7 @@ nmea::~nmea()
 {
 }
 
-nmea::nmea(const std::string& file)
+nmea::nmea(const std::filesystem::path& file)
 {
     open(file);
 }
@@ -43,9 +44,9 @@ double nmea::degree(const std::string& degree)
     return d + (val - d * 100) / 60;
 }
 
-bool nmea::open(const std::string& file)
+bool nmea::open(const std::filesystem::path& file)
 {
-    m_path = file;
+    m_path = sufile::realpath(file);
     return true;
 }
 

@@ -231,7 +231,7 @@ class silly_iso_line
     ///
     /// </summary>
     /// <returns></returns>
-    std::string geojson(const std::string& path);
+    std::string geojson(const std::filesystem::path& file);
 
   public:
     /*   int point_in_poly(const double& x, const double& y, const size_t& num, const double* points);

@@ -23,7 +23,7 @@ class silly_captcha : public silly_singleton<silly_captcha>
     /// <param name="name">字体名称</param>
     /// <param name="path">字体文件路径</param>
     /// <returns></returns>
-    bool add_font(const std::string& name, const std::string& path);
+    bool add_font(const std::string& name, const std::filesystem::path& file);
 
     /// <summary>
     /// 获取指定长度的数字+字母字符串的验证码

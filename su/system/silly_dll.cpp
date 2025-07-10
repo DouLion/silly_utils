@@ -5,18 +5,14 @@
 #include "silly_dll.h"
 #include "encode/silly_encode.h"
 
-SU_HANDLER silly_dll::load(const std::string& path)
+SU_HANDLER silly_dll::load(const std::filesystem::path& file)
 {
     SU_HANDLER h_ret = nullptr;
+    auto path = sufile::realpath(file);
 #if IS_WIN32
-#ifdef UNICODE
-    std::wstring ws_path = silly_encode::cxx11_string_wstring(path);
-    h_ret = LoadLibraryExW(ws_path.c_str(), nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
+    h_ret = LoadLibraryExW(path.wstring().c_str(), nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
 #else
-    h_ret = LoadLibraryA(path.c_str());
-#endif
-#else
-    h_ret = dlopen(path.c_str(), RTLD_LAZY | RTLD_DEEPBIND);
+    h_ret = dlopen(path.string().c_str(), RTLD_LAZY | RTLD_DEEPBIND);
 #endif
     return h_ret;
 }

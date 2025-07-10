@@ -84,7 +84,7 @@ class memory_map
     /// <param name="file"></param>
     /// <param name="mode"></param>
     /// <returns></returns>
-    bool open(const std::string& file, const int& mode = access_mode::Read, const int64_t& off = 0);
+    bool open(const std::filesystem::path& file, const int& mode = access_mode::Read, const int64_t& off = 0);
 
     /// <summary>
     /// 根据偏移量索引到内存位置

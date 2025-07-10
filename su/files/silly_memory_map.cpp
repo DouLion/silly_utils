@@ -285,7 +285,7 @@ bool memory_map::is_mapped()
 #endif
 }
 
-bool memory_map::open(const std::string& file, const int& mode, const int64_t& off)
+bool memory_map::open(const std::filesystem::path& file, const int& mode, const int64_t& off)
 {
     if (!std::filesystem::exists(file))
     {

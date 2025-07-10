@@ -46,7 +46,7 @@ class geojson
     /// </summary>
     /// <param name="file"></param>
     /// <returns></returns>
-    static std::vector<silly_geo_coll> loadf(const std::string& file);
+    static std::vector<silly_geo_coll> loadf(const std::filesystem::path& file);
 
     /// <summary>
     /// 从字符串加载所有矢量

@@ -31,7 +31,7 @@ class nmea
 {
   public:
     nmea();
-    nmea(const std::string& file);
+    nmea(const std::filesystem::path& file);
     ~nmea();
 
     /// <summary>
@@ -54,7 +54,7 @@ class nmea
     /// </summary>
     /// <param name="file"></param>
     /// <returns></returns>
-    bool open(const std::string& file);
+    bool open(const std::filesystem::path& file);
 
     /// <summary>
     /// 读取指定类型的NMEA数据
@@ -71,7 +71,7 @@ class nmea
     bool match(const std::string& str, const std::string& base);
 
   private:
-    std::string m_path;
+    std::filesystem::path m_path;
 };
 }  // namespace meta
 }  // namespace silly

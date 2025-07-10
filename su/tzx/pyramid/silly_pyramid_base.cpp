@@ -6,10 +6,11 @@
 
 using namespace silly::pyramid;
 using namespace silly::file;
-bool base::open(const char* file, const memory_map::access_mode& mode, const bool& usemmap)
+bool base::open(const std::filesystem::path& f, const memory_map::access_mode& mode, const bool& usemmap)
 {
     m_mode = mode;
     m_normal = !usemmap;
+    auto file = sufile::realpath(f);
     if (memory_map::access_mode::Read == mode)
     {
         if (usemmap)
@@ -36,14 +37,6 @@ bool base::open(const char* file, const memory_map::access_mode& mode, const boo
     return m_opened;
 }
 
-bool base::open(const std::string& file, const sumemf::access_mode& mode, const bool& usemmap)
-{
-    return open(file.c_str(), mode, usemmap);
-}
-bool base::open(const std::filesystem::path& file, const sumemf::access_mode& mode, const bool& usemmap)
-{
-    return open(file.string(), mode, usemmap);
-}
 
 void base::close()
 {
@@ -106,7 +99,7 @@ void base::seek(const size_t& pos)
     }
 }
 
-bool base::stream_open(const char* file, const std::ios_base::openmode& mode)
+bool base::stream_open(const std::filesystem::path& file, const std::ios_base::openmode& mode)
 {
     m_stream.open(file, mode);
     if (m_stream.is_open())
@@ -116,12 +109,12 @@ bool base::stream_open(const char* file, const std::ios_base::openmode& mode)
     else
     {
         m_opened = false;
-        SLOG_ERROR("open file failed:{}", file);
+        SLOG_ERROR("open file failed:{}", file.u8string());
     }
     return m_opened;
 }
 
-bool base::mmap_open(const char* file)
+bool base::mmap_open(const std::filesystem::path& file)
 {
     m_normal = false;
     m_opened = m_mmap.open(file, m_mode);

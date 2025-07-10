@@ -64,7 +64,7 @@ void silly_radar_occluder::set(const dem& info)
     }
 }
 
-// bool silly_radar_occluder::get_dem(const std::string& file)
+// bool silly_radar_occluder::get_dem(const std::filesystem::path& file)
 //{
 //     // silly::geo::utils::init_gdal_env();
 //     // 读取 tif 文件

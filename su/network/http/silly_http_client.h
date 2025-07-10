@@ -57,7 +57,7 @@ class client
     /// <param name="file"></param>
     /// <param name="filename"></param>
     /// <returns></returns>
-    bool download(const std::string& url, const std::string& file, const std::string& filename = "");
+    bool download(const std::string& url, const std::filesystem::path& file, const std::string& filename = "");
 
 
     /// <summary>
@@ -200,6 +200,7 @@ class client
     double m_total_seconds{0};
     bool m_verbose{false};
     size_t m_max_recv_speed{0};  // kb/s   0为不做设置
+    double m_resp_content_len = 0.0;
 
   
 };
