@@ -370,7 +370,7 @@ bool utils::exist(const std::filesystem::path &path)
 {
     try
     {
-        return std::filesystem::exists(path);
+        return std::filesystem::exists(realpath(path));
     }
     catch (const std::exception &e)
     {
@@ -383,7 +383,7 @@ bool utils::mkdir(const std::filesystem::path &path)
 {
     try
     {
-        return std::filesystem::create_directories(path);
+        return std::filesystem::create_directories(realpath(path));
     }
     catch (const std::exception &e)
     {
@@ -396,7 +396,7 @@ void utils::rmfile(const std::filesystem::path &path)
 {
     try
     {
-        std::filesystem::remove(path);
+        std::filesystem::remove(realpath(path));
     }
     catch (const std::exception &e)
     {
@@ -406,7 +406,7 @@ void utils::rmdir(const std::filesystem::path &path)
 {
     try
     {
-        std::filesystem::remove_all(path);
+        std::filesystem::remove_all(realpath(path));
     }
     catch (const std::exception &e)
     {
@@ -418,7 +418,7 @@ size_t utils::size(const std::filesystem::path &path)
     size_t ret = 0;
     try
     {
-        ret = std::filesystem::file_size(path);
+        ret = std::filesystem::file_size(realpath(path));
     }
     catch (...)
     {
@@ -430,7 +430,7 @@ void utils::copyfile(const std::filesystem::path &src, const std::filesystem::pa
 {
     try
     {
-        std::filesystem::copy(src, dst);
+        std::filesystem::copy(realpath(src), realpath(dst));
     }
     catch (const std::exception &e)
     {
@@ -442,7 +442,7 @@ void utils::copydir(const std::filesystem::path &src, const std::filesystem::pat
 {
     try
     {
-        std::filesystem::copy(src, dst, std::filesystem::copy_options::recursive);
+        std::filesystem::copy(realpath(src), realpath(dst), std::filesystem::copy_options::recursive);
     }
     catch (const std::exception &e)
     {
@@ -452,13 +452,13 @@ void utils::copydir(const std::filesystem::path &src, const std::filesystem::pat
 node::node(std::string path)
 {
     this->path = path;
-    this->is_dir = std::filesystem::is_directory(path);
+    this->is_dir = std::filesystem::is_directory(sufile::realpath(path));
 }
 
 node::node(std::filesystem::path path)
 {
     this->path = path.u8string();
-    this->is_dir = std::filesystem::is_directory(path);
+    this->is_dir = std::filesystem::is_directory(sufile::realpath(path));
 }
 
 node::node(const node &other)
@@ -474,23 +474,23 @@ node &node::operator=(const node &other)
 }
 std::string node::name() const
 {
-    return std::filesystem::path(this->path).filename().u8string();
+    return std::filesystem::path(sufile::realpath(path)).filename().u8string();
 }
 std::string node::stem() const
 {
-    return std::filesystem::path(this->path).stem().u8string();
+    return std::filesystem::path(sufile::realpath(path)).stem().u8string();
 }
 std::string node::ext() const
 {
-    return std::filesystem::path(this->path).extension().u8string();
+    return std::filesystem::path(sufile::realpath(path)).extension().u8string();
 }
 
 void node::trace()
 {
-    is_dir = std::filesystem::is_directory(this->path);
+    is_dir = std::filesystem::is_directory(sufile::realpath(this->path));
     if (is_dir)
     {
-        for (auto &p : std::filesystem::directory_iterator(this->path))
+        for (auto &p : std::filesystem::directory_iterator(sufile::realpath(this->path))
         {
             children.emplace_back(std::make_unique<node>(p.path()));
             children.back()->trace();  // 递归构建子节点
