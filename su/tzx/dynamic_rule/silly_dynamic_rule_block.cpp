@@ -49,7 +49,7 @@ bool tzx::dynamic_rule_block::init(const std::string root, const size_t& num, co
     m_root = root;
     m_read_mode = read_mode;
     std::vector<std::string> lines;
-    silly::file::utils::read(index_file, lines);
+    sufile::readlines(index_file, lines);
     m_num = num;
     for (auto& line : lines)
     {
@@ -233,8 +233,8 @@ bool tzx::dynamic_rule_block::open_dat(const std::string& year_str)
             ofs.write("EOF", 3);
             ofs.close();
         }
-        std::shared_ptr<silly::file::memory_map> tmp = std::make_shared<silly::file::memory_map>();
-        silly::file::memory_map::access_mode mode = m_read_mode ? silly::file::memory_map::Read : silly::file::memory_map::Write;
+        std::shared_ptr<sumemf> tmp = std::make_shared<sumemf>();
+        sumemf::access_mode mode = m_read_mode ? sumemf::Read : sumemf::Write;
         if (!tmp->open(file, mode))
         {
             tmp->close();
