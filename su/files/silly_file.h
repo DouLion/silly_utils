@@ -76,11 +76,17 @@ class utils
     /// <returns>实际读取大小</returns>
     static size_t read(const std::filesystem::path &fp, std::string &content, const size_t &offset = 0, const size_t &len = SIZE_MAX);
 
-    static size_t read(const std::filesystem::path &fp, unsigned char **content, const size_t &offset = 0, const size_t &len = SIZE_MAX);
+    static std::string read(const std::filesystem::path &fp, const size_t &offset = 0, const size_t &len = SIZE_MAX);
 
-    static bool read(const std::filesystem::path &fp, std::vector<std::string> &lines);
+    /// <summary>
+    /// 按行读取
+    /// </summary>
+    /// <param name="fp"></param>
+    /// <param name="lines"></param>
+    /// <returns></returns>
+    static bool readlines(const std::filesystem::path &fp, std::vector<std::string> &lines);
 
-    static size_t size(const std::filesystem::path &fp);
+    static std::vector<std::string> readlines(const std::filesystem::path &fp);
 
     /// <summary>
     /// 将内容写入文件
@@ -90,7 +96,41 @@ class utils
     /// <returns></returns>
     static size_t write(const std::filesystem::path &fp, const std::string &content);
 
+    /// <summary>
+    /// 将内容写入文件
+    /// </summary>
+    /// <param name="path"></param>
+    /// <param name="lines">line中需要自行加入换行符,此功能不添加</param>
+    /// <returns></returns>
     static size_t write(const std::filesystem::path &fp, const std::vector<std::string> &lines);
+
+    /// <summary>
+    /// 文件大小
+    /// </summary>
+    /// <param name="fp"></param>
+    /// <returns></returns>
+    static size_t size(const std::filesystem::path &fp);
+
+    /// <summary>
+    /// 最新更新时间
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    static std::time_t last_modify_sec(const std::filesystem::path &fp);
+
+    /// <summary>
+    /// 最新更新时间
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    static std::time_t last_modify_ms(const std::filesystem::path &fp);
+
+    /// <summary>
+    /// 路径是否存在
+    /// </summary>
+    /// <param name="fp"></param>
+    /// <returns></returns>
+    static bool exist(const std::filesystem::path &fp);
 
     /// <summary>
     /// 列出(仅)当前文件夹下所有包含filter的文件
@@ -108,22 +148,6 @@ class utils
     /// <param name="filter"></param>
     /// <returns></returns>
     static std::vector<std::string> relist(const std::filesystem::path &fp, const std::string &filter = SILLY_FILE_MATCH_ALL_WILDCHAR);
-
-    /// <summary>
-    /// 最新更新时间
-    /// </summary>
-    /// <param name="path"></param>
-    /// <returns></returns>
-    static std::time_t last_modify_sec(const std::filesystem::path &fp);
-
-    /// <summary>
-    /// 最新更新时间
-    /// </summary>
-    /// <param name="path"></param>
-    /// <returns></returns>
-    static std::time_t last_modify_ms(const std::filesystem::path &fp);
-
-    static bool exist(const std::filesystem::path &fp);
 
     /// <summary>
     /// 创建目录,如果存在多个未存在的路径,均会创建

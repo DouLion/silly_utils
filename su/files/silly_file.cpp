@@ -129,31 +129,14 @@ size_t utils::read(const std::filesystem::path &fp, std::string &content, const 
     return ret_read_size;
 }
 
-size_t utils::read(const std::filesystem::path &fp, unsigned char **content, const size_t &offset, const size_t &len)
+std::string utils::read(const std::filesystem::path &fp, const size_t &offset, const size_t &len)
 {
-    size_t read_size = 0;
-    if ((*content))  // content 不能有内容
-    {
-        return read_size;
-    }
-    std::string s_cont;
-    read_size = utils::read(fp, s_cont, offset, len);
-    if (read_size)
-    {
-        *content = (unsigned char *)malloc(read_size);
-        if ((*content))
-        {
-            memcpy((*content), &s_cont[0], read_size);
-        }
-        else
-        {
-            read_size = 0;
-        }
-    }
-    return read_size;
+    std::string ret;
+    sufile::read(fp, ret, offset, len);
+    return ret;
 }
 
-bool utils::read(const std::filesystem::path &fp, std::vector<std::string> &lines)
+bool utils::readlines(const std::filesystem::path &fp, std::vector<std::string> &lines)
 {
     std::fstream input(realpath(fp), std::ios::binary | std::ios::in);
     if (input.is_open())
@@ -170,6 +153,13 @@ bool utils::read(const std::filesystem::path &fp, std::vector<std::string> &line
     }
     input.close();
     return true;
+}
+
+std::vector<std::string> utils::readlines(const std::filesystem::path &fp)
+{
+    std::vector<std::string> ret;
+    readlines(fp, ret);
+    return ret;
 }
 
 size_t utils::write(const std::filesystem::path &fp, const std::string &content)
@@ -374,7 +364,7 @@ bool utils::exist(const std::filesystem::path &path)
     }
     catch (const std::exception &e)
     {
-        std::cerr << e.what() << '\n';
+        std::cerr << e.what() << std::endl;
     }
     return false;
 }
@@ -490,7 +480,7 @@ void node::trace()
     is_dir = std::filesystem::is_directory(sufile::realpath(this->path));
     if (is_dir)
     {
-        for (auto &p : std::filesystem::directory_iterator(sufile::realpath(this->path))
+        for (auto &p : std::filesystem::directory_iterator(sufile::realpath(this->path)))
         {
             children.emplace_back(std::make_unique<node>(p.path()));
             children.back()->trace();  // 递归构建子节点
