@@ -16,11 +16,11 @@ info::info()
     m_version[3] = 0x00;
 }
 
-bool info::open(const char* file, const silly::file::memory_map::access_mode& mode, const bool& usemmap)
+bool info::open(const char* file, const sumemf::access_mode& mode, const bool& usemmap)
 {
     if (base::open(file, mode, usemmap))
     {
-        if (m_mode == silly::file::memory_map::access_mode::Read)
+        if (m_mode == sumemf::access_mode::Read)
         {
             read();
             close();
@@ -30,11 +30,11 @@ bool info::open(const char* file, const silly::file::memory_map::access_mode& mo
     }
     return false;
 }
-bool info::open(const std::string& file, const silly::file::memory_map::access_mode& mode, const bool& usemmap)
+bool info::open(const std::string& file, const sumemf::access_mode& mode, const bool& usemmap)
 {
     return open(file.c_str(), mode, usemmap);
 }
-bool info::open(const std::filesystem::path& file, const silly::file::memory_map::access_mode& mode, const bool& usemmap)
+bool info::open(const std::filesystem::path& file, const sumemf::access_mode& mode, const bool& usemmap)
 {
     return open(file.string().c_str(), mode, usemmap);
 }
@@ -86,7 +86,7 @@ void info::write_info()
 
 void info::close()
 {
-    if (m_mode == silly::file::memory_map::access_mode::Write)
+    if (m_mode == sumemf::access_mode::Write)
     {
         write_info();
     }

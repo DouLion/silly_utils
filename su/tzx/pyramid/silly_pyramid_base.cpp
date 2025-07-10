@@ -36,11 +36,11 @@ bool base::open(const char* file, const memory_map::access_mode& mode, const boo
     return m_opened;
 }
 
-bool base::open(const std::string& file, const silly::file::memory_map::access_mode& mode, const bool& usemmap)
+bool base::open(const std::string& file, const sumemf::access_mode& mode, const bool& usemmap)
 {
     return open(file.c_str(), mode, usemmap);
 }
-bool base::open(const std::filesystem::path& file, const silly::file::memory_map::access_mode& mode, const bool& usemmap)
+bool base::open(const std::filesystem::path& file, const sumemf::access_mode& mode, const bool& usemmap)
 {
     return open(file.string(), mode, usemmap);
 }

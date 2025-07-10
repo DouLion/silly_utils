@@ -46,9 +46,9 @@ class base
     /// <param name="usemmap">读取时默认 使用mmap, 写总是使用文件流</param>
     /// <returns></returns>
     // TODO: 目前 读使用mmap, 写使用文件流, 第三个参数暂时没用,后续测试完成后需要支持
-    virtual bool open(const char* file, const silly::file::memory_map::access_mode& mode, const bool& usemmap);
-    virtual bool open(const std::string& file, const silly::file::memory_map::access_mode& mode, const bool& usemmap);
-    virtual bool open(const std::filesystem::path& file, const silly::file::memory_map::access_mode& mode, const bool& usemmap);
+    virtual bool open(const char* file, const sumemf::access_mode& mode, const bool& usemmap);
+    virtual bool open(const std::string& file, const sumemf::access_mode& mode, const bool& usemmap);
+    virtual bool open(const std::filesystem::path& file, const sumemf::access_mode& mode, const bool& usemmap);
 
     /// <summary>
     /// 关闭文件
@@ -170,7 +170,7 @@ class base
     char m_head[len::HEAD] = {0};
     char m_version[len::VER] = {0x00, 0x02, 0x00, 0x00};
     // 读写类型
-    silly::file::memory_map::access_mode m_mode;
+    sumemf::access_mode m_mode;
     // private:
     // 文件名称
     std::string m_file;
@@ -180,7 +180,7 @@ class base
     // 是否为普通文件流
     bool m_normal;
     // mmap文件
-    silly::file::memory_map m_mmap;
+    sumemf m_mmap;
     // 文件流
     std::fstream m_stream;
     // 多线程写时用的锁

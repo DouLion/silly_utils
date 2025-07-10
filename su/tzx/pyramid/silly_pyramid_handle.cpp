@@ -48,7 +48,7 @@ bool handle::begin_read(const std::filesystem::path& root)
     }
     m_root = root.string();
     m_use_mmap = true;
-    m_mode = silly::file::memory_map::access_mode::Read;
+    m_mode = sumemf::access_mode::Read;
     return open();
 }
 bool handle::begin_write(const std::filesystem::path& root)
@@ -59,7 +59,7 @@ bool handle::begin_write(const std::filesystem::path& root)
     }
     m_root = root.string();
     m_use_mmap = false;
-    m_mode = silly::file::memory_map::access_mode::Write;
+    m_mode = sumemf::access_mode::Write;
     return open();
 }
 

@@ -16,17 +16,17 @@ data::data()
     m_version[3] = 0x00;
 }
 
-bool data::open(const char* file, const silly::file::memory_map::access_mode& mode, const bool& usemmap)
+bool data::open(const char* file, const sumemf::access_mode& mode, const bool& usemmap)
 {
     // std::filesystem:::
     return base::open(file, mode, usemmap);
 }
 
-bool data::open(const std::string& file, const silly::file::memory_map::access_mode& mode, const bool& usemmap)
+bool data::open(const std::string& file, const sumemf::access_mode& mode, const bool& usemmap)
 {
     return open(file.c_str(), mode, usemmap);
 }
-bool data::open(const std::filesystem::path& file, const silly::file::memory_map::access_mode& mode, const bool& usemmap)
+bool data::open(const std::filesystem::path& file, const sumemf::access_mode& mode, const bool& usemmap)
 {
     return open(file.string().c_str(), mode, usemmap);
 }
@@ -76,7 +76,7 @@ void data::set(index* idx)
 
 void data::close()
 {
-    if (m_mode == silly::file::memory_map::access_mode::Write)
+    if (m_mode == sumemf::access_mode::Write)
     {
         base::write_info();
     }
