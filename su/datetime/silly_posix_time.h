@@ -54,8 +54,6 @@ class silly_time_duration
     silly_time_stamp m_total_seconds{0};
 };
 
-static void check_std_tm(std::tm stm);
-
 // 时间戳为标准时间戳精确到秒;
 // 时间以北京时间为准,见fix_tm的实现;
 class silly_posix_time
@@ -127,4 +125,8 @@ class silly_posix_time
     std::tm m_tm{0, 0, 0, 0, 0, 0};
     std::mutex m_mutex;
 };
+
+typedef silly_time_stamp sustamp;
+typedef silly_time_duration suduration;
+typedef silly_posix_time sutime;
 #endif  // SILLY_UTILS_SILLY_POSIX_TIME_H

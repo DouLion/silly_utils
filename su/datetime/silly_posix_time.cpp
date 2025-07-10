@@ -10,6 +10,22 @@
  */
 #include "silly_posix_time.h"
 
+static void check_std_tm(std::tm stm)
+{
+    if (stm.tm_sec < 0 || stm.tm_sec > 59)
+        throw std::runtime_error(std::string("秒(sec) ").append(std::to_string(stm.tm_sec)).append(" 需要 0 - 59"));
+    if (stm.tm_min < 0 || stm.tm_min > 59)
+        throw std::runtime_error(std::string("分(min) ").append(std::to_string(stm.tm_min)).append(" 需要 0 - 59"));
+    if (stm.tm_hour < 0 || stm.tm_hour > 23)
+        throw std::runtime_error(std::string("时(hour) ").append(std::to_string(stm.tm_hour)).append(" 需要 0 - 24"));
+    if (stm.tm_mday < 1 || stm.tm_mday > 31)
+        throw std::runtime_error(std::string("日(day) ").append(std::to_string(stm.tm_mday)).append(" 需要 1 - 31"));
+    if (stm.tm_mon < 0 || stm.tm_mon > 11)
+        throw std::runtime_error(std::string("月(mon) ").append(std::to_string(stm.tm_mon)).append(" 需要 0 - 11"));
+    if (stm.tm_year <= 0)
+        throw std::runtime_error(std::string("年(year) ").append(std::to_string(stm.tm_year)).append(" + 1900"));
+}
+
 silly_time_duration::silly_time_duration(int hours, int minutes, int seconds)
 {
     m_total_seconds = hours * 3600 + minutes * 60 + seconds;
@@ -53,22 +69,6 @@ int silly_time_duration::total_minutes() const
 int silly_time_duration::total_hours() const
 {
     return m_total_seconds / SEC_IN_HOUR;
-}
-
-void check_std_tm(std::tm stm)
-{
-    if (stm.tm_sec < 0 || stm.tm_sec > 59)
-        throw std::runtime_error(std::string("秒(sec) ").append(std::to_string(stm.tm_sec)).append(" 需要 0 - 59"));
-    if (stm.tm_min < 0 || stm.tm_min > 59)
-        throw std::runtime_error(std::string("分(min) ").append(std::to_string(stm.tm_min)).append(" 需要 0 - 59"));
-    if (stm.tm_hour < 0 || stm.tm_hour > 23)
-        throw std::runtime_error(std::string("时(hour) ").append(std::to_string(stm.tm_hour)).append(" 需要 0 - 24"));
-    if (stm.tm_mday < 1 || stm.tm_mday > 31)
-        throw std::runtime_error(std::string("日(day) ").append(std::to_string(stm.tm_mday)).append(" 需要 1 - 31"));
-    if (stm.tm_mon < 0 || stm.tm_mon > 11)
-        throw std::runtime_error(std::string("月(mon) ").append(std::to_string(stm.tm_mon)).append(" 需要 0 - 11"));
-    if (stm.tm_year <= 0)
-        throw std::runtime_error(std::string("年(year) ").append(std::to_string(stm.tm_year)).append(" + 1900"));
 }
 
 silly_posix_time::silly_posix_time()
