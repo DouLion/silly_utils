@@ -264,7 +264,7 @@ bool silly_ascii_grid::read_prj(const std::string path)
 {
     // 提取高斯分带中心线经度
     std::vector<std::string> lines;
-    if(sufile::read(path, lines))
+    if(sufile::readlines(path, lines))
     {
         if(lines.size() >= 11)
         {
