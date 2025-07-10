@@ -93,7 +93,6 @@ class base
     /// <returns></returns>
     size_t end();
 
-
   protected:
     /// <summary>
     /// 普通文件流打开

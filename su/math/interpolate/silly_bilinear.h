@@ -18,7 +18,7 @@ class bilinear
 {
   public:
     /// <summary>
-    /// 
+    ///
     /// q10  q11
     /// q00  q01 上下可以逆序,但是dx 和 dy要与q0 - q3的值要一致
     /// </summary>
@@ -36,4 +36,4 @@ class bilinear
 }  // namespace interpolation
 }  // namespace silly
 
-#endif  //SILLY_UTILS_SILLY_BILINEAR_H
+#endif  // SILLY_UTILS_SILLY_BILINEAR_H

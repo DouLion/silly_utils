@@ -14,7 +14,6 @@
 #define SILLY_UTILS_SILLY_GEO_H
 #include <su_marco.h>
 
-
 // 参照GDAL
 
 enum class enum_geometry_type : int
@@ -352,7 +351,6 @@ class silly_linez : public std::vector<silly_point_z>
     silly_linez(std::vector<silly_point_z> points) : std::vector<silly_point_z>(std::move(points))
     {
     }
-
 };
 
 /****************************************/

@@ -153,7 +153,7 @@ bool client::request(const std::string& url, std::string& resp)
         {
             headers = curl_slist_append(headers, std::string(k + ": " + v).c_str());
         }
-        
+
         if (m_type == silly::http::Post)
         {
             // 指定这是一个 POST 请求
@@ -223,8 +223,8 @@ bool client::request(const std::string& url, std::string& resp)
         // Get response code.
         int respCode = 0;
         SILLY_CURL_ERR_BREAK(curl_easy_getinfo(hnd, CURLINFO_RESPONSE_CODE, &respCode))
-       /* memcpy(&m_err[0], err_buffer, CURL_ERROR_SIZE);
-        m_err = std::to_string(respCode).append(" .").append(m_err);*/
+        /* memcpy(&m_err[0], err_buffer, CURL_ERROR_SIZE);
+         m_err = std::to_string(respCode).append(" .").append(m_err);*/
         if (respCode != silly::http::OK_200)
         {
             break;
@@ -351,7 +351,7 @@ bool client::download(const std::string& url, const std::filesystem::path& file,
         SILLY_CURL_ERR_BREAK(curl_easy_getinfo(hnd, CURLINFO_SPEED_DOWNLOAD_T, &byte_per_second))
         m_total_seconds = microseconds / 1.e6;
         m_speed_mps = byte_per_second / 1.e6;
-        
+
         SILLY_CURL_ERR_BREAK(curl_easy_getinfo(hnd, CURLINFO_CONTENT_LENGTH_DOWNLOAD, &m_resp_content_len))
         fflush(out);
         fclose(out);

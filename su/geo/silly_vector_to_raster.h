@@ -5,11 +5,11 @@
  * @author: dou li yang
  * @date: 2023/12/6 16:15
  * @version: 1.0.1
- * @description: 矢量光栅化, 支持在不修改范围和格点大小的情况下, 
+ * @description: 矢量光栅化, 支持在不修改范围和格点大小的情况下,
  *              光栅化任意多个矢量,使用与列数等长的数组,记录被覆盖的格点
  *              , 默认为0, 表示没有被覆盖, 1表示至少被覆盖一次.
                  使用fill()函数,填充成果,不会存在重复情况
- *              
+ *
  */
 #ifndef SILLY_UTILS_SILLY_VECTOR_TO_RASTER_H
 #define SILLY_UTILS_SILLY_VECTOR_TO_RASTER_H

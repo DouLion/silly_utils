@@ -115,17 +115,13 @@ size_t silly::str::algo::count_with_chinese_character(const std::string &u8str)
 
 std::string silly::str::algo::ltrim(std::string str)
 {
-    auto it = std::find_if(str.begin(), str.end(), [](char ch) {
-        return !std::isspace<char>(ch, std::locale::classic());
-    });
+    auto it = std::find_if(str.begin(), str.end(), [](char ch) { return !std::isspace<char>(ch, std::locale::classic()); });
     return std::string(it, str.end());
 }
 
 std::string silly::str::algo::rtrim(std::string str)
 {
-    auto it = std::find_if(str.rbegin(), str.rend(), [](char ch) {
-                  return !std::isspace<char>(ch, std::locale::classic());
-              }).base();
+    auto it = std::find_if(str.rbegin(), str.rend(), [](char ch) { return !std::isspace<char>(ch, std::locale::classic()); }).base();
     return std::string(str.begin(), it);
 }
 

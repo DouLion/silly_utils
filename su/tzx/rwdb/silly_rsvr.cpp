@@ -132,7 +132,7 @@ bool silly_rsvr::deserialize_v1(const std::string& data)
     return status;
 }
 
-std::string silly_rsvr::serialize_v2() const 
+std::string silly_rsvr::serialize_v2() const
 {
     return std::string();
 }

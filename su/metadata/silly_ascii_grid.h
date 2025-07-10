@@ -32,7 +32,7 @@ class silly_ascii_grid
     bool write_prj(const std::filesystem::path& file);
 
   public:
-    int precision = 1;  // 保留小数位
+    int precision = 1;    // 保留小数位
     double l0 = -9999.0;  // 高斯基带中心线经度
     size_t ncols = 0;
     size_t nrows = 0;
@@ -41,7 +41,7 @@ class silly_ascii_grid
     double cellsize = 0;
     double MAXV{-99999999.0};
     double MINV{99999999.0};
-    double NODATA=-9999.0;
+    double NODATA = -9999.0;
     std::vector<double> m_data;  //
 
   private:

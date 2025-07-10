@@ -86,7 +86,7 @@ class silly_posix_time
     bool is_not_a_date_time() const;
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <param name="rh"></param>
     /// <returns></returns>

@@ -17,7 +17,6 @@
 class silly_mapbox
 {
   public:
-
     /// <summary>
     /// 多个地图同一块(zxy相同)的tile合并
     /// 图层名不可以重复
@@ -28,7 +27,7 @@ class silly_mapbox
     /// <param name="tiles"></param>
     /// <returns></returns>
     static mvt_tile merge(const std::vector<mvt_tile>& tiles);
-    
+
     /// <summary>
     /// 将other合并到out中
     /// </summary>

@@ -23,7 +23,7 @@ class silly_huge_stitcher
     struct pos
     {
         // 图像上的偏移位置
-        int64_t xOffset = 0; 
+        int64_t xOffset = 0;
         int64_t yOffset = 0;
     };
     struct img
@@ -37,7 +37,7 @@ class silly_huge_stitcher
         pos src;  // 从data图像上截取的位置
         pos dst;  // 写入目标的位置
         // 裁剪区域的宽高
-        int64_t xSize = 0; 
+        int64_t xSize = 0;
         int64_t ySize = 0;
         img dIMG;
     };

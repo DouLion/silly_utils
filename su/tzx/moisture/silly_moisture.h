@@ -19,16 +19,16 @@ struct moisture_index_info
     float lgtd;
     float lttd;
 };
-using moisture_index_cache = std::map<int, moisture_index_info> ;
+using moisture_index_cache = std::map<int, moisture_index_info>;
 
 class soil_moisture_record
 {
   public:
     int pid;
-    int64_t time{0}; // 时间戳 秒, 暂时没用
+    int64_t time{0};  // 时间戳 秒, 暂时没用
     float moisture{0.};
     float moisture_percent{0.};
-    float precipitation; // 过去一小时实测降雨
+    float precipitation;  // 过去一小时实测降雨
 
     std::string serialize() const;
     bool deserialize(const std::string& data);

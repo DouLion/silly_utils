@@ -25,8 +25,6 @@
 
 #include FT_FREETYPE_H
 
-
-
 #define DESTROY_SURFACE(surf)        \
     if (surf)                        \
     {                                \
@@ -394,7 +392,7 @@ bool silly_cairo::create(const size_t ww, const size_t &hh, const int &type)
     return true;
 }
 
-bool silly_cairo::read(const std::filesystem::path& file, const bool &png)
+bool silly_cairo::read(const std::filesystem::path &file, const bool &png)
 {
     if (png)
     {
@@ -422,7 +420,7 @@ bool silly_cairo::read(const std::filesystem::path& file, const bool &png)
     return true;
 }
 
-bool silly_cairo::write(const std::filesystem::path& file, const bool &png)
+bool silly_cairo::write(const std::filesystem::path &file, const bool &png)
 {
     if (png)
     {
@@ -485,8 +483,6 @@ bool silly_cairo::encode(std::string &bin, const bool &png)
 
     return !bin.empty();
 }
-
-
 
 void silly_cairo::release()
 {
@@ -630,7 +626,7 @@ size_t silly_cairo::height() const
     return m_height;
 }
 
-bool silly_cairo::add_font(const std::string &name, const std::filesystem::path& file)
+bool silly_cairo::add_font(const std::string &name, const std::filesystem::path &file)
 {
     bool status = false;
     FT_Face ft_face;

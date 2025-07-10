@@ -81,8 +81,6 @@ class handle
     std::string format() const;
     std::string project() const;
 
- 
-
     ////////////////////////////////////////////////////////////
     /// 写入功能
     ////////////////////////////////////////////////////////////
@@ -100,7 +98,7 @@ class handle
     void end_layer(const uint8_t& end) noexcept;
 
     /// <summary>
-    /// 设置版本号 
+    /// 设置版本号
     /// PYRAMID_VERSION_1 或者 PYRAMID_VERSION_2
     /// 不要使用 PYRAMID_VERSION_11
     /// </summary>

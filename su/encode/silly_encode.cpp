@@ -94,22 +94,21 @@ bool silly_encode::iconv_convert(const std::string &from, const std::string &to,
     size_t outBytesLeft = out_len;
     char *out = (char *)&str_out[0];
 
-
     size_t result = iconv(cd, &in, &inBytesLeft, &out, &outBytesLeft);
-   /* if (result == (size_t)-1)
-    {
-        if (errno == EILSEQ)
-        {  // 非法序列
-            SLOG_ERROR("非法序列")
-        }
-        else
-        {
-            SLOG_ERROR("iconv")
-        }
-    }
-    else*/
+    /* if (result == (size_t)-1)
+     {
+         if (errno == EILSEQ)
+         {  // 非法序列
+             SLOG_ERROR("非法序列")
+         }
+         else
+         {
+             SLOG_ERROR("iconv")
+         }
+     }
+     else*/
     out_len = out_len - outBytesLeft;
-    if(out_len > 0)
+    if (out_len > 0)
     {
         // 计算有效输出字节
         ret.resize(out_len);
@@ -122,7 +121,7 @@ bool silly_encode::iconv_convert(const std::string &from, const std::string &to,
     return status;
 }
 
-silly_encode::enum_encode silly_encode::check_file_encode(const std::filesystem::path& file)
+silly_encode::enum_encode silly_encode::check_file_encode(const std::filesystem::path &file)
 {
     silly_encode::enum_encode code = silly_encode::enum_encode::Unknown;
     std::ifstream fin(sufile::realpath(file).string(), std::ios::binary);

@@ -28,7 +28,6 @@ class mobile
     static std::map<std::string, eop> opcode(const std::vector<std::string>& numbers);
     static std::string opstr(const std::string& number);
     static std::map<std::string, std::string> opstr(const std::vector<std::string>& numbers);
-
 };
 }  // namespace silly
 

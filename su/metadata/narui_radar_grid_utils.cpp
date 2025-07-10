@@ -272,8 +272,8 @@ bool silly_nrd_grid_utils::read_grid(const std::filesystem::path& file, const do
     {
         size_t drows = tmp_grid.row() * head.dlat / dst_scale;
         size_t dcols = tmp_grid.col() * head.dlon / dst_scale;
-        //TODO : DLY
-        // matrix_tools::resize(tmp_grid, grid, drows, dcols);
+        // TODO : DLY
+        //  matrix_tools::resize(tmp_grid, grid, drows, dcols);
         tmp_grid.release();
     }
 

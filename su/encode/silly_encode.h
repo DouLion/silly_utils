@@ -101,7 +101,7 @@ class silly_encode
     /// </summary>
     /// <param name="path"></param>
     /// <returns></returns>
-    static enum_encode check_file_encode(const std::filesystem::path& file);
+    static enum_encode check_file_encode(const std::filesystem::path &file);
 
     /// <summary>
     /// URL编码

@@ -25,13 +25,12 @@ class silly_mqtt_client
 {
   public:
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <param name="topic"></param>
     /// <param name="payload"></param>
     /// <returns></returns>
     bool publish(const std::string& topic, const std::string& payload);
-
 
     bool subscribe(const std::string& topic);
 
@@ -48,16 +47,14 @@ class silly_mqtt_client
 
     void server(const std::string& s);
 
-
-
   private:
-     std::string m_client_id;
+    std::string m_client_id;
     std::string m_user;
-     std::string m_protocol{"mqtt"};
+    std::string m_protocol{"mqtt"};
     std::string m_password;
     std::string m_host;
-    int m_port{1883}; // 1883 默认非加密端口  8883 默认加密端口
-    int m_qos{2}; // 0 最多一次  1 最少一次  2 只有一次
+    int m_port{1883};  // 1883 默认非加密端口  8883 默认加密端口
+    int m_qos{2};      // 0 最多一次  1 最少一次  2 只有一次
 };
 
 #endif  // SILLY_UTILS_SILLY_MQTT_CLIENT_H

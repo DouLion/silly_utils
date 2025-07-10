@@ -253,7 +253,6 @@ class convert
     /// <param name="y0"></param>
     static void polar_to_cartesian(double r, double th, double& x, double& y, double x0 = 0, double y0 = 0);
 
-
     /// <summary>
     /// 经纬度坐标转墨卡托
     /// </summary>
@@ -263,10 +262,10 @@ class convert
     /// <param name="y"></param>
     template <typename T1, typename T2>
     static void Tlonlat_to_mercator(const T1& lgtd, const T1& lttd, T2& x, T2& y)
-    {   
+    {
         double nx, ny;
         lonlat_to_mercator(lgtd, lttd, nx, ny);
-        x= nx;
+        x = nx;
         y = ny;
     }
 

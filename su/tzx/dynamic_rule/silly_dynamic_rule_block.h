@@ -46,7 +46,7 @@ class dynamic_rule_block
     /// </summary>
     /// <param name="code"></param>
     /// <param name="time"></param>
-    /// 
+    ///
     /// <param name="data"></param>
     /// <returns></returns>
     bool read(const std::string& code, const silly_posix_time& time, cell& data);

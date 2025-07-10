@@ -19,16 +19,16 @@ namespace EarthRadius
 static constexpr double MEAN = 6371000.0;        // 平均半径 米
 static constexpr double EQUATORIAL = 6378137.0;  // 赤道半径 米
 static constexpr double POLAR = 6356752.3142;    // 极地半径 米
-}  // namespace earth_radius
+}  // namespace EarthRadius
 namespace WGS84
 {
-static constexpr double A = 6378137.0;        // 长半轴 米
+static constexpr double A = 6378137.0;         // 长半轴 米
 static constexpr double INVF = 298.257223563;  // 扁率的倒数
 static constexpr double F = (1.0 / INVF);      // 扁率
-static constexpr double B = (A * (1.0 - F));  // 短半轴
-static constexpr double E2 = (2 * F - F * F); // 第一偏心扁率的平方
-static constexpr double GM = 3.986004418e14;  // 地心引力常数 立方米/秒的平方
-static constexpr double W = 7.2921151467e-5; // 自转角速度 弧度每秒
+static constexpr double B = (A * (1.0 - F));   // 短半轴
+static constexpr double E2 = (2 * F - F * F);  // 第一偏心扁率的平方
+static constexpr double GM = 3.986004418e14;   // 地心引力常数 立方米/秒的平方
+static constexpr double W = 7.2921151467e-5;   // 自转角速度 弧度每秒
 static constexpr double J2 = 1.08262983226e-3;
 }  // namespace WGS84
 namespace CGCS2000
@@ -39,14 +39,14 @@ static constexpr double INVF = 298.257222101;
 static constexpr double F = (1.0 / INVF);
 static constexpr double B = (A * (1.0 - F));
 static constexpr double E2 = (2 * F - F * F);
-static constexpr double GM = 3.9860044181e14;  // 地心引力常数 立方米/秒的平方
-static constexpr double W = 7.2921151467e-5;      // 自转角速度 弧度每秒
-static constexpr double J2 = 1.08262983226e-3;     // 重力场谐系数
+static constexpr double GM = 3.9860044181e14;   // 地心引力常数 立方米/秒的平方
+static constexpr double W = 7.2921151467e-5;    // 自转角速度 弧度每秒
+static constexpr double J2 = 1.08262983226e-3;  // 重力场谐系数
 }  // namespace CGCS2000
 namespace XIAN80
 {
 
-static constexpr double A = 6378140.0;    // 长半轴
+static constexpr double A = 6378140.0;     // 长半轴
 static constexpr double INVF = 298.257;    // 扁率的倒数
 static constexpr double F = (1.0 / INVF);  // 扁率
 static constexpr double B = (A * (1.0 - F));
@@ -55,7 +55,7 @@ static constexpr double E2 = (2 * F - F * F);
 namespace BEIJING54
 {
 
-static constexpr double A = 6378245.0;    // 长半轴
+static constexpr double A = 6378245.0;     // 长半轴
 static constexpr double INVF = 298.3;      // 扁率的倒数
 static constexpr double F = (1.0 / INVF);  // 扁率
 static constexpr double B = (A * (1.0 - F));

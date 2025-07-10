@@ -25,7 +25,7 @@ class silly_sqlite3
     /// 备份到另一个数据库文件
     bool backup(const std::filesystem::path& file);
 
-   void close();
+    void close();
 
   private:
     sqlite3* m_db;

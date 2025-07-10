@@ -37,13 +37,14 @@ class silly_socket
     std::string err();
 
     void release();
+
   private:
     bool m_connected = false;
     socket_t m_socket = 0;
     bool m_verbose = false;
     bool m_use_ssl = false;
     std::string m_err;
-    SSL* m_ssl= nullptr;
+    SSL* m_ssl = nullptr;
     SSL_CTX* m_ssl_ctx = nullptr;
     std::mutex m_mutex;
 };

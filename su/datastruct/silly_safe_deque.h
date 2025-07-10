@@ -18,9 +18,9 @@ class silly_safe_deque
 
   public:
     /// Default Constructor.
-    silly_safe_deque(void) {};
+    silly_safe_deque(void){};
     /// Destructor.
-    virtual ~silly_safe_deque(void) {};
+    virtual ~silly_safe_deque(void){};
 
     /// Push item to deque tail.
     void push_back(const T& value)

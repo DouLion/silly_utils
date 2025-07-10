@@ -15,7 +15,6 @@
 
 #include "math/silly_matrix.h"
 
-
 class tif_data
 {
   public:

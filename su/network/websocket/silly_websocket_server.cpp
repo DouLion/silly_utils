@@ -19,7 +19,6 @@ silly_websocket_server::silly_websocket_server()
 
         // Initialize ASIO
         m_server.init_asio();
-
     }
     catch (websocketpp::exception const& e)
     {

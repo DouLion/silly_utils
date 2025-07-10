@@ -26,8 +26,7 @@ class silly_smtp
 
     bool quit();
 
-  private:                                                           // 以字符形式读入附件内容
-
+  private:                                         // 以字符形式读入附件内容
     std::string Base64Encode(std::string in_str);  // 把char类型转换成Base64类型
     // 获取时间
     std::string prepareDate();
@@ -38,8 +37,6 @@ class silly_smtp
     bool attachments(const silly_mail_content& content);
 
     bool end();
-
-
 
   private:
     bool compare(const std::string& msg, const std::string& code);

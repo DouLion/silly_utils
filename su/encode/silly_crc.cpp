@@ -13,12 +13,17 @@
 static auto func_crc32_table = []() {
     std::vector<uint32_t> t(256);
     uint32_t poly = 0xEDB88320;
-    for (uint32_t i = 0; i < 256; ++i) {
+    for (uint32_t i = 0; i < 256; ++i)
+    {
         uint32_t crc = i;
-        for (uint32_t j = 0; j < 8; ++j) {
-            if (crc & 1) {
+        for (uint32_t j = 0; j < 8; ++j)
+        {
+            if (crc & 1)
+            {
                 crc = (crc >> 1) ^ poly;
-            } else {
+            }
+            else
+            {
                 crc >>= 1;
             }
         }
@@ -29,16 +34,21 @@ static auto func_crc32_table = []() {
 
 static auto func_crc16_table = []() {
     std::vector<uint16_t> t(256);
-    uint16_t poly = 0x1021; // CRC-16/CCITT 多项式
-    for (uint16_t i = 0; i < 256; ++i) {
+    uint16_t poly = 0x1021;  // CRC-16/CCITT 多项式
+    for (uint16_t i = 0; i < 256; ++i)
+    {
         uint16_t crc = i << 8;
-        for (int j = 0; j < 8; ++j) {
-            if (crc & 0x8000) {
+        for (int j = 0; j < 8; ++j)
+        {
+            if (crc & 0x8000)
+            {
                 crc = (crc << 1) ^ poly;
-            } else {
+            }
+            else
+            {
                 crc <<= 1;
             }
-            crc &= 0xFFFF; // 确保结果为16位
+            crc &= 0xFFFF;  // 确保结果为16位
         }
         t[i] = crc;
     }
@@ -47,27 +57,30 @@ static auto func_crc16_table = []() {
 
 static auto func_crc64_table = []() {
     std::vector<uint64_t> t(256);
-    uint64_t poly = 0x42F0E1EBA9EA3693ULL; // CRC-64/ECMA 多项式
-    for (uint64_t i = 0; i < 256; ++i) {
+    uint64_t poly = 0x42F0E1EBA9EA3693ULL;  // CRC-64/ECMA 多项式
+    for (uint64_t i = 0; i < 256; ++i)
+    {
         uint64_t crc = i << 56;
-        for (int j = 0; j < 8; ++j) {
-            if (crc & 0x8000000000000000ULL) {
+        for (int j = 0; j < 8; ++j)
+        {
+            if (crc & 0x8000000000000000ULL)
+            {
                 crc = (crc << 1) ^ poly;
-            } else {
+            }
+            else
+            {
                 crc <<= 1;
             }
-            crc &= 0xFFFFFFFFFFFFFFFFULL; // 确保结果为64位
+            crc &= 0xFFFFFFFFFFFFFFFFULL;  // 确保结果为64位
         }
         t[i] = crc;
     }
     return t;
 };
 
-
 const std::vector<uint16_t> silly::crc::crc16_table = func_crc16_table();
 const std::vector<uint32_t> silly::crc::crc32_table = func_crc32_table();
 const std::vector<uint64_t> silly::crc::crc64_table = func_crc64_table();
-
 
 uint16_t silly::crc::crc16(const char *data, size_t size)
 {

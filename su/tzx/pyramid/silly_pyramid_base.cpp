@@ -37,7 +37,6 @@ bool base::open(const std::filesystem::path& f, const memory_map::access_mode& m
     return m_opened;
 }
 
-
 void base::close()
 {
     if (m_normal)
@@ -62,7 +61,6 @@ bool base::read(const size_t& seek_offset, char* data, const size_t& read_size)
         return mmap_read(seek_offset, data, read_size);
     }
 }
-
 
 bool base::write(const size_t& seek_offset, const char* data, const size_t& write_size)
 {

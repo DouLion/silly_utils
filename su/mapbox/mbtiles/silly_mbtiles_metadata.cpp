@@ -112,7 +112,6 @@ std::string truncate16(std::string const &s, size_t runes)
     return std::string(s, 0, lastgood - start);
 }
 
-
 bool type_and_string::operator<(const type_and_string &o) const
 {
     if (string < o.string)
@@ -139,26 +138,32 @@ bool type_and_string::operator!=(const type_and_string &o) const
     return false;
 }
 
-
-std::map<std::string, layermap_entry> silly_mbtiles_metadata::merge_layermaps(std::vector<std::map<std::string, layermap_entry>> const &maps) {
+std::map<std::string, layermap_entry> silly_mbtiles_metadata::merge_layermaps(std::vector<std::map<std::string, layermap_entry>> const &maps)
+{
     return merge_layermaps(maps, false);
 }
 
-std::map<std::string, layermap_entry> silly_mbtiles_metadata::merge_layermaps(std::vector<std::map<std::string, layermap_entry>> const &maps, bool trunc) {
+std::map<std::string, layermap_entry> silly_mbtiles_metadata::merge_layermaps(std::vector<std::map<std::string, layermap_entry>> const &maps, bool trunc)
+{
     std::map<std::string, layermap_entry> out;
 
-    for (size_t i = 0; i < maps.size(); i++) {
-        for (auto map = maps[i].begin(); map != maps[i].end(); ++map) {
-            if (map->second.points + map->second.lines + map->second.polygons + map->second.retain == 0) {
+    for (size_t i = 0; i < maps.size(); i++)
+    {
+        for (auto map = maps[i].begin(); map != maps[i].end(); ++map)
+        {
+            if (map->second.points + map->second.lines + map->second.polygons + map->second.retain == 0)
+            {
                 continue;
             }
 
             std::string layername = map->first;
-            if (trunc) {
+            if (trunc)
+            {
                 layername = truncate16(layername, 256);
             }
 
-            if (out.count(layername) == 0) {
+            if (out.count(layername) == 0)
+            {
                 out.insert(std::pair<std::string, layermap_entry>(layername, layermap_entry(out.size())));
                 auto out_entry = out.find(layername);
                 out_entry->second.minzoom = map->second.minzoom;
@@ -167,28 +172,37 @@ std::map<std::string, layermap_entry> silly_mbtiles_metadata::merge_layermaps(st
             }
 
             auto out_entry = out.find(layername);
-            if (out_entry == out.end()) {
+            if (out_entry == out.end())
+            {
                 fprintf(stderr, "Internal error merging layers\n");
                 exit(EXIT_FAILURE);
             }
 
-            for (auto fk = map->second.file_keys.begin(); fk != map->second.file_keys.end(); ++fk) {
+            for (auto fk = map->second.file_keys.begin(); fk != map->second.file_keys.end(); ++fk)
+            {
                 std::string attribname = fk->first;
-                if (trunc) {
+                if (trunc)
+                {
                     attribname = truncate16(attribname, 256);
                 }
 
                 auto fk2 = out_entry->second.file_keys.find(attribname);
 
-                if (fk2 == out_entry->second.file_keys.end()) {
+                if (fk2 == out_entry->second.file_keys.end())
+                {
                     out_entry->second.file_keys.insert(std::pair<std::string, type_and_string_stats>(attribname, fk->second));
-                } else {
-                    for (auto val : fk->second.sample_values) {
+                }
+                else
+                {
+                    for (auto val : fk->second.sample_values)
+                    {
                         auto pt = std::lower_bound(fk2->second.sample_values.begin(), fk2->second.sample_values.end(), val);
-                        if (pt == fk2->second.sample_values.end() || *pt != val) {  // not found
+                        if (pt == fk2->second.sample_values.end() || *pt != val)
+                        {  // not found
                             fk2->second.sample_values.insert(pt, val);
 
-                            if (fk2->second.sample_values.size() > max_tilestats_sample_values) {
+                            if (fk2->second.sample_values.size() > max_tilestats_sample_values)
+                            {
                                 fk2->second.sample_values.pop_back();
                             }
                         }
@@ -196,19 +210,23 @@ std::map<std::string, layermap_entry> silly_mbtiles_metadata::merge_layermaps(st
 
                     fk2->second.type |= fk->second.type;
 
-                    if (fk->second.min < fk2->second.min) {
+                    if (fk->second.min < fk2->second.min)
+                    {
                         fk2->second.min = fk->second.min;
                     }
-                    if (fk->second.max > fk2->second.max) {
+                    if (fk->second.max > fk2->second.max)
+                    {
                         fk2->second.max = fk->second.max;
                     }
                 }
             }
 
-            if (map->second.minzoom < out_entry->second.minzoom) {
+            if (map->second.minzoom < out_entry->second.minzoom)
+            {
                 out_entry->second.minzoom = map->second.minzoom;
             }
-            if (map->second.maxzoom > out_entry->second.maxzoom) {
+            if (map->second.maxzoom > out_entry->second.maxzoom)
+            {
                 out_entry->second.maxzoom = map->second.maxzoom;
             }
 

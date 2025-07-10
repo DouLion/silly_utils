@@ -31,6 +31,7 @@ class vacuate
         DOUGLAS_PEUCKER,  // 算法使用点到边距离公差。该算法从粗略的简化开始，即连接原始折线的第一个和最后一个顶点的单边。然后计算所有中间顶点到该边的距离。距离该边最远且计算距离大于指定容差的顶点将被标记为键并添加到简化中。此过程将针对当前简化中的每条边递归，直到原始折线的所有顶点都在简化结果的公差范围内。
         DOUGLAS_PEUCKER_VARIANT  // 使用点数容差代替点到边距离容差; 是一次处理单个边缘（选择伪随机）
     };
+
   public:
     static bool n_point(const int& n, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims = 2);
     static bool radial_distance(const double& radialDistance, const std::vector<double>& points, std::vector<double>& outputs, const int& dims = 2);

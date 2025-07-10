@@ -1015,10 +1015,8 @@ bool utils::write(const std::filesystem::path& file, const std::vector<silly_geo
 
 bool utils::intersect(const silly_geo_coll& gc1, const silly_geo_coll& gc2)
 {
-
     return false;
 }
-
 
 bool utils::intersect(const silly_multi_poly& mpoly1, const silly_multi_poly& mpoly2)
 {

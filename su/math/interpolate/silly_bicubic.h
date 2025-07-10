@@ -29,7 +29,7 @@ class bicubic
     static double calc(const std::vector<double>& grids, const double& dx, const double& dy);
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <param name="t"></param>
     /// <returns></returns>

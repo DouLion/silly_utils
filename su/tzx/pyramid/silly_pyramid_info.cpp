@@ -83,7 +83,7 @@ void info::close()
         write_info();
     }
     base::close();
- }
+}
 
 void info::source(const std::string& src)
 {

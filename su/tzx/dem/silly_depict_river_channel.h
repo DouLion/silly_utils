@@ -25,7 +25,7 @@ class depict
     {
         silly_rect rect;       // 横断面和纵断面的矩形范围,高斯坐标
         double cell_size = 5;  // 单位米
-        double l0; // 中央经线
+        double l0;             // 中央经线
     };
 
   public:

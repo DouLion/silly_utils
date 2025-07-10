@@ -31,8 +31,6 @@ class RainUtils
     /// @param[in] stcd2rain
     /// @return 加权雨量
     static double WeightedRain(const std::map<std::string, double>& stcd2weight, const std::map<std::string, double>& stcd2rain);
-
-
 };
 }  // namespace su
 

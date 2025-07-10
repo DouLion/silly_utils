@@ -27,7 +27,7 @@ bool dynamic_rule_code_index::load(const std::filesystem::path& file)
             size_t index;
             iss >> code >> index;
 
-            if(index > max_index)
+            if (index > max_index)
             {
                 max_index = index;
             }
@@ -48,7 +48,7 @@ bool dynamic_rule_code_index::save(const std::filesystem::path& file)
         std::stringstream ss;
         for (const auto [k, v] : *this)
         {
-            //std::cout << "code:" << k << " index:" << v << std::endl;
+            // std::cout << "code:" << k << " index:" << v << std::endl;
             ss << " " << k << " " << v << std::endl;
         }
         sufile::write(path, ss.str());
@@ -154,7 +154,7 @@ std::string dynamic_rule_record::serialize(const int& code_index) const
         }
     }
     memcpy(buff.data() + total, &len, sizeof(len));
-    total+=sizeof(len);
+    total += sizeof(len);
     for (const auto& [intv, grade_th] : intv_grade_threshold)
     {
         for (const auto& [grade, th] : grade_th)
@@ -195,7 +195,7 @@ bool dynamic_rule_record::deserialize(const std::string& data)
     moisture_percent = *(float*)(p);
     p += sizeof(moisture_percent);
     uint8_t len = static_cast<uint8_t>(p[0]);
-    if(len > 100)
+    if (len > 100)
     {
         SLOG_WARN("数据可能有误,引起程序异常");
         return false;
@@ -250,20 +250,19 @@ bool silly_dynamic_rule::read_with_code_index(const std::filesystem::path& file,
             // 最后一个完成
             return true;
         }
-        p+=sizeof(len);
+        p += sizeof(len);
 
         std::string tmp;
         tmp.resize(len);
         memcpy(tmp.data(), p, len);
-        p +=len;
+        p += len;
         dynamic_rule_record record;
         record.deserialize(tmp);
-        if(m_index.contains_value(record.index))
+        if (m_index.contains_value(record.index))
         {
             record.code = m_index.code(record.index);
             records[record.code] = record;
         }
-
     }
     return false;
 }
@@ -282,7 +281,6 @@ bool silly_dynamic_rule::write_with_code_index(const std::filesystem::path& file
             return false;
         }
         index_map[code] = record.index;
-
     }
     std::string end_flag = std::string(5, 0x5f);
     end_flag[1] = 0;
@@ -321,9 +319,9 @@ bool silly_dynamic_rule::write_with_code_index(const std::filesystem::path& file
     sufile::write(path, content);
     return true;
 }
-void silly_dynamic_rule::add_code_index(const std::string& code,  size_t& index)
+void silly_dynamic_rule::add_code_index(const std::string& code, size_t& index)
 {
-    if(m_index.add(code))
+    if (m_index.add(code))
     {
         index = m_index.index(code);
     }
@@ -331,7 +329,7 @@ void silly_dynamic_rule::add_code_index(const std::string& code,  size_t& index)
 void silly_dynamic_rule::set_index(const dynamic_rule_code_index& code_index)
 {
     m_index.clear();
-    for(auto [code, idx] : code_index)
+    for (auto [code, idx] : code_index)
     {
         m_index.add(code, idx);
     }
@@ -340,7 +338,7 @@ bool silly_dynamic_rule::read_with_code_index(const std::filesystem::path& file,
 {
     auto path = sufile::realpath(file);
     auto iter = m_index.find(code);
-    if(iter == m_index.end())
+    if (iter == m_index.end())
     {
         return false;
     }
@@ -362,11 +360,11 @@ bool silly_dynamic_rule::read_with_code_index(const std::filesystem::path& file,
             // 最后一个完成
             return true;
         }
-        p+=sizeof(len);
+        p += sizeof(len);
         uint8_t* n = p;
         n++;
         int32_t index = ((int32_t*)n)[0];
-        if(index  == iter->second)
+        if (index == iter->second)
         {
             std::string tmp;
             tmp.resize(len);
@@ -375,8 +373,7 @@ bool silly_dynamic_rule::read_with_code_index(const std::filesystem::path& file,
             return true;
         }
 
-        p +=len;
-
+        p += len;
     }
     return false;
 }

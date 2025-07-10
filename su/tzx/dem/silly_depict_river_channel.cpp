@@ -37,12 +37,12 @@ struct CrossSection
 {
     std::vector<double> distances;   // 起点距
     std::vector<double> elevations;  // 高程
-    silly_point startPoint;                // 起点的高斯坐标
+    silly_point startPoint;          // 起点的高斯坐标
     silly_point leftEndpoint;        // 断面左起点高斯坐标
-    silly_point rightEndpoint;             // 断面右端点高斯坐标
+    silly_point rightEndpoint;       // 断面右端点高斯坐标
 };
 
-// 计算点到线段的距离 
+// 计算点到线段的距离
 double pointToSegmentDistance(const Point& p, const Point& v, const Point& w)
 {
     double l2 = std::pow(v.x - w.x, 2) + std::pow(v.y - w.y, 2);  // 线段的平方长度
@@ -559,29 +559,28 @@ std::vector<Point> generatePolyline(const std::vector<Point>& centerline, Point 
     return polyline;
 }
 
-
 bool depict::process(const silly_linez& cs0, const silly_linez& cs1, silly_linez& vsections, options& opt)
 {
-    //std::vector<silly_linez> csections;
-    //csections.push_back(cs0);
-    //csections.push_back(cs1);
-    //ValidateCrossSection(csections);
+    // std::vector<silly_linez> csections;
+    // csections.push_back(cs0);
+    // csections.push_back(cs1);
+    // ValidateCrossSection(csections);
 
     // double xMin, xMax, yMin, yMax;
     //// 生成DEM的范围，遍历centerlines的所有点取最大和最小
     // calculateDEMRange({vsections}, csections, xMin, xMax, yMin, yMax);
-    //xllcorner = xMin;
-    //yllcorner = yMin;
+    // xllcorner = xMin;
+    // yllcorner = yMin;
     //// 计算行列数
-    //int numCols = static_cast<int>(std::ceil((xMax - xMin) / opt.cell_size));
-    //int numRows = static_cast<int>(std::ceil((yMax - yMin) / opt.cell_size));
+    // int numCols = static_cast<int>(std::ceil((xMax - xMin) / opt.cell_size));
+    // int numRows = static_cast<int>(std::ceil((yMax - yMin) / opt.cell_size));
 
     //// 初始化 channelData  DEM
-    //std::vector<std::vector<double>> channelData(numRows, std::vector<double>(numCols, -9999));
+    // std::vector<std::vector<double>> channelData(numRows, std::vector<double>(numCols, -9999));
 
-    //for (size_t i = 0; i < vsections.size(); ++i)
+    // for (size_t i = 0; i < vsections.size(); ++i)
     //{
-    //    const auto& line = vsections[i];
+    //     const auto& line = vsections[i];
 
     //    // 获取起点和终点的高程
     //    double startElevation = csections[i].elevs.front();        // 起点高程
@@ -640,31 +639,31 @@ bool depict::process(const silly_linez& cs0, const silly_linez& cs1, silly_linez
     //    }
     //}
 
-    //return channelData;
+    // return channelData;
     return false;
 }
 
 std::vector<std::vector<double>> depict::process(const std::vector<silly_linez> css, std::vector<silly_linez>& vsections, options& opt)
 {
     std::vector<std::vector<double>> channelData;
-    //std::vector<silly_linez> csections = css;
-    //ValidateCrossSection(csections);
+    // std::vector<silly_linez> csections = css;
+    // ValidateCrossSection(csections);
 
-    //double xMin, xMax, yMin, yMax;
+    // double xMin, xMax, yMin, yMax;
     //// 生成DEM的范围，遍历centerlines的所有点取最大和最小
-    //calculateDEMRange(vsections, csections, xMin, xMax, yMin, yMax);
-    //opt.rect.min.x = xMin;
-    //opt.rect.min.y= yMin;
+    // calculateDEMRange(vsections, csections, xMin, xMax, yMin, yMax);
+    // opt.rect.min.x = xMin;
+    // opt.rect.min.y= yMin;
     //// 计算行列数
-    //int numCols = static_cast<int>(std::ceil((xMax - xMin) / opt.cell_size));
-    //int numRows = static_cast<int>(std::ceil((yMax - yMin) / opt.cell_size));
+    // int numCols = static_cast<int>(std::ceil((xMax - xMin) / opt.cell_size));
+    // int numRows = static_cast<int>(std::ceil((yMax - yMin) / opt.cell_size));
 
     //// 初始化 channelData  DEM
-    //channelData = std::move(std::vector<std::vector<double>>(numRows, std::vector<double>(numCols, -9999)));
+    // channelData = std::move(std::vector<std::vector<double>>(numRows, std::vector<double>(numCols, -9999)));
 
-    //for (size_t i = 0; i < vsections.size(); ++i)
+    // for (size_t i = 0; i < vsections.size(); ++i)
     //{
-    //    const auto& line = vsections[i];
+    //     const auto& line = vsections[i];
 
     //    // 获取起点和终点的高程
     //    double startElevation = csections[i].elevs.front();    // 起点高程

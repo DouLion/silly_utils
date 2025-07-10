@@ -22,11 +22,10 @@ class jsonpp
     {
       public:
         bool utf8 = true;
-        size_t precision = 8;  // 小数精度, 为0则不处理
-        std::string indentation = "  ";// 无缩进（紧凑模式）
-        std::string commentStyle = "None";// 不保留注释
-        bool enableYAMLCompatibility = false;// 禁用YAML兼容
-       
+        size_t precision = 8;                  // 小数精度, 为0则不处理
+        std::string indentation = "  ";        // 无缩进（紧凑模式）
+        std::string commentStyle = "None";     // 不保留注释
+        bool enableYAMLCompatibility = false;  // 禁用YAML兼容
     };
 
   public:

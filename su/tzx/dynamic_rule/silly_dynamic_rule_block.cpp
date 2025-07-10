@@ -191,7 +191,6 @@ bool tzx::dynamic_rule_block::write(const silly_posix_time& time, const std::map
             size_t pos = offset + index_in_year(time) * sizeof(cell);
             m_year_mmap[year]->write((char*)&data, sizeof(cell), pos);
         }
-
     }
 
     return true;
@@ -227,7 +226,6 @@ bool tzx::dynamic_rule_block::open_dat(const std::string& year_str)
         }
         if (reset_file)
         {
-          
             std::ofstream ofs(file, std::ios::binary | std::ios::out);
             ofs.seekp(total_size, std::ios::beg);
             ofs.write("EOF", 3);
@@ -253,7 +251,7 @@ void tzx::dynamic_rule_block::read(const size_t& offset, const size_t& bi, const
         cell tmp;
         size_t pos = offset * CODE_SIZE_PER_YEAR + i * sizeof(cell);
         m_year_mmap[year]->read((char*)&tmp, sizeof(cell), pos);
-        std::string tmstr = (time + silly_time_duration(i-bi, 0, 0)).to_string(DTFMT_YMDHM);
+        std::string tmstr = (time + silly_time_duration(i - bi, 0, 0)).to_string(DTFMT_YMDHM);
         time_data[tmstr] = tmp;
     }
 }

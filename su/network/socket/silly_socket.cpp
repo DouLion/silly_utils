@@ -64,23 +64,23 @@ bool silly_socket::create(const std::string& hostname, const int& port, const bo
 #else
     struct addrinfo hints, *res;
 
-   /* memset(&hints, 0, sizeof(hints));
-    hints.ai_family = AF_UNSPEC;
-    hints.ai_socktype = SOCK_STREAM;
+    /* memset(&hints, 0, sizeof(hints));
+     hints.ai_family = AF_UNSPEC;
+     hints.ai_socktype = SOCK_STREAM;
 
-    if (getaddrinfo(hostname, port, &hints, &res) != 0)
-    {
-        perror("getaddrinfo");
-        return m_connected;
-    }
+     if (getaddrinfo(hostname, port, &hints, &res) != 0)
+     {
+         perror("getaddrinfo");
+         return m_connected;
+     }
 
-    m_socket = create_tcp_socket();
-    if (connect(m_socket, res->ai_addr, res->ai_addrlen) < 0)
-    {
-        perror("Connect error");
-        freeaddrinfo(res);
-        return m_connected;
-    }*/
+     m_socket = create_tcp_socket();
+     if (connect(m_socket, res->ai_addr, res->ai_addrlen) < 0)
+     {
+         perror("Connect error");
+         freeaddrinfo(res);
+         return m_connected;
+     }*/
 
 #endif
     if (m_use_ssl)
@@ -121,7 +121,8 @@ bool silly_socket::read(std::string& msg)
     if (!m_connected)
         return status;
 
-    do{
+    do
+    {
         if (m_ssl)
         {
             int num = 1024;

@@ -37,6 +37,7 @@ class silly_dynamic_rule;
 class dynamic_rule_code_index : public silly_safe_bimap<std::string, size_t>
 {
     friend class silly_dynamic_rule;
+
   public:
     bool load(const std::filesystem::path& file);
     bool save(const std::filesystem::path& file);
@@ -69,7 +70,7 @@ class silly_dynamic_rule
     bool read_with_code_index(const std::filesystem::path& file, const std::string& code, dynamic_rule_record& record) const;
 
     bool write_with_code_index(const std::filesystem::path& file, const std::map<std::string, dynamic_rule_record>& records) const;
-    void add_code_index(const std::string& code,  size_t& index);
+    void add_code_index(const std::string& code, size_t& index);
 
   private:
     dynamic_rule_code_index m_index{};

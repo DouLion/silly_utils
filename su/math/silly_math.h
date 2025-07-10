@@ -65,7 +65,6 @@ static T average(std::vector<T> data)
     return sum / data.size();
 }
 
-
 template <typename T>
 static T variance(std::vector<T> data)
 {
@@ -74,10 +73,10 @@ static T variance(std::vector<T> data)
         throw std::invalid_argument("Vector is empty");
     }
     T mean = average(data);
-    T sq_sum = std::inner_product(
-        data.begin(), data.end(),
-        data.begin(),
-        T(0.0)  // 显式初始化为浮点类型
+    T sq_sum = std::inner_product(data.begin(),
+                                  data.end(),
+                                  data.begin(),
+                                  T(0.0)  // 显式初始化为浮点类型
     );
     return sq_sum / data.size();
 }
@@ -90,15 +89,14 @@ static T std_deviation(std::vector<T> data)
         throw std::invalid_argument("Vector is empty");
     }
     T mean = average(data);
-    T sq_sum = std::inner_product(
-        data.begin(), data.end(),
-        data.begin(),
-        T(0.0)  // 显式初始化为浮点类型
+    T sq_sum = std::inner_product(data.begin(),
+                                  data.end(),
+                                  data.begin(),
+                                  T(0.0)  // 显式初始化为浮点类型
     );
     T variance = sq_sum / data.size();  // 先计算方差
     return std::sqrt(variance);
 }
-
 
 template <typename T>
 static T MSE(std::vector<T> data)

@@ -20,7 +20,6 @@ class silly_cairo_fill_pattern
     cairo_pattern_t* pattern();
 
   private:
-
     cairo_pattern_t* m_pattern = nullptr;
 };
 

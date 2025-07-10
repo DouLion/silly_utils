@@ -25,32 +25,32 @@ using namespace silly::str;
 // 内地车牌号, 输入的中文必须是UTF8编码,省份市编码最多有一个特殊字符 (' ', '+', '-','.', 不包含'_')隔开 例如 "京A 12345"
 #define REG_MAINLAND_LICENSE_PLATE_NUMBER "^[\\u4e00-\\u9fa5][A-Z]([\\W]{0,1})[A-Z0-9]{5}$"
 
-bool valid::QQ(const std::string&  str)
+bool valid::QQ(const std::string& str)
 {
-    return std::regex_match( str, std::regex(REG_QQ));
+    return std::regex_match(str, std::regex(REG_QQ));
 }
-bool valid::email(const std::string&  str)
+bool valid::email(const std::string& str)
 {
-    return std::regex_match( str, std::regex(REG_EMAIL));
+    return std::regex_match(str, std::regex(REG_EMAIL));
 }
-bool valid::mainland_id(const std::string&  str)
+bool valid::mainland_id(const std::string& str)
 {
-    return std::regex_match( str, std::regex(REG_MAINLAND_ID_CARD_NUM));
+    return std::regex_match(str, std::regex(REG_MAINLAND_ID_CARD_NUM));
 }
-bool valid::mainland_mobile(const std::string&  str)
+bool valid::mainland_mobile(const std::string& str)
 {
-    return std::regex_match( str, std::regex(REG_MAINLAND_MOBILE));
+    return std::regex_match(str, std::regex(REG_MAINLAND_MOBILE));
 }
-bool valid::mainland_post(const std::string&  str)
+bool valid::mainland_post(const std::string& str)
 {
-    return std::regex_match( str, std::regex(REG_MAINLAND_POST_CODE));
+    return std::regex_match(str, std::regex(REG_MAINLAND_POST_CODE));
 }
-bool valid::mainland_vehicle(const std::string&  str)
+bool valid::mainland_vehicle(const std::string& str)
 {
-    std::string us =  str;
-    if (!silly_encode::check_text_utf8( str.c_str(),  str.size()))
+    std::string us = str;
+    if (!silly_encode::check_text_utf8(str.c_str(), str.size()))
     {
-        us = silly_encode::gbk_utf8( str);
+        us = silly_encode::gbk_utf8(str);
     }
 
     return std::regex_match(us, std::regex(REG_MAINLAND_LICENSE_PLATE_NUMBER));

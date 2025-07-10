@@ -122,7 +122,6 @@ screen_rect silly_tile::tile2screen(const tile_index& index, const uint64_t& til
     return ret;
 }
 
-
 silly_point silly_tile::mvt2geo(const tile_index& index, const mvt_geometry geometry, const uint64_t& extent)
 {
     screen_point sp;

@@ -26,7 +26,7 @@ bool grib_utils::read(const std::string& grib_file, std::vector<su::DMatrix>& ma
 #if SU_ECCODES_ENABLED
     grib_context* c = grib_context_get_default();
     // 多波段读取支持
-    //grib_multi_support_on(nullptr);
+    // grib_multi_support_on(nullptr);
     int err_code = 0;
     FILE* file = nullptr;
     file = fopen(targetPath.string().c_str(), "rb");
@@ -36,7 +36,6 @@ bool grib_utils::read(const std::string& grib_file, std::vector<su::DMatrix>& ma
         fclose(file);
         return false;
     }
-
 
     grib_handle* gh = grib_handle_new_from_file(c, file, &err_code);
     while (gh)

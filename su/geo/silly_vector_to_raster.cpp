@@ -51,13 +51,12 @@ void x_scan_line::rasterize(const silly_line& line)
     double dby = line[i].y;
     for (i = 1; i < line.size(); i++)
     {
-       double dex = line[i].x;
-       double dey = line[i].y;
-       // TODO: 后续再补充. 在同一行可能会占用两个格子
-       std::cerr << "TODO: 未完成" << std::endl;
-       return;
+        double dex = line[i].x;
+        double dey = line[i].y;
+        // TODO: 后续再补充. 在同一行可能会占用两个格子
+        std::cerr << "TODO: 未完成" << std::endl;
+        return;
     }
-    
 }
 
 void x_scan_line::rasterize(const silly_multi_line& lines)
@@ -204,7 +203,7 @@ void x_scan_line::rasterize(const silly_geo_coll& geo_coll)
             rasterize(geo_coll.m_m_polys);
             break;
         default:
-            std::cerr <<  "无效类型" << std::endl;
+            std::cerr << "无效类型" << std::endl;
             break;
     }
 }
@@ -273,7 +272,6 @@ std::vector<silly_poly> x_scan_line::grids() const
         {
             for (int c = b_e.beg; c <= b_e.end; ++c)
             {
-                
                 double lon = m_rect.min.x + c * m_cell_size;
                 double lat = m_rect.max.y - r * m_cell_size;
                 silly_poly poly;

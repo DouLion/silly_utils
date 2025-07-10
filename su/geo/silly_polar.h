@@ -12,7 +12,6 @@
 class silly_polar
 {
   public:
-
     /// <summary>
     /// 将笛卡尔坐标转换为极坐标
     /// </summary>
@@ -21,7 +20,7 @@ class silly_polar
     /// <param name="r"></param>
     /// <param name="azimuth"></param>
     static void normal_to_polar(const double& x, const double& y, double& r, double& azimuth);
-    
+
     /// <summary>
     /// 将笛卡尔坐标转换为极坐标
     /// </summary>
@@ -32,7 +31,7 @@ class silly_polar
     /// <param name="r"></param>
     /// <param name="azimuth"></param>
     static void normal_to_polar(const double& x0, const double& y0, const double& x, const double& y, double& r, double& azimuth);
-    
+
     /// <summary>
     /// 将极坐标转换为笛卡尔坐标
     /// </summary>
@@ -41,7 +40,7 @@ class silly_polar
     /// <param name="x"></param>
     /// <param name="y"></param>
     static void normal_to_coord(const double& r, const double& azimuth, double& x, double& y);
-    
+
     /// <summary>
     /// 将极坐标转换为笛卡尔坐标
     /// </summary>

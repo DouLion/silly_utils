@@ -81,7 +81,6 @@ std::string silly_river::serialize_v1() const
     return result;
 }
 
-
 bool silly_river::deserialize_v1(const std::string& data)
 {
     bool status = false;
@@ -175,17 +174,3 @@ bool silly_river::deserialize_v3(const std::string& data)
 {
     return false;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

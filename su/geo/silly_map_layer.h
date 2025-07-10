@@ -13,12 +13,10 @@
 
 #include <su_marco.h>
 
-
 class silly_map_layer
 {
   public:
-
-  static int32_t layer_no(const uint32_t& map_scale);
+    static int32_t layer_no(const uint32_t& map_scale);
 };
 
 #endif  // SILLY_UTILS_SILLY_MAP_LAYER_H

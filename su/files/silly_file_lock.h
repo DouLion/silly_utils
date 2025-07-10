@@ -18,7 +18,6 @@ namespace file
 class lock
 {
   public:
-
     /// 构造函数 锁定文件
     lock(const std::string& u8file);
 
@@ -35,8 +34,7 @@ class lock
     OVERLAPPED overlapped = {0};
 #endif
 };
-}
-}
-
+}  // namespace file
+}  // namespace silly
 
 #endif  // SILLY_UTILS_SILLY_FILE_LOCK_H

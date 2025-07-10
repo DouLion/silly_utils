@@ -94,7 +94,7 @@ class silly_dt_edge
     }
     bool operator==(const silly_dt_edge& e) const
     {
-        return hash == e.hash;//(p0 == e.p0 && p1 == e.p1) || (p0 == e.p1 && p1 == e.p0);
+        return hash == e.hash;  //(p0 == e.p0 && p1 == e.p1) || (p0 == e.p1 && p1 == e.p0);
     }
     bool operator>(const silly_dt_edge& e) const
     {

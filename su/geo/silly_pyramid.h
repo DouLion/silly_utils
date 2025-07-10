@@ -32,7 +32,7 @@
 struct screen_point
 {
     uint8_t layer;
-    int64_t pixX;   // 屏幕的列, 像素位置
+    int64_t pixX;  // 屏幕的列, 像素位置
     int64_t pixY;  // 屏幕的行, 像素位置
 };
 
@@ -54,7 +54,6 @@ struct mvt_geometry;
 class silly_tile
 {
   public:
-
     /// <summary>
     /// 根据tile块索引计算宽高, [min, max]
     /// </summary>
@@ -64,7 +63,6 @@ class silly_tile
     /// <param name="height"></param>
     /// <param name="tilesize"></param>
     static void size(const tile_index& pi1, const tile_index& pi2, size_t& width, size_t& height, const uint64_t& tilesize = 256);
-
 
     /// <summary>
     /// 根据屏幕像素计算宽高
@@ -126,7 +124,6 @@ class silly_tile
     /// <param name="tilesize">瓦片宽高均为 tilesize</param>
     /// <returns></returns>
     static tile_index screen2tile(const uint8_t& layer, const screen_point& point, const uint64_t& tilesize = 256);
-
 
     /// <summary>
     /// 瓦片索引对应的屏幕范围

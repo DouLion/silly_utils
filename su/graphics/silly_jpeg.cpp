@@ -23,15 +23,12 @@ struct my_error_mgr
 };
 using my_error_ptr = my_error_mgr*;
 
-
 void my_error_exit(j_common_ptr cinfo)
 {
-
     my_error_ptr myerr = (my_error_ptr)cinfo->err;
 
     (*cinfo->err->output_message)(cinfo);
     longjmp(myerr->setjmp_buffer, 1);
-
 }
 
 static silly::color::type jpeg2sillyctype(const J_COLOR_SPACE& type)
@@ -48,7 +45,6 @@ static silly::color::type jpeg2sillyctype(const J_COLOR_SPACE& type)
             throw std::runtime_error("不支持的类型");
     }
 }
-
 
 static J_COLOR_SPACE silly2jpegctype(const silly::color::type& type)
 {
@@ -262,7 +258,7 @@ std::string silly::jpeg::data::encode() const
 
     while (cinfo.next_scanline < cinfo.image_height)
     {
-        row_pointer[0] = (uint8_t*)& m_bytes[cinfo.next_scanline * row_stride];
+        row_pointer[0] = (uint8_t*)&m_bytes[cinfo.next_scanline * row_stride];
         jpeg_write_scanlines(&cinfo, row_pointer, 1);
     }
 

@@ -11,8 +11,6 @@
 #include "silly_stbprp.h"
 #include "silly_turn_tool.h"
 
-
-
 std::string silly_stbprp::serialize() const
 {
     std::string result;

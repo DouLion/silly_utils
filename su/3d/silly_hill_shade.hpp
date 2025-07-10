@@ -15,7 +15,6 @@
 #include <su_marco.h>
 #include <math/silly_matrix.h>
 
-
 class silly_hill_shade
 {
   public:

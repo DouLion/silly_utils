@@ -74,7 +74,7 @@ class silly_micaps_utils
     /// <param name="path"></param>
     /// <param name="md4"></param>
     /// <returns></returns>
-    static bool read(const std::filesystem::path& file, silly_micaps_diamond_4 &md4);
+    static bool read(const std::filesystem::path &file, silly_micaps_diamond_4 &md4);
 
     /// <summary>
     /// 以mmap读取diamond 4格式的数据, 普通读取方式性能已经满足要求,这个暂时不实现
@@ -82,7 +82,7 @@ class silly_micaps_utils
     /// <param name="path"></param>
     /// <param name="md4"></param>
     /// <returns></returns>
-    static bool mmap_read(const std::filesystem::path& file, silly_micaps_diamond_4 &md4);
+    static bool mmap_read(const std::filesystem::path &file, silly_micaps_diamond_4 &md4);
 
     /// <summary>
     /// 写diamond 4格式的数据
@@ -90,7 +90,7 @@ class silly_micaps_utils
     /// <param name="path"></param>
     /// <param name="md4"></param>
     /// <returns></returns>
-    static bool write(const std::filesystem::path& file, const silly_micaps_diamond_4 &md4);
+    static bool write(const std::filesystem::path &file, const silly_micaps_diamond_4 &md4);
 
   private:
 };

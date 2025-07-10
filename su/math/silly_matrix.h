@@ -515,7 +515,7 @@ class matrix
         }
     }
 
-        /// <summary>
+    /// <summary>
     /// 返回data的首地址
     /// </summary>
     /// <returns></returns>
@@ -611,8 +611,6 @@ class matrix
         }
         return ret;
     }
-
-
 };
 
 typedef matrix<int> IMatrix;

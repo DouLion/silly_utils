@@ -66,7 +66,6 @@ static const std::string DLL = "";
 static const std::string LAST_INSERT_ID = "SELECT @@IDENTITY";
 }  // namespace kingb8
 
-
 }  // namespace sql
 }  // namespace silly
 

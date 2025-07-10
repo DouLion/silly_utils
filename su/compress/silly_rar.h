@@ -61,5 +61,4 @@ class silly_rar
 
 }  // namespace silly_compress
 
-
 #endif  // SILLY_UTILS_SILLY_RAR_H

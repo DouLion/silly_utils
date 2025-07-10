@@ -144,7 +144,7 @@ class geojson
     ///////////////////////////////////写
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <param name="points"></param>
     /// <param name="precision"></param>
@@ -157,7 +157,7 @@ class geojson
     static std::string stringify(const std::vector<silly_multi_poly> mpolys, const int& precision = 8);
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <param name="point"></param>
     /// <returns></returns>
@@ -169,7 +169,7 @@ class geojson
     static Json::Value jsonify(const silly_multi_poly mpoly);
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <param name="point"></param>
     /// <param name="precision"></param>

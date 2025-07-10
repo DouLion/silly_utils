@@ -59,14 +59,13 @@ class client
     /// <returns></returns>
     bool download(const std::string& url, const std::filesystem::path& file, const std::string& filename = "");
 
-
     /// <summary>
     /// 上传文件 Upload files
     /// </summary>
     /// <param name="url"></param>
     /// <param name="copyname">
     ///  一般多文件为 `files[]`, 单文件为 `file`, 根据服务端的要求设置此名称
-    ///  Generally, when upload multiple files, use `files[]`, otherwise, use `file`. 
+    ///  Generally, when upload multiple files, use `files[]`, otherwise, use `file`.
     ///  Set the value according to the requirements of the server
     /// </param>
     /// <param name="resp"></param>
@@ -95,7 +94,7 @@ class client
     void clear_upload();
 
     /// <summary>
-    /// 设置请求体, 必须使用UTF-8编码. 
+    /// 设置请求体, 必须使用UTF-8编码.
     /// form需要自行转换urlencode, silly_encode::url_encode
     /// </summary>
     /// <param name="body"></param>
@@ -201,8 +200,6 @@ class client
     bool m_verbose{false};
     size_t m_max_recv_speed{0};  // kb/s   0为不做设置
     double m_resp_content_len = 0.0;
-
-  
 };
 }  // namespace http
 }  // namespace silly

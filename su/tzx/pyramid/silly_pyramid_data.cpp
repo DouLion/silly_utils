@@ -16,7 +16,6 @@ data::data()
     m_version[3] = 0x00;
 }
 
-
 bool data::open(const std::filesystem::path& file, const sumemf::access_mode& mode, const bool& usemmap)
 {
     return base::open(file, mode, usemmap);
@@ -58,7 +57,6 @@ bool data::write(block& blk)
 
     return false;
 }
-
 
 void data::set(index* idx)
 {

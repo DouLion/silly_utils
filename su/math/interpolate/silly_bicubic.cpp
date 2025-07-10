@@ -48,31 +48,30 @@ static double get_value(const std::vector<std::vector<double>>& grid, int x, int
     return grid[x][y];
 }
 
-
 double bicubic::calc(const std::vector<double>& grid, const double& dx, const double& dy)
 {
-    //int width = grid.size();
-    //int height = grid[0].size();
+    // int width = grid.size();
+    // int height = grid[0].size();
 
     //// 找到最近的整数坐标
-    //int x_floor = static_cast<int>(std::floor(dx));
-    //int y_floor = static_cast<int>(std::floor(dy));
+    // int x_floor = static_cast<int>(std::floor(dx));
+    // int y_floor = static_cast<int>(std::floor(dy));
 
     //// 计算相对距离
-    //double dx = x - x_floor;
-    //double dy = y - y_floor;
+    // double dx = x - x_floor;
+    // double dy = y - y_floor;
 
     //// 初始化结果
-    //double result = 0.0;
+    // double result = 0.0;
 
     //// 遍历 4x4 的邻域
-    //for (int i = -1; i <= 2; ++i)
+    // for (int i = -1; i <= 2; ++i)
     //{
-    //    for (int j = -1; j <= 2; ++j)
-    //    {
-    //        // 计算权重
-    //        double weight_x = catmull_rom(dx - i);
-    //        double weight_y = catmull_rom(dy - j);
+    //     for (int j = -1; j <= 2; ++j)
+    //     {
+    //         // 计算权重
+    //         double weight_x = catmull_rom(dx - i);
+    //         double weight_y = catmull_rom(dy - j);
 
     //        // 获取邻点的值
     //        double value = get_value(grid, x_floor + i, y_floor + j);
@@ -82,6 +81,6 @@ double bicubic::calc(const std::vector<double>& grid, const double& dx, const do
     //    }
     //}
 
-    //return result;
+    // return result;
     return 0;
 }

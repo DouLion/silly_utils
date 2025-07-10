@@ -78,7 +78,7 @@ class algo
     /// <returns></returns>
     static std::string trim_all(std::string str);
 };
-}
-}
+}  // namespace str
+}  // namespace silly
 
 #endif  // SILLY_UTILS_SILLY_ALGORITHM_H

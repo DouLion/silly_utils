@@ -29,7 +29,7 @@ void silly_schedule_file::root(const std::string& r)
 }
 void silly_schedule_file::extension(const std::string& e)
 {
-    if(!e.empty() && e[0] != '.')
+    if (!e.empty() && e[0] != '.')
     {
         m_extension.append(".").append(e);
     }
@@ -37,7 +37,6 @@ void silly_schedule_file::extension(const std::string& e)
     {
         m_extension = e;
     }
-
 }
 void silly_schedule_file::format(const std::string& r)
 {
@@ -45,15 +44,13 @@ void silly_schedule_file::format(const std::string& r)
 }
 std::string silly_schedule_file::filename(const std::string& tm)
 {
-
     return std::string();
 }
 std::string silly_schedule_file::filename(const silly_posix_time& tm)
 {
-   m_filename = silly_posix_time::time_to_string(tm, m_format);
-   m_filename.append(m_extension);
-   return "";
-
+    m_filename = silly_posix_time::time_to_string(tm, m_format);
+    m_filename.append(m_extension);
+    return "";
 }
 bool silly_schedule_file::create_dir(const std::string& tm)
 {

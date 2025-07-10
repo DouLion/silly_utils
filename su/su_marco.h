@@ -215,8 +215,8 @@ using silly_handle = int;
         info.cbSize = sizeof(info);                                            \
         info.dwFontSize.Y = 18;                                                \
         info.FontWeight = FW_NORMAL;                                           \
-        wcscpy_s(info.FaceName, L"Microsoft YaHei"/*需要是系统支持的字体*/);     \
-        GetCurrentConsoleFontEx(GetStdHandle(STD_OUTPUT_HANDLE), NULL, &info);   \
+        wcscpy_s(info.FaceName, L"Microsoft YaHei" /*需要是系统支持的字体*/);  \
+        GetCurrentConsoleFontEx(GetStdHandle(STD_OUTPUT_HANDLE), NULL, &info); \
     }
 #else
 #define WINDOWS_UTF8_PAGE
@@ -231,7 +231,6 @@ using silly_handle = int;
 #define SU_DEBUG_PRINT(s, ...)
 #endif
 #endif
-
 
 #ifndef SU_PRINTF
 // 打印信息 未封装

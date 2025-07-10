@@ -42,11 +42,10 @@ enum class CPS_ERR
 
     // rar的错误
     RAROpenErr = 501,
-    RARCreatDirErr= 502,
+    RARCreatDirErr = 502,
     RARSuportFormatErr = 503,
     RARWriteErr = 504,
     RARReadErr = 505
-
 
 };
 }

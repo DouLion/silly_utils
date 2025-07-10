@@ -21,17 +21,18 @@ typedef enum
     DEBUG_EXTRA = 3
 } debug_t;
 
-
-typedef enum {
+typedef enum
+{
     FILELIST = 0,
     ARCHIVE = 1,
     REALTIME = 2
 } mode_t;
 
-typedef enum {
-    pFALSE = 0, pTRUE = 1
+typedef enum
+{
+    pFALSE = 0,
+    pTRUE = 1
 } tdrp_bool_t;
-
 
 struct OutputFiled
 {

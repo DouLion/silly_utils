@@ -585,11 +585,11 @@ bool silly_mbtiles_sqlite3::close()
 {
     char *err;
 
-   /* if (sqlite3_exec(m_db, "ANALYZE;", nullptr, nullptr, &err) != SQLITE_OK)
-    {
-        fprintf(stderr, "%s: ANALYZE failed: %s\n", pgm, err);
-        return false;
-    }*/
+    /* if (sqlite3_exec(m_db, "ANALYZE;", nullptr, nullptr, &err) != SQLITE_OK)
+     {
+         fprintf(stderr, "%s: ANALYZE failed: %s\n", pgm, err);
+         return false;
+     }*/
     if (sqlite3_close(m_db) != SQLITE_OK)
     {
         m_err = std::string(sqlite3_errmsg(m_db));
@@ -722,12 +722,12 @@ bool silly_mbtiles_sqlite3::read_tile(int z, int x, int y, char **data, int &siz
     while ((rc = sqlite3_step(stmt)) == SQLITE_ROW)
     {
         const void *blob_data = (char *)sqlite3_column_blob(stmt, 0);  // 获取 BLOB 数据
-        size = sqlite3_column_bytes(stmt, 0);          // 获取 BLOB 大小
-        if(size){
-            *data = (char*)malloc(size);
+        size = sqlite3_column_bytes(stmt, 0);                          // 获取 BLOB 大小
+        if (size)
+        {
+            *data = (char *)malloc(size);
             memcpy(*data, blob_data, size);
         }
-
     }
     /*
      * 当你从 SQLite 查询中获取 BLOB 数据时，
@@ -865,7 +865,7 @@ bool silly_mbtiles_sqlite3::read_tile(int z, int x, int y, mvt_tile &layer)
     while ((rc = sqlite3_step(stmt)) == SQLITE_ROW)
     {
         const void *blob_data = (char *)sqlite3_column_blob(stmt, 0);  // 获取 BLOB 数据
-        int size = sqlite3_column_bytes(stmt, 0);          // 获取 BLOB 大小
+        int size = sqlite3_column_bytes(stmt, 0);                      // 获取 BLOB 大小
         std::string data;
         data.resize(size);
         memcpy(&data[0], blob_data, size);

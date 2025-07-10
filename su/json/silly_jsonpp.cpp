@@ -40,7 +40,7 @@ Json::Value jsonpp::loads(const std::string& content)
 }
 
 Json::Value jsonpp::parse(const std::string& content)
-    {
+{
     Json::Reader reader;
     Json::Value root;
 

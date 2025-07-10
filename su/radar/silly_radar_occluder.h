@@ -20,7 +20,7 @@ class silly_radar_occluder
         size_t rows;
         size_t cols;
         silly_rect rect;
-        double l0 = -9999; // -9999表示经纬度,否则表示高斯中心线
+        double l0 = -9999;  // -9999表示经纬度,否则表示高斯中心线
     };
     struct site
     {
@@ -29,6 +29,7 @@ class silly_radar_occluder
         double elevation = 0;  // 高程
         double altitude = 0;   // 相对地面高度,这个可以没有
     };
+
   public:
     /// <summary>
     /// 设置雷达站点基本信息
@@ -60,8 +61,8 @@ class silly_radar_occluder
     double m_radius = 0;
     double m_l0 = -9999;
 
-    double m_dStep = 0.5; // 角度步长  度 
-    double m_rStep = 25.0; // 半径步长 25 米
+    double m_dStep = 0.5;   // 角度步长  度
+    double m_rStep = 25.0;  // 半径步长 25 米
     size_t m_dSize = 720;
     size_t m_rSize = 0;
 };

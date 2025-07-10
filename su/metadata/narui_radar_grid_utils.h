@@ -14,7 +14,6 @@
 #include <su_marco.h>
 #include <math/silly_matrix.h>
 
-
 typedef std::vector<std::vector<float>> nrd_grid;
 
 /// <summary>

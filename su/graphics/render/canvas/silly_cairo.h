@@ -18,8 +18,6 @@
 #include <graphics/font/silly_font.h>
 #include FT_FREETYPE_H
 
-
-
 enum enum_silly_cairo_align
 {
     Middle = 1,  // 居中对齐
@@ -42,9 +40,9 @@ class silly_cairo_text
 
 class silly_cairo
 {
-  /// <summary>
-  /// 读写均只支持png 和 jpg 图片格式,其他未作兼容
-  /// </summary>
+    /// <summary>
+    /// 读写均只支持png 和 jpg 图片格式,其他未作兼容
+    /// </summary>
   public:
     silly_cairo() = default;
     /// <summary>

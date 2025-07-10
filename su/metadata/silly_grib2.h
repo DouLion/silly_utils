@@ -27,12 +27,10 @@ namespace grib2
 class message
 {
   public:
-
 };
 
 class meta
 {
-   
   public:
     std::vector<message> m_messages;
     silly_rect m_rect;

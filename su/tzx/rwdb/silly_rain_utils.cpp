@@ -17,7 +17,7 @@ std::map<std::string, double> RainUtils::AdjustWeight(const std::map<std::string
     double sumW = 0.0;
     for (const auto& [stcd, weight] : stcd2weight)
     {
-        if(stcd2rain.find(stcd) == stcd2rain.end())
+        if (stcd2rain.find(stcd) == stcd2rain.end())
         {
             continue;
         }

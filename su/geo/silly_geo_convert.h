@@ -45,7 +45,6 @@ class silly_geo_convert
     /// <param name="dst"></param>
     template <typename T>
     static bool matrix_geo_to_mercator(su::matrix<T> src, const silly_geo_rect& rect, su::matrix<T>& dst);
-
 };
 
 /////////////////////////implement/////////////////////////

@@ -37,14 +37,14 @@ class data : public image::base
     /// </summary>
     /// <param name="file"></param>
     /// <returns></returns>
-    bool read(const std::filesystem::path&file) override;
+    bool read(const std::filesystem::path &file) override;
 
     /// <summary>
     /// 将图像写入文件
     /// </summary>
     /// <param name="file"></param>
     /// <returns></returns>
-    bool write(const std::filesystem::path&file) const override;
+    bool write(const std::filesystem::path &file) const override;
 
     /// <summary>
     /// 设置颜色

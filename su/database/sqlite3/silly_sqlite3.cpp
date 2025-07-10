@@ -16,13 +16,13 @@ silly_sqlite3::~silly_sqlite3()
 }
 bool silly_sqlite3::open(const std::filesystem::path& file)
 {
-    if(m_db)
+    if (m_db)
     {
-       m_err = "数据库已经打开";
-       throw std::runtime_error("已经打开的数据库: [" + m_file + "]");
+        m_err = "数据库已经打开";
+        throw std::runtime_error("已经打开的数据库: [" + m_file + "]");
     }
     int ret = sqlite3_open(sufile::realpath(file).string().c_str(), &m_db);
-    if(ret == SQLITE_OK)
+    if (ret == SQLITE_OK)
     {
         return true;
     }
@@ -34,12 +34,11 @@ sqlite3* silly_sqlite3::db()
 }
 void silly_sqlite3::close()
 {
-    if(m_db)
+    if (m_db)
     {
         sqlite3_close(m_db);
         m_db = nullptr;
     }
-
 }
 std::string silly_sqlite3::err()
 {
@@ -47,34 +46,38 @@ std::string silly_sqlite3::err()
 }
 bool silly_sqlite3::backup(const std::filesystem::path& file)
 {
-    if(m_file == file)
+    if (m_file == file)
     {
         m_err = "同一个数据库文件无法备份";
         return false;
     }
 
     // 将内存数据库备份到文件
-    sqlite3 *backup_db;
+    sqlite3* backup_db;
     int rc = sqlite3_open(sufile::realpath(file).string().c_str(), &backup_db);
-    if (rc) {
+    if (rc)
+    {
         std::cerr << "Can't open disk database: " << sqlite3_errmsg(backup_db) << std::endl;
         return false;
     }
 
-    sqlite3_backup *pBackup = sqlite3_backup_init(backup_db, "main", m_db, "main");
-    if (pBackup == NULL) {
+    sqlite3_backup* pBackup = sqlite3_backup_init(backup_db, "main", m_db, "main");
+    if (pBackup == NULL)
+    {
         std::cerr << "Backup initialization failed: " << sqlite3_errmsg(backup_db) << std::endl;
         sqlite3_close(backup_db);
         return false;
     }
 
-    while ((rc = sqlite3_backup_step(pBackup, 100)) == SQLITE_OK || rc == SQLITE_BUSY || rc == SQLITE_LOCKED) {
+    while ((rc = sqlite3_backup_step(pBackup, 100)) == SQLITE_OK || rc == SQLITE_BUSY || rc == SQLITE_LOCKED)
+    {
         // Wait or retry as necessary
         sqlite3_close(backup_db);
         return false;
     }
 
-    if (rc != SQLITE_DONE) {
+    if (rc != SQLITE_DONE)
+    {
         std::cerr << "Backup step failed: " << sqlite3_errmsg(backup_db) << std::endl;
         return false;
     }

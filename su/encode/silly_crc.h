@@ -12,7 +12,7 @@
 #define SILLY_UTILS_SILLY_CRC_H
 #include <su_marco.h>
 
-namespace  silly
+namespace silly
 {
 
 class crc
@@ -31,13 +31,8 @@ class crc
     static const std::vector<uint16_t> crc16_table;
     static const std::vector<uint32_t> crc32_table;
     static const std::vector<uint64_t> crc64_table;
-
-
 };
 
-}
-
-
-
+}  // namespace silly
 
 #endif  // SILLY_UTILS_SILLY_CRC_H

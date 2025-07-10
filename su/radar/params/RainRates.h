@@ -14,7 +14,6 @@
 class RainRates
 {
   public:
-
     bool Read(const std::filesystem::path& file);
     bool Write(const std::filesystem::path& file);
 
@@ -50,7 +49,6 @@ class RainRates
     double RATE_bringi_dbz_threshold = 40;
     double RATE_bringi_kdp_threshold = 0.15;
     double RATE_bringi_zdr_threshold = 0.1;
-    
 };
 
 #endif  // SILLY_UTILS_RAINRATES_H

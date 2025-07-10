@@ -23,8 +23,10 @@
     resp->addHeader("access-control-allow-origin", "*");                     \
     resp->addHeader("access-control-allow-methods", "GET, POST, OPTIONS");   \
     resp->addHeader("access-control-allow-headers", "Origin, Content-Type"); \
-    if(req->getMethod() == HttpMethod::Options) {                            \
-        callback(resp); return;                                              \
+    if (req->getMethod() == HttpMethod::Options)                             \
+    {                                                                        \
+        callback(resp);                                                      \
+        return;                                                              \
     }                                                                        \
     resp->setContentTypeCode(CT_APPLICATION_JSON);                           \
     Json::Value respJson;                                                    \
@@ -63,9 +65,9 @@ namespace http
 {
 class post_param
 {
-  /// <summary>
-  /// 处理前端post请求数据的基类
-  /// </summary>
+    /// <summary>
+    /// 处理前端post请求数据的基类
+    /// </summary>
   public:
     /// <summary>
     /// 解析请求数据
@@ -87,9 +89,9 @@ class post_param
 
 class post_result
 {
-  /// <summary>
-  /// 处理返回结果的基类
-  /// </summary>
+    /// <summary>
+    /// 处理返回结果的基类
+    /// </summary>
   public:
     /// <summary>
     /// 将实际返回值转成json格式

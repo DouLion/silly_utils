@@ -114,7 +114,7 @@ class base
     }
     uint8_t* bytes()
     {
-        return  m_bytes.data();
+        return m_bytes.data();
     }
 
     std::string err() const
@@ -129,16 +129,16 @@ class base
 
   protected:
     std::vector<uint8_t> m_bytes;  // 二进制数据
-    size_t m_width{0};          // 宽度
-    size_t m_height{0};         // 高度
-    uint8_t m_channels{0};      // 通道数
-    uint8_t m_depth{0};         // 位深度
-    int m_compress_level = 6;   // 压缩等级,[1,9], 1最快,压缩率最低, 9最慢,压缩率最高,以libpng为准,其他库根据这个自信调整
+    size_t m_width{0};             // 宽度
+    size_t m_height{0};            // 高度
+    uint8_t m_channels{0};         // 通道数
+    uint8_t m_depth{0};            // 位深度
+    int m_compress_level = 6;      // 压缩等级,[1,9], 1最快,压缩率最低, 9最慢,压缩率最高,以libpng为准,其他库根据这个自信调整
     uint8_t m_pixel_size{0};
     silly::color::type m_type{2};  // 颜色类型
     std::vector<uint8_t> HEADER;   // 固定头部,由于判断类型
     std::string m_err;
-    //unsigned char** m_nbytes = nullptr;
+    // unsigned char** m_nbytes = nullptr;
 };
 }  // namespace image
 

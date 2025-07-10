@@ -496,7 +496,8 @@ bool otl::check_column_info(const std::string& sql)
         std::cout << "列数: " << col_num << std::endl;
         for (int i = 0; i < col_num; ++i)
         {
-            std::cout << "[" << i + 1 << "] " << "列名: " << desc_list[i].name << "  类型: " << otl_type_name((otl_var_enum)desc_list[i].otl_var_dbtype) << std::endl;
+            std::cout << "[" << i + 1 << "] "
+                      << "列名: " << desc_list[i].name << "  类型: " << otl_type_name((otl_var_enum)desc_list[i].otl_var_dbtype) << std::endl;
         }
         stream.close();
         status = true;
@@ -642,7 +643,7 @@ bool otl::from_json(const Json::Value& root)
             m_err = "未指定驱动";
             return status;
         }
-        
+
         // 端口
         if (root.isMember(OPT_STR_PORT))
         {
@@ -854,7 +855,7 @@ std::string otl::type2str(const otl::eType& type)
 
 std::string otl::last_insert_id_sql() const
 {
-    if  (eType::dbMYSQL == m_type)
+    if (eType::dbMYSQL == m_type)
     {
         return silly::sql::mysql::LAST_INSERT_ID;
     }

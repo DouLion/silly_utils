@@ -65,46 +65,46 @@ typedef int socklen_t;
 using namespace std;
 
 */
-/* socket values *//*
+/* socket values */                             /*
+                            
+                             // #define SETSOCKOPT_OPTVAL_TYPE (void *)
+                             #define silly_ftp_BUFSIZ 1024
+                             #define ACCEPT_TIMEOUT 30
+                            
+                             */
+/* io types */                                  /*
+                                 
+                                  #define silly_ftp_CONTROL 0
+                                  #define silly_ftp_READ 1
+                                  #define silly_ftp_WRITE 2
+                                 
+                                  */
+/* win32 dll initializer */                     /*
+                    
+                    
+                     #if defined(_WIN32)
+                     BOOL APIENTRY DllMain(HINSTANCE hInst, DWORD reason, LPVOID reserved)
+                     {
+                         switch (reason)
+                         {
+                             case DLL_PROCESS_ATTACH:
+                                 break;
+                             case DLL_PROCESS_DETACH:
+                                 break;
+                             case DLL_THREAD_ATTACH:
+                                 break;
+                             case DLL_THREAD_DETACH:
+                                 break;
+                         }
+                    
+                         */
+/* Returns TRUE on success, FALSE on failure */ /*
 
-// #define SETSOCKOPT_OPTVAL_TYPE (void *)
-#define silly_ftp_BUFSIZ 1024
-#define ACCEPT_TIMEOUT 30
+     return TRUE;
+ }
+ #endif
 
-*/
-/* io types *//*
-
-#define silly_ftp_CONTROL 0
-#define silly_ftp_READ 1
-#define silly_ftp_WRITE 2
-
-*/
-/* win32 dll initializer *//*
-
-
-#if defined(_WIN32)
-BOOL APIENTRY DllMain(HINSTANCE hInst, DWORD reason, LPVOID reserved)
-{
-    switch (reason)
-    {
-        case DLL_PROCESS_ATTACH:
-            break;
-        case DLL_PROCESS_DETACH:
-            break;
-        case DLL_THREAD_ATTACH:
-            break;
-        case DLL_THREAD_DETACH:
-            break;
-    }
-
-    */
-/* Returns TRUE on success, FALSE on failure *//*
-
-    return TRUE;
-}
-#endif
-
-*/
+ */
 /*
  * Constructor
  *//*

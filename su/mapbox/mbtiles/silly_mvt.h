@@ -135,7 +135,7 @@ struct mvt_layer
 struct mvt_tile
 {
     std::vector<mvt_layer> layers{};
- 
+
     std::string encode(const bool &compressed = true);
     bool decode(const std::string &message, bool &was_compressed);
 };

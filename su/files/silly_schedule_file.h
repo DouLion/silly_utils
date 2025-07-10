@@ -32,9 +32,8 @@ class silly_schedule_file
     /// 文件名
     std::string filename(const std::string& tm);
     std::string filename(const silly_posix_time& tm);
-    std::string filename(const std::string& tm,const std::string& ptm);
-    std::string filename(const silly_posix_time& tm,const silly_posix_time& ptm);
-
+    std::string filename(const std::string& tm, const std::string& ptm);
+    std::string filename(const silly_posix_time& tm, const silly_posix_time& ptm);
 
     // 创建自己写入需要的目录
     bool create_dir(const std::string& tm = "");
@@ -45,14 +44,12 @@ class silly_schedule_file
 
     std::string path();
 
-
-
   private:
-    std::string m_path; // 路径
+    std::string m_path;  // 路径
     std::string m_filename;
     std::string m_root;
-    std::string m_extension; // 文件后缀
-    std::string m_format = DATE_FORMAT_2; // 日期格式
+    std::string m_extension;               // 文件后缀
+    std::string m_format = DATE_FORMAT_2;  // 日期格式
 };
 
 #endif  // SILLY_UTILS_SILLY_SCHEDULE_FILE_H

@@ -63,7 +63,6 @@
 namespace silly
 {
 
-
 /// <summary>
 /// long_string 转换为字符串
 /// </summary>
@@ -173,7 +172,6 @@ class otl
 
     otl operator=(const otl& rh)
     {
-       
         this->m_ip = rh.m_ip;
         this->m_port = rh.m_port;
         this->m_type = rh.m_type;
@@ -187,7 +185,6 @@ class otl
         this->m_verbose = rh.m_verbose;
 
         return *this;
-
     }
 
     /// <summary>
@@ -224,7 +221,6 @@ class otl
     /// </summary>
     /// <returns></returns>
     std::string encode();
-
 
     std::string last_insert_id_sql() const;
 

@@ -11,6 +11,4 @@
 #ifndef SILLY_UTILS_SILLY_JCV_H
 #define SILLY_UTILS_SILLY_JCV_H
 
-
-
 #endif  // SILLY_UTILS_SILLY_JCV_H

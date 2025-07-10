@@ -48,7 +48,6 @@ class nmea
     /// <returns></returns>
     static double degree(const std::string& degree);
 
-
     /// <summary>
     ///
     /// </summary>

@@ -34,15 +34,13 @@ class silly_ultimate_warn : public silly_simple_warn
     float moisture_p() const;
     void moisture_p(const float& moisture_p);
 
-
-
   protected:
-    std::string m_name; // 告警名称
-    std::string m_desc; // 告警描述
-    std::string m_adnm; // 政区信息
-    float m_static_rule{0}; // 静态指标
-    float m_dynamic_rule{0}; // 动态指标
-    float m_moisture_p{0}; // 含水率百分比 单位%
+    std::string m_name;       // 告警名称
+    std::string m_desc;       // 告警描述
+    std::string m_adnm;       // 政区信息
+    float m_static_rule{0};   // 静态指标
+    float m_dynamic_rule{0};  // 动态指标
+    float m_moisture_p{0};    // 含水率百分比 单位%
 };
 
 #endif  // SILLY_UTILS_SILLY_ULTIMATE_WARN_H

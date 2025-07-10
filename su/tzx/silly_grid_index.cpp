@@ -18,7 +18,6 @@ bool divisible(double a, double b)
 }
 int64_t silly_grid_index::index(const double& lgtd, const double& lttd, const double& step)
 {
-
     int64_t col = (int64_t)(CN_RECT_RIGHT - CN_RECT_LEFT) / step + 1;
     return (int64_t)((lttd - CN_RECT_BOTTOM) / step) * col + (int64_t)((lgtd - CN_RECT_LEFT) / step) + 1;
 }
@@ -34,7 +33,7 @@ std::pair<double, double> silly_grid_index::point(const int64_t& index, const do
 
 int64_t silly_grid_index::checked_index(const double& lgtd, const double& lttd, const double& step)
 {
-    if(step < 1e-6)
+    if (step < 1e-6)
     {
         throw std::runtime_error("step 不应该小于1e-6 .");
     }
@@ -52,8 +51,7 @@ int64_t silly_grid_index::checked_index(const double& lgtd, const double& lttd, 
 
 std::pair<double, double> silly_grid_index::checked_point(const int64_t& index, const double& step)
 {
-
-    if(step < 1e-6)
+    if (step < 1e-6)
     {
         throw std::runtime_error("step 不应该小于1e-6 .");
     }
@@ -77,7 +75,7 @@ int64_t silly_grid_index::customize_index(const double& lgtd, const double& lttd
     double right = maxp.first;
     double bottom = minp.second;
     double top = maxp.second;
-    if(lgtd >= left && lgtd <= right && lttd >= bottom && lttd <= top)
+    if (lgtd >= left && lgtd <= right && lttd >= bottom && lttd <= top)
     {
         int64_t col = (int64_t)(right - left) / step + 1;
         return (int64_t)((lttd - bottom) / step) * col + (int64_t)((lgtd - left) / step) + bidx;
@@ -102,7 +100,7 @@ std::pair<double, double> silly_grid_index::customize_point(const int64_t& index
 }
 int64_t silly_cn_grid::index(const llpoint& point, const double& step)
 {
-    if(step < 0.01)
+    if (step < 0.01)
     {
         return 0;
     }
@@ -110,7 +108,7 @@ int64_t silly_cn_grid::index(const llpoint& point, const double& step)
     int64_t rows = (int64_t)(CN_RECT_TOP - CN_RECT_BOTTOM) / step + 1;
     int64_t col = static_cast<int64_t>(std::round((point.lon - CN_RECT_LEFT) / step));
     int64_t row = static_cast<int64_t>(std::round((point.lat - CN_RECT_BOTTOM) / step));
-    if( col < 0 || col >= cols || row < 0 || row >= rows)
+    if (col < 0 || col >= cols || row < 0 || row >= rows)
     {
         return 0;
     }
@@ -125,7 +123,6 @@ llpoint silly_cn_grid::point(const int64_t& index, const double& step)
 }
 double silly_cn_grid::step(const llpoint& point, const int64_t& index)
 {
-
     double ret = 0.0;
     // 根据经纬度和索引 推算步长
     ret = std::abs(point.lon - silly_cn_grid::point(index, ret).lon) + std::abs(point.lat - silly_cn_grid::point(index, ret).lat);

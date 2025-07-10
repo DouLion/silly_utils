@@ -19,7 +19,6 @@
 class silly_bezier_curve
 {
   public:
-
     static silly_point bezier_interpolation_base(const silly_point& p1, const silly_point& p2, double sc)
     {
         silly_point result;
@@ -37,21 +36,23 @@ class silly_bezier_curve
     static std::vector<silly_point> bezier_interpolation(const int& k, const std::vector<silly_point>& ctrls, const int& n)
     {
         std::vector<silly_point> out;
-        if(1 == k) return ctrls; //
-        if(k+1 != ctrls.size()) return ctrls;// 无效控制点
+        if (1 == k)
+            return ctrls;  //
+        if (k + 1 != ctrls.size())
+            return ctrls;  // 无效控制点
         out.push_back(ctrls[0]);
         double c = 1;
-        while(c <= n)
+        while (c <= n)
         {
-            double sc = c/n;
+            double sc = c / n;
             std::vector<silly_point> old_ctrls = ctrls;
             std::vector<silly_point> new_ctrls;
             int nk = k;
-            while(nk> 2)
+            while (nk > 2)
             {
-                for(int i = 0; i < k; i++)
+                for (int i = 0; i < k; i++)
                 {
-                    new_ctrls.push_back(bezier_interpolation_base(old_ctrls[i], old_ctrls[i+1], sc));
+                    new_ctrls.push_back(bezier_interpolation_base(old_ctrls[i], old_ctrls[i + 1], sc));
                 }
                 old_ctrls = new_ctrls;
                 new_ctrls.clear();
@@ -63,9 +64,8 @@ class silly_bezier_curve
         out.push_back(ctrls[0]);
     }
 
-    static std::vector<silly_point>  bezier_curve(const int& k, const std::vector<silly_point>& ctrls, const int& n)
+    static std::vector<silly_point> bezier_curve(const int& k, const std::vector<silly_point>& ctrls, const int& n)
     {
-
     }
 
     /// <summary>

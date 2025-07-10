@@ -21,8 +21,6 @@
 
 std::map<std::string, std::string> silly_adcd::cascade(const std::map<std::string, std::string>& adcd_adnm, const options& opt)
 {
-
-
     bool sheng_in_name = opt.name_level << 1 & AD_APP_END;
     bool shi_in_name = opt.name_level << 2 & AD_APP_END;
     bool xian_in_name = opt.name_level << 3 & AD_APP_END;

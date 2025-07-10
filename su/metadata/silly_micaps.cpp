@@ -8,7 +8,7 @@
 #define TIME_FORMAT "%04d-%02d-%02d %02d:%02d:%02d"
 #define MICAPS_DIAMOND_4_FORMAT "diamond 4"
 
-#define MICAPS_SKIP_BLANK(s, off, idx)                     \
+#define MICAPS_SKIP_BLANK(s, off, idx)                           \
     off = idx;                                                   \
     while (s[off] == ' ' || s[off] == '\r' || s[off] == '\n')    \
     {                                                            \
@@ -101,7 +101,7 @@ bool silly_micaps_diamond_4::reset()
     return false;
 }
 
-bool silly_micaps_utils::read(const std::filesystem::path& file, silly_micaps_diamond_4 &md4)
+bool silly_micaps_utils::read(const std::filesystem::path &file, silly_micaps_diamond_4 &md4)
 {
     bool status = false;
     std::string content;
@@ -136,12 +136,11 @@ bool silly_micaps_utils::read(const std::filesystem::path& file, silly_micaps_di
         offset++;
     }
     md4.data.create(md4.lat_size, md4.lng_size);
-    for(int r = 0; r < md4.lat_size; r++)
+    for (int r = 0; r < md4.lat_size; r++)
     {
-        memcpy(md4.data.data() + (r * md4.lng_size), tmp.data() + ((md4.lat_size - r -1) * md4.lng_size),  md4.lng_size * sizeof(float));
+        memcpy(md4.data.data() + (r * md4.lng_size), tmp.data() + ((md4.lat_size - r - 1) * md4.lng_size), md4.lng_size * sizeof(float));
     }
 
-    
     status = md4.is_valid();
     if (!status)
     {
@@ -150,12 +149,12 @@ bool silly_micaps_utils::read(const std::filesystem::path& file, silly_micaps_di
     return status;
 }
 
-bool silly_micaps_utils::mmap_read(const std::filesystem::path& file, silly_micaps_diamond_4 &md4)
+bool silly_micaps_utils::mmap_read(const std::filesystem::path &file, silly_micaps_diamond_4 &md4)
 {
     return false;
 }
 
-bool silly_micaps_utils::write(const std::filesystem::path& file, const silly_micaps_diamond_4 &md4)
+bool silly_micaps_utils::write(const std::filesystem::path &file, const silly_micaps_diamond_4 &md4)
 {
     return false;
 }

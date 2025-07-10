@@ -11,7 +11,6 @@
 #ifndef SILLY_UTILS_SILLY_WEBSOCKET_SERVER_H
 #define SILLY_UTILS_SILLY_WEBSOCKET_SERVER_H
 
-
 #include <websocketpp/config/asio_no_tls.hpp>
 #include <websocketpp/server.hpp>
 class silly_websocket_server

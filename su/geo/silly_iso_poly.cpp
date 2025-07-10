@@ -117,8 +117,8 @@ bool silly::geo::iso_poly::write(const std::string& u8file, const silly_multi_po
             ofs << " " << poly.outer_ring.points.size();
             for (auto& p : poly.outer_ring.points)
             {
-                ofs << " "  << p.x;
-                ofs << " "  << p.y;
+                ofs << " " << p.x;
+                ofs << " " << p.y;
             }
         }
     }

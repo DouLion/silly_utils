@@ -27,7 +27,7 @@ bool silly_grib2_utils::read(const std::filesystem::path& file, silly_grib2_fram
     {
         if (fidx == i++)
         {
-            if (silly_grib2_utils::load_grib2_frame((const void**) &grb2_h, grb, false))
+            if (silly_grib2_utils::load_grib2_frame((const void**)&grb2_h, grb, false))
             {
                 status = true;
             }
@@ -53,7 +53,7 @@ bool silly_grib2_utils::read(const std::filesystem::path& file, std::map<size_t,
     FILE* file_h = nullptr;
     codes_context* grb2_c = nullptr;
     codes_handle* grb2_h = nullptr;
-    if (!silly_grib2_utils::open_grib2_handle(file, (void**)&file_h, (void**)&grb2_c,(void**) &grb2_h))
+    if (!silly_grib2_utils::open_grib2_handle(file, (void**)&file_h, (void**)&grb2_c, (void**)&grb2_h))
     {
         SLOG_ERROR("打开GRIB2文件失败: {}", file.u8string());
         return status;
@@ -87,12 +87,12 @@ bool silly_grib2_utils::open_grib2_handle(const std::filesystem::path& file, voi
     codes_bufr_header* bheader;
     int mssnum = 0;
     codes_bufr_extract_headers_malloc(nullptr, sufile::realpath(file).string().c_str(), &bheader, &mssnum, 1);
-    
+
     // TODO: 检查这个codes_context是否可以为null
     // *grb2_c = codes_context_get_default();
     /* turn off support for GRIB2 multi-field messages */
-    //codes_grib_multi_support_off(NULL);
-    //codes_grib_multi_support_on(NULL);  // 多波段读取支持
+    // codes_grib_multi_support_off(NULL);
+    // codes_grib_multi_support_on(NULL);  // 多波段读取支持
     int err_code = 0;
     FILE* in = fopen(sufile::realpath(file).string().c_str(), "rb");
     if (nullptr == in)
@@ -101,10 +101,10 @@ bool silly_grib2_utils::open_grib2_handle(const std::filesystem::path& file, voi
         fclose(in);
         return status;
     }
-   /* int mcount           = 0;
-    CODES_CHECK(codes_count_in_file(NULL, in, &mcount), 0);
-    assert(mcount == 56);
-    printf("count_in_file counted %d messages\n", mcount);*/
+    /* int mcount           = 0;
+     CODES_CHECK(codes_count_in_file(NULL, in, &mcount), 0);
+     assert(mcount == 56);
+     printf("count_in_file counted %d messages\n", mcount);*/
 
     codes_handle* handle = codes_handle_new_from_file(nullptr, in, PRODUCT_ANY, &err_code);
     if (handle && in)
@@ -125,7 +125,7 @@ bool silly_grib2_utils::load_grib2_frame(const void* grb2_h, silly_grib2_frame& 
     {
         status = false;
         codes_keys_iterator* gkiter = nullptr;
-        gkiter = codes_keys_iterator_new((codes_handle*)grb2_h, CODES_KEYS_ITERATOR_SKIP_EDITION_SPECIFIC|CODES_KEYS_ITERATOR_SKIP_DUPLICATES, nullptr);
+        gkiter = codes_keys_iterator_new((codes_handle*)grb2_h, CODES_KEYS_ITERATOR_SKIP_EDITION_SPECIFIC | CODES_KEYS_ITERATOR_SKIP_DUPLICATES, nullptr);
         if (nullptr == gkiter)
         {
             break;
@@ -135,14 +135,14 @@ bool silly_grib2_utils::load_grib2_frame(const void* grb2_h, silly_grib2_frame& 
             const char* name = codes_keys_iterator_get_name(gkiter);
             int type = 0;
             codes_get_native_type((codes_handle*)grb2_h, name, &type);
-            
+
             /*if (strcmp(name, "codedValues") == 0 || strcmp(name, "values") == 0)
             {
                 continue;
             }*/
             if (CODES_TYPE_SECTION == type)
             {
-                std::cout << name << " :  --Section--"<< std::endl;
+                std::cout << name << " :  --Section--" << std::endl;
             }
 
             if (CODES_TYPE_LABEL == type)
