@@ -8,6 +8,16 @@ typedef spdlog::sinks::rotating_file_sink_mt su_rotate_log;
 
 const static char* SILLY_TZX_LOG_CHAR =
     " \n _________\n|  _   _  |               \n|_/ | | \\_|____   _   __  \n    | |   [_   ] [ \\ [  ] \n   _| |_   .' /_  > '  <  \n  |_____| [_____][__]`\\_]\nBeijing TianZhiXiang Information Technology Co., Ltd.\n北京天智祥信息科技有限公司\n";
+static const std::string& SILLY_TZX_LOG_STR = R"(
+ _________
+|  _   _  |
+|_/ | | \_|____   _   __
+    | |   [_   ] [ \ [  ]
+   _| |_   .' /_  > '  <
+  |_____| [_____][__]`\_]
+Beijing TianZhiXiang Information Technology Co., Ltd.
+北京天智祥信息科技有限公司
+)";
 
 const static std::string SU_SINK_NAME_DEBUG = "debug";
 const static std::string SU_SINK_NAME_INFO = "info";
@@ -47,7 +57,7 @@ silly_log::silly_log()
         m_spdlog_warn->set_level(spdlog::level::debug);
         m_spdlog_error->set_level(spdlog::level::debug);
 #endif
-        m_spdlog_info->info(SILLY_TZX_LOG_CHAR);
+        m_spdlog_info->info(SILLY_TZX_LOG_STR);
     }
     catch (const spdlog::spdlog_ex& ex)
     {
