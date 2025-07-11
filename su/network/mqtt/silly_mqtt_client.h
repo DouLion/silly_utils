@@ -21,8 +21,12 @@
 "ws://<host>:<port>"    - Unsecure websockets
 "wss://<host>:<port>"   - Secure websockets
  */
+
 class silly_mqtt_client
 {
+  public:
+    typedef std::function<void(std::string, std::string)> subscribe_callback;
+
   public:
     /// <summary>
     ///
@@ -32,7 +36,7 @@ class silly_mqtt_client
     /// <returns></returns>
     bool publish(const std::string& topic, const std::string& payload);
 
-    bool subscribe(const std::string& topic);
+    void subscribe(const std::string& topic, subscribe_callback scb);
 
     bool check();
 
@@ -47,6 +51,11 @@ class silly_mqtt_client
 
     void server(const std::string& s);
 
+    void disconnect();
+
+  private:
+    void make_uri();
+
   private:
     std::string m_client_id;
     std::string m_user;
@@ -55,6 +64,44 @@ class silly_mqtt_client
     std::string m_host;
     int m_port{1883};  // 1883 默认非加密端口  8883 默认加密端口
     int m_qos{2};      // 0 最多一次  1 最少一次  2 只有一次
+    std::string m_uri;
+    bool m_disconnected = false;
 };
+
+/* 订阅使用示例
+int main(int argc, char** argv)
+{
+    // WINDOWS_UTF8_PAGE
+    SLOG_INFO("SU测试模块")
+
+    silly_mqtt_client mqtt;
+    mqtt.user("tzx");
+    mqtt.password("3edc9ijn");
+    mqtt.server("mqtt://192.168.0.60:11883");
+    std::string content;
+    std::string topic;
+    std::thread t(&silly_mqtt_client::subscribe, &mqtt, "warning/#", 
+    [&content, &topic](std::string rTopic, std::string rMsg) -> void {
+
+        content = rMsg;
+        topic = rTopic;
+    });
+    t.detach();
+
+    while (1)
+    {
+        if (!content.empty())
+        {
+            std::cout << topic << std::endl;
+            std::cout << content << std::endl;
+            content.clear();
+            topic.clear();
+        }
+        std::this_thread::sleep_for(std::chrono::seconds(2));
+    }
+
+    return 0;
+
+*/
 
 #endif  // SILLY_UTILS_SILLY_MQTT_CLIENT_H
