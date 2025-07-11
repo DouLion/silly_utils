@@ -11,13 +11,6 @@ class silly_log : public silly_singleton<silly_log>
     friend class silly_singleton<silly_log>;
 
   public:
-    enum class enum_log_type
-    {
-        eltLoguru = 1,
-        eltSpdlog = 2,
-        eltGlog = 3
-    };
-
     enum class enum_log_level
     {
         ellALL = 0,
@@ -32,7 +25,6 @@ class silly_log : public silly_singleton<silly_log>
       public:
         std::string path{"./logs"};  // 日志文件路径
         std::string name{"silly"};   // 日志文件名称
-        enum_log_type type{2};       // 日志类型
         enum_log_level level{0};     // 日志级别
         size_t rotate_size{20};      // 日志文件大小(MB)
         bool console{true};          // 是否在控制台输出,服务部署时建议设置为false
@@ -80,9 +72,7 @@ class silly_log : public silly_singleton<silly_log>
     silly_log();
 
   private:
-    void register_loguru(const option& opt);
     void register_spdlog(const option& opt);
-    void register_glog(const option& opt);
 
   public:
 #ifndef NDEBUG
@@ -109,6 +99,7 @@ void silly_log::info(Args&&... s)
     if (m_spdlog_info)
     {
         m_spdlog_info->info(std::forward<Args>(s)...);
+        m_spdlog_info->flush();
     }
 }
 template <typename... Args>
@@ -117,6 +108,7 @@ void silly_log::warn(Args&&... s)
     if (m_spdlog_warn)
     {
         m_spdlog_warn->warn(std::forward<Args>(s)...);
+        m_spdlog_warn->flush();
     }
 }
 template <typename... Args>
@@ -125,33 +117,16 @@ void silly_log::error(Args&&... s)
     if (m_spdlog_error)
     {
         m_spdlog_error->error(std::forward<Args>(s)...);
+        m_spdlog_error->flush();
     }
 }
-/*#ifndef NDEBUG
-#define SLOG_DEBUG(s, ...) \
-    if (silly_log::instance().m_spdlog_debug)                          \
-    {                                                                  \
-        silly_log::instance().m_spdlog_debug->debug(s, ##__VA_ARGS__); \
-    }
-#else
-#define SLOG_DEBUG(s, ...)
-#endif
 
-#define SLOG_INFO(s, ...)                                            \
-    if (silly_log::instance().m_spdlog_info)                         \
-    {                                                                \
-        silly_log::instance().m_spdlog_info->info(s, ##__VA_ARGS__); \
+#define SLOG_MAIN                                \
+    if (!silly_log::instance().init(argc, argv)) \
+    {                                            \
+        exit(-1);                                \
     }
-#define SLOG_WARN(s, ...)                                            \
-    if (silly_log::instance().m_spdlog_warn)                         \
-    {                                                                \
-        silly_log::instance().m_spdlog_warn->warn(s, ##__VA_ARGS__); \
-    }
-#define SLOG_ERROR(s, ...)                                             \
-    if (silly_log::instance().m_spdlog_error)                          \
-    {                                                                  \
-        silly_log::instance().m_spdlog_error->error(s, ##__VA_ARGS__); \
-    }*/
+
 #ifndef NDEBUG
 #define SLOG_DEBUG(s, ...) silly_log::instance().debug(silly_format::format("<{}:{}> ", SU_FILE_NAME, __LINE__).append(s), ##__VA_ARGS__);
 #else

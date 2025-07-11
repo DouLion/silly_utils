@@ -102,15 +102,6 @@ bool silly_log::init(const std::filesystem::path& file)
     return false;
 }
 
-void silly_log::register_loguru(const option& opt)
-{
-#ifndef NDEBUG
-    m_spdlog_debug = nullptr;
-#endif
-    m_spdlog_info = nullptr;
-    m_spdlog_warn = nullptr;
-    m_spdlog_error = nullptr;
-}
 void silly_log::register_spdlog(const option& opt)
 {
     try
@@ -170,7 +161,6 @@ void silly_log::register_spdlog(const option& opt)
         m_spdlog_warn->set_level(spdlog::level::debug);
         m_spdlog_error->set_level(spdlog::level::debug);
 #endif
-        spdlog::flush_every(std::chrono::seconds(3));
     }
     catch (const spdlog::spdlog_ex& ex)
     {
@@ -182,13 +172,4 @@ void silly_log::register_spdlog(const option& opt)
         std::cerr << e.what() << std::endl;
         throw std::runtime_error("日志初始化失败");
     }
-}
-void silly_log::register_glog(const option& opt)
-{
-#ifndef NDEBUG
-    m_spdlog_debug = nullptr;
-#endif
-    m_spdlog_info = nullptr;
-    m_spdlog_warn = nullptr;
-    m_spdlog_error = nullptr;
 }
