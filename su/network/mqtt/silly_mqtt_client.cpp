@@ -114,7 +114,6 @@ class message_callback : public virtual mqtt::callback, public virtual mqtt::iac
     void connected(const std::string& cause) override
     {
         SLOG_INFO("连接成功, 订阅主题 : {}, 连接质量: {}", m_topic, m_qos)
-
         m_client.subscribe(m_topic, m_qos, nullptr, m_sub_listener);
     }
 
@@ -130,11 +129,7 @@ class message_callback : public virtual mqtt::callback, public virtual mqtt::iac
     // Callback for when a message arrives.
     void message_arrived(mqtt::const_message_ptr msg) override
     {
-#ifndef NDEBUG
-        std::cout << "新消息" << std::endl;
-        std::cout << "\t主题: '" << msg->get_topic() << "'" << std::endl;
-        std::cout << "\t内容: '" << msg->to_string() << "" << std::endl;
-#endif
+        SLOG_DEBUG("新消息!!!\n主题:{}\n内容:\n{}", msg->get_topic(), msg->to_string())
         m_func(msg->get_topic(), msg->to_string());
     }
 
@@ -143,17 +138,16 @@ class message_callback : public virtual mqtt::callback, public virtual mqtt::iac
     }
 
   public:
-    message_callback(mqtt::async_client& cli, mqtt::connect_options& connOpts, std::string topic, int& qos, silly_mqtt_client::subscribe_callback fc) 
+    message_callback(mqtt::async_client& cli, mqtt::connect_options& connOpts, std::string topic, int& qos, silly_mqtt_client::subscribe_callback fc)
         : m_nretry(0), m_client(cli), m_opts(connOpts), m_sub_listener("Subscription"), m_topic(topic), m_qos(qos), m_func(fc)
     {
-       
     }
 };
 
 bool silly_mqtt_client::publish(const std::string& topic, const std::string& payload)
 {
     bool status = false;
-   
+
 #if ENABLE_PAHO_MQTT
 
     auto connBuilder = mqtt::connect_options_builder();
@@ -216,7 +210,6 @@ void silly_mqtt_client::subscribe(const std::string& topic, subscribe_callback s
             std::this_thread::sleep_for(std::chrono::seconds(2));
         }
         cli.disconnect()->wait();
-
     }
     catch (const mqtt::exception& exc)
     {
@@ -226,7 +219,6 @@ void silly_mqtt_client::subscribe(const std::string& topic, subscribe_callback s
     {
         SLOG_ERROR("MQTT({})\n订阅主题:[ {} ]失败,错误信息:\n {}.", m_uri, topic, exc.what());
     }
-    
 
 #endif
 }

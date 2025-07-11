@@ -11,7 +11,7 @@
 #ifndef SILLY_UTILS_SILLY_MQTT_CLIENT_H
 #define SILLY_UTILS_SILLY_MQTT_CLIENT_H
 #include <su_marco.h>
-/* 支持的协议
+/* 常用的协议
 "mqtt://<host>:<port>"   - TCP, unsecure
 "tcp://<host>:<port>"    (same)
 
@@ -24,24 +24,45 @@
 
 class silly_mqtt_client
 {
+    /// <summary>
+    /// mqtt客户端
+    /// 目前仅支持 ws 和 mqtt协议
+    /// </summary>
   public:
     typedef std::function<void(std::string, std::string)> subscribe_callback;
 
   public:
     /// <summary>
-    ///
+    /// 发布主题
     /// </summary>
     /// <param name="topic"></param>
     /// <param name="payload"></param>
     /// <returns></returns>
     bool publish(const std::string& topic, const std::string& payload);
 
+    /// <summary>
+    /// 订阅主题, 该函数会一直运行,直到调用disconnect()函数
+    /// </summary>
+    /// <param name="topic"></param>
+    /// <param name="scb"></param>
     void subscribe(const std::string& topic, subscribe_callback scb);
 
+    /// <summary>
+    /// 暂时没吊用
+    /// </summary>
+    /// <returns></returns>
     bool check();
 
+    /// <summary>
+    /// 暂时没吊用
+    /// </summary>
+    /// <param name="ci"></param>
     void client_id(const std::string& ci);
 
+    /// <summary>
+    /// 设置项
+    /// </summary>
+    /// <param name=""></param>
     void user(const std::string& u);
     void password(const std::string& p);
     void host(const std::string& h);
@@ -49,8 +70,14 @@ class silly_mqtt_client
     void qos(const int& q);
     void protocol(const std::string& p);
 
+    /// <summary>
+    /// 接受 协议名://主机IP:端口
+    /// </summary>
+    /// <param name="s"></param>
     void server(const std::string& s);
-
+    /// <summary>
+    /// 订阅时,主动使其断开连接并且退出
+    /// </summary>
     void disconnect();
 
   private:
@@ -68,6 +95,8 @@ class silly_mqtt_client
     bool m_disconnected = false;
 };
 
+typedef silly_mqtt_client sumqttc;
+
 /* 订阅使用示例
 int main(int argc, char** argv)
 {
@@ -80,7 +109,7 @@ int main(int argc, char** argv)
     mqtt.server("mqtt://192.168.0.60:11883");
     std::string content;
     std::string topic;
-    std::thread t(&silly_mqtt_client::subscribe, &mqtt, "warning/#", 
+    std::thread t(&silly_mqtt_client::subscribe, &mqtt, "warning/#",
     [&content, &topic](std::string rTopic, std::string rMsg) -> void {
 
         content = rMsg;
