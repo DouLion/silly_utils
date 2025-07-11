@@ -33,13 +33,14 @@ bool silly_mqtt_client::publish(const std::string& topic, const std::string& pay
 #if ENABLE_PAHO_MQTT
 
     auto connBuilder = mqtt::connect_options_builder();
-    // auto conn_opts = mqtt::connect_options_builder().keep_alive_interval(PERIOD).clean_session(true).automatic_reconnect(true).finalize();
-    auto conn_opts = connBuilder.keep_alive_interval(std::chrono::seconds(30)).finalize();
+    auto conn_opts = connBuilder.keep_alive_interval(PERIOD).finalize();
     conn_opts.set_ssl(mqtt::ssl_options());
     conn_opts.set_mqtt_version(MQTTVERSION_3_1);
-
-    // conn_opts.set_user_name(m_user);
-    //  conn_opts.set_password(m_password);
+    if (!m_user.empty() && !m_password.empty())
+    {
+        conn_opts.set_user_name(m_user);
+        conn_opts.set_password(m_password);
+    }
 
     try
     {
@@ -51,11 +52,11 @@ bool silly_mqtt_client::publish(const std::string& topic, const std::string& pay
     }
     catch (const mqtt::exception& exc)
     {
-        SLOG_ERROR("MQTT({})发布内容 :\n{} \n到主题:[ {} ]失败,错误信息:\n {}.", uri, payload, topic, exc.what());
+        SLOG_ERROR("MQTT({})\n发布内容 :\n{} \n到主题:[ {} ]失败,错误信息:\n {}.", uri, payload, topic, exc.what());
     }
     catch (const std::exception& exc)
     {
-        SLOG_ERROR("MQTT({})发布内容 :\n{} \n到主题:[ {} ]失败,错误信息:\n {}.", uri, payload, topic, exc.what());
+        SLOG_ERROR("MQTT({})\n发布内容 :\n{} \n到主题:[ {} ]失败,错误信息:\n {}.", uri, payload, topic, exc.what());
     }
 #endif
     return status;
@@ -109,11 +110,13 @@ void silly_mqtt_client::protocol(const std::string& p)
 void silly_mqtt_client::server(const std::string& s)
 {
     auto pos = s.find("://");
+    int nPos = 0;
     if (pos != std::string::npos)
     {
         protocol(s.substr(0, pos));
+        nPos = pos + 3;
     }
-    std::string ss = s.substr(pos + 3);
+    std::string ss = s.substr(nPos);
     pos = ss.find(":");
     if (pos != std::string::npos)
     {
