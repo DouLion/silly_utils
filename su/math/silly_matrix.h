@@ -369,6 +369,30 @@ class matrix
     }
 
     /// <summary>
+    /// 矩阵掩码处理, mask为1表示有效数据，0表示无效数据
+    /// </summary>
+    /// <param name="mask"></param>
+    /// <param name="invalid_value">设置无效数据值</param>
+    bool mask(const matrix<uint8_t> &mask, T invalid_value)
+    {
+        if(mask.m_row != m_row || mask.m_col != m_col || !mask.m_data || !m_data)
+        {
+            return false;
+        }
+        uint8_t* p_mask = mask.m_data;
+        T* p_data = m_data;
+        for(size_t i = 0; i < m_total; ++i)
+        {
+            if(!p_mask[i])
+            {
+                p_data[i] = invalid_value;
+            }
+        }
+        return true;
+
+    }
+
+    /// <summary>
     /// 等同at函数
     /// </summary>
     /// <param name="r"></param>
