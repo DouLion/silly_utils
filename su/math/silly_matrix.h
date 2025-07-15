@@ -31,7 +31,7 @@ class matrix
         INTER_LINEAR = 1,
     };
 
-  private:
+  protected:
     T *m_data{nullptr};
     // 行数
     size_t m_row{0};
@@ -375,11 +375,11 @@ class matrix
     /// <param name="invalid_value">设置无效数据值</param>
     bool mask(const matrix<uint8_t> &mask, T invalid_value)
     {
-        if (mask.m_row != m_row || mask.m_col != m_col || !mask.m_data || !m_data)
+        if (mask.row() != m_row || mask.col() != m_col || !mask.data() || !m_data)
         {
             return false;
         }
-        uint8_t *p_mask = mask.m_data;
+        uint8_t *p_mask = mask.data();
         T *p_data = m_data;
         for (size_t i = 0; i < m_total; ++i)
         {

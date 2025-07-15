@@ -19,7 +19,7 @@ const auto PERIOD = std::chrono::seconds(20);
 const int MAX_BUFFERED_MSGS = 120;  // 120 * 5sec => 10min off-line buffering
 
 const int N_RETRY_ATTEMPTS = 5;
-
+#if ENABLE_PAHO_MQTT
 class action_listener : public virtual mqtt::iaction_listener
 {
     std::string name_;
@@ -143,7 +143,7 @@ class message_callback : public virtual mqtt::callback, public virtual mqtt::iac
     {
     }
 };
-
+#endif
 bool silly_mqtt_client::publish(const std::string& topic, const std::string& payload)
 {
     bool status = false;

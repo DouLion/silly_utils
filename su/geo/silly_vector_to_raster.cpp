@@ -240,8 +240,8 @@ void x_scan_line::set(const silly_geo_rect& rect, const double& cell_size)
     m_rect = rect;
     m_rect.correct();
     m_cell_size = cell_size;
-    m_width = static_cast<int>(std::ceil((m_rect.max.x - m_rect.min.x) / m_cell_size));
-    m_height = static_cast<int>(std::ceil((m_rect.max.y - m_rect.min.y) / m_cell_size));
+    m_width = static_cast<int>(std::round((m_rect.max.x - m_rect.min.x) / m_cell_size));
+    m_height = static_cast<int>(std::round((m_rect.max.y - m_rect.min.y) / m_cell_size));
     m_row_colors.resize(m_height, std::vector<uint8_t>(m_width, 0x00));
 }
 int x_scan_line::width() const
