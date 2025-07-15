@@ -375,21 +375,20 @@ class matrix
     /// <param name="invalid_value">设置无效数据值</param>
     bool mask(const matrix<uint8_t> &mask, T invalid_value)
     {
-        if(mask.m_row != m_row || mask.m_col != m_col || !mask.m_data || !m_data)
+        if (mask.m_row != m_row || mask.m_col != m_col || !mask.m_data || !m_data)
         {
             return false;
         }
-        uint8_t* p_mask = mask.m_data;
-        T* p_data = m_data;
-        for(size_t i = 0; i < m_total; ++i)
+        uint8_t *p_mask = mask.m_data;
+        T *p_data = m_data;
+        for (size_t i = 0; i < m_total; ++i)
         {
-            if(!p_mask[i])
+            if (!p_mask[i])
             {
                 p_data[i] = invalid_value;
             }
         }
         return true;
-
     }
 
     /// <summary>
