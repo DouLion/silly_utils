@@ -11,6 +11,7 @@
 #include "silly_websocket_server.h"
 silly_websocket_server::silly_websocket_server()
 {
+#if ENABLE_WEBSOCKET_PP
     try
     {
         // Set logging to be pretty verbose (everything except message payloads)
@@ -28,4 +29,5 @@ silly_websocket_server::silly_websocket_server()
     {
         m_err = e.what();
     }
+#endif
 }
