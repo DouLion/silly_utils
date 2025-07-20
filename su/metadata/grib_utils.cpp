@@ -26,7 +26,7 @@ bool grib_utils::read(const std::string& grib_file, std::vector<su::DMatrix>& ma
 #if SU_ECCODES_ENABLED
     grib_context* c = grib_context_get_default();
     // 多波段读取支持
-    // grib_multi_support_on(nullptr);
+    grib_multi_support_on(nullptr);
     int err_code = 0;
     FILE* file = nullptr;
     file = fopen(targetPath.string().c_str(), "rb");
@@ -59,7 +59,7 @@ bool grib_utils::read(const std::string& grib_file, std::vector<su::DMatrix>& ma
             const char* name = grib_keys_iterator_get_name(kiter);
             int type = 0;
             grib_get_native_type(gh, name, &type);
-            std::cout << name << std::endl;
+            // std::cout << name << std::endl;
             if (strcmp(name, "codedValues") == 0 || strcmp(name, "values") == 0)
             {
                 continue;
