@@ -421,12 +421,7 @@ std::string otl::encode()
     catch (otl_exception& e)
     {
         db.rollback();
-        m_err = "OTL_ERR \nCONN:";
-        m_err.append(m_conn);
-        m_err.append("\nCODE:").append(std::to_string(e.code));
-        m_err.append("\nMSG:").append(std::string((char*)e.msg));
-        m_err.append("\nSTATE:").append(std::string((char*)e.sqlstate));
-        m_err.append("\nSTMT:").append(std::string((char*)e.stm_text));
+        make_otl_err(e);
     }
     catch (std::exception& p)
     {
@@ -505,12 +500,7 @@ bool otl::check_column_info(const std::string& sql)
     catch (otl_exception& e)
     {
         db.rollback();
-        m_err = "OTL_ERR \nCONN:";
-        m_err.append(m_conn);
-        m_err.append("\nCODE:").append(std::to_string(e.code));
-        m_err.append("\nMSG:").append(std::string((char*)e.msg));
-        m_err.append("\nSTATE:").append(std::string((char*)e.sqlstate));
-        m_err.append("\nSTMT:").append(std::string((char*)e.stm_text));
+        make_otl_err(e);
     }
     catch (std::exception& p)
     {

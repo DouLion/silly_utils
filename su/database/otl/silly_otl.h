@@ -260,11 +260,7 @@ class otl
         {
             db.rollback();
             m_err = "OTL_ERR \nCONN:";
-            m_err.append(m_conn);
-            m_err.append("\nCODE:").append(std::to_string(e.code));
-            m_err.append("\nMSG:").append(std::string((char*)e.msg));
-            m_err.append("\nSTATE:").append(std::string((char*)e.sqlstate));
-            m_err.append("\nSTMT:").append(std::string((char*)e.stm_text));
+            make_otl_err(e);
         }
         catch (std::exception& p)
         {
@@ -306,12 +302,7 @@ class otl
         catch (otl_exception& e)
         {
             db.rollback();
-            m_err = "OTL_ERR \nCONN:";
-            m_err.append(m_conn);
-            m_err.append("\nCODE:").append(std::to_string(e.code));
-            m_err.append("\nMSG:").append(std::string((char*)e.msg));
-            m_err.append("\nSTATE:").append(std::string((char*)e.sqlstate));
-            m_err.append("\nSTMT:").append(std::string((char*)e.stm_text));
+            make_otl_err(e);
         }
         catch (std::exception& p)
         {
@@ -342,12 +333,7 @@ class otl
         catch (otl_exception& e)
         {
             db.rollback();
-            m_err = "OTL_ERR \nCONN:";
-            m_err.append(m_conn);
-            m_err.append("\nCODE:").append(std::to_string(e.code));
-            m_err.append("\nMSG:").append(std::string((char*)e.msg));
-            m_err.append("\nSTATE:").append(std::string((char*)e.sqlstate));
-            m_err.append("\nSTMT:").append(std::string((char*)e.stm_text));
+            make_otl_err(e);
         }
         catch (std::exception& p)
         {
@@ -392,12 +378,7 @@ class otl
         catch (otl_exception& e)
         {
             db.rollback();
-            m_err = "OTL_ERR \nCONN:";
-            m_err.append(m_conn);
-            m_err.append("\nCODE:").append(std::to_string(e.code));
-            m_err.append("\nMSG:").append(std::string((char*)e.msg));
-            m_err.append("\nSTATE:").append(std::string((char*)e.sqlstate));
-            m_err.append("\nSTMT:").append(std::string((char*)e.stm_text));
+            make_otl_err(e);
         }
         catch (std::exception& p)
         {
@@ -410,7 +391,7 @@ class otl
     }
 
     /// <summary>
-    /// 存储过程查询的模板函数
+    /// 存储过程查询的模板函数, 获取结果同select
     /// </summary>
     /// <param name="Func"></param>
     /// <param name="...Args"></param>
@@ -442,12 +423,7 @@ class otl
         catch (otl_exception& e)
         {
             db.rollback();
-            m_err = "OTL_ERR \nCONN:";
-            m_err.append(m_conn);
-            m_err.append("\nCODE:").append(std::to_string(e.code));
-            m_err.append("\nMSG:").append(std::string((char*)e.msg));
-            m_err.append("\nSTATE:").append(std::string((char*)e.sqlstate));
-            m_err.append("\nSTMT:").append(std::string((char*)e.stm_text));
+            make_otl_err(e);
         }
         catch (std::exception& p)
         {
@@ -493,12 +469,7 @@ class otl
         catch (otl_exception& e)
         {
             db.rollback();
-            m_err = "OTL_ERR \nCONN:";
-            m_err.append(m_conn);
-            m_err.append("\nCODE:").append(std::to_string(e.code));
-            m_err.append("\nMSG:").append(std::string((char*)e.msg));
-            m_err.append("\nSTATE:").append(std::string((char*)e.sqlstate));
-            m_err.append("\nSTMT:").append(std::string((char*)e.stm_text));
+            make_otl_err(e);
         }
         catch (std::exception& p)
         {
@@ -545,12 +516,7 @@ class otl
         catch (otl_exception& e)
         {
             db.rollback();
-            m_err = "OTL_ERR \nCONN:";
-            m_err.append(m_conn);
-            m_err.append("\nCODE:").append(std::to_string(e.code));
-            m_err.append("\nMSG:").append(std::string((char*)e.msg));
-            m_err.append("\nSTATE:").append(std::string((char*)e.sqlstate));
-            m_err.append("\nSTMT:").append(std::string((char*)e.stm_text));
+            make_otl_err(e);
         }
         catch (std::exception& p)
         {
@@ -598,12 +564,7 @@ class otl
         catch (otl_exception& e)
         {
             db.rollback();
-            m_err = "OTL_ERR \nCONN:";
-            m_err.append(m_conn);
-            m_err.append("\nCODE:").append(std::to_string(e.code));
-            m_err.append("\nMSG:").append(std::string((char*)e.msg));
-            m_err.append("\nSTATE:").append(std::string((char*)e.sqlstate));
-            m_err.append("\nSTMT:").append(std::string((char*)e.stm_text));
+            make_otl_err(e);
         }
         catch (std::exception& p)
         {
@@ -632,6 +593,16 @@ class otl
     static eType str2type(const std::string& desc);
 
     static std::string type2str(const eType& type);
+
+    void make_otl_err(otl_exception& e)
+    {
+        m_err = "OTL_ERR \nCONN:";
+        m_err.append(m_conn);
+        m_err.append("\nCODE:").append(std::to_string(e.code));
+        m_err.append("\nMSG:").append(std::string((char*)e.msg));
+        m_err.append("\nSTATE:").append(std::string((char*)e.sqlstate));
+        m_err.append("\nSTMT:").append(std::string((char*)e.stm_text));
+    }
     ///////////////////////////////
     /// getter
     ///////////////////////////////
