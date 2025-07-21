@@ -136,6 +136,7 @@ if(ENABLE_WEBSOCKET_PP)
     find_package(websocketpp CONFIG REQUIRED)
     target_include_directories(${PROJECT_NAME} PUBLIC websocketpp::websocketpp)
     add_definitions(-DENABLE_WEBSOCKET_PP)
+    message(STATUS "启用WebSocket")
 endif()
 
 if(ENABLE_PAHO_MQTT)

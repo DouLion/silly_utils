@@ -410,6 +410,56 @@ class otl
     }
 
     /// <summary>
+    /// 存储过程查询的模板函数
+    /// </summary>
+    /// <param name="Func"></param>
+    /// <param name="...Args"></param>
+    /// <param name="sql">{call my_proc(:f1<int,in>)}</param>
+    /// <param name="func"></param>
+    /// <param name="...args"></param>
+    /// <returns>执行是否成功</returns>
+    template <typename Func, typename... Args>
+    bool procedure(const std::string& sql, Func&& func, Args&&... args)
+    {
+        bool status = false;
+        otl_connect db;
+        try
+        {
+            db.set_timeout(m_timeout);
+            db.set_max_long_size(50 * SU_MB);
+            db.rlogon(m_conn.c_str());
+            if (m_verbose)
+            {
+                SLOG_INFO("SQL:{}", sql);
+            }
+            otl_stream stream;
+            stream.open(1, sql.c_str(), db, otl_implicit_select);
+            func(&stream, std::forward<Args>(args)...);
+            stream.close();
+
+            status = true;
+        }
+        catch (otl_exception& e)
+        {
+            db.rollback();
+            m_err = "OTL_ERR \nCONN:";
+            m_err.append(m_conn);
+            m_err.append("\nCODE:").append(std::to_string(e.code));
+            m_err.append("\nMSG:").append(std::string((char*)e.msg));
+            m_err.append("\nSTATE:").append(std::string((char*)e.sqlstate));
+            m_err.append("\nSTMT:").append(std::string((char*)e.stm_text));
+        }
+        catch (std::exception& p)
+        {
+            db.rollback();
+            m_err = "OTL_UNKNOWN " + std::string(p.what());
+        }
+        db.logoff();
+
+        return status;
+    }
+
+    /// <summary>
     /// select的模板函数, 以lob的方式读取large object binary
     /// </summary>
     /// <param name="Func"></param>
