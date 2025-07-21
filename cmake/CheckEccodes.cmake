@@ -51,6 +51,7 @@ if (NOT "" STREQUAL "${eccodes_BASE_DIR}")
     add_compile_options(-DSU_ECCODES_ENABLED)
   else (IS_WINDOWS)
     # linux 通过yum 或者 apt-get 安装的, 应该不需要额外配置
+    add_compile_options(-DSU_ECCODES_ENABLED)
   endif ()
 
 endif()
