@@ -291,6 +291,26 @@ class silly_rect  // 普通坐标点
         return false;
     }
 
+    bool contain(const silly_point& p, const bool& containBounary = true) const 
+    {
+        if (!containBounary)
+        {
+            if (p.x > min.x && p.x < max.x && p.y > min.y && p.y < max.y)
+            {
+                return true;
+            }
+        }
+        else
+        {
+            if (p.x >= min.x && p.x <= max.x && p.y >= min.y && p.y <= max.y)
+            {
+                return true;
+            }
+        }
+        return false;
+        
+    }
+
     silly_rect MBR(const silly_rect& rh)
     {
         silly_rect ret;
