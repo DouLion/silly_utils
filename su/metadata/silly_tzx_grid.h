@@ -50,6 +50,8 @@ class silly_tzx_grid
     /// 拷贝第i个网格数据
     silly_tzx_grid copy(const size_t& i) const;
 
+    void copy_info(const silly_tzx_grid& rh);
+
     su::FMatrix frame(const size_t& i);
 
     bool set(const size_t& i, const silly_tzx_grid& rh);

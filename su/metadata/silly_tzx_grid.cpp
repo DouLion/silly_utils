@@ -65,6 +65,7 @@ silly_tzx_grid silly_tzx_grid::copy() const
 
     return result;
 }
+
 silly_tzx_grid silly_tzx_grid::copy(const size_t& i) const
 {
     silly_tzx_grid result;
@@ -87,6 +88,20 @@ silly_tzx_grid silly_tzx_grid::copy(const size_t& i) const
 
     return result;
 }
+
+void silly_tzx_grid::copy_info(const silly_tzx_grid& rh)
+{
+    m_left = rh.m_left;
+    m_right = rh.m_right;
+    m_top = rh.m_top;
+    m_bottom = rh.m_bottom;
+    m_xdelta = rh.m_xdelta;
+    m_ydelta = rh.m_ydelta;
+
+    m_row = m_row;
+    m_col = m_col;
+}
+
 su::FMatrix silly_tzx_grid::frame(const size_t& i)
 {
     su::FMatrix ret;
@@ -97,6 +112,7 @@ su::FMatrix silly_tzx_grid::frame(const size_t& i)
     }
     return ret;
 }
+
 bool silly_tzx_grid::set(const size_t& i, const silly_tzx_grid& rh)
 {
     if (i < m_data.size())
