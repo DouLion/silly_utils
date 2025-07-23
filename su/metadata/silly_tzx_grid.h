@@ -12,30 +12,9 @@
 
 #include <su_marco.h>
 #include <math/silly_matrix.h>
-#include <files/silly_file.h>
 
 #define SILLY_TZX_GRID_FILE_SUFFIX ".rgrid"
 
-#define SILLY_TZX_GRID_MALLOC(l) malloc(l);
-
-#define SILLY_TZX_GRID_FREE(p) \
-    {                          \
-        if (p)                 \
-        {                      \
-            free(p);           \
-            p = nullptr;       \
-        }                      \
-    }
-
-struct silly_tzx_grid_rect
-{
-    double left;
-    double top;
-    double right;
-    double bottom;
-    double xdelta;
-    double ydelta;
-};
 /// 此函数中使用的float是从存储空间大小考虑
 /// 大多数情况下, float的数据范围和精度都已经足够,
 /// 所以, 这里使用float, 减少内存和序列化之后的空间占用
@@ -44,24 +23,9 @@ class silly_tzx_grid
   public:
     silly_tzx_grid();
 
-    /// <summary>
-    ///
-    /// </summary>
-    /// <param name="buff">输出: 数据区域</param>
-    /// <param name="len">输出: 数据区域长度</param>
-    /// <returns></returns>
-    bool serialize(char** buff, size_t& len);
-
-    bool serializev1(char** buff, size_t& len);
-
-    /// <summary>
-    ///
-    /// </summary>
-    /// <param name="buff">输入: 数据区域</param>
-    /// <param name="len">输入: 数据区域长度</param>
-    /// <returns></returns>
-    bool unserialize(const char* buff, const size_t& len);
-    bool unserializev1(const char* buff, const size_t& len);
+    // 从文件读写
+    bool read(const std::filesystem::path& file);
+    bool save(const std::filesystem::path& file);
 
     /// <summary>
     /// 将多个网格数据拼接为一个,重叠部分采用最大值
@@ -69,98 +33,72 @@ class silly_tzx_grid
     /// <param name="srg_list"></param>
     void puzzle(const std::vector<silly_tzx_grid>& srg_list, const silly_rect& rect);
 
-    /// <summary>
-    /// 获取最大网格点所在的 行列号 和值
-    /// </summary>
-    /// <param name="r"></param>
-    /// <param name="c"></param>
-    /// <param name="v"></param>
-    void maxv(int& tr, int& tc, float& tv);
+    silly_tzx_grid& operator=(const silly_tzx_grid& rh);
 
-    bool read(const std::filesystem::path& file);
-    bool save(const std::filesystem::path& file);
-
-    silly_tzx_grid operator=(silly_tzx_grid rh)
-    {
-        if (this != &rh)
-        {
-            this->total = rh.total;
-            this->left = rh.left;
-            this->right = rh.right;
-            this->top = rh.top;
-            this->bottom = rh.bottom;
-            this->xdelta = rh.xdelta;
-            this->ydelta = rh.ydelta;
-
-            this->row = rh.row;
-            this->col = rh.col;
-            this->grid = rh.grid;
-        }
-
-        return *this;
-    }
-
-    silly_tzx_grid copy()
-    {
-        silly_tzx_grid result;
-        result.total = total;
-        result.left = left;
-        result.right = right;
-        result.top = top;
-        result.bottom = bottom;
-        result.xdelta = xdelta;
-        result.ydelta = ydelta;
-
-        result.row = row;
-        result.col = col;
-
-        result.grid = grid.copy();
-
-        return result;
-    }
+    silly_tzx_grid copy() const;
 
   private:
     /// <summary>
+    ///
+    /// </summary>
+    /// <param name="buff">输出: 数据区域</param>
+    /// <returns></returns>
+    bool serialize(std::string& buff);
+    bool serialize_v1(std::string& buff);
+
+    bool serialize_v2(std::string& buff);
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="buff">输入: 数据区域</param>
+    /// <returns></returns>
+    bool unserialize(const std::string& buff);
+    bool unserialize_v1(const std::string& buff);
+
+    bool unserialize_v2(const std::string& buff);
+
+    /// <summary>
     /// 用lz4压缩数据
     /// </summary>
-    /// <param name="srcd"></param>
-    /// <param name="srcl"></param>
-    /// <param name="dstd"></param>
-    /// <param name="dstl"></param>
+    /// <param name="src"></param>
+    /// <param name="dst"></param>
     /// <returns></returns>
-    bool lz4_cps_data(const char* srcd, const size_t& srcl, char** dstd, size_t& dstl);
+    // static bool lz4_cps_data(const char* srcBin, const size_t& srcLen, char** dstBin, size_t& dstLen);
+    bool lz4_cps_data(const std::string& src, std::string& dst);
 
     /// <summary>
     /// 用lz4解压数据块
     /// </summary>
-    /// <param name="srcd"></param>
-    /// <param name="srcl"></param>
-    /// <param name="dstd"></param>
-    /// <param name="dstl"></param>
+    /// <param name="src"></param>
+    /// <param name="dst"></param>
     /// <returns></returns>
-    bool lz4_dcps_data(const char* srcd, const size_t& srcl, char** dstd, size_t& dstl);
+    //  static bool lz4_dcps_data(const char* srcBin, const size_t& srcLen, char** dstBin, size_t& dstLen);
+    bool lz4_dcps_data(const std::string& src, std::string& dst);
 
-  public:
-    size_t total{0};
-    float left{0.};
-    float right{0.};
-    float top{0.};
-    float bottom{0.};
+    void release();
 
-    float xdelta{0.};
-    float ydelta{0.};
+  protected:
+    size_t m_total{0};
+    float m_left{0.};
+    float m_right{0.};
+    float m_top{0.};
+    float m_bottom{0.};
 
-    char name[32]{0};
-    char units[32]{0};
+    float m_xdelta{0.};
+    float m_ydelta{0.};
 
-    size_t row = 0;
-    size_t col = 0;
-    size_t cpsl = 0;  // 网格点数据的压缩后占用大小
-    size_t srcl = 0;  // 网格点数据的压缩前占用大小
-    su::FMatrix grid;
+    char m_name[32]{0};
+    char m_units[32]{0};
+
+    size_t m_row = 0;
+    size_t m_col = 0;
+
+    std::vector<su::FMatrix> m_data;
+    std::vector<std::string> m_buff;
 
   private:
-    char m_prefix[4];
+    char m_prefix[4]{};
 };
 
 #endif  // SILLY_UTILS_SILLY_TZX_GRID_H

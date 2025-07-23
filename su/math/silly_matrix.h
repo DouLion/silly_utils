@@ -438,16 +438,30 @@ class matrix
     }
 
     /// <summary>
-    /// 获取矩阵中最小值
+    /// 获取矩阵中的最大值,并且返回最大值的行列号
     /// </summary>
     /// <returns></returns>
-    T min() const
+    T max(size_t &tr, size_t &tc) const
     {
+        T ret = static_cast<T>(INT_MIN);
         if (m_data)
         {
-            return *std::min_element(m_data, m_data + m_total);
+            size_t i = 0;
+            size_t markI = 0;
+            while (i < m_total)
+            {
+                if (m_data[i] > ret)
+                {
+                    markI = i;
+                    ret = m_data[i];
+                }
+                i++;
+            }
+            tr = markI / m_col;
+            tc = markI % m_col;
+            return ret;
         }
-        return static_cast<T>(INT_MAX);
+        return ret;
     }
 
     /// <summary>
@@ -466,6 +480,61 @@ class matrix
     }
 
     /// <summary>
+    /// 相同格点取两个矩阵的最大值
+    /// </summary>
+    /// <param name="rh"></param>
+    void max(const matrix<T> &rh)
+    {
+        if (m_data && rh.data() && rh.m_row == m_row && rh.m_col == m_col)
+        {
+            for (size_t i = 0; i < m_total; ++i)
+            {
+                m_data[i] = std::max(rh.m_data[i], m_data[i]);
+            }
+        }
+    }
+
+    /// <summary>
+    /// 获取矩阵中最小值
+    /// </summary>
+    /// <returns></returns>
+    T min() const
+    {
+        if (m_data)
+        {
+            return *std::min_element(m_data, m_data + m_total);
+        }
+        return static_cast<T>(INT_MAX);
+    }
+
+    /// <summary>
+    /// 获取矩阵中的最小值,并且返回最小值的行列号
+    /// </summary>
+    /// <returns></returns>
+    T min(size_t &tr, size_t &tc) const
+    {
+        T ret = static_cast<T>(INT_MAX);
+        if (m_data)
+        {
+            size_t i = 0;
+            size_t markI = 0;
+            while (i < m_total)
+            {
+                if (m_data[i] < ret)
+                {
+                    markI = i;
+                    ret = m_data[i];
+                }
+                i++;
+            }
+            tr = markI / m_col;
+            tc = markI % m_col;
+            return ret;
+        }
+        return ret;
+    }
+
+    /// <summary>
     /// 限制所有值不能小于val
     /// </summary>
     /// <param name="val"></param>
@@ -476,6 +545,21 @@ class matrix
             for (size_t i = 0; i < m_total; ++i)
             {
                 m_data[i] = std::max(val, m_data[i]);
+            }
+        }
+    }
+
+    /// <summary>
+    /// 相同格点取两个矩阵的最小值
+    /// </summary>
+    /// <param name="rh"></param>
+    void min(const matrix<T> &rh)
+    {
+        if (m_data && rh.data() && rh.m_row == m_row && rh.m_col == m_col)
+        {
+            for (size_t i = 0; i < m_total; ++i)
+            {
+                m_data[i] = std::min(rh.m_data[i], m_data[i]);
             }
         }
     }
