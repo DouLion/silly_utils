@@ -29,13 +29,41 @@ class silly_tzx_grid
 
     /// <summary>
     /// 将多个网格数据拼接为一个,重叠部分采用最大值
+    /// TODO: 可以使用多线程优化,并且 以每个grids为主, 减少循环次数
+    /// 这里限制delta的原因是,希望使用同样的一套数据,所有的数据使用相同的尺度
     /// </summary>
-    /// <param name="srg_list"></param>
-    void puzzle(const std::vector<silly_tzx_grid>& srg_list, const silly_rect& rect);
+    /// <param name="grids">多个网格点</param>
+    /// <param name="boundary">目标的范围</param>
+    /// <param name="delta">每个格点的大小</param>
+    void puzzle(const std::vector<silly_tzx_grid>& grids, const silly_rect& boundary, const float& delta = 0.0025);
 
     silly_tzx_grid& operator=(const silly_tzx_grid& rh);
 
+    /// 网格范围和宽高是否一致
+    bool same(const silly_tzx_grid& rh) const;
+
+    bool valid() const;
+
+    /// 拷贝整个对象
     silly_tzx_grid copy() const;
+
+    /// 拷贝第i个网格数据
+    silly_tzx_grid copy(const size_t& i) const;
+
+    su::FMatrix frame(const size_t& i);
+
+    bool set(const size_t& i, const silly_tzx_grid& rh);
+    /// 添加一个网格数据
+    bool add(const silly_tzx_grid& rh);
+
+
+    silly_rect rect() const;
+    void rect(const silly_rect& boundary);
+
+    /// <summary>
+    /// 释放内存
+    /// </summary>
+    void release();
 
   private:
     /// <summary>
@@ -64,8 +92,7 @@ class silly_tzx_grid
     /// <param name="src"></param>
     /// <param name="dst"></param>
     /// <returns></returns>
-    // static bool lz4_cps_data(const char* srcBin, const size_t& srcLen, char** dstBin, size_t& dstLen);
-    bool lz4_cps_data(const std::string& src, std::string& dst);
+    bool lz4_cps_data(const std::string& src, std::string& dst) const;
 
     /// <summary>
     /// 用lz4解压数据块
@@ -73,10 +100,7 @@ class silly_tzx_grid
     /// <param name="src"></param>
     /// <param name="dst"></param>
     /// <returns></returns>
-    //  static bool lz4_dcps_data(const char* srcBin, const size_t& srcLen, char** dstBin, size_t& dstLen);
-    bool lz4_dcps_data(const std::string& src, std::string& dst);
-
-    void release();
+    bool lz4_dcps_data(const std::string& src, std::string& dst) const;
 
   protected:
     size_t m_total{0};
