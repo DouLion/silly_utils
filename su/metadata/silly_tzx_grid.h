@@ -52,7 +52,7 @@ class silly_tzx_grid
 
     void copy_info(const silly_tzx_grid& rh);
 
-    su::FMatrix frame(const size_t& i);
+    su::FMatrix& frame(const size_t& i);
 
     bool set(const size_t& i, const silly_tzx_grid& rh);
     /// 添加一个网格数据

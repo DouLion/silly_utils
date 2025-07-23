@@ -102,13 +102,16 @@ void silly_tzx_grid::copy_info(const silly_tzx_grid& rh)
     m_col = m_col;
 }
 
-su::FMatrix silly_tzx_grid::frame(const size_t& i)
+su::FMatrix& silly_tzx_grid::frame(const size_t& i)
 {
-    su::FMatrix ret;
-
+    static su::FMatrix ret;
     if (i < m_data.size())
     {
-        ret = m_data[i];
+        return  m_data[i];
+    }
+    else
+    {
+        ret = su::FMatrix();
     }
     return ret;
 }
