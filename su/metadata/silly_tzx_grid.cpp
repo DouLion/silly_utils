@@ -183,9 +183,9 @@ silly_rect silly_tzx_grid::rect() const
 {
     silly_rect ret;
     ret.min.x = m_left;
-    ret.min.y = m_top;
+    ret.min.y = m_bottom;
     ret.max.x = m_right;
-    ret.max.y = m_bottom;
+    ret.max.y = m_top;
     return ret;
 }
 void silly_tzx_grid::rect(const silly_rect& boundary)
