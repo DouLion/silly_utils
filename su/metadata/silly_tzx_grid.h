@@ -131,7 +131,7 @@ class silly_tzx_grid
     size_t m_row = 0;
     size_t m_col = 0;
 
-    std::vector<su::FMatrix> m_data;
+    std::vector<su::FMatrix> m_frames;
     std::vector<std::string> m_buff;
 
   private:
