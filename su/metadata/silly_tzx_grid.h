@@ -55,6 +55,8 @@ class silly_tzx_grid
     bool set(const size_t& i, const silly_tzx_grid& rh);
     /// 添加一个网格数据
     bool add(const silly_tzx_grid& rh);
+    bool add(const su::FMatrix grid);
+    bool set(const std::vector<su::FMatrix> grids);
 
     size_t row() const;
     void row(const size_t& r);

@@ -135,6 +135,31 @@ bool silly_tzx_grid::add(const silly_tzx_grid& rh)
     }
     return false;
 }
+
+bool silly_tzx_grid::add(const su::FMatrix grid)
+{
+    if (grid.row() == m_row && grid.col() == m_col)
+    {
+        m_data.push_back(grid);
+        return false;
+    }
+    return true;
+}
+bool silly_tzx_grid::set(const std::vector<su::FMatrix> grids)
+{
+    size_t currLen = m_data.size();
+    for (const auto& g : grids)
+    {
+        if (!add(g))
+        {
+            m_data.resize(currLen);
+            return false;
+        }
+    }
+
+    return true;
+}
+
 silly_rect silly_tzx_grid::rect() const
 {
     silly_rect ret;
