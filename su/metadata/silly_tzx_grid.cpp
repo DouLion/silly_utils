@@ -640,6 +640,8 @@ void silly_tzx_grid::puzzle(const std::vector<silly_tzx_grid>& grids, const sill
     m_top = boundary.max.y;
     m_right = boundary.max.x;
     m_bottom = boundary.min.y;
+    m_ydelta = d;
+    m_xdelta = d;
     m_row = std::round((m_top - m_bottom) / m_ydelta);
     m_col = std::round((m_right - m_left) / m_xdelta);
     m_frames.resize(1);
@@ -655,7 +657,7 @@ void silly_tzx_grid::puzzle(const std::vector<silly_tzx_grid>& grids, const sill
 
             for (auto& grid : grids)
             {
-                if (std::abs(grid.m_xdelta - d) > 0.000001)
+                if (std::abs(grid.m_xdelta - d) > 0.0001)
                 {
                     continue;
                 }
