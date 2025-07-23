@@ -244,20 +244,32 @@ class silly_rect  // 普通坐标点
     }
 
     /// 两个矩形框是否相交
-    bool intersect(const silly_rect& rect) const
+    bool intersect(const silly_rect& rh) const
     {
-        double zx = std::abs(rect.min.x + rect.max.x - min.x - max.x);
-        double x = std::abs(rect.min.x - rect.max.x) + std::abs(min.x - max.x);
-        double zy = std::abs(rect.max.y + rect.max.y - max.y - max.y);
-        double y = std::abs(rect.max.y - rect.max.y) + std::abs(max.y - max.y);
-        if (zx <= x && zy <= y)
+        // 判断两个矩形是否有交集
+        bool no_overlap = rh.max.x <= min.x ||  // rh 在左边
+                          rh.min.x >= max.x ||  // rh 在右边
+                          rh.max.y <= min.y ||  // rh 在上边
+                          rh.min.y >= max.y;    // rh 在下边
+
+        return !no_overlap;
+    }
+
+    /// 相交区域
+    silly_rect intersection(const silly_rect& rh) const
+    {
+        silly_rect ret;
+        if (!this->intersect(rh))
         {
-            return true;
+            // 返回空矩形或抛出异常
+            return silly_rect{0, 0, 0, 0};
         }
-        else
-        {
-            return false;
-        }
+        ret.min.x = std::max(min.x, rh.min.x);
+        ret.min.y = std::max(min.y, rh.min.y);
+        ret.max.x = std::min(max.x, rh.max.x);
+        ret.max.y = std::min(max.y, rh.max.y);
+
+        return ret;
     }
 
     std::string stringify(const int precision = 8, const char& delimiter = ',') const
@@ -311,7 +323,7 @@ class silly_rect  // 普通坐标点
         
     }
 
-    silly_rect MBR(const silly_rect& rh)
+    silly_rect MBR(const silly_rect& rh) const
     {
         silly_rect ret;
         ret.min.x = std::min(min.x, rh.min.x);
