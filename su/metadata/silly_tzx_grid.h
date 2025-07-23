@@ -35,7 +35,7 @@ class silly_tzx_grid
     /// <param name="grids">多个网格点</param>
     /// <param name="boundary">目标的范围</param>
     /// <param name="delta">每个格点的大小</param>
-    void puzzle(const std::vector<silly_tzx_grid>& grids, const silly_rect& boundary, const float& delta = 0.0025);
+    void puzzle(const std::vector<silly_tzx_grid>& grids, const silly_rect& boundary, const float& d = 0.0025);
 
     silly_tzx_grid& operator=(const silly_tzx_grid& rh);
 
@@ -56,6 +56,15 @@ class silly_tzx_grid
     /// 添加一个网格数据
     bool add(const silly_tzx_grid& rh);
 
+    size_t row() const;
+    void row(const size_t& r);
+
+    size_t col() const;
+    void col(const size_t& c);
+
+    float xdelta() const;
+    float ydelta() const;
+    // void delta(const float& d);
 
     silly_rect rect() const;
     void rect(const silly_rect& boundary);

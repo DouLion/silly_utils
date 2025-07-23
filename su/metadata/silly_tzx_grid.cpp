@@ -99,7 +99,6 @@ su::FMatrix silly_tzx_grid::frame(const size_t& i)
 }
 bool silly_tzx_grid::set(const size_t& i, const silly_tzx_grid& rh)
 {
-
     if (i < m_data.size())
     {
         if (same(rh) && !rh.m_data.empty())
@@ -110,7 +109,6 @@ bool silly_tzx_grid::set(const size_t& i, const silly_tzx_grid& rh)
         }
     }
     return false;
-
 }
 bool silly_tzx_grid::add(const silly_tzx_grid& rh)
 {
@@ -152,6 +150,49 @@ void silly_tzx_grid::rect(const silly_rect& boundary)
     m_right = boundary.max.x;
     m_top = boundary.min.y;
     m_bottom = boundary.max.y;
+    if (m_row > 0)
+    {
+        m_ydelta = (m_top - m_bottom) / m_row;
+    }
+    if (m_col > 0)
+    {
+        m_xdelta = (m_right - m_left) / m_col;
+    }
+}
+
+size_t silly_tzx_grid::row() const
+{
+    return m_row;
+}
+void silly_tzx_grid::row(const size_t& r)
+{
+    m_row = r;
+    if (m_row > 0)
+    {
+        m_ydelta = (m_top - m_bottom) / m_row;
+    }
+}
+
+size_t silly_tzx_grid::col() const
+{
+    return m_col;
+}
+void silly_tzx_grid::col(const size_t& c)
+{
+    m_col = c;
+    if (m_col > 0)
+    {
+        m_xdelta = (m_right - m_left) / m_col;
+    }
+}
+
+float silly_tzx_grid::xdelta() const
+{
+    return m_xdelta;
+}
+float silly_tzx_grid::ydelta() const
+{
+    return m_ydelta;
 }
 
 bool silly_tzx_grid::read(const std::filesystem::path& file)
@@ -545,7 +586,7 @@ bool silly_tzx_grid::unserialize_v2(const std::string& buff)
     return !m_data.empty();
 }
 
-void silly_tzx_grid::puzzle(const std::vector<silly_tzx_grid>& grids, const silly_rect& boundary, const float& delta)
+void silly_tzx_grid::puzzle(const std::vector<silly_tzx_grid>& grids, const silly_rect& boundary, const float& d)
 {
     if (grids.empty())
     {
@@ -570,7 +611,7 @@ void silly_tzx_grid::puzzle(const std::vector<silly_tzx_grid>& grids, const sill
 
             for (auto& grid : grids)
             {
-                if (std::abs(grid.m_xdelta - delta) > 0.000001)
+                if (std::abs(grid.m_xdelta - d) > 0.000001)
                 {
                     continue;
                 }
@@ -631,14 +672,13 @@ bool silly_tzx_grid::valid() const
         return false;
     }
     return true;
-
 }
 
 bool silly_tzx_grid::lz4_cps_data(const std::string& src, std::string& dst) const
 {
     if (!src.empty())
     {
-        int tryLen =  m_row * m_col * sizeof(float) * 1.5;
+        int tryLen = m_row * m_col * sizeof(float) * 1.5;
         dst.resize(tryLen);
         // // int realLen = -2; （如 -1为数据损坏，-2为缓冲区不足
         int realLen = LZ4_compress_default(src.data(), dst.data(), static_cast<int>(src.size()), tryLen);
