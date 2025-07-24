@@ -496,7 +496,7 @@ bool silly_tzx_grid::unserialize_v2(char* p, const int& index)
         p += sizeof(size_t);
         currLen += sizeof(cpsLen) + cpsLen;
 
-        if (i < 0 || i == index)
+        if (index < 0 || i++ == index)
         {
             std::string cpsBin;
             cpsBin.assign(p, cpsLen);  // 读取目标帧压缩数据
@@ -510,6 +510,11 @@ bool silly_tzx_grid::unserialize_v2(char* p, const int& index)
                 memcpy(tmpMatrix.data(), dCpsBin.data(), m_row * m_col * sizeof(float));
             }
             m_frames.push_back(tmpMatrix);
+            if (index >= 0 && i >= index)
+            {
+                break;
+            }
+
         }
 
         p += cpsLen;
