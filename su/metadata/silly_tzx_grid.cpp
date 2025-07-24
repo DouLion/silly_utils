@@ -98,8 +98,8 @@ void silly_tzx_grid::copy_info(const silly_tzx_grid& rh)
     m_xdelta = rh.m_xdelta;
     m_ydelta = rh.m_ydelta;
 
-    m_row = m_row;
-    m_col = m_col;
+    m_row = rh.m_row;
+    m_col = rh.m_col;
 }
 
 su::FMatrix& silly_tzx_grid::frame(const size_t& i)
