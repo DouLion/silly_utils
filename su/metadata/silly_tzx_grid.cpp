@@ -196,8 +196,8 @@ void silly_tzx_grid::rect(const silly_rect& boundary)
 {
     m_left = boundary.min.x;
     m_right = boundary.max.x;
-    m_top = boundary.min.y;
-    m_bottom = boundary.max.y;
+    m_top = boundary.max.y;
+    m_bottom = boundary.min.y;
     if (m_row > 0)
     {
         m_ydelta = (m_top - m_bottom) / m_row;
