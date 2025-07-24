@@ -107,13 +107,17 @@ su::FMatrix& silly_tzx_grid::frame(const size_t& i)
     static su::FMatrix ret;
     if (i < m_frames.size())
     {
-        return  m_frames[i];
+        return m_frames[i];
     }
     else
     {
         ret = su::FMatrix();
     }
     return ret;
+}
+size_t silly_tzx_grid::frame_num() const
+{
+    return m_frames.size();
 }
 
 bool silly_tzx_grid::set(const size_t& i, const silly_tzx_grid& rh)

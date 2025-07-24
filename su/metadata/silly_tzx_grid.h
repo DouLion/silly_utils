@@ -54,6 +54,9 @@ class silly_tzx_grid
 
     su::FMatrix& frame(const size_t& i);
 
+    /// 总帧数
+    size_t frame_num() const;
+
     bool set(const size_t& i, const silly_tzx_grid& rh);
     /// 添加一个网格数据
     bool add(const silly_tzx_grid& rh);
