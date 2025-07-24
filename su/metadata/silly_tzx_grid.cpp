@@ -29,7 +29,6 @@ static constexpr char TZX_GRID_V1 = '1';
 
 /// 版本2 支持多组网格
 static constexpr char TZX_GRID_V2 = '2';
-static constexpr int TZX_GRID_VERL = 4;
 
 #define TZX_GRID_MEMCPY_TYPE(buff, val) \
     memcpy(buff, &val, sizeof(val));    \
@@ -41,52 +40,34 @@ silly_tzx_grid::silly_tzx_grid()
     m_prefix[1] = TZX_GRID_1;
     m_prefix[2] = TZX_GRID_2;
     m_prefix[3] = TZX_GRID_3;
+    m_header_len = 0;
+    m_header_len += (sizeof(m_prefix) + sizeof(m_total) + sizeof(m_left) * 4 + sizeof(m_xdelta) * 2);
+    m_header_len += (sizeof(m_name) + sizeof(m_units) + sizeof(m_row) + sizeof(m_col));
 }
 
 silly_tzx_grid silly_tzx_grid::copy() const
 {
-    silly_tzx_grid result;
-    result.m_total = m_total;
-    result.m_left = m_left;
-    result.m_right = m_right;
-    result.m_top = m_top;
-    result.m_bottom = m_bottom;
-    result.m_xdelta = m_xdelta;
-    result.m_ydelta = m_ydelta;
-
-    result.m_row = m_row;
-    result.m_col = m_col;
-    // result.m_frames.resize(m_frames.size());
-    result.m_frames.clear();
+    silly_tzx_grid ret;
+    ret.copy_info(*this);
     for (const auto& m : m_frames)
     {
-        result.m_frames.push_back(m.copy());
+        ret.m_frames.push_back(m.copy());
     }
 
-    return result;
+    return ret;
 }
 
 silly_tzx_grid silly_tzx_grid::copy(const size_t& i) const
 {
-    silly_tzx_grid result;
-    result.m_total = m_total;
-    result.m_left = m_left;
-    result.m_right = m_right;
-    result.m_top = m_top;
-    result.m_bottom = m_bottom;
-    result.m_xdelta = m_xdelta;
-    result.m_ydelta = m_ydelta;
-
-    result.m_row = m_row;
-    result.m_col = m_col;
+    silly_tzx_grid ret;
+    ret.copy_info(*this);
     if (!m_frames.empty())
     {
-        result.m_frames.resize(1);
         size_t di = SU_MIN(i, m_frames.size() - 1);
-        result.m_frames[i] = m_frames[i].copy();
+        ret.m_frames.push_back(ret.m_frames[di].copy());
     }
 
-    return result;
+    return ret;
 }
 
 void silly_tzx_grid::copy_info(const silly_tzx_grid& rh)
@@ -245,16 +226,34 @@ float silly_tzx_grid::ydelta() const
 
 bool silly_tzx_grid::read(const std::filesystem::path& file)
 {
+    return read(file, -1);
+}
+
+bool silly_tzx_grid::read(const std::filesystem::path& file, const int& index)
+{
     bool status = false;
-#ifndef NDEBUG
-    //  std::cout << "读取TZX_GRID失败 : " << path << std::endl;
-#endif
     release();
 
     if (const size_t fileSize = sufile::size(file))
     {
         const std::string buff = sufile::read(file);
-        status = unserialize(buff);
+        char* p = read_head(buff);
+        if (!(TZX_GRID_1 == buff[1] && TZX_GRID_2 == buff[2] && TZX_GRID_3 == buff[3] && p))
+        {
+            return status;
+        }
+        if (TZX_GRID_V1 == buff[0])
+        {
+            status = unserialize_v1(p);
+        }
+        else if (TZX_GRID_V2 == buff[0])
+        {
+            status = unserialize_v2(p, index);
+        }
+        else if (TZX_GRID_0 == buff[0])
+        {
+            status = unserialize(p);
+        }
     }
     return status;
 }
@@ -263,6 +262,7 @@ bool silly_tzx_grid::save(const std::filesystem::path& file)
 {
     bool status = false;
     std::string buff;
+    m_prefix[0] = TZX_GRID_V2;
     if (serialize_v2(buff))
     {
         return sufile::write(file, buff) > 0;
@@ -333,14 +333,13 @@ bool silly_tzx_grid::serialize_v1(std::string& buff)
     std::string srcBin;
     size_t srcLen = m_frames[0].row() * m_frames[0].col() * sizeof(float);
     srcBin.assign(reinterpret_cast<char*>(m_frames[0].data()), srcLen);
-    size_t cpsLen = 0;
     std::string cpsBin;
     if (!lz4_cps_data(srcBin, cpsBin))
     {
         cpsBin.clear();
         return false;
     }
-    cpsLen = cpsBin.size();
+    size_t cpsLen = cpsBin.size();
     m_total = sizeof(m_prefix) + sizeof(m_total) + sizeof(m_left) * 4 + sizeof(m_xdelta) * 2 + sizeof(m_name) + sizeof(m_units) + sizeof(m_row) + sizeof(m_col) + sizeof(cpsLen) + cpsLen;
     buff.resize(m_total);
     char* p = buff.data();
@@ -371,7 +370,7 @@ bool silly_tzx_grid::serialize_v1(std::string& buff)
 
     TZX_GRID_MEMCPY_TYPE(p, m_col)
 
-    TZX_GRID_MEMCPY_TYPE(p, m_total)
+    TZX_GRID_MEMCPY_TYPE(p, cpsLen)
 
     memcpy(p, cpsBin.data(), cpsLen);
     status = true;
@@ -445,57 +444,10 @@ bool silly_tzx_grid::serialize_v2(std::string& buff)
     return true;
 }
 
-bool silly_tzx_grid::unserialize(const std::string& buff)
+bool silly_tzx_grid::unserialize(char* p)
 {
     bool status = false;
 
-    if (!(TZX_GRID_1 == buff[1] && TZX_GRID_2 == buff[2] && TZX_GRID_3 == buff[3]))
-    {
-        return status;
-    }
-    if (TZX_GRID_V1 == buff[0])
-    {
-        return unserialize_v1(buff);
-    }
-    if (TZX_GRID_V2 == buff[0])
-    {
-        return unserialize_v2(buff);
-    }
-    if (TZX_GRID_0 != buff[0])
-    {
-        return false;
-    }
-
-    char* p = const_cast<char*>(buff.data()) + TZX_GRID_VERL;
-    m_total = reinterpret_cast<size_t*>(p)[0];
-    p += sizeof(size_t);
-    if (m_total != buff.size())
-    {
-        return false;
-    }
-    m_left = reinterpret_cast<float*>(p)[0];
-    p += sizeof(float);
-    m_top = reinterpret_cast<float*>(p)[0];
-    p += sizeof(float);
-    m_right = reinterpret_cast<float*>(p)[0];
-    p += sizeof(float);
-    m_bottom = reinterpret_cast<float*>(p)[0];
-    p += sizeof(float);
-
-    m_xdelta = reinterpret_cast<float*>(p)[0];
-    p += sizeof(float);
-    m_ydelta = reinterpret_cast<float*>(p)[0];
-    p += sizeof(float);
-
-    memcpy(m_name, p, sizeof(m_name));
-    p += sizeof(m_name);
-    memcpy(m_units, p, sizeof(m_units));
-    p += sizeof(m_units);
-
-    m_row = reinterpret_cast<size_t*>(p)[0];
-    p += sizeof(size_t);
-    m_col = reinterpret_cast<size_t*>(p)[0];
-    p += sizeof(size_t);
     m_frames.resize(1);
     m_frames[0].create(m_row, m_col, true);
     memcpy(m_frames[0].data(), p, m_row * m_col * sizeof(float));
@@ -504,42 +456,12 @@ bool silly_tzx_grid::unserialize(const std::string& buff)
     return status;
 }
 
-bool silly_tzx_grid::unserialize_v1(const std::string& buff)
+bool silly_tzx_grid::unserialize_v1(char* p)
 {
-    char* p = const_cast<char*>(buff.data()) + TZX_GRID_VERL;
-    size_t len = buff.size();
-    m_total = reinterpret_cast<size_t*>(p)[0];
-    p += sizeof(size_t);
-    if (m_total != len)
+    if (!p)
     {
         return false;
     }
-
-    m_left = reinterpret_cast<float*>(p)[0];
-    p += sizeof(float);
-    m_top = reinterpret_cast<float*>(p)[0];
-    p += sizeof(float);
-
-    m_right = reinterpret_cast<float*>(p)[0];
-    p += sizeof(float);
-
-    m_bottom = reinterpret_cast<float*>(p)[0];
-    p += sizeof(float);
-
-    m_xdelta = reinterpret_cast<float*>(p)[0];
-    p += sizeof(float);
-    m_ydelta = reinterpret_cast<float*>(p)[0];
-    p += sizeof(float);
-
-    memcpy(m_name, p, sizeof(m_name));
-    p += sizeof(m_name);
-    memcpy(m_units, p, sizeof(m_units));
-    p += sizeof(m_units);
-
-    m_row = reinterpret_cast<size_t*>(p)[0];
-    p += sizeof(size_t);
-    m_col = reinterpret_cast<size_t*>(p)[0];
-    p += sizeof(size_t);
     size_t cpsLen = reinterpret_cast<size_t*>(p)[0];
     p += sizeof(size_t);
 
@@ -558,79 +480,40 @@ bool silly_tzx_grid::unserialize_v1(const std::string& buff)
 
     return false;
 }
-bool silly_tzx_grid::unserialize_v2(const std::string& buff)
+
+bool silly_tzx_grid::unserialize_v2(char* p, const int& index)
 {
-    char* p = const_cast<char*>(buff.data()) + TZX_GRID_VERL;
-    size_t len = buff.size();
-    m_total = reinterpret_cast<size_t*>(p)[0];
-    p += sizeof(size_t);
-    if (m_total != len)
+    if (!p)
     {
         return false;
     }
-    size_t currLen = TZX_GRID_VERL + sizeof(m_total);
-
-    m_left = reinterpret_cast<float*>(p)[0];
-    p += sizeof(m_left);
-    currLen += sizeof(m_left);
-
-    m_top = reinterpret_cast<float*>(p)[0];
-    p += sizeof(m_top);
-    currLen += sizeof(m_top);
-
-    m_right = reinterpret_cast<float*>(p)[0];
-    p += sizeof(m_right);
-    currLen += sizeof(m_right);
-
-    m_bottom = reinterpret_cast<float*>(p)[0];
-    p += sizeof(m_bottom);
-    currLen += sizeof(m_bottom);
-
-    m_xdelta = reinterpret_cast<float*>(p)[0];
-    p += sizeof(m_xdelta);
-    currLen += sizeof(m_xdelta);
-
-    m_ydelta = reinterpret_cast<float*>(p)[0];
-    p += sizeof(m_ydelta);
-    currLen += sizeof(m_ydelta);
-
-    memcpy(m_name, p, sizeof(m_name));
-    p += sizeof(m_name);
-    currLen += sizeof(m_name);
-
-    memcpy(m_units, p, sizeof(m_units));
-    p += sizeof(m_units);
-    currLen += sizeof(m_units);
-
-    m_row = reinterpret_cast<size_t*>(p)[0];
-    p += sizeof(size_t);
-    currLen += sizeof(m_row);
-
-    m_col = reinterpret_cast<size_t*>(p)[0];
-    p += sizeof(size_t);
-    currLen += sizeof(m_col);
     m_frames.clear();
+    size_t currLen = m_header_len;
+    int i = 0;
     while (currLen < m_total)
     {
         size_t cpsLen = reinterpret_cast<size_t*>(p)[0];
         p += sizeof(size_t);
         currLen += sizeof(cpsLen) + cpsLen;
 
-        std::string cpsBin;
-        cpsBin.assign(p, cpsLen);
-        std::string dCpsBin;
-        bool status = lz4_dcps_data(cpsBin, dCpsBin);
-        size_t dCpsLen = dCpsBin.size();
-        su::FMatrix tmpMatrix;
-        if (status && !dCpsBin.empty() && dCpsLen == m_row * m_col * sizeof(float))
+        if (i < 0 || i == index)
         {
-            tmpMatrix.create(m_row, m_col, true);
-            memcpy(tmpMatrix.data(), dCpsBin.data(), m_row * m_col * sizeof(float));
+            std::string cpsBin;
+            cpsBin.assign(p, cpsLen);  // 读取目标帧压缩数据
+            std::string dCpsBin;
+            bool status = lz4_dcps_data(cpsBin, dCpsBin);
+            size_t dCpsLen = dCpsBin.size();
+            su::FMatrix tmpMatrix;
+            if (status && !dCpsBin.empty() && dCpsLen == m_row * m_col * sizeof(float))
+            {
+                tmpMatrix.create(m_row, m_col, true);
+                memcpy(tmpMatrix.data(), dCpsBin.data(), m_row * m_col * sizeof(float));
+            }
+            m_frames.push_back(tmpMatrix);
         }
-        m_frames.push_back(tmpMatrix);
+
         p += cpsLen;
     }
-
     return !m_frames.empty();
 }
 
@@ -767,4 +650,85 @@ void silly_tzx_grid::release()
         m.release();
     }
     m_frames.clear();
+}
+char* silly_tzx_grid::read_head(const std::string& buff)
+{
+    size_t len = buff.size();
+    char* p = const_cast<char*>(buff.data());
+    memcpy(m_prefix, p, sizeof(m_prefix));
+    p+= sizeof(m_prefix);
+
+    m_total = reinterpret_cast<size_t*>(p)[0];
+    p += sizeof(m_total);
+
+    if (m_total != len)
+    {
+        m_total = 0;
+        p = nullptr;
+        return p;
+    }
+
+    m_left = reinterpret_cast<float*>(p)[0];
+    p += sizeof(m_left);
+
+    m_top = reinterpret_cast<float*>(p)[0];
+    p += sizeof(m_top);
+
+    m_right = reinterpret_cast<float*>(p)[0];
+    p += sizeof(m_right);
+
+    m_bottom = reinterpret_cast<float*>(p)[0];
+    p += sizeof(m_bottom);
+
+    m_xdelta = reinterpret_cast<float*>(p)[0];
+    p += sizeof(m_xdelta);
+
+    m_ydelta = reinterpret_cast<float*>(p)[0];
+    p += sizeof(m_ydelta);
+
+    memcpy(m_name, p, sizeof(m_name));
+    p += sizeof(m_name);
+
+    memcpy(m_units, p, sizeof(m_units));
+    p += sizeof(m_units);
+
+    m_row = reinterpret_cast<size_t*>(p)[0];
+    p += sizeof(m_row);
+
+    m_col = reinterpret_cast<size_t*>(p)[0];
+    p += sizeof(m_col);
+
+    return p;
+}
+
+std::string silly_tzx_grid::write_header() const
+{
+    size_t hLen = 0;
+    hLen += (sizeof(m_prefix) + sizeof(m_total) + sizeof(m_left) * 4 + sizeof(m_xdelta) * 2);
+    hLen += (sizeof(m_name) + sizeof(m_units) + sizeof(m_row) + sizeof(m_col));
+    std::string ret = std::string(hLen, 0);
+    char* p = ret.data();
+    TZX_GRID_MEMCPY_TYPE(p, m_total)
+
+    TZX_GRID_MEMCPY_TYPE(p, m_left)
+
+    TZX_GRID_MEMCPY_TYPE(p, m_top)
+
+    TZX_GRID_MEMCPY_TYPE(p, m_right)
+
+    TZX_GRID_MEMCPY_TYPE(p, m_bottom)
+
+    TZX_GRID_MEMCPY_TYPE(p, m_xdelta)
+
+    TZX_GRID_MEMCPY_TYPE(p, m_ydelta)
+
+    TZX_GRID_MEMCPY_TYPE(p, m_name)
+
+    TZX_GRID_MEMCPY_TYPE(p, m_units)
+
+    TZX_GRID_MEMCPY_TYPE(p, m_row)
+
+    TZX_GRID_MEMCPY_TYPE(p, m_col)
+
+    return ret;
 }

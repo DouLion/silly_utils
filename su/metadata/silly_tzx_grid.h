@@ -20,21 +20,52 @@
 /// 所以, 这里使用float, 减少内存和序列化之后的空间占用
 class silly_tzx_grid
 {
+    // TODO: 后续修改, 预计预留256个字节
+    // 在更新完成之后,如果遇到非新格式的数据,会自动转换
+    struct header
+    {
+        char m_ver[4] = {0};
+        size_t m_total = 0;  // 整个数据总长度
+        char m_name[16] = {0};
+        double m_left = 0;
+        double m_right = 0;
+        double m_top = 0;
+        double m_bottom = 0;
+        double m_xdelta = 0;
+        double m_ydelta = 0;
+        size_t m_row = 0;
+        size_t m_col = 0;
+        short m_num = 0;
+        std::time_t m_ptm = 0;      // 发布时间
+        std::time_t m_btm = 0;      // 开始时间
+        std::time_t m_etm = 0;      // 结束时间
+        char m_reserve[138] = {0};  // 预留断
+    };
+
   public:
     silly_tzx_grid();
 
     // 从文件读写
     bool read(const std::filesystem::path& file);
+    /// <summary>
+    /// 加载指定帧
+    /// 前两个版本,只会加载唯一一个,index始终为0
+    /// 版本(2TZX)才能完全支持
+    /// </summary>
+    /// <param name="file"></param>
+    /// <param name="index">负数表示全部, 其他表示读指定帧</param>
+    /// <returns></returns>
+    bool read(const std::filesystem::path& file, const int& index);
     bool save(const std::filesystem::path& file);
 
-    /// <summary>
-    /// 将多个网格数据拼接为一个,重叠部分采用最大值
-    /// TODO: 可以使用多线程优化,并且 以每个grids为主, 减少循环次数
-    /// 这里限制delta的原因是,希望使用同样的一套数据,所有的数据使用相同的尺度
-    /// </summary>
-    /// <param name="grids">多个网格点</param>
-    /// <param name="boundary">目标的范围</param>
-    /// <param name="delta">每个格点的大小</param>
+    /**
+     * @brief   将多个网格数据拼接为一个,重叠部分采用最大值
+     *          TODO: 可以使用多线程优化,并且 以每个grids为主, 减少循环次数
+     *          这里限制delta的原因是,希望使用同样的一套数据,所有的数据使用相同的尺度
+     * @param grids 多个网格点
+     * @param boundary 目标的范围
+     * @param d 每个格点的大小
+     */
     void puzzle(const std::vector<silly_tzx_grid>& grids, const silly_rect& boundary, const float& d = 0.0025);
 
     silly_tzx_grid& operator=(const silly_tzx_grid& rh);
@@ -52,11 +83,23 @@ class silly_tzx_grid
 
     void copy_info(const silly_tzx_grid& rh);
 
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="i"></param>
+    /// <returns></returns>
     su::FMatrix& frame(const size_t& i);
 
-    /// 总帧数
+    /// <summary>
+    ///
+    /// </summary>
+    /// <returns></returns>
     size_t frame_num() const;
 
+    /// @brief
+    /// @param i
+    /// @param rh
+    /// @return
     bool set(const size_t& i, const silly_tzx_grid& rh);
     /// 添加一个网格数据
     bool add(const silly_tzx_grid& rh);
@@ -82,6 +125,8 @@ class silly_tzx_grid
     void release();
 
   private:
+    char* read_head(const std::string& buff);
+    std::string write_header() const;
     /// <summary>
     ///
     /// </summary>
@@ -89,7 +134,6 @@ class silly_tzx_grid
     /// <returns></returns>
     bool serialize(std::string& buff);
     bool serialize_v1(std::string& buff);
-
     bool serialize_v2(std::string& buff);
 
     /// <summary>
@@ -97,10 +141,9 @@ class silly_tzx_grid
     /// </summary>
     /// <param name="buff">输入: 数据区域</param>
     /// <returns></returns>
-    bool unserialize(const std::string& buff);
-    bool unserialize_v1(const std::string& buff);
-
-    bool unserialize_v2(const std::string& buff);
+    bool unserialize(char* buff);
+    bool unserialize_v1(char* buff);
+    bool unserialize_v2(char* buff, const int& index);
 
     /// <summary>
     /// 用lz4压缩数据
@@ -119,26 +162,24 @@ class silly_tzx_grid
     bool lz4_dcps_data(const std::string& src, std::string& dst) const;
 
   protected:
-    size_t m_total{0};
-    float m_left{0.};
-    float m_right{0.};
-    float m_top{0.};
-    float m_bottom{0.};
-
-    float m_xdelta{0.};
-    float m_ydelta{0.};
-
-    char m_name[32]{0};
-    char m_units[32]{0};
-
+    // header m_header;
+    size_t m_total = 0;
+    float m_left = 0;
+    float m_right = 0;
+    float m_top = 0;
+    float m_bottom = 0;
+    float m_xdelta = 0;
+    float m_ydelta = 0;
     size_t m_row = 0;
     size_t m_col = 0;
-
+    char m_name[32]{0};
+    char m_units[32]{0};
+    size_t m_header_len;
     std::vector<su::FMatrix> m_frames;
     std::vector<std::string> m_buff;
 
   private:
-    char m_prefix[4]{};
+    char m_prefix[4] = {0};
 };
 
 #endif  // SILLY_UTILS_SILLY_TZX_GRID_H
