@@ -164,9 +164,9 @@ bool silly_tzx_grid::add(const su::FMatrix grid)
     if (grid.row() == m_row && grid.col() == m_col)
     {
         m_frames.push_back(grid);
-        return false;
+        return true;
     }
-    return true;
+    return false;
 }
 bool silly_tzx_grid::set(const std::vector<su::FMatrix> grids)
 {
