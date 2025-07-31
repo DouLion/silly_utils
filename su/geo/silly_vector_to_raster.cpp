@@ -8,8 +8,8 @@ using namespace silly::geo::rasterization;
 void x_scan_line::check_line_point(silly_point point, std::vector<_point>& vct, int& last_x, int& last_y)
 {
     // m_row_pairs.clear();
-    int tmp_x = static_cast<int>((point.x - m_rect.min.x) / m_cell_size);
-    int tmp_y = static_cast<int>((m_rect.max.y - point.y) / m_cell_size);
+    int tmp_x = static_cast<int>(std::round((point.x - m_rect.min.x) / m_cell_size));
+    int tmp_y = static_cast<int>(std::round((m_rect.max.y - point.y) / m_cell_size));
     if (last_x != tmp_x || last_y != tmp_y)
     {
         vct.push_back(_point(tmp_x, tmp_y));
@@ -20,8 +20,8 @@ void x_scan_line::check_line_point(silly_point point, std::vector<_point>& vct, 
 
 void x_scan_line::rasterize(const silly_point& point)
 {
-    int x = static_cast<int>((point.x - m_rect.min.x) / m_cell_size);
-    int y = static_cast<int>((m_rect.max.y - point.y) / m_cell_size);
+    int x = static_cast<int>(std::round((point.x - m_rect.min.x) / m_cell_size));
+    int y = static_cast<int>(std::round((m_rect.max.y - point.y) / m_cell_size));
     if (x >= 0 && x < m_width && y >= 0 && y < m_height)
     {
         m_row_colors[y][x] = 1;
@@ -45,8 +45,8 @@ void x_scan_line::rasterize(const silly_line& line)
     }
     int i = 0;
 
-    int bx = static_cast<int>((line[i].x - m_rect.min.x) / m_cell_size);
-    int by = static_cast<int>((m_rect.max.y - line[i].y) / m_cell_size);
+    int bx = static_cast<int>(std::round((line[i].x - m_rect.min.x) / m_cell_size));
+    int by = static_cast<int>(std::round((m_rect.max.y - line[i].y) / m_cell_size));
     double dbx = line[i].x;
     double dby = line[i].y;
     for (i = 1; i < line.size(); i++)
@@ -145,6 +145,12 @@ void x_scan_line::rasterize(const std::vector<std::vector<_point>> vertices_arr)
             maxX = SU_MAX(0, SU_MAX(maxX, point.x));
         }
     }
+    minY = SU_MIN(minY, m_height - 1);
+    maxY = SU_MIN(maxY, m_height - 1);
+    minX = SU_MIN(minX, m_width - 1);
+    maxX = SU_MIN(maxX, m_width - 1);
+
+    
 
     // 对每一条扫描线进行处理
     for (int scanY = minY; scanY <= maxY; ++scanY)
