@@ -11,13 +11,13 @@
 #include "silly_iso_poly.h"
 #include <files/silly_file.h>
 #include <geo/silly_geo_utils.h>
-bool silly::geo::iso_poly::read(const std::string& u8file, silly_multi_poly& mpoly)
+bool silly::geo::iso_poly::read(const std::filesystem::path& file, silly_multi_poly& mpoly)
 {
     bool status = false;
     try
     {
         std::string content;
-        if (0 == sufile::read(u8file, content))
+        if (0 == sufile::read(file, content))
         {
             return status;
         }
@@ -98,7 +98,7 @@ bool silly::geo::iso_poly::read(const std::string& u8file, silly_multi_poly& mpo
 
     return status;
 }
-bool silly::geo::iso_poly::write(const std::string& u8file, const silly_multi_poly& mpoly, const int& precision)
+bool silly::geo::iso_poly::write(const std::filesystem::path& file, const silly_multi_poly& mpoly, const int& precision)
 {
     bool status = false;
     int part_num = mpoly.size();
@@ -106,7 +106,7 @@ bool silly::geo::iso_poly::write(const std::string& u8file, const silly_multi_po
     ss << std::fixed << std::setprecision(precision);
     try
     {
-        std::ofstream ofs(u8file);
+        std::ofstream ofs(file);
         if (!ofs.is_open())
         {
             return false;
