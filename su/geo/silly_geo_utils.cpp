@@ -1205,16 +1205,16 @@ double utils::area(const silly_poly& poly)
 
     return total_area;
 }
-double utils::area_sqkm(const silly_poly& poly)
+double utils::area_sqkm(const silly_poly& poly, const double& l0)
 {
-    double total_area = area_sqkm(poly.outer_ring.points);
+    double total_area = area_sqkm(poly.outer_ring.points, l0);
     if (total_area < 1.E-15)
     {
         return total_area;
     }
     for (const auto& inner_ring : poly.inner_rings)
     {
-        total_area -= area_sqkm(inner_ring.points);
+        total_area -= area_sqkm(inner_ring.points,l0);
     }
     return total_area;
 }
@@ -1227,12 +1227,12 @@ double utils::area(const silly_multi_poly& mpoly)
     }
     return total_area;
 }
-double utils::area_sqkm(const silly_multi_poly& mpoly)
+double utils::area_sqkm(const silly_multi_poly& mpoly, const double& l0)
 {
     double total_area = 0;
     for (const auto& poly : mpoly)
     {
-        total_area += area_sqkm(poly);
+        total_area += area_sqkm(poly,l0);
     }
     return total_area;
 }
@@ -1248,7 +1248,7 @@ std::vector<silly_line> utils::trans_intersection(const silly_multi_poly& mpoly1
     // TODO:
     return result;
 }
-double utils::area_sqkm(const std::vector<silly_point>& points)
+double utils::area_sqkm(const std::vector<silly_point>& points, const double& l0)
 {
     double maxx = -1e10, minx = 1e10;
     for (auto p : points)
@@ -1257,11 +1257,10 @@ double utils::area_sqkm(const std::vector<silly_point>& points)
         minx = std::min(minx, p.x);
     }
     std::vector<silly_point> gpoints;
-    auto central = SU_GAUSS6_L0(SU_GAUSS6_NO((minx + maxx) / 2));
     for (auto p : points)
     {
         silly_point tmp;
-        proj::convert::lonlat_to_gauss(central, p.x, p.y, tmp.y, tmp.x);
+        proj::convert::lonlat_to_gauss(l0, p.x, p.y, tmp.y, tmp.x);
         gpoints.push_back(tmp);
     }
     return area(gpoints) / 1e6;

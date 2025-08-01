@@ -277,19 +277,19 @@ class utils
     /// </summary>
     /// <param name="points">经纬度点</param>
     /// <returns></returns>
-    static double area_sqkm(const std::vector<silly_point>& points);
+    static double area_sqkm(const std::vector<silly_point>& points, const double& l0);
 
     /// <summary>
     /// 计算面积平方公里
     /// </summary>
     /// <param name="mpoly">经纬度面</param>
     /// <returns></returns>
-    static double area_sqkm(const silly_poly& poly);
+    static double area_sqkm(const silly_poly& poly, const double& l0);
 
     /// <summary>
     /// 面积
     /// </summary>
-    /// <param name="mpoly"></param>
+    /// <param name="mpoly">高斯或者墨卡托面</param>
     /// <returns></returns>
     static double area(const silly_multi_poly& mpoly);
 
@@ -298,7 +298,7 @@ class utils
     /// </summary>
     /// <param name="mpoly">经纬度面</param>
     /// <returns></returns>
-    static double area_sqkm(const silly_multi_poly& mpoly);
+    static double area_sqkm(const silly_multi_poly& mpoly, const double& l0);
 
     /// <summary>
     /// 平滑线
