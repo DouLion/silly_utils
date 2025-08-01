@@ -261,14 +261,14 @@ int main(int argc, char** argv)
         double lgtd, lttd;
         if(coll.m_type == enum_geometry_type::egtPolygon)
         {
-            lgtd = coll.m_poly.outer_ring.points[0].lgtd;
-            lttd = coll.m_poly.outer_ring.points[0].lttd;
+            lgtd = coll.m_poly.outer.points[0].lgtd;
+            lttd = coll.m_poly.outer.points[0].lttd;
         }
         else if(coll.m_type == enum_geometry_type::egtMultiPolygon)
         {
 
-            lgtd = coll.m_m_polys[0].outer_ring.points[0].lgtd;
-            lttd = coll.m_m_polys[0].outer_ring.points[0].lttd;
+            lgtd = coll.m_m_polys[0].outer.points[0].lgtd;
+            lttd = coll.m_m_polys[0].outer.points[0].lttd;
         }
 
         int col = std::floor((lgtd - (left -cell_size/2))/cell_size);
@@ -306,13 +306,13 @@ int main(int argc, char** argv)
 
     OGRPolygon org = silly_geo_utils::silly_poly_to_ogr(gcs.front().m_poly);
     std::cout << " : " << org.get_Area() << std::endl;
-    int num = gcs.front().m_poly.outer_ring.points.size();
+    int num = gcs.front().m_poly.outer.points.size();
     std::vector<double> xs(num), ys(num);
     std::vector<double> xypoints(num * 2);
     for (int i = 0; i < num; ++i)
     {
-        xs[i] = gcs.front().m_poly.outer_ring.points[i].lgtd;
-        ys[i] = gcs.front().m_poly.outer_ring.points[i].lttd;
+        xs[i] = gcs.front().m_poly.outer.points[i].lgtd;
+        ys[i] = gcs.front().m_poly.outer.points[i].lttd;
         xypoints[i * 2] = xs[i];
         xypoints[i * 2 + 1] = ys[i];
     }
@@ -322,8 +322,8 @@ int main(int argc, char** argv)
 
     std::cout << " : " << silly_geo_utils::area<double>(num, &xypoints[0]) << std::endl;
 
-    SLOG_DEBUG("{:08f}", silly_geo_utils::area_sqkm(gcs.front().m_poly.outer_ring.points));
-    std::cout << " : " << silly_geo_utils::area_sqkm(gcs.front().m_poly.outer_ring.points) / 1e6 << std::endl;
+    SLOG_DEBUG("{:08f}", silly_geo_utils::area_sqkm(gcs.front().m_poly.outer.points));
+    std::cout << " : " << silly_geo_utils::area_sqkm(gcs.front().m_poly.outer.points) / 1e6 << std::endl;
     return 0;
     for (auto gc : gcs)
     {
@@ -387,7 +387,7 @@ int main(int argc, char** argv)
     for (auto poly : polys)
     {
         sc.draw_poly(poly, silly_geo_rect(0, pd.height, pd.width, 0));
-        // sc.draw_line(poly.outer_ring.points, silly_geo_rect(0, tgi.height, tgi.width, 0));
+        // sc.draw_line(poly.outer.points, silly_geo_rect(0, tgi.height, tgi.width, 0));
         //  break;
     }
     sc.set_color({255, 255, 0, 255});
@@ -395,7 +395,7 @@ int main(int argc, char** argv)
     for (auto poly : polys2)
     {
 
-        for (auto p : poly.outer_ring.points)
+        for (auto p : poly.outer.points)
         {
             double x = p.lgtd/pd.width * sc.width();
             double y = (pd.height - p.lttd)/pd.height * sc.height();
@@ -404,19 +404,19 @@ int main(int argc, char** argv)
             sc.draw_point(p, 5, silly_geo_rect(0, pd.height, pd.width, 0));
         }
 
-        // sc.draw_line(poly.outer_ring.points, silly_geo_rect(0, tgi.height, tgi.width, 0));
+        // sc.draw_line(poly.outer.points, silly_geo_rect(0, tgi.height, tgi.width, 0));
         //  break;
     }
 
     sc.set_color({255, 0, 0, 255});
     for (auto poly : polys3)
     {
-        for (auto p : poly.outer_ring.points)
+        for (auto p : poly.outer.points)
         {
             sc.draw_point(p, 3, silly_geo_rect(0, pd.height, pd.width, 0));
         }
 
-        // sc.draw_line(poly.outer_ring.points, silly_geo_rect(0, tgi.height, tgi.width, 0));
+        // sc.draw_line(poly.outer.points, silly_geo_rect(0, tgi.height, tgi.width, 0));
         //  break;
     }
     sc.write("Z://fff.png");

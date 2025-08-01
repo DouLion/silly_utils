@@ -78,13 +78,13 @@ void x_scan_line::rasterize(const silly_poly& poly)
     int last_y = 0 - m_height;
     std::vector<_point> tmp_vertices;
 
-    for (const auto& point : poly.outer_ring.points)
+    for (const auto& point : poly.outer.points)
     {
         check_line_point(point, tmp_vertices, last_x, last_y);
     }
     vertices_arr.push_back(tmp_vertices);
 
-    for (const auto& ring : poly.inner_rings)
+    for (const auto& ring : poly.holes)
     {
         tmp_vertices.clear();
         last_x = 0 - m_width;
@@ -109,7 +109,7 @@ void x_scan_line::rasterize(const silly_multi_poly& m_polys)
         // 由于精度(m_cell_size)问题,可能会导致一个矢量中有大量重复的连续栅格点,将这部分连续栅格点归并为一个
         int last_x = 0 - m_width;
         int last_y = 0 - m_height;
-        for (const auto& ring : poly.inner_rings)
+        for (const auto& ring : poly.holes)
         {
             std::vector<_point> tmp_vertices;
             for (const auto& point : ring.points)
@@ -120,7 +120,7 @@ void x_scan_line::rasterize(const silly_multi_poly& m_polys)
         }
         std::vector<_point> tmp_vertices;
 
-        for (const auto& point : poly.outer_ring.points)
+        for (const auto& point : poly.outer.points)
         {
             check_line_point(point, tmp_vertices, last_x, last_y);
         }
@@ -284,11 +284,11 @@ std::vector<silly_poly> x_scan_line::grids() const
                 double lon = m_rect.min.x + c * m_cell_size;
                 double lat = m_rect.max.y - r * m_cell_size;
                 silly_poly poly;
-                poly.outer_ring.points.push_back({lon, lat});
-                poly.outer_ring.points.push_back({lon + m_cell_size, lat});
-                poly.outer_ring.points.push_back({lon + m_cell_size, lat - m_cell_size});
-                poly.outer_ring.points.push_back({lon, lat - m_cell_size});
-                poly.outer_ring.points.push_back({lon, lat});
+                poly.outer.points.push_back({lon, lat});
+                poly.outer.points.push_back({lon + m_cell_size, lat});
+                poly.outer.points.push_back({lon + m_cell_size, lat - m_cell_size});
+                poly.outer.points.push_back({lon, lat - m_cell_size});
+                poly.outer.points.push_back({lon, lat});
 
                 ret.push_back({poly});
             }

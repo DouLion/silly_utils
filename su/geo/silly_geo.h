@@ -40,18 +40,13 @@ class silly_point
     silly_point() = default;
     ~silly_point() = default;
 
-    silly_point(double xx, double yy)
+    silly_point(const double& xx, const double& yy)
     {
         x = xx;
         y = yy;
     }
 
-    silly_point& operator=(const silly_point& point)
-    {
-        x = point.x;
-        y = point.y;
-        return *this;
-    }
+    silly_point& operator=(const silly_point& point) = default;
 
     silly_point operator+(const silly_point& point) const
     {
@@ -421,8 +416,8 @@ class silly_poly
     ~silly_poly() = default;
 
   public:
-    silly_ring outer_ring;                // 外环
-    std::vector<silly_ring> inner_rings;  // 内环
+    silly_ring outer;                // 外环
+    std::vector<silly_ring> holes;  // 内环, 孔, 洞
 };
 
 /****************************************/
@@ -453,7 +448,7 @@ class silly_circle
 
   public:
     silly_point center;
-    double radius;
+    double radius = 0.0;
 };
 
 class silly_triangle
@@ -466,18 +461,18 @@ class silly_triangle
     }
 
     /// 有向面积
-    double oriented_area()
+    double oriented_area() const
     {
         return (a.x * (b.y - c.y) + b.x * (c.y - a.y) + c.x * (a.y - b.y)) / 2;
     }
 
-    double area()
+    double area() const
     {
         return std::abs(oriented_area());
     }
 
     /// 外接圆
-    silly_circle circumscribed_circle()
+    silly_circle circumscribed_circle() const
     {
         // 计算外接圆的中心
         double A = a.x * a.x + a.y * a.y;
@@ -554,8 +549,8 @@ class silly_ellipse
   public:
     silly_point center;  // 中心点
     // 长半轴 和 短半轴, 不分
-    double rx;
-    double ry;
+    double rx = 0.0;
+    double ry = 0.0;
 };
 
 #else
@@ -815,8 +810,8 @@ class silly_poly
     ~silly_poly() = default;
 
   public:
-    silly_ring outer_ring;                // 外环
-    std::vector<silly_ring> inner_rings;  // 内环
+    silly_ring outer;                // 外环
+    std::vector<silly_ring> holes;  // 内环
 };
 
 /****************************************/

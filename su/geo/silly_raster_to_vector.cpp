@@ -319,7 +319,7 @@ std::vector<silly_poly> silly_vectorizer::trace_all_polys()
         if (r.is_outer)
         {
             silly_poly tmp;
-            tmp.outer_ring = r;
+            tmp.outer = r;
             r.points.clear();
             result.push_back(tmp);
         }
@@ -330,9 +330,9 @@ std::vector<silly_poly> silly_vectorizer::trace_all_polys()
         {
             if (!r.is_outer && !r.points.empty())
             {
-                if (point_in_ring(r.points.front(), poly.outer_ring))
+                if (point_in_ring(r.points.front(), poly.outer))
                 {
-                    poly.inner_rings.push_back(r);
+                    poly.holes.push_back(r);
                     r.points.clear();
                 }
             }
@@ -344,7 +344,7 @@ std::vector<silly_poly> silly_vectorizer::trace_all_polys()
         {
             SLOG_DEBUG("XXXX{}", r.points.size())
             silly_poly tmp;
-            tmp.outer_ring = r;
+            tmp.outer = r;
             r.points.clear();
             result.push_back(tmp);
         }
@@ -730,13 +730,13 @@ std::vector<silly_poly> silly_vectorizer::smooth_poly(const std::vector<silly_po
     for (auto poly : polys)
     {
         silly_poly tmp;
-        /*tmp.outer_ring.points = silly_bezier_curve::bezier_smooth(poly.outer_ring.points, poly.outer_ring.points.size() * 5); //smooth_ring(poly.outer_ring);
+        /*tmp.outer.points = silly_bezier_curve::bezier_smooth(poly.outer.points, poly.outer.points.size() * 5); //smooth_ring(poly.outer);
 
-        for (auto ring : poly.inner_rings)
+        for (auto ring : poly.holes)
         {
-            // tmp.inner_rings.push_back(smooth_ring(ring));
+            // tmp.holes.push_back(smooth_ring(ring));
 
-            tmp.inner_rings.push_back({silly_b_spline::cubic_interpolation(ring.points, ring.points.size() * 5)});
+            tmp.holes.push_back({silly_b_spline::cubic_interpolation(ring.points, ring.points.size() * 5)});
         }*/
         smooth_polys.push_back(tmp);
     }
@@ -776,11 +776,11 @@ std::vector<silly_poly> silly_vectorizer::simplify_poly_less_angle(const std::ve
     {
         silly_poly simple_poly;
 
-        simple_poly.outer_ring = simplify_ring_douglas(poly.outer_ring, angle);
+        simple_poly.outer = simplify_ring_douglas(poly.outer, angle);
 
-        for (auto ring : poly.inner_rings)
+        for (auto ring : poly.holes)
         {
-            simple_poly.inner_rings.push_back(simplify_ring_douglas(ring, angle));
+            simple_poly.holes.push_back(simplify_ring_douglas(ring, angle));
         }
 
         simple_polys.emplace_back(simple_poly);
@@ -796,21 +796,21 @@ std::vector<silly_poly> silly_vectorizer::simplify_poly_mid_point(const std::vec
     {
         silly_poly simple_poly;
 
-        size_t p_size = poly.outer_ring.points.size();
+        size_t p_size = poly.outer.points.size();
         double x = 0, y = 0;
         int j = 0;
-        for (; j < poly.outer_ring.points.size() - 1; j++)
+        for (; j < poly.outer.points.size() - 1; j++)
         {
-            x = (poly.outer_ring.points[j].x + poly.outer_ring.points[j + 1].x) / 2;
-            y = (poly.outer_ring.points[j].y + poly.outer_ring.points[j + 1].y) / 2;
-            simple_poly.outer_ring.points.push_back({x, y});
+            x = (poly.outer.points[j].x + poly.outer.points[j + 1].x) / 2;
+            y = (poly.outer.points[j].y + poly.outer.points[j + 1].y) / 2;
+            simple_poly.outer.points.push_back({x, y});
         }
-        x = (poly.outer_ring.points[j].x + poly.outer_ring.points[0].x) / 2;
-        y = (poly.outer_ring.points[j].y + poly.outer_ring.points[0].y) / 2;
-        simple_poly.outer_ring.points.push_back({x, y});
-        simple_poly.outer_ring.points.push_back(poly.outer_ring.points[0]);
+        x = (poly.outer.points[j].x + poly.outer.points[0].x) / 2;
+        y = (poly.outer.points[j].y + poly.outer.points[0].y) / 2;
+        simple_poly.outer.points.push_back({x, y});
+        simple_poly.outer.points.push_back(poly.outer.points[0]);
 
-        for (auto ring : poly.inner_rings)
+        for (auto ring : poly.holes)
         {
             while (ring.points.back() == ring.points.front())
             {
@@ -830,7 +830,7 @@ std::vector<silly_poly> silly_vectorizer::simplify_poly_mid_point(const std::vec
             y = (ring.points[j].y + ring.points[0].y) / 2;
             simple_ring.points.push_back({x, y});
             simple_ring.points.push_back(simple_ring.points[0]);
-            simple_poly.inner_rings.emplace_back(simple_ring);
+            simple_poly.holes.emplace_back(simple_ring);
         }
 
         simple_polys.emplace_back(simple_poly);
@@ -844,10 +844,10 @@ std::vector<silly_poly> silly_vectorizer::simplify_poly_same_slope(const std::ve
     for (auto poly : polys)
     {
         silly_poly tmp;
-        tmp.outer_ring = simplify_ring_same_slope(poly.outer_ring);
-        for (auto ring : poly.inner_rings)
+        tmp.outer = simplify_ring_same_slope(poly.outer);
+        for (auto ring : poly.holes)
         {
-            tmp.inner_rings.push_back(simplify_ring_same_slope(ring));
+            tmp.holes.push_back(simplify_ring_same_slope(ring));
         }
         result.push_back(tmp);
         // break;

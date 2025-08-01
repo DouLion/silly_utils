@@ -59,7 +59,7 @@ bool silly::geo::iso_poly::read(const std::filesystem::path& file, silly_multi_p
         // 检查内外环
         silly_multi_poly tmp;
         tmp.resize(200);
-        tmp[0].outer_ring = rings[0];
+        tmp[0].outer = rings[0];
         int poly_num = 1;
         for (int i = 1; i < rings.size(); ++i)
         {
@@ -70,16 +70,16 @@ bool silly::geo::iso_poly::read(const std::filesystem::path& file, silly_multi_p
             bool is_outer = true;
             for (auto& poly : tmp)
             {
-                if (silly::geo::utils::intersect(rings[i].points.front(), poly.outer_ring.points))
+                if (silly::geo::utils::intersect(rings[i].points.front(), poly.outer.points))
                 {
-                    poly.inner_rings.push_back(rings[i]);
+                    poly.holes.push_back(rings[i]);
                     is_outer = false;
                     break;
                 }
             }
             if (is_outer)
             {
-                tmp[poly_num].outer_ring = rings[i];
+                tmp[poly_num].outer = rings[i];
                 poly_num++;
             }
         }
@@ -114,8 +114,8 @@ bool silly::geo::iso_poly::write(const std::filesystem::path& file, const silly_
         ofs << part_num;
         for (auto& poly : mpoly)
         {
-            ofs << " " << poly.outer_ring.points.size();
-            for (auto& p : poly.outer_ring.points)
+            ofs << " " << poly.outer.points.size();
+            for (auto& p : poly.outer.points)
             {
                 ofs << " " << p.x;
                 ofs << " " << p.y;

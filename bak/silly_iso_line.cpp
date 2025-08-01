@@ -115,10 +115,10 @@ void silly_iso_line::make_tri_net()
     {
         silly_geo_coll sgc;
         sgc.m_type = enum_geometry_type::egtPolygon;
-        sgc.m_poly.outer_ring.points.push_back({m_ddx[ts.p0.i], m_ddy[ts.p0.i]});
-        sgc.m_poly.outer_ring.points.push_back({m_ddx[ts.p1.i], m_ddy[ts.p1.i]});
-        sgc.m_poly.outer_ring.points.push_back({m_ddx[ts.p2.i], m_ddy[ts.p2.i]});
-        sgc.m_poly.outer_ring.points.push_back({m_ddx[ts.p0.i], m_ddy[ts.p0.i]});
+        sgc.m_poly.outer.points.push_back({m_ddx[ts.p0.i], m_ddy[ts.p0.i]});
+        sgc.m_poly.outer.points.push_back({m_ddx[ts.p1.i], m_ddy[ts.p1.i]});
+        sgc.m_poly.outer.points.push_back({m_ddx[ts.p2.i], m_ddy[ts.p2.i]});
+        sgc.m_poly.outer.points.push_back({m_ddx[ts.p0.i], m_ddy[ts.p0.i]});
         // sgc.m_props["idx"] = silly_geo_prop(i);
         tri_shps.push_back(sgc);
     }
@@ -397,7 +397,7 @@ void silly_iso_line::draw_iso_fill(std::vector<iso_polygon>& result_polys, size_
     }
 
     // 找到内环
-    //  std::map<int, std::vector<int>> poly_inner_rings;
+    //  std::map<int, std::vector<int>> poly_holes;
     int int_c = 0;
     for (auto& ring : all_rings)
     {
@@ -830,10 +830,10 @@ std::string silly_iso_line::geojson(const std::filesystem::path& file)
     {
         silly_geo_coll sgc;
         sgc.m_type = enum_geometry_type::egtPolygon;
-        sgc.m_poly.outer_ring.points.push_back({m_tax[i], m_tay[i]});
-        sgc.m_poly.outer_ring.points.push_back({m_tbx[i], m_tby[i]});
-        sgc.m_poly.outer_ring.points.push_back({m_tcx[i], m_tcy[i]});
-        sgc.m_poly.outer_ring.points.push_back({m_tax[i], m_tay[i]});
+        sgc.m_poly.outer.points.push_back({m_tax[i], m_tay[i]});
+        sgc.m_poly.outer.points.push_back({m_tbx[i], m_tby[i]});
+        sgc.m_poly.outer.points.push_back({m_tcx[i], m_tcy[i]});
+        sgc.m_poly.outer.points.push_back({m_tax[i], m_tay[i]});
         sgc.m_props["idx"] = silly_geo_prop(i);
         tri_shps.push_back(sgc);
     }
@@ -848,7 +848,7 @@ std::string silly_iso_line::geojson(const std::filesystem::path& file)
             sgc.m_type = enum_geometry_type::egtPolygon;
             for (auto cp : p.outer.cpoint)
             {
-                sgc.m_poly.outer_ring.points.push_back({cp.x, cp.y});
+                sgc.m_poly.outer.points.push_back({cp.x, cp.y});
             }
             sgc.m_props["level"] = silly_geo_prop((int)l);
             iso_shps.push_back(sgc);

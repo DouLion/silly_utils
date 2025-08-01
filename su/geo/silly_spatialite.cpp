@@ -104,22 +104,22 @@ static bool silly_multi_silly_line_to_gaiageo(const silly_multi_line &mline, gai
 /// <returns></returns>
 static bool silly_poly_to_gaiageo(const silly_poly &poly, gaiaGeomCollPtr &ggcp)
 {
-    if (!poly.outer_ring.points.empty())
+    if (!poly.outer.points.empty())
     {
         ggcp = gaiaAllocGeomColl();
         ggcp->DimensionModel = GAIA_XY;
-        gaiaPolygonPtr gaiaPoly = gaiaAddPolygonToGeomColl(ggcp, poly.outer_ring.points.size(), poly.inner_rings.size());
+        gaiaPolygonPtr gaiaPoly = gaiaAddPolygonToGeomColl(ggcp, poly.outer.points.size(), poly.holes.size());
         // 添加外环
         gaiaRingPtr exteriorRing = gaiaPoly->Exterior;
         int exteriorPointNum = 0;
-        for (const auto &point : poly.outer_ring.points)
+        for (const auto &point : poly.outer.points)
         {
             gaiaSetPoint(exteriorRing->Coords, exteriorPointNum, point.x, point.y);
             exteriorPointNum++;
         }
         // 添加内环
         int inner_num = 0;
-        for (const auto &innerRing : poly.inner_rings)
+        for (const auto &innerRing : poly.holes)
         {
             gaiaRingPtr interiorRing = gaiaAddInteriorRing(gaiaPoly, inner_num, innerRing.points.size());
             int interPointNum = 0;
@@ -149,18 +149,18 @@ static bool silly_multi_poly_to_gaiageo(const silly_multi_poly &mpoly, gaiaGeomC
         ggcp->DimensionModel = GAIA_XY;
         for (const auto &poly : mpoly)
         {
-            gaiaPolygonPtr gaiaPoly = gaiaAddPolygonToGeomColl(ggcp, poly.outer_ring.points.size(), poly.inner_rings.size());
+            gaiaPolygonPtr gaiaPoly = gaiaAddPolygonToGeomColl(ggcp, poly.outer.points.size(), poly.holes.size());
             // 添加外环
             gaiaRingPtr exteriorRing = gaiaPoly->Exterior;
             int exteriorPointNum = 0;
-            for (const auto &point : poly.outer_ring.points)
+            for (const auto &point : poly.outer.points)
             {
                 gaiaSetPoint(exteriorRing->Coords, exteriorPointNum, point.x, point.y);
                 exteriorPointNum++;
             }
             // 添加内环
             int inner_num = 0;
-            for (const auto &innerRing : poly.inner_rings)
+            for (const auto &innerRing : poly.holes)
             {
                 gaiaRingPtr interiorRing = gaiaAddInteriorRing(gaiaPoly, inner_num, innerRing.points.size());
                 int interPointNum = 0;
@@ -280,7 +280,7 @@ static bool gaiageo_to_silly_poly(gaiaGeomCollPtr ggcp, silly_poly &sillyPoly)
             gaiaGetPoint(exteriorRing->Coords, i, &x, &y);
             outerRing.points.push_back(silly_point(x, y));
         }
-        sillyPoly.outer_ring = outerRing;
+        sillyPoly.outer = outerRing;
         // 内环
         int interNum = ggcpoly->NumInteriors;
         for (int n = 0; n < interNum; n++)
@@ -295,7 +295,7 @@ static bool gaiageo_to_silly_poly(gaiaGeomCollPtr ggcp, silly_poly &sillyPoly)
                     gaiaGetPoint(interiorRing->Coords, j, &x, &y);
                     innerRing.points.push_back(silly_point(x, y));
                 }
-                sillyPoly.inner_rings.push_back(innerRing);
+                sillyPoly.holes.push_back(innerRing);
                 interiorRing = interiorRing->Next;
             }
         }
@@ -324,7 +324,7 @@ static bool gaiageo_to_silly_multi_poly(gaiaGeomCollPtr ggcp, silly_multi_poly &
             gaiaGetPoint(exteriorRing->Coords, i, &x, &y);
             outerRing.points.push_back(silly_point(x, y));
         }
-        sillyPoly.outer_ring = outerRing;
+        sillyPoly.outer = outerRing;
         // 内环
         int interNum = poly->NumInteriors;
         for (int n = 0; n < interNum; n++)
@@ -339,7 +339,7 @@ static bool gaiageo_to_silly_multi_poly(gaiaGeomCollPtr ggcp, silly_multi_poly &
                     gaiaGetPoint(interiorRing->Coords, j, &x, &y);
                     innerRing.points.push_back(silly_point(x, y));
                 }
-                sillyPoly.inner_rings.push_back(innerRing);
+                sillyPoly.holes.push_back(innerRing);
                 interiorRing = interiorRing->Next;
             }
         }

@@ -219,14 +219,14 @@ silly_poly utils::silly_poly_from_ogr(const OGRPolygon* polygon)
     silly_poly poly;
     // 处理OGRPolygon外环
     auto outerRing = (OGRLinearRing*)polygon->getExteriorRing();
-    poly.outer_ring = silly_ring_from_ogr(outerRing);
+    poly.outer = silly_ring_from_ogr(outerRing);
     // 处理OGRPolygon内环
     int innerRingCount = polygon->getNumInteriorRings();
     for (int k = 0; k < innerRingCount; k++)
     {
         auto ring = (OGRLinearRing*)polygon->getInteriorRing(k);
         silly_ring innerRing = silly_ring_from_ogr(ring);
-        poly.inner_rings.push_back(innerRing);
+        poly.holes.push_back(innerRing);
     }
     return poly;
 }
@@ -236,11 +236,11 @@ OGRPolygon utils::silly_poly_to_ogr(const silly_poly& poly)
 {
     OGRPolygon org;
     // 设置外环
-    OGRLinearRing outerRing = silly_ring_to_ogr(poly.outer_ring);
+    OGRLinearRing outerRing = silly_ring_to_ogr(poly.outer);
     // double a = outerRing.get_Area();
     org.addRing(&outerRing);
     // 设置内环
-    for (const silly_ring& innerRing : poly.inner_rings)
+    for (const silly_ring& innerRing : poly.holes)
     {
         OGRLinearRing innerOGRRing = silly_ring_to_ogr(innerRing);
         org.addRing(&innerOGRRing);
@@ -1125,11 +1125,11 @@ bool utils::intersect(const silly_poly& mpoly, const silly_point& point)
     silly_point ray_end(point.x + 1000, point.y);  // 向右引一条射线 1000单位
 
     // 外环
-    bool is_in_outer_ring = intersect(point, mpoly.outer_ring.points);
-    if (is_in_outer_ring)
+    bool is_in_outer = intersect(point, mpoly.outer.points);
+    if (is_in_outer)
     {
         // 内环
-        for (const auto& inner : mpoly.inner_rings)
+        for (const auto& inner : mpoly.holes)
         {
             if (intersect(point, inner.points))  // 在内环内
             {
@@ -1192,13 +1192,13 @@ double utils::area(const std::vector<silly_point>& points)
 }
 double utils::area(const silly_poly& poly)
 {
-    double total_area = area(poly.outer_ring.points);
+    double total_area = area(poly.outer.points);
     if (total_area < 1.E-15)
     {
         return total_area;
     }
 
-    for (const auto& inner_ring : poly.inner_rings)
+    for (const auto& inner_ring : poly.holes)
     {
         total_area -= area(inner_ring.points);
     }
@@ -1207,12 +1207,12 @@ double utils::area(const silly_poly& poly)
 }
 double utils::area_sqkm(const silly_poly& poly, const double& l0)
 {
-    double total_area = area_sqkm(poly.outer_ring.points, l0);
+    double total_area = area_sqkm(poly.outer.points, l0);
     if (total_area < 1.E-15)
     {
         return total_area;
     }
-    for (const auto& inner_ring : poly.inner_rings)
+    for (const auto& inner_ring : poly.holes)
     {
         total_area -= area_sqkm(inner_ring.points,l0);
     }

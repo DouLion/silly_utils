@@ -83,10 +83,10 @@ SECTION("LAWSON_TRI")      // Delaunay 劳森算法
 	for (auto& tri : output)
 	{
 		silly_poly poly;
-		poly.outer_ring.points.push_back({tri.GetVertex(0)->GetX(), tri.GetVertex(0)->GetY() });
-		poly.outer_ring.points.push_back({ tri.GetVertex(1)->GetX(), tri.GetVertex(1)->GetY() });
-		poly.outer_ring.points.push_back({ tri.GetVertex(2)->GetX(), tri.GetVertex(2)->GetY() });
-		poly.outer_ring.points.push_back({ tri.GetVertex(0)->GetX(), tri.GetVertex(0)->GetY() });
+		poly.outer.points.push_back({tri.GetVertex(0)->GetX(), tri.GetVertex(0)->GetY() });
+		poly.outer.points.push_back({ tri.GetVertex(1)->GetX(), tri.GetVertex(1)->GetY() });
+		poly.outer.points.push_back({ tri.GetVertex(2)->GetX(), tri.GetVertex(2)->GetY() });
+		poly.outer.points.push_back({ tri.GetVertex(0)->GetX(), tri.GetVertex(0)->GetY() });
 		polys.push_back(poly);
 	}
 	std::string geojson = silly_geojson::dump_geojson(polys);

@@ -282,9 +282,9 @@ bool geojson::read(const Json::Value& jv, silly_poly& poly)
         return false;
     for (auto& jv_ring : jv)
     {
-        if (poly.outer_ring.points.empty())
+        if (poly.outer.points.empty())
         {
-            if (!read(jv_ring, poly.outer_ring))
+            if (!read(jv_ring, poly.outer))
             {
                 return false;
             }
@@ -296,7 +296,7 @@ bool geojson::read(const Json::Value& jv, silly_poly& poly)
             {
                 return false;
             }
-            poly.inner_rings.push_back(ring);
+            poly.holes.push_back(ring);
         }
     }
     return true;
@@ -383,7 +383,7 @@ Json::Value geojson::jsonify(const silly_poly poly)
     jvGeo[K_TYPE] = "Polygon";
     Json::Value jvCoords = Json::arrayValue;
     Json::Value jvOutRing = Json::arrayValue;
-    for (auto& pt : poly.outer_ring.points)
+    for (auto& pt : poly.outer.points)
     {
         Json::Value jvPoint = Json::arrayValue;
         jvPoint.append(pt.x);
@@ -391,7 +391,7 @@ Json::Value geojson::jsonify(const silly_poly poly)
         jvOutRing.append(jvPoint);
     }
     jvCoords.append(jvOutRing);
-    for (auto& ring : poly.inner_rings)
+    for (auto& ring : poly.holes)
     {
         Json::Value jvInRing = Json::arrayValue;
         for (auto pt : ring.points)

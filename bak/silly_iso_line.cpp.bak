@@ -1515,7 +1515,7 @@ void silly_iso_line::draw_iso_fill(iso_polygon_m& result_polys, int ring_num, st
     }
 
     // 找到内环
-    std::map<int, std::vector<int>> poly_inner_rings;
+    std::map<int, std::vector<int>> poly_holes;
     for (auto& ring : all_rings)
     {
         if (!ring.outer && !ring.marked)

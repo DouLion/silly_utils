@@ -541,10 +541,10 @@ void silly_cairo::draw_poly(const silly_poly &poly, const silly_geo_rect &rect)
 {
     std::unique_lock loc(m_mtx);
     // 画外环
-    draw_ring(poly.outer_ring, rect);
+    draw_ring(poly.outer, rect);
 
     // 画内环
-    for (auto &ring : poly.inner_rings)
+    for (auto &ring : poly.holes)
     {
         draw_ring(ring, rect);
     }
@@ -557,10 +557,10 @@ void silly_cairo::draw_poly_web_mercator(const silly_poly &poly, const silly_geo
 {
     std::unique_lock loc(m_mtx);
     // 画外环
-    draw_ring_web_mercator(poly.outer_ring, rect);
+    draw_ring_web_mercator(poly.outer, rect);
 
     // 画内环
-    for (auto &ring : poly.inner_rings)
+    for (auto &ring : poly.holes)
     {
         draw_ring_web_mercator(ring, rect);
     }

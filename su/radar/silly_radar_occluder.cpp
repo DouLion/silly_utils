@@ -148,7 +148,7 @@ silly_poly silly_radar_occluder::occluder_poly(const double& pitch, const double
         silly_point gp, llp;
         convert::polar_to_cartesian(maxRadius[i], DEG2RAD(m_dStep * i), gp.x, gp.y, G0.x, G0.y);
         convert::gauss_to_lonlat(m_l0, gp.x, gp.y, llp.x, llp.y);
-        poly.outer_ring.points.push_back(llp);
+        poly.outer.points.push_back(llp);
     }
     return poly;
 }
