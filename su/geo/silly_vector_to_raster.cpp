@@ -150,8 +150,6 @@ void x_scan_line::rasterize(const std::vector<std::vector<_point>> vertices_arr)
     minX = SU_MIN(minX, m_width - 1);
     maxX = SU_MIN(maxX, m_width - 1);
 
-    
-
     // 对每一条扫描线进行处理
     for (int scanY = minY; scanY <= maxY; ++scanY)
     {
@@ -269,12 +267,17 @@ void x_scan_line::clear()
     m_row_colors.clear();
 }
 
+int64_t x_scan_line::num() const
+{
+    return m_num;
+}
+
 std::vector<silly_poly> x_scan_line::grids() const
 {
     std::vector<silly_poly> ret;
-    for (auto [r, b_es] : m_row_pairs)
+    for (auto& [r, b_es] : m_row_pairs)
     {
-        for (auto b_e : b_es)
+        for (auto& b_e : b_es)
         {
             for (int c = b_e.beg; c <= b_e.end; ++c)
             {
@@ -296,7 +299,7 @@ std::vector<silly_poly> x_scan_line::grids() const
 }
 void x_scan_line::add(const int& row, const std::vector<int>& edges)
 {
-    if (edges.size() % 2 == 1 || edges.empty())
+    if (edges.size() % 2 == 1 || edges.empty() || row >= m_height)
     {
         // std::cerr << "无法添加" << std::endl;
         return;
@@ -315,6 +318,7 @@ void x_scan_line::add(const int& row, const std::vector<int>& edges)
 void x_scan_line::fill()
 {
     m_row_pairs.clear();
+    m_num = 0;
     for (int r = 0; r < m_row_colors.size(); ++r)
     {
         auto& cs = m_row_colors[r];
@@ -331,6 +335,7 @@ void x_scan_line::fill()
                         break;
                     }
                 }
+                m_num += (i - 1 - b);
                 continue;
             }
         }

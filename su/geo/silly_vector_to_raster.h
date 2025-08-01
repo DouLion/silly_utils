@@ -131,6 +131,8 @@ class x_scan_line
     /// </summary>
     void clear();
 
+    int64_t num() const;
+
   private:
     /// <summary>
     /// 光栅化的基本算法, int运算效率高
@@ -157,6 +159,7 @@ class x_scan_line
     // 记录每一行在矢量内的多对起始列号
     scan_pairs m_row_pairs;
     std::vector<std::vector<uint8_t>> m_row_colors;
+    int64_t m_num = 0;
 };
 
 }  // namespace rasterization
