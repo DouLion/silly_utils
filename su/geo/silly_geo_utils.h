@@ -51,7 +51,7 @@ class utils
     /// </summary>
     /// <param name="poly"></param>
     /// <returns></returns>
-    static silly_point poly_centroid(const silly_poly& poly);
+    static silly_point centroid(const silly_poly& poly);
 
     /// <summary>
     /// 求两个点的方位角,p2相对于p1的方位角(左上角右下角坐标系均可), 正北方向为0度,顺时针

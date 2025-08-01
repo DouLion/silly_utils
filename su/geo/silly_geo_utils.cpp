@@ -20,7 +20,7 @@
 using namespace silly::geo;
 using namespace ClipperLib;
 
-silly_point utils::poly_centroid(const silly_poly& poly)
+silly_point utils::centroid(const silly_poly& poly)
 {
     silly_point center_point;
 #if ENABLE_GDAL
