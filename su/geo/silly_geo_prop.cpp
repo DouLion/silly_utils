@@ -75,11 +75,11 @@ std::vector<unsigned char> silly_geo_prop::as_binary() const
     return {};
 }
 
-long long silly_geo_prop::as_int64() const
+int64_t silly_geo_prop::as_int64() const
 {
     if (m_data.has_value() && m_type == eGeoFieldType::Long)
     {
-        return std::any_cast<long long>(m_data);
+        return std::any_cast<int64_t>(m_data);
     }
     return 0;
 }
