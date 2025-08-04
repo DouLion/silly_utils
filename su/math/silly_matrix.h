@@ -641,7 +641,7 @@ class matrix
     /// <param name="dst_col"></param>
     /// <param name="flag"></param>
     /// <returns></returns>
-    matrix<T> resize(const size_t &row, const size_t &col, const eIpolMethod &flag = IpolMethod::INTER_NEAREST) const
+    matrix<T> resize(const size_t &row, const size_t &col, const eIpolMethod &flag = eIpolMethod::INTER_NEAREST) const
     {
         if (flag == INTER_LINEAR)
         {
