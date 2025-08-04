@@ -15,18 +15,16 @@
 #include <su_marco.h>
 
 // 参照GDAL
-
-enum class enum_geometry_type : int
+enum class eGeometryType : int8_t
 {
-    egtInvalid = 0,          // 无效
-    egtPoint = 1,            // 单点
-    egtLineString = 2,       // 单线
-    egtPolygon = 3,          // 单面
-    egtMultiPoint = 4,       // 多点
-    egtMultiLineString = 5,  // 多线
-    egtMultiPolygon = 6,     // 多面
-    // egtCompositeType = 7,    // 复合数据类型
-
+    Invalid = 0,          // 无效
+    Point = 1,            // 单点
+    LineString = 2,       // 单线
+    Polygon = 3,          // 单面
+    MultiPoint = 4,       // 多点
+    MultiLineString = 5,  // 多线
+    MultiPolygon = 6,     // 多面
+                       // egtCompositeType = 7,    // 复合数据类型
 };
 
 #ifndef SU_3D_POINT_ENABLED
@@ -298,7 +296,7 @@ class silly_rect  // 普通坐标点
         return false;
     }
 
-    bool contain(const silly_point& p, const bool& containBounary = true) const 
+    bool contain(const silly_point& p, const bool& containBounary = true) const
     {
         if (!containBounary)
         {
@@ -315,7 +313,6 @@ class silly_rect  // 普通坐标点
             }
         }
         return false;
-        
     }
 
     silly_rect MBR(const silly_rect& rh) const
@@ -416,7 +413,7 @@ class silly_poly
     ~silly_poly() = default;
 
   public:
-    silly_ring outer;                // 外环
+    silly_ring outer;               // 外环
     std::vector<silly_ring> holes;  // 内环, 孔, 洞
 };
 
@@ -810,7 +807,7 @@ class silly_poly
     ~silly_poly() = default;
 
   public:
-    silly_ring outer;                // 外环
+    silly_ring outer;               // 外环
     std::vector<silly_ring> holes;  // 内环
 };
 

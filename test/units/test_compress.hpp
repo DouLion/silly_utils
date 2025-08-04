@@ -29,8 +29,8 @@ SECTION("RAR_DECOMPRESS")  // 大文件解压缩
     std::string g4_5 = "D:/1_wangyingjie/readfile/cpmpress/big4_5g.rar";
     std::string g4_5_out = "D:/1_wangyingjie/readfile/cpmpress/big4_5g";
 
-    silly_compress::CPS_ERR result1 = silly_compress::silly_rar::decompress(g4_5);  // 压缩
-    if (result1 == silly_compress::CPS_ERR::Ok)
+    silly_compress::eCompressErr result1 = silly_compress::silly_rar::decompress(g4_5);  // 压缩
+    if (result1 == silly_compress::eCompressErr::Ok)
     {
         std::cout << "Compression completed successfully." << std::endl;
     }
@@ -57,8 +57,8 @@ SECTION("BIG_FILE_DECOMPRESS")  // 大文件解压缩
     std::string g4_5_dir = "D:/1_wangyingjie/readfile/Radar_LOCAL/HN4_cpm";
     std::string g4_5_out_dir = "D:/1_wangyingjie/readfile/Radar_LOCAL/HN4.zip";
 
-   silly_compress::CPS_ERR result1 = silly_minizip::decompress(g4_5_out_dir, g4_5_dir);  // 压缩
-    if (result1 == silly_compress::CPS_ERR::Ok)
+   silly_compress::eCompressErr result1 = silly_minizip::decompress(g4_5_out_dir, g4_5_dir);  // 压缩
+    if (result1 == silly_compress::eCompressErr::Ok)
     {
         std::cout << "Compression completed successfully." << std::endl;
     }
@@ -80,8 +80,8 @@ SECTION("BIG_FILE_COMRESS")  // 大文件压缩
 
      std::string g4_5 = "D:/1_wangyingjie/readfile/cpmpress/big4_5g.txt";
      std::string g4_5_out = "D:/1_wangyingjie/readfile/cpmpress/big4_5g.zip";
-     silly_compress::CPS_ERR result1 = silly_minizip::compress(g4_5, g4_5_out);  // 压缩
-     if (result1 == silly_compress::CPS_ERR::Ok)
+     silly_compress::eCompressErr result1 = silly_minizip::compress(g4_5, g4_5_out);  // 压缩
+     if (result1 == silly_compress::eCompressErr::Ok)
      {
          std::cout << "Compression completed successfully." << std::endl;
      }
@@ -96,9 +96,9 @@ SECTION("BIG_FILE_COMRESS")  // 大文件压缩
     std::string g4_5_out_dir = "D:/1_wangyingjie/readfile/Radar_LOCAL/HN4_1.zip";
 
 
-    silly_compress::CPS_ERR result = silly_minizip::compress(g4_5_dir, g4_5_out_dir);  // 压缩
+    silly_compress::eCompressErr result = silly_minizip::compress(g4_5_dir, g4_5_out_dir);  // 压缩
 
-    if (result == silly_compress::CPS_ERR::Ok)
+    if (result == silly_compress::eCompressErr::Ok)
     {
         std::cout << "Compression completed successfully." << std::endl;
     }
@@ -131,12 +131,12 @@ SECTION("MINIZIP_INHERIT")  // 修改继承
     size_t compressed_length;
 
     silly_minizip mzip;
-    //silly_compress::CPS_ERR com = mzip.compress(input_data, input_length, &compressed_data, compressed_length);
+    //silly_compress::eCompressErr com = mzip.compress(input_data, input_length, &compressed_data, compressed_length);
 
     //char* decompressed_data = nullptr;
     //size_t decompressed_length;
 
-    //silly_compress::CPS_ERR decom = mzip.decompress(compressed_data, compressed_length, &decompressed_data, decompressed_length);
+    //silly_compress::eCompressErr decom = mzip.decompress(compressed_data, compressed_length, &decompressed_data, decompressed_length);
     //-------------------------------------------------
 
     // 解压文件
@@ -155,8 +155,8 @@ SECTION("MINIZIP_INHERIT")  // 修改继承
     // std::cout << tm1.elapsed() << std::endl;  // 单位是秒
 
     // silly_minizip mzip;
-    silly_compress::CPS_ERR result = mzip.compress(src_file.string().c_str(), des_file.string().c_str());  // 压缩
-    if (result == silly_compress::CPS_ERR::Ok)
+    silly_compress::eCompressErr result = mzip.compress(src_file.string().c_str(), des_file.string().c_str());  // 压缩
+    if (result == silly_compress::eCompressErr::Ok)
     {
         std::cout << "Compression completed successfully." << std::endl;
     }
@@ -167,7 +167,7 @@ SECTION("MINIZIP_INHERIT")  // 修改继承
     std::filesystem::path un_dir(DEFAULT_SU_DATA_DIR);
     un_dir += "/compress/un";
     std::string dir = "";
-    silly_compress::CPS_ERR de = mzip.decompress(des_dir.string(), un_dir.string());
+    silly_compress::eCompressErr de = mzip.decompress(des_dir.string(), un_dir.string());
 
     int r = 0;
     int e = 0;
@@ -212,7 +212,7 @@ SECTION("MINIZIP_DATA")  // 压缩解压缩字符串数据
     size_t compressed_length;
 
     silly_minizip mzip;
-    silly_compress::CPS_ERR com = mzip.compress(input_data, input_length, &compressed_data, compressed_length);
+    silly_compress::eCompressErr com = mzip.compress(input_data, input_length, &compressed_data, compressed_length);
 
     std::cout << "compressed_data:" << compressed_data << std::endl;
     std::cout << "compressed_length:" << compressed_length << std::endl;
@@ -220,7 +220,7 @@ SECTION("MINIZIP_DATA")  // 压缩解压缩字符串数据
     char* decompressed_data = nullptr;
     size_t decompressed_length;
 
-    silly_compress::CPS_ERR decom = mzip.decompress(compressed_data, compressed_length, &decompressed_data, decompressed_length);
+    silly_compress::eCompressErr decom = mzip.decompress(compressed_data, compressed_length, &decompressed_data, decompressed_length);
 
     std::cout << "decompressed_data:" << decompressed_data << std::endl;
     std::cout << "decompressed_length:" << decompressed_length << std::endl;

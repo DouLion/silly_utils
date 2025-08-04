@@ -11,21 +11,21 @@
 #define SILLY_UTILS_SILLY_GEO_PROP_H
 #include <su_marco.h>
 
+// 属性段类型,与org_core.h中定义的OGRFieldType一致
+enum class eGeoFieldType : int8_t
+{
+    None = -1,      // 无效
+    Int = 0,       // 整形
+    Numeric = 2,   // 浮点数
+    String = 4,    // 字符串
+    Binary = 8,    // 二进制流
+    Date = 9,     // 日期
+    Time = 10,      // 时间
+    DateTime = 11,  // 日期加时间
+    Long = 12       // 长整形
+};
 class silly_geo_prop
 {
-  public:
-    enum class enum_prop_type
-    {
-        eptNone = 0,      // 无效
-        eptInt = 1,       // 整形
-        eptNumeric = 2,   // 浮点数
-        eptString = 3,    // 字符串
-        eptBinary = 4,    // 二进制流
-        eptTime = 5,      // 时间
-        eptDate = 6,      // 日期
-        eptDateTime = 7,  // 日期加时间
-        eptLong = 8       // 长整形
-    };
 
   public:
     silly_geo_prop() = default;
@@ -34,21 +34,19 @@ class silly_geo_prop
     silly_geo_prop(const double& d);
     silly_geo_prop(const long long& ll);
     silly_geo_prop(const std::vector<unsigned char>& bs);
-
     silly_geo_prop(const silly_geo_prop& other);
-    void release();
     ~silly_geo_prop();
 
   public:
-    enum_prop_type value_type() const;
+    eGeoFieldType type() const;
     std::string as_string() const;
-    int as_int() const;
+    int32_t as_int32() const;
     double as_double() const;
     std::vector<unsigned char> as_binary() const;
-    long long as_longlong() const;
+    int64_t as_int64() const;
 
   private:
-    enum_prop_type m_type{enum_prop_type::eptNone};
+    eGeoFieldType m_type{eGeoFieldType::None};
     std::any m_data;
 };
 

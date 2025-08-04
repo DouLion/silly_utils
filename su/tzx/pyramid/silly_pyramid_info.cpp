@@ -101,20 +101,20 @@ void info::bound(const std::string& bound)
 {
     memcpy(m_bound, bound.data(), len::INFO_BOUND);
 }
-void info::format(const info::tile_format& fmt)
+void info::format(const ePyramidTileFormat& fmt)
 {
     switch (fmt)
     {
-        case tile_format::jpeg:
+        case ePyramidTileFormat::jpeg:
             memcpy(m_format, "jpeg", 4);
             break;
-        case tile_format::png:
+        case ePyramidTileFormat::png:
             memcpy(m_format, "png", 3);
             break;
-        case tile_format::terrain:
+        case ePyramidTileFormat::terrain:
             memcpy(m_format, "terrain", 7);
             break;
-        case tile_format::pbf:
+        case ePyramidTileFormat::pbf:
             memcpy(m_format, "pbf", 3);
             break;
         default:

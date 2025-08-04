@@ -11,18 +11,15 @@
 #ifndef SILLY_UTILS_SILLY_HTTP_HEADERS_H
 #define SILLY_UTILS_SILLY_HTTP_HEADERS_H
 #include <su_marco.h>
-namespace silly
-{
-namespace http
-{
-enum type
+enum eHttpReqType : int8_t
 {
     Get = 1,
     Post = 2,
     Option = 3,
     Delete = 4
 };
-enum status_code
+
+enum eHttpStatus : int32_t
 {
     Continue_100 = 100,
     SwitchingProtocol_101 = 101,
@@ -96,8 +93,5 @@ enum status_code
     NotExtended_510 = 510,
     NetworkAuthenticationRequired_511 = 511,
 };
-
-}  // namespace http
-}  // namespace silly
 
 #endif  // SILLY_UTILS_SILLY_HTTP_HEADERS_H

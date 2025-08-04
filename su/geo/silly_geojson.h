@@ -38,7 +38,7 @@ class geojson
     /// </summary>
     /// <param name="str"></param>
     /// <returns></returns>
-    static enum_geometry_type type(const std::string& str);
+    static eGeometryType type(const std::string& str);
     ///////////////////////////////////读
 
     /// <summary>

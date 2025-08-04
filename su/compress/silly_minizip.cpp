@@ -144,14 +144,14 @@ int minizip_compress_dir(const zipFile& zipHDL, const std::string& root)
 }
 
 /// 将文件或目录压缩为ZIP文件
-CPS_ERR MiniZip::compress(const std::string& s_src, const std::string& s_dst, const bool& append)
+eCompressErr MiniZip::compress(const std::string& s_src, const std::string& s_dst, const bool& append)
 {
-    auto status = CPS_ERR::MiniZUnknowErr;
+    auto status = eCompressErr::MiniZUnknowErr;
     try
     {
         if (!std::filesystem::exists(s_src))
         {
-            return CPS_ERR::FileNotExistErr;
+            return eCompressErr::FileNotExistErr;
         }
         std::string out_dst = s_dst;
         if (out_dst.empty())  // 补充默认压缩路径
@@ -166,7 +166,7 @@ CPS_ERR MiniZip::compress(const std::string& s_src, const std::string& s_dst, co
         zipFile zipHDL = zipOpen64(out_dst.c_str(), APPEND_STATUS_CREATE);
         if (!zipHDL)
         {
-            return CPS_ERR::MiniZCreatZipErr;  //  创建写入的zip失败
+            return eCompressErr::MiniZCreatZipErr;  //  创建写入的zip失败
         }
 
         do
@@ -175,7 +175,7 @@ CPS_ERR MiniZip::compress(const std::string& s_src, const std::string& s_dst, co
             {
                 if (ZIP_OK != minizip_compress_dir(zipHDL, s_src))
                 {
-                    status = CPS_ERR::MiniZOpenFileErr;
+                    status = eCompressErr::MiniZOpenFileErr;
                     break;
                 }
             }
@@ -183,11 +183,11 @@ CPS_ERR MiniZip::compress(const std::string& s_src, const std::string& s_dst, co
             {
                 if (ZIP_OK != minizip_compress_file(zipHDL, s_src))
                 {
-                    status = CPS_ERR::MiniZOpenFileErr;
+                    status = eCompressErr::MiniZOpenFileErr;
                     break;
                 }
             }
-            status = CPS_ERR::Ok;
+            status = eCompressErr::Ok;
         } while (0);
         zipClose(zipHDL, nullptr);
     }
@@ -204,12 +204,12 @@ CPS_ERR MiniZip::compress(const std::string& s_src, const std::string& s_dst, co
 }
 
 /// 解压zip文件,解压单独文件和目录文件
-CPS_ERR MiniZip::decompress(const std::string& s_src, const std::string& s_dst)
+eCompressErr MiniZip::decompress(const std::string& s_src, const std::string& s_dst)
 {
     if (!std::filesystem::exists(s_src))  // 解压文件不存在
     {
         SU_ERROR_PRINT("not exist {}", s_src.c_str());
-        return CPS_ERR::FileNotExistErr;
+        return eCompressErr::FileNotExistErr;
     }
     std::filesystem::path outputDir;
     if (s_dst.empty())  // 如果解压路径为空,创建一个和压缩包名称相同的目录,解压到该目录下
@@ -224,19 +224,19 @@ CPS_ERR MiniZip::decompress(const std::string& s_src, const std::string& s_dst)
     {
         if (!std::filesystem::create_directories(outputDir))
         {
-            return CPS_ERR::MiniZCreatDirErr;  // 创建目录失败
+            return eCompressErr::MiniZCreatDirErr;  // 创建目录失败
         }
     }
     unzFile zipFile = unzOpen64(s_src.c_str());  // 打开ZIP文件
     if (zipFile == nullptr)
     {
-        return CPS_ERR::MiniZOpenFileErr;  // 打开ZIP文件失败
+        return eCompressErr::MiniZOpenFileErr;  // 打开ZIP文件失败
     }
     // 进入ZIP文件中的第一个文件
     if (unzGoToFirstFile(zipFile) != UNZ_OK)
     {
         unzClose(zipFile);
-        return CPS_ERR::MiniZFileEmptyErr;  // ZIP文件为空
+        return eCompressErr::MiniZFileEmptyErr;  // ZIP文件为空
     }
     size_t currentUncompressedSize = 0;  // 已解压的总大小
     size_t predicte = 1024 * 1024;
@@ -254,7 +254,7 @@ CPS_ERR MiniZip::decompress(const std::string& s_src, const std::string& s_dst)
         if (unzGetCurrentFileInfo64(zipFile, &file_info, filename, nameLen + 1, nullptr, 0, nullptr, 0) != UNZ_OK)
         {
             SU_MEM_FREE(filename);
-            return CPS_ERR::MiniZGetInforErr;  // 获取文件信息失败
+            return eCompressErr::MiniZGetInforErr;  // 获取文件信息失败
         }
         std::filesystem::path one_file = outputDir;
         if (filename == nullptr)
@@ -271,7 +271,7 @@ CPS_ERR MiniZip::decompress(const std::string& s_src, const std::string& s_dst)
                 if (!std::filesystem::exists(one_file))
                 {
                     SU_MEM_FREE(filename);
-                    return CPS_ERR::MiniZCreatDirErr;  // 创建目录失败
+                    return eCompressErr::MiniZCreatDirErr;  // 创建目录失败
                 }
             }
         }
@@ -289,7 +289,7 @@ CPS_ERR MiniZip::decompress(const std::string& s_src, const std::string& s_dst)
             if (!outFile.is_open())
             {
                 SU_MEM_FREE(filename);
-                return CPS_ERR::MiniZCreatDirErr;  // 创建文件失败
+                return eCompressErr::MiniZCreatDirErr;  // 创建文件失败
             }
             else
             {
@@ -311,15 +311,15 @@ CPS_ERR MiniZip::decompress(const std::string& s_src, const std::string& s_dst)
 
     } while (unzGoToNextFile(zipFile) == UNZ_OK);
     unzClose(zipFile);
-    return CPS_ERR::Ok;
+    return eCompressErr::Ok;
 }
 
-CPS_ERR MiniZip::compress(const char* c_in_val, const size_t& i_in_len, char** c_out_val, size_t& i_out_len)
+eCompressErr MiniZip::compress(const char* c_in_val, const size_t& i_in_len, char** c_out_val, size_t& i_out_len)
 {
     if (c_in_val == nullptr || i_in_len == 0)
     {
         SLOG_ERROR("Empty input data.");
-        return CPS_ERR::InValidInputErr;
+        return eCompressErr::InValidInputErr;
     }
 
     uLong dest_len = compressBound(i_in_len);  // 解压后的数据大小
@@ -330,7 +330,7 @@ CPS_ERR MiniZip::compress(const char* c_in_val, const size_t& i_in_len, char** c
     else
     {
         SLOG_ERROR("Clean output and set null.");
-        return CPS_ERR::InValidOutputErr;
+        return eCompressErr::InValidOutputErr;
     }
     i_out_len = 0;
     // 压缩
@@ -338,25 +338,25 @@ CPS_ERR MiniZip::compress(const char* c_in_val, const size_t& i_in_len, char** c
     if (err != Z_OK)
     {
         SU_MEM_FREE(*c_out_val);
-        return CPS_ERR::MiniZCompressStrErr;
+        return eCompressErr::MiniZCompressStrErr;
     }
 
     i_out_len = dest_len;  // 解压后的数据大小
-    return CPS_ERR::Ok;
+    return eCompressErr::Ok;
 }
 
-CPS_ERR MiniZip::decompress(const char* c_in_val, const size_t& i_in_len, char** c_out_val, size_t& i_out_len)
+eCompressErr MiniZip::decompress(const char* c_in_val, const size_t& i_in_len, char** c_out_val, size_t& i_out_len)
 {
     // 检查输入参数
     if (c_in_val == nullptr || i_in_len == 0)
     {
         SLOG_ERROR("Empty input data.");
-        return CPS_ERR::InValidInputErr;
+        return eCompressErr::InValidInputErr;
     }
     if (*c_out_val)
     {
         SLOG_ERROR("Clean output and set null.");
-        return CPS_ERR::InValidOutputErr;
+        return eCompressErr::InValidOutputErr;
     }
 
     uLongf dest_len = compressBound(i_in_len);  // 解压后的数据大小
@@ -369,9 +369,9 @@ CPS_ERR MiniZip::decompress(const char* c_in_val, const size_t& i_in_len, char**
     if (err != Z_OK)
     {
         SU_MEM_FREE(*c_out_val);
-        return CPS_ERR::MiniZUncompressStrErr;
+        return eCompressErr::MiniZUncompressStrErr;
     }
     i_out_len = dest_len;  // 解压后的数据大小
 
-    return CPS_ERR::Ok;
+    return eCompressErr::Ok;
 }

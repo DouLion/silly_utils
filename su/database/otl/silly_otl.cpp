@@ -62,36 +62,36 @@ std::string _lower(const std::string& str)
 /// </summary>
 /// <param name="driver"></param>
 /// <returns></returns>
-static otl::eType assume_type(const std::string& driver)
+static eOtlDbType assume_type(const std::string& driver)
 {
     std::string lower_driver = driver;
     std::transform(lower_driver.begin(), lower_driver.end(), lower_driver.begin(), ::tolower);
     if (lower_driver.find("sql server") != std::string::npos)
     {
-        return otl::eType::dbSQLSERVER;
+        return eOtlDbType::dbSQLSERVER;
     }
     else if (lower_driver.find("mysql") != std::string::npos)
     {
-        return otl::eType::dbMYSQL;
+        return eOtlDbType::dbMYSQL;
     }
     else if (lower_driver.find("oracle") != std::string::npos)
     {
-        return otl::eType::dbORACLE;
+        return eOtlDbType::dbORACLE;
     }
     else if (lower_driver.find("postgresql") != std::string::npos)
     {
-        return otl::eType::dbPG;
+        return eOtlDbType::dbPG;
     }
     else if (lower_driver.find("dm8") != std::string::npos)
     {
-        return otl::eType::dbDM8;
+        return eOtlDbType::dbDM8;
     }
     else if (lower_driver.find("maria") != std::string::npos)
     {
-        return otl::eType::dbKingB8;
+        return eOtlDbType::dbKingB8;
     }
 
-    return otl::eType::dbINVALID;
+    return eOtlDbType::dbINVALID;
 }
 
 static std::map<std::string, std::string> parse_odbc(const std::string& odbc)
@@ -190,13 +190,13 @@ bool otl::load(const std::string& cfg)
             }
             m_driver = iter->second;
             m_type = assume_type(m_driver);
-            if (otl::eType::dbINVALID == m_type)
+            if (eOtlDbType::dbINVALID == m_type)
             {
                 m_err = "无法识别的驱动: " + iter->second;
                 return status;
             }
 
-            if (otl::eType::dbKingB8 == m_type)
+            if (eOtlDbType::dbKingB8 == m_type)
             {
                 m_err = "金仓数据库未支持: " + iter->second;
                 return status;
@@ -212,22 +212,22 @@ bool otl::load(const std::string& cfg)
                 // 使用默认端端口
                 switch (m_type)
                 {
-                    case otl::eType::dbSQLSERVER:
+                    case eOtlDbType::dbSQLSERVER:
                         m_port = 1433;
                         break;
-                    case otl::eType::dbMYSQL:
+                    case eOtlDbType::dbMYSQL:
                         m_port = 3306;
                         break;
-                    case otl::eType::dbMariaDB:
+                    case eOtlDbType::dbMariaDB:
                         m_port = 3306;
                         break;
-                    case otl::eType::dbORACLE:
+                    case eOtlDbType::dbORACLE:
                         m_port = 1521;
                         break;
-                    case otl::eType::dbPG:
+                    case eOtlDbType::dbPG:
                         m_port = 5432;
                         break;
-                    case otl::eType::dbDM8:
+                    case eOtlDbType::dbDM8:
                         m_port = 5236;
                         break;
                     default:
@@ -305,22 +305,22 @@ std::string otl::odbc(const bool& rebuild)
         {
             switch (m_type)  // 使用ODBC连接串
             {
-                case otl::eType::dbMYSQL:
+                case eOtlDbType::dbMYSQL:
                     sprintf(buff, SILLY_OTL_MYSQL_ODBC_FORMAT.c_str(), m_driver.c_str(), m_ip.c_str(), m_port, m_schema.c_str(), m_user.c_str(), m_password.c_str());
                     break;
-                case otl::eType::dbSQLSERVER:
+                case eOtlDbType::dbSQLSERVER:
                     sprintf(buff, SILLY_OTL_MSSQL_ODBC_FORMAT.c_str(), m_driver.c_str(), m_ip.c_str(), m_port, m_user.c_str(), m_password.c_str(), m_schema.c_str());
                     break;
-                case otl::eType::dbORACLE:
+                case eOtlDbType::dbORACLE:
                     sprintf(buff, SILLY_OTL_ORACLE_ODBC_FORMAT.c_str(), m_driver.c_str(), m_ip.c_str(), m_port, m_schema.c_str(), m_user.c_str(), m_password.c_str());
                     break;
-                case otl::eType::dbPG:
+                case eOtlDbType::dbPG:
                     sprintf(buff, SILLY_OTL_POSTGRE_ODBC_FORMAT.c_str(), m_driver.c_str(), m_ip.c_str(), m_port, m_schema.c_str(), m_user.c_str(), m_password.c_str());
                     break;
-                case otl::eType::dbDM8:
+                case eOtlDbType::dbDM8:
                     sprintf(buff, SILLY_OTL_DM8_ODBC_FORMAT.c_str(), m_driver.c_str(), m_ip.c_str(), m_port, m_user.c_str(), m_password.c_str());
                     break;
-                case otl::eType::dbMariaDB:
+                case eOtlDbType::dbMariaDB:
                     sprintf(buff, SILLY_OTL_MYSQL_ODBC_FORMAT.c_str(), m_driver.c_str(), m_ip.c_str(), m_port, m_schema.c_str(), m_user.c_str(), m_password.c_str());
                     break;
                 default:
@@ -369,7 +369,7 @@ void otl::clean()
 {
     m_ip.clear();
     m_port = 0;
-    m_type = otl::eType::dbINVALID;
+    m_type = eOtlDbType::dbINVALID;
     m_driver.clear();
     m_schema.clear();
     m_user.clear();
@@ -611,12 +611,12 @@ bool otl::from_json(const Json::Value& root)
             return status;
         }
         m_type = str_to_db_type(type_str);
-        if (enum_database_type::dbINVALID == m_type)
+        if (eOtlDbType::dbINVALID == m_type)
         {
             m_err = silly_format::format("不支持的数据库类型 (Unsupported database type): {}.", type_str);
             return status;
         }
-        if (enum_database_type::dbKingB8 == m_type)
+        if (eOtlDbType::dbKingB8 == m_type)
         {
             m_err = "人大金仓请使用DSN方式(Please set DSN when using Kingbase).";
             // SLOG_ERROR("达梦和人大金仓请使用DSN方式(Please set DSN when using Dameng or Kingbase).");
@@ -650,19 +650,19 @@ bool otl::from_json(const Json::Value& root)
         {
             switch (m_type)
             {
-                case enum_database_type::dbSQLSERVER:
+                case eOtlDbType::dbSQLSERVER:
                     m_port = 1433;
                     break;
-                case enum_database_type::dbMYSQL:
+                case eOtlDbType::dbMYSQL:
                     m_port = 3306;
                     break;
-                case enum_database_type::dbORACLE:
+                case eOtlDbType::dbORACLE:
                     m_port = 1521;
                     break;
-                case enum_database_type::dbPG:
+                case eOtlDbType::dbPG:
                     m_port = 5432;
                     break;
-                case enum_database_type::dbDM8:
+                case eOtlDbType::dbDM8:
                     m_port = 5236;
                     break;
                 default:
@@ -670,7 +670,7 @@ bool otl::from_json(const Json::Value& root)
             }
         }
 
-        if (!silly_jsonpp::check_str(root, OPT_STR_SCHEMA, m_schema) && (enum_database_type::dbDM8 != m_type))
+        if (!silly_jsonpp::check_str(root, OPT_STR_SCHEMA, m_schema) && (eOtlDbType::dbDM8 != m_type))
         {
             m_err = "未指定数据库";
             return status;
@@ -698,7 +698,7 @@ void otl::verbose(bool vb)
     m_verbose = vb;
 }
 
-otl::eType otl::type() const
+eOtlDbType otl::type() const
 {
     return m_type;
 }
@@ -738,7 +738,7 @@ std::string otl::err() const
     return m_err;
 }
 
-void otl::type(otl::eType tp)
+void otl::type(eOtlDbType tp)
 {
     m_type = tp;
 }
@@ -777,63 +777,63 @@ void otl::timeout(int to)
 {
     m_timeout = to;
 }
-otl::eType otl::str2type(const std::string& desc)
+eOtlDbType otl::str2type(const std::string& desc)
 {
     if (TYPE_MSSQL_STR == desc)
     {
-        return eType::dbSQLSERVER;
+        return eOtlDbType::dbSQLSERVER;
     }
     else if (TYPE_MYSQL_STR == desc)
     {
-        return eType::dbMYSQL;
+        return eOtlDbType::dbMYSQL;
     }
     else if (TYPE_ORACLE_STR == desc)
     {
-        return eType::dbORACLE;
+        return eOtlDbType::dbORACLE;
     }
     else if (TYPE_DM8_STR == desc)
     {
-        return eType::dbDM8;
+        return eOtlDbType::dbDM8;
     }
     else if (TYPE_POSTGRESQL_STR == desc)
     {
-        return eType::dbPG;
+        return eOtlDbType::dbPG;
     }
     else if (TYPE_KING8_STR == desc)
     {
-        return eType::dbKingB8;
+        return eOtlDbType::dbKingB8;
     }
     else if (TYPE_MARIA_STR == desc)
     {
-        return eType::dbMariaDB;
+        return eOtlDbType::dbMariaDB;
     }
-    return eType::dbINVALID;
+    return eOtlDbType::dbINVALID;
 }
 
-std::string otl::type2str(const otl::eType& type)
+std::string otl::type2str(const eOtlDbType& type)
 {
     std::string s_ret;
     switch (type)
     {
-        case eType::dbSQLSERVER:
+        case eOtlDbType::dbSQLSERVER:
             s_ret = TYPE_MSSQL_STR;
             break;
-        case eType::dbMYSQL:
+        case eOtlDbType::dbMYSQL:
             s_ret = TYPE_MYSQL_STR;
             break;
-        case eType::dbORACLE:
+        case eOtlDbType::dbORACLE:
             s_ret = TYPE_ORACLE_STR;
             break;
-        case eType::dbDM8:
+        case eOtlDbType::dbDM8:
             s_ret = TYPE_DM8_STR;
             break;
-        case eType::dbPG:
+        case eOtlDbType::dbPG:
             s_ret = TYPE_POSTGRESQL_STR;
             break;
-        case eType::dbKingB8:
+        case eOtlDbType::dbKingB8:
             s_ret = TYPE_KING8_STR;
             break;
-        case eType::dbMariaDB:
+        case eOtlDbType::dbMariaDB:
             s_ret = TYPE_MARIA_STR;
             break;
         default:
@@ -845,27 +845,27 @@ std::string otl::type2str(const otl::eType& type)
 
 std::string otl::last_insert_id_sql() const
 {
-    if (eType::dbMYSQL == m_type)
+    if (eOtlDbType::dbMYSQL == m_type)
     {
         return silly::sql::mysql::LAST_INSERT_ID;
     }
-    else if (eType::dbSQLSERVER == m_type)
+    else if (eOtlDbType::dbSQLSERVER == m_type)
     {
         return silly::sql::sqlserver::LAST_INSERT_ID;
     }
-    else if (eType::dbORACLE == m_type)
+    else if (eOtlDbType::dbORACLE == m_type)
     {
         return silly::sql::oracle::LAST_INSERT_ID;
     }
-    else if (eType::dbPG == m_type)
+    else if (eOtlDbType::dbPG == m_type)
     {
         return silly::sql::postgresql::LAST_INSERT_ID;
     }
-    else if (eType::dbDM8 == m_type)
+    else if (eOtlDbType::dbDM8 == m_type)
     {
         return silly::sql::dm8::LAST_INSERT_ID;
     }
-    else if (eType::dbKingB8 == m_type)
+    else if (eOtlDbType::dbKingB8 == m_type)
     {
         return silly::sql::kingb8::LAST_INSERT_ID;
     }

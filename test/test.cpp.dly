@@ -259,12 +259,12 @@ int main(int argc, char** argv)
     for(const auto& coll : collections)
     {
         double lgtd, lttd;
-        if(coll.m_type == enum_geometry_type::egtPolygon)
+        if(coll.m_type == eGeometryType::egtPolygon)
         {
             lgtd = coll.m_poly.outer.points[0].lgtd;
             lttd = coll.m_poly.outer.points[0].lttd;
         }
-        else if(coll.m_type == enum_geometry_type::egtMultiPolygon)
+        else if(coll.m_type == eGeometryType::egtMultiPolygon)
         {
 
             lgtd = coll.m_m_polys[0].outer.points[0].lgtd;

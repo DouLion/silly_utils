@@ -11,21 +11,24 @@
 #ifndef SILLY_MOBILE_H
 #define SILLY_MOBILE_H
 #include <su_marco.h>
+
+/// <summary>
+/// 移动网络运营商
+/// </summary>
+enum class eMobileOP : int8_t
+{
+    ChinaMobile,   // 中国移动
+    ChinaUnicom,   // 中国联通
+    ChinaTelecom,  // 中国电信
+    Unknown        // 未知
+};
 namespace silly
 {
 class mobile
 {
-  public:
-    enum eop : int
-    {
-        ChinaMobile,   // 中国移动
-        ChinaUnicom,   // 中国联通
-        ChinaTelecom,  // 中国电信
-        Unknown        // 未知
-    };
-    static std::string op2str(const eop& op);
-    static eop opcode(const std::string& number);
-    static std::map<std::string, eop> opcode(const std::vector<std::string>& numbers);
+    static std::string op2str(const eMobileOP& op);
+    static eMobileOP opcode(const std::string& number);
+    static std::map<std::string, eMobileOP> opcode(const std::vector<std::string>& numbers);
     static std::string opstr(const std::string& number);
     static std::map<std::string, std::string> opstr(const std::vector<std::string>& numbers);
 };

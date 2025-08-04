@@ -5,9 +5,7 @@
 #ifndef SILLY_COMPRESS_H
 #define SILLY_COMPRESS_H
 
-namespace silly_compress
-{
-enum class CPS_ERR
+enum class eCompressErr
 {
     Ok = 0,
     EmptyInputErr = 1,
@@ -48,6 +46,5 @@ enum class CPS_ERR
     RARReadErr = 505
 
 };
-}
 
 #endif  // SILLY_COMPRESS_H

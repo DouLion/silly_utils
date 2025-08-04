@@ -18,15 +18,15 @@ using namespace silly_compress;
 #define SILLY_RAR_FILE_EXTENSION ".rar"
 
 /// 将文件或目录压缩为ZIP文件
-CPS_ERR silly_rar::compress(const std::string& s_src, const std::string& s_dst, const bool& append)
+eCompressErr silly_rar::compress(const std::string& s_src, const std::string& s_dst, const bool& append)
 {
-    auto status = CPS_ERR::MiniZUnknowErr;
+    auto status = eCompressErr::MiniZUnknowErr;
 #if ENABLE_LIBARCHIVE
     try
     {
         if (!std::filesystem::exists(s_src))
         {
-            return CPS_ERR::FileNotExistErr;
+            return eCompressErr::FileNotExistErr;
         }
         std::string out_dst = s_dst;
         if (out_dst.empty())  // 补充默认压缩路径
@@ -56,13 +56,13 @@ CPS_ERR silly_rar::compress(const std::string& s_src, const std::string& s_dst, 
     return status;
 }
 
-CPS_ERR silly_rar::decompress(const std::string& s_src, const std::string& s_dst)
+eCompressErr silly_rar::decompress(const std::string& s_src, const std::string& s_dst)
 {
 #if ENABLE_LIBARCHIVE
     if (!std::filesystem::exists(s_src))  // 解压文件不存在
     {
         SLOG_ERROR("not exist {}", s_src.c_str());
-        return CPS_ERR::FileNotExistErr;
+        return eCompressErr::FileNotExistErr;
     }
 
     std::filesystem::path outputDir;
@@ -79,7 +79,7 @@ CPS_ERR silly_rar::decompress(const std::string& s_src, const std::string& s_dst
     {
         if (!std::filesystem::create_directories(outputDir))
         {
-            return CPS_ERR::RARCreatDirErr;  // 创建目录失败
+            return eCompressErr::RARCreatDirErr;  // 创建目录失败
         }
     }
 
@@ -88,14 +88,14 @@ CPS_ERR silly_rar::decompress(const std::string& s_src, const std::string& s_dst
     {
         SLOG_ERROR("无法支持所有格式: {}", archive_error_string(archive_ptr));
         archive_read_free(archive_ptr);
-        return CPS_ERR::RARSuportFormatErr;
+        return eCompressErr::RARSuportFormatErr;
     }
 
     if (archive_read_open_filename(archive_ptr, s_src.c_str(), 10240) != ARCHIVE_OK)
     {
         SLOG_ERROR("无法打开压缩文件: {}", archive_error_string(archive_ptr));
         archive_read_free(archive_ptr);
-        return CPS_ERR::RAROpenErr;
+        return eCompressErr::RAROpenErr;
     }
 
     struct archive_entry* entry;
@@ -139,7 +139,7 @@ CPS_ERR silly_rar::decompress(const std::string& s_src, const std::string& s_dst
             {
                 std::cerr << "Failed to create file: " << full_path << std::endl;
                 archive_read_free(archive_ptr);
-                return CPS_ERR::RARWriteErr;
+                return eCompressErr::RARWriteErr;
             }
 
             // 写入文件内容
@@ -162,7 +162,7 @@ CPS_ERR silly_rar::decompress(const std::string& s_src, const std::string& s_dst
                         {
                             std::cerr << "Error writing to file: " << full_path << std::endl;
                             archive_read_free(archive_ptr);
-                            return CPS_ERR::RARWriteErr;
+                            return eCompressErr::RARWriteErr;
                         }
                         bytes_written += chunkSize;
                         size -= chunkSize;
@@ -187,7 +187,7 @@ CPS_ERR silly_rar::decompress(const std::string& s_src, const std::string& s_dst
         {
             SLOG_ERROR("跳过数据失败: {}", archive_error_string(archive_ptr));
             archive_read_free(archive_ptr);
-            return CPS_ERR::RARReadErr;
+            return eCompressErr::RARReadErr;
         }
     }
 
@@ -195,39 +195,39 @@ CPS_ERR silly_rar::decompress(const std::string& s_src, const std::string& s_dst
     {
         SLOG_ERROR("提取存档时出错: {}", archive_error_string(archive_ptr));
         archive_read_free(archive_ptr);
-        return CPS_ERR::RARReadErr;
+        return eCompressErr::RARReadErr;
     }
 
     // 清理资源
     archive_read_free(archive_ptr);
 #endif
-    return CPS_ERR::Ok;
+    return eCompressErr::Ok;
 }
 
-CPS_ERR silly_rar::compress(const char* c_in_val, const size_t& i_in_len, char** c_out_val, size_t& i_out_len)
+eCompressErr silly_rar::compress(const char* c_in_val, const size_t& i_in_len, char** c_out_val, size_t& i_out_len)
 {
     if (c_in_val == nullptr || i_in_len == 0)
     {
         SLOG_ERROR("Empty input data.");
-        return CPS_ERR::InValidInputErr;
+        return eCompressErr::InValidInputErr;
     }
 
-    return CPS_ERR::Ok;
+    return eCompressErr::Ok;
 }
 
-CPS_ERR silly_rar::decompress(const char* c_in_val, const size_t& i_in_len, char** c_out_val, size_t& i_out_len)
+eCompressErr silly_rar::decompress(const char* c_in_val, const size_t& i_in_len, char** c_out_val, size_t& i_out_len)
 {
     // 检查输入参数
     if (c_in_val == nullptr || i_in_len == 0)
     {
         SLOG_ERROR("Empty input data.");
-        return CPS_ERR::InValidInputErr;
+        return eCompressErr::InValidInputErr;
     }
     if (*c_out_val)
     {
         SLOG_ERROR("Clean output and set null.");
-        return CPS_ERR::InValidOutputErr;
+        return eCompressErr::InValidOutputErr;
     }
 
-    return CPS_ERR::Ok;
+    return eCompressErr::Ok;
 }

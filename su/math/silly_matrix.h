@@ -23,7 +23,7 @@ class matrix
     /// 这个目前是线程不安全的,使用时需要注意
     /// </summary>
   public:
-    enum IpolMethod : int
+    enum eIpolMethod : int
     {
         /** nearest neighbor interpolation 最临近插值 */
         INTER_NEAREST = 0,
@@ -641,7 +641,7 @@ class matrix
     /// <param name="dst_col"></param>
     /// <param name="flag"></param>
     /// <returns></returns>
-    matrix<T> resize(const size_t &row, const size_t &col, const IpolMethod &flag = IpolMethod::INTER_NEAREST) const
+    matrix<T> resize(const size_t &row, const size_t &col, const eIpolMethod &flag = IpolMethod::INTER_NEAREST) const
     {
         if (flag == INTER_LINEAR)
         {

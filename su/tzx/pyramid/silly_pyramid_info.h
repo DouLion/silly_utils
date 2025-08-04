@@ -14,7 +14,13 @@
 #define SILLY_UTILS_SILLY_PYRAMID_INFO_H
 
 #include "tzx/pyramid/silly_pyramid_base.h"
-
+enum ePyramidTileFormat
+{
+    jpeg = 1,
+    png,
+    terrain,
+    pbf
+};
 namespace silly
 {
 namespace pyramid
@@ -36,13 +42,7 @@ constexpr size_t INFO_TOTAL = 5640;
 class info : public silly::pyramid::base
 {
   public:
-    enum tile_format
-    {
-        jpeg = 1,
-        png,
-        terrain,
-        pbf
-    };
+
     info();
 
     /// <summary>
@@ -65,7 +65,7 @@ class info : public silly::pyramid::base
     void bound(const std::string& bd);
     void bound(const silly_rect& bd);
 
-    void format(const tile_format& fmt);
+    void format(const ePyramidTileFormat& fmt);
 
     void format(const std::string fmt);
 

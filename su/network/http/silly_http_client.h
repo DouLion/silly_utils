@@ -24,7 +24,7 @@ class client
   public:
     client();
     ~client() = default;
-    client(const silly::http::type& tp);
+    client(const eHttpReqType& tp);
 
     /// <summary>
     /// 执行Get请求
@@ -138,13 +138,13 @@ class client
     /// http 状态码
     /// </summary>
     /// <returns></returns>
-    silly::http::status_code code();
+    eHttpStatus code();
 
     /// <summary>
     /// http请求类型
     /// </summary>
     /// <param name="type"></param>
-    void type(const silly::http::type& tp);
+    void type(const eHttpReqType& tp);
 
     /// <summary>
     /// http请求代理
@@ -191,9 +191,9 @@ class client
     std::string m_copyname;
     std::string m_user;
     std::string m_password;
-    silly::http::status_code m_code = silly::http::BadRequest_400;
+    eHttpStatus m_code = eHttpStatus::BadRequest_400;
     std::string m_agent;
-    silly::http::type m_type{silly::http::Get};
+    eHttpReqType m_type{eHttpReqType::Get};
     int64_t m_timeout{120L};
     double m_speed_mps{0};  // 传输速度Mb/s
     double m_total_seconds{0};

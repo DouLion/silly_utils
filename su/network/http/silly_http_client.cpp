@@ -92,7 +92,7 @@ client::client()
     // curl_global_init(CURL_GLOBAL_DEFAULT);
 }
 
-client::client(const silly::http::type& tp)
+client::client(const eHttpReqType& tp)
 {
     client();
     m_type = tp;
@@ -100,12 +100,12 @@ client::client(const silly::http::type& tp)
 
 bool client::get(const std::string& url, std::string& resp)
 {
-    m_type = silly::http::Get;
+    m_type = eHttpReqType::Get;
     return request(url, resp);
 }
 bool client::post(const std::string& url, std::string& resp)
 {
-    m_type = silly::http::Post;
+    m_type = eHttpReqType::Post;
     return request(url, resp);
 }
 bool client::request(const std::string& url, std::string& resp)
@@ -154,7 +154,7 @@ bool client::request(const std::string& url, std::string& resp)
             headers = curl_slist_append(headers, std::string(k + ": " + v).c_str());
         }
 
-        if (m_type == silly::http::Post)
+        if (m_type == eHttpReqType::Post)
         {
             // 指定这是一个 POST 请求
             curl_easy_setopt(hnd, CURLOPT_POST, 1L);
@@ -225,7 +225,7 @@ bool client::request(const std::string& url, std::string& resp)
         SILLY_CURL_ERR_BREAK(curl_easy_getinfo(hnd, CURLINFO_RESPONSE_CODE, &respCode))
         /* memcpy(&m_err[0], err_buffer, CURL_ERROR_SIZE);
          m_err = std::to_string(respCode).append(" .").append(m_err);*/
-        if (respCode != silly::http::OK_200)
+        if (respCode != eHttpStatus::OK_200)
         {
             break;
         }
@@ -338,7 +338,7 @@ bool client::download(const std::string& url, const std::filesystem::path& file,
         int respCode = 0;
         SILLY_CURL_ERR_BREAK(curl_easy_getinfo(hnd, CURLINFO_RESPONSE_CODE, &respCode))
 
-        if (respCode != silly::http::OK_200)
+        if (respCode != eHttpStatus::OK_200)
         {
             memcpy(&m_err[0], err_buffer, CURL_ERROR_SIZE);
             break;
@@ -375,7 +375,7 @@ bool client::download(const std::string& url, const std::filesystem::path& file,
 bool client::upload(const std::string& url, const std::string& copyname, std::string& resp)
 {
     bool status = false;
-    m_type = silly::http::type::Post;
+    m_type = eHttpReqType::Post;
     m_copyname = copyname;
     m_body.clear();
     return request(url, resp);
@@ -465,7 +465,7 @@ void client::password(const std::string& pwd)
     m_password = pwd;
 }
 
-void client::type(const silly::http::type& tp)
+void client::type(const eHttpReqType& tp)
 {
     m_type = tp;
 }
@@ -488,7 +488,7 @@ std::unordered_map<std::string, std::string> client::headers() const
 {
     return m_hresponse;
 }
-silly::http::status_code client::code()
+eHttpStatus client::code()
 {
     return m_code;
 }

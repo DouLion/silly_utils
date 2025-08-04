@@ -111,7 +111,7 @@ class utils
     /// <param name="type"></param>
     /// <param name="properties"></param>
     /// <returns></returns>
-    static bool check_shp_info(const std::filesystem::path& file, enum_geometry_type& type, std::map<std::string, silly_geo_prop::enum_prop_type>& properties);
+    static bool check_shp_info(const std::filesystem::path& file, eGeometryType& geoType, std::map<std::string, eGeoFieldType>& properties);
 
     /// <summary>
     /// 根据文件类型得到对应的 gdal 中的存储格式

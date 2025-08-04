@@ -10,35 +10,35 @@
  */
 #include "silly_mobile.h"
 using namespace silly;
-static const std::unordered_map<std::string, mobile::eop> MOBILE_PREFIX_MAP = {
-    {"138", mobile::eop::ChinaMobile},
-    {"139", mobile::eop::ChinaMobile},
-    {"150", mobile::eop::ChinaMobile},
-    {"159", mobile::eop::ChinaMobile},
-    {"135", mobile::eop::ChinaMobile},
-    {"186", mobile::eop::ChinaUnicom},
-    {"180", mobile::eop::ChinaTelecom},
-    {"133", mobile::eop::ChinaTelecom},
-    {"156", mobile::eop::ChinaTelecom},
-    {"181", mobile::eop::ChinaTelecom}
+static const std::unordered_map<std::string, eMobileOP> MOBILE_PREFIX_MAP = {
+    {"138", eMobileOP::ChinaMobile},
+    {"139", eMobileOP::ChinaMobile},
+    {"150", eMobileOP::ChinaMobile},
+    {"159", eMobileOP::ChinaMobile},
+    {"135", eMobileOP::ChinaMobile},
+    {"186", eMobileOP::ChinaUnicom},
+    {"180", eMobileOP::ChinaTelecom},
+    {"133", eMobileOP::ChinaTelecom},
+    {"156", eMobileOP::ChinaTelecom},
+    {"181", eMobileOP::ChinaTelecom}
     // 可以继续扩展更多号段
 };
 
-std::string mobile::op2str(const mobile::eop& op)
+std::string mobile::op2str(const eMobileOP& op)
 {
     switch (op)
     {
-        case mobile::eop::ChinaMobile:
+        case eMobileOP::ChinaMobile:
             return "China Mobile";
-        case mobile::eop::ChinaUnicom:
+        case eMobileOP::ChinaUnicom:
             return "China Unicom";
-        case mobile::eop::ChinaTelecom:
+        case eMobileOP::ChinaTelecom:
             return "China Telecom";
         default:
             return "Unknown";
     }
 }
-mobile::eop mobile::opcode(const std::string& number)
+eMobileOP mobile::opcode(const std::string& number)
 {
     std::string prefix = number.substr(0, 3);
     auto iter = MOBILE_PREFIX_MAP.find(prefix);
@@ -47,11 +47,11 @@ mobile::eop mobile::opcode(const std::string& number)
     {
         return iter->second;
     }
-    return mobile::eop::Unknown;
+    return eMobileOP::Unknown;
 }
-std::map<std::string, mobile::eop> mobile::opcode(const std::vector<std::string>& numbers)
+std::map<std::string, eMobileOP> mobile::opcode(const std::vector<std::string>& numbers)
 {
-    std::map<std::string, mobile::eop> ret;
+    std::map<std::string, eMobileOP> ret;
     for (const auto& number : numbers)
     {
         ret[number] = opcode(number);

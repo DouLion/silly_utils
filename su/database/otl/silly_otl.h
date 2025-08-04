@@ -60,6 +60,20 @@
 #define str_to_db_type silly::otl::str2type
 #define db_type_to_str silly::otl::type2str
 
+
+enum class eOtlDbType
+{
+    dbINVALID = 0,    // 无效数据源类型
+    dbSQLSERVER = 1,  // SQLSERVER 数据库
+    dbMYSQL = 2,      // MYSQL 数据库
+    dbORACLE = 3,     // ORACLE 数据库
+    dbDM8 = 4,        // 达梦
+    dbPG = 5,         // postgres
+    dbKingB8 = 6,     // 人大金仓
+    dbMariaDB = 7     // MYSQL的一个开源分支,基本能够兼容mysql
+};
+
+
 namespace silly
 {
 
@@ -149,19 +163,6 @@ static otl_datetime stamp2otltime(std::time_t stamp)
 
 class otl
 {
-  public:
-    enum class eType
-    {
-        dbINVALID = 0,    // 无效数据源类型
-        dbSQLSERVER = 1,  // SQLSERVER 数据库
-        dbMYSQL = 2,      // MYSQL 数据库
-        dbORACLE = 3,     // ORACLE 数据库
-        dbDM8 = 4,        // 达梦
-        dbPG = 5,         // postgres
-        dbKingB8 = 6,     // 人大金仓
-        dbMariaDB = 7     // MYSQL的一个开源分支,基本能够兼容mysql
-    };
-
   public:
     /// <summary>
     /// 从字符串加载otl连接属性, 可以传入json字符串, 也可以直接传入odbc字符串
@@ -590,9 +591,9 @@ class otl
     /// <returns>执行是否成功</returns>
     static std::string otl_type_name(const otl_var_enum& vt);
 
-    static eType str2type(const std::string& desc);
+    static eOtlDbType str2type(const std::string& desc);
 
-    static std::string type2str(const eType& type);
+    static std::string type2str(const eOtlDbType& type);
 
     void make_otl_err(otl_exception& e)
     {
@@ -606,7 +607,7 @@ class otl
     ///////////////////////////////
     /// getter
     ///////////////////////////////
-    eType type() const;
+    eOtlDbType type() const;
     std::string driver() const;
     std::string ip() const;
     int port() const;
@@ -618,7 +619,7 @@ class otl
     ///////////////////////////////
     /// setter
     ///////////////////////////////
-    void type(eType tp);
+    void type(eOtlDbType tp);
     void driver(std::string d);
     void ip(std::string i);
     void port(int p);
@@ -637,7 +638,7 @@ class otl
   protected:
     std::string m_ip;
     int m_port{0};
-    eType m_type{eType::dbINVALID};
+    eOtlDbType m_type{eOtlDbType::dbINVALID};
     std::string m_driver;  // 驱动名称 可由
     std::string m_schema;
     std::string m_user;
@@ -653,7 +654,6 @@ class otl
 
 typedef silly::otl silly_otl;
 typedef silly::otl otl_conn_opt;
-typedef silly::otl::eType enum_database_type;
 
 /* ODBC 示例
   Driver={DM8 ODBC DRIVER};Server=127.0.0.1;TCP_PORT=5236;UID=SYSDBA;PWD=xxxxxxxx;

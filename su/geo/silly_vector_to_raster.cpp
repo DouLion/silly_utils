@@ -185,25 +185,25 @@ void x_scan_line::rasterize(const std::vector<std::vector<_point>> vertices_arr)
 
 void x_scan_line::rasterize(const silly_geo_coll& geo_coll)
 {
-    enum_geometry_type feature_type = geo_coll.m_type;
+    eGeometryType feature_type = geo_coll.m_type;
     switch (feature_type)
     {
-        case enum_geometry_type::egtPoint:  // 单点
+        case eGeometryType::Point:  // 单点
             rasterize(geo_coll.m_point);
             break;
-        case enum_geometry_type::egtLineString:  // 单线
+        case eGeometryType::LineString:  // 单线
             rasterize(geo_coll.m_line);
             break;
-        case enum_geometry_type::egtPolygon:  // 单面
+        case eGeometryType::Polygon:  // 单面
             rasterize(geo_coll.m_poly);
             break;
-        case enum_geometry_type::egtMultiPoint:  // 多点
+        case eGeometryType::MultiPoint:  // 多点
             rasterize(geo_coll.m_m_points);
             break;
-        case enum_geometry_type::egtMultiLineString:  // 多线
+        case eGeometryType::MultiLineString:  // 多线
             rasterize(geo_coll.m_m_lines);
             break;
-        case enum_geometry_type::egtMultiPolygon:  // 多面
+        case eGeometryType::MultiPolygon:  // 多面
             rasterize(geo_coll.m_m_polys);
             break;
         default:

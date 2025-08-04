@@ -102,7 +102,7 @@ TEST_CASE("TestGEO")
 
         multiPolygonData.m_point = ipoint;
         std::vector<silly_geo_coll> multiPolygonDataVec;
-        multiPolygonData.m_type = enum_geometry_type::egtPoint;
+        multiPolygonData.m_type = eGeometryType::egtPoint;
         multiPolygonDataVec.push_back(multiPolygonData);
 
         //silly_geo_utils::write_geo_coll(point1.string(), multiPolygonDataVec);
@@ -165,14 +165,14 @@ TEST_CASE("TestGEO")
 
     //    silly_geo_coll Polygon_coll;
     //    Polygon_coll.m_poly = polygon;
-    //    Polygon_coll.m_type = enum_geometry_type::egtPolygon;
+    //    Polygon_coll.m_type = eGeometryType::egtPolygon;
     //    std::vector<silly_geo_coll> poly_colls;
     //    poly_colls.push_back(Polygon_coll);
     //    // silly_geo_utils::write_geo_coll(poly.string(), poly_colls);
 
     //    silly_geo_coll Rectangle_coll;
     //    Rectangle_coll.m_poly = rectangle;
-    //    Rectangle_coll.m_type = enum_geometry_type::egtPolygon;
+    //    Rectangle_coll.m_type = eGeometryType::egtPolygon;
     //    std::vector<silly_geo_coll> rect_colls;
     //    rect_colls.push_back(Rectangle_coll);
     //    // silly_geo_utils::write_geo_coll(rect4.string(), rect_colls);
@@ -183,7 +183,7 @@ TEST_CASE("TestGEO")
     //    //     std::cout << "Intersection found.\n";
     //    //     silly_geo_coll result_coll;
     //    //     result_coll.m_poly = result;
-    //    //     result_coll.m_type = enum_geometry_type::egtPolygon;
+    //    //     result_coll.m_type = eGeometryType::egtPolygon;
     //    //     std::vector<silly_geo_coll> result_colls;
     //    //     result_colls.push_back(result_coll);
     //    //     silly_geo_utils::write_geo_coll(result_intersect.string(), result_colls);
@@ -202,7 +202,7 @@ TEST_CASE("TestGEO")
     //        {
     //            result_coll.m_m_polys.push_back(intersection);
     //        }
-    //        result_coll.m_type = enum_geometry_type::egtMultiPolygon;
+    //        result_coll.m_type = eGeometryType::egtMultiPolygon;
     //        std::vector<silly_geo_coll> result_colls;
     //        result_colls.push_back(result_coll);
     //        silly_geo_utils::write_geo_coll(result_intersect_wa.string(), result_colls);
@@ -253,7 +253,7 @@ TEST_CASE("TestGEO")
 
         // ============ 单点 ==================
         silly_point point0 = silly_point(113.32007, 29.51516);
-        // multiPolygonData.m_type = enum_geometry_type::egtPoint;
+        // multiPolygonData.m_type = eGeometryType::egtPoint;
         multiPolygonData.m_point = point0;
 
         // ============ 多点 ==================
@@ -267,7 +267,7 @@ TEST_CASE("TestGEO")
         silly_point point8 = silly_point(113.41417, 29.46360);
         silly_point point9 = silly_point(113.38745, 29.51329);
         silly_point point10 = silly_point(113.41417, 29.51212);
-        // multiPolygonData.m_type = enum_geometry_type::egtMultiPoint;
+        // multiPolygonData.m_type = eGeometryType::egtMultiPoint;
         std::vector<silly_point> ppxa{point1, point2, point3, point4, point5, point6, point7, point8, point9, point10};
         multiPolygonData.m_m_points = silly_multi_point(ppxa);
 
@@ -301,7 +301,7 @@ TEST_CASE("TestGEO")
         multiPolygonData.m_m_polys.push_back(first_poly);
         multiPolygonData.m_m_polys.push_back(second_poly);
 
-        multiPolygonData.m_type = enum_geometry_type::egtMultiLineString;
+        multiPolygonData.m_type = eGeometryType::egtMultiLineString;
 
         multiPolygonDataVec.push_back(multiPolygonData);
         silly_geo_utils::write_geo_coll(point_one.string(), multiPolygonDataVec);
@@ -398,7 +398,7 @@ TEST_CASE("TestGEO")
 //    myPoly.outer.points.push_back(point3);
 //    myPoly.outer.points.push_back(point4);
 //    main.m_poly = myPoly;
-//    main.m_type = enum_geometry_type::egtPolygon;
+//    main.m_type = eGeometryType::egtPolygon;
 //    area.push_back(main);
 //
 //    silly_point point5(110.240719904000002, 27.896483680300001);
@@ -411,7 +411,7 @@ TEST_CASE("TestGEO")
 //    myPoly2.outer.points.push_back(point7);
 //    myPoly2.outer.points.push_back(point8);
 //    deputy.m_poly = myPoly2;
-//    deputy.m_type = enum_geometry_type::egtPolygon;
+//    deputy.m_type = eGeometryType::egtPolygon;
 //    area.push_back(deputy);
 //
 //    silly_point point9(112.347873938000006, 28.156742433800002);
@@ -422,7 +422,7 @@ TEST_CASE("TestGEO")
 //    myPoly3.outer.points.push_back(point10);
 //    myPoly3.outer.points.push_back(point11);
 //    temp.m_poly = myPoly3;
-//    temp.m_type = enum_geometry_type::egtPolygon;
+//    temp.m_type = eGeometryType::egtPolygon;
 //    area.push_back(temp);
 //    std::filesystem::path writ_coll_area(DEFAULT_SU_DATA_DIR);
 //    writ_coll_area += "/shp/area_i.shp";
@@ -537,7 +537,7 @@ SECTION("CENTER")
     polygon.addRing(&ring1);
     silly_geo_coll sgc_creat;
     sgc_creat.m_poly = geo_utils::silly_poly_from_ogr(&polygon);
-    sgc_creat.m_type = enum_geometry_type::egtPolygon;
+    sgc_creat.m_type = eGeometryType::egtPolygon;
     std::filesystem::path creat_poly(DEFAULT_SU_DATA_DIR);
     creat_poly += "/shp/creat.shp";
     std::vector<silly_geo_coll> jia;
@@ -577,7 +577,7 @@ SECTION("CENTER")
                         OGRPolygon* intersect = dynamic_cast<OGRPolygon*>(inter);
                         silly_geo_coll temp_poly;
                         temp_poly.m_poly = geo_utils::OGRPolyToSillyPoly(intersect);
-                        temp_poly.m_type = enum_geometry_type::egtPolygon;
+                        temp_poly.m_type = eGeometryType::egtPolygon;
                         intersects.push_back(temp_poly);
                     }
                     break;
@@ -589,7 +589,7 @@ SECTION("CENTER")
                         OGRMultiPolygon* intersectMulti = dynamic_cast<OGRMultiPolygon*>(inter);
                         silly_geo_coll temp_Multipoly;
                         temp_Multipoly.m_m_polys = geo_utils::OGRMulPolyToSillyMulPoly(intersectMulti);
-                        temp_Multipoly.m_type = enum_geometry_type::egtMultiPolygon;
+                        temp_Multipoly.m_type = eGeometryType::egtMultiPolygon;
                         intersects.push_back(temp_Multipoly);
                     }
                     break;
@@ -602,7 +602,7 @@ SECTION("CENTER")
             OGRPoint point;
             inter->Centroid(&point);
             silly_geo_coll s_point;
-            s_point.m_type = enum_geometry_type::egtPoint;
+            s_point.m_type = eGeometryType::egtPoint;
             s_point.m_point.lgtd = point.getX();
             s_point.m_point.lttd = point.getY();
             out_xian.push_back(xian);
@@ -760,7 +760,7 @@ SECTION("READ_VECTOR_POINT_LINE")
     std::filesystem::path geo_point(DEFAULT_SU_DATA_DIR);
     geo_point += "/geojson/xian_point.geojson";
 
-    enum_geometry_type type;
+    eGeometryType type;
     std::map<std::string, std::string> properties;
     // geo_utils::check_shp_info(geo_point.string().c_str(), type, properties);
 
@@ -772,7 +772,7 @@ SECTION("READ_VECTOR_POINT_LINE")
 
     // std::vector<silly_point> geo_points_v = geo_utils::read_vector_points(geo_point.string().c_str());
 
-    enum_geometry_type type2;
+    eGeometryType type2;
     std::map<std::string, std::string> properties2;
     // geo_utils::check_shp_info(geo_line.string().c_str(), type2, properties2);
 
