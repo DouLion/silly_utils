@@ -13,7 +13,7 @@
 #ifndef SILLY_UTILS_SILLY_BZ2_H
 #define SILLY_UTILS_SILLY_BZ2_H
 #include <iostream>
-#include <compress/silly_compress.h>
+#include <compress/silly_compress_common.h>
 
 /*
  * bzip2比传统的gzip或者ZIP的压缩效率更高，但是压缩速度较慢。

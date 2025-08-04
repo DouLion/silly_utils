@@ -12,7 +12,7 @@
 
 #ifndef SILLY_UTILS_SILLY_RAR_H
 #define SILLY_UTILS_SILLY_RAR_H
-#include <compress/silly_compress.h>
+#include <compress/silly_compress_common.h>
 #include <log/silly_log.h>
 
 namespace silly_compress
