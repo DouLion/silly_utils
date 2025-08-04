@@ -26,7 +26,7 @@ enum class eGeometryType : int8_t
     MultiPolygon = 6,     // 多面
                        // egtCompositeType = 7,    // 复合数据类型
 };
-
+#define SU_GEO_EPSILON  (1e-8)
 #ifndef SU_3D_POINT_ENABLED
 
 /****************************************/
@@ -122,7 +122,7 @@ class silly_point
 
     bool operator==(const silly_point& point) const
     {
-        return std::abs(point.x - this->x) <= SU_EPSILON && std::abs(point.y - this->y) <= SU_EPSILON;
+        return std::abs(point.x - this->x) <= SU_GEO_EPSILON && std::abs(point.y - this->y) <= SU_GEO_EPSILON;
     }
 
     bool operator<(const silly_point& point) const
@@ -137,7 +137,7 @@ class silly_point
 
     bool operator!=(const silly_point& point) const
     {
-        return std::abs(point.x - this->x) > SU_EPSILON || std::abs(point.y - this->y) > SU_EPSILON;
+        return std::abs(point.x - this->x) > SU_GEO_EPSILON || std::abs(point.y - this->y) > SU_GEO_EPSILON;
     }
 
   public:
