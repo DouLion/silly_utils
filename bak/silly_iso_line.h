@@ -13,6 +13,18 @@
 #include <geo/gpc/gpc.h>
 #include <geo/silly_geo_utils.h>
 
+enum class eIsoGeoType : int8_t
+{
+    Line = 0,  // 等值线
+    Area = 1   // 等值面
+};
+
+enum class eIsoClipType : int8_t
+{
+    Rect = 1,
+    Boundy = 0
+};
+
 class iso_point
 {
   public:
@@ -101,18 +113,6 @@ class iso_panels  //
 class silly_iso_line
 {
   public:
-    enum class enum_iso_type
-    {
-        eitLine = 0,  // 等值线
-        eitArea = 1   // 等值面
-    };
-
-    enum class enum_clip_type
-    {
-        ectRect = 1,
-        ectBoundy = 0
-    };
-
     struct iso_triangle
     {
         size_t i;
