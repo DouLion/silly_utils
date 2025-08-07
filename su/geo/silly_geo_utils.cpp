@@ -1284,24 +1284,35 @@ std::vector<silly_point> utils::simplify_ring(const std::vector<silly_point>& ri
 
 bool utils::intersect(const silly_point& point, const std::vector<silly_point>& points)
 {
-    int i, j;
-    double d;
-    int num = points.size();
-    bool c = false;
-    for (i = 0, j = num - 1; i < num; j = i++)
+    bool is_inside = false;
+    const size_t count = points.size();
+    if (count < 2) return false;  // 至少需要两个点构成线段
+
+    for (size_t i = 0, j = count - 1; i < count; j = i++)
     {
-        d = (points[j].x - points[i].x) * (point.y - points[i].y) / (points[j].y - points[i].y) + points[i].x;
-        if (point.x == d)
+        const auto& v1 = points[j];
+        const auto& v2 = points[i];
+
+        // 检查点是否在线段上（避免浮点精度问题）
+        const double dx = v2.x - v1.x;
+        const double dy = v2.y - v1.y;
+        if (std::abs(dy) > std::numeric_limits<double>::epsilon())
         {
-            return false;
+            const double intersection_x = (dx * (point.y - v1.y) / dy) + v1.x;
+            if (std::abs(point.x - intersection_x) < std::numeric_limits<double>::epsilon())
+            {
+                return false;  // 点在边界上
+            }
         }
 
-        if ((((points[i].y <= point.y) && (point.y < points[j].y) || ((points[j].y <= point.y) && (point.y < points[i].y))) && (point.x < d)))
+        // 射线法判断内外
+        if (((v1.y <= point.y && point.y < v2.y) || (v2.y <= point.y && point.y < v1.y)) &&
+            (point.x < (dx * (point.y - v1.y) / dy + v1.x)))
         {
-            c = !c;
+            is_inside = !is_inside;
         }
     }
-    return c;
+    return is_inside;
 }
 double utils::distance(const silly_point& p1, const silly_point& p2)
 {
