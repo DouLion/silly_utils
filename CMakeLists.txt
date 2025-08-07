@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(silly_utils CXX)
+project(silly_utils C CXX)
 
 # 判断当前目录是否为 cmake的根目录,如果不是,则是被其他项目引用的,不需要编译测试,工具模块
 message(STATUS "SU当前文件根目录 (CMAKE_CURRENT_SOURCE_DIR) ${CMAKE_CURRENT_SOURCE_DIR}")

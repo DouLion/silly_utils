@@ -33,7 +33,16 @@ endif()
 
 
 find_package(Iconv)
-target_link_libraries(${PROJECT_NAME} PUBLIC Iconv::Iconv)
+if (Iconv_FOUND)
+    target_include_directories(${PROJECT_NAME} PUBLIC ${Iconv_INCLUDE_DIR})
+    target_link_libraries(${PROJECT_NAME} PUBLIC ${Iconv_LIBRARIES})
+    message(STATUS "Iconv found")
+    message(STATUS "Iconv include dir: ${Iconv_INCLUDE_DIR}")
+    message(STATUS "Iconv libraries: ${Iconv_LIBRARIES}")
+else()
+    message(FATAL_ERROR  "Iconv NOT found")
+endif()
+# target_link_libraries(${PROJECT_NAME} PUBLIC Iconv::Iconv)
 
 find_package(polyclipping CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC polyclipping::polyclipping)

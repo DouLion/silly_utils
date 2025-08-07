@@ -122,7 +122,7 @@
 + windows 下执行:
 
   ```
-  vcpkg install msinttypes boost gdal zlib bzip2 libzip jsoncpp polyclipping cryptopp libiconv otl curl netcdf-cxx4 rapidjson sqlite3 libspatialite libgeotiff protozero libpng libjpeg-turbo simpleini 7zip drogon[*] fmt spdlog catch2 gzip-hpp cairo
+  vcpkg install msinttypes gdal libarchive websocketpp paho-mqttpp3[ssl]  zlib bzip2 libzip jsoncpp polyclipping cryptopp libiconv otl curl netcdf-cxx4 rapidjson sqlite3 libspatialite libgeotiff protozero libpng libjpeg-turbo simpleini 7zip drogon[*] fmt spdlog catch2 gzip-hpp cairo
   
   ```
 
@@ -131,6 +131,7 @@
 
   ```
   vcpkg install geos freexl curl librttopo proj libxml2 tiff libuuid
++ yum install unixODBC-devel 或 apt-get install unixODBC-dev
   ```
   
   

@@ -814,7 +814,7 @@ bool writePropertiesToGeometry(OGRFeature* feature, const std::map<std::string, 
                 case eGeoFieldType::DateTime:
                     break;
                 case eGeoFieldType::Long:
-                    feature->SetField(fieldIndex, prop.as_int64());
+                    feature->SetField(fieldIndex, static_cast<long long>(prop.as_int64()));
                     break;
                 default:
                     status = false;

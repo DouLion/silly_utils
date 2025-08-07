@@ -106,7 +106,7 @@ if(CMAKE_HOST_SYSTEM_NAME MATCHES "Linux")
   set(THREADS_PREFER_PTHREAD_FLAG ON)
 
   set(CMAKE_CXX_FLAGS
-      "${CMAKE_CXX_FLAGS} -std=c++17 -lpthread -fPIC -Wall -fopenmp -Wno-unused-function -Wno-unused-variable -lodbc"
+      "${CMAKE_CXX_FLAGS} -std=c++17 -lpthread -fPIC  -lc -Wall -fopenmp -Wno-unused-function -Wno-unused-variable -lodbc"
   )
   set(STATIC_LIB_SUFFIX "a")
   set(DYNAMIC_LIB_SUFFIX "so")
