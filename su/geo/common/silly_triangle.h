@@ -14,7 +14,7 @@
 
 class silly_triangle
 {
-public:
+  public:
     silly_triangle() = default;
     ~silly_triangle() = default;
     silly_triangle(silly_point a, silly_point b, silly_point c) : a(a), b(b), c(c)
@@ -75,12 +75,10 @@ public:
         return std::acos((a.x - c.x) * (b.x - c.x) + (a.y - c.y) * (b.y - c.y)) * 180 / silly::math::pi;
     }
 
-public:
+  public:
     silly_point a;
     silly_point b;
     silly_point c;
 };
 
-
-
-#endif //SILLY_TRIANGLE_H
+#endif  // SILLY_TRIANGLE_H

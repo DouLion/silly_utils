@@ -1213,7 +1213,7 @@ double utils::area_sqkm(const silly_poly& poly, const double& l0)
     }
     for (const auto& inner_ring : poly.holes)
     {
-        total_area -= area_sqkm(inner_ring.points,l0);
+        total_area -= area_sqkm(inner_ring.points, l0);
     }
     return total_area;
 }
@@ -1231,7 +1231,7 @@ double utils::area_sqkm(const silly_multi_poly& mpoly, const double& l0)
     double total_area = 0;
     for (const auto& poly : mpoly)
     {
-        total_area += area_sqkm(poly,l0);
+        total_area += area_sqkm(poly, l0);
     }
     return total_area;
 }
@@ -1285,7 +1285,8 @@ bool utils::intersect(const silly_point& point, const std::vector<silly_point>& 
 {
     bool is_inside = false;
     const size_t count = points.size();
-    if (count < 2) return false;  // 至少需要两个点构成线段
+    if (count < 2)
+        return false;  // 至少需要两个点构成线段
 
     for (size_t i = 0, j = count - 1; i < count; j = i++)
     {
@@ -1305,8 +1306,7 @@ bool utils::intersect(const silly_point& point, const std::vector<silly_point>& 
         }
 
         // 射线法判断内外
-        if (((v1.y <= point.y && point.y < v2.y) || (v2.y <= point.y && point.y < v1.y)) &&
-            (point.x < (dx * (point.y - v1.y) / dy + v1.x)))
+        if (((v1.y <= point.y && point.y < v2.y) || (v2.y <= point.y && point.y < v1.y)) && (point.x < (dx * (point.y - v1.y) / dy + v1.x)))
         {
             is_inside = !is_inside;
         }

@@ -11,7 +11,6 @@
 #include "silly_compress.h"
 eCompressErr su::compress_file(const std::filesystem::path& src, const std::filesystem::path& dst, const eCompressMethod& method)
 {
-    
 }
 eCompressErr su::compress_dir(const std::filesystem::path& src, const std::filesystem::path& dst, const eCompressMethod& method)
 {

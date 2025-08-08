@@ -60,7 +60,6 @@
 #define str_to_db_type silly::otl::str2type
 #define db_type_to_str silly::otl::type2str
 
-
 enum class eOtlDbType
 {
     dbINVALID = 0,    // 无效数据源类型
@@ -72,7 +71,6 @@ enum class eOtlDbType
     dbKingB8 = 6,     // 人大金仓
     dbMariaDB = 7     // MYSQL的一个开源分支,基本能够兼容mysql
 };
-
 
 namespace silly
 {

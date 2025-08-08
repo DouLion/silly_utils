@@ -514,7 +514,6 @@ bool silly_tzx_grid::unserialize_v2(char* p, const int& index)
             {
                 break;
             }
-
         }
 
         p += cpsLen;
@@ -661,7 +660,7 @@ char* silly_tzx_grid::read_head(const std::string& buff)
     size_t len = buff.size();
     char* p = const_cast<char*>(buff.data());
     memcpy(m_prefix, p, sizeof(m_prefix));
-    p+= sizeof(m_prefix);
+    p += sizeof(m_prefix);
 
     m_total = reinterpret_cast<size_t*>(p)[0];
     p += sizeof(m_total);

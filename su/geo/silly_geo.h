@@ -22,7 +22,6 @@
 #include <geo/common/silly_point.h>
 #include <geo/common/silly_triangle.h>
 
-
 // 参照GDAL
 enum class eGeometryType : int8_t
 {

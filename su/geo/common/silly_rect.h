@@ -155,4 +155,4 @@ class silly_rect  // 普通坐标点
 };
 using silly_geo_rect = silly_rect;
 
-#endif //SILLY_RECT_H
+#endif  // SILLY_RECT_H

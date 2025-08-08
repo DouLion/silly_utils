@@ -13,7 +13,7 @@
 #include <geo/common/silly_point.h>
 class silly_circle
 {
-public:
+  public:
     silly_circle() = default;
     ~silly_circle() = default;
     silly_circle(const silly_point& cp, const double& r) : center(cp), radius(r)
@@ -25,10 +25,9 @@ public:
         return SU_PI * radius * radius;
     }
 
-public:
+  public:
     silly_point center;
     double radius = 0.0;
 };
 
-
-#endif //SILLY_CIRCLE_H
+#endif  // SILLY_CIRCLE_H

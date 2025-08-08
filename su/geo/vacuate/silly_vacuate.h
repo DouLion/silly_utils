@@ -12,7 +12,6 @@
 #define SILLY_UTILS_SILLY_VACUATE_H
 #include <su_marco.h>
 
-
 enum eVacuateAlgo
 {
     NTH_POINT,  // N点: 只保留第一个、最后一个和每个第n个点, 该算法非常快，但不幸的是，它不太擅长保留直线的几何特征。

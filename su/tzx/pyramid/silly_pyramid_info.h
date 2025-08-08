@@ -42,7 +42,6 @@ constexpr size_t INFO_TOTAL = 5640;
 class info : public silly::pyramid::base
 {
   public:
-
     info();
 
     /// <summary>

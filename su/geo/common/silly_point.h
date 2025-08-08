@@ -135,7 +135,7 @@ class silly_pointZ : public silly_point
         x = xx;
         y = yy;
     }
-    silly_pointZ(const double& xx,const double&  yy, const double& zz)
+    silly_pointZ(const double& xx, const double& yy, const double& zz)
     {
         x = xx;
         y = yy;
@@ -169,43 +169,93 @@ class silly_pointZ : public silly_point
 /****************************************/
 /// 多点
 /****************************************/
-class  silly_multi_point
+class silly_multi_point
 {
-public:
+  public:
     silly_multi_point() = default;
     ~silly_multi_point() = default;
     /*silly_multi_point(const silly_multi_point& rh);
     silly_multi_point(const std::vector<silly_point>& rh);*/
     using iterator = typename std::vector<silly_point>::iterator;
     using const_iterator = typename std::vector<silly_point>::const_iterator;
-    using value_type = silly_point; // 兼容STL容器类型定义
+    using value_type = silly_point;  // 兼容STL容器类型定义
 
     // 代理vector的常用接口
-    void push_back(const silly_point& p) { m_points.push_back(p); }
-    void push_back(silly_point&& p) { m_points.push_back(std::move(p)); }
-    void pop_back() { m_points.pop_back(); }
-    size_t size() const { return m_points.size(); }
-    bool empty() const { return m_points.empty(); }
+    void push_back(const silly_point& p)
+    {
+        m_points.push_back(p);
+    }
+    void push_back(silly_point&& p)
+    {
+        m_points.push_back(std::move(p));
+    }
+    void pop_back()
+    {
+        m_points.pop_back();
+    }
+    size_t size() const
+    {
+        return m_points.size();
+    }
+    bool empty() const
+    {
+        return m_points.empty();
+    }
 
     // 元素访问（引用传递，避免拷贝）
-    silly_point& operator[](size_t pos) { return m_points[pos]; }
-    const silly_point& operator[](size_t pos) const { return m_points[pos]; }
-    silly_point& front() { return m_points.front(); }
-    const silly_point& front() const { return m_points.front(); }
-    silly_point& back() { return m_points.back(); }
-    const silly_point& back() const { return m_points.back(); }
+    silly_point& operator[](size_t pos)
+    {
+        return m_points[pos];
+    }
+    const silly_point& operator[](size_t pos) const
+    {
+        return m_points[pos];
+    }
+    silly_point& front()
+    {
+        return m_points.front();
+    }
+    const silly_point& front() const
+    {
+        return m_points.front();
+    }
+    silly_point& back()
+    {
+        return m_points.back();
+    }
+    const silly_point& back() const
+    {
+        return m_points.back();
+    }
 
     // 迭代器支持（兼容范围for循环）
-    iterator begin() { return m_points.begin(); }
-    iterator end() { return m_points.end(); }
-    const_iterator begin() const { return m_points.begin(); }
-    const_iterator end() const { return m_points.end(); }
-    const_iterator cbegin() const { return m_points.cbegin(); }
-    const_iterator cend() const { return m_points.cend(); }
+    iterator begin()
+    {
+        return m_points.begin();
+    }
+    iterator end()
+    {
+        return m_points.end();
+    }
+    const_iterator begin() const
+    {
+        return m_points.begin();
+    }
+    const_iterator end() const
+    {
+        return m_points.end();
+    }
+    const_iterator cbegin() const
+    {
+        return m_points.cbegin();
+    }
+    const_iterator cend() const
+    {
+        return m_points.cend();
+    }
 
-protected:
+  protected:
     std::vector<silly_point> m_points;
-
 };
 
-#endif //SILLY_POINT_H
+#endif  // SILLY_POINT_H

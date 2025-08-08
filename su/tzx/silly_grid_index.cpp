@@ -45,11 +45,11 @@ int64_t silly_grid_index::checked_index(const double& lgtd, const double& lttd, 
     {
         throw std::runtime_error("坐标超出中国范围");
     }
-    
+
     int64_t cols = std::round((CN_RECT_RIGHT - CN_RECT_LEFT) / step + 1);
     int64_t col = std::round((lgtd - CN_RECT_LEFT) / step);
     int64_t row = std::round((lttd - CN_RECT_BOTTOM) / step);
-    return row* cols + col + 1;
+    return row * cols + col + 1;
 }
 
 std::pair<double, double> silly_grid_index::checked_point(const int64_t& index, const double& step)

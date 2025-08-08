@@ -352,7 +352,6 @@ using silly_handle = int;
     }
 #endif
 
-
 #ifdef IS_WIN32
 
 static std::wstring MultiByteToWideCharSafe(const std::string& str, UINT codePage = CP_UTF8)

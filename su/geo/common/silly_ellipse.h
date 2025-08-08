@@ -14,7 +14,7 @@
 
 class silly_ellipse
 {
-public:
+  public:
     silly_ellipse() = default;
     ~silly_ellipse() = default;
     silly_ellipse(silly_point p, double x, double y) : center(p), rx(x), ry(y)
@@ -38,12 +38,11 @@ public:
         return 2 * silly::math::pi * sqrt((rx * rx + ry * ry) / 2);
     }
 
-public:
+  public:
     silly_point center;  // 中心点
     // 长半轴 和 短半轴, 不分
     double rx = 0.0;
     double ry = 0.0;
 };
 
-
-#endif //SILLY_ELLIPSE_H
+#endif  // SILLY_ELLIPSE_H

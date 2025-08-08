@@ -15,18 +15,17 @@
 enum class eGeoFieldType : int8_t
 {
     None = -1,      // 无效
-    Int = 0,       // 整形
-    Numeric = 2,   // 浮点数
-    String = 4,    // 字符串
-    Binary = 8,    // 二进制流
-    Date = 9,     // 日期
+    Int = 0,        // 整形
+    Numeric = 2,    // 浮点数
+    String = 4,     // 字符串
+    Binary = 8,     // 二进制流
+    Date = 9,       // 日期
     Time = 10,      // 时间
     DateTime = 11,  // 日期加时间
     Long = 12       // 长整形
 };
 class silly_geo_prop
 {
-
   public:
     silly_geo_prop() = default;
     silly_geo_prop(const std::string& s);

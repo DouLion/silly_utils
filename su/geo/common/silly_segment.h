@@ -14,7 +14,7 @@
 
 class silly_segment
 {
-public:
+  public:
     silly_segment() = default;
     ~silly_segment() = default;
     silly_segment(silly_point _p0, silly_point _p1)
@@ -23,14 +23,14 @@ public:
         p1 = _p1;
     }
 
-public:
+  public:
     silly_point p0;
     silly_point p1;
 };
 
 class silly_segmentZ : public silly_segment
 {
-public:
+  public:
     silly_segmentZ() = default;
     ~silly_segmentZ() = default;
     silly_segmentZ(const silly_pointZ& _p0, const silly_pointZ& _p1)
@@ -44,9 +44,9 @@ public:
         p1 = _p1;
     }
 
-public:
+  public:
     silly_pointZ p0;
     silly_pointZ p1;
 };
 
-#endif //SILLY_SEGMENT_H
+#endif  // SILLY_SEGMENT_H
