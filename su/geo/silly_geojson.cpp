@@ -14,8 +14,8 @@ using namespace silly;
 #define K_PROPERTIES "properties"
 
 // geojson中的值
-static const std::string TYPE_FEATURE = "Feature";
-static const std::string TYPE_FEATURE_COLLECTION = "FeatureCollection";
+#define V_FEATURE "Feature"
+#define V_FEATURE_COLLECTION "FeatureCollection"
 
 std::vector<silly_geo_coll> geojson::read(const std::filesystem::path& file)
 {
@@ -34,7 +34,7 @@ std::vector<silly_geo_coll> geojson::load(const Json::Value& jv)
     std::vector<silly_geo_coll> ret;
     std::string type;
     sujson::check_str(jv, K_TYPE, type);
-    if (TYPE_FEATURE_COLLECTION == type)
+    if (V_FEATURE_COLLECTION == type)
     {
         Json::Value jvFeatures;
         if (jsonpp::check_arr(jv, K_FEATURES, jvFeatures))
@@ -49,7 +49,7 @@ std::vector<silly_geo_coll> geojson::load(const Json::Value& jv)
             }
         }
     }
-    else if (TYPE_FEATURE == type)
+    else if (V_FEATURE == type)
     {
         silly_geo_coll gc;
         if (load(jv, gc))
@@ -57,7 +57,7 @@ std::vector<silly_geo_coll> geojson::load(const Json::Value& jv)
             ret.push_back(gc);
         }
     }
-    else
+    else if (type.empty())
     {
         silly_geo_coll gc;
         switch (sugeo::str2type(type))
@@ -107,12 +107,12 @@ bool geojson::load(const Json::Value& jv, silly_geo_coll& gc)
     {
         return false;
     }
-    if (TYPE_FEATURE_COLLECTION == type)
+    if (V_FEATURE_COLLECTION == type)
     {
         // 多元集合 在实现上会优先会使用递归,在结构上会也会递归,避免使用这种矢量结构
         throw std::runtime_error("不支持多元集合,有堆栈溢出风险");
     }
-    if (TYPE_FEATURE != type)
+    if (V_FEATURE != type)
     {
         return false;
     }
@@ -320,7 +320,7 @@ std::string geojson::stringify(const std::vector<silly_geo_coll>& geo_colls, con
     sujson::style opt;
     opt.precision = precision;
     Json::Value jvObj = Json::objectValue;
-    jvObj[K_TYPE] = TYPE_FEATURE_COLLECTION;
+    jvObj[K_TYPE] = V_FEATURE_COLLECTION;
     Json::Value jvArr = Json::arrayValue;
     for (const auto& item : geo_colls)
     {
@@ -453,7 +453,7 @@ Json::Value geojson::jsonify(const silly_geo_coll& gc)
 Json::Value geojson::jsonify(const silly_point& point)
 {
     Json::Value ret = Json::objectValue;
-    ret[K_TYPE] = TYPE_FEATURE;
+    ret[K_TYPE] = V_FEATURE;
     Json::Value jvGeo = Json::objectValue;
     ret[K_GEOMETRY][K_TYPE] = sugeo::type2str(eGeometryType::Point);
     Json::Value jvPoint = Json::objectValue;
@@ -465,7 +465,7 @@ Json::Value geojson::jsonify(const silly_point& point)
 Json::Value geojson::jsonify(const silly_line& line)
 {
     Json::Value ret = Json::objectValue;
-    ret[K_TYPE] = TYPE_FEATURE;
+    ret[K_TYPE] = V_FEATURE;
     Json::Value jvGeo = Json::objectValue;
     ret[K_GEOMETRY][K_TYPE] = sugeo::type2str(eGeometryType::LineString);
     Json::Value jvLine = Json::arrayValue;
@@ -482,7 +482,7 @@ Json::Value geojson::jsonify(const silly_line& line)
 Json::Value geojson::jsonify(const silly_poly& poly)
 {
     Json::Value ret = Json::objectValue;
-    ret[K_TYPE] = TYPE_FEATURE;
+    ret[K_TYPE] = V_FEATURE;
     Json::Value jvGeo = Json::objectValue;
     jvGeo[K_TYPE] = sugeo::type2str(eGeometryType::Polygon);
     Json::Value jvPoly = Json::arrayValue;
@@ -515,7 +515,7 @@ Json::Value geojson::jsonify(const silly_poly& poly)
 Json::Value geojson::jsonify(const silly_multi_point& mpoint)
 {
     Json::Value ret = Json::objectValue;
-    ret[K_TYPE] = TYPE_FEATURE;
+    ret[K_TYPE] = V_FEATURE;
     Json::Value jvGeo = Json::objectValue;
     ret[K_GEOMETRY][K_TYPE] = sugeo::type2str(eGeometryType::MultiPoint);
     Json::Value jvPoints = Json::arrayValue;
@@ -533,7 +533,7 @@ Json::Value geojson::jsonify(const silly_multi_point& mpoint)
 Json::Value geojson::jsonify(const silly_multi_line& mline)
 {
     Json::Value ret = Json::objectValue;
-    ret[K_TYPE] = TYPE_FEATURE;
+    ret[K_TYPE] = V_FEATURE;
     Json::Value jvGeo = Json::objectValue;
     ret[K_GEOMETRY][K_TYPE] = sugeo::type2str(eGeometryType::MultiLineString);
     Json::Value jvLines = Json::arrayValue;
@@ -556,7 +556,7 @@ Json::Value geojson::jsonify(const silly_multi_line& mline)
 Json::Value geojson::jsonify(const silly_multi_poly& mpoly)
 {
     Json::Value ret = Json::objectValue;
-    ret[K_TYPE] = TYPE_FEATURE;
+    ret[K_TYPE] = V_FEATURE;
     Json::Value jvGeo = Json::objectValue;
     jvGeo[K_TYPE] = sugeo::type2str(eGeometryType::MultiPolygon);
     Json::Value jvPolys = Json::arrayValue;
