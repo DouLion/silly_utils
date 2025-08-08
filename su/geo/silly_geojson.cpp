@@ -456,10 +456,10 @@ Json::Value geojson::jsonify(const silly_point& point)
     ret[K_TYPE] = V_FEATURE;
     Json::Value jvGeo = Json::objectValue;
     ret[K_GEOMETRY][K_TYPE] = sugeo::type2str(eGeometryType::Point);
-    Json::Value jvPoint = Json::objectValue;
+    Json::Value jvPoint = Json::arrayValue;
     jvPoint.append(point.x);
     jvPoint.append(point.y);
-    ret[K_GEOMETRY] = jvPoint;
+    ret[K_GEOMETRY][K_COORDINATES] = jvPoint;
     return ret;
 }
 Json::Value geojson::jsonify(const silly_line& line)
@@ -476,7 +476,7 @@ Json::Value geojson::jsonify(const silly_line& line)
         jvPoint.append(pt.y);
         jvLine.append(jvPoint);
     }
-    ret[K_GEOMETRY] = jvLine;
+    ret[K_GEOMETRY][K_COORDINATES] = jvLine;
     return ret;
 }
 Json::Value geojson::jsonify(const silly_poly& poly)
@@ -509,7 +509,7 @@ Json::Value geojson::jsonify(const silly_poly& poly)
     }
 
     jvGeo[K_COORDINATES] = jvPoly;
-    ret[K_GEOMETRY] = jvGeo;
+    ret[K_GEOMETRY][K_COORDINATES] = jvGeo;
     return ret;
 }
 Json::Value geojson::jsonify(const silly_multi_point& mpoint)
@@ -521,13 +521,13 @@ Json::Value geojson::jsonify(const silly_multi_point& mpoint)
     Json::Value jvPoints = Json::arrayValue;
     for (const auto& point : mpoint)
     {
-        Json::Value jvPoint = Json::objectValue;
+        Json::Value jvPoint = Json::arrayValue;
         jvPoint.append(point.x);
         jvPoint.append(point.y);
         jvPoints.append(jvPoint);
     }
 
-    ret[K_GEOMETRY] = jvPoints;
+    ret[K_GEOMETRY][K_COORDINATES] = jvPoints;
     return ret;
 }
 Json::Value geojson::jsonify(const silly_multi_line& mline)
@@ -550,7 +550,7 @@ Json::Value geojson::jsonify(const silly_multi_line& mline)
         jvLines.append(jvLine);
     }
 
-    ret[K_GEOMETRY] = jvLines;
+    ret[K_GEOMETRY][K_COORDINATES] = jvLines;
     return ret;
 }
 Json::Value geojson::jsonify(const silly_multi_poly& mpoly)
@@ -588,7 +588,7 @@ Json::Value geojson::jsonify(const silly_multi_poly& mpoly)
     }
 
     jvGeo[K_COORDINATES] = jvPolys;
-    ret[K_GEOMETRY] = jvGeo;
+    ret[K_GEOMETRY][K_COORDINATES] = jvGeo;
     return ret;
 }
 
