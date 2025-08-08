@@ -569,7 +569,6 @@ bool read_all_types_data(const eGeometryType& feature_type, const OGRGeometry* g
 {
     bool status = false;
 #if ENABLE_GDAL
-    geo_coll.comp_type.push_back(feature_type);
     switch (feature_type)
     {
         case eGeometryType::Point:  // 单点

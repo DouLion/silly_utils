@@ -24,10 +24,73 @@ enum class eGeometryType : int8_t
     MultiPoint = 4,       // 多点
     MultiLineString = 5,  // 多线
     MultiPolygon = 6,     // 多面
-                       // egtCompositeType = 7,    // 复合数据类型
+                          // egtCompositeType = 7,    // 复合数据类型
 };
-#define SU_GEO_EPSILON  (1e-8)
+// 点
+#define GEOJSON_GEOMETRY_POINT "Point"
+// 线
+#define GEOJSON_GEOMETRY_LINE_STRING "LineString"
+// 面
+#define GEOJSON_GEOMETRY_POLYGON "Polygon"
+// 多点
+#define GEOJSON_GEOMETRY_MULTI_POINT "MultiPoint"
+// 多线
+#define GEOJSON_GEOMETRY_MULTI_LINE_STRING "MultiLineString"
+// 多面
+#define GEOJSON_GEOMETRY_MULTI_POLYGON "MultiPolygon"
+#define SU_GEO_EPSILON (1e-8)
 #ifndef SU_3D_POINT_ENABLED
+namespace sugeo
+{
+static std::string type2str(const eGeometryType& type)
+{
+    switch (type)
+    {
+        case eGeometryType::Point:
+            return GEOJSON_GEOMETRY_POINT;
+        case eGeometryType::LineString:
+            return GEOJSON_GEOMETRY_LINE_STRING;
+        case eGeometryType::Polygon:
+            return GEOJSON_GEOMETRY_POLYGON;
+        case eGeometryType::MultiPoint:
+            return GEOJSON_GEOMETRY_MULTI_POINT;
+        case eGeometryType::MultiLineString:
+            return GEOJSON_GEOMETRY_MULTI_LINE_STRING;
+        default:
+            break;
+    }
+    return "";
+}
+
+static eGeometryType str2type(const std::string& str)
+{
+    if (GEOJSON_GEOMETRY_POINT == str)
+    {
+        return eGeometryType::Point;
+    }
+    if (GEOJSON_GEOMETRY_LINE_STRING == str)
+    {
+        return eGeometryType::LineString;
+    }
+    if (GEOJSON_GEOMETRY_POLYGON == str)
+    {
+        return eGeometryType::Polygon;
+    }
+    if (GEOJSON_GEOMETRY_MULTI_POINT == str)
+    {
+        return eGeometryType::MultiPoint;
+    }
+    if (GEOJSON_GEOMETRY_MULTI_LINE_STRING == str)
+    {
+        return eGeometryType::MultiLineString;
+    }
+    if (GEOJSON_GEOMETRY_MULTI_POLYGON == str)
+    {
+        return eGeometryType::MultiPolygon;
+    }
+    return eGeometryType::Invalid;
+}
+}  // namespace sugeo
 
 /****************************************/
 /// 点
