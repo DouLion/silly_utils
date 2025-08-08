@@ -208,23 +208,29 @@ class silly_point
     double y{0.};
 };
 
-class silly_point_z : public silly_point
+class silly_pointZ : public silly_point
 {
   public:
-    silly_point_z() = default;
-    silly_point_z(double xx, double yy)
+    silly_pointZ() = default;
+    silly_pointZ(double xx, double yy)
     {
         x = xx;
         y = yy;
     }
-    silly_point_z(double xx, double yy, double zz)
+    silly_pointZ(double xx, double yy, double zz)
     {
         x = xx;
         y = yy;
         z = zz;
     }
+    silly_pointZ(const silly_pointZ& point)
+     : silly_point(point) {
+        x = point.x;
+        y = point.y;
+        z = point.z;
+    }
 
-    silly_point_z& operator=(const silly_point_z& point)
+    silly_pointZ& operator=(const silly_pointZ& point)
     {
         x = point.x;
         y = point.y;
@@ -359,9 +365,9 @@ class silly_rect  // 普通坐标点
         return false;
     }
 
-    bool contain(const silly_point& p, const bool& containBounary = true) const
+    bool contain(const silly_point& p, const bool& containBoundary = true) const
     {
-        if (!containBounary)
+        if (!containBoundary)
         {
             if (p.x > min.x && p.x < max.x && p.y > min.y && p.y < max.y)
             {
@@ -414,6 +420,23 @@ class silly_segment
     silly_point p1;
 };
 
+class silly_segmentZ
+{
+public:
+    silly_segmentZ() = default;
+    ~silly_segmentZ() = default;
+    silly_segmentZ(const silly_pointZ& _p0, const silly_pointZ& _p1)
+    {
+        p0 = _p0;
+        p1 = _p1;
+    }
+
+public:
+    silly_pointZ p0;
+    silly_pointZ p1;
+};
+
+
 /****************************************/
 /// 线
 /****************************************/
@@ -430,12 +453,12 @@ class silly_line : public std::vector<silly_point>
 /****************************************/
 /// 带高程的线段
 /****************************************/
-class silly_linez : public std::vector<silly_point_z>
+class silly_lineZ : public std::vector<silly_pointZ>
 {
   public:
-    silly_linez() = default;
-    ~silly_linez() = default;
-    silly_linez(std::vector<silly_point_z> points) : std::vector<silly_point_z>(std::move(points))
+    silly_lineZ() = default;
+    ~silly_lineZ() = default;
+    silly_lineZ(std::vector<silly_pointZ> points) : std::vector<silly_pointZ>(std::move(points))
     {
     }
 };
