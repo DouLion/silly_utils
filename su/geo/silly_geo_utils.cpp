@@ -162,7 +162,7 @@ silly_line utils::silly_line_from_ogr(const OGRLineString* lineString)
     int num_points = lineString->getNumPoints();
     for (int j = 0; j < num_points; j++)
     {
-        line.points.push_back({lineString->getX(j), lineString->getY(j)});
+        line.push_back({lineString->getX(j), lineString->getY(j)});
     }
     return line;
 }
@@ -171,14 +171,14 @@ silly_line utils::silly_line_from_ogr(const OGRLineString* lineString)
 OGRLineString utils::silly_line_to_ogr(const silly_line& line)
 {
     OGRLineString ogrLineString;
-    std::vector<double> xs(line.points.size());
-    std::vector<double> ys(line.points.size());
-    for (int i = 0; i < line.points.size(); i++)
+    std::vector<double> xs(line.size());
+    std::vector<double> ys(line.size());
+    for (int i = 0; i < line.size(); i++)
     {
-        xs[i] = line.points[i].x;
-        ys[i] = line.points[i].y;
+        xs[i] = line[i].x;
+        ys[i] = line[i].y;
     }
-    ogrLineString.setPoints((int)line.points.size(), &xs[0], &ys[0]);
+    ogrLineString.setPoints((int)line.size(), &xs[0], &ys[0]);
     return ogrLineString;
 }
 
@@ -193,7 +193,7 @@ silly_multi_line utils::silly_multi_line_from_ogr(const OGRMultiLineString* mult
         if (lineString != nullptr)
         {
             silly_line line = silly_line_from_ogr(lineString);
-            multiLine.lines.push_back(line);
+            multiLine.push_back(line);
         }
     }
     return multiLine;
@@ -204,7 +204,7 @@ OGRMultiLineString utils::silly_multi_line_to_ogr(const silly_multi_line& multiL
 {
     OGRMultiLineString ogrMultiLineString;
 
-    for (const silly_line& line : multiLine.lines)
+    for (const silly_line& line : multiLine)
     {
         OGRLineString ogrLineString = silly_line_to_ogr(line);
         ogrMultiLineString.addGeometry(&ogrLineString);
