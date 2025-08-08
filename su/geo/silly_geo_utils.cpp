@@ -1122,13 +1122,19 @@ std::optional<silly_pointZ> utils::intersection(const silly_segmentZ& s1, const 
 {
     double x1 = s1.p0.x;
     double y1 = s1.p0.y;
+    double z1 = s1.p0.x;
+
     double x2 = s1.p1.x;
     double y2 = s1.p1.y;
+    double z2 = s1.p1.x;
 
     double x3 = s2.p0.x;
     double y3 = s2.p0.y;
+    double z3 = s2.p0.z;
+
     double x4 = s2.p1.x;
     double y4 = s2.p1.y;
+    double z4 = s2.p1.z;
 
     // 计算分母
     double denominator = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
@@ -1148,13 +1154,13 @@ std::optional<silly_pointZ> utils::intersection(const silly_segmentZ& s1, const 
     {
         double intersectX = x1 + t * (x2 - x1);
         double intersectY = y1 + t * (y2 - y1);
-        return silly_point(intersectX, intersectY);
+        double intersectZ = ((z1 + t * (z2 - z1)) + (z3 + t * (z4 - z3))) / 2.0;
+        return silly_pointZ(intersectX, intersectY, intersectZ);
     }
 
     // 交点不在两条线段上
     return std::nullopt;
 }
-
 
 bool utils::intersect(const silly_poly& mpoly, const silly_point& point)
 {
