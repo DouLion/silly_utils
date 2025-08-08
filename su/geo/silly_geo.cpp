@@ -3,5 +3,4 @@
 //
 
 #include "silly_geo.h"
-#include <json/json.h>
-#include "su_marco.h"
+

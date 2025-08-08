@@ -357,7 +357,7 @@ TEST_CASE("TestGEO")
         geo_ppolys += "/geojson/ppoly.geojson";
 
         std::vector<silly_geo_coll> collection_xian;
-        geo_utils::read_geo_coll(geo_polys.string().c_str(), collection_xian);
+        geo_utils::read(geo_polys.string().c_str(), collection_xian);
 
         // geo_utils::write_geo_coll(writ_coll_Polygon.string().c_str(), collection_xian);
 
@@ -504,7 +504,7 @@ SECTION("READ_WRITE_SHP_SILLY_GEO_COLL")
     geo_ppolys += "/geojson/ppoly.geojson";
 
     std::vector<silly_geo_coll> collection_xian;
-    geo_utils::read_geo_coll(Polygon.string().c_str(), collection_xian);
+    geo_utils::read(Polygon.string().c_str(), collection_xian);
 
     //geo_utils::write_geo_coll(writ_coll_Polygon.string().c_str(), collection_xian);
 
@@ -549,7 +549,7 @@ SECTION("CENTER")
     std::filesystem::path Polygon(DEFAULT_SU_DATA_DIR);
     Polygon += "/shp/xian_poly.shp";
     std::vector<silly_geo_coll> collection_xian;
-    geo_utils::read_geo_coll(Polygon.string().c_str(), collection_xian);
+    geo_utils::read(Polygon.string().c_str(), collection_xian);
     std::vector<silly_geo_coll> out_center;
     std::vector<silly_geo_coll> out_xian;
     std::vector<silly_geo_coll> intersects;
