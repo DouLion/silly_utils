@@ -5,7 +5,7 @@
 #include "silly_memory_map.h"
 #include <files/silly_file.h>
 using namespace silly::file;
-#if WIN32
+#ifdef IS_WIN32
 namespace win
 {
 
@@ -208,7 +208,7 @@ std::uintmax_t memory_map::filesize()
 
 bool memory_map::open_file()
 {
-#if WIN32
+#ifdef IS_WIN32
 #ifndef NDEBUG
     std::stringstream ss;
     ss << "OpenFile, 线程: " << std::this_thread::get_id();

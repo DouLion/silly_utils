@@ -132,7 +132,7 @@ bool silly_websocket_client::send(const std::string& msg)
 }
 std::string silly_websocket_client::err() const
 {
-#if WIN32
+#ifdef IS_WIN32
     return silly_encode::gbk_utf8(m_err);
 #endif
     return m_err;

@@ -447,14 +447,12 @@ std::vector<std::string> otl::drivers()
     WORD cbBufMax = 10239;
     WORD cbBufOut;
     WCHAR* pszBuf = szBuf.data();
-    using convert_typeX = std::codecvt_utf8<wchar_t>;
-    std::wstring_convert<convert_typeX, wchar_t> converterX;
     if (SQLGetInstalledDrivers(szBuf.data(), cbBufMax, &cbBufOut))
     {
         do
         {
             pszBuf = wcschr(pszBuf, '\0') + 1;
-            ret.push_back(converterX.to_bytes(pszBuf));
+            ret.push_back(WideCharToMultiByteSafe(pszBuf));
         } while (pszBuf[1] != '\0');
     }
 #else

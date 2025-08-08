@@ -10,24 +10,6 @@ using namespace silly::file;
 // 为什么用notepad++ 打开时 有些是中文编码(GBK23..)有些是ANSI
 //
 
-static std::wstring _cxx11_string_wstring(const std::string &str)
-{
-    // 需要c++11 或者c++17
-    std::wstring ret;
-    try
-    {
-        using convert_typeX = std::codecvt_utf8<wchar_t>;
-        std::wstring_convert<convert_typeX, wchar_t> converterX;
-
-        ret = converterX.from_bytes(str);
-    }
-    catch (std::exception &e)
-    {
-        SU_ERROR_PRINT("%s", e.what());
-        ret.clear();
-    }
-    return ret;
-}
 static std::string _wildcard2regex(const std::string &pattern)
 {
     std::string regexPattern;
@@ -91,12 +73,12 @@ static bool _is_utf8(const std::string &str)
 std::filesystem::path utils::realpath(const std::filesystem::path &fp)
 {
     std::filesystem::path ret = fp;
-#if WIN32
+#ifdef IS_WIN32
     std::string fullname = fp.string();
 
     if (_is_utf8(fullname))
     {
-        ret = std::filesystem::path(_cxx11_string_wstring(fullname));
+        ret = std::filesystem::path(MultiByteToWideCharSafe(fullname));
     }
 #endif
     return ret;

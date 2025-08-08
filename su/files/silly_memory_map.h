@@ -151,7 +151,7 @@ class memory_map
     param m_param;
 
     silly_handle m_hdl_file = INVALID_HANDLE_VALUE;
-#if WIN32
+#ifdef IS_WIN32
     silly_handle m_hdl_map = INVALID_HANDLE_VALUE;
 #endif
     // bool m_is_hdl_internal = false;

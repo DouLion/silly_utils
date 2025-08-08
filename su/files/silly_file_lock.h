@@ -26,7 +26,7 @@ class lock
   private:
     std::string m_err;
     silly_handle m_file_hdl = INVALID_HANDLE_VALUE;
-#if WIN32
+#ifdef IS_WIN32
 
     // 获取文件大小
     LARGE_INTEGER fileSize;

@@ -27,15 +27,17 @@ endif()
 
 # 系统信息
 if(CMAKE_HOST_SYSTEM_NAME MATCHES "Linux")
-  message(STATUS "This is Linux")
+  message(STATUS "Linux")
   set(IS_LINUX TRUE)
   set(PLATFORM_NAME "Linux")
 elseif(CMAKE_HOST_SYSTEM_NAME MATCHES "Android")
-  message(STATUS "This is Android")
+  message(STATUS "Android")
 elseif(CMAKE_HOST_SYSTEM_NAME MATCHES "Windows")
-  message(STATUS "This is Windows")
+  message(STATUS "Windows")
   set(PLATFORM_NAME "Windows")
   set(IS_WINDOWS TRUE)
+else()
+  message( FATAL_ERROR  " ----- Unknown")
 endif()
 
 if(CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "aarch64")
@@ -98,45 +100,89 @@ add_definitions("-DNOMINMAX")
 # 指定项目编码类型 unicode 不指定默认utf8 ???
 add_definitions("-DUNICODE")
 if(CMAKE_HOST_SYSTEM_NAME MATCHES "Linux")
-
+  # ===== Linux 配置 =====
   set(CMAKE_THREAD_LIBS_INIT "-lpthread")
   set(CMAKE_HAVE_THREADS_LIBRARY 1)
   set(CMAKE_USE_WIN32_THREADS_INIT 0)
   set(CMAKE_USE_PTHREADS_INIT 1)
   set(THREADS_PREFER_PTHREAD_FLAG ON)
 
-  set(CMAKE_CXX_FLAGS
-      "${CMAKE_CXX_FLAGS} -std=c++17 -lpthread -fPIC  -lc -Wall -fopenmp -Wno-unused-function -Wno-unused-variable -lodbc"
-  )
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -lpthread -fPIC -lc -Wall -fopenmp -Wno-unused-function -Wno-unused-variable -lodbc")
   set(STATIC_LIB_SUFFIX "a")
   set(DYNAMIC_LIB_SUFFIX "so")
-elseif(CMAKE_HOST_SYSTEM_NAME MATCHES "Windows")
 
+elseif(CMAKE_HOST_SYSTEM_NAME MATCHES "Windows")
+  # ===== Windows 配置 (通用) =====
   add_definitions("-DIS_WIN32")
   add_definitions("-DWIN32_LEAN_AND_MEAN")
-  add_compile_options(/wd4819 /wd4005 /wd4834 /wd4996 /utf-8 /openmp)
   set(STATIC_LIB_SUFFIX "lib")
   set(DYNAMIC_LIB_SUFFIX "dll")
 
+  # ===== 区分 MSVC 和 MinGW/GCC =====
   if(MSVC)
-    # SET cmake cxx flags.
-    set(CMAKE_CXX_FLAGS_DEBUG "")
-    set(CMAKE_CXX_FLAGS_DEBUG
-        "${CMAKE_CXX_FLAGS_DEBUG} /D_DEBUG /MDd /Zi /Ob0  /Od /RTC1 /Gy /EHsc")
+    # ===== MSVC 特定配置 =====
+    add_compile_options(/wd4819 /wd4005 /wd4834 /wd4996 /utf-8 /openmp)
 
-    set(CMAKE_CXX_FLAGS_MINSIZEREL "")
-    set(CMAKE_CXX_FLAGS_MINSIZEREL
-        "${CMAKE_CXX_FLAGS_MINSIZEREL} /MD /Zi /O1 /Ob2 /Oi /Os /D NDEBUG /GS- "
-    )
+    # MSVC 编译器标志
+    set(CMAKE_CXX_FLAGS_DEBUG "/D_DEBUG /MDd /Zi /Ob0 /Od /RTC1 /Gy /EHsc")
+    set(CMAKE_CXX_FLAGS_MINSIZEREL "/MD /Zi /O1 /Ob2 /Oi /Os /D NDEBUG /GS-")
+    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "/MD /Zi /O2 /Ob1 /D NDEBUG")
+    set(CMAKE_CXX_FLAGS_RELEASE "/MD /Zi /O2 /Ob1 /D NDEBUG")
 
-    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "")
-    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO
-        "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /MD /Zi /O2 /Ob1 /D NDEBUG ")
+    # MSVC 的 OpenMP 是 /openmp，线程由运行时库处理
+    # CMake 通常能自动处理 MSVC 的线程库
 
-    set(CMAKE_CXX_FLAGS_RELEASE "")
-    set(CMAKE_CXX_FLAGS_RELEASE
-        "${CMAKE_CXX_FLAGS_RELEASE} /MD /Zi /O2 /Ob1 /D NDEBUG ")
-  endif(MSVC)
+  else()
+    # ===== MinGW (或任何非 MSVC 的 Windows 编译器，如 Clang) =====
+    # 假设是 GCC/Clang 风格的编译器
+
+    # 启用 OpenMP 支持
+    add_compile_options(-fopenmp)
+    # 如果需要链接 OpenMP 库 (CMake 有时需要)
+    # target_link_libraries(your_target PRIVATE -lgomp) # 对于 MinGW-w64
+
+    # 设置 C++ 标准和通用警告
+    set(CMAKE_CXX_STANDARD 17)
+    set(CMAKE_CXX_STANDARD_REQUIRED ON)
+    # 或者直接添加到标志
+    # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
+
+    # 添加编译选项 (GCC/Clang 风格)
+    add_compile_options(-Wall -Wno-unused-function -Wno-unused-variable)
+    # MinGW 可能需要 -lodbc 来链接 ODBC
+    # add_compile_options(-lodbc) # 通常更推荐在 target_link_libraries 中处理
+
+    # 线程支持: MinGW 通常使用 pthreads
+    set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
+    set(THREADS_PREFER_PTHREAD_FLAG ON)
+    find_package(Threads REQUIRED)
+    # 在链接目标时使用: target_link_libraries(your_target PRIVATE Threads::Threads)
+
+    # fPIC 对于创建共享库很有用
+    set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+    # 设置 MinGW 特定的编译标志 (如果需要)
+    # 例如，解决宽字符问题 (类似于 MSVC 的 /wd4819)
+    # add_compile_options(-municode) # 如果需要 Unicode 支持
+    add_compile_options(-fexec-charset=UTF-8 -finput-charset=UTF-8) # 确保源码是 UTF-8
+
+    # 警告抑制 (GCC/Clang 风格)
+    # add_compile_options(-Wno-multichar) # 示例
+    # 注意: /wd4996 在 GCC 中对应的是 -D_SCL_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_WARNINGS
+    add_definitions(-D_SCL_SECURE_NO_WARNINGS)
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+
+    # MinGW 的静态库后缀是 .a，但为了与 MSVC 一致或通用性，可以保留 .lib
+    # 但通常 MinGW 项目也使用 .a。这里根据你的项目习惯选择。
+    # set(STATIC_LIB_SUFFIX "a") # 如果你想为 MinGW 使用 .a
+    # 我们保留上面设置的 .lib，但要知道 MinGW 也能处理 .lib (作为静态库)
+    include_directories(${SU_FILE_ROOT}/mingw)
+  endif()
+
+  # --- Windows 下通用的链接设置 ---
+  # 将 ODBC 链接放在 Windows 通用部分，因为它可能在 MSVC 和 MinGW 中都需要
+  # 但更推荐在具体 target_link_libraries 中处理
+  # set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lodbc")
 
 endif()
 

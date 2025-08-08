@@ -7,7 +7,7 @@
 // #include <afx.h>
 #if 0
 #include "CSendMail.h"
-#if WIN32
+#ifdef IS_WIN32
 #include "time.h"
 #include <sstream>
 #include <fstream>

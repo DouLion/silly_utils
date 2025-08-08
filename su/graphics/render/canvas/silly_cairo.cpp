@@ -235,7 +235,12 @@ static cairo_status_t surface_write(cairo_surface_t *sfc, const char *filename)
     int outfile;
 
     // Open/create new file
-    if ((outfile = open(filename, O_BINARY | O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)) == -1)
+#ifdef IS_WIN32
+    outfile = open(filename, O_BINARY | O_WRONLY | O_CREAT, _S_IREAD | _S_IWRITE);
+#else
+    outfile = open(filename, O_BINARY | O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+#endif
+    if (outfile == -1)
         return CAIRO_STATUS_DEVICE_ERROR;
 
     // write surface to file

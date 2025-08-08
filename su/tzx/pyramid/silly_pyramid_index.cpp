@@ -251,8 +251,8 @@ void lonlat2tile(double lon, double lat, int zoom, long long* x, long long* y)
     // Place infinite and NaN coordinates off the edge of the Mercator plane
 
     // Place infinite and NaN coordinates off the edge of the Mercator plane
-    int lat_class = fpclassify(lat);
-    int lon_class = fpclassify(lon);
+    int lat_class = std::fpclassify(lat);
+    int lon_class = std::fpclassify(lon);
     bool bad_lon = false;
 
     if (lat_class == FP_INFINITE || lat_class == FP_NAN)

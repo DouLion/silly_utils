@@ -10,107 +10,147 @@
  */
 // 标准c++头文件
 // 输入输出库
+#pragma once
+
+// =============================================================================
+// C++ 标准库
+// =============================================================================
+
 #include <iostream>
 #include <sstream>
-// 字符串库
 #include <string>
+#include <string_view>  // C++17
+#include <memory>
+#include <functional>
+#include <exception>
+#include <stdexcept>
+#include <initializer_list>
+
 // 容器
 #include <vector>
-#include <map>
-#include <set>
-#include <unordered_map>
-#include <unordered_set>
 #include <list>
-#include <queue>
+#include <deque>
+#include <forward_list>
+#include <array>  // 固定大小数组
 #include <stack>
-// 算法库
+#include <queue>
+#include <set>
+#include <unordered_set>
+#include <map>
+#include <unordered_map>
+
+// 算法与数值
 #include <algorithm>
-// 数值库
-#include <cmath>
 #include <numeric>
+#include <cmath>
 #include <random>
+#include <limits>
+#include <ratio>  // 有理数库
+#include <cfenv>  // 浮点环境
+
+// 工具 (C++17)
+#include <any>       // C++17
+#include <optional>  // C++17
+#include <variant>   // C++17
+#include <tuple>
+#include <utility>
 #include <type_traits>
-// 时间库
 #include <chrono>
-// 文件和流库
+
+// 输入/输出与文件系统
 #include <fstream>
-#include <filesystem>
-#include <dirent.h>
-// 异常处理库
-#include <stdexcept>
-// 内存管理库
-#include <memory>
-// 多线程库
+#include <filesystem>  // C++17
+#include <iomanip>
+#include <ios>
+
+// 多线程
+// 这部分在mingw下会有问题,还没能够处理
 #include <thread>
 #include <mutex>
+#include <shared_mutex>  // C++14/17
 #include <future>
+#include <condition_variable>
 #include <atomic>
-#include <functional>
-// c++ 17 新的头文件
-#include <any>          // 提供了一个类型安全的工具，可以存储单个值的任意类型。
-#include <optional>     // 提供了一个模板类，用于表示可选的（有或没有值的）对象。
-#include <string_view>  // 提供了对字符序列的非拥有、不可修改的引用。
-#include <variant>      // 类似于联合（union），但是更安全和更易用，可以保存其中列出的任何数据类型。
 
-// 标准c头文件
-#include <stdio.h>   // 标准输入输出库
-#include <stdlib.h>  // 标准库头文件，包括内存分配、程序控制、数学运算等
-#include <string.h>  // 字符串处理库
-#include <math.h>    // 数学函数库
-#include <ctype.h>   // 字符类型库
-#include <limits.h>  // 定义各种变量类型的属性
-#include <assert.h>  // 提供断言测试支持
-#include <errno.h>   // 错误号定义库
-#include <time.h>    // 时间日期库
-#include <locale.h>  // 本地化支持库
-#include <stddef.h>  // 定义许多常用的类型和宏
-#include <signal.h>  // 信号处理库
+// 其他
 #include <regex>
-//
-
 #include <clocale>
-
-#include <codecvt>
-#include <cstring>
 #include <locale>
+#include <cassert>
+#include <cstddef>
 
-#include <stdint.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
+// =============================================================================
+// C 标准库 (C++ 风格头文件)
+// =============================================================================
 
-// 数据库
-// #include <sql.h>
-// #include <sqlext.h>
-#if WIN32
-// 注意这个顺序,一定是先Windows.h, 后winsock2.h
+#include <cstdio>   // stdio.h
+#include <cstdlib>  // stdlib.h
+#include <cstring>  // string.h (优先于 string.h)
+#include <cmath>    // math.h (优先于 math.h)
+#include <cctype>   // ctype.h
+#include <climits>  // limits.h
+#include <ctime>    // time.h
+#include <csignal>  // signal.h
+#include <cerrno>   // errno.h
+
+// =============================================================================
+// 操作系统特定头文件与定义
+// =============================================================================
+
+#if defined(_WIN32) || defined(__MINGW32__) || defined(__MINGW64__)
+// Windows 特定头文件 (注意顺序!)
+#define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <winsock2.h>
-#pragma comment(lib, "WSOCK32")
-#pragma comment(lib, "ws2_32")
-
-#include <psapi.h>
+#include <fcntl.h>
+#include <sys/stat.h>
 #include <io.h>
+#pragma comment(lib, "WSOCK32.lib")
+#pragma comment(lib, "ws2_32.lib")
+#include <psapi.h>
+#include <io.h>  // _open, _close 等
+
+// Windows 类型别名
+using silly_handle = HANDLE;
+#ifndef INVALID_HANDLE_VALUE
+#define INVALID_HANDLE_VALUE ((HANDLE)(-1))
+#endif
+
 #else
+// POSIX / Linux 特定头文件
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <sys/mman.h>
 #include <unistd.h>
+#include <dirent.h>  // 替代 Windows 的 _findfirst 等
+#include <sys/stat.h>
+#include <fcntl.h>
+
+// 为非 Windows 系统定义二进制模式标志和句柄类型
 #ifndef O_BINARY
-#define O_BINARY 0
+#define O_BINARY 0  // 在 Unix-like 系统上通常不需要或为0
 #endif
-#endif
-#if WIN32
-using silly_handle = HANDLE;
-#else
+
+// 非 Windows 句柄类型
 using silly_handle = int;
 #ifndef INVALID_HANDLE_VALUE
-#define INVALID_HANDLE_VALUE -1
+#define INVALID_HANDLE_VALUE (-1)
 #endif
-#endif
-// 本项目中的常量
+#endif  // _WIN32 || __MINGW32__ || __MINGW64__
+
+// =============================================================================
+// 其他平台无关但需要的头文件
+// =============================================================================
+
+// C 风格整数类型 (虽然 <cstdint> 更好，但有时需要)
+// #include <stdint.h>        // 与 <cstdint> 功能重叠，通常用 <cstdint>
+// #include <sys/types.h>     // size_t, off_t, pid_t 等 (在 POSIX 系统中)
+
+// =============================================================================
+// 本项目中的一些常量
+// =============================================================================
 #include <math/silly_math_const.h>
 #include <geo/silly_geo_const.h>
 
@@ -206,7 +246,7 @@ using silly_handle = int;
 #endif
 
 /// 控制台信息print, 如果需要记录日志,使用 log/silly_log.h
-#if WIN32
+#ifdef IS_WIN32
 // windows 在控制台,以utf8编码输出
 #define WINDOWS_UTF8_PAGE                                                      \
     {                                                                          \
@@ -310,4 +350,73 @@ using silly_handle = int;
         delete[] (p);      \
         (p) = nullptr;     \
     }
+#endif
+
+
+#ifdef IS_WIN32
+
+static std::wstring MultiByteToWideCharSafe(const std::string& str, UINT codePage = CP_UTF8)
+{
+    if (str.empty())
+        return L"";
+
+    // 计算所需宽字符缓冲区大小（包括终止符）
+    int wideCharLen = MultiByteToWideChar(codePage,     // 代码页（CP_ACP为系统ANSI，CP_UTF8为UTF-8）
+                                          0,            // 转换标志（0表示默认行为）
+                                          str.c_str(),  // 源多字节字符串
+                                          -1,           // 自动计算字符串长度（以\0结尾）
+                                          nullptr,      // 不执行实际转换
+                                          0             // 仅获取缓冲区大小
+    );
+    if (wideCharLen == 0)
+    {
+        throw std::runtime_error("MultiByteToWideChar failed: " + std::to_string(GetLastError()));
+    }
+
+    // 分配缓冲区并执行转换
+    wchar_t* wideBuf = new wchar_t[wideCharLen];
+    if (MultiByteToWideChar(codePage, 0, str.c_str(), -1, wideBuf, wideCharLen) == 0)
+    {
+        delete[] wideBuf;
+        throw std::runtime_error("Conversion failed");
+    }
+
+    std::wstring result(wideBuf);
+    delete[] wideBuf;
+    return result;
+}
+
+static std::string WideCharToMultiByteSafe(const std::wstring& wstr, UINT codePage = CP_UTF8)
+{
+    if (wstr.empty())
+        return "";
+
+    // 计算所需多字节缓冲区大小
+    int multiByteLen = WideCharToMultiByte(codePage,      // 代码页
+                                           0,             // 转换标志
+                                           wstr.c_str(),  // 源宽字符字符串
+                                           -1,            // 自动计算长度
+                                           nullptr,       // 不执行实际转换
+                                           0,             // 仅获取缓冲区大小
+                                           nullptr,       // 默认字符替换（NULL表示不替换）
+                                           nullptr        // 是否使用默认字符
+    );
+    if (multiByteLen == 0)
+    {
+        throw std::runtime_error("WideCharToMultiByte failed: " + std::to_string(GetLastError()));
+    }
+
+    // 分配缓冲区并执行转换
+    char* multiByteBuf = new char[multiByteLen];
+    if (WideCharToMultiByte(codePage, 0, wstr.c_str(), -1, multiByteBuf, multiByteLen, nullptr, nullptr) == 0)
+    {
+        delete[] multiByteBuf;
+        throw std::runtime_error("Conversion failed");
+    }
+
+    std::string result(multiByteBuf);
+    delete[] multiByteBuf;
+    return result;
+}
+
 #endif

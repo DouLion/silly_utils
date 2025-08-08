@@ -13,7 +13,7 @@
 double silly_process::memory_usage_kbyte(const int& pid)
 {
     double result = 0.0;
-#if WIN32
+#ifdef IS_WIN32
     bool close = false;
     HANDLE hProcess = nullptr;
     if (pid > 0)
@@ -46,7 +46,7 @@ double silly_process::memory_usage_kbyte(const int& pid)
 }
 void silly_process::clear_working_set(const int& pid, const int& seconds)
 {
-#if WIN32
+#ifdef IS_WIN32
     auto clear_func = [pid, seconds]() {
         while (1)
         {

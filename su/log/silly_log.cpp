@@ -29,7 +29,7 @@ const static std::string FILE_PATTERN = "[%Y-%m-%d %H:%M:%S.%e]: %v";
 
 silly_log::silly_log()
 {
-#if WIN32
+#ifdef IS_WIN32
     SetConsoleOutputCP(65001);
     CONSOLE_FONT_INFOEX info = {0};
     info.cbSize = sizeof(info);

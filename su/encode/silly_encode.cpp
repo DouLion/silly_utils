@@ -357,42 +357,6 @@ void silly_encode::from_hex(const char *str, unsigned char *Hstr)
     Hstr[Len] = 0;
 }
 
-// c++17 已经将wstring_convert废弃了,但是目前还能用
-std::wstring silly_encode::cxx11_string_wstring(const std::string &str)
-{
-    std::wstring ws_result;
-    try
-    {
-        using convert_typeX = std::codecvt_utf8<wchar_t>;
-        std::wstring_convert<convert_typeX, wchar_t> converterX;
-
-        ws_result = converterX.from_bytes(str);
-    }
-    catch (std::exception &e)
-    {
-        SU_ERROR_PRINT("%s", e.what());
-        ws_result.clear();
-    }
-    return ws_result;
-}
-
-std::string silly_encode::cxx11_wstring_string(const std::wstring &wstr)
-{
-    std::string s_result;
-    try
-    {
-        using convert_typeX = std::codecvt_utf8<wchar_t>;
-        std::wstring_convert<convert_typeX, wchar_t> converterX;
-
-        s_result = converterX.to_bytes(wstr);
-    }
-    catch (std::exception &e)
-    {
-        SU_ERROR_PRINT("%s", e.what());
-        s_result.clear();
-    }
-    return s_result;
-}
 bool silly_encode::is_utf8(const std::string &str)
 {
     int expected_bytes = 0;
