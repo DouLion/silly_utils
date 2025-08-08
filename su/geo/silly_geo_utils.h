@@ -176,6 +176,7 @@ class utils
     /// <param name="s2"></param>
     /// <returns></returns>
     static std::optional<silly_point> intersection(const silly_segment& s1, const silly_segment& s2);
+    static std::optional<silly_pointZ> intersection(const silly_segmentZ& s1, const silly_segmentZ& s2);
 
     /// <summary>
     /// 两个相交面的 不相交部分, 必须是相交的

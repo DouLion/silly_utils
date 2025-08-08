@@ -28,7 +28,7 @@ class silly_segment
     silly_point p1;
 };
 
-class silly_segmentZ : public silly_segment
+class silly_segmentZ
 {
   public:
     silly_segmentZ() = default;
@@ -38,10 +38,12 @@ class silly_segmentZ : public silly_segment
         p0 = _p0;
         p1 = _p1;
     }
-    silly_segmentZ(const silly_point& _p0, const silly_point& _p1)
+
+    silly_segmentZ& operator=(const silly_segmentZ& rh)
     {
-        p0 = _p0;
-        p1 = _p1;
+        this->p0 = rh.p0;
+        this->p1 = rh.p1;
+        return *this;
     }
 
   public:

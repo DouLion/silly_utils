@@ -1118,6 +1118,44 @@ std::optional<silly_point> utils::intersection(const silly_segment& s1, const si
     return std::nullopt;
 }
 
+std::optional<silly_pointZ> utils::intersection(const silly_segmentZ& s1, const silly_segmentZ& s2)
+{
+    double x1 = s1.p0.x;
+    double y1 = s1.p0.y;
+    double x2 = s1.p1.x;
+    double y2 = s1.p1.y;
+
+    double x3 = s2.p0.x;
+    double y3 = s2.p0.y;
+    double x4 = s2.p1.x;
+    double y4 = s2.p1.y;
+
+    // 计算分母
+    double denominator = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+
+    // 平行或重合
+    if (std::fabs(denominator) < SU_TINY)
+    {
+        return std::nullopt;
+    }
+
+    // 计算交点的参数 t 和 u
+    double t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / denominator;
+    double u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / denominator;
+
+    // 检查交点是否在线段内
+    if (t >= 0 && t <= 1 && u >= 0 && u <= 1)
+    {
+        double intersectX = x1 + t * (x2 - x1);
+        double intersectY = y1 + t * (y2 - y1);
+        return silly_point(intersectX, intersectY);
+    }
+
+    // 交点不在两条线段上
+    return std::nullopt;
+}
+
+
 bool utils::intersect(const silly_poly& mpoly, const silly_point& point)
 {
     int intersections = 0;
