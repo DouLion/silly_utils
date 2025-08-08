@@ -559,9 +559,9 @@ std::vector<Point> generatePolyline(const std::vector<Point>& centerline, Point 
     return polyline;
 }
 
-bool depict::process(const silly_linez& cs0, const silly_linez& cs1, silly_linez& vsections, options& opt)
+bool depict::process(const silly_lineZ& cs0, const silly_lineZ& cs1, silly_lineZ& vsections, options& opt)
 {
-    // std::vector<silly_linez> csections;
+    // std::vector<silly_lineZ> csections;
     // csections.push_back(cs0);
     // csections.push_back(cs1);
     // ValidateCrossSection(csections);
@@ -643,10 +643,10 @@ bool depict::process(const silly_linez& cs0, const silly_linez& cs1, silly_linez
     return false;
 }
 
-std::vector<std::vector<double>> depict::process(const std::vector<silly_linez> css, std::vector<silly_linez>& vsections, options& opt)
+std::vector<std::vector<double>> depict::process(const std::vector<silly_lineZ> css, std::vector<silly_lineZ>& vsections, options& opt)
 {
     std::vector<std::vector<double>> channelData;
-    // std::vector<silly_linez> csections = css;
+    // std::vector<silly_lineZ> csections = css;
     // ValidateCrossSection(csections);
 
     // double xMin, xMax, yMin, yMax;

@@ -36,7 +36,7 @@ class depict
     /// <param name="cs1">结束横断面,高斯坐标</param>
     /// <param name="vsection">两个横断面之间的纵断面,高斯坐标</param>
     /// <returns></returns>
-    bool process(const silly_linez& cs0, const silly_linez& cs1, silly_linez& vsection, options& opt);
+    bool process(const silly_lineZ& cs0, const silly_lineZ& cs1, silly_lineZ& vsection, options& opt);
 
     /// <summary>
     /// 根据多个连续的横断面, 画出完整河道
@@ -44,7 +44,7 @@ class depict
     /// <param name="csections">高斯坐标</param>
     /// <param name="vsections">高斯坐标</param>
     /// <returns></returns>
-    std::vector<std::vector<double>> process(const std::vector<silly_linez> csections, std::vector<silly_linez>& vsections, options& opt);
+    std::vector<std::vector<double>> process(const std::vector<silly_lineZ> csections, std::vector<silly_lineZ>& vsections, options& opt);
 
     bool write(const std::string& filename, const std::vector<std::vector<double>>& channelData, const options& opt);
 };

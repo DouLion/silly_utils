@@ -212,29 +212,30 @@ class silly_pointZ : public silly_point
 {
   public:
     silly_pointZ() = default;
-    silly_pointZ(double xx, double yy)
+    silly_pointZ(const double& xx, const double& yy)
     {
         x = xx;
         y = yy;
     }
-    silly_pointZ(double xx, double yy, double zz)
+    silly_pointZ(const double& xx,const double&  yy, const double& zz)
     {
         x = xx;
         y = yy;
         z = zz;
     }
-    silly_pointZ(const silly_pointZ& point)
-     : silly_point(point) {
-        x = point.x;
-        y = point.y;
-        z = point.z;
+
+    silly_pointZ(const silly_point& rh) : silly_point(rh)
+    {
     }
 
-    silly_pointZ& operator=(const silly_pointZ& point)
+    silly_pointZ(const silly_pointZ& rh) : silly_point(rh)
     {
-        x = point.x;
-        y = point.y;
-        z = point.z;
+        z = rh.z;
+    }
+
+    silly_pointZ& operator=(const silly_pointZ& rh)
+    {
+        z = rh.z;
         return *this;
     }
 
@@ -263,7 +264,7 @@ class silly_rect  // 普通坐标点
     silly_rect() = default;
     ~silly_rect() = default;
 
-    silly_rect(double l, double t, double r, double b)
+    silly_rect(const double& l, const double& t, const double& r, const double& b)
     {
         min.x = l;
         max.y = t;
@@ -420,9 +421,9 @@ class silly_segment
     silly_point p1;
 };
 
-class silly_segmentZ
+class silly_segmentZ : public silly_segment
 {
-public:
+  public:
     silly_segmentZ() = default;
     ~silly_segmentZ() = default;
     silly_segmentZ(const silly_pointZ& _p0, const silly_pointZ& _p1)
@@ -430,12 +431,16 @@ public:
         p0 = _p0;
         p1 = _p1;
     }
+    silly_segmentZ(const silly_point& _p0, const silly_point& _p1)
+    {
+        p0 = _p0;
+        p1 = _p1;
+    }
 
-public:
+  public:
     silly_pointZ p0;
     silly_pointZ p1;
 };
-
 
 /****************************************/
 /// 线
