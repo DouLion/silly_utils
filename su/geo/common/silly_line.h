@@ -213,6 +213,11 @@ class silly_lineZ
         m_points.reserve(n);
     }
 
+    void resize(size_t n)
+    {
+        m_points.resize(n);
+    }
+
   public:
     std::vector<silly_pointZ> m_points;
 };
