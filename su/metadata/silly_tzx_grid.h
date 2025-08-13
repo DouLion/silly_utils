@@ -58,6 +58,8 @@ class silly_tzx_grid
     /// <returns></returns>
     bool read(const std::filesystem::path& file, const int& index);
     bool save_v1(const std::filesystem::path& file);
+    bool save_v2(const std::filesystem::path& file);
+    bool save(const std::filesystem::path& file);
 
     /**
      * @brief   将多个网格数据拼接为一个,重叠部分采用最大值
@@ -104,8 +106,8 @@ class silly_tzx_grid
     bool set(const size_t& i, const silly_tzx_grid& rh);
     /// 添加一个网格数据
     bool add(const silly_tzx_grid& rh);
-    bool add(const su::FMatrix grid);
-    bool set(const std::vector<su::FMatrix> grids);
+    bool add(const su::FMatrix& grid);
+    bool set(const std::vector<su::FMatrix>& grids);
 
     size_t row() const;
     void row(const size_t& r);

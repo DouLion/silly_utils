@@ -63,7 +63,7 @@ silly_tzx_grid silly_tzx_grid::copy(const size_t& i) const
     ret.copy_info(*this);
     if (!m_frames.empty())
     {
-        size_t di = SU_MIN(i, m_frames.size() - 1);
+        const size_t di = SU_MIN(i, m_frames.size() - 1);
         ret.m_frames.push_back(ret.m_frames[di].copy());
     }
 
@@ -140,7 +140,7 @@ bool silly_tzx_grid::add(const silly_tzx_grid& rh)
     return false;
 }
 
-bool silly_tzx_grid::add(const su::FMatrix grid)
+bool silly_tzx_grid::add(const su::FMatrix& grid)
 {
     if (grid.row() == m_row && grid.col() == m_col)
     {
@@ -149,7 +149,7 @@ bool silly_tzx_grid::add(const su::FMatrix grid)
     }
     return false;
 }
-bool silly_tzx_grid::set(const std::vector<su::FMatrix> grids)
+bool silly_tzx_grid::set(const std::vector<su::FMatrix>& grids)
 {
     size_t currLen = m_frames.size();
     for (const auto& g : grids)
@@ -234,7 +234,7 @@ bool silly_tzx_grid::read(const std::filesystem::path& file, const int& index)
     bool status = false;
     release();
 
-    if (const size_t fileSize = sufile::size(file))
+    if (const size_t fileSize = sufile::size(file); fileSize > 0)
     {
         const std::string buff = sufile::read(file);
         char* p = read_head(buff);
@@ -260,19 +260,27 @@ bool silly_tzx_grid::read(const std::filesystem::path& file, const int& index)
 
 bool silly_tzx_grid::save_v1(const std::filesystem::path& file)
 {
-    bool status = false;
     std::string buff;
-    /*m_prefix[0] = TZX_GRID_V2;
-    if (serialize_v2(buff))
-    {
-        return sufile::write(file, buff) > 0;
-    }*/
     m_prefix[0] = TZX_GRID_V1;
     if (serialize_v1(buff))
     {
         return sufile::write(file, buff) > 0;
     }
-    return status;
+    return false;
+}
+bool silly_tzx_grid::save_v2(const std::filesystem::path& file)
+{
+    std::string buff;
+    m_prefix[0] = TZX_GRID_V2;
+    if (serialize_v2(buff))
+    {
+        return sufile::write(file, buff) > 0;
+    }
+    return false;
+}
+bool silly_tzx_grid::save(const std::filesystem::path& file)
+{
+    return save_v2(file);
 }
 
 bool silly_tzx_grid::serialize(std::string& buff)
