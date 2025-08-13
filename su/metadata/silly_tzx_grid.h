@@ -12,6 +12,7 @@
 
 #include <su_marco.h>
 #include <math/silly_matrix.h>
+#include <geo/silly_geo.h>
 
 #define SILLY_TZX_GRID_FILE_SUFFIX ".rgrid"
 
@@ -56,7 +57,7 @@ class silly_tzx_grid
     /// <param name="index">负数表示全部, 其他表示读指定帧</param>
     /// <returns></returns>
     bool read(const std::filesystem::path& file, const int& index);
-    bool save(const std::filesystem::path& file);
+    bool save_v1(const std::filesystem::path& file);
 
     /**
      * @brief   将多个网格数据拼接为一个,重叠部分采用最大值

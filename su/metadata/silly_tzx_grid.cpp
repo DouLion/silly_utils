@@ -258,12 +258,17 @@ bool silly_tzx_grid::read(const std::filesystem::path& file, const int& index)
     return status;
 }
 
-bool silly_tzx_grid::save(const std::filesystem::path& file)
+bool silly_tzx_grid::save_v1(const std::filesystem::path& file)
 {
     bool status = false;
     std::string buff;
-    m_prefix[0] = TZX_GRID_V2;
+    /*m_prefix[0] = TZX_GRID_V2;
     if (serialize_v2(buff))
+    {
+        return sufile::write(file, buff) > 0;
+    }*/
+    m_prefix[0] = TZX_GRID_V1;
+    if (serialize_v1(buff))
     {
         return sufile::write(file, buff) > 0;
     }
