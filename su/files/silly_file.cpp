@@ -72,16 +72,30 @@ static bool _is_utf8(const std::string &str)
 
 std::filesystem::path utils::realpath(const std::filesystem::path &fp)
 {
-    std::filesystem::path ret = fp;
 #ifdef IS_WIN32
-    std::string fullname = fp.string();
+    // 如果路径已经是宽字符串形式，直接返回
+    if (!fp.native().empty() && std::is_same_v<std::filesystem::path::value_type, wchar_t>)
+    {
+        return fp.lexically_normal();
+    }
 
+    // 处理字符串形式的路径
+    std::string fullname = fp.string();
     if (_is_utf8(fullname))
     {
-        ret = std::filesystem::path(MultiByteToWideCharSafe(fullname));
+        try
+        {
+            std::wstring widePath = MultiByteToWideCharSafe(fullname);
+            return std::filesystem::path(widePath).lexically_normal();
+        }
+        catch (...)
+        {
+            // 转换失败，回退到原始路径
+            return fp.lexically_normal();
+        }
     }
 #endif
-    return ret;
+    return fp.lexically_normal();
 }
 
 size_t utils::read(const std::filesystem::path &fp, std::string &content, const size_t &offset, const size_t &len)

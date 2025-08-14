@@ -359,30 +359,25 @@ static std::wstring MultiByteToWideCharSafe(const std::string& str, UINT codePag
     if (str.empty())
         return L"";
 
-    // 计算所需宽字符缓冲区大小（包括终止符）
-    int wideCharLen = MultiByteToWideChar(codePage,     // 代码页（CP_ACP为系统ANSI，CP_UTF8为UTF-8）
-                                          0,            // 转换标志（0表示默认行为）
-                                          str.c_str(),  // 源多字节字符串
-                                          -1,           // 自动计算字符串长度（以\0结尾）
-                                          nullptr,      // 不执行实际转换
-                                          0             // 仅获取缓冲区大小
-    );
-    if (wideCharLen == 0)
+    // 1. 计算所需缓冲区大小（不包括终止符）
+    int wideCharLen = MultiByteToWideChar(codePage, 0, str.c_str(), (int)str.size(), nullptr, 0);
+    if (wideCharLen <= 0)
     {
-        throw std::runtime_error("MultiByteToWideChar failed: " + std::to_string(GetLastError()));
+        throw std::runtime_error("MultiByteToWideChar size query failed");
     }
 
-    // 分配缓冲区并执行转换
-    wchar_t* wideBuf = new wchar_t[wideCharLen];
-    if (MultiByteToWideChar(codePage, 0, str.c_str(), -1, wideBuf, wideCharLen) == 0)
+    // 2. 分配缓冲区（+1 用于终止符）
+    std::wstring wideStr;
+    wideStr.resize(wideCharLen+1);
+
+    // 3. 执行转换
+    int result = MultiByteToWideChar(codePage, 0, str.c_str(), (int)str.size(), &wideStr[0], wideCharLen);
+    if (result <= 0)
     {
-        delete[] wideBuf;
-        throw std::runtime_error("Conversion failed");
+        throw std::runtime_error("MultiByteToWideChar conversion failed");
     }
 
-    std::wstring result(wideBuf);
-    delete[] wideBuf;
-    return result;
+    return wideStr;
 }
 
 static std::string WideCharToMultiByteSafe(const std::wstring& wstr, UINT codePage = CP_UTF8)
@@ -390,32 +385,39 @@ static std::string WideCharToMultiByteSafe(const std::wstring& wstr, UINT codePa
     if (wstr.empty())
         return "";
 
-    // 计算所需多字节缓冲区大小
-    int multiByteLen = WideCharToMultiByte(codePage,      // 代码页
-                                           0,             // 转换标志
-                                           wstr.c_str(),  // 源宽字符字符串
-                                           -1,            // 自动计算长度
-                                           nullptr,       // 不执行实际转换
-                                           0,             // 仅获取缓冲区大小
-                                           nullptr,       // 默认字符替换（NULL表示不替换）
-                                           nullptr        // 是否使用默认字符
+    // 计算所需多字节缓冲区大小（不包括终止符）
+    const int multiByteLen = ::WideCharToMultiByte(codePage,                         // 代码页
+                                                   0,                                // 转换标志
+                                                   wstr.c_str(),                     // 源宽字符字符串
+                                                   static_cast<int>(wstr.length()),  // 实际长度（不含终止符）
+                                                   nullptr,                          // 不执行实际转换
+                                                   0,                                // 仅获取缓冲区大小
+                                                   nullptr,                          // 默认字符替换
+                                                   nullptr                           // 是否使用默认字符
     );
+
     if (multiByteLen == 0)
     {
-        throw std::runtime_error("WideCharToMultiByte failed: " + std::to_string(GetLastError()));
+        const DWORD error = ::GetLastError();
+        throw std::runtime_error("WideCharToMultiByte failed (size query): " + std::to_string(error));
     }
 
-    // 分配缓冲区并执行转换
-    char* multiByteBuf = new char[multiByteLen];
-    if (WideCharToMultiByte(codePage, 0, wstr.c_str(), -1, multiByteBuf, multiByteLen, nullptr, nullptr) == 0)
+    // 使用vector自动管理内存（+1用于终止符）
+    std::vector<char> multiByteBuf(multiByteLen + 1);
+
+    // 执行实际转换
+    const int result = ::WideCharToMultiByte(codePage, 0, wstr.c_str(), static_cast<int>(wstr.length()), multiByteBuf.data(), multiByteLen, nullptr, nullptr);
+
+    if (result == 0)
     {
-        delete[] multiByteBuf;
-        throw std::runtime_error("Conversion failed");
+        const DWORD error = ::GetLastError();
+        throw std::runtime_error("WideCharToMultiByte failed (conversion): " + std::to_string(error));
     }
 
-    std::string result(multiByteBuf);
-    delete[] multiByteBuf;
-    return result;
+    // 确保以null终止
+    multiByteBuf[multiByteLen] = '\0';
+
+    return std::string(multiByteBuf.data());
 }
 
 #endif

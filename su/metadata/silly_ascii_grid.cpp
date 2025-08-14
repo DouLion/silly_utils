@@ -79,11 +79,11 @@ bool silly_ascii_grid::read_asc(const std::filesystem::path& file)
         }
         else if (XLLCORNER == to_lower(key))
         {
-            linestream >> xllcorner;
+            linestream >> m_rect.min.x;
         }
         else if (YLLCORNER == to_lower(key))
         {
-            linestream >> yllcorner;
+            linestream >> m_rect.min.x;
         }
         else if (CELLSIZE == to_lower(key))
         {
@@ -91,7 +91,7 @@ bool silly_ascii_grid::read_asc(const std::filesystem::path& file)
         }
         else if (NODATA_VALUE == to_lower(key))
         {
-            linestream >> NODATA;
+            linestream >> m_fill;
         }
         else
         {
@@ -103,7 +103,7 @@ bool silly_ascii_grid::read_asc(const std::filesystem::path& file)
             break;  // header section ends after NODATA_value
     }
 
-    m_data.resize(nrows * ncols);
+    m_data.create(nrows , ncols, true);
 
     double value;
     for (int r = 0; r < nrows && linestream.good(); ++r)
@@ -111,9 +111,7 @@ bool silly_ascii_grid::read_asc(const std::filesystem::path& file)
         for (int c = 0; c < ncols && linestream.good(); ++c)
         {
             linestream >> value;
-            MAXV = SU_MAX(value, MAXV);
-            MINV = SU_MIN(value, MINV);
-            m_data[r * ncols + c] = value;
+            m_data.data()[r * ncols + c] = value;
         }
     }
     std::string prj_path = std::filesystem::path(m_root).append(m_name + PRJ).string();
@@ -130,15 +128,42 @@ bool silly_ascii_grid::write(const std::filesystem::path& file)
     {
         return write_asc(file);
     }
-    else if (BIN == ext)
+    if (BIN == ext)
     {
         return write_bin(file);
     }
-    else
-    {
-        std::cerr << "不支持的格式: " << ext << std::endl;
-    }
+    std::cerr << "不支持的格式: " << ext << std::endl;
     return status;
+}
+std::string silly_ascii_grid::stringify_ll(const int& precision)
+{
+    std::string ret;
+    {
+        std::stringstream ss;
+        ss << std::fixed << std::setprecision(15);
+        ss << NCOLS << " " << ncols << "\n";
+        ss << NROWS << " " << nrows << "\n";
+        ss << XLLCORNER << " " << m_rect.min.x << "\n";
+        ss << YLLCORNER << " " << m_rect.min.y << "\n";
+        ss << CELLSIZE << " " << cellsize << "\n";
+        ss << std::fixed << std::setprecision(precision);
+        ss << NODATA_VALUE << " " << m_fill << "\n";
+        ret.append(ss.str());
+    }
+    {
+        for (int r = 0; r < nrows; ++r)
+        {
+            std::stringstream ss2;
+            ss2 << std::fixed << std::setprecision(precision);
+            for (int c = 0; c < ncols; ++c)
+            {
+                ss2 << m_data[r * ncols + c] << " ";
+            }
+            ss2 << "\n";
+            ret.append(ss2.str());
+        }
+    }
+    return ret;
 }
 
 bool silly_ascii_grid::read_bin(const std::filesystem::path& file)
@@ -160,7 +185,7 @@ bool silly_ascii_grid::read_bin(const std::filesystem::path& file)
         std::cerr << "bin文件数据和宽高不匹配" << std::endl;
         return false;
     }
-    m_data.resize(nrows * ncols);
+    m_data.create(nrows , ncols, true);
     std::memcpy(m_data.data(), p, nrows * ncols * sizeof(double));
 
     return true;
@@ -180,17 +205,18 @@ bool silly_ascii_grid::write_asc(const std::filesystem::path& file)
         ss << std::fixed << std::setprecision(15);
         ss << NCOLS << " " << ncols << "\n";
         ss << NROWS << " " << nrows << "\n";
-        ss << XLLCORNER << " " << xllcorner << "\n";
-        ss << YLLCORNER << " " << yllcorner << "\n";
+        ss << XLLCORNER << " " << m_rect.min.x << "\n";
+        ss << YLLCORNER << " " << m_rect.min.y << "\n";
         ss << CELLSIZE << " " << cellsize << "\n";
-        ss << NODATA_VALUE << " " << NODATA << "\n";
+        ss << std::fixed << std::setprecision(3);
+        ss << NODATA_VALUE << " " << m_fill << "\n";
         ofs.write(ss.str().c_str(), ss.str().size());
     }
 
     for (int r = 0; r < nrows; ++r)
     {
         std::stringstream ss2;
-        ss2 << std::fixed << std::setprecision(precision);
+        ss2 << std::fixed << std::setprecision(3);
         for (int c = 0; c < ncols; ++c)
         {
             ss2 << m_data[r * ncols + c] << " ";

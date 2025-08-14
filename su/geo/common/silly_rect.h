@@ -14,6 +14,9 @@
 #include <geo/common/silly_point.h>
 class silly_rect  // 普通坐标点
 {
+public:
+    silly_point min;
+    silly_point max;
   public:
     silly_rect() = default;
     ~silly_rect() = default;
@@ -149,9 +152,7 @@ class silly_rect  // 普通坐标点
         return ret;
     }
 
-  public:
-    silly_point min;
-    silly_point max;
+
 };
 using silly_geo_rect = silly_rect;
 
