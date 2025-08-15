@@ -12,31 +12,36 @@
 #define SILLY_GDAL_RASTER_H
 #include <files/silly_file.h>
 #include <metadata/silly_dem.h>
-#ifdef ENABLE_GDAL
 #include <gdal.h>
 #include <gdal_priv.h>
-#endif
 
 class silly_gdal_raster
 {
   public:
     silly_gdal_raster() = default;
-    ~silly_gdal_raster() = default;
+    ~silly_gdal_raster()
+    {
+        close();
+    }
+
+    // 禁止拷贝
+    silly_gdal_raster(const silly_gdal_raster&) = delete;
+    silly_gdal_raster& operator=(const silly_gdal_raster&) = delete;
     bool open(const std::filesystem::path& file);
     void close();
 
-    su::DMatrix ROI(const silly_rect& rect);
+    su::DMatrix ROI(const silly_rect& rect) const;
 
-    double H(const silly_point& p);
+    double Pick(const silly_point& p) const;
 
   private:
-#ifdef ENABLE_GDAL
+#if SU_THIRD_SUPPORT_GDAL
     GDALDataset* m_pPoDataset = nullptr;
     GDALRasterBand* m_pPoBand0 = nullptr;
-    double m_x0;
-    double m_y0;
+    double m_x0 = 0;
+    double m_y0 = 0;
     int m_Bands = 0;
-    GDALDataType m_DataType;
+    GDALDataType m_DataType = GDT_Unknown;
     int m_width = 0;
     int m_height = 0;
     silly_rect m_rect;

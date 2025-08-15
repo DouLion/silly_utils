@@ -26,7 +26,7 @@ const std::string CRS::proj4(const type &def)
 
     return ret;
 }
-#if ENABLE_GDAL
+#if SU_THIRD_SUPPORT_GDAL
 const OGRSpatialReference CRS::reference(const type &def)
 {
     OGRSpatialReference ret;

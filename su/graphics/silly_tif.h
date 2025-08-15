@@ -11,11 +11,11 @@
 #ifndef SILLY_UTILS_SILLY_TIF_H
 #define SILLY_UTILS_SILLY_TIF_H
 
-class silly_tif
+class sutif
 {
   public:
-    silly_tif();
-    ~silly_tif();
+    sutif();
+    ~sutif();
 
   private:
 };

@@ -23,7 +23,7 @@ class gdal_convert
     friend class silly_projection_define;
 
   public:
-    gdal_convert();
+    gdal_convert() = default;
     ~gdal_convert();
     /// <summary>
     /// 根据参数构建转换
@@ -33,16 +33,16 @@ class gdal_convert
     bool begin(const CRS::type &from, const CRS::type &to);
 
     bool convert(const double &fromX, const double &fromY, double &toX, double &toY);
-    bool convert(const std::vector<double> &fromX, const std::vector<double> &fromY, std::vector<double> &toX, std::vector<double> &toY);
+    bool convert(const std::vector<double> &fromX, const std::vector<double> &fromY, std::vector<double> &toX, std::vector<double> &toY) const;
 
     /// <summary>
     /// 关闭转换,释放转换对象
     /// </summary>
     /// <returns></returns>
-    bool close();
+    void close() const;
 
   private:
-#if ENABLE_GDAL
+#if SU_THIRD_SUPPORT_GDAL
     OGRCoordinateTransformation *m_poTransform{nullptr};
 #endif
 };

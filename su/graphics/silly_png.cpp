@@ -77,60 +77,7 @@ static void silly_png_read_callback(png_structp pngPtr, png_bytep outBytes, png_
     reader->offset += byteCount;
 }
 
-bool silly::png::tools::rgb2rgba(const silly::png::data &src, silly::png::data &dst, const uint8_t &alpha)
-{
-    return false;
-    /*if (src.type() != silly::color::type::eptRGB)
-    {
-        return false;
-    }
-    dst.release();
-    if (!dst.create(src.height(), src.width(), silly::color::type::eptRGBA, src.depth()))
-    {
-        return false;
-    }
-
-    for (size_t r = 0; r < src.height(); ++r)
-    {
-        png_bytep srcp = src.nbytes()[r];
-        png_bytep dstp = dst.nbytes()[r];
-        for (size_t c = 0; c < src.width(); ++c)
-        {
-            memcpy(dstp, srcp, 3);
-            srcp += 3;
-            dstp += 4;
-        }
-    }
-
-    return true;*/
-}
-bool silly::png::tools::rgba2rgb(const silly::png::data &src, silly::png::data &dst)
-{
-    return false;
-    /* if (src.type() != silly::color::type::eptRGBA)
-     {
-         return false;
-     }
-     dst.release();
-     if (!dst.create(src.height(), src.width(), silly::color::type::eptRGB, src.depth()))
-     {
-         return false;
-     }
-     for (size_t r = 0; r < src.height(); ++r)
-     {
-         png_bytep srcp = src.nbytes()[r];
-         png_bytep dstp = dst.nbytes()[r];
-         for (size_t c = 0; c < src.width(); ++c)
-         {
-             memcpy(dstp, srcp, 3);
-             srcp += 4;
-             dstp += 3;
-         }
-     }
-     return true;*/
-}
-
-silly::png::data &silly::png::data::operator=(const silly::png::data &rh)
+supng &supng::operator=(const supng &rh)
 {
     this->m_bytes = rh.m_bytes;
     this->m_width = rh.m_width;
@@ -147,7 +94,7 @@ silly::png::data &silly::png::data::operator=(const silly::png::data &rh)
     return *this;
 }
 
-void silly::png::data::pixel(const size_t &r, const size_t &c, const silly::color &sp)
+void supng::pixel(const size_t &r, const size_t &c, const silly::color &sp)
 {
     if (!(r < m_height && c < m_width))
     {
@@ -180,7 +127,7 @@ void silly::png::data::pixel(const size_t &r, const size_t &c, const silly::colo
     }
 }
 
-silly::color silly::png::data::pixel(const size_t &r, const size_t &c) const
+silly::color supng::pixel(const size_t &r, const size_t &c) const
 {
     silly::color sp;
 
@@ -216,7 +163,7 @@ silly::color silly::png::data::pixel(const size_t &r, const size_t &c) const
 
     return sp;
 }
-bool silly::png::data::create(const size_t &width, const size_t &height, const silly::color::type &type, const uint8_t &depth)
+bool supng::create(const size_t &width, const size_t &height, const silly::color::type &type, const uint8_t &depth)
 {
     m_type = static_cast<silly::color::type>(type);
     m_channels = silly::color::channels(m_type);
@@ -243,7 +190,7 @@ bool silly::png::data::create(const size_t &width, const size_t &height, const s
 
     return true;
 }
-bool silly::png::data::read(const std::filesystem::path &file)
+bool supng::read(const std::filesystem::path &file)
 {
     bool status = false;
     png_structp png_ptr = nullptr;
@@ -296,7 +243,7 @@ bool silly::png::data::read(const std::filesystem::path &file)
     fclose(fp);
     return true;
 }
-bool silly::png::data::write(const std::filesystem::path &file) const
+bool supng::write(const std::filesystem::path &file) const
 {
     if (!m_height || !m_width || m_bytes.empty())
     {
@@ -335,7 +282,7 @@ bool silly::png::data::write(const std::filesystem::path &file) const
     fclose(output_fp);
     return true;
 }
-bool silly::png::data::decode(const std::string &bin)
+bool supng::decode(const std::string &bin)
 {
     // 检查字符串是否为空
     if (!valid(bin))
@@ -427,7 +374,7 @@ bool silly::png::data::decode(const std::string &bin)
 
     return true;
 }
-std::string silly::png::data::encode() const
+std::string supng::encode() const
 {
     std::string buff;
     png_structp png_ptr = nullptr;

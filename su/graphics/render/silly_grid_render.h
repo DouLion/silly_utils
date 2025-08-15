@@ -35,7 +35,7 @@ class silly_render_param
   public:
     su::matrix<T> mtx;
     std::vector<silly_val2color<T>> v2cs;  // 需要排好序
-    silly::png::data pd;
+    supng pd;
     silly_geo_rect rect;
 
     // 将 v2cs 按照 val 的值进行排序 默认升序排序
@@ -59,7 +59,7 @@ class silly_grid_render
 {
   public:
     friend class su::matrix<T>;
-    friend class silly::png::data;
+    friend class supng;
 
     void normal_render_greater(silly_render_param<T>& srp)
     {

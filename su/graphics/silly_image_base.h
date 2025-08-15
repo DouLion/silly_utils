@@ -19,6 +19,7 @@ namespace image
 class base
 {
   public:
+    virtual ~base() = default;
     /// <summary>
     /// 创建指定宽高和颜色类型的空图像,颜色为全为0
     /// </summary>

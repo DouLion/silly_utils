@@ -4,7 +4,7 @@
 #ifndef NDEBUG
 #include <log/silly_log.h>
 #endif
-#if ENABLE_GDAL
+#if SU_THIRD_SUPPORT_GDAL
 // GDAL.
 #include <ogr_spatialref.h>
 // #include "gdal_priv.h"
@@ -23,7 +23,7 @@ using namespace ClipperLib;
 silly_point utils::centroid(const silly_poly& poly)
 {
     silly_point center_point;
-#if ENABLE_GDAL
+#if SU_THIRD_SUPPORT_GDAL
     OGRPolygon orgPloy = utils::silly_poly_to_ogr(poly);
     OGRPoint point;
     int err = orgPloy.Centroid(&point);
@@ -84,7 +84,7 @@ std::string utils::angle_to_desc(const double& angle)
     }
     return desc;
 }
-#if ENABLE_GDAL
+#if SU_THIRD_SUPPORT_GDAL
 // 将 silly_ring 转换为 OGRPolygon
 OGRLinearRing utils::silly_ring_to_ogr(const silly_ring& ring)
 {
@@ -330,7 +330,7 @@ silly_geo_coll utils::silly_geo_coll_from_ogr(const OGRGeometry* geometry)
 
 void utils::init_gdal_env()
 {
-#if ENABLE_GDAL
+#if SU_THIRD_SUPPORT_GDAL
     GDALAllRegister();
     CPLSetConfigOption("GDAL_FILENAME_IS_UTF8", "NO");
     OGRRegisterAll();
@@ -340,14 +340,14 @@ void utils::init_gdal_env()
 
 void utils::destroy_gdal_env()
 {
-#if ENABLE_GDAL
+#if SU_THIRD_SUPPORT_GDAL
     OGRCleanupAll();
 #endif
 }
 
 bool utils::is_valid_shp(const std::filesystem::path& file)
 {
-#if ENABLE_GDAL
+#if SU_THIRD_SUPPORT_GDAL
     auto poDSr = (GDALDataset*)GDALOpenEx(sufile::realpath(file).string().c_str(), GDAL_OF_ALL | GDAL_OF_READONLY, nullptr, nullptr, nullptr);
     if (nullptr == poDSr)
     {
@@ -389,7 +389,7 @@ std::vector<std::string> utils::shp_missing_file(const std::filesystem::path& fi
 bool utils::check_shp_info(const std::filesystem::path& file, eGeometryType& geoType, std::map<std::string, eGeoFieldType>& properties)
 {
     bool status = false;
-#if ENABLE_GDAL
+#if SU_THIRD_SUPPORT_GDAL
     std::map<std::string, std::string> result;
 
     auto poDSr = (GDALDataset*)GDALOpenEx(sufile::realpath(file).string().c_str(), GDAL_OF_ALL | GDAL_OF_READONLY, nullptr, nullptr, nullptr);
@@ -500,7 +500,7 @@ bool utils::check_shp_info(const std::filesystem::path& file, eGeometryType& geo
 /// <returns></returns>
 bool read_property(const OGRFeature* feature, const std::map<std::string, eGeoFieldType>& properties, std::map<std::string, silly_geo_prop>& props)
 {
-#if ENABLE_GDAL
+#if SU_THIRD_SUPPORT_GDAL
     for (const auto& [key, p_type] : properties)
     {
         std::string utf8_key = key;
@@ -568,7 +568,7 @@ bool read_property(const OGRFeature* feature, const std::map<std::string, eGeoFi
 bool read_all_types_data(const eGeometryType& feature_type, const OGRGeometry* geometry, silly_geo_coll& geo_coll)
 {
     bool status = false;
-#if ENABLE_GDAL
+#if SU_THIRD_SUPPORT_GDAL
     switch (feature_type)
     {
         case eGeometryType::Point:  // 单点
@@ -633,7 +633,7 @@ std::vector<silly_geo_coll> utils::read(const std::filesystem::path& file, const
 bool utils::read(const std::filesystem::path& file, std::vector<silly_geo_coll>& collections, const bool& ignore_prop)
 {
     bool status = false;
-#if ENABLE_GDAL
+#if SU_THIRD_SUPPORT_GDAL
     std::filesystem::path realfp = sufile::realpath(file);
     eGeometryType type;
     std::map<std::string, eGeoFieldType> properties;
@@ -743,7 +743,7 @@ bool utils::get_driver_name(const std::filesystem::path& file, std::string& driv
     }
     return status;
 }
-#if ENABLE_GDAL
+#if SU_THIRD_SUPPORT_GDAL
 // 根据eGeoFieldType 找gdal中属性的类型
 OGRFieldType convertToOGRFieldType(const eGeoFieldType& type)
 {
@@ -788,7 +788,7 @@ OGRFieldType convertToOGRFieldType(const eGeoFieldType& type)
 // 添加属性到shp中
 bool writePropertiesToGeometry(OGRFeature* feature, const std::map<std::string, silly_geo_prop>& m_props)
 {
-#if ENABLE_GDAL
+#if SU_THIRD_SUPPORT_GDAL
     bool status = true;
     for (const auto& [key, prop] : m_props)
     {
@@ -829,7 +829,7 @@ bool writePropertiesToGeometry(OGRFeature* feature, const std::map<std::string, 
 // 处理复合数据类型的变量
 bool process_composite_data(const eGeometryType coll_type, OGRGeometry* geometry, OGRGeometryCollection* geomCollection, const silly_geo_coll& geo_coll)
 {
-#if ENABLE_GDAL
+#if SU_THIRD_SUPPORT_GDAL
     bool status = true;
     switch (coll_type)
     {
@@ -883,7 +883,7 @@ bool process_composite_data(const eGeometryType coll_type, OGRGeometry* geometry
 static bool wire_all_types_data(const eGeometryType coll_type, OGRLayer* outputLayer, OGRFeature* feature, OGRGeometry* geometry, const silly_geo_coll& geo_coll)
 {
     bool status = true;
-#if ENABLE_GDAL
+#if SU_THIRD_SUPPORT_GDAL
     switch (coll_type)
     {
         case eGeometryType::Point:
@@ -938,7 +938,7 @@ static bool wire_all_types_data(const eGeometryType coll_type, OGRLayer* outputL
 bool utils::write(const std::filesystem::path& file, const std::vector<silly_geo_coll>& collections, const proj::CRS::type& prj)
 {
     bool status = false;
-#if ENABLE_GDAL
+#if SU_THIRD_SUPPORT_GDAL
     if (collections.empty())
     {
         return status;
@@ -1020,7 +1020,7 @@ bool utils::intersect(const silly_geo_coll& gc1, const silly_geo_coll& gc2)
 bool utils::intersect(const silly_multi_poly& mpoly1, const silly_multi_poly& mpoly2)
 {
     // TODO:
-#if ENABLE_GDAL
+#if SU_THIRD_SUPPORT_GDAL
     // 创建 OGRPolygon 对象
     OGRMultiPolygon p1 = utils::silly_multi_poly_to_ogr(mpoly1);
     OGRMultiPolygon p2 = utils::silly_multi_poly_to_ogr(mpoly2);
@@ -1036,7 +1036,7 @@ bool utils::intersect(const silly_multi_poly& mpoly1, const silly_multi_poly& mp
 std::vector<silly_poly> utils::intersection(const silly_multi_poly& mpoly1, const silly_multi_poly& mpoly2)
 {
     std::vector<silly_poly> result;
-#if ENABLE_GDAL
+#if SU_THIRD_SUPPORT_GDAL
     // 创建 OGRPolygon 对象
     OGRMultiPolygon org_ploy_1 = utils::silly_multi_poly_to_ogr(mpoly1);
     OGRMultiPolygon org_ploy_2 = utils::silly_multi_poly_to_ogr(mpoly2);
@@ -1438,7 +1438,7 @@ double utils::distance_sq(const silly_point& p1, const silly_point& p2)
 silly_geo_coll utils::buffer(const silly_geo_coll& coll, const double& distance)
 {
     silly_geo_coll ret;
-#if ENABLE_GDAL
+#if SU_THIRD_SUPPORT_GDAL
     OGRGeometry* resOGRGeom = silly_geo_coll_to_ogr(coll);
     if (resOGRGeom == nullptr)
     {

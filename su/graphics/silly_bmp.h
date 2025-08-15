@@ -11,11 +11,11 @@
 #ifndef SILLY_UTILS_SILLY_BMP_H
 #define SILLY_UTILS_SILLY_BMP_H
 
-class silly_bmp
+class submp
 {
   public:
-    silly_bmp();
-    ~silly_bmp();
+    submp();
+    ~submp();
 
   private:
 };

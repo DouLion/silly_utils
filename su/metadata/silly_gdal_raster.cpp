@@ -11,12 +11,12 @@
 #include "silly_gdal_raster.h"
 bool silly_gdal_raster::open(const std::filesystem::path& file)
 {
-#ifdef ENABLE_GDAL
-    CPLSetConfigOption("GDAL_CACHEMAX", "512");  // 设置 GDAL 缓存为 512MB
-    m_pPoDataset = (GDALDataset*)GDALOpen(sufile::realpath(file).string().c_str(), GA_ReadOnly);
+
+    //CPLSetConfigOption("GDAL_CACHEMAX", "512");  // 设置 GDAL 缓存为 512MB
+    m_pPoDataset = (GDALDataset*)GDALOpen(file.string().c_str(), GA_ReadOnly);
     if (!m_pPoDataset)
     {
-        std::cerr << "无法打开输入文件: " << sufile::realpath(file).u8string() << std::endl;
+        std::cerr << "无法打开输入文件: " << file.u8string() << std::endl;
         return false;
     }
 
@@ -74,13 +74,12 @@ bool silly_gdal_raster::open(const std::filesystem::path& file)
     m_rect.max.y = std::max(m_y0, y1);
     return true;
 
-#else
-    return false;
-#endif
+
 }
 void silly_gdal_raster::close()
 {
-#ifdef ENABLE_GDAL
+    SLOG_DEBUG("释放关闭")
+
     if (m_pPoBand0)
     {
         m_pPoBand0 = nullptr;
@@ -91,13 +90,12 @@ void silly_gdal_raster::close()
         m_pPoDataset = nullptr;
     }
 
-#endif
+
 }
-su::DMatrix silly_gdal_raster::ROI(const silly_rect& rect)
+su::DMatrix silly_gdal_raster::ROI(const silly_rect& rect) const
 {
     su::DMatrix ret;
-#ifdef ENABLE_GDAL
-    if (!m_pPoDataset && m_Bands <= 0)
+    if (!m_pPoBand0 && m_Bands <= 0)
     {
         return ret;
     }
@@ -172,24 +170,22 @@ su::DMatrix silly_gdal_raster::ROI(const silly_rect& rect)
         }
     }
     CPLFree(pData);
-#endif
+
     return ret;
 }
 
-double silly_gdal_raster::H(const silly_point& p)
+double silly_gdal_raster::Pick(const silly_point& p) const
 {
     double ret = NAN;
-
+#if SU_THIRD_SUPPORT_GDAL
+    if (!m_pPoBand0 && m_Bands <= 0)
+    {
+        return ret;
+    }
     if (!m_rect.contain(p))
     {
         return ret;
     }
-    /*m_xdelta = m_adfGeoTransform[1];
-    m_ydelta = m_adfGeoTransform[5];*/
-    std::cout << m_xdelta << std::endl;
-    std::cout << m_ydelta << std::endl;
-    std::cout << m_x0 << std::endl;
-    std::cout << m_y0 << std::endl;
     // 读取该像素的值
     int nBytes = GDALGetDataTypeSizeBytes(m_DataType);
     std::vector<char> buffer(nBytes);
@@ -225,5 +221,6 @@ double silly_gdal_raster::H(const silly_point& p)
     {
         ret = static_cast<double>(*reinterpret_cast<uint32_t*>(buffer.data()));
     }
+#endif
     return ret;
 }

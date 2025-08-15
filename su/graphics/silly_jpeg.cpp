@@ -11,7 +11,7 @@
 #include "silly_jpeg.h"
 #include <files/silly_file.h>
 
-#if ENABLE_JPEG
+#if SU_THIRD_SUPPORT_JPEG
 #include "jpeglib.h"
 #include "jerror.h"
 #include <setjmp.h>
@@ -62,9 +62,9 @@ static J_COLOR_SPACE silly2jpegctype(const silly::color::type& type)
     return J_COLOR_SPACE::JCS_UNKNOWN;
 }
 #endif
-void silly::jpeg::data::pixel(const size_t& row, const size_t& col, const silly::color& pixel)
+void sujpeg::pixel(const size_t& row, const size_t& col, const silly::color& pixel)
 {
-#if ENABLE_JPEG
+#if SU_THIRD_SUPPORT_JPEG
     if (row >= m_height || col >= m_width)
     {
         return;
@@ -86,7 +86,7 @@ void silly::jpeg::data::pixel(const size_t& row, const size_t& col, const silly:
     return;
 }
 
-silly::color silly::jpeg::data::pixel(const size_t& row, const size_t& col) const
+silly::color sujpeg::pixel(const size_t& row, const size_t& col) const
 {
     silly::color pixel = {0, 0, 0};
     if (row >= m_height || col >= m_width)
@@ -110,7 +110,7 @@ silly::color silly::jpeg::data::pixel(const size_t& row, const size_t& col) cons
     return pixel;
 }
 
-silly::jpeg::data& silly::jpeg::data::operator=(const silly::jpeg::data& rh)
+sujpeg& sujpeg::operator=(const sujpeg& rh)
 {
     this->m_width = rh.m_width;
     this->m_height = rh.m_height;
@@ -122,7 +122,7 @@ silly::jpeg::data& silly::jpeg::data::operator=(const silly::jpeg::data& rh)
 
     return *this;
 }
-bool silly::jpeg::data::create(const size_t& width, const size_t& height, const silly::color::type& type, const uint8_t& depth)
+bool sujpeg::create(const size_t& width, const size_t& height, const silly::color::type& type, const uint8_t& depth)
 {
     m_type = type;
     switch (m_type)
@@ -152,7 +152,7 @@ bool silly::jpeg::data::create(const size_t& width, const size_t& height, const 
     // memset(m_bytes.data(), 0, sizeof(uint8_t) * m_width * m_height * m_channels);
     return true;
 }
-bool silly::jpeg::data::read(const std::filesystem::path& file)
+bool sujpeg::read(const std::filesystem::path& file)
 {
     bool status = false;
     std::string content;
@@ -163,7 +163,7 @@ bool silly::jpeg::data::read(const std::filesystem::path& file)
 
     return decode(content);
 }
-bool silly::jpeg::data::write(const std::filesystem::path& file) const
+bool sujpeg::write(const std::filesystem::path& file) const
 {
     std::string content = encode();
     if (content.empty())
@@ -173,10 +173,10 @@ bool silly::jpeg::data::write(const std::filesystem::path& file) const
 
     return sufile::write(file, content) > 0;
 }
-bool silly::jpeg::data::decode(const std::string& bin)
+bool sujpeg::decode(const std::string& bin)
 {
     bool status = false;
-#if ENABLE_JPEG
+#if SU_THIRD_SUPPORT_JPEG
 
     if (!valid(bin))
     {
@@ -220,10 +220,10 @@ bool silly::jpeg::data::decode(const std::string& bin)
 #endif
     return status;
 }
-std::string silly::jpeg::data::encode() const
+std::string sujpeg::encode() const
 {
     std::string ret;
-#if ENABLE_JPEG
+#if SU_THIRD_SUPPORT_JPEG
     if (!(!m_bytes.empty() && m_width > 0 && m_height > 0))
     {
         return ret;

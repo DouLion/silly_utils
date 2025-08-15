@@ -13,20 +13,16 @@
 #include <graphics/silly_color.h>
 #include <graphics/silly_image_base.h>
 
-namespace silly
-{
-namespace png
-{
 /// 1x1的空白png图片
-const static std::vector<uint8_t> EMPTY_1X1_RGBA = {0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x08, 0x06, 0x00, 0x00, 0x00, 0x1F, 0x15, 0xC4, 0x89, 0x00,
+const static std::vector<uint8_t> EMPTY_1X1_RGBA_PNG = {0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x08, 0x06, 0x00, 0x00, 0x00, 0x1F, 0x15, 0xC4, 0x89, 0x00,
                                                     0x00, 0x00, 0x0B, 0x49, 0x44, 0x41, 0x54, 0x08, 0x99, 0x63, 0x60, 0x00, 0x02, 0x00, 0x00, 0x05, 0x00, 0x01, 0x62, 0x55, 0x32, 0x88, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82};
 
-const static std::string EMPTY_1X1_RGBA_STR(EMPTY_1X1_RGBA.begin(), EMPTY_1X1_RGBA.end());
+const static std::string EMPTY_1X1_RGBA_PNG_STR(EMPTY_1X1_RGBA_PNG.begin(), EMPTY_1X1_RGBA_PNG.end());
 
-class data : public image::base
+class supng : public silly::image::base
 {
   public:
-    data()
+    supng()
     {
         HEADER = {0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A};
     }
@@ -36,6 +32,7 @@ class data : public image::base
     /// <param name="width"></param>
     /// <param name="height"></param>
     /// <param name="type"></param>
+    /// <param name="depth"></param>
     /// <returns></returns>
     bool create(const size_t &width, const size_t &height, const silly::color::type &type, const uint8_t &depth = 8) override;
 
@@ -92,32 +89,10 @@ class data : public image::base
         return m_nbytes.data();
     }
 
-    data &operator=(const data &rh);
+    supng &operator=(const supng &rh);
 
   protected:
     std::vector<uint8_t *> m_nbytes;
 };
-
-class tools
-{
-  public:
-    /// <summary>
-    /// RGB图像转RGBA
-    /// </summary>
-    /// <param name="src"></param>
-    /// <param name="dst"></param>
-    /// <returns></returns>
-    static bool rgb2rgba(const data &src, data &dst, const uint8_t &alpha = 255);
-
-    /// <summary>
-    /// RGBA图像转RGB
-    /// </summary>
-    /// <param name="src"></param>
-    /// <param name="dst"></param>
-    /// <returns></returns>
-    static bool rgba2rgb(const data &src, data &dst);
-};
-}  // namespace png
-}  // namespace silly
 
 #endif  // SILLY_UTILS_SILLY_PNG_H

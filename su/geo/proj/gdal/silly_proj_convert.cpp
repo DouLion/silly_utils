@@ -20,7 +20,7 @@ gdal_convert::~gdal_convert()
 bool gdal_convert::begin(const CRS::type& from, const CRS::type& to)
 {
     bool status = false;
-#if ENABLE_GDAL
+#if SU_THIRD_SUPPORT_GDAL
     const OGRSpatialReference src_srs = CRS::reference(from);
     const OGRSpatialReference dst_srs = CRS::reference(to);
     m_poTransform = OGRCreateCoordinateTransformation(&src_srs, &dst_srs);
@@ -34,7 +34,7 @@ bool gdal_convert::begin(const CRS::type& from, const CRS::type& to)
 bool gdal_convert::convert(const double& fromX, const double& fromY, double& toX, double& toY)
 {
     bool status = false;
-#if ENABLE_GDAL
+#if SU_THIRD_SUPPORT_GDAL
     if (m_poTransform)
     {
         double tmpX = fromX, tmpY = fromY;
@@ -53,10 +53,10 @@ bool gdal_convert::convert(const double& fromX, const double& fromY, double& toX
     return status;
 }
 
-bool gdal_convert::convert(const std::vector<double>& fromX, const std::vector<double>& fromY, std::vector<double>& toX, std::vector<double>& toY)
+bool gdal_convert::convert(const std::vector<double>& fromX, const std::vector<double>& fromY, std::vector<double>& toX, std::vector<double>& toY) const
 {
     bool status = false;
-#if ENABLE_GDAL
+#if SU_THIRD_SUPPORT_GDAL
     if (m_poTransform)
     {
         std::vector<double> tmpX = fromX;
@@ -79,14 +79,12 @@ bool gdal_convert::convert(const std::vector<double>& fromX, const std::vector<d
 #endif
     return status;
 }
-bool gdal_convert::close()
+void gdal_convert::close() const
 {
-#if ENABLE_GDAL
+#if SU_THIRD_SUPPORT_GDAL
     if (m_poTransform)
     {
         OCTDestroyCoordinateTransformation(m_poTransform);
     }
 #endif
-
-    return true;
 }

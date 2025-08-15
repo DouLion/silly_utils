@@ -12,14 +12,10 @@
 #define SILLY_UTILS_SILLY_JPEG_H
 
 #include <graphics/silly_image_base.h>
-namespace silly
-{
-namespace jpeg
-{
-class data : public image::base
+class sujpeg: public silly::image::base
 {
   public:
-    data()
+    sujpeg()
     {
         HEADER = {0xFF, 0xD8};
     }
@@ -75,13 +71,10 @@ class data : public image::base
     /// <returns></returns>
     std::string encode() const override;
 
-    data &operator=(const data &rh);
+    sujpeg &operator=(const sujpeg &rh);
 
   protected:
     int m_quality{75};
 };
-
-}  // namespace jpeg
-}  // namespace silly
 
 #endif  // SILLY_UTILS_SILLY_JPEG_H

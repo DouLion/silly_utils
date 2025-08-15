@@ -5,7 +5,7 @@
 
 #include <geo/silly_geo_coll.h>
 #include <geo/proj/gdal/silly_projection_define.h>
-#ifndef ENABLE_GDAL
+#if SU_THIRD_SUPPORT_GDAL
 #include <gdal_priv.h>
 #endif
 
@@ -352,7 +352,7 @@ class utils
     /// <returns></returns>
     static std::vector<std::pair<silly_point, double>> adjust(const std::vector<std::pair<silly_point, double>>& linez, const double& bz, const double& ez);
 
-#if 1
+#if SU_THIRD_SUPPORT_GDAL
 
     /// <summary>
     /// 读取shp文件

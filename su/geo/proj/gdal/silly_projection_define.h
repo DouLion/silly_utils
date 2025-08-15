@@ -10,7 +10,7 @@
 #ifndef SILLY_UTILS_SILLY_PROJECTION_DEFINE_H
 #define SILLY_UTILS_SILLY_PROJECTION_DEFINE_H
 #include <su_marco.h>
-#if ENABLE_GDAL
+#if SU_THIRD_SUPPORT_GDAL
 #include <gdal_priv.h>
 #include <gdal_alg.h>
 #include <ogr_spatialref.h>
@@ -60,7 +60,7 @@ class CRS
     static const std::string wkt(const type &def);
     static const std::string proj4(const type &def);
     static const std::string wellKnownGS(const type &def);
-#if ENABLE_GDAL
+#if SU_THIRD_SUPPORT_GDAL
     static const OGRSpatialReference reference(const type &def);
 #endif
 

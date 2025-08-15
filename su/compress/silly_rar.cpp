@@ -3,7 +3,7 @@
 //
 
 #include "silly_rar.h"
-#if ENABLE_LIBARCHIVE
+#if SU_THIRD_SUPPORT_LIBARCHIVE
 #include <archive.h>
 #include <archive_entry.h>
 #endif
@@ -21,7 +21,7 @@ using namespace silly_compress;
 eCompressErr silly_rar::compress(const std::string& s_src, const std::string& s_dst, const bool& append)
 {
     auto status = eCompressErr::MiniZUnknowErr;
-#if ENABLE_LIBARCHIVE
+#if SU_THIRD_SUPPORT_LIBARCHIVE
     try
     {
         if (!std::filesystem::exists(s_src))
@@ -58,7 +58,7 @@ eCompressErr silly_rar::compress(const std::string& s_src, const std::string& s_
 
 eCompressErr silly_rar::decompress(const std::string& s_src, const std::string& s_dst)
 {
-#if ENABLE_LIBARCHIVE
+#if SU_THIRD_SUPPORT_LIBARCHIVE
     if (!std::filesystem::exists(s_src))  // 解压文件不存在
     {
         SLOG_ERROR("not exist {}", s_src.c_str());

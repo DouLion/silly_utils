@@ -9,7 +9,7 @@
  * @version: v1.0.1 2024-09-11 dou li yang
  */
 #include "silly_mqtt_client.h"
-#if ENABLE_PAHO_MQTT
+#if SU_THIRD_SUPPORT_PAHO_MQTT
 #include <mqtt/client.h>
 #include <mqtt/ssl_options.h>
 #endif
@@ -19,7 +19,7 @@ const auto PERIOD = std::chrono::seconds(20);
 const int MAX_BUFFERED_MSGS = 120;  // 120 * 5sec => 10min off-line buffering
 
 const int N_RETRY_ATTEMPTS = 5;
-#if ENABLE_PAHO_MQTT
+#if SU_THIRD_SUPPORT_PAHO_MQTT
 class action_listener : public virtual mqtt::iaction_listener
 {
     std::string name_;
@@ -148,7 +148,7 @@ bool silly_mqtt_client::publish(const std::string& topic, const std::string& pay
 {
     bool status = false;
 
-#if ENABLE_PAHO_MQTT
+#if SU_THIRD_SUPPORT_PAHO_MQTT
 
     auto connBuilder = mqtt::connect_options_builder();
     mqtt::connect_options conn_opts = connBuilder.keep_alive_interval(PERIOD).finalize();
@@ -185,7 +185,7 @@ void silly_mqtt_client::subscribe(const std::string& topic, subscribe_callback s
 {
     bool status = false;
 
-#if ENABLE_PAHO_MQTT
+#if SU_THIRD_SUPPORT_PAHO_MQTT
 
     auto connBuilder = mqtt::connect_options_builder();
     mqtt::connect_options conn_opts = connBuilder.keep_alive_interval(PERIOD).finalize();

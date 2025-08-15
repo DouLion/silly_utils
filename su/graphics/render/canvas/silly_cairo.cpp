@@ -16,7 +16,7 @@
 #include <graphics/silly_jpeg.h>
 #include <files/silly_file.h>
 
-#if ENABLE_JPEG
+#if SU_THIRD_SUPPORT_JPEG
 // 安装的是 libjpeg-turbo
 #include "jpeglib.h"
 #include "jerror.h"
@@ -108,7 +108,7 @@ static cairo_status_t surface_write(cairo_surface_t *sfc, const char *filename)
 }
 
 }  // namespace png
-#if ENABLE_JPEG
+#if SU_THIRD_SUPPORT_JPEG
 namespace jpeg
 {
 /// https://github.com/rahra/cairo_jpg/blob/master/src/cairo_jpg.c
@@ -408,7 +408,7 @@ bool silly_cairo::read(const std::filesystem::path &file, const bool &png)
     }
     else
     {
-#if ENABLE_JPEG
+#if SU_THIRD_SUPPORT_JPEG
 
         if (!(m_surface = silly::cairo::jpeg::surface_create_from_file(sufile::realpath(file).string().c_str())))
         {
@@ -431,7 +431,7 @@ bool silly_cairo::write(const std::filesystem::path &file, const bool &png)
     {
         return (CAIRO_STATUS_SUCCESS == silly::cairo::png::surface_write(m_surface, sufile::realpath(file).string().c_str()));
     }
-#if ENABLE_JPEG
+#if SU_THIRD_SUPPORT_JPEG
     else
     {
         return (CAIRO_STATUS_SUCCESS == silly::cairo::jpeg::surface_write(m_surface, sufile::realpath(file).string().c_str()));
@@ -447,12 +447,12 @@ bool silly_cairo::decode(const std::string &bin)
 
 bool silly_cairo::decode(const unsigned char *data, const size_t size)
 {
-    if (silly::png::data().valid((const char *)data, size))
+    if (supng().valid(reinterpret_cast<const char *>(data), size))
     {
         m_surface = silly::cairo::png::surface_create_from_stream(data, size);
     }
-#if ENABLE_JPEG
-    else if (silly::jpeg::data().valid((const char *)data, size))
+#if SU_THIRD_SUPPORT_JPEG
+    else if (sujpeg().valid(reinterpret_cast<const char *>(data), size))
     {
         m_surface = silly::cairo::jpeg::surface_create_from_stream((void *)data, size);
     }
@@ -479,7 +479,7 @@ bool silly_cairo::encode(std::string &bin, const bool &png)
     {
         silly::cairo::png::surface_to_stream(m_surface, bin);
     }
-#if ENABLE_JPEG
+#if SU_THIRD_SUPPORT_JPEG
     else
     {
         silly::cairo::jpeg::surface_to_stream(m_surface, bin);
