@@ -179,7 +179,7 @@ su::DMatrix silly_gdal_raster::ROI(const silly_rect& rect)
 double silly_gdal_raster::H(const silly_point& p)
 {
     double ret = NAN;
-
+#ifdef ENABLE_GDAL
     if (!m_rect.contain(p))
     {
         return ret;
@@ -225,5 +225,6 @@ double silly_gdal_raster::H(const silly_point& p)
     {
         ret = static_cast<double>(*reinterpret_cast<uint32_t*>(buffer.data()));
     }
+#endif
     return ret;
 }
