@@ -490,7 +490,7 @@ bool utils::check_shp_info(const std::filesystem::path& file, eGeometryType& geo
 #endif
     return status;
 }
-
+#if SU_THIRD_SUPPORT_GDAL
 /// <summary>
 /// 读取一个矢量数据的属性
 /// </summary>
@@ -500,7 +500,7 @@ bool utils::check_shp_info(const std::filesystem::path& file, eGeometryType& geo
 /// <returns></returns>
 bool read_property(const OGRFeature* feature, const std::map<std::string, eGeoFieldType>& properties, std::map<std::string, silly_geo_prop>& props)
 {
-#if SU_THIRD_SUPPORT_GDAL
+
     for (const auto& [key, p_type] : properties)
     {
         std::string utf8_key = key;
@@ -561,14 +561,13 @@ bool read_property(const OGRFeature* feature, const std::map<std::string, eGeoFi
                 break;
         }
     }
-#endif
+
     return true;
 }
 
 bool read_all_types_data(const eGeometryType& feature_type, const OGRGeometry* geometry, silly_geo_coll& geo_coll)
 {
     bool status = false;
-#if SU_THIRD_SUPPORT_GDAL
     switch (feature_type)
     {
         case eGeometryType::Point:  // 单点
@@ -619,10 +618,9 @@ bool read_all_types_data(const eGeometryType& feature_type, const OGRGeometry* g
         }
         break;
     }
-#endif
     return status;
 }
-
+#endif
 std::vector<silly_geo_coll> utils::read(const std::filesystem::path& file, const bool& ignore_prop)
 {
     std::vector<silly_geo_coll> ret;
@@ -785,10 +783,11 @@ OGRFieldType convertToOGRFieldType(const eGeoFieldType& type)
 }
 
 #endif
+#if SU_THIRD_SUPPORT_GDAL
 // 添加属性到shp中
 bool writePropertiesToGeometry(OGRFeature* feature, const std::map<std::string, silly_geo_prop>& m_props)
 {
-#if SU_THIRD_SUPPORT_GDAL
+
     bool status = true;
     for (const auto& [key, prop] : m_props)
     {
@@ -822,14 +821,11 @@ bool writePropertiesToGeometry(OGRFeature* feature, const std::map<std::string, 
         }
     }
     return status;
-#endif
-    return false;
 }
-
 // 处理复合数据类型的变量
 bool process_composite_data(const eGeometryType coll_type, OGRGeometry* geometry, OGRGeometryCollection* geomCollection, const silly_geo_coll& geo_coll)
 {
-#if SU_THIRD_SUPPORT_GDAL
+
     bool status = true;
     switch (coll_type)
     {
@@ -875,15 +871,12 @@ bool process_composite_data(const eGeometryType coll_type, OGRGeometry* geometry
     }
 
     return status;
-#endif
-    return false;
 }
 
 // 写入所有类型的数据
 static bool wire_all_types_data(const eGeometryType coll_type, OGRLayer* outputLayer, OGRFeature* feature, OGRGeometry* geometry, const silly_geo_coll& geo_coll)
 {
     bool status = true;
-#if SU_THIRD_SUPPORT_GDAL
     switch (coll_type)
     {
         case eGeometryType::Point:
@@ -931,10 +924,8 @@ static bool wire_all_types_data(const eGeometryType coll_type, OGRLayer* outputL
         status = false;
     }
     return status;
-#endif
-    return false;
 }
-
+#endif
 bool utils::write(const std::filesystem::path& file, const std::vector<silly_geo_coll>& collections, const proj::CRS::type& prj)
 {
     bool status = false;
