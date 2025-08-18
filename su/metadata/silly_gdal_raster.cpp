@@ -11,7 +11,7 @@
 #include "silly_gdal_raster.h"
 bool silly_gdal_raster::open(const std::filesystem::path& file)
 {
-
+#if SU_THIRD_SUPPORT_GDAL
     //CPLSetConfigOption("GDAL_CACHEMAX", "512");  // 设置 GDAL 缓存为 512MB
     m_pPoDataset = (GDALDataset*)GDALOpen(file.string().c_str(), GA_ReadOnly);
     if (!m_pPoDataset)
@@ -73,13 +73,14 @@ bool silly_gdal_raster::open(const std::filesystem::path& file)
     m_rect.max.x = std::max(m_x0, x1);
     m_rect.max.y = std::max(m_y0, y1);
     return true;
+    #endif
+    return false;
 
 
 }
 void silly_gdal_raster::close()
 {
-    SLOG_DEBUG("释放关闭")
-
+#if SU_THIRD_SUPPORT_GDAL
     if (m_pPoBand0)
     {
         m_pPoBand0 = nullptr;
@@ -90,11 +91,12 @@ void silly_gdal_raster::close()
         m_pPoDataset = nullptr;
     }
 
-
+    #endif
 }
 su::DMatrix silly_gdal_raster::ROI(const silly_rect& rect) const
 {
     su::DMatrix ret;
+#if SU_THIRD_SUPPORT_GDAL
     if (!m_pPoBand0 && m_Bands <= 0)
     {
         return ret;
@@ -170,7 +172,7 @@ su::DMatrix silly_gdal_raster::ROI(const silly_rect& rect) const
         }
     }
     CPLFree(pData);
-
+    #endif
     return ret;
 }
 
