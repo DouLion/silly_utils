@@ -97,6 +97,24 @@ std::filesystem::path utils::realpath(const std::filesystem::path &fp)
 #endif
     return fp.lexically_normal();
 }
+std::filesystem::path utils::realpath(const std::string &ftpstr)
+{
+#ifdef IS_WIN32
+   
+    if (_is_utf8(ftpstr))
+    {
+        try
+        {
+            std::wstring widePath = MultiByteToWideCharSafe(ftpstr);
+            return std::filesystem::path(widePath).lexically_normal();
+        }
+        catch (...)
+        {
+        }
+    }
+#endif
+    return std::filesystem::path(ftpstr);
+}
 
 size_t utils::read(const std::filesystem::path &fp, std::string &content, const size_t &offset, const size_t &len)
 {

@@ -65,6 +65,7 @@ class utils
 {
   public:
     static std::filesystem::path realpath(const std::filesystem::path &fp);
+    static std::filesystem::path realpath(const std::string &ftpstr);
 
     /// <summary>
     /// 读取文件内容
