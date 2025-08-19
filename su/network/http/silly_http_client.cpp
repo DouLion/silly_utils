@@ -223,12 +223,6 @@ bool client::request(const std::string& url, std::string& resp)
         // Get response code.
         int respCode = 0;
         SILLY_CURL_ERR_BREAK(curl_easy_getinfo(hnd, CURLINFO_RESPONSE_CODE, &respCode))
-        /* memcpy(&m_err[0], err_buffer, CURL_ERROR_SIZE);
-         m_err = std::to_string(respCode).append(" .").append(m_err);*/
-        /*if (respCode != eHttpStatus::OK_200)
-        {
-            break;
-        }*/
         curl_off_t microseconds;
 
         // check for total download time
@@ -237,8 +231,8 @@ bool client::request(const std::string& url, std::string& resp)
 
         SILLY_CURL_ERR_BREAK(curl_easy_getinfo(hnd, CURLINFO_CONTENT_LENGTH_DOWNLOAD, &m_resp_content_len))
         resp = chunk.memory;
-
-        status = true;
+        m_code = static_cast<eHttpStatus>(respCode);
+        status = (eHttpStatus::OK_200 == m_code);
         break;
     } while (0);
     curl_easy_cleanup(hnd);
