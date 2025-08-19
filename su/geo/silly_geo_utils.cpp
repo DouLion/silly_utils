@@ -1113,11 +1113,11 @@ std::optional<silly_pointZ> utils::intersection(const silly_segmentZ& s1, const 
 {
     double x1 = s1.p0.x;
     double y1 = s1.p0.y;
-    double z1 = s1.p0.x;
+    double z1 = s1.p0.z;
 
     double x2 = s1.p1.x;
     double y2 = s1.p1.y;
-    double z2 = s1.p1.x;
+    double z2 = s1.p1.z;
 
     double x3 = s2.p0.x;
     double y3 = s2.p0.y;
