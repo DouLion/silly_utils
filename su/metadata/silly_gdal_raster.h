@@ -21,20 +21,22 @@ class silly_gdal_raster
     silly_gdal_raster() = default;
     ~silly_gdal_raster()
     {
-        close();
+        Close();
     }
+    bool Open(const std::filesystem::path& file);
+    void Close();
 
-    // 禁止拷贝
-    silly_gdal_raster(const silly_gdal_raster&) = delete;
-    silly_gdal_raster& operator=(const silly_gdal_raster&) = delete;
-    bool open(const std::filesystem::path& file);
-    void close();
+    silly_rect Bound() const;
+    double XDelta() const;
+    double YDelta() const;
+    int Width() const;
+    int Height() const;
 
     su::DMatrix ROI(const silly_rect& rect) const;
 
     double Pick(const silly_point& p) const;
 
-  private:
+  protected:
 #if SU_THIRD_SUPPORT_GDAL
     GDALDataset* m_pPoDataset = nullptr;
     GDALRasterBand* m_pPoBand0 = nullptr;

@@ -9,10 +9,10 @@
  * @version: v1.0.1 2025-08-14 dou li yang
  */
 #include "silly_gdal_raster.h"
-bool silly_gdal_raster::open(const std::filesystem::path& file)
+bool silly_gdal_raster::Open(const std::filesystem::path& file)
 {
 #if SU_THIRD_SUPPORT_GDAL
-    //CPLSetConfigOption("GDAL_CACHEMAX", "512");  // 设置 GDAL 缓存为 512MB
+    // CPLSetConfigOption("GDAL_CACHEMAX", "512");  // 设置 GDAL 缓存为 512MB
     m_pPoDataset = (GDALDataset*)GDALOpen(file.string().c_str(), GA_ReadOnly);
     if (!m_pPoDataset)
     {
@@ -25,7 +25,7 @@ bool silly_gdal_raster::open(const std::filesystem::path& file)
     if (m_Bands == 0)
     {
         std::cerr << "没有波段数据!" << std::endl;
-        close();
+        Close();
         return false;
     }
 
@@ -33,7 +33,7 @@ bool silly_gdal_raster::open(const std::filesystem::path& file)
     if (!m_pPoBand0)
     {
         std::cerr << "没有波段数据!" << std::endl;
-        close();
+        Close();
         return false;
     }
 
@@ -41,7 +41,7 @@ bool silly_gdal_raster::open(const std::filesystem::path& file)
     if (!(m_DataType == GDT_Float32 || m_DataType == GDT_Float64))
     {
         std::cerr << "波段数据类型不是 Float32 或 Float64!" << std::endl;
-        close();
+        Close();
         return false;
     }
 
@@ -49,7 +49,7 @@ bool silly_gdal_raster::open(const std::filesystem::path& file)
     if (m_pPoDataset->GetGeoTransform(m_adfGeoTransform) != CE_None)
     {
         std::cerr << "无法获取地理变换参数!" << std::endl;
-        close();
+        Close();
         return false;
     }
 
@@ -73,12 +73,10 @@ bool silly_gdal_raster::open(const std::filesystem::path& file)
     m_rect.max.x = std::max(m_x0, x1);
     m_rect.max.y = std::max(m_y0, y1);
     return true;
-    #endif
+#endif
     return false;
-
-
 }
-void silly_gdal_raster::close()
+void silly_gdal_raster::Close()
 {
 #if SU_THIRD_SUPPORT_GDAL
     if (m_pPoBand0)
@@ -91,7 +89,7 @@ void silly_gdal_raster::close()
         m_pPoDataset = nullptr;
     }
 
-    #endif
+#endif
 }
 su::DMatrix silly_gdal_raster::ROI(const silly_rect& rect) const
 {
@@ -154,7 +152,7 @@ su::DMatrix silly_gdal_raster::ROI(const silly_rect& rect) const
                 int rR = r + yOff;
                 int rC = c + xOff;
                 ret[rR][rC] = p[r * readW + c];
-                //ret[r][c] = p[rR * readW + rC];
+                // ret[r][c] = p[rR * readW + rC];
             }
         }
     }
@@ -173,7 +171,7 @@ su::DMatrix silly_gdal_raster::ROI(const silly_rect& rect) const
         }
     }
     CPLFree(pData);
-    #endif
+#endif
     return ret;
 }
 
@@ -226,4 +224,25 @@ double silly_gdal_raster::Pick(const silly_point& p) const
     }
 #endif
     return ret;
+}
+
+silly_rect silly_gdal_raster::Bound() const
+{
+    return m_rect;
+}
+double silly_gdal_raster::XDelta() const
+{
+    return m_xdelta;
+}
+double silly_gdal_raster::YDelta() const
+{
+    return m_ydelta;
+}
+int silly_gdal_raster::Width() const
+{
+    return m_width;
+}
+int silly_gdal_raster::Height() const
+{
+    return m_height;
 }
