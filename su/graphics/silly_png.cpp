@@ -17,34 +17,34 @@
 #endif
 
 /// 自定义的颜色类型与png的类型转换
-static silly::color::type png2sillyctype(const int &type)
+static eColorType png2sillyctype(const int &type)
 {
     switch (type)
     {
         case PNG_COLOR_TYPE_GRAY:
-            return silly::color::type::eptGRAY;
+            return eColorType::GRAY;
         case PNG_COLOR_TYPE_RGB:
-            return silly::color::type::eptRGB;
+            return eColorType::RGB;
         case PNG_COLOR_TYPE_GRAY_ALPHA:
-            return silly::color::type::eptGRAYA;
+            return eColorType::GRAYA;
         case PNG_COLOR_TYPE_RGB_ALPHA:
-            return silly::color::type::eptRGBA;
+            return eColorType::RGBA;
         default:
             throw std::runtime_error("不支持的类型");
     }
 }
 
-static int silly2pngctype(const silly::color::type &type)
+static int silly2pngctype(const eColorType &type)
 {
     switch (type)
     {
-        case silly::color::type::eptGRAY:
+        case eColorType::GRAY:
             return PNG_COLOR_TYPE_GRAY;
-        case silly::color::type::eptRGB:
+        case eColorType::RGB:
             return PNG_COLOR_TYPE_RGB;
-        case silly::color::type::eptGRAYA:
+        case eColorType::GRAYA:
             return PNG_COLOR_TYPE_GRAY_ALPHA;
-        case silly::color::type::eptRGBA:
+        case eColorType::RGBA:
             return PNG_COLOR_TYPE_RGB_ALPHA;
         default:
             throw std::runtime_error("不支持的类型");
@@ -104,19 +104,19 @@ void supng::pixel(const size_t &r, const size_t &c, const silly::color &sp)
     size_t pos = r * m_width * m_pixel_size + c * m_pixel_size;
     switch (m_type)
     {
-        case silly::color::type::eptGRAY:
+        case eColorType::GRAY:
             m_bytes[pos] = sp.gray;
             break;
-        case silly::color::type::eptRGB:
+        case eColorType::RGB:
             m_bytes[pos] = sp.red;
             m_bytes[pos + 1] = sp.green;
             m_bytes[pos + 2] = sp.blue;
             break;
-        case silly::color::type::eptGRAYA:
+        case eColorType::GRAYA:
             m_bytes[pos] = sp.gray;
             m_bytes[pos + 1] = sp.alpha;
             break;
-        case silly::color::type::eptRGBA:
+        case eColorType::RGBA:
             m_bytes[pos] = sp.red;
             m_bytes[pos + 1] = sp.green;
             m_bytes[pos + 2] = sp.blue;
@@ -139,19 +139,19 @@ silly::color supng::pixel(const size_t &r, const size_t &c) const
     size_t pos = r * m_width * m_pixel_size + c * m_pixel_size;
     switch (m_type)
     {
-        case silly::color::type::eptGRAY:
+        case eColorType::GRAY:
             sp.gray = m_bytes[pos];
             break;
-        case silly::color::type::eptRGB:
+        case eColorType::RGB:
             sp.red = m_bytes[pos];
             sp.green = m_bytes[pos + 1];
             sp.blue = m_bytes[pos + 2];
             break;
-        case silly::color::type::eptGRAYA:
+        case eColorType::GRAYA:
             sp.gray = m_bytes[pos];
             sp.alpha = m_bytes[pos + 1];
             break;
-        case silly::color::type::eptRGBA:
+        case eColorType::RGBA:
             sp.red = m_bytes[pos];
             sp.green = m_bytes[pos + 1];
             sp.blue = m_bytes[pos + 2];
@@ -163,9 +163,9 @@ silly::color supng::pixel(const size_t &r, const size_t &c) const
 
     return sp;
 }
-bool supng::create(const size_t &width, const size_t &height, const silly::color::type &type, const uint8_t &depth)
+bool supng::create(const size_t &width, const size_t &height, const eColorType &type, const uint8_t &depth)
 {
-    m_type = static_cast<silly::color::type>(type);
+    m_type = static_cast<eColorType>(type);
     m_channels = silly::color::channels(m_type);
     if (!m_channels)
     {

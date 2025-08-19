@@ -154,6 +154,7 @@ su::DMatrix silly_gdal_raster::ROI(const silly_rect& rect) const
                 int rR = r + yOff;
                 int rC = c + xOff;
                 ret[rR][rC] = p[r * readW + c];
+                //ret[r][c] = p[rR * readW + rC];
             }
         }
     }
@@ -167,7 +168,7 @@ su::DMatrix silly_gdal_raster::ROI(const silly_rect& rect) const
             {
                 int rR = r + yOff;
                 int rC = c + xOff;
-                ret[rR][rC] = p[r * readW + c];
+                ret[rR][roiW - rC - 1] = p[r * readW + c];
             }
         }
     }

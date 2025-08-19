@@ -71,11 +71,11 @@ bool silly_ascii_grid::read_asc(const std::filesystem::path& file)
         linestream >> key;
         if (NCOLS == to_lower(key))
         {
-            linestream >> ncols;
+            linestream >> m_width;
         }
         else if (NROWS == to_lower(key))
         {
-            linestream >> nrows;
+            linestream >> m_height;
         }
         else if (XLLCORNER == to_lower(key))
         {
@@ -103,15 +103,15 @@ bool silly_ascii_grid::read_asc(const std::filesystem::path& file)
             break;  // header section ends after NODATA_value
     }
 
-    m_data.create(nrows , ncols, true);
+    m_data.create(m_height , m_width, true);
 
     double value;
-    for (int r = 0; r < nrows && linestream.good(); ++r)
+    for (int r = 0; r < m_height && linestream.good(); ++r)
     {
-        for (int c = 0; c < ncols && linestream.good(); ++c)
+        for (int c = 0; c < m_width && linestream.good(); ++c)
         {
             linestream >> value;
-            m_data.data()[r * ncols + c] = value;
+            m_data.data()[r * m_width + c] = value;
         }
     }
     std::string prj_path = std::filesystem::path(m_root).append(m_name + PRJ).string();
@@ -141,8 +141,8 @@ std::string silly_ascii_grid::stringify_ll(const int& precision)
     {
         std::stringstream ss;
         ss << std::fixed << std::setprecision(15);
-        ss << NCOLS << " " << ncols << "\n";
-        ss << NROWS << " " << nrows << "\n";
+        ss << NCOLS << " " << m_width << "\n";
+        ss << NROWS << " " << m_height << "\n";
         ss << XLLCORNER << " " << m_rect.min.x << "\n";
         ss << YLLCORNER << " " << m_rect.min.y << "\n";
         ss << CELLSIZE << " " << cellsize << "\n";
@@ -151,13 +151,13 @@ std::string silly_ascii_grid::stringify_ll(const int& precision)
         ret.append(ss.str());
     }
     {
-        for (int r = 0; r < nrows; ++r)
+        for (int r = 0; r < m_height; ++r)
         {
             std::stringstream ss2;
             ss2 << std::fixed << std::setprecision(precision);
-            for (int c = 0; c < ncols; ++c)
+            for (int c = 0; c < m_width; ++c)
             {
-                ss2 << m_data[r * ncols + c] << " ";
+                ss2 << m_data[r * m_width + c] << " ";
             }
             ss2 << "\n";
             ret.append(ss2.str());
@@ -176,17 +176,17 @@ bool silly_ascii_grid::read_bin(const std::filesystem::path& file)
         return status;
     }
     double* p = reinterpret_cast<double*>(content.data());
-    nrows = static_cast<size_t>(*p);
+    m_height = static_cast<size_t>(*p);
     p++;
-    ncols = static_cast<size_t>(*p);
+    m_width = static_cast<size_t>(*p);
     p++;
-    if ((nrows * ncols + 2) * sizeof(double) != content.size())
+    if ((m_height * m_width + 2) * sizeof(double) != content.size())
     {
         std::cerr << "bin文件数据和宽高不匹配" << std::endl;
         return false;
     }
-    m_data.create(nrows , ncols, true);
-    std::memcpy(m_data.data(), p, nrows * ncols * sizeof(double));
+    m_data.create(m_height , m_width, true);
+    std::memcpy(m_data.data(), p, m_height * m_width * sizeof(double));
 
     return true;
 }
@@ -203,8 +203,8 @@ bool silly_ascii_grid::write_asc(const std::filesystem::path& file)
     {
         std::stringstream ss;
         ss << std::fixed << std::setprecision(15);
-        ss << NCOLS << " " << ncols << "\n";
-        ss << NROWS << " " << nrows << "\n";
+        ss << NCOLS << " " << m_width << "\n";
+        ss << NROWS << " " << m_height << "\n";
         ss << XLLCORNER << " " << m_rect.min.x << "\n";
         ss << YLLCORNER << " " << m_rect.min.y << "\n";
         ss << CELLSIZE << " " << cellsize << "\n";
@@ -212,18 +212,26 @@ bool silly_ascii_grid::write_asc(const std::filesystem::path& file)
         ss << NODATA_VALUE << " " << m_fill << "\n";
         ofs.write(ss.str().c_str(), ss.str().size());
     }
-
-    for (int r = 0; r < nrows; ++r)
+    
+    for (int r = 0; r < m_height; ++r)
     {
         std::stringstream ss2;
+       
         ss2 << std::fixed << std::setprecision(3);
-        for (int c = 0; c < ncols; ++c)
+        for (int c = 0; c < m_width; ++c)
         {
-            ss2 << m_data[r * ncols + c] << " ";
+            ss2 << m_data.data()[r * m_width + c] << " ";
         }
         ss2 << "\n";
         ofs.write(ss2.str().c_str(), ss2.str().size());
+       /* if (ss2.str().size() > 100 * SU_MB)
+        {
+           
+            ss2.clear();
+        }*/
+       
     }
+    //ofs.write(ss2.str().c_str(), ss2.str().size());
     ofs.close();
 
     std::string prj_path = std::filesystem::path(_root).append(_name + PRJ).string();
@@ -240,13 +248,13 @@ bool silly_ascii_grid::write_bin(const std::filesystem::path& file)
     }
     std::string header;
     header.resize(2 * sizeof(double));
-    std::memcpy(header.data(), &nrows, sizeof(double));
-    std::memcpy(header.data() + sizeof(double), &ncols, sizeof(double));
+    std::memcpy(header.data(), &m_height, sizeof(double));
+    std::memcpy(header.data() + sizeof(double), &m_width, sizeof(double));
     ofs.write(header.c_str(), header.size());
-    for (int r = 0; r < nrows; ++r)
+    for (int r = 0; r < m_height; ++r)
     {
-        std::string content = std::string(ncols * sizeof(double), 0);
-        std::memcpy(content.data(), m_data.data() + r * ncols, ncols * sizeof(double));
+        std::string content = std::string(m_width * sizeof(double), 0);
+        std::memcpy(content.data(), m_data.data() + r * m_width, m_width * sizeof(double));
         ofs.write(content.c_str(), content.size());
     }
     ofs.close();
@@ -275,7 +283,7 @@ bool silly_ascii_grid::write_prj(const std::filesystem::path& file)
     ss << "Yshift        0.0\n";
     ss << "Parameters    6378137.0  6356752.314140356\n";
     ss << "1.0 /* scale factor at central meridian\n";
-    ss << static_cast<int>(l0) << "  0  0.0 /* longitude of central meridian\n";
+    ss << static_cast<int>(m_l0) << "  0  0.0 /* longitude of central meridian\n";
     ss << "0  0  0.0 /* latitude of origin\n";
     ss << "500000.0 /* false easting (meters)\n";
     ss << "0.0 /* false northing (meters)\n";
@@ -295,7 +303,7 @@ bool silly_ascii_grid::read_prj(const std::filesystem::path& file)
         if (lines.size() >= 11)
         {
             std::stringstream ss(lines[7]);
-            ss >> l0;
+            ss >> m_l0;
             return true;
         }
     }

@@ -374,13 +374,13 @@ bool silly_cairo::create(const size_t ww, const size_t &hh, const int &type)
     m_format = CAIRO_FORMAT_ARGB32;
     switch (type)
     {
-        case silly::color::type::eptRGBA:
+        case eColorType::RGBA:
             m_format = CAIRO_FORMAT_ARGB32;
             break;
-        case silly::color::type::eptRGB:
+        case eColorType::RGB:
             m_format = CAIRO_FORMAT_RGB24;
             break;
-        case silly::color::type::eptGRAY:
+        case eColorType::GRAY:
             m_format = CAIRO_FORMAT_A8;
             break;
         default:

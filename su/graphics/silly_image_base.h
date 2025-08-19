@@ -27,7 +27,7 @@ class base
     /// <param name="height"></param>
     /// <param name="type"></param>
     /// <returns></returns>
-    virtual bool create(const size_t& width, const size_t& height, const silly::color::type& type, const uint8_t& depth = 8) = 0;
+    virtual bool create(const size_t& width, const size_t& height, const eColorType& type, const uint8_t& depth = 8) = 0;
 
     /// <summary>
     /// 从文件读取图像
@@ -109,7 +109,7 @@ class base
     {
         return m_depth;
     }
-    silly::color::type type() const
+    eColorType type() const
     {
         return m_type;
     }
@@ -136,7 +136,7 @@ class base
     uint8_t m_depth{0};            // 位深度
     int m_compress_level = 6;      // 压缩等级,[1,9], 1最快,压缩率最低, 9最慢,压缩率最高,以libpng为准,其他库根据这个自信调整
     uint8_t m_pixel_size{0};
-    silly::color::type m_type{2};  // 颜色类型
+    eColorType m_type{2};  // 颜色类型
     std::vector<uint8_t> HEADER;   // 固定头部,由于判断类型
     std::string m_err;
     // unsigned char** m_nbytes = nullptr;

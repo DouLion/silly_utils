@@ -12,6 +12,13 @@
 
 #include <su_marco.h>
 #define COLOR_MAX_D 255.0
+enum eColorType : uint8_t
+{
+    RGB = 1,   // PNG_COLOR_TYPE_RGB,
+    RGBA = 2,  // PNG_COLOR_TYPE_RGB_ALPHA,
+    GRAY = 3,  // PNG_COLOR_TYPE_GRAY,
+    GRAYA = 4  // PNG_COLOR_TYPE_GRAY_ALPHA
+};
 namespace silly
 {
 class color
@@ -37,16 +44,10 @@ class color
     }
 
   public:
-    enum type : uint8_t
-    {
-        eptRGB = 1,   // PNG_COLOR_TYPE_RGB,
-        eptRGBA = 2,  // PNG_COLOR_TYPE_RGB_ALPHA,
-        eptGRAY = 3,  // PNG_COLOR_TYPE_GRAY,
-        eptGRAYA = 4  // PNG_COLOR_TYPE_GRAY_ALPHA
-    };
+    
 
   public:
-    static int channels(const type& t);
+    static int channels(const eColorType& t);
 
     /// <summary>
     /// 从16进制字符串加载颜色  如 ABE0457B

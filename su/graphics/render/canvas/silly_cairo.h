@@ -52,7 +52,7 @@ class silly_cairo
     /// <param name="hh"></param>
     /// <param name="type"></param>
     /// <returns></returns>
-    bool create(const size_t ww, const size_t& hh, const int& type = silly::color::type::eptRGBA);
+    bool create(const size_t ww, const size_t& hh, const int& type = eColorType::RGBA);
 
     /// <summary>
     /// 使用颜色清空画布

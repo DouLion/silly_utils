@@ -220,7 +220,7 @@ void x_scan_line::image(const std::filesystem::path& file)
 {
 #ifndef NDEBUG
     supng pd;
-    pd.create(m_width, m_height, silly::color::type::eptGRAYA);
+    pd.create(m_width, m_height, eColorType::GRAYA);
     for (int r = 0; r < m_height; ++r)
     {
         int old = 0;

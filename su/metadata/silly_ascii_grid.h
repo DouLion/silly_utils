@@ -35,9 +35,6 @@ class silly_ascii_grid : public sudem
     bool write_prj(const std::filesystem::path& file);
 
   public:
-    double l0 = -9999.0;  // 高斯基带中心线经度
-    size_t ncols = 0;
-    size_t nrows = 0;
     double cellsize = 0;
 
   private:

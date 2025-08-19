@@ -39,16 +39,16 @@ void sudem::gauss2lonlat(const sudem& rh, const double& cellsize, const double& 
     CVT_CHECK_G2LL_BOUND(l0, rh.m_rect.min.x, rh.m_rect.min.y, lon, lat, m_rect)
     CVT_CHECK_G2LL_BOUND(l0, rh.m_rect.max.x, rh.m_rect.max.y, lon, lat, m_rect)
     CVT_CHECK_G2LL_BOUND(l0, rh.m_rect.max.x, rh.m_rect.min.y, lon, lat, m_rect)
-    int64_t height = std::round((m_rect.max.y - m_rect.min.y) / cellsize);
-    int64_t width = std::round(((m_rect.max.x - m_rect.min.x) / cellsize));
+    m_height = std::round((m_rect.max.y - m_rect.min.y) / cellsize);
+    m_width = std::round(((m_rect.max.x - m_rect.min.x) / cellsize));
     m_dx = cellsize;
     m_dy = cellsize;
-    m_data.create(height, width, true);
+    m_data.create(m_height, m_width, true);
     m_data.set(rh.m_fill);
     double* dp = m_data.data();
-    for (int64_t r = 0; r < height; r++)
+    for (int64_t r = 0; r < m_height; r++)
     {
-        for (int64_t c = 0; c < width; c++)
+        for (int64_t c = 0; c < m_width; c++)
         {
             double gx, gy;
             lon = m_rect.min.x + c * m_dx;
@@ -85,23 +85,24 @@ void sudem::lonlat2gauss(const sudem& rh, const double& cellsize, const double& 
     CVT_CHECK_LL2G_BOUND(l0, rh.m_rect.min.x, rh.m_rect.min.y, gx, gy, m_rect)
     CVT_CHECK_LL2G_BOUND(l0, rh.m_rect.max.x, rh.m_rect.max.y, gx, gy, m_rect)
     CVT_CHECK_LL2G_BOUND(l0, rh.m_rect.max.x, rh.m_rect.min.y, gx, gy, m_rect)
-    int64_t height = std::round((m_rect.max.y - m_rect.min.y) / cellsize);
-    int64_t width = std::round(((m_rect.max.x - m_rect.min.x) / cellsize));
+    m_height = std::round((m_rect.max.y - m_rect.min.y) / cellsize);
+    m_width = std::round(((m_rect.max.x - m_rect.min.x) / cellsize));
     m_dx = cellsize;
     m_dy = cellsize;
-    m_data.create(height, width, true);
+    m_l0 = l0;
+    m_data.create(m_height, m_width, true);
     m_data.set(rh.m_fill);
     double* dp = m_data.data();
-    for (int64_t r = 0; r < height; r++)
+    for (int64_t r = 0; r < m_height; r++)
     {
-        for (int64_t c = 0; c < width; c++)
+        for (int64_t c = 0; c < m_width; c++)
         {
             double lon, lat;
             gx = m_rect.min.x + c * m_dx;
             gy = m_rect.max.y - r * m_dy;
-            SUPROJCVT::gauss_to_lonlat(l0, gx, gy, lon, lat);
-            int64_t llR = std::round((gx - rh.m_rect.min.x) / rh.m_dx);
-            int64_t llC = std::round((gy - rh.m_rect.min.y) / rh.m_dy);
+            SUPROJCVT::gauss_to_lonlat(m_l0, gx, gy, lon, lat);
+            int64_t llC = std::round((lon - rh.m_rect.min.x) / rh.m_dx);
+            int64_t llR = std::round((rh.m_rect.max.y -lat) / rh.m_dy);
             if (llR >= 0 && llR < rh.m_data.row() && llC >= 0 && llC < rh.m_data.col())
             {
                 const int64_t llI = llR * rh.m_data.col() + llC;
@@ -111,6 +112,7 @@ void sudem::lonlat2gauss(const sudem& rh, const double& cellsize, const double& 
         }
     }
 }
+
 void sudem::cover(const sudem& rh)
 {
     

@@ -31,30 +31,30 @@ void my_error_exit(j_common_ptr cinfo)
     longjmp(myerr->setjmp_buffer, 1);
 }
 
-static silly::color::type jpeg2sillyctype(const J_COLOR_SPACE& type)
+static eColorType jpeg2sillyctype(const J_COLOR_SPACE& type)
 {
     switch (type)
     {
         case J_COLOR_SPACE::JCS_GRAYSCALE:
-            return silly::color::type::eptGRAY;
+            return eColorType::eptGRAY;
         case J_COLOR_SPACE::JCS_RGB:
-            return silly::color::type::eptRGB;
+            return eColorType::eptRGB;
         case J_COLOR_SPACE::JCS_EXT_RGBA:
-            return silly::color::type::eptRGBA;
+            return eColorType::eptRGBA;
         default:
             throw std::runtime_error("不支持的类型");
     }
 }
 
-static J_COLOR_SPACE silly2jpegctype(const silly::color::type& type)
+static J_COLOR_SPACE silly2jpegctype(const eColorType& type)
 {
     switch (type)
     {
-        case silly::color::type::eptGRAY:
+        case eColorType::eptGRAY:
             return J_COLOR_SPACE::JCS_GRAYSCALE;
-        case silly::color::type::eptRGB:
+        case eColorType::eptRGB:
             return J_COLOR_SPACE::JCS_RGB;
-        case silly::color::type::eptRGBA:
+        case eColorType::eptRGBA:
             return J_COLOR_SPACE::JCS_EXT_RGBA;
         default:
             throw std::runtime_error("不支持的类型");
@@ -122,21 +122,21 @@ sujpeg& sujpeg::operator=(const sujpeg& rh)
 
     return *this;
 }
-bool sujpeg::create(const size_t& width, const size_t& height, const silly::color::type& type, const uint8_t& depth)
+bool sujpeg::create(const size_t& width, const size_t& height, const eColorType& type, const uint8_t& depth)
 {
     m_type = type;
     switch (m_type)
     {
-        case silly::color::type::eptGRAY:
+        case eColorType::GRAY:
             m_channels = 1;
             break;
-        case silly::color::type::eptRGB:
+        case eColorType::RGB:
             m_channels = 3;
             break;
-        case silly::color::type::eptGRAYA:
+        case eColorType::GRAYA:
             m_channels = 2;
             break;
-        case silly::color::type::eptRGBA:
+        case eColorType::RGBA:
             m_channels = 4;
             break;
         default:

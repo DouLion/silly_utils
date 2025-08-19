@@ -12,17 +12,17 @@
 #define MAX_ENCODE_V 12799.9999
 #define MIN_ENCODE_V (-12799.9999)
 
-int silly::color::channels(const silly::color::type& t)
+int silly::color::channels(const eColorType& t)
 {
     switch (t)
     {
-        case eptRGB:
+        case RGB:
             return 3;
-        case eptRGBA:
+        case RGBA:
             return 4;
-        case eptGRAY:
+        case GRAY:
             return 1;
-        case eptGRAYA:
+        case GRAYA:
             return 2;
         default:
             return 0;

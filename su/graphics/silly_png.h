@@ -34,7 +34,7 @@ class supng : public silly::image::base
     /// <param name="type"></param>
     /// <param name="depth"></param>
     /// <returns></returns>
-    bool create(const size_t &width, const size_t &height, const silly::color::type &type, const uint8_t &depth = 8) override;
+    bool create(const size_t &width, const size_t &height, const eColorType &type, const uint8_t &depth = 8) override;
 
     /// <summary>
     /// 从文件读取图像
