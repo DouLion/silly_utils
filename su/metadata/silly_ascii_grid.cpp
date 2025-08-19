@@ -13,6 +13,11 @@
 
 #include "silly_ascii_grid.h"
 
+#ifndef NDEBUG
+#include <log/silly_log.h>
+#include <datetime/silly_timer.h>
+#endif
+
 static const std::string ASC = ".asc";
 static const std::string BIN = ".bin";
 static const std::string PRJ = ".prj";
@@ -139,29 +144,30 @@ std::string silly_ascii_grid::stringify_ll(const int& precision)
 {
     std::string ret;
     {
-        std::stringstream ss;
-        ss << std::fixed << std::setprecision(15);
-        ss << NCOLS << " " << m_width << "\n";
-        ss << NROWS << " " << m_height << "\n";
-        ss << XLLCORNER << " " << m_rect.min.x << "\n";
-        ss << YLLCORNER << " " << m_rect.min.y << "\n";
-        ss << CELLSIZE << " " << cellsize << "\n";
-        ss << std::fixed << std::setprecision(precision);
-        ss << NODATA_VALUE << " " << m_fill << "\n";
-        ret.append(ss.str());
+        std::stringstream ssH;
+        ssH << std::fixed << std::setprecision(15);
+        ssH << NCOLS << " " << m_width << "\n";
+        ssH << NROWS << " " << m_height << "\n";
+        ssH << XLLCORNER << " " << m_rect.min.x << "\n";
+        ssH << YLLCORNER << " " << m_rect.min.y << "\n";
+        ssH << CELLSIZE << " " << cellsize << "\n";
+        ssH << std::fixed << std::setprecision(precision);
+        ssH << NODATA_VALUE << " " << m_fill << "\n";
+        ret.append(ssH.str());
     }
     {
+        std::stringstream ssG;
+        ssG << std::fixed << std::setprecision(precision);
         for (int r = 0; r < m_height; ++r)
         {
-            std::stringstream ss2;
-            ss2 << std::fixed << std::setprecision(precision);
+           
             for (int c = 0; c < m_width; ++c)
             {
-                ss2 << m_data[r * m_width + c] << " ";
+                ssG << m_data[r * m_width + c] << " ";
             }
-            ss2 << "\n";
-            ret.append(ss2.str());
+            ssG << "\n";
         }
+        ret.append(ssG.str());
     }
     return ret;
 }
@@ -193,6 +199,7 @@ bool silly_ascii_grid::read_bin(const std::filesystem::path& file)
 
 bool silly_ascii_grid::write_asc(const std::filesystem::path& file)
 {
+    silly_timer timer;
     std::ofstream ofs(file);
     if (!ofs.is_open())
     {
@@ -201,41 +208,46 @@ bool silly_ascii_grid::write_asc(const std::filesystem::path& file)
     std::string _root = file.parent_path().string();
     std::string _name = file.stem().string();
     {
-        std::stringstream ss;
-        ss << std::fixed << std::setprecision(15);
-        ss << NCOLS << " " << m_width << "\n";
-        ss << NROWS << " " << m_height << "\n";
-        ss << XLLCORNER << " " << m_rect.min.x << "\n";
-        ss << YLLCORNER << " " << m_rect.min.y << "\n";
-        ss << CELLSIZE << " " << cellsize << "\n";
-        ss << std::fixed << std::setprecision(3);
-        ss << NODATA_VALUE << " " << m_fill << "\n";
-        ofs.write(ss.str().c_str(), ss.str().size());
+        std::stringstream ssHead;
+        ssHead << std::fixed << std::setprecision(15);
+        ssHead << NCOLS << " " << m_width << "\n";
+        ssHead << NROWS << " " << m_height << "\n";
+        ssHead << XLLCORNER << " " << m_rect.min.x << "\n";
+        ssHead << YLLCORNER << " " << m_rect.min.y << "\n";
+        ssHead << CELLSIZE << " " << cellsize << "\n";
+        ssHead << std::fixed << std::setprecision(3);
+        ssHead << NODATA_VALUE << " " << m_fill << "\n";
+        ofs.write(ssHead.str().c_str(), ssHead.str().size());
     }
-    
+    std::stringstream ssGrid;
+    std::string fillV = SUFMT("{:.3f}", m_fill);
+    ssGrid << std::fixed << std::setprecision(3);
+    double* p = m_data.data();
     for (int r = 0; r < m_height; ++r)
     {
-        std::stringstream ss2;
-       
-        ss2 << std::fixed << std::setprecision(3);
+        
         for (int c = 0; c < m_width; ++c)
         {
-            ss2 << m_data.data()[r * m_width + c] << " ";
+            if (*p == m_fill)
+            {
+                ssGrid << fillV << " ";
+            }
+            else
+            {
+                ssGrid << *p << " ";
+            }
+            p++;
         }
-        ss2 << "\n";
-        ofs.write(ss2.str().c_str(), ss2.str().size());
-       /* if (ss2.str().size() > 100 * SU_MB)
-        {
-           
-            ss2.clear();
-        }*/
+        ssGrid << "\n";
        
     }
-    //ofs.write(ss2.str().c_str(), ss2.str().size());
+    ofs.write(ssGrid.str().c_str(), ssGrid.str().size());
     ofs.close();
 
     std::string prj_path = std::filesystem::path(_root).append(_name + PRJ).string();
     write_prj(prj_path);
+    SLOG_DEBUG("写入{}计时 : {:.3f}S", file.u8string(), timer.elapsed_ms() / 1000.0)
+
     return true;
 }
 
