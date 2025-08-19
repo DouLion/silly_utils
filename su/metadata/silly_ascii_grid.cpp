@@ -108,7 +108,7 @@ bool silly_ascii_grid::read_asc(const std::filesystem::path& file)
             break;  // header section ends after NODATA_value
     }
 
-    m_data.create(m_height , m_width, true);
+    m_data.create(m_height, m_width, true);
 
     double value;
     for (int r = 0; r < m_height && linestream.good(); ++r)
@@ -160,7 +160,6 @@ std::string silly_ascii_grid::stringify_ll(const int& precision)
         ssG << std::fixed << std::setprecision(precision);
         for (int r = 0; r < m_height; ++r)
         {
-           
             for (int c = 0; c < m_width; ++c)
             {
                 ssG << m_data[r * m_width + c] << " ";
@@ -191,7 +190,7 @@ bool silly_ascii_grid::read_bin(const std::filesystem::path& file)
         std::cerr << "bin文件数据和宽高不匹配" << std::endl;
         return false;
     }
-    m_data.create(m_height , m_width, true);
+    m_data.create(m_height, m_width, true);
     std::memcpy(m_data.data(), p, m_height * m_width * sizeof(double));
 
     return true;
@@ -199,7 +198,9 @@ bool silly_ascii_grid::read_bin(const std::filesystem::path& file)
 
 bool silly_ascii_grid::write_asc(const std::filesystem::path& file)
 {
+#ifndef NDEBUG
     silly_timer timer;
+#endif
     std::ofstream ofs(file);
     if (!ofs.is_open())
     {
@@ -225,7 +226,6 @@ bool silly_ascii_grid::write_asc(const std::filesystem::path& file)
     double* p = m_data.data();
     for (int r = 0; r < m_height; ++r)
     {
-        
         for (int c = 0; c < m_width; ++c)
         {
             if (*p == m_fill)
@@ -239,14 +239,15 @@ bool silly_ascii_grid::write_asc(const std::filesystem::path& file)
             p++;
         }
         ssGrid << "\n";
-       
     }
     ofs.write(ssGrid.str().c_str(), ssGrid.str().size());
     ofs.close();
 
     std::string prj_path = std::filesystem::path(_root).append(_name + PRJ).string();
     write_prj(prj_path);
+#ifndef NDEBUG
     SLOG_DEBUG("写入{}计时 : {:.3f}S", file.u8string(), timer.elapsed_ms() / 1000.0)
+#endif
 
     return true;
 }
