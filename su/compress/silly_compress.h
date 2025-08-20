@@ -17,13 +17,13 @@ namespace su
 
 /// ---------------- 压缩 ----------------
 
-static eCompressErr CompressFile(const std::filesystem::path& src, const std::filesystem::path& dst, const eCompressMethod& method = eCompressMethod::GZIP);
+static eCompressErr CompressFile(const std::filesystem::path& src, const std::filesystem::path& dst, const eCompressMethod& method = eCompressMethod::ZIP);
 
-static eCompressErr CompressDir(const std::filesystem::path& src, const std::filesystem::path& dst, const eCompressMethod& method = eCompressMethod::GZIP);
+static eCompressErr CompressDir(const std::filesystem::path& src, const std::filesystem::path& dst, const eCompressMethod& method = eCompressMethod::ZIP);
 
-static eCompressErr CompressBin(const std::string& src, std::string& dst, const eCompressMethod& method = eCompressMethod::GZIP);
+static eCompressErr CompressBin(const std::string& src, std::string& dst, const eCompressMethod& method = eCompressMethod::ZIP);
 
-static std::string CompressBin(const std::string& src, const eCompressMethod& method = eCompressMethod::GZIP);
+static std::string CompressBin(const std::string& src, const eCompressMethod& method = eCompressMethod::ZIP);
 
 /// ---------------- 解压 ----------------
 
