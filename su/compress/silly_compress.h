@@ -15,29 +15,35 @@
 namespace su
 {
 
-static eCompressErr compress_file(const std::filesystem::path& src, const std::filesystem::path& dst, const eCompressMethod& method = eCompressMethod::GZIP);
+/// ---------------- 压缩 ----------------
 
-static eCompressErr compress_dir(const std::filesystem::path& src, const std::filesystem::path& dst, const eCompressMethod& method = eCompressMethod::GZIP);
+static eCompressErr CompressFile(const std::filesystem::path& src, const std::filesystem::path& dst, const eCompressMethod& method = eCompressMethod::GZIP);
 
-static eCompressErr compress_bin(const std::string& src, std::string& dst, const eCompressMethod& method = eCompressMethod::GZIP);
+static eCompressErr CompressDir(const std::filesystem::path& src, const std::filesystem::path& dst, const eCompressMethod& method = eCompressMethod::GZIP);
 
-static std::string compress_bin(const std::string& src, const eCompressMethod& method = eCompressMethod::GZIP);
+static eCompressErr CompressBin(const std::string& src, std::string& dst, const eCompressMethod& method = eCompressMethod::GZIP);
 
-static eCompressErr decompress_file(const std::filesystem::path& src, const std::filesystem::path& dst, const eCompressMethod& method);
+static std::string CompressBin(const std::string& src, const eCompressMethod& method = eCompressMethod::GZIP);
 
-static eCompressErr decompress_dir(const std::filesystem::path& src, const std::filesystem::path& dst, const eCompressMethod& method);
+/// ---------------- 解压 ----------------
 
-static eCompressErr decompress_bin(const std::string& src, std::string& dst, const eCompressMethod& method);
+/// 指定解压格式
+static eCompressErr DecompressFile(const std::filesystem::path& src, const std::filesystem::path& dst, const eCompressMethod& method);
 
-static std::string decompress_bin(const std::string& src, const eCompressMethod& method);
+static eCompressErr DecompressDir(const std::filesystem::path& src, const std::filesystem::path& dst, const eCompressMethod& method);
 
-static eCompressErr decompress_file(const std::filesystem::path& src, const std::filesystem::path& dst);
+static eCompressErr DecompressBin(const std::string& src, std::string& dst, const eCompressMethod& method);
 
-static eCompressErr decompress_dir(const std::filesystem::path& src, const std::filesystem::path& dst);
+static std::string DecompressBin(const std::string& src, const eCompressMethod& method);
 
-static eCompressErr decompress_bin(const std::string& src, std::string& dst);
+/// 自动判断解压格式
+static eCompressErr AutoDecompressFile(const std::filesystem::path& src, const std::filesystem::path& dst);
 
-static std::string decompress_bin(const std::string& src);
+static eCompressErr AutoDecompressDir(const std::filesystem::path& src, const std::filesystem::path& dst);
+
+static eCompressErr AutoDecompressBin(const std::string& src, std::string& dst);
+
+static std::string AutoDecompressBin(const std::string& src);
 
 }  // namespace su
 

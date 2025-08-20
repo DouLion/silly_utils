@@ -9,39 +9,110 @@
  * @version: v1.0.1 2025-08-04 dou li yang
  */
 #include "silly_compress.h"
-eCompressErr su::compress_file(const std::filesystem::path& src, const std::filesystem::path& dst, const eCompressMethod& method)
+
+#include "silly_minizip.h"
+
+#include <compress/silly_7z.h>
+#include <compress/silly_bz2.h>
+#include <compress/silly_gzip.h>
+#include <compress/silly_rar.h>
+#include <compress/silly_zip.h>
+
+eCompressErr su::CompressFile(const std::filesystem::path& src, const std::filesystem::path& dst, const eCompressMethod& method)
 {
+    return eCompressErr::NotImplement;
 }
-eCompressErr su::compress_dir(const std::filesystem::path& src, const std::filesystem::path& dst, const eCompressMethod& method)
+eCompressErr su::CompressDir(const std::filesystem::path& src, const std::filesystem::path& dst, const eCompressMethod& method)
 {
+    return eCompressErr::NotImplement;
 }
-eCompressErr su::compress_bin(const std::string& src, std::string& dst, const eCompressMethod& method)
+eCompressErr su::CompressBin(const std::string& src, std::string& dst, const eCompressMethod& method)
 {
+    eCompressErr ret = eCompressErr::NotImplement;
+    if (src.empty())
+    {
+        dst.clear();
+        return eCompressErr::Ok;
+    }
+    if (eCompressMethod::ZIP == method)
+    {
+        char* out = nullptr;
+        size_t out_len = 0;
+        ret = silly_compress::MiniZip::compress(src.data(), src.size(), &out, out_len);
+        if (eCompressErr::Ok == ret)
+        {
+            dst.resize(out_len);
+            std::memcpy(dst.data(), out, out_len);
+        }
+        SU_MEM_FREE(out)
+    }
+    else if (eCompressMethod::BZ2 == method)
+    {
+        silly_bz2 bz2;
+        char* out = nullptr;
+        size_t out_len = 0;
+        ret = bz2.compress(src.data(), src.size(), &out, out_len);
+        if (eCompressErr::Ok == ret)
+        {
+            dst.resize(out_len);
+            std::memcpy(dst.data(), out, out_len);
+        }
+        SU_MEM_FREE(out)
+    }
+    else if (eCompressMethod::RAR == method)
+    {
+    }
+    else if (eCompressMethod::LZ4 == method)
+    {
+        ret =  eCompressErr::NotImplement;
+    }
+    else if (eCompressMethod::Brotli == method)
+    {
+        ret =  eCompressErr::NotImplement;
+    }
+    else
+    {
+        ret = eCompressErr::InvalidMethod;
+    }
+    return ret;
 }
-std::string su::compress_bin(const std::string& src, const eCompressMethod& method)
+
+std::string su::CompressBin(const std::string& src, const eCompressMethod& method)
 {
+    std::string ret;
+    CompressBin(src, ret, method);
+    return ret;
 }
-eCompressErr su::decompress_file(const std::filesystem::path& src, const std::filesystem::path& dst, const eCompressMethod& method)
+
+eCompressErr su::DecompressFile(const std::filesystem::path& src, const std::filesystem::path& dst, const eCompressMethod& method)
 {
+    return eCompressErr::NotImplement;
 }
-eCompressErr su::decompress_dir(const std::filesystem::path& src, const std::filesystem::path& dst, const eCompressMethod& method)
+eCompressErr su::DecompressDir(const std::filesystem::path& src, const std::filesystem::path& dst, const eCompressMethod& method)
 {
+    return eCompressErr::NotImplement;
 }
-eCompressErr su::decompress_bin(const std::string& src, std::string& dst, const eCompressMethod& method)
+eCompressErr su::DecompressBin(const std::string& src, std::string& dst, const eCompressMethod& method)
 {
+    return eCompressErr::NotImplement;
 }
-std::string su::decompress_bin(const std::string& src, const eCompressMethod& method)
+std::string su::DecompressBin(const std::string& src, const eCompressMethod& method)
 {
+    return "";
 }
-eCompressErr su::decompress_file(const std::filesystem::path& src, const std::filesystem::path& dst)
+eCompressErr su::AutoDecompressFile(const std::filesystem::path& src, const std::filesystem::path& dst)
 {
+    return eCompressErr::NotImplement;
 }
-eCompressErr su::decompress_dir(const std::filesystem::path& src, const std::filesystem::path& dst)
+eCompressErr su::AutoDecompressDir(const std::filesystem::path& src, const std::filesystem::path& dst)
 {
+    return eCompressErr::NotImplement;
 }
-eCompressErr su::decompress_bin(const std::string& src, std::string& dst)
+eCompressErr su::AutoDecompressBin(const std::string& src, std::string& dst)
 {
+    return eCompressErr::NotImplement;
 }
-std::string su::decompress_bin(const std::string& src)
+std::string su::AutoDecompressBin(const std::string& src)
 {
+    return "";
 }

@@ -14,12 +14,16 @@
 
 enum class eCompressMethod
 {
-    BZ2 = 1,
-    GZIP = 2,
-    ZIP = 3,
-    MINIZ = 4,
-    RAR = 5,
-    Zip7Z = 6,
+    Unknown,
+    BZ2,  // 压缩率最高
+    ZIP,
+    RAR,
+    RAR4,
+    Zip7Z,
+    LZ4,     // 一个相对轻量,压缩率,压缩速度相对合适的压缩算法
+    Brotli,  // 未支持
+    WebP     // 未支持
+
 };
 
 enum class eCompressErr
@@ -60,7 +64,11 @@ enum class eCompressErr
     RARCreatDirErr = 502,
     RARSuportFormatErr = 503,
     RARWriteErr = 504,
-    RARReadErr = 505
+    RARReadErr = 505,
+
+    // 其他
+    InvalidMethod = 998,
+    NotImplement = 999
 
 };
 
