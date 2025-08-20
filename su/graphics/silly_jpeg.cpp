@@ -36,11 +36,11 @@ static eColorType jpeg2sillyctype(const J_COLOR_SPACE& type)
     switch (type)
     {
         case J_COLOR_SPACE::JCS_GRAYSCALE:
-            return eColorType::eptGRAY;
+            return eColorType::GRAY;
         case J_COLOR_SPACE::JCS_RGB:
-            return eColorType::eptRGB;
+            return eColorType::RGB;
         case J_COLOR_SPACE::JCS_EXT_RGBA:
-            return eColorType::eptRGBA;
+            return eColorType::RGBA;
         default:
             throw std::runtime_error("不支持的类型");
     }
@@ -50,11 +50,11 @@ static J_COLOR_SPACE silly2jpegctype(const eColorType& type)
 {
     switch (type)
     {
-        case eColorType::eptGRAY:
+        case eColorType::GRAY:
             return J_COLOR_SPACE::JCS_GRAYSCALE;
-        case eColorType::eptRGB:
+        case eColorType::RGB:
             return J_COLOR_SPACE::JCS_RGB;
-        case eColorType::eptRGBA:
+        case eColorType::RGBA:
             return J_COLOR_SPACE::JCS_EXT_RGBA;
         default:
             throw std::runtime_error("不支持的类型");

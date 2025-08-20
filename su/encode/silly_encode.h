@@ -73,35 +73,34 @@
 
 #ifndef SILLY_UTILS_SILLY_ENCODE_H
 #define SILLY_UTILS_SILLY_ENCODE_H
-#define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
 #include <su_marco.h>
-
+enum class eCharset : int
+{
+    Unknown = 0,
+    ANSI = 1,  //
+    UTF16_LE = 2,
+    UTF16_BE = 3,
+    UTF8_BOM = 4,
+    UTF8 = 5,
+    Unicode = 6,
+    Unicode_BE = 7,
+    GBK = 8
+};
 class silly_encode
 {
   public:
-    enum class enum_encode
-    {
-        Unknown = 0,
-        ANSI = 1,  //
-        UTF16_LE = 2,
-        UTF16_BE = 3,
-        UTF8_BOM = 4,
-        UTF8 = 5,
-        Unicode = 6,
-        Unicode_BE = 7,
-        GBK = 8
-    };
+
 
     static bool is_utf8(const std::string &str);
 
-    static enum_encode system_encode();
+    static eCharset system_encode();
 
     /// <summary>
     /// 检查文件编码
     /// </summary>
     /// <param name="path"></param>
     /// <returns></returns>
-    static enum_encode check_file_encode(const std::filesystem::path &file);
+    static eCharset check_file_encode(const std::filesystem::path &file);
 
     /// <summary>
     /// URL编码
@@ -143,9 +142,9 @@ class silly_encode
     /// <returns></returns>
     static std::wstring utf8_wchar(const std::string &text);
 
-    static enum_encode is_utf8(const char *data, size_t size);
+    static eCharset is_utf8(const char *data, size_t size);
 
-    static enum_encode detect_encode(const char *data, size_t size);
+    static eCharset detect_encode(const char *data, size_t size);
 
     static bool check_text_utf8(const char *str, int length);
 

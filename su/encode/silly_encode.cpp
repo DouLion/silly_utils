@@ -7,9 +7,9 @@
 #include <iconv.h>
 #include <files/silly_file.h>
 
-silly_encode::enum_encode silly_encode::system_encode()
+eCharset silly_encode::system_encode()
 {
-    silly_encode::enum_encode code = silly_encode::enum_encode::Unknown;
+    eCharset code = eCharset::Unknown;
     std::string a = std::cout.getloc().name();
     return code;
 }
@@ -121,9 +121,9 @@ bool silly_encode::iconv_convert(const std::string &from, const std::string &to,
     return status;
 }
 
-silly_encode::enum_encode silly_encode::check_file_encode(const std::filesystem::path &file)
+eCharset silly_encode::check_file_encode(const std::filesystem::path &file)
 {
-    silly_encode::enum_encode code = silly_encode::enum_encode::Unknown;
+    eCharset code = eCharset::Unknown;
     std::ifstream fin(sufile::realpath(file).string(), std::ios::binary);
     if (fin.is_open())
     {
@@ -139,16 +139,16 @@ silly_encode::enum_encode silly_encode::check_file_encode(const std::filesystem:
     switch (p)  // 判断文本前两个字节
     {
         case 0xfffe:  // 65534
-            code = silly_encode::enum_encode::Unicode;
+            code = eCharset::Unicode;
             break;
         case 0xfeff:  // 65279
-            code = silly_encode::enum_encode::Unicode_BE;
+            code = eCharset::Unicode_BE;
             break;
         case 0xe6a2:  // 59042
-            code = silly_encode::enum_encode::UTF8;
+            code = eCharset::UTF8;
             break;
         default:
-            code = silly_encode::enum_encode::ANSI;
+            code = eCharset::ANSI;
     }
     return code;
 }
@@ -189,7 +189,7 @@ std::wstring silly_encode::utf8_wchar(const std::string &text)
     return ret;
 }
 
-silly_encode::enum_encode silly_encode::is_utf8(const char *data, size_t size)
+eCharset silly_encode::is_utf8(const char *data, size_t size)
 {
     bool bAnsi = true;
     unsigned char ch = 0x00;
@@ -227,7 +227,7 @@ silly_encode::enum_encode silly_encode::is_utf8(const char *data, size_t size)
                 }
                 else
                 {
-                    return enum_encode::ANSI;
+                    return eCharset::ANSI;
                 }
                 nBytes--;
             }
@@ -236,31 +236,31 @@ silly_encode::enum_encode silly_encode::is_utf8(const char *data, size_t size)
         {
             if ((ch & 0xC0) != 0x80)
             {
-                return enum_encode::ANSI;
+                return eCharset::ANSI;
             }
             nBytes--;
         }
     }
     if (nBytes > 0 || bAnsi)
     {
-        return enum_encode::ANSI;
+        return eCharset::ANSI;
     }
-    return enum_encode::UTF8;
+    return eCharset::UTF8;
 }
 
-silly_encode::enum_encode silly_encode::detect_encode(const char *data, size_t size)
+eCharset silly_encode::detect_encode(const char *data, size_t size)
 {
     if (size > 2 && data[0] == 0xFF && data[1] == 0xFE)
     {
-        return enum_encode::UTF16_LE;
+        return eCharset::UTF16_LE;
     }
     else if (size > 2 && data[0] == 0xFE && data[1] == 0xFF)
     {
-        return enum_encode::UTF16_BE;
+        return eCharset::UTF16_BE;
     }
     else if (size > 3 && data[0] == 0xEF && data[1] == 0xBB && data[2] == 0xBF)
     {
-        return enum_encode::UTF8_BOM;
+        return eCharset::UTF8_BOM;
     }
     else
     {

@@ -70,7 +70,7 @@ class silly_grid_render
             SLOG_ERROR("获取矩阵数据块失败")
             return;
         }
-        srp.pd.create(srp.mtx.col(), srp.mtx.row(), silly::color::eptRGBA);
+        srp.pd.create(srp.mtx.col(), srp.mtx.row(), eColorType::RGBA);
         for (size_t r = 0; r < srp.mtx.row(); ++r)
         {
             for (size_t c = 0; c < srp.mtx.col(); ++c)
@@ -122,7 +122,7 @@ class silly_grid_render
             SLOG_ERROR("获取矩阵数据块失败")
             return;
         }
-        srp.pd.create(srp.mtx.col(), srp.mtx.row(), silly::color::eptRGBA);
+        srp.pd.create(srp.mtx.col(), srp.mtx.row(), eColorType::RGBA);
         for (size_t r = 0; r < srp.mtx.row(); ++r)
         {
             for (size_t c = 0; c < srp.mtx.col(); ++c)

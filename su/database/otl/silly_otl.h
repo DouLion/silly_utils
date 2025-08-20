@@ -169,7 +169,7 @@ class otl
     /// <returns></returns>
     bool load(const std::string& cfg);
 
-    otl operator=(const otl& rh)
+    otl& operator=(const otl& rh)
     {
         this->m_ip = rh.m_ip;
         this->m_port = rh.m_port;
@@ -226,11 +226,9 @@ class otl
     /// <summary>
     /// 非session执行sql的模板函数
     /// </summary>
-    /// <param name="Func"></param>
-    /// <param name="...Args"></param>
     /// <param name="sql"></param>
     /// <param name="func"></param>
-    /// <param name="...args"></param>
+    /// <param name="args"></param>
     /// <returns>执行是否成功</returns>
     template <typename Func, typename... Args>
     bool execute(const std::string& sql, Func&& func, Args&&... args)
@@ -274,7 +272,7 @@ class otl
     /// <summary>
     /// 直接执行不需要参数的sql
     /// </summary>
-    /// <param name="sql"></param>
+    /// <param name="sqls"></param>
     /// <returns></returns>
     bool execute(const std::vector<std::string>& sqls)
     {
