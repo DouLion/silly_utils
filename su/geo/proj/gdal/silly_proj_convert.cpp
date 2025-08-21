@@ -84,7 +84,7 @@ void gdal_convert::close() const
 #if SU_THIRD_SUPPORT_GDAL
     if (m_poTransform)
     {
-        OCTDestroyCoordinateTransformation(m_poTransform);
+        //OCTDestroyCoordinateTransformation(m_poTransform);
     }
 #endif
 }
