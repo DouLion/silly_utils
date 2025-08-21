@@ -54,8 +54,8 @@ void sudem::gauss2lonlat(const sudem& rh, const double& cellsize, const double& 
             lon = m_rect.min.x + c * m_dx;
             lat = m_rect.max.y - r * m_dy;
             SUPROJCVT::lonlat_to_gauss(l0, lon, lat, gx, gy);
-            int64_t gR = std::round((gx - rh.m_rect.min.x) / rh.m_dx);
-            int64_t gC = std::round((gy - rh.m_rect.min.y) / rh.m_dy);
+            int64_t gC = std::round((gx - rh.m_rect.min.x) / rh.m_dx);
+            int64_t gR = std::round((gy - rh.m_rect.min.y) / rh.m_dy);
             if (gR >= 0 && gR < rh.m_data.row() && gC >= 0 && gC < rh.m_data.col())
             {
                 const int64_t gI = gR * rh.m_data.col() + gC;
