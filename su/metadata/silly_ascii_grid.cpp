@@ -88,7 +88,7 @@ bool silly_ascii_grid::read_asc(const std::filesystem::path& file)
         }
         else if (YLLCORNER == to_lower(key))
         {
-            linestream >> m_rect.min.x;
+            linestream >> m_rect.min.y;
         }
         else if (CELLSIZE == to_lower(key))
         {
