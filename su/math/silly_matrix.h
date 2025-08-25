@@ -684,36 +684,56 @@ class matrix
     matrix<T> inter_bilinear(const size_t &row, const size_t &col) const
     {
         matrix<T> ret;
+
+        // 处理空矩阵情况
+        if (empty() || row == 0 || col == 0)
+        {
+            return ret;
+        }
+
         if (!ret.create(row, col))
         {
             return ret;
         }
 
-        const double x_ratio = (m_col > 1) ? (m_col - 1) / static_cast<double>(col) : 0;
-        const double y_ratio = (m_row > 1) ? (m_row - 1) / static_cast<double>(row) : 0;
+        // 处理单行/单列的特殊情况
+        const double x_ratio = (m_col > 1) ? static_cast<double>(m_col - 1) / (col > 1 ? col - 1 : 1) : 0;
+        const double y_ratio = (m_row > 1) ? static_cast<double>(m_row - 1) / (row > 1 ? row - 1 : 1) : 0;
 
         for (size_t r = 0; r < row; ++r)
         {
             for (size_t c = 0; c < col; ++c)
             {
-                // 计算源矩阵坐标（浮点插值）
-                const double src_x = c * x_ratio;
-                const double src_y = r * y_ratio;
+                // 计算源矩阵坐标
+                double src_x = (m_col > 1) ? c * x_ratio : 0;
+                double src_y = (m_row > 1) ? r * y_ratio : 0;
+
+                // 确保坐标在有效范围内
+                src_x = std::clamp(src_x, 0.0, static_cast<double>(m_col - 1));
+                src_y = std::clamp(src_y, 0.0, static_cast<double>(m_row - 1));
 
                 // 获取四个邻近点坐标
-                const size_t x0 = static_cast<size_t>(std::floor(src_x));
+                const size_t x0 = static_cast<size_t>(src_x);
                 const size_t x1 = std::min(x0 + 1, m_col - 1);
-                const size_t y0 = static_cast<size_t>(std::floor(src_y));
+                const size_t y0 = static_cast<size_t>(src_y);
                 const size_t y1 = std::min(y0 + 1, m_row - 1);
 
                 // 计算插值权重
                 const double dx = src_x - x0;
                 const double dy = src_y - y0;
 
-                // 双线性插值公式
-                T val = static_cast<T>((1 - dx) * (1 - dy) * at(y0, x0) + dx * (1 - dy) * at(y0, x1) + (1 - dx) * dy * at(y1, x0) + dx * dy * at(y1, x1));
+                // 双线性插值（使用更精确的计算）
+                double val = (1.0 - dx) * (1.0 - dy) * static_cast<double>(at(y0, x0)) + dx * (1.0 - dy) * static_cast<double>(at(y0, x1)) + (1.0 - dx) * dy * static_cast<double>(at(y1, x0)) + dx * dy * static_cast<double>(at(y1, x1));
 
-                ret[r][c] = val;
+                // 对于整数类型进行四舍五入
+                if constexpr (std::is_integral_v<T>)
+                {
+                    ret[r][c] = static_cast<T>(std::round(val));
+                }
+                else
+                {
+                    ret[r][c] = static_cast<T>(val);
+                }
             }
         }
         return ret;
