@@ -30,6 +30,12 @@ class matrix
         /** bilinear interpolation 二次性插值 */
         INTER_LINEAR = 1,
     };
+    enum eBorderType : int
+    {
+        REFLECT,    // 镜像反射边界
+        REPLICATE,  // 复制边界值
+        ZERO        // 零填充
+    };
 
   protected:
     T *m_data{nullptr};
@@ -322,7 +328,7 @@ class matrix
             size_t i = 0;
             while (i < m_total)
             {
-                ret.m_data[i] = this->data[i] * rh;
+                ret.m_data[i] = this->m_data[i] * rh;
                 i++;
             }
         }
@@ -650,6 +656,140 @@ class matrix
 
         return inter_nearest(row, col);
     }
+    // 高斯滤波
+    matrix<T> gaussian_blur(double sigma = 1.0, int kernel_size = -1) const
+    {
+        matrix<T> result;
+        if (empty())
+            return result;
+
+        // 自动计算核大小（通常为6*sigma + 1）
+        if (kernel_size <= 0)
+        {
+            kernel_size = static_cast<int>(std::ceil(6 * sigma)) | 1;  // 确保为奇数
+        }
+        if (kernel_size % 2 == 0)
+            kernel_size++;  // 确保核大小为奇数
+
+        // 创建高斯核
+        std::vector<double> kernel = create_gaussian_kernel(kernel_size, sigma);
+
+        if (!result.create(m_row, m_col))
+        {
+            return result;
+        }
+
+        // 应用高斯滤波（可分离的二维卷积）
+        matrix<T> temp;
+        temp.create(m_row, m_col);
+
+        // 水平方向卷积
+        const int radius = kernel_size / 2;
+        for (size_t r = 0; r < m_row; ++r)
+        {
+            for (size_t c = 0; c < m_col; ++c)
+            {
+                double sum = 0.0;
+                double weight_sum = 0.0;
+
+                for (int k = -radius; k <= radius; ++k)
+                {
+                    int col_idx = static_cast<int>(c) + k;
+                    if (col_idx >= 0 && col_idx < static_cast<int>(m_col))
+                    {
+                        double weight = kernel[k + radius];
+                        sum += weight * static_cast<double>(at(r, col_idx));
+                        weight_sum += weight;
+                    }
+                }
+
+                temp[r][c] = static_cast<T>(sum / weight_sum);
+            }
+        }
+
+        // 垂直方向卷积
+        for (size_t r = 0; r < m_row; ++r)
+        {
+            for (size_t c = 0; c < m_col; ++c)
+            {
+                double sum = 0.0;
+                double weight_sum = 0.0;
+
+                for (int k = -radius; k <= radius; ++k)
+                {
+                    int row_idx = static_cast<int>(r) + k;
+                    if (row_idx >= 0 && row_idx < static_cast<int>(m_row))
+                    {
+                        double weight = kernel[k + radius];
+                        sum += weight * static_cast<double>(temp[row_idx][c]);
+                        weight_sum += weight;
+                    }
+                }
+
+                result[r][c] = static_cast<T>(sum / weight_sum);
+            }
+        }
+
+        return result;
+    }
+
+    // 中值滤波
+    matrix<T> median_filter(int kernel_size = 3) const
+    {
+        matrix<T> result;
+        if (empty())
+            return result;
+
+        // 确保核大小为奇数
+        if (kernel_size % 2 == 0)
+            kernel_size++;
+        if (kernel_size < 3)
+            kernel_size = 3;
+
+        if (!result.create(m_row, m_col))
+        {
+            return result;
+        }
+
+        const int radius = kernel_size / 2;
+
+        for (size_t r = 0; r < m_row; ++r)
+        {
+            for (size_t c = 0; c < m_col; ++c)
+            {
+                // 收集邻域内的值
+                std::vector<T> neighbors;
+                neighbors.reserve(kernel_size * kernel_size);
+
+                for (int i = -radius; i <= radius; ++i)
+                {
+                    for (int j = -radius; j <= radius; ++j)
+                    {
+                        int row_idx = static_cast<int>(r) + i;
+                        int col_idx = static_cast<int>(c) + j;
+
+                        if (row_idx >= 0 && row_idx < static_cast<int>(m_row) && col_idx >= 0 && col_idx < static_cast<int>(m_col))
+                        {
+                            neighbors.push_back(at(row_idx, col_idx));
+                        }
+                    }
+                }
+
+                // 计算中值
+                if (!neighbors.empty())
+                {
+                    std::nth_element(neighbors.begin(), neighbors.begin() + neighbors.size() / 2, neighbors.end());
+                    result[r][c] = neighbors[neighbors.size() / 2];
+                }
+                else
+                {
+                    result[r][c] = at(r, c);
+                }
+            }
+        }
+
+        return result;
+    }
 
   private:
     matrix<T> inter_nearest(const size_t &row, const size_t &col) const
@@ -737,6 +877,63 @@ class matrix
             }
         }
         return ret;
+    }
+
+  private:
+    // 创建高斯核
+    std::vector<double> create_gaussian_kernel(int size, double sigma) const
+    {
+        std::vector<double> kernel(size);
+        const int center = size / 2;
+        double sum = 0.0;
+
+        for (int i = 0; i < size; ++i)
+        {
+            double x = i - center;
+            kernel[i] = std::exp(-(x * x) / (2 * sigma * sigma));
+            sum += kernel[i];
+        }
+
+        // 归一化
+        for (int i = 0; i < size; ++i)
+        {
+            kernel[i] /= sum;
+        }
+
+        return kernel;
+    }
+
+    // 边界处理函数
+    int handle_border(int index, int max_index, eBorderType border_type) const
+    {
+        if (index >= 0 && index < max_index)
+        {
+            return index;
+        }
+
+        switch (border_type)
+        {
+            case eBorderType::REFLECT:
+                if (index < 0)
+                    return -index - 1;
+                if (index >= max_index)
+                    return 2 * max_index - index - 1;
+                break;
+
+            case eBorderType::REPLICATE:
+                if (index < 0)
+                    return 0;
+                if (index >= max_index)
+                    return max_index - 1;
+                break;
+
+            case eBorderType::ZERO:
+            default:
+                if (index < 0 || index >= max_index)
+                    return -1;  // 特殊处理
+        }
+
+        return index;
     }
 };
 
