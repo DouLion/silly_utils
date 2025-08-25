@@ -107,6 +107,8 @@ bool silly_ascii_grid::read_asc(const std::filesystem::path& file)
         if (NODATA_VALUE == to_lower(key))
             break;  // header section ends after NODATA_value
     }
+    m_rect.max.x = m_rect.min.x + m_width * cellsize;
+    m_rect.max.y = m_rect.min.y + m_height * cellsize;
 
     m_data.create(m_height, m_width, true);
 
