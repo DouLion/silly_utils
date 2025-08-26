@@ -206,17 +206,17 @@ size_t utils::write(const std::filesystem::path &fp, const std::vector<std::stri
     return write_len;
 }
 
-std::vector<std::string> utils::list(const std::filesystem::path &fp, const std::string &filter)
+std::vector<std::filesystem::path> utils::list(const std::filesystem::path &fp, const std::string &u8filter)
 {
-    std::vector<std::string> ret;
+    std::vector<std::filesystem::path> ret;
     std::filesystem::path _root = utils::realpath(fp);
     if (!std::filesystem::exists(_root))
     {
         return ret;
     }
 
-    std::regex reg_filter(file_filter_regex(filter));
-    bool match_all = (filter == SILLY_FILE_MATCH_ALL_WILDCHAR);
+    std::regex reg_filter(file_filter_regex(u8filter));
+    bool match_all = (u8filter == SILLY_FILE_MATCH_ALL_WILDCHAR);
 
     if (std::filesystem::is_directory(_root))
     {
@@ -226,7 +226,7 @@ std::vector<std::string> utils::list(const std::filesystem::path &fp, const std:
             {
                 if (match_all || std::regex_match(itp.path().filename().u8string(), reg_filter))
                 {
-                    ret.push_back(itp.path().u8string());
+                    ret.push_back(itp.path());
                 }
             }
         }
@@ -245,17 +245,17 @@ std::vector<std::string> utils::list(const std::filesystem::path &fp, const std:
     return ret;
 }
 
-std::vector<std::string> utils::relist(const std::filesystem::path &fp, const std::string &filter)
+std::vector<std::filesystem::path> utils::relist(const std::filesystem::path &fp, const std::string &u8filter)
 {
-    std::vector<std::string> ret;
+    std::vector<std::filesystem::path> ret;
     std::filesystem::path _root = realpath(fp);
     if (!std::filesystem::exists(_root))
     {
         return ret;
     }
 
-    std::regex reg_filter(file_filter_regex(filter));
-    bool match_all = (filter == SILLY_FILE_MATCH_ALL_WILDCHAR);
+    std::regex reg_filter(file_filter_regex(u8filter));
+    bool match_all = (u8filter == SILLY_FILE_MATCH_ALL_WILDCHAR);
     if (std::filesystem::is_directory(_root))
     {
         try
@@ -264,7 +264,7 @@ std::vector<std::string> utils::relist(const std::filesystem::path &fp, const st
             {
                 if (match_all || std::regex_match(itp.path().filename().u8string(), reg_filter))
                 {
-                    ret.push_back(itp.path().u8string());
+                    ret.push_back(itp.path());
                 }
             }
         }

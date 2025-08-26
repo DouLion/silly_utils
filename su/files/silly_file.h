@@ -140,7 +140,7 @@ class utils
     /// <param name="path"></param>
     /// <param name="filter"></param>
     /// <returns></returns>
-    static std::vector<std::string> list(const std::filesystem::path &fp, const std::string &filter = SILLY_FILE_MATCH_ALL_WILDCHAR);
+    static std::vector<std::filesystem::path> list(const std::filesystem::path &fp, const std::string &u8filter = SILLY_FILE_MATCH_ALL_WILDCHAR);
 
     /// <summary>
     /// 递归列出当前文件夹下所有包含filter的文件
@@ -148,7 +148,7 @@ class utils
     /// <param name="path"></param>
     /// <param name="filter"></param>
     /// <returns></returns>
-    static std::vector<std::string> relist(const std::filesystem::path &fp, const std::string &filter = SILLY_FILE_MATCH_ALL_WILDCHAR);
+    static std::vector<std::filesystem::path> relist(const std::filesystem::path &fp, const std::string &u8filter = SILLY_FILE_MATCH_ALL_WILDCHAR);
 
     /// <summary>
     /// 创建目录,如果存在多个未存在的路径,均会创建
