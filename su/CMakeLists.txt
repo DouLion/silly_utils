@@ -32,6 +32,9 @@ if(ENABLE_ECCODES)
     target_compile_definitions(${PROJECT_NAME}  PUBLIC SU_THIRD_SUPPORT_ECCODES=1)
 endif()
 
+find_package(CURL REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC CURL::libcurl)
+
 find_package(Iconv)
 if (Iconv_FOUND)
     target_include_directories(${PROJECT_NAME} PUBLIC ${Iconv_INCLUDE_DIR})
