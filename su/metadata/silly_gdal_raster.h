@@ -37,19 +37,21 @@ class silly_gdal_raster
     double Pick(const silly_point& p) const;
 
   protected:
-#if SU_THIRD_SUPPORT_GDAL
-    GDALDataset* m_pPoDataset = nullptr;
-    GDALRasterBand* m_pPoBand0 = nullptr;
     double m_x0 = 0;
     double m_y0 = 0;
     int m_Bands = 0;
-    GDALDataType m_DataType = GDT_Unknown;
     int m_width = 0;
     int m_height = 0;
     silly_rect m_rect;
     double m_xdelta = 0;
     double m_ydelta = 0;
     bool UP2DOWN = true;
+#if SU_THIRD_SUPPORT_GDAL
+    GDALDataset* m_pPoDataset = nullptr;
+    GDALRasterBand* m_pPoBand0 = nullptr;
+
+    GDALDataType m_DataType = GDT_Unknown;
+ 
 #endif
 };
 
