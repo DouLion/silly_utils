@@ -28,7 +28,6 @@
 #define SU_GAUSS6_NO(_lon_) (static_cast<int>(std::floor(_lon_ / 6)) + 1)
 #define SU_GAUSS3_L0(_no_) (static_cast<double>(3 * _no_))
 #define SU_GAUSS6_L0(_no_) (static_cast<double>(6 * _no_ - 3.0))
-#define SUPROJCVT silly::geo::proj::convert
 
 #define GAUSS2LONLAT silly::geo::proj::convert::gauss_to_lonlat
 #define LONLAT2GAUSS silly::geo::proj::convert::lonlat_to_gauss
@@ -38,7 +37,6 @@
 #define GAUSS2MERCATOR silly::geo::proj::convert::gauss_to_mec
 #define ECEF2LONLAT silly::geo::proj::convert::ecef_lonlat
 #define LONLAT2ECEF silly::geo::proj::convert::lonlat_to_ecef
-
 
 namespace silly
 {

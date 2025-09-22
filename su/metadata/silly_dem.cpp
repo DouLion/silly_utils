@@ -53,7 +53,7 @@ void sudem::gauss2lonlat(const sudem& rh, const double& cellsize, const double& 
             double gx, gy;
             lon = m_rect.min.x + c * m_dx;
             lat = m_rect.max.y - r * m_dy;
-            SUPROJCVT::lonlat_to_gauss(l0, lon, lat, gx, gy);
+            LONLAT2GAUSS(l0, lon, lat, gx, gy);
             int64_t gC = std::round((gx - rh.m_rect.min.x) / rh.m_dx);
             int64_t gR = std::round((gy - rh.m_rect.min.y) / rh.m_dy);
             if (gR >= 0 && gR < rh.m_data.row() && gC >= 0 && gC < rh.m_data.col())
@@ -100,7 +100,7 @@ void sudem::lonlat2gauss(const sudem& rh, const double& cellsize, const double& 
             double lon, lat;
             gx = m_rect.min.x + c * m_dx;
             gy = m_rect.max.y - r * m_dy;
-            SUPROJCVT::gauss_to_lonlat(m_l0, gx, gy, lon, lat);
+            GAUSS2LONLAT(m_l0, gx, gy, lon, lat);
             int64_t llC = std::round((lon - rh.m_rect.min.x) / rh.m_dx);
             int64_t llR = std::round((rh.m_rect.max.y -lat) / rh.m_dy);
             if (llR >= 0 && llR < rh.m_data.row() && llC >= 0 && llC < rh.m_data.col())
