@@ -271,15 +271,36 @@ int64_t x_scan_line::num() const
 {
     return m_num;
 }
+su::matrix<uint8_t> x_scan_line::mask()
+{
+    su::matrix<uint8_t> ret;
+    /*int row = std::round((m_rect.max.y - m_rect.min.y) / m_cell_size);
+    int col = std::round((m_rect.max.x - m_rect.min.x) / m_cell_size);*/
+    ret.create(m_height, m_width);
+    ret.set(0);
+    uint8_t fv = 1;
+    for (auto& [r, bePairs] : m_row_pairs)
+    {
+        uint8_t* p = ret[r];
+        for (const auto& [beg, end] : bePairs)
+        {
+            for (int c = beg; c <= end; ++c)
+            {
+                memcpy(p + c, &fv, sizeof(uint8_t) * (end- beg + 1));
+            }
+        }
+    }
+    return ret;
+}
 
 std::vector<silly_poly> x_scan_line::grids() const
 {
     std::vector<silly_poly> ret;
     for (auto& [r, b_es] : m_row_pairs)
     {
-        for (auto& b_e : b_es)
+        for (const auto& [beg, end] : b_es)
         {
-            for (int c = b_e.beg; c <= b_e.end; ++c)
+            for (int c = beg; c <= end; ++c)
             {
                 double lon = m_rect.min.x + c * m_cell_size;
                 double lat = m_rect.max.y - r * m_cell_size;

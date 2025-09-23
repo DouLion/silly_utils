@@ -15,12 +15,10 @@
 #define SILLY_UTILS_SILLY_VECTOR_TO_RASTER_H
 
 #include <geo/silly_geo_coll.h>
+#include <math/silly_matrix.h>
 
-namespace silly
-{
-namespace geo
-{
-namespace rasterization
+
+namespace silly::geo::rasterization
 {
 
 class _point
@@ -133,6 +131,9 @@ class x_scan_line
 
     int64_t num() const;
 
+    /// 生成掩膜
+    su::matrix<uint8_t> mask();
+
   private:
     /// <summary>
     /// 光栅化的基本算法, int运算效率高
@@ -162,8 +163,8 @@ class x_scan_line
     int64_t m_num = 0;
 };
 
-}  // namespace rasterization
-}  // namespace geo
-}  // namespace silly
+} // namespace silly::geo::rasterization
+
+
 
 #endif  // SILLY_UTILS_SILLY_VECTOR_TO_RASTER_H
