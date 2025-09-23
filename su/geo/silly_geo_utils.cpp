@@ -19,23 +19,140 @@
 using namespace silly::geo;
 using namespace ClipperLib;
 
-silly_point utils::centroid(const silly_poly& poly)
+void utils::init_gdal_env()
 {
-    silly_point center_point;
 #if SU_THIRD_SUPPORT_GDAL
-    OGRPolygon orgPloy = silly_gdal::silly_poly_to_ogr(poly);
-    OGRPoint point;
-    int err = orgPloy.Centroid(&point);
-    if (0 == err)
-    {
-        center_point.x = point.getX();
-        center_point.y = point.getY();
-    }
+    GDALAllRegister();
+    CPLSetConfigOption("GDAL_FILENAME_IS_UTF8", "NO");
+    OGRRegisterAll();
+    CPLSetConfigOption("SHAPE_ENCODING", "");
 #endif
-    return center_point;
 }
 
-double utils::azimuth(silly_point from, silly_point to)
+void utils::destroy_gdal_env()
+{
+#if SU_THIRD_SUPPORT_GDAL
+    OGRCleanupAll();
+#endif
+}
+
+
+void utils::centroid(const silly_ring& ring, double& area, double& sumX, double& sumY)
+{
+    area = 0.0;
+    sumX = 0.0;
+    sumY = 0.0;
+
+    const auto& pts = ring.points;
+    if (pts.size() < 3) return;  // 至少需要3个点
+
+    for (size_t i = 0; i < pts.size(); i++) {
+        size_t j = (i + 1) % pts.size();
+        double xi = pts[i].x, yi = pts[i].y;
+        double xj = pts[j].x, yj = pts[j].y;
+
+        double partial_area = (xi * yj) - (xj * yi);
+        area += partial_area;
+        sumX += (xi + xj) * partial_area;
+        sumY += (yi + yj) * partial_area;
+    }
+    area *= 0.5;  // 实际面积
+}
+
+silly_point utils::centroid(const silly_poly& poly)
+{
+    double total_area = 0.0;
+    double total_sum_x = 0.0;
+    double total_sum_y = 0.0;
+
+    // 处理外环
+    double outer_area, outer_sum_x, outer_sum_y;
+    centroid(poly.outer, outer_area, outer_sum_x, outer_sum_y);
+    total_area += outer_area;
+    total_sum_x += outer_sum_x;
+    total_sum_y += outer_sum_y;
+
+    // 处理内环（孔洞）
+    for (const auto& hole : poly.holes) {
+        double hole_area, hole_sum_x, hole_sum_y;
+        centroid(hole, hole_area, hole_sum_x, hole_sum_y);
+        total_area -= hole_area;  // 孔洞面积为负
+        total_sum_x -= hole_sum_x;
+        total_sum_y -= hole_sum_y;
+    }
+
+    // 计算质心
+    silly_point ret;
+    if (std::abs(total_area) > 1e-10) {  // 避免除以零
+        ret.x = total_sum_x / (3.0 * total_area);
+        ret.y = total_sum_y / (3.0 * total_area);
+    } else {
+        // 面积为0时（如线状多边形），返回第一个点
+        ret = poly.outer.points.empty() ? silly_point{0, 0} : poly.outer.points[0];
+    }
+
+    return ret;
+}
+void utils::centroid(const silly_poly& poly, silly_point& polyCentroid, double& polyArea)
+{
+    double total_area = 0.0;
+    double sum_x = 0.0, sum_y = 0.0;
+
+    // 处理外环
+    double outer_area = utils::area(poly.outer.points);
+    silly_point outer_centroid;
+    utils::centroid(poly.outer, outer_area, outer_centroid.x, outer_centroid.y);
+    total_area += outer_area;
+    sum_x += outer_area * outer_centroid.x;
+    sum_y += outer_area * outer_centroid.y;
+
+    // 处理内环（孔洞）
+    for (const auto& hole : poly.holes) {
+        double hole_area = utils::area(hole.points);
+        silly_point hole_centroid;
+        utils::centroid(hole, hole_area, hole_centroid.x, hole_centroid.y);
+        total_area -= hole_area;  // 孔洞面积为负
+        sum_x -= hole_area * hole_centroid.x;
+        sum_y -= hole_area * hole_centroid.y;
+    }
+
+    // 返回结果
+    polyArea = total_area;
+    if (std::abs(total_area) > 1e-10) {
+        polyCentroid.x = sum_x / total_area;
+        polyCentroid.y = sum_y / total_area;
+    } else {
+        polyCentroid = poly.outer.points.empty() ? silly_point{0, 0} : poly.outer.points[0];
+    }
+}
+silly_point utils::centroid(const silly_multi_poly& multiPoly)
+{
+    silly_point total_centroid = {0, 0};
+    double total_area = 0.0;
+
+    for (const auto& poly : multiPoly) {
+        silly_point poly_centroid;
+        double poly_area;
+        utils::centroid(poly, poly_centroid, poly_area);
+
+        if (std::abs(poly_area) > 1e-10) {
+            total_centroid.x += poly_area * poly_centroid.x;
+            total_centroid.y += poly_area * poly_centroid.y;
+            total_area += poly_area;
+        }
+    }
+
+    if (std::abs(total_area) > 1e-10) {
+        total_centroid.x /= total_area;
+        total_centroid.y /= total_area;
+    } else {
+        total_centroid = {0, 0};  // 所有多边形面积为零
+    }
+
+    return total_centroid;
+}
+
+double utils::azimuth(const silly_point& from, const silly_point& to)
 {
     double theta = atan2(to.x - from.x, to.y - from.y);
     theta = theta * 180.0 / SU_PI;
@@ -84,28 +201,10 @@ std::string utils::angle_to_desc(const double& angle)
     return desc;
 }
 
-
-void utils::init_gdal_env()
-{
-#if SU_THIRD_SUPPORT_GDAL
-    GDALAllRegister();
-    CPLSetConfigOption("GDAL_FILENAME_IS_UTF8", "NO");
-    OGRRegisterAll();
-    CPLSetConfigOption("SHAPE_ENCODING", "");
-#endif
-}
-
-void utils::destroy_gdal_env()
-{
-#if SU_THIRD_SUPPORT_GDAL
-    OGRCleanupAll();
-#endif
-}
-
 bool utils::is_valid_shp(const std::filesystem::path& file)
 {
 #if SU_THIRD_SUPPORT_GDAL
-    auto poDSr = (GDALDataset*)GDALOpenEx(sufile::realpath(file).string().c_str(), GDAL_OF_ALL | GDAL_OF_READONLY, nullptr, nullptr, nullptr);
+    auto poDSr = static_cast<GDALDataset*>(GDALOpenEx(sufile::realpath(file).string().c_str(), GDAL_OF_ALL | GDAL_OF_READONLY, nullptr, nullptr, nullptr));
     if (nullptr == poDSr)
     {
         return false;
@@ -149,7 +248,7 @@ bool utils::check_shp_info(const std::filesystem::path& file, eGeometryType& geo
 #if SU_THIRD_SUPPORT_GDAL
     std::map<std::string, std::string> result;
 
-    auto poDSr = (GDALDataset*)GDALOpenEx(sufile::realpath(file).string().c_str(), GDAL_OF_ALL | GDAL_OF_READONLY, nullptr, nullptr, nullptr);
+    auto poDSr = static_cast<GDALDataset*>(GDALOpenEx(sufile::realpath(file).string().c_str(), GDAL_OF_ALL | GDAL_OF_READONLY, nullptr, nullptr, nullptr));
     if (nullptr == poDSr)
     {
         return status;
@@ -295,14 +394,9 @@ bool read_property(const OGRFeature* feature, const std::map<std::string, eGeoFi
             case eGeoFieldType::Date:
             case eGeoFieldType::DateTime:
             {
-                int idx = feature->GetFieldIndex(key.c_str());
+                const int idx = feature->GetFieldIndex(key.c_str());
                 int y = 0, m = 0, d = 0, h = 0, M = 0, s = 0, tzFlag;
-                if (feature->GetFieldAsDateTime(idx, &y, &m, &d, &h, &M, &s, &tzFlag))
-                {
-                    // 成功
-                    int a = 0;
-                }
-                else
+                if (!feature->GetFieldAsDateTime(idx, &y, &m, &d, &h, &M, &s, &tzFlag))
                 {
                     props[utf8_key] = {""};
                 }
@@ -425,7 +519,6 @@ bool utils::read(const std::filesystem::path& file, std::vector<silly_geo_coll>&
             GDALClose(dataset);
             return status;
         }
-        int n = 0;
         while ((feature = layer->GetNextFeature()) != nullptr)  // 遍历 矢量数据
         {
             silly_geo_coll temp_geo_coll;
@@ -546,7 +639,7 @@ bool writePropertiesToGeometry(OGRFeature* feature, const std::map<std::string, 
                 case eGeoFieldType::DateTime:
                     break;
                 case eGeoFieldType::Long:
-                    feature->SetField(fieldIndex, static_cast<long long>(prop.as_int64()));
+                    feature->SetField(fieldIndex, prop.as_int64());
                     break;
                 default:
                     status = false;
@@ -889,7 +982,6 @@ std::optional<silly_pointZ> utils::intersection(const silly_segmentZ& s1, const 
 
 bool utils::intersect(const silly_poly& mpoly, const silly_point& point)
 {
-    int intersections = 0;
     silly_point ray_end(point.x + 1000, point.y);  // 向右引一条射线 1000单位
 
     // 外环
@@ -906,10 +998,7 @@ bool utils::intersect(const silly_poly& mpoly, const silly_point& point)
         }
         return true;  // 点在外环内,且不在任何一个内环内
     }
-    else
-    {
-        return false;
-    }
+    return false;
 }
 
 bool utils::intersect(const silly_multi_poly& mpoly, const silly_point& point)
@@ -1118,7 +1207,6 @@ double utils::distance_km(const silly_point& p1, const silly_point& p2)
     {
         sinLambda = sin(lambda);
         cosLambda = cos(lambda);
-        ;
         sinSigma = sqrt(pow(cosU2 * sinLambda, 2) + pow(cosU1 * sinU2 - sinU1 * cosU2 * cosLambda, 2));
 
         if (sinSigma == 0)  // coincident points
@@ -1163,6 +1251,8 @@ double utils::distance_sq(const silly_point& p1, const silly_point& p2)
 silly_geo_coll utils::buffer(const silly_geo_coll& coll, const double& distance)
 {
     silly_geo_coll ret;
+    // TODO: 这个下面实现有问题, bufferedGeom可能会有内存泄露
+    // 返回结果一定是个面或者多面, 使用多面作为返回值
 #if SU_THIRD_SUPPORT_GDAL
     OGRGeometry* resOGRGeom = silly_gdal::silly_geo_coll_to_ogr(coll);
     if (resOGRGeom == nullptr)

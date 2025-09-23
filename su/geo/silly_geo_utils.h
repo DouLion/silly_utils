@@ -22,6 +22,7 @@ class utils
     /// </summary>
     static void destroy_gdal_env();
 
+    static void centroid(const silly_ring& ring, double& area, double& sumX, double& sumY);
     /// <summary>
     /// 求一个面的形心(几何中心),利用ogr库算法
     /// </summary>
@@ -29,13 +30,16 @@ class utils
     /// <returns></returns>
     static silly_point centroid(const silly_poly& poly);
 
+    static void centroid(const silly_poly& poly, silly_point& centroid, double& area);
+    static silly_point centroid(const silly_multi_poly& multiPoly);
+
     /// <summary>
     /// 求两个点的方位角,p2相对于p1的方位角(左上角右下角坐标系均可), 正北方向为0度,顺时针
     /// </summary>
     /// <param name="from">参照物</param>
     /// <param name="to">参照方向</param>
     /// <returns>p2相对于p1的方位角,结果为角度值,</returns>
-    static double azimuth(silly_point from, silly_point to);
+    static double azimuth(const silly_point& from, const silly_point& to);
 
     /// <summary>
     /// 角度转方向 正北方向为0度, 顺时针
@@ -63,7 +67,7 @@ class utils
     /// <param name="encode">指定输出的中文编码</param>
     /// <returns></returns>
     /// 注:写入 shp , geojson 类型文件中经测试可以实现
-    static bool write(const std::filesystem::path& file, const std::vector<silly_geo_coll>& collection, const eCrsEpsgCode& prj = GCS_WGS_1984 ,const std::string& encode= "UTF-8");
+    static bool write(const std::filesystem::path& file, const std::vector<silly_geo_coll>& collection, const eCrsEpsgCode& prj = GCS_WGS_1984, const std::string& encode = "UTF-8");
 
     /// <summary>
     /// 是否为一个标准的shp文件
@@ -328,8 +332,6 @@ class utils
     /// <param name="ez">最后一个点的矫正高程</param>
     /// <returns></returns>
     static std::vector<std::pair<silly_point, double>> adjust(const std::vector<std::pair<silly_point, double>>& linez, const double& bz, const double& ez);
-
-
 };
 
 template <typename T>
@@ -392,7 +394,7 @@ double utils::area(const int& pnum, const T* xs, const T* ys)
     }
     return std::abs(result) / 2.0;
 }
-} // namespace silly::geo
+}  // namespace silly::geo
 
 typedef silly::geo::utils silly_geo_utils;
 typedef silly::geo::utils geo_utils;  // 兼容之前的写法
