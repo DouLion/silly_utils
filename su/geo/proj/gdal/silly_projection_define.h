@@ -11,131 +11,71 @@
 #define SILLY_UTILS_SILLY_PROJECTION_DEFINE_H
 #include <su_marco.h>
 #if SU_THIRD_SUPPORT_GDAL
-#include <gdal_priv.h>
-#include <gdal_alg.h>
 #include <ogr_spatialref.h>
-#include <cpl_conv.h>
 #endif
-namespace silly
-{
-namespace geo
-{
 
-namespace proj
+enum eCrsEsriCode
+{
+    // ESRI:102113
+
+    WGS_84_WEB_MERCATOR = 102113  // Web地图墨卡托 ESRI: 102113
+};
+
+// 参考坐标系 的 EPSG授权编码
+enum eCrsEpsgCode : int
+{
+    // EPSG:4326
+
+    WGS_84_WORLD_MERCATOR = 3857,  //
+    GCS_WGS_1984 = 4326,           //  经纬度
+    CGCS_2000 = 4490,              // 经纬度
+    CGCS2000_GAUSS_E75 = 4534,     // 高斯克吕格75度带
+    CGCS2000_GAUSS_E78 = 4535,
+    CGCS2000_GAUSS_E81 = 4536,
+    CGCS2000_GAUSS_E84 = 4537,
+    CGCS2000_GAUSS_E87 = 4538,
+    CGCS2000_GAUSS_E90 = 4539,
+    CGCS2000_GAUSS_E93 = 4540,
+    CGCS2000_GAUSS_E96 = 4541,
+    CGCS2000_GAUSS_E99 = 4542,
+    CGCS2000_GAUSS_E102 = 4543,
+    CGCS2000_GAUSS_E105 = 4544,
+    CGCS2000_GAUSS_E108 = 4545,
+    CGCS2000_GAUSS_E111 = 4546,
+    CGCS2000_GAUSS_E114 = 4547,
+    CGCS2000_GAUSS_E117 = 4548,
+    CGCS2000_GAUSS_E120 = 4549,
+    CGCS2000_GAUSS_E123 = 4550,
+    CGCS2000_GAUSS_E126 = 4551,
+    CGCS2000_GAUSS_E129 = 4552,
+    CGCS2000_GAUSS_E132 = 4553,
+    CGCS2000_GAUSS_E135 = 4554
+};
+
+#define ESPG_WKT silly::geo::proj::CRS::wkt
+#define ESPG_PROJ4 silly::geo::proj::CRS::proj4
+#define ESRI_WKT silly::geo::proj::CRS::esri_wkt
+#if SU_THIRD_SUPPORT_GDAL
+#define ORG_SP_REF silly::geo::proj::CRS::reference
+#endif
+
+namespace silly::geo::proj
 {
 class CRS
 {
   public:
-    enum type : int
-    {
-        // EPSG
-        WGS_84_WEB_MERCATOR = 102113,  // Web地图墨卡托 ESRI: 102113
-        WGS_84_WORLD_MERCATOR = 3857,  //
-        GCS_WGS_1984 = 4326,           //  经纬度
-        CGCS_2000 = 4490,              // 经纬度
-        CGCS2000_GAUSS_E75 = 4534,     // 高斯克吕格75度带
-        CGCS2000_GAUSS_E78 = 4535,
-        CGCS2000_GAUSS_E81 = 4536,
-        CGCS2000_GAUSS_E84 = 4537,
-        CGCS2000_GAUSS_E87 = 4538,
-        CGCS2000_GAUSS_E90 = 4539,
-        CGCS2000_GAUSS_E93 = 4540,
-        CGCS2000_GAUSS_E96 = 4541,
-        CGCS2000_GAUSS_E99 = 4542,
-        CGCS2000_GAUSS_E102 = 4543,
-        CGCS2000_GAUSS_E105 = 4544,
-        CGCS2000_GAUSS_E108 = 4545,
-        CGCS2000_GAUSS_E111 = 4546,
-        CGCS2000_GAUSS_E114 = 4547,
-        CGCS2000_GAUSS_E117 = 4548,
-        CGCS2000_GAUSS_E120 = 4549,
-        CGCS2000_GAUSS_E123 = 4550,
-        CGCS2000_GAUSS_E126 = 4551,
-        CGCS2000_GAUSS_E129 = 4552,
-        CGCS2000_GAUSS_E132 = 4553,
-        CGCS2000_GAUSS_E135 = 4554
-    };
-
-  public:
-    static const std::string wkt(const type &def);
-    static const std::string proj4(const type &def);
-    static const std::string wellKnownGS(const type &def);
+    static std::string wkt(const eCrsEpsgCode &def);
+    static std::string esri_wkt(const eCrsEpsgCode &def);
+    static std::string proj4(const eCrsEpsgCode &def);
 #if SU_THIRD_SUPPORT_GDAL
-    static const OGRSpatialReference reference(const type &def);
+    static OGRSpatialReference reference(const eCrsEpsgCode &def);
 #endif
 
   protected:
-    static std::string EPSG3857WKT;
-    static std::string EPSG3857PROJ4;
+    static std::unordered_map<eCrsEpsgCode, std::string> mEPSG2WKT;
+    static std::unordered_map<eCrsEpsgCode, std::string> mEPSG2PROJ4;
+    static std::unordered_map<eCrsEsriCode, std::string> mESRI2WKT;
 
-    static std::string EPSG4326WKT;
-    static std::string EPSG4326PROJ4;
-
-    static std::string EPSG4490WKT;
-    static std::string EPSG4490PROJ4;
-
-    static std::string EPSG4534WKT;
-    static std::string EPSG4534PROJ4;
-
-    static std::string EPSG4535WKT;
-    static std::string EPSG4535PROJ4;
-
-    static std::string EPSG4536WKT;
-    static std::string EPSG4536PROJ4;
-
-    static std::string EPSG4537WKT;
-    static std::string EPSG4537PROJ4;
-
-    static std::string EPSG4538WKT;
-    static std::string EPSG4538PROJ4;
-
-    static std::string EPSG4539WKT;
-    static std::string EPSG4539PROJ4;
-
-    static std::string EPSG4540WKT;
-    static std::string EPSG4540PROJ4;
-
-    static std::string EPSG4541WKT;
-    static std::string EPSG4541PROJ4;
-
-    static std::string EPSG4542WKT;
-    static std::string EPSG4542PROJ4;
-
-    static std::string EPSG4543WKT;
-    static std::string EPSG4543PROJ4;
-
-    static std::string EPSG4544WKT;
-    static std::string EPSG4544PROJ4;
-
-    static std::string EPSG4545WKT;
-    static std::string EPSG4545PROJ4;
-
-    static std::string EPSG4546WKT;
-    static std::string EPSG4546PROJ4;
-
-    static std::string EPSG4547WKT;
-    static std::string EPSG4547PROJ4;
-
-    static std::string EPSG4548WKT;
-    static std::string EPSG4548PROJ4;
-
-    static std::string EPSG4549WKT;
-    static std::string EPSG4549PROJ4;
-
-    static std::string EPSG4550WKT;
-    static std::string EPSG4550PROJ4;
-
-    static std::string EPSG4551WKT;
-    static std::string EPSG4551PROJ4;
-
-    static std::string EPSG4552WKT;
-    static std::string EPSG4552PROJ4;
-
-    static std::string EPSG4553WKT;
-    static std::string EPSG4553PROJ4;
-
-    static std::string EPSG4554WKT;
-    static std::string EPSG4554PROJ4;
 };
 //{
 
@@ -152,8 +92,8 @@ class CRS
 //    Gauss_Kruger_6 = 80106,            // 高斯投影6度带
 
 //};
-}  // namespace proj
-}  // namespace geo
-}  // namespace silly
+} // namespace silly::geo::proj
+
+
 
 #endif  // SILLY_UTILS_SILLY_PROJECTION_DEFINE_H
