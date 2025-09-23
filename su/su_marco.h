@@ -420,4 +420,18 @@ static std::string WideCharToMultiByteSafe(const std::wstring& wstr, UINT codePa
     return std::string(multiByteBuf.data());
 }
 
+static std::string UpperStr(const std::string& str)
+{
+    std::string ret = str;
+    std::transform(ret.begin(), ret.end(), ret.begin(), ::toupper);
+    return ret;
+}
+
+static std::string LowerStr(const std::string& str)
+{
+    std::string ret = str;
+    std::transform(ret.begin(), ret.end(), ret.begin(), ::tolower);
+    return ret;
+}
+
 #endif
