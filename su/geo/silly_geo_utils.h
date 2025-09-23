@@ -5,33 +5,9 @@
 
 #include <geo/silly_geo_coll.h>
 #include <geo/proj/gdal/silly_projection_define.h>
-#if SU_THIRD_SUPPORT_GDAL
-#include <gdal_priv.h>
-#endif
+#include <geo/silly_gdal.h>
 
-// 矢量文件后缀名
-#define SILLY_SHP_SUFFIX ".shp"
-#define SILLY_TAB_SUFFIX ".tab"
-#define SILLY_GEOJSON_SUFFIX ".geojson"
-#define SILLY_SQLITE_SUFFIX ".sqlite"
-#define SILLY_CSV_SUFFIX ".csv"
-#define SILLY_KML_SUFFIX ".kml"
-#define SILLY_GML_SUFFIX ".gml"
-#define SILLY_XLSX_SUFFIX ".xlsx"
-
-// 矢量文件存储格式
-#define SILLY_SHP_DRIVER_NAME "ESRI Shapefile"
-#define SILLY_TAB_DRIVER_NAME "Mapinfo File"
-#define SILLY_GEOJSON_DRIVER_NAME "GeoJSON"
-#define SILLY_SQLITE_DRIVER_NAME "SQLite"
-#define SILLY_CSV_DRIVER_NAME "CSV"
-#define SILLY_KML_DRIVER_NAME "KML"
-#define SILLY_GML_DRIVER_NAME "GML"
-#define SILLY_XLSX_DRIVER_NAME "XLSX"
-
-namespace silly
-{
-namespace geo
+namespace silly::geo
 {
 class utils
 {
@@ -56,8 +32,8 @@ class utils
     /// <summary>
     /// 求两个点的方位角,p2相对于p1的方位角(左上角右下角坐标系均可), 正北方向为0度,顺时针
     /// </summary>
-    /// <param name="p1">参照物</param>
-    /// <param name="p2">参照方向</param>
+    /// <param name="from">参照物</param>
+    /// <param name="to">参照方向</param>
     /// <returns>p2相对于p1的方位角,结果为角度值,</returns>
     static double azimuth(silly_point from, silly_point to);
 
@@ -75,7 +51,7 @@ class utils
     /// <param name="collection"></param>
     /// <returns></returns>
     /// 注:读取 shp , geojson 类型文件中可以实现
-    static bool read(const std::filesystem::path& file, std::vector<silly_geo_coll>& collections, const bool& ignore_prop = false);
+    static bool read(const std::filesystem::path& file, std::vector<silly_geo_coll>& collection, const bool& ignore_prop = false);
     static std::vector<silly_geo_coll> read(const std::filesystem::path& file, const bool& ignore_prop = false);
 
     /// <summary>
@@ -83,9 +59,11 @@ class utils
     /// </summary>
     /// <param name="file"></param>
     /// <param name="collection"></param>
+    /// <param name="prj">指定坐标系</param>
+    /// <param name="encode">指定输出的中文编码</param>
     /// <returns></returns>
     /// 注:写入 shp , geojson 类型文件中经测试可以实现
-    static bool write(const std::filesystem::path& file, const std::vector<silly_geo_coll>& collections, const proj::CRS::type& prj = proj::CRS::GCS_WGS_1984);
+    static bool write(const std::filesystem::path& file, const std::vector<silly_geo_coll>& collection, const eCrsEpsgCode& prj = GCS_WGS_1984 ,const std::string& encode= "UTF-8");
 
     /// <summary>
     /// 是否为一个标准的shp文件
@@ -108,7 +86,7 @@ class utils
     /// 加载shp文件中的属性信息
     /// </summary>
     /// <param name="file"></param>
-    /// <param name="type"></param>
+    /// <param name="geoType"></param>
     /// <param name="properties"></param>
     /// <returns></returns>
     static bool check_shp_info(const std::filesystem::path& file, eGeometryType& geoType, std::map<std::string, eGeoFieldType>& properties);
@@ -118,17 +96,16 @@ class utils
     /// 支持的文件格式对应的存储类型: shp tab geojson sqlite csv kml gml xlsx
     /// </summary>
     /// <param name="file">文件名</param>
-    /// <param name="driverName">存储类型</param>
     /// <returns></returns>
-    static bool get_driver_name(const std::filesystem::path& file, std::string& driverName);
+    static std::string gdal_driver_name(const std::filesystem::path& file);
 
     static bool intersect(const silly_geo_coll& gc1, const silly_geo_coll& gc2);
 
     /// <summary>
     /// 矢量与面是否相交
     /// </summary>
-    /// <param name=""></param>
-    /// <param name=""></param>
+    /// <param name="mpoly1"></param>
+    /// <param name="mpoly2"></param>
     /// <returns></returns>
     static bool intersect(const silly_multi_poly& mpoly1, const silly_multi_poly& mpoly2);
 
@@ -352,152 +329,7 @@ class utils
     /// <returns></returns>
     static std::vector<std::pair<silly_point, double>> adjust(const std::vector<std::pair<silly_point, double>>& linez, const double& bz, const double& ez);
 
-#if SU_THIRD_SUPPORT_GDAL
 
-    /// <summary>
-    /// 读取shp文件
-    /// </summary>
-    /// <param name="file"></param>
-    /// <param name="collections"></param>
-    /// <param name="ignore_prop"></param>
-    /// <returns></returns>
-    /// ================ gdal中矢量与silly utils中矢量互转 ================
-
-    /// ================ 单点 ================
-
-    /// <summary>
-    /// 将 OGRPoint(单点) 转换为 silly_point(单点) 类型
-    /// </summary>
-    /// <param name="ogrPoint"></param>
-    /// <returns></returns>
-    static silly_point silly_point_from_ogr(const OGRPoint* ogrPoint);
-
-    /// <summary>
-    /// 将 silly_point(单点) 转换为 OGRPoint(单点) 类型
-    /// </summary>
-    /// <param name="point"></param>
-    /// <returns></returns>
-    static OGRPoint silly_point_to_ogr(const silly_point& point);
-
-    /// ================ 多点 ================
-
-    /// <summary>
-    /// 将 OGRMultiPoint(多点) 转换为 silly_multi_point(多点) 类型
-    /// </summary>
-    /// <param name="ogrMultiPoint"></param>
-    /// <returns></returns>
-    static silly_multi_point silly_multi_point_from_ogr(const OGRMultiPoint* ogrMultiPoint);
-
-    /// <summary>
-    /// 将 silly_multi_point(多点) 转换为 OGRMultiPoint(多点) 类型
-    /// </summary>
-    /// <param name="multiPoint"></param>
-    /// <returns></returns>
-    static OGRMultiPoint silly_multi_point_to_ogr(const silly_multi_point& multiPoint);
-
-    /// ================ 单线 ================
-
-    /// <summary>
-    /// OGRLineString(线)类型转为silly_line(线)类型
-    /// </summary>
-    /// <param name="lineString"></param>
-    /// <returns></returns>
-    static silly_line silly_line_from_ogr(const OGRLineString* lineString);
-
-    /// <summary>
-    /// 将 silly_line(线) 转换为 OGRLineString(线)类型
-    /// </summary>
-    /// <param name="line"></param>
-    /// <returns></returns>
-    static OGRLineString silly_line_to_ogr(const silly_line& line);
-
-    /// ================ 多线 ================
-
-    /// <summary>
-    /// OGRMultiLineString(多线)类型转为 silly_multiline(多线)类型
-    /// </summary>
-    /// <param name="multiLineString"></param>
-    /// <returns></returns>
-    static silly_multi_line silly_multi_line_from_ogr(const OGRMultiLineString* multiLineString);
-
-    /// <summary>
-    /// 将 silly_multiline(多线) 转换为 OGRMultiLineString(多线)类型
-    /// </summary>
-    /// <param name="multiLine"></param>
-    /// <returns></returns>
-    static OGRMultiLineString silly_multi_line_to_ogr(const silly_multi_line& multiLine);
-
-    /// ================ 闭合环 ================
-
-    /// <summary>
-    /// 环OGRLinearRing对象，将其转换为silly_ring对象  (环)
-    /// </summary>
-    /// <param name="ring"></param>
-    /// <returns></returns>
-    static silly_ring silly_ring_from_ogr(const OGRLinearRing* ring);
-
-    /// <summary>
-    /// 将 silly_ring 转换为 OGRPolygon
-    /// </summary>
-    /// <param name="ring"></param>
-    /// <returns></returns>
-    static OGRLinearRing silly_ring_to_ogr(const silly_ring& ring);
-
-    /// ================ 单面 ================
-
-    /// <summary>
-    /// OGRPolygon 对象转换为 silly_poly (多环:外环+内环)对象  (单面)
-    /// </summary>
-    /// <param name="polygon"></param>
-    /// <returns></returns>
-    static silly_poly silly_poly_from_ogr(const OGRPolygon* polygon);
-
-    /// <summary>
-    /// 将 silly_poly 转换为 OGRPolygon(单面)
-    /// </summary>
-    /// <param name="poly"></param>
-    /// <returns></returns>
-    static OGRPolygon silly_poly_to_ogr(const silly_poly& poly);
-
-    /// ================ 多面 ================
-
-    /// <summary>
-    /// 多面的OGRMultiPolygon对象转换为silly_multi_poly(多面)
-    /// </summary>
-    /// <param name="multiPolygon"></param>
-    /// <returns></returns>
-    static silly_multi_poly silly_multi_poly_from_ogr(const OGRMultiPolygon* multiPolygon);
-
-    /// <summary>
-    /// 将silly_multi_poly对象转换为OGRMultiPolygon对象(多面)
-    /// </summary>
-    /// <param name="multiPoly"></param>
-    /// <returns></returns>
-    static OGRMultiPolygon silly_multi_poly_to_ogr(const silly_multi_poly& multiPoly);
-
-    /// ================ OGRGeometry ================
-
-    /// <summary>
-    /// 将 OGRGeometry 对象转换为silly_geo_coll对象,
-    /// OGRGeometry是一个抽象类，无法实例化,只能以指针的方式使用,
-    /// 注意: 返回的对象需要手动释放,释放方法:
-    /// if (OGRGeometry* != nullptr)
-    /// {
-    ///    OGRGeometryFactory::destroyGeometry(OGRGeometry*);
-    ///    OGRGeometry* = nullptr;
-    /// }
-    /// </summary>
-    /// <param name="coll"></param>
-    /// <returns></returns>
-    static OGRGeometry* silly_geo_coll_to_ogr(const silly_geo_coll& coll);
-
-    /// <summary>
-    /// 将silly_geo_coll对象转换为OGRGeometry对象
-    /// </summary>
-    /// <param name="geometry"></param>
-    /// <returns></returns>
-    static silly_geo_coll silly_geo_coll_from_ogr(const OGRGeometry* geometry);
-#endif
 };
 
 template <typename T>
@@ -560,8 +392,8 @@ double utils::area(const int& pnum, const T* xs, const T* ys)
     }
     return std::abs(result) / 2.0;
 }
-}  // namespace geo
-}  // namespace silly
+} // namespace silly::geo
+
 typedef silly::geo::utils silly_geo_utils;
 typedef silly::geo::utils geo_utils;  // 兼容之前的写法
 typedef silly::geo::utils sugeoutils;
