@@ -20,19 +20,16 @@ namespace proj
 
 class gdal_convert
 {
-    friend class silly_projection_define;
-
   public:
-    gdal_convert() = default;
-    ~gdal_convert();
     /// <summary>
     /// 根据参数构建转换
     /// </summary>
-    /// <param name="p"></param>
+    /// <param name="from">原始坐标系</param>
+    /// <param name="to">目标坐标系</param>
     /// <returns></returns>
-    bool begin(const CRS::type &from, const CRS::type &to);
+    bool begin(const eCrsEpsgCode &from, const eCrsEpsgCode &to);
 
-    bool convert(const double &fromX, const double &fromY, double &toX, double &toY);
+    bool convert(const double &fromX, const double &fromY, double &toX, double &toY) const;
     bool convert(const std::vector<double> &fromX, const std::vector<double> &fromY, std::vector<double> &toX, std::vector<double> &toY) const;
 
     /// <summary>
@@ -43,7 +40,7 @@ class gdal_convert
 
   private:
 #if SU_THIRD_SUPPORT_GDAL
-    OGRCoordinateTransformation *m_poTransform{nullptr};
+    OGRCoordinateTransformation *poCT{nullptr};
 #endif
 };
 }  // namespace proj

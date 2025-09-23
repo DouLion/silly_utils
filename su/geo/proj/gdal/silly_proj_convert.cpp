@@ -7,38 +7,32 @@
  * @version: 1.0.1
  * @description:
  */
-//
-// Created by dell on 2024/6/18. 实现
-//
-
 #include "silly_proj_convert.h"
 using namespace silly::geo::proj;
-gdal_convert::~gdal_convert()
+
+bool gdal_convert::begin(const eCrsEpsgCode& from, const eCrsEpsgCode& to)
 {
-    close();
-}
-bool gdal_convert::begin(const CRS::type& from, const CRS::type& to)
-{
-    bool status = false;
+    bool status = true;
 #if SU_THIRD_SUPPORT_GDAL
-    const OGRSpatialReference src_srs = CRS::reference(from);
-    const OGRSpatialReference dst_srs = CRS::reference(to);
-    m_poTransform = OGRCreateCoordinateTransformation(&src_srs, &dst_srs);
-    if (status = (m_poTransform == nullptr))
+    const OGRSpatialReference srcRef = CRS::reference(from);
+    const OGRSpatialReference dstRef = CRS::reference(to);
+    poCT = OGRCreateCoordinateTransformation(&srcRef, &dstRef);
+    if (poCT == nullptr)
     {
         SLOG_ERROR("\n地理坐标系统转换: {} -> {}, 构建错误错误\n", static_cast<int>(from), static_cast<int>(to))
+        status = false;
     }
 #endif
     return status;
 }
-bool gdal_convert::convert(const double& fromX, const double& fromY, double& toX, double& toY)
+bool gdal_convert::convert(const double& fromX, const double& fromY, double& toX, double& toY) const
 {
     bool status = false;
 #if SU_THIRD_SUPPORT_GDAL
-    if (m_poTransform)
+    if (poCT)
     {
         double tmpX = fromX, tmpY = fromY;
-        if (m_poTransform->Transform(1, &tmpX, &tmpY))
+        if (poCT->Transform(1, &tmpX, &tmpY))
         {
             toX = tmpX;
             toY = tmpY;
@@ -57,12 +51,12 @@ bool gdal_convert::convert(const std::vector<double>& fromX, const std::vector<d
 {
     bool status = false;
 #if SU_THIRD_SUPPORT_GDAL
-    if (m_poTransform)
+    if (poCT)
     {
         std::vector<double> tmpX = fromX;
         std::vector<double> tmpY = fromY;
         int num = SU_MIN(tmpX.size(), fromY.size());
-        if (status = m_poTransform->Transform(num, &tmpX[0], &tmpY[0]))
+        if ( poCT->Transform(num, tmpX.data(), tmpY.data()))
         {
             /*toX.resize(num);
             toY.resize(num);
@@ -82,9 +76,9 @@ bool gdal_convert::convert(const std::vector<double>& fromX, const std::vector<d
 void gdal_convert::close() const
 {
 #if SU_THIRD_SUPPORT_GDAL
-    if (m_poTransform)
+    if (poCT)
     {
-        //OCTDestroyCoordinateTransformation(m_poTransform);
+        OGRCoordinateTransformation::DestroyCT(poCT);
     }
 #endif
 }
