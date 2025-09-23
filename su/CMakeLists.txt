@@ -10,7 +10,9 @@ foreach(dirname ${CMAKE_CURRENT_SOURCE_DIR})
 
 endforeach()
 
-add_library(${PROJECT_NAME} STATIC ${SU_SRC_FILES})
+add_library(${PROJECT_NAME} STATIC ${SU_SRC_FILES}
+        geo/silly_spatial_vector.cpp
+        geo/silly_spatial_vector.h)
 
 target_precompile_headers(
         ${PROJECT_NAME} PUBLIC
