@@ -19,9 +19,14 @@
 using namespace silly::geo;
 using namespace ClipperLib;
 
+void utils::init_proj_env()
+{
+    SetENV("PROJ_LIB", std::filesystem::current_path().append("share").append("proj").append("proj.db").string());
+}
 void utils::init_gdal_env()
 {
 #if SU_THIRD_SUPPORT_GDAL
+    init_proj_env();
     GDALAllRegister();
     CPLSetConfigOption("GDAL_FILENAME_IS_UTF8", "NO");
     OGRRegisterAll();

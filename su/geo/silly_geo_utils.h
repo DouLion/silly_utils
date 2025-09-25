@@ -12,6 +12,9 @@ namespace silly::geo
 class utils
 {
   public:
+
+    static void init_proj_env();
+
     /// <summary>
     /// 初始化 GDAL 环境,只需要初始化一次
     /// </summary>

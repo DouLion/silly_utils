@@ -437,9 +437,7 @@ static std::string LowerStr(const std::string& str)
 static void SetENV(const std::string& name, const std::string& value, int overwrite = 1) {
 #if defined(_WIN32)
     // Windows 使用 _putenv
-    std::string var = name;
-    var.append("=").append(value);//""std::string() + "=" + value;
-    _putenv(var.c_str());
+    SetEnvironmentVariable(MultiByteToWideCharSafe(name).c_str(), MultiByteToWideCharSafe(value).c_str());
 #else
     // Linux/macOS 使用 setenv
     setenv(name.c_str(), value.c_str(), overwrite);
