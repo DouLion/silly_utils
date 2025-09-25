@@ -45,9 +45,8 @@
 #endif
 
 #include <database/otl/otlv4.h>
-#include <functional>
-#include <stdexcept>  // 包含标准异常类
 #include <database/silly_sql.h>
+#include <system/silly_system.h>
 
 #ifdef IS_WIN32
 #pragma comment(lib, "odbc32.lib")
@@ -110,11 +109,11 @@ static std::string otltime2str(otl_datetime dt, bool millisecond = false)
     char buff[32];
     if (millisecond)
     {
-        sprintf(buff, "%04d-%02d-%02d %02d:%02d:%02d.%03d", dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second, dt.fraction / 1e6);
+        SU_SPRINTF(buff, "%04d-%02d-%02d %02d:%02d:%02d.%03d", dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second, dt.fraction / 1e6);
     }
     else
     {
-        sprintf(buff, "%04d-%02d-%02d %02d:%02d:%02d", dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second);
+        SU_SPRINTF(buff, "%04d-%02d-%02d %02d:%02d:%02d", dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second);
     }
     return std::string(buff);
 }
@@ -169,22 +168,7 @@ class otl
     /// <returns></returns>
     bool load(const std::string& cfg);
 
-    otl& operator=(const otl& rh)
-    {
-        this->m_ip = rh.m_ip;
-        this->m_port = rh.m_port;
-        this->m_type = rh.m_type;
-        this->m_driver = rh.m_driver;
-        this->m_schema = rh.m_schema;
-        this->m_user = rh.m_user;
-        this->m_password = rh.m_password;
-        this->m_dsn = rh.m_dsn;
-        this->m_timeout = rh.m_timeout;
-        this->m_conn = rh.m_conn;
-        this->m_verbose = rh.m_verbose;
-
-        return *this;
-    }
+    otl& operator=(const otl& rh);
 
     /// <summary>
     /// 获取odbc连接串
@@ -345,11 +329,9 @@ class otl
     /// <summary>
     /// select的模板函数
     /// </summary>
-    /// <param name="Func"></param>
-    /// <param name="...Args"></param>
     /// <param name="sql"></param>
     /// <param name="func"></param>
-    /// <param name="...args"></param>
+    /// <param name="args"></param>
     /// <returns>执行是否成功</returns>
     template <typename Func, typename... Args>
     bool select(const std::string& sql, Func&& func, Args&&... args)
@@ -390,11 +372,9 @@ class otl
     /// <summary>
     /// 存储过程查询的模板函数, 获取结果同select
     /// </summary>
-    /// <param name="Func"></param>
-    /// <param name="...Args"></param>
     /// <param name="sql">{call my_proc(:f1<int,in>)}</param>
     /// <param name="func"></param>
-    /// <param name="...args"></param>
+    /// <param name="args"></param>
     /// <returns>执行是否成功</returns>
     template <typename Func, typename... Args>
     bool procedure(const std::string& sql, Func&& func, Args&&... args)
@@ -435,11 +415,9 @@ class otl
     /// <summary>
     /// select的模板函数, 以lob的方式读取large object binary
     /// </summary>
-    /// <param name="Func"></param>
-    /// <param name="...Args"></param>
     /// <param name="sql"></param>
     /// <param name="func"></param>
-    /// <param name="...args"></param>
+    /// <param name="args"></param>
     /// <returns>执行是否成功</returns>
     template <typename Func, typename... Args>
     bool select_lob(const std::string& sql, Func&& func, Args&&... args)
@@ -481,11 +459,9 @@ class otl
     /// <summary>
     /// insert的模板函数
     /// </summary>
-    /// <param name="Func"></param>
-    /// <param name="...Args"></param>
     /// <param name="sql"></param>
     /// <param name="func"></param>
-    /// <param name="...args"></param>
+    /// <param name="args"></param>
     /// <returns>执行是否成功</returns>
     template <typename Func, typename... Args>
     bool insert(const std::string& sql, Func&& func, Args&&... args)
@@ -528,11 +504,9 @@ class otl
     /// <summary>
     /// 使用lob(Large Object Binary)插入
     /// </summary>
-    /// <param name="Func"></param>
-    /// <param name="...Args"></param>
     /// <param name="sql"></param>
     /// <param name="func"></param>
-    /// <param name="...args"></param>
+    /// <param name="args"></param>
     /// <returns>执行是否成功</returns>
     template <typename Func, typename... Args>
     bool insert_lob(const std::string& sql, Func&& func, Args&&... args)
@@ -583,7 +557,7 @@ class otl
     /// <summary>
     /// otl类型枚举对应的字符串
     /// </summary>
-    /// <param name="sql"></param>
+    /// <param name="vt"></param>
     /// <returns>执行是否成功</returns>
     static std::string otl_type_name(const otl_var_enum& vt);
 
@@ -615,15 +589,15 @@ class otl
     ///////////////////////////////
     /// setter
     ///////////////////////////////
-    void type(eOtlDbType tp);
-    void driver(std::string d);
-    void ip(std::string i);
-    void port(int p);
-    void schema(std::string s);
-    void user(std::string u);
-    void pwd(std::string p);
-    void timeout(int to);
-    void verbose(bool vb);
+    void type(const eOtlDbType& tp);
+    void driver(const std::string& d);
+    void ip(const std::string& i);
+    void port(const int& p);
+    void schema(const std::string& s);
+    void user(const std::string& u);
+    void pwd(const std::string& p);
+    void timeout(const int& to);
+    void verbose(const bool& vb);
 
 #if USE_JSON_PARSE
     bool from_json(const std::string& jstr);

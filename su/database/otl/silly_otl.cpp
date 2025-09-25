@@ -30,33 +30,6 @@ const static std::string SILLY_OTL_DSN_FORMAT = "UID=%s;PWD=%s;DSN=%s;";
 #define OPT_STR_DSN "dsn"
 #define OPT_STR_VERBOSE "verbose"
 
-// 去除字符串左边的空格
-std::string ltrim(const std::string& str)
-{
-    auto it = std::find_if(str.begin(), str.end(), [](char ch) { return !std::isspace<char>(ch, std::locale::classic()); });
-    return std::string(it, str.end());
-}
-
-// 去除字符串右边的空格
-std::string rtrim(const std::string& str)
-{
-    auto it = std::find_if(str.rbegin(), str.rend(), [](char ch) { return !std::isspace<char>(ch, std::locale::classic()); }).base();
-    return std::string(str.begin(), it);
-}
-
-// 去除字符串左右两边的空格
-std::string _trim(const std::string& str)
-{
-    return ltrim(rtrim(str));
-}
-
-std::string _lower(const std::string& str)
-{
-    std::string ret = str;
-    std::transform(ret.begin(), ret.end(), ret.begin(), [](unsigned char c) { return std::tolower(c); });
-    return ret;
-}
-
 /// <summary>
 /// 根据驱动名称,猜测数据库类型
 /// </summary>
@@ -64,29 +37,28 @@ std::string _lower(const std::string& str)
 /// <returns></returns>
 static eOtlDbType assume_type(const std::string& driver)
 {
-    std::string lower_driver = driver;
-    std::transform(lower_driver.begin(), lower_driver.end(), lower_driver.begin(), ::tolower);
+    std::string lower_driver = TO_LOWER(driver);
     if (lower_driver.find("sql server") != std::string::npos)
     {
         return eOtlDbType::dbSQLSERVER;
     }
-    else if (lower_driver.find("mysql") != std::string::npos)
+    if (lower_driver.find("mysql") != std::string::npos)
     {
         return eOtlDbType::dbMYSQL;
     }
-    else if (lower_driver.find("oracle") != std::string::npos)
+    if (lower_driver.find("oracle") != std::string::npos)
     {
         return eOtlDbType::dbORACLE;
     }
-    else if (lower_driver.find("postgresql") != std::string::npos)
+    if (lower_driver.find("postgresql") != std::string::npos)
     {
         return eOtlDbType::dbPG;
     }
-    else if (lower_driver.find("dm8") != std::string::npos)
+    if (lower_driver.find("dm8") != std::string::npos)
     {
         return eOtlDbType::dbDM8;
     }
-    else if (lower_driver.find("maria") != std::string::npos)
+    if (lower_driver.find("maria") != std::string::npos)
     {
         return eOtlDbType::dbKingB8;
     }
@@ -127,31 +99,31 @@ static std::map<std::string, std::string> parse_odbc(const std::string& odbc)
                     pos = ip_port_schema.find(':');
                     if (pos != std::string::npos)
                     {
-                        result["server"] = _trim(ip_port_schema.substr(0, pos));
-                        result["port"] = _trim(ip_port_schema.substr(pos + 1));
+                        result["server"] = TRIM(ip_port_schema.substr(0, pos));
+                        result["port"] = TRIM(ip_port_schema.substr(pos + 1));
                     }
                     else
                     {
-                        result["server"] = _trim(ip_port_schema);
+                        result["server"] = TRIM(ip_port_schema);
                     }
-                    result["database"] = _trim(schema);
+                    result["database"] = TRIM(schema);
                 }
             }
             else if ("tcp_port" == key)
             {
-                result["port"] = _trim(value);
+                result["port"] = TRIM(value);
             }
             else if ("uid" == key)
             {
-                result["user"] = _trim(value);
+                result["user"] = TRIM(value);
             }
             else if ("password" == key)
             {
-                result["pwd"] = _trim(value);
+                result["pwd"] = TRIM(value);
             }
             else
             {
-                result[key] = _trim(value);
+                result[key] = TRIM(value);
             }
         }
     }
@@ -265,11 +237,11 @@ bool otl::load(const std::string& cfg)
     {
         // 检测驱动名称是否有效
         std::vector<std::string> driver = drivers();
-        std::string lower_driver = _lower(m_driver);
+        std::string lower_driver = TO_LOWER(m_driver);
         bool valid = false;
         for (auto& d : driver)
         {
-            if (lower_driver == _lower(d))
+            if (lower_driver == TO_LOWER(d))
             {
                 if (d != m_driver)
                 {
@@ -290,6 +262,22 @@ bool otl::load(const std::string& cfg)
 
     return check();
 }
+otl& otl::operator=(const otl& rh)
+{
+    this->m_ip = rh.m_ip;
+    this->m_port = rh.m_port;
+    this->m_type = rh.m_type;
+    this->m_driver = rh.m_driver;
+    this->m_schema = rh.m_schema;
+    this->m_user = rh.m_user;
+    this->m_password = rh.m_password;
+    this->m_dsn = rh.m_dsn;
+    this->m_timeout = rh.m_timeout;
+    this->m_conn = rh.m_conn;
+    this->m_verbose = rh.m_verbose;
+
+    return *this;
+}
 
 std::string otl::odbc(const bool& rebuild)
 {
@@ -298,7 +286,7 @@ std::string otl::odbc(const bool& rebuild)
         char buff[SILLY_OTL_ODBC_MAX_LEN] = {0};
         if (!m_dsn.empty())  // 如果ODBC连接串不好使,设置DSN,并且优先使用DSN链接方式
         {
-            sprintf(buff, SILLY_OTL_DSN_FORMAT.c_str(), m_user.c_str(), m_password.c_str(), m_dsn.c_str());
+            SU_SPRINTF(buff, SILLY_OTL_DSN_FORMAT.c_str(), m_user.c_str(), m_password.c_str(), m_dsn.c_str());
             m_conn = buff;
         }
         else if (!m_driver.empty())
@@ -306,22 +294,22 @@ std::string otl::odbc(const bool& rebuild)
             switch (m_type)  // 使用ODBC连接串
             {
                 case eOtlDbType::dbMYSQL:
-                    sprintf(buff, SILLY_OTL_MYSQL_ODBC_FORMAT.c_str(), m_driver.c_str(), m_ip.c_str(), m_port, m_schema.c_str(), m_user.c_str(), m_password.c_str());
+                    SU_SPRINTF(buff, SILLY_OTL_MYSQL_ODBC_FORMAT.c_str(), m_driver.c_str(), m_ip.c_str(), m_port, m_schema.c_str(), m_user.c_str(), m_password.c_str());
                     break;
                 case eOtlDbType::dbSQLSERVER:
-                    sprintf(buff, SILLY_OTL_MSSQL_ODBC_FORMAT.c_str(), m_driver.c_str(), m_ip.c_str(), m_port, m_user.c_str(), m_password.c_str(), m_schema.c_str());
+                    SU_SPRINTF(buff, SILLY_OTL_MSSQL_ODBC_FORMAT.c_str(), m_driver.c_str(), m_ip.c_str(), m_port, m_user.c_str(), m_password.c_str(), m_schema.c_str());
                     break;
                 case eOtlDbType::dbORACLE:
-                    sprintf(buff, SILLY_OTL_ORACLE_ODBC_FORMAT.c_str(), m_driver.c_str(), m_ip.c_str(), m_port, m_schema.c_str(), m_user.c_str(), m_password.c_str());
+                    SU_SPRINTF(buff, SILLY_OTL_ORACLE_ODBC_FORMAT.c_str(), m_driver.c_str(), m_ip.c_str(), m_port, m_schema.c_str(), m_user.c_str(), m_password.c_str());
                     break;
                 case eOtlDbType::dbPG:
-                    sprintf(buff, SILLY_OTL_POSTGRE_ODBC_FORMAT.c_str(), m_driver.c_str(), m_ip.c_str(), m_port, m_schema.c_str(), m_user.c_str(), m_password.c_str());
+                    SU_SPRINTF(buff, SILLY_OTL_POSTGRE_ODBC_FORMAT.c_str(), m_driver.c_str(), m_ip.c_str(), m_port, m_schema.c_str(), m_user.c_str(), m_password.c_str());
                     break;
                 case eOtlDbType::dbDM8:
-                    sprintf(buff, SILLY_OTL_DM8_ODBC_FORMAT.c_str(), m_driver.c_str(), m_ip.c_str(), m_port, m_user.c_str(), m_password.c_str());
+                    SU_SPRINTF(buff, SILLY_OTL_DM8_ODBC_FORMAT.c_str(), m_driver.c_str(), m_ip.c_str(), m_port, m_user.c_str(), m_password.c_str());
                     break;
                 case eOtlDbType::dbMariaDB:
-                    sprintf(buff, SILLY_OTL_MYSQL_ODBC_FORMAT.c_str(), m_driver.c_str(), m_ip.c_str(), m_port, m_schema.c_str(), m_user.c_str(), m_password.c_str());
+                    SU_SPRINTF(buff, SILLY_OTL_MYSQL_ODBC_FORMAT.c_str(), m_driver.c_str(), m_ip.c_str(), m_port, m_schema.c_str(), m_user.c_str(), m_password.c_str());
                     break;
                 default:
                     break;
@@ -352,8 +340,8 @@ bool otl::check(const bool& rebuild_odbc)
         m_err = "OTL_ERR \nCONN:";
         m_err.append(m_conn);
         m_err.append("\nCODE:").append(std::to_string(e.code));
-        m_err.append("\nMSG:").append(std::string((char*)e.msg));
-        m_err.append("\nSTATE:").append(std::string((char*)e.sqlstate));
+        m_err.append("\nMSG:").append(std::string(reinterpret_cast<char*>(e.msg)));
+        m_err.append("\nSTATE:").append(std::string(reinterpret_cast<char*>(e.sqlstate)));
         m_err.append("\nSTMT:").append(std::string((char*)e.stm_text));
     }
     catch (std::exception& p)
@@ -392,7 +380,7 @@ void otl::help()
         content += d + "\n";
     }
 
-    printf(content.c_str());
+    std::cout << content;
 }
 
 static const char* sqlserver_code_sql = "SELECT COLLATIONPROPERTY('Chinese_PRC_Stroke_CI_AI_KS_WS', 'CodePage');";
@@ -408,7 +396,7 @@ std::string otl::encode()
         m_conn = odbc(true);
         db.rlogon(m_conn.c_str());
         char buff[512] = {0};
-        sprintf(buff, "%s", sqlserver_code_sql);
+        SU_SPRINTF(buff, "%s", sqlserver_code_sql);
         otl_stream query_stream;
         query_stream.open(1, buff, db);
         for (auto& qs : query_stream)
@@ -452,7 +440,7 @@ std::vector<std::string> otl::drivers()
         do
         {
             pszBuf = wcschr(pszBuf, '\0') + 1;
-            ret.push_back(WideCharToMultiByteSafe(pszBuf));
+            ret.push_back(WS2S(pszBuf));
         } while (pszBuf[1] != '\0');
     }
 #else
@@ -490,7 +478,7 @@ bool otl::check_column_info(const std::string& sql)
         for (int i = 0; i < col_num; ++i)
         {
             std::cout << "[" << i + 1 << "] "
-                      << "列名: " << desc_list[i].name << "  类型: " << otl_type_name((otl_var_enum)desc_list[i].otl_var_dbtype) << std::endl;
+                      << "列名: " << desc_list[i].name << "  类型: " << otl_type_name(static_cast<otl_var_enum>(desc_list[i].otl_var_dbtype)) << std::endl;
         }
         stream.close();
         status = true;
@@ -510,76 +498,70 @@ bool otl::check_column_info(const std::string& sql)
     return status;
 }
 
-std::string otl::otl_type_name(const otl_var_enum& ot)
+std::string otl::otl_type_name(const otl_var_enum& vt)
 {
-    std::string result = "Unknown";
-    switch (ot)
+    switch (vt)
     {
         case otl_var_char:
-            result = "char";
-            break;
+            return "char";
         case otl_var_double:
-            result = "double";
-            break;
+            return "double";
         case otl_var_float:
-            result = "float";
-            break;
+            return "float";
         case otl_var_int:
-            result = "int ";
-            break;
+            return "int ";
         case otl_var_unsigned_int:
-            result = "unsigned_int";
-            break;
+            return "unsigned_int";
+
         case otl_var_short:
-            result = "short";
-            break;
+            return "short";
+
         case otl_var_long_int:
-            result = "long_int";
-            break;
+            return "long_int";
+
         case otl_var_timestamp:
-            result = "timestamp";
-            break;
+            return "timestamp";
+
         case otl_var_varchar_long:
-            result = "varchar_long";
-            break;
+            return "varchar_long";
+
         case otl_var_raw_long:
-            result = "raw_long";
-            break;
+            return "raw_long";
+
         case otl_var_clob:
-            result = "clob";
-            break;
+            return "clob";
+
         case otl_var_blob:
-            result = "blob";
-            break;
+            return "blob";
+
         case otl_var_refcur:
-            result = "refcur";
-            break;
+            return "refcur";
+
         case otl_var_long_string:
-            result = "long_string";
-            break;
+            return "long_string";
+
         case otl_var_db2time:
-            result = "db2time";
-            break;
+            return "db2time";
+
         case otl_var_db2date:
-            result = "db2date";
-            break;
+            return "db2date";
+
         case otl_var_tz_timestamp:
-            result = "tz_timestamp";
-            break;
+            return "tz_timestamp";
+
         case otl_var_ltz_timestamp:
-            result = "ltz_timestamp";
-            break;
+            return "ltz_timestamp";
+
         case otl_var_bigint:
-            result = "bigint";
-            break;
+            return "bigint";
+
         case otl_var_raw:
-            result = "raw";
-            break;
+            return "raw";
+
         default:
-            result = "unknown";
             break;
     }
-    return result;
+    return "unknown";
 }
 
 #if USE_JSON_PARSE
@@ -691,7 +673,7 @@ bool otl::from_json(const Json::Value& root)
 }
 #endif
 
-void otl::verbose(bool vb)
+void otl::verbose(const bool& vb)
 {
     m_verbose = vb;
 }
@@ -736,42 +718,42 @@ std::string otl::err() const
     return m_err;
 }
 
-void otl::type(eOtlDbType tp)
+void otl::type(const eOtlDbType& tp)
 {
     m_type = tp;
 }
 
-void otl::driver(std::string d)
+void otl::driver(const std::string& d)
 {
     m_driver = d;
 }
 
-void otl::ip(std::string i)
+void otl::ip(const std::string& i)
 {
     m_ip = i;
 }
 
-void otl::port(int p)
+void otl::port(const int& p)
 {
     m_port = p;
 }
 
-void otl::schema(std::string s)
+void otl::schema(const std::string& s)
 {
     m_schema = s;
 }
 
-void otl::user(std::string u)
+void otl::user(const std::string& u)
 {
     m_user = u;
 }
 
-void otl::pwd(std::string p)
+void otl::pwd(const std::string& p)
 {
     m_password = p;
 }
 
-void otl::timeout(int to)
+void otl::timeout(const int& to)
 {
     m_timeout = to;
 }

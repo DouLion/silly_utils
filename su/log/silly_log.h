@@ -2,7 +2,7 @@
 #ifndef SILLY_UTILS_SILLY_LOG_H
 #define SILLY_UTILS_SILLY_LOG_H
 #include <singleton/silly_singleton.h>
-#include <su_marco.h>
+#include <system/silly_system.h>
 #include <string/silly_format.h>
 #include <spdlog/spdlog.h>
 

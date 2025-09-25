@@ -29,14 +29,8 @@ const static std::string FILE_PATTERN = "[%Y-%m-%d %H:%M:%S.%e]: %v";
 
 silly_log::silly_log()
 {
-#ifdef IS_WIN32
-    SetConsoleOutputCP(65001);
-    CONSOLE_FONT_INFOEX info = {0};
-    info.cbSize = sizeof(info);
-    info.dwFontSize.Y = 18;
-    info.FontWeight = FW_NORMAL;
-    wcscpy_s(info.FaceName, L"Lucida Console" /*需要是系统支持的字体*/);
-    GetCurrentConsoleFontEx(GetStdHandle(STD_OUTPUT_HANDLE), NULL, &info);
+#ifdef _WIN32
+    WINDOWS_UTF8_PAGE();
 #endif
     try
     {

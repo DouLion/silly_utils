@@ -10,65 +10,7 @@ using namespace silly::file;
 // 为什么用notepad++ 打开时 有些是中文编码(GBK23..)有些是ANSI
 //
 
-static std::string _wildcard2regex(const std::string &pattern)
-{
-    std::string regexPattern;
-    for (char c : pattern)
-    {
-        switch (c)
-        {
-            case '*':
-                regexPattern += ".*";
-                break;  // * 匹配任意数量的字符
-            case '?':
-                regexPattern += ".";
-                break;  // ? 匹配单个字符
-            case '.':
-                regexPattern += "\\.";
-                break;  // . 需要转义
-            case '\\':
-                regexPattern += "\\\\";
-                break;  // \ 需要转义
-            default:
-                regexPattern += c;
-                break;
-        }
-    }
-    return "^" + regexPattern + "$";  // 确保整个字符串匹配
-}
 
-static bool _is_utf8(const std::string &str)
-{
-    int n;
-    for (size_t i = 0; i < str.length();)
-    {
-        if ((str[i] & 0x80) == 0x00)
-        {  // 单字节
-            n = 1;
-        }
-        else if ((str[i] & 0xE0) == 0xC0)
-        {  // 两字节
-            n = 2;
-        }
-        else if ((str[i] & 0xF0) == 0xE0)
-        {  // 三字节
-            n = 3;
-        }
-        else if ((str[i] & 0xF8) == 0xF0)
-        {  // 四字节
-            n = 4;
-        }
-        else
-        {
-            return false;
-        }
-        for (int j = 1; j < n; ++j)
-            if ((str[i + j] & 0xC0) != 0x80)
-                return false;
-        i += n;
-    }
-    return true;
-}
 
 std::filesystem::path utils::realpath(const std::filesystem::path &fp)
 {
@@ -81,11 +23,11 @@ std::filesystem::path utils::realpath(const std::filesystem::path &fp)
 
     // 处理字符串形式的路径
     std::string fullname = fp.string();
-    if (_is_utf8(fullname))
+    if (!IS_GBK(fullname))
     {
         try
         {
-            std::wstring widePath = MultiByteToWideCharSafe(fullname);
+            std::wstring widePath = UTF8_S2WS(fullname);
             return std::filesystem::path(widePath).lexically_normal();
         }
         catch (...)
@@ -101,11 +43,11 @@ std::filesystem::path utils::realpath(const std::string &ftpstr)
 {
 #ifdef IS_WIN32
    
-    if (_is_utf8(ftpstr))
+    if (!IS_GBK(ftpstr))
     {
         try
         {
-            std::wstring widePath = MultiByteToWideCharSafe(ftpstr);
+            std::wstring widePath = UTF8_S2WS(ftpstr);
             return std::filesystem::path(widePath).lexically_normal();
         }
         catch (...)

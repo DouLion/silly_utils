@@ -245,21 +245,20 @@ using silly_handle = int;
 #endif
 #endif
 
-/// 控制台信息print, 如果需要记录日志,使用 log/silly_log.h
-#ifdef IS_WIN32
-// windows 在控制台,以utf8编码输出
-#define WINDOWS_UTF8_PAGE                                                      \
-    {                                                                          \
-        SetConsoleOutputCP(65001);                                             \
-        CONSOLE_FONT_INFOEX info = {0};                                        \
-        info.cbSize = sizeof(info);                                            \
-        info.dwFontSize.Y = 18;                                                \
-        info.FontWeight = FW_NORMAL;                                           \
-        wcscpy_s(info.FaceName, L"Microsoft YaHei" /*需要是系统支持的字体*/);  \
-        GetCurrentConsoleFontEx(GetStdHandle(STD_OUTPUT_HANDLE), NULL, &info); \
-    }
+#ifndef SU_SPRINTF
+#if _WIN32
+#define SU_SPRINTF sprintf_s
 #else
-#define WINDOWS_UTF8_PAGE
+#define SU_SPRINTF sprintf
+#endif
+#endif
+
+#ifndef SU_SPRINTF
+#if _WIN32
+#define SU_SPRINTF sprintf_s
+#else
+#define SU_SPRINTF sprintf
+#endif
 #endif
 
 #ifndef SU_DEBUG_PRINT
@@ -350,98 +349,4 @@ using silly_handle = int;
         delete[] (p);      \
         (p) = nullptr;     \
     }
-#endif
-
-#ifdef IS_WIN32
-
-static std::wstring MultiByteToWideCharSafe(const std::string& str, UINT codePage = CP_UTF8)
-{
-    if (str.empty())
-        return L"";
-
-    // 1. 计算所需缓冲区大小（不包括终止符）
-    int wideCharLen = MultiByteToWideChar(codePage, 0, str.c_str(), (int)str.size(), nullptr, 0);
-    if (wideCharLen <= 0)
-    {
-        throw std::runtime_error("MultiByteToWideChar size query failed");
-    }
-
-    // 2. 分配缓冲区（+1 用于终止符）
-    std::wstring wideStr;
-    wideStr.resize(wideCharLen+1);
-
-    // 3. 执行转换
-    int result = MultiByteToWideChar(codePage, 0, str.c_str(), (int)str.size(), &wideStr[0], wideCharLen);
-    if (result <= 0)
-    {
-        throw std::runtime_error("MultiByteToWideChar conversion failed");
-    }
-
-    return wideStr;
-}
-
-static std::string WideCharToMultiByteSafe(const std::wstring& wstr, UINT codePage = CP_UTF8)
-{
-    if (wstr.empty())
-        return "";
-
-    // 计算所需多字节缓冲区大小（不包括终止符）
-    const int multiByteLen = ::WideCharToMultiByte(codePage,                         // 代码页
-                                                   0,                                // 转换标志
-                                                   wstr.c_str(),                     // 源宽字符字符串
-                                                   static_cast<int>(wstr.length()),  // 实际长度（不含终止符）
-                                                   nullptr,                          // 不执行实际转换
-                                                   0,                                // 仅获取缓冲区大小
-                                                   nullptr,                          // 默认字符替换
-                                                   nullptr                           // 是否使用默认字符
-    );
-
-    if (multiByteLen == 0)
-    {
-        const DWORD error = ::GetLastError();
-        throw std::runtime_error("WideCharToMultiByte failed (size query): " + std::to_string(error));
-    }
-
-    // 使用vector自动管理内存（+1用于终止符）
-    std::vector<char> multiByteBuf(multiByteLen + 1);
-
-    // 执行实际转换
-    const int result = ::WideCharToMultiByte(codePage, 0, wstr.c_str(), static_cast<int>(wstr.length()), multiByteBuf.data(), multiByteLen, nullptr, nullptr);
-
-    if (result == 0)
-    {
-        const DWORD error = ::GetLastError();
-        throw std::runtime_error("WideCharToMultiByte failed (conversion): " + std::to_string(error));
-    }
-
-    // 确保以null终止
-    multiByteBuf[multiByteLen] = '\0';
-
-    return std::string(multiByteBuf.data());
-}
-
-static std::string UpperStr(const std::string& str)
-{
-    std::string ret = str;
-    std::transform(ret.begin(), ret.end(), ret.begin(), ::toupper);
-    return ret;
-}
-
-static std::string LowerStr(const std::string& str)
-{
-    std::string ret = str;
-    std::transform(ret.begin(), ret.end(), ret.begin(), ::tolower);
-    return ret;
-}
-
-static void SetENV(const std::string& name, const std::string& value, int overwrite = 1) {
-#if defined(_WIN32)
-    // Windows 使用 _putenv
-    SetEnvironmentVariable(MultiByteToWideCharSafe(name).c_str(), MultiByteToWideCharSafe(value).c_str());
-#else
-    // Linux/macOS 使用 setenv
-    setenv(name.c_str(), value.c_str(), overwrite);
-#endif
-}
-
 #endif

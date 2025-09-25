@@ -21,7 +21,7 @@ using namespace ClipperLib;
 
 void utils::init_proj_env()
 {
-    SetENV("PROJ_LIB", std::filesystem::current_path().append("share").append("proj").append("proj.db").string());
+    SET_ENV("PROJ_LIB", std::filesystem::current_path().append("share").append("proj").append("proj.db").string());
 }
 void utils::init_gdal_env()
 {
@@ -295,10 +295,10 @@ bool utils::check_shp_info(const std::filesystem::path& file, eGeometryType& geo
     {
         OGRFieldDefn* def = pFeature_r->GetFieldDefnRef(i);
         OGRFieldType fieldType = def->GetType();
-        std::string field_name = def->GetNameRef();
-        if (!silly_encode::check_text_utf8(field_name.c_str(), field_name.size()))
+        std::string filedName = def->GetNameRef();
+        if (!IS_GBK(filedName))
         {
-            field_name = silly_encode::gbk_utf8(field_name);
+            filedName = silly_encode::gbk_utf8(filedName);
         }
         eGeoFieldType field_type{eGeoFieldType::None};
         switch (fieldType)
@@ -343,7 +343,7 @@ bool utils::check_shp_info(const std::filesystem::path& file, eGeometryType& geo
             case OFTInteger64List:
                 break;
         }
-        properties[field_name] = field_type;
+        properties[filedName] = field_type;
     }
 
     GDALClose(poDSr);
@@ -365,7 +365,7 @@ bool read_property(const OGRFeature* feature, const std::map<std::string, eGeoFi
     for (const auto& [key, p_type] : properties)
     {
         std::string utf8_key = key;
-        if (!silly_encode::is_utf8(utf8_key))
+        if (!IS_UTF8(utf8_key))
         {
             utf8_key = silly_encode::gbk_utf8(utf8_key);
         }
@@ -388,7 +388,7 @@ bool read_property(const OGRFeature* feature, const std::map<std::string, eGeoFi
             case eGeoFieldType::String:
             {
                 std::string value = feature->GetFieldAsString(key.c_str());
-                if (!silly_encode::is_utf8(value))
+                if (!IS_UTF8(value))
                 {
                     value = silly_encode::gbk_utf8(value);
                 }
@@ -563,7 +563,7 @@ std::string utils::gdal_driver_name(const std::filesystem::path& file)
         {".gml","GML"},
         {".xlsx","XLSX"}
     };
-    std::string ext = LowerStr(file.extension().string());
+    std::string ext = TO_LOWER(file.extension().string());
     for (const auto& [extension, driver] : DRIVER_NAMES)
     {
         if (std::strcmp(ext.c_str(), extension.c_str()) == 0)

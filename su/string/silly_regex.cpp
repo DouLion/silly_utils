@@ -48,7 +48,7 @@ bool valid::mainland_post(const std::string& str)
 bool valid::mainland_vehicle(const std::string& str)
 {
     std::string us = str;
-    if (!silly_encode::check_text_utf8(str.c_str(), str.size()))
+    if (!IS_GBK(str))
     {
         us = silly_encode::gbk_utf8(str);
     }

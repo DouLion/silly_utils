@@ -203,7 +203,6 @@
 #include <singleton/silly_singleton.h>  // 单例类
 
 // string (字符串)
-#include <string/silly_algorithm.h>  // 字符串算法
 #include <string/silly_format.h>     // 字符串格式化
 #include <string/silly_regex.h>      // 正则表达式
 

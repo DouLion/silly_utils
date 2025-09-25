@@ -109,7 +109,8 @@ eCompressErr silly_rar::decompress(const std::string& s_src, const std::string& 
         // 获取文件名和路径
         std::string entry_name = archive_entry_pathname_utf8(entry);
         std::string gbk_entry_name;
-        if (silly_encode::is_utf8(entry_name))
+        // TODO: 此处应该区分平台
+        if (!IS_GBK(entry_name))
         {
             gbk_entry_name = silly_encode::utf8_gbk(entry_name);
         }

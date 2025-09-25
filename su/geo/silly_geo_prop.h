@@ -42,7 +42,7 @@ class silly_geo_prop
     int32_t as_int32() const;
     double as_double() const;
     std::vector<unsigned char> as_binary() const;
-    int64_t as_int64() const;
+    long long as_int64() const;
 
   private:
     eGeoFieldType m_type{eGeoFieldType::None};

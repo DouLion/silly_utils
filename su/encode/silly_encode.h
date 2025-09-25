@@ -90,9 +90,6 @@ class silly_encode
 {
   public:
 
-
-    static bool is_utf8(const std::string &str);
-
     static eCharset system_encode();
 
     /// <summary>
@@ -135,18 +132,7 @@ class silly_encode
     static std::string unicode_gbk(const std::string &text);
     static std::string unicode_utf8(const std::string &text);
 
-    /// <summary>
-    /// utf8转宽字符, 这个函数没有经过验证,且于区别平台的大端序和小端序
-    /// </summary>
-    /// <param name="text"></param>
-    /// <returns></returns>
-    static std::wstring utf8_wchar(const std::string &text);
-
-    static eCharset is_utf8(const char *data, size_t size);
-
     static eCharset detect_encode(const char *data, size_t size);
-
-    static bool check_text_utf8(const char *str, int length);
 
     static std::string to_hex(const unsigned char *s_byte, const size_t &len);
     static void from_hex(const char *str, unsigned char *Hstr);

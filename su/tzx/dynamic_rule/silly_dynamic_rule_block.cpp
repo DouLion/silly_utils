@@ -11,7 +11,6 @@
 #include "silly_dynamic_rule_block.h"
 #include <log/silly_log.h>
 #include <files/silly_file.h>
-#include <string/silly_algorithm.h>
 #define INDEX_FILENAME ".drule.index"
 #define DAT_SUFFIX ".dat"
 // 一个站,一年按366天计算, 一天24条记录,占用多少字节
@@ -53,7 +52,7 @@ bool tzx::dynamic_rule_block::init(const std::string root, const size_t& num, co
     m_num = num;
     for (auto& line : lines)
     {
-        std::vector<std::string> items = silly::str::algo::split(line, ',');
+        std::vector<std::string> items = SPLIT(line, ',');
         if (items.size() != 2)
         {
             continue;

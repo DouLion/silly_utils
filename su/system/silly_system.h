@@ -1,0 +1,74 @@
+/*
+ * @copyright: Beijing TianZhiXiang Information Technology Co., Ltd. All rights
+ * reserved. 北京天智祥信息科技有限公司版权所有
+ * @website: http://www.tianzhixiang.com.cn/
+ * @author: dou li yang
+ * @date: 2025-09-25
+ * @file: silly_system.cpp
+ * @description: silly_system 头文件
+ * @version: v1.0.1 2025-09-25 dou li yang
+ */
+#ifndef SILLY_UTILS_SILLY_SYSTEM_H
+#define SILLY_UTILS_SILLY_SYSTEM_H
+#include <su_marco.h>
+
+/// 1. Debug 模式时,切换到项目目录,能够以./config加载配置信息
+/// 2. Release 模式时, 如果 可执行程序与config在同级目录, 不做任何处理
+///     如果 可执行程序在bin目录中, 则切换到config的同级目录
+///     -- config
+///         --
+///     -- bin
+///         -- 模式2.exe
+///        模式1.exe
+/// @param binPath CMAKE中设置的项目目录,仅在debug模式下有效
+void BIN_CHDIR(const std::filesystem::path& binPath);
+
+#if _WIN32
+// 这部分在linux下只能使用iconv等第三方库实现
+std::wstring S2WS(const std::string& str, UINT codePage = CP_UTF8);
+
+std::string WS2S(const std::wstring& str, UINT codePage = CP_UTF8);
+
+std::wstring UTF8_S2WS(const std::string& str);
+
+std::string WS2UTF8_S(const std::wstring& str);
+
+std::wstring GBK_S2WS(const std::string& str);
+
+std::string WS2GBK_S(const std::wstring& str);
+std::string GBKToUTF8(const std::string& gbkStr);
+
+std::string UTF8ToGBK(const std::string& utf8Str);
+
+void WINDOWS_UTF8_PAGE(const unsigned int& codePage = 65001, const std::string& font = "Lucida Console");
+
+#endif
+
+void SET_ENV(const std::string& name, const std::string& value, const bool& overwrite = true);
+
+std::string GET_ENV(const std::string& name);
+
+std::string TO_UPPER(const std::string& str);
+std::string TO_LOWER(const std::string& str);
+
+/// 去除所有空白（' '、\t、\n等）
+/// @param str
+/// @return
+std::string TRIM(const std::string& str);
+std::string TRIM_LEFT(const std::string& str);
+std::string TRIM_RIGHT(const std::string& str);
+std::string TRIM_ALL(const std::string& str);
+
+std::string REPLACE(const std::string& str, const std::string& find, const std::string& replace);
+std::string REPLACE(const std::string& str, const char& find, const char& replace);
+std::string REGEX_REPLACE(const std::string& str, const std::string& pattern, const std::string& replace);
+
+std::vector<std::string> SPLIT(const std::string& str, const char& delimiter);
+std::vector<std::string> SPLIT(const std::string& str, const std::string& delimiter);
+
+std::string WILDCARD2REGEX(const std::string &pattern);
+
+bool IS_UTF8(const std::string &str);
+bool IS_GBK(const std::string &str);
+
+#endif
