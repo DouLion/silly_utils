@@ -117,7 +117,7 @@ class geojson
     /// <param name="jv"></param>
     /// <param name="props"></param>
     /// <returns></returns>
-    static bool load(const Json::Value& jv, std::map<std::string, silly_geo_prop>& props);
+    static bool load(const Json::Value& jv, std::unordered_map<std::string, silly_geo_prop>& props);
 
     ///////////////////////////////////写
 

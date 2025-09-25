@@ -72,67 +72,33 @@ class utils
     /// 注:写入 shp , geojson 类型文件中经测试可以实现
     static bool write(const std::filesystem::path& file, const std::vector<silly_geo_coll>& collection, const eCrsEpsgCode& prj = GCS_WGS_1984, const std::string& encode = "UTF-8");
 
-    /// <summary>
-    /// 是否为一个标准的shp文件
-    /// </summary>
-    /// <param name="file"></param>
-    /// <returns></returns>
-    static bool is_valid_shp(const std::filesystem::path& file);
-
-    /// <summary>
-    /// 检查shp文件组中缺失的文件
-    /// .shp: 存储几何矢量
-    /// .dbf: 存储属性信息 (该文件不存在 gdal也能打开shp,成功读取矢量,但是无法读取属性信息)
-    /// .shx: 存储几何矢量索引
-    /// </summary>
-    /// <param name="file"></param>
-    /// <returns></returns>
-    static std::vector<std::string> shp_missing_file(const std::filesystem::path& file);
-
-    /// <summary>
-    /// 加载shp文件中的属性信息
-    /// </summary>
-    /// <param name="file"></param>
-    /// <param name="geoType"></param>
-    /// <param name="properties"></param>
-    /// <returns></returns>
-    static bool check_shp_info(const std::filesystem::path& file, eGeometryType& geoType, std::map<std::string, eGeoFieldType>& properties);
-
-    /// <summary>
-    /// 根据文件类型得到对应的 gdal 中的存储格式
-    /// 支持的文件格式对应的存储类型: shp tab geojson sqlite csv kml gml xlsx
-    /// </summary>
-    /// <param name="file">文件名</param>
-    /// <returns></returns>
-    static std::string gdal_driver_name(const std::filesystem::path& file);
-
     static bool intersect(const silly_geo_coll& gc1, const silly_geo_coll& gc2);
 
     /// <summary>
     /// 矢量与面是否相交
     /// </summary>
-    /// <param name="mpoly1"></param>
-    /// <param name="mpoly2"></param>
+    /// <param name="multiPoly1"></param>
+    /// <param name="multiPoly2"></param>
     /// <returns></returns>
-    static bool intersect(const silly_multi_poly& mpoly1, const silly_multi_poly& mpoly2);
+    static bool intersect(const silly_multi_poly& multiPoly1, const silly_multi_poly& multiPoly2);
 
     /// <summary>
     /// 点是否与矢量面相交(射线算法),点的相交在面内或者在边界上都算是相交
     /// </summary>
-    /// <param name="mpoly"></param>
+    /// <param name="multiPoly"></param>
     /// <param name="point"></param>
     /// <returns></returns>
-    static bool intersect(const silly_poly& mpoly, const silly_point& point);
+    static bool intersect(const silly_poly& multiPoly, const silly_point& point);
 
     /// <summary>
     /// 点是否与矢量多面是否相交(射线算法),点的相交在面内或者在边界上都算是相交
     /// </summary>
-    /// <param name="mpoly"></param>
+    /// <param name="multiPoly"></param>
     /// <param name="point"></param>
     /// <returns></returns>
-    static bool intersect(const silly_multi_poly& mpoly, const silly_point& point);
+    static bool intersect(const silly_multi_poly& multiPoly, const silly_point& point);
 
-    static bool intersect(const silly_multi_poly& mpoly, const silly_line& line);
+    static bool intersect(const silly_multi_poly& multiPoly, const silly_line& line);
 
     static bool intersect(const silly_point& point, const std::vector<silly_point>& points);
 
@@ -148,10 +114,10 @@ class utils
     /// <summary>
     /// 两个面的相交区域
     /// </summary>
-    /// <param name="mpoly1"></param>
-    /// <param name="mpoly2"></param>
+    /// <param name="multiPoly1"></param>
+    /// <param name="multiPoly2"></param>
     /// <returns></returns>
-    static std::vector<silly_poly> intersection(const silly_multi_poly& mpoly1, const silly_multi_poly& mpoly2);
+    static std::vector<silly_poly> intersection(const silly_multi_poly& multiPoly1, const silly_multi_poly& multiPoly2);
 
     /// <summary>
     /// 两个线段相交点
@@ -165,26 +131,26 @@ class utils
     /// <summary>
     /// 两个相交面的 不相交部分, 必须是相交的
     /// </summary>
-    /// <param name="mpoly1"></param>
-    /// <param name="mpoly2"></param>
+    /// <param name="multiPoly1"></param>
+    /// <param name="multiPoly2"></param>
     /// <returns></returns>
-    static std::vector<silly_poly> trans_intersection(const silly_multi_poly& mpoly1, const silly_multi_poly& mpoly2);
+    static std::vector<silly_poly> trans_intersection(const silly_multi_poly& multiPoly1, const silly_multi_poly& multiPoly2);
 
     /// <summary>
     /// 线相交面的部分
     /// </summary>
-    /// <param name="mpoly1"></param>
+    /// <param name="multiPoly"></param>
     /// <param name="line"></param>
     /// <returns></returns>
-    static std::vector<silly_line> intersection(const silly_multi_poly& mpoly, const silly_line& line);
+    static std::vector<silly_line> intersection(const silly_multi_poly& multiPoly, const silly_line& line);
 
     /// <summary>
     /// 穿过面的线, 不再面内的部分
     /// </summary>
-    /// <param name="mpoly1"></param>
-    /// <param name="mpoly2"></param>
+    /// <param name="multiPoly1"></param>
+    /// <param name="line"></param>
     /// <returns></returns>
-    static std::vector<silly_line> trans_intersection(const silly_multi_poly& mpoly1, const silly_line& line);
+    static std::vector<silly_line> trans_intersection(const silly_multi_poly& multiPoly1, const silly_line& line);
 
     /// <summary>
     /// 距离,直接数值计算
@@ -253,7 +219,7 @@ class utils
     /// <summary>
     /// 面积
     /// </summary>
-    /// <param name="mpoly"></param>
+    /// <param name="poly"></param>
     /// <returns></returns>
     static double area(const silly_poly& poly);
 
@@ -267,23 +233,23 @@ class utils
     /// <summary>
     /// 计算面积平方公里
     /// </summary>
-    /// <param name="mpoly">经纬度面</param>
+    /// <param name="poly">经纬度面</param>
     /// <returns></returns>
     static double area_sqkm(const silly_poly& poly, const double& l0);
 
     /// <summary>
     /// 面积
     /// </summary>
-    /// <param name="mpoly">高斯或者墨卡托面</param>
+    /// <param name="multiPoly">高斯或者墨卡托面</param>
     /// <returns></returns>
-    static double area(const silly_multi_poly& mpoly);
+    static double area(const silly_multi_poly& multiPoly);
 
     /// <summary>
     /// 计算面积平方公里
     /// </summary>
-    /// <param name="mpoly">经纬度面</param>
+    /// <param name="multiPoly">经纬度面</param>
     /// <returns></returns>
-    static double area_sqkm(const silly_multi_poly& mpoly, const double& l0);
+    static double area_sqkm(const silly_multi_poly& multiPoly, const double& l0);
 
     /// <summary>
     /// 平滑线
@@ -297,7 +263,7 @@ class utils
     /// <summary>
     /// 平滑闭合环
     /// </summary>
-    /// <param name="line"></param>
+    /// <param name="ring"></param>
     /// <param name="mod">二次贝塞尔 或者 三次贝塞尔 或者其他</param>
     /// <param name="interp">插值</param>
     /// <returns></returns>
@@ -314,7 +280,7 @@ class utils
     /// <summary>
     /// 简化闭合环
     /// </summary>
-    /// <param name="line"></param>
+    /// <param name="ring"></param>
     /// <param name="dist">距离容差</param>
     /// <returns></returns>
     static std::vector<silly_point> simplify_ring(const std::vector<silly_point>& ring, const double& dist);

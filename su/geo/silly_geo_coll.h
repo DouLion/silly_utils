@@ -42,7 +42,8 @@ class silly_geo_coll
     silly_poly m_poly;             // 单面(内环+外环)
     silly_multi_poly m_m_polys;    // 多面(多个 单面)
     // 属性列表
-    std::map<std::string, silly_geo_prop> m_props;
+    std::unordered_map<std::string, silly_geo_prop> m_props;
+    std::map<uint16_t, std::string> m_prop_index;
 };
 
 #endif  // SILLY_UTILS_SILLY_GEO_COLL_H

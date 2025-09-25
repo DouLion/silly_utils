@@ -5,13 +5,11 @@
 #include <log/silly_log.h>
 #endif
 #if SU_THIRD_SUPPORT_GDAL
-// GDAL.
 #include <ogr_spatialref.h>
 #include <ogrsf_frmts.h>
 #include <gdal_alg.h>
 #include <ogr_api.h>
 #endif
-
 #include <polyclipping/clipper.hpp>
 #include <encode/silly_encode.h>
 #include <files/silly_file.h>
@@ -206,281 +204,10 @@ std::string utils::angle_to_desc(const double& angle)
     return desc;
 }
 
-bool utils::is_valid_shp(const std::filesystem::path& file)
-{
-#if SU_THIRD_SUPPORT_GDAL
-    auto poDSr = static_cast<GDALDataset*>(GDALOpenEx(sufile::realpath(file).string().c_str(), GDAL_OF_ALL | GDAL_OF_READONLY, nullptr, nullptr, nullptr));
-    if (nullptr == poDSr)
-    {
-        return false;
-    }
-    GDALClose(poDSr);
-    return true;
-#endif
-    return false;
-}
-
-std::vector<std::string> utils::shp_missing_file(const std::filesystem::path& file)
-{
-    std::vector<std::string> ret;
-    // 获取文件的父级目录和文件名不包含后缀名
-    std::filesystem::path sfp_shp = sufile::realpath(file);
-    if (!std::filesystem::exists(sfp_shp) || sfp_shp.extension() != ".shp")
-    {
-        return ret;
-    }
-    // std::filesystem::path shp_parent_dir = sfp_shp.parent_path();
-    std::string name = sfp_shp.stem().string();
-
-    // 判断同级目录是否有 还存在 同名的 .dbf .shx 文件
-    std::filesystem::path shx = sfp_shp.parent_path().append(name + ".shx");  // 集合索引
-    std::filesystem::path dbf = sfp_shp.parent_path().append(name + ".dbf");  // 属性信息
-    if (!std::filesystem::exists(shx))
-    {
-        ret.push_back(shx.filename().string());
-    }
-    if (!std::filesystem::exists(dbf))
-    {
-        ret.push_back(dbf.filename().string());
-    }
-
-    return ret;
-}
-
-bool utils::check_shp_info(const std::filesystem::path& file, eGeometryType& geoType, std::map<std::string, eGeoFieldType>& properties)
-{
-    bool status = false;
-#if SU_THIRD_SUPPORT_GDAL
-    std::map<std::string, std::string> result;
-
-    auto poDSr = static_cast<GDALDataset*>(GDALOpenEx(sufile::realpath(file).string().c_str(), GDAL_OF_ALL | GDAL_OF_READONLY, nullptr, nullptr, nullptr));
-    if (nullptr == poDSr)
-    {
-        return status;
-    }
-    OGRLayer* poLayer_r = poDSr->GetLayer(0);
-    if (poLayer_r == nullptr)
-    {
-        GDALClose(poDSr);
-        return status;
-    }
-    OGRFeature* pFeature_r = nullptr;
-    // 获取Feature特征
-    pFeature_r = poLayer_r->GetNextFeature();
-    if (nullptr == pFeature_r)
-    {
-        GDALClose(poDSr);
-        return status;
-    }
-
-    // 获取要素的几何形状
-    OGRGeometry* poGeometry_r = pFeature_r->GetGeometryRef();
-    auto gdal_type = wkbFlatten(poGeometry_r->getGeometryType());
-    geoType = static_cast<eGeometryType>(gdal_type);
-    if (wkbUnknown == gdal_type)
-    {
-        GDALClose(poDSr);
-        return status;
-    }
-    // 1 wkbPoint 点
-    // 2 wkbLineString 线
-    // 3 wkbPolygon 面
-    // 4 wkbMultiPoint  多点
-    // 5 wkbMultiLineString  多线
-    // 6 wkbMultiPolygon  多面
-
-    // 循环特征域
-    int fieldCnt = pFeature_r->GetFieldCount();
-    for (int i = 0; i < fieldCnt; i++)
-    {
-        OGRFieldDefn* def = pFeature_r->GetFieldDefnRef(i);
-        OGRFieldType fieldType = def->GetType();
-        std::string filedName = def->GetNameRef();
-        if (!IS_GBK(filedName))
-        {
-            filedName = silly_encode::gbk_utf8(filedName);
-        }
-        eGeoFieldType field_type{eGeoFieldType::None};
-        switch (fieldType)
-        {
-            case OFTInteger:
-                field_type = eGeoFieldType::Int;
-                break;
-            case OFTIntegerList:
-                break;
-            case OFTReal:
-                field_type = eGeoFieldType::Numeric;
-                break;
-            case OFTRealList:
-                break;
-            case OFTString:
-                field_type = eGeoFieldType::String;
-                break;
-            case OFTStringList:
-                break;
-#ifndef NDEBUG
-                // 弃用 deprecated
-            case OFTWideString:
-                break;
-            case OFTWideStringList:
-                break;
-#endif
-            case OFTBinary:
-                field_type = eGeoFieldType::Binary;
-                break;
-            case OFTTime:
-                field_type = eGeoFieldType::Time;
-                break;
-            case OFTDate:
-                field_type = eGeoFieldType::Date;
-                break;
-            case OFTDateTime:
-                field_type = eGeoFieldType::DateTime;
-                break;
-            case OFTInteger64:
-                field_type = eGeoFieldType::Long;
-                break;
-            case OFTInteger64List:
-                break;
-        }
-        properties[filedName] = field_type;
-    }
-
-    GDALClose(poDSr);
-    status = true;
-#endif
-    return status;
-}
-#if SU_THIRD_SUPPORT_GDAL
-/// <summary>
-/// 读取一个矢量数据的属性
-/// </summary>
-/// <param name="feature"></param>
-/// <param name="properties"></param>
-/// <param name="props"></param>
-/// <returns></returns>
-bool read_property(const OGRFeature* feature, const std::map<std::string, eGeoFieldType>& properties, std::map<std::string, silly_geo_prop>& props)
-{
-
-    for (const auto& [key, p_type] : properties)
-    {
-        std::string utf8_key = key;
-        if (!IS_UTF8(utf8_key))
-        {
-            utf8_key = silly_encode::gbk_utf8(utf8_key);
-        }
-        switch (p_type)
-        {
-            case eGeoFieldType::None:
-                break;
-            case eGeoFieldType::Int:
-            {
-                int value = feature->GetFieldAsInteger(key.c_str());
-                props[utf8_key] = {value};
-            }
-            break;
-            case eGeoFieldType::Numeric:
-            {
-                double value = feature->GetFieldAsDouble(key.c_str());
-                props[utf8_key] = {value};
-            }
-            break;
-            case eGeoFieldType::String:
-            {
-                std::string value = feature->GetFieldAsString(key.c_str());
-                if (!IS_UTF8(value))
-                {
-                    value = silly_encode::gbk_utf8(value);
-                }
-                props[utf8_key] = {value};
-            }
-            break;
-            case eGeoFieldType::Time:
-            case eGeoFieldType::Date:
-            case eGeoFieldType::DateTime:
-            {
-                const int idx = feature->GetFieldIndex(key.c_str());
-                int y = 0, m = 0, d = 0, h = 0, M = 0, s = 0, tzFlag;
-                if (!feature->GetFieldAsDateTime(idx, &y, &m, &d, &h, &M, &s, &tzFlag))
-                {
-                    props[utf8_key] = {""};
-                }
-            }
-            break;
-            case eGeoFieldType::Long:
-            {
-                long long value = feature->GetFieldAsInteger64(key.c_str());
-                props[utf8_key] = {value};
-            }
-            break;
-            default:
-                break;
-        }
-    }
-
-    return true;
-}
-
-bool read_all_types_data(const eGeometryType& feature_type, const OGRGeometry* geometry, silly_geo_coll& geo_coll)
-{
-    bool status = false;
-    switch (feature_type)
-    {
-        case eGeometryType::Point:  // 单点
-        {
-            auto point = (OGRPoint*)(geometry);
-            geo_coll.m_point = silly_gdal::silly_point_from_ogr(point);
-            status = true;
-        }
-        break;
-        case eGeometryType::LineString:  // 单线
-        {
-            auto lineString = (OGRLineString*)(geometry);
-            geo_coll.m_line = silly_gdal::silly_line_from_ogr(lineString);
-            status = true;
-        }
-        break;
-        case eGeometryType::Polygon:  // 单面
-        {
-            auto polygon = (OGRPolygon*)(geometry);
-            geo_coll.m_poly = silly_gdal::silly_poly_from_ogr(polygon);
-            status = true;
-        }
-        break;
-        case eGeometryType::MultiPoint:  // 多点
-        {
-            auto multiPoint = (OGRMultiPoint*)(geometry);
-            geo_coll.m_m_points = silly_gdal::silly_multi_point_from_ogr(multiPoint);
-            status = true;
-        }
-        break;
-        case eGeometryType::MultiLineString:  // 多线
-        {
-            auto multiLineString = (OGRMultiLineString*)(geometry);
-            geo_coll.m_m_lines = silly_gdal::silly_multi_line_from_ogr(multiLineString);
-            status = true;
-        }
-        break;
-        case eGeometryType::MultiPolygon:  // 多面
-        {
-            auto multiPolygon = (OGRMultiPolygon*)(geometry);
-            geo_coll.m_m_polys = silly_gdal::silly_multi_poly_from_ogr(multiPolygon);
-            status = true;
-        }
-        break;
-        default:
-        {
-            SLOG_ERROR("Unprocessable data types: {}\n", static_cast<int>(feature_type));
-        }
-        break;
-    }
-    return status;
-}
-#endif
 std::vector<silly_geo_coll> utils::read(const std::filesystem::path& file, const bool& ignore_prop)
 {
     std::vector<silly_geo_coll> ret;
-    utils::read(file, ret, ignore_prop);
+    read(file, ret, ignore_prop);
     return ret;
 }
 
@@ -489,9 +216,8 @@ bool utils::read(const std::filesystem::path& file, std::vector<silly_geo_coll>&
     bool status = false;
 #if SU_THIRD_SUPPORT_GDAL
     std::filesystem::path realPath = sufile::realpath(file);
-    eGeometryType type;
-    std::map<std::string, eGeoFieldType> properties;
-    if (!check_shp_info(realPath.string(), type, properties))
+    std::map<uint16_t, GeoFiledInfo> properties;
+    if (!silly_gdal::check_field_info(realPath.string(), properties))
     {
         SLOG_ERROR("检查矢量[{}]信息失败\n", realPath.u8string());
         return status;
@@ -537,9 +263,9 @@ bool utils::read(const std::filesystem::path& file, std::vector<silly_geo_coll>&
             temp_geo_coll.m_type = feature_type;  // 添加矢量数据类型
             if (!ignore_prop)
             {
-                read_property(feature, properties, temp_geo_coll.m_props);  // 读取属性数据
+                silly_gdal::read_property(feature, properties, temp_geo_coll.m_props);  // 读取属性数据
             }
-            status = read_all_types_data(feature_type, geometry, temp_geo_coll);  // 添加所有数据类型,如果是复合数据类型会递归的调用
+            status = silly_gdal::read_all_types_data(feature_type, geometry, temp_geo_coll);  // 添加所有数据类型,如果是复合数据类型会递归的调用
             OGRFeature::DestroyFeature(feature);
             collections.push_back(temp_geo_coll);
         }
@@ -550,29 +276,6 @@ bool utils::read(const std::filesystem::path& file, std::vector<silly_geo_coll>&
     return status;
 }
 
-std::string utils::gdal_driver_name(const std::filesystem::path& file)
-{
-    static const std::unordered_map<std::string, std::string>
-    DRIVER_NAMES = {
-        {".shp", "ESRI Shapefile"},
-        {".tab", "Mapinfo File"},
-        {".geojson","GeoJSON"},
-        {".sqlite","SQLite"},
-        {".csv", "CSV"},
-        {".kml","KML"},
-        {".gml","GML"},
-        {".xlsx","XLSX"}
-    };
-    std::string ext = TO_LOWER(file.extension().string());
-    for (const auto& [extension, driver] : DRIVER_NAMES)
-    {
-        if (std::strcmp(ext.c_str(), extension.c_str()) == 0)
-        {
-            return driver;
-        }
-    }
-    return "";
-}
 #if SU_THIRD_SUPPORT_GDAL
 // 根据eGeoFieldType 找gdal中属性的类型
 OGRFieldType convertToOGRFieldType(const eGeoFieldType& type)
@@ -615,149 +318,6 @@ OGRFieldType convertToOGRFieldType(const eGeoFieldType& type)
 }
 
 #endif
-#if SU_THIRD_SUPPORT_GDAL
-// 添加属性到shp中
-bool writePropertiesToGeometry(OGRFeature* feature, const std::map<std::string, silly_geo_prop>& m_props)
-{
-
-    bool status = true;
-    for (const auto& [key, prop] : m_props)
-    {
-        int fieldIndex = feature->GetFieldIndex(key.c_str());
-        if (fieldIndex >= 0)
-        {
-            switch (prop.type())
-            {
-                case eGeoFieldType::Int:
-                    feature->SetField(fieldIndex, prop.as_int32());
-                    break;
-                case eGeoFieldType::Numeric:
-                    feature->SetField(fieldIndex, prop.as_double());
-                    break;
-                case eGeoFieldType::String:
-                    feature->SetField(fieldIndex, prop.as_string().c_str());
-                    break;
-                case eGeoFieldType::Time:
-                    break;
-                case eGeoFieldType::Date:
-                    break;
-                case eGeoFieldType::DateTime:
-                    break;
-                case eGeoFieldType::Long:
-                    feature->SetField(fieldIndex, prop.as_int64());
-                    break;
-                default:
-                    status = false;
-                    break;
-            }
-        }
-    }
-    return status;
-}
-// 处理复合数据类型的变量
-bool process_composite_data(const eGeometryType coll_type, OGRGeometry* geometry, OGRGeometryCollection* geomCollection, const silly_geo_coll& geo_coll)
-{
-
-    bool status = true;
-    switch (coll_type)
-    {
-        case eGeometryType::Point:
-        {
-            OGRPoint ogrPoint(geo_coll.m_point.x, geo_coll.m_point.y);
-            geomCollection->addGeometry(&ogrPoint);
-        }
-        break;
-        case eGeometryType::LineString:
-        {
-            OGRLineString orgLine = silly_gdal::silly_line_to_ogr(geo_coll.m_line);
-            geomCollection->addGeometry(&orgLine);
-        }
-        break;
-        case eGeometryType::Polygon:
-        {
-            OGRPolygon polygon = silly_gdal::silly_poly_to_ogr(geo_coll.m_poly);
-            geomCollection->addGeometry(&polygon);
-        }
-        break;
-        case eGeometryType::MultiPoint:
-        {
-            OGRMultiPoint multiPoint = silly_gdal::silly_multi_point_to_ogr(geo_coll.m_m_points);
-            geomCollection->addGeometry(&multiPoint);
-        }
-        break;
-        case eGeometryType::MultiLineString:
-        {
-            OGRMultiLineString multiLineString = silly_gdal::silly_multi_line_to_ogr(geo_coll.m_m_lines);
-            geomCollection->addGeometry(&multiLineString);
-        }
-        break;
-        case eGeometryType::MultiPolygon:
-        {
-            OGRMultiPolygon multiPolygon = silly_gdal::silly_multi_poly_to_ogr(geo_coll.m_m_polys);
-            geomCollection->addGeometry(&multiPolygon);
-        }
-        break;
-        default:
-            status = false;
-            break;
-    }
-
-    return status;
-}
-
-// 写入所有类型的数据
-static bool wire_all_types_data(const eGeometryType coll_type, OGRLayer* outputLayer, OGRFeature* feature, OGRGeometry* geometry, const silly_geo_coll& geo_coll)
-{
-    bool status = true;
-    switch (coll_type)
-    {
-        case eGeometryType::Point:
-        {
-            OGRPoint ogrPoint(geo_coll.m_point.x, geo_coll.m_point.y);
-            feature->SetGeometry(&ogrPoint);
-        }
-        break;
-        case eGeometryType::LineString:
-        {
-            OGRLineString orgLine = silly_gdal::silly_line_to_ogr(geo_coll.m_line);
-            feature->SetGeometry(&orgLine);
-        }
-        break;
-        case eGeometryType::Polygon:
-        {
-            OGRPolygon polygon = silly_gdal::silly_poly_to_ogr(geo_coll.m_poly);
-            feature->SetGeometry(&polygon);
-        }
-        break;
-        case eGeometryType::MultiPoint:
-        {
-            OGRMultiPoint multiPoint = silly_gdal::silly_multi_point_to_ogr(geo_coll.m_m_points);
-            feature->SetGeometry(&multiPoint);
-        }
-        break;
-        case eGeometryType::MultiLineString:
-        {
-            OGRMultiLineString multiLineString = silly_gdal::silly_multi_line_to_ogr(geo_coll.m_m_lines);
-            feature->SetGeometry(&multiLineString);
-        }
-        break;
-        case eGeometryType::MultiPolygon:
-        {
-            OGRMultiPolygon multiPolygon = silly_gdal::silly_multi_poly_to_ogr(geo_coll.m_m_polys);
-            feature->SetGeometry(&multiPolygon);
-        }
-        break;
-        default:
-            status = false;
-            break;
-    }
-    if (outputLayer->CreateFeature(feature) != OGRERR_NONE)  // 在图层中创建要素
-    {
-        status = false;
-    }
-    return status;
-}
-#endif
 bool utils::write(const std::filesystem::path& file, const std::vector<silly_geo_coll>& collection, const eCrsEpsgCode& prj, const std::string& encode)
 {
     bool status = false;
@@ -768,22 +328,15 @@ bool utils::write(const std::filesystem::path& file, const std::vector<silly_geo
         return status;
     }
     std::filesystem::path realPath = sufile::realpath(file);
-    // 根据拓展名得到存储格式
-    std::string gdalDriverName = gdal_driver_name(realPath);
-    if (gdalDriverName.empty())
-    {
-        SLOG_ERROR("无法确定写入文件类型{}", realPath.u8string());
-        return status;
-    }
-    std::string LayerName = realPath.filename().stem().string();
 
-    GDALDriver* outDriver = GetGDALDriverManager()->GetDriverByName(gdalDriverName.c_str());
-    GDALDataset* outputData = outDriver->Create(realPath.string().c_str(), 0, 0, 0, GDT_Unknown, nullptr);
+    GDALDataset* outputData = static_cast<GDALDataset*>(silly_gdal::GdalOpenDataset(realPath, false));
     if (outputData == nullptr)
     {
         SLOG_ERROR("创建输出文件失败");
         return false;
     }
+
+    std::string LayerName = realPath.filename().stem().string();
     OGRSpatialReference ref = ORG_SP_REF(prj);
     OGRLayer* outputLayer = outputData->CreateLayer(LayerName.c_str(), &ref, wkbUnknown, nullptr);
     if (outputLayer == nullptr)
@@ -807,22 +360,7 @@ bool utils::write(const std::filesystem::path& file, const std::vector<silly_geo
     }
     for (const auto& coll : collection)
     {
-        OGRFeature* feature = OGRFeature::CreateFeature(outputLayer->GetLayerDefn());
-        // 添加矢量
-        eGeometryType coll_type = coll.m_type;
-        OGRGeometry* geometry = OGRGeometryFactory::createGeometry((OGRwkbGeometryType)coll_type);
-        if (!coll.m_props.empty())
-        {
-            if (!writePropertiesToGeometry(feature, coll.m_props))  // 添加属性
-            {
-                SLOG_ERROR("写入属性失败")
-            }
-        }
-        // 添加矢量数据
-        status = wire_all_types_data(coll_type, outputLayer, feature, geometry, coll);
-
-        OGRFeature::DestroyFeature(feature);
-        OGRGeometryFactory::destroyGeometry(geometry);
+        silly_gdal::AddGeometry(outputLayer, coll);
     }
     //手动创建.cpg文件
     std::filesystem::path cpgFile = realPath.parent_path();
@@ -840,13 +378,13 @@ bool utils::intersect(const silly_geo_coll& gc1, const silly_geo_coll& gc2)
     return false;
 }
 
-bool utils::intersect(const silly_multi_poly& mpoly1, const silly_multi_poly& mpoly2)
+bool utils::intersect(const silly_multi_poly& multiPoly1, const silly_multi_poly& multiPoly2)
 {
     // TODO:
 #if SU_THIRD_SUPPORT_GDAL
     // 创建 OGRPolygon 对象
-    OGRMultiPolygon p1 = silly_gdal::silly_multi_poly_to_ogr(mpoly1);
-    OGRMultiPolygon p2 = silly_gdal::silly_multi_poly_to_ogr(mpoly2);
+    OGRMultiPolygon p1 = silly_gdal::silly_multi_poly_to_ogr(multiPoly1);
+    OGRMultiPolygon p2 = silly_gdal::silly_multi_poly_to_ogr(multiPoly2);
 
     // 判断两个 OGRPolygon 是否相交
     if (p1.Intersects(&p2))
@@ -856,13 +394,13 @@ bool utils::intersect(const silly_multi_poly& mpoly1, const silly_multi_poly& mp
 #endif
     return false;
 }
-std::vector<silly_poly> utils::intersection(const silly_multi_poly& mpoly1, const silly_multi_poly& mpoly2)
+std::vector<silly_poly> utils::intersection(const silly_multi_poly& multiPoly1, const silly_multi_poly& multiPoly2)
 {
     std::vector<silly_poly> result;
 #if SU_THIRD_SUPPORT_GDAL
     // 创建 OGRPolygon 对象
-    OGRMultiPolygon org_ploy_1 = silly_gdal::silly_multi_poly_to_ogr(mpoly1);
-    OGRMultiPolygon org_ploy_2 = silly_gdal::silly_multi_poly_to_ogr(mpoly2);
+    OGRMultiPolygon org_ploy_1 = silly_gdal::silly_multi_poly_to_ogr(multiPoly1);
+    OGRMultiPolygon org_ploy_2 = silly_gdal::silly_multi_poly_to_ogr(multiPoly2);
 
     /*// 判断两个 OGRPolygon 是否相交
     if (!org_ploy_1.Intersects(&org_ploy_2))
@@ -985,16 +523,16 @@ std::optional<silly_pointZ> utils::intersection(const silly_segmentZ& s1, const 
     return std::nullopt;
 }
 
-bool utils::intersect(const silly_poly& mpoly, const silly_point& point)
+bool utils::intersect(const silly_poly& multiPoly, const silly_point& point)
 {
     silly_point ray_end(point.x + 1000, point.y);  // 向右引一条射线 1000单位
 
     // 外环
-    bool is_in_outer = intersect(point, mpoly.outer.points);
+    bool is_in_outer = intersect(point, multiPoly.outer.points);
     if (is_in_outer)
     {
         // 内环
-        for (const auto& inner : mpoly.holes)
+        for (const auto& inner : multiPoly.holes)
         {
             if (intersect(point, inner.points))  // 在内环内
             {
@@ -1006,10 +544,10 @@ bool utils::intersect(const silly_poly& mpoly, const silly_point& point)
     return false;
 }
 
-bool utils::intersect(const silly_multi_poly& mpoly, const silly_point& point)
+bool utils::intersect(const silly_multi_poly& multiPoly, const silly_point& point)
 {
     bool is_in = false;
-    for (const auto& poly : mpoly)
+    for (const auto& poly : multiPoly)
     {
         if (intersect(poly, point))
         {
@@ -1019,7 +557,7 @@ bool utils::intersect(const silly_multi_poly& mpoly, const silly_point& point)
     }
     return is_in;
 }
-bool utils::intersect(const silly_multi_poly& mpoly, const silly_line& line)
+bool utils::intersect(const silly_multi_poly& multiPoly, const silly_line& line)
 {
     // TODO:
     return false;
@@ -1029,7 +567,7 @@ bool utils::nearby(const silly_point& point, const silly_line& line, const doubl
     // TODO:
     return false;
 }
-std::vector<silly_line> utils::intersection(const silly_multi_poly& mpoly, const silly_line& line)
+std::vector<silly_line> utils::intersection(const silly_multi_poly& multiPoly, const silly_line& line)
 {
     // TODO:
     return std::vector<silly_line>();
@@ -1080,31 +618,31 @@ double utils::area_sqkm(const silly_poly& poly, const double& l0)
     }
     return total_area;
 }
-double utils::area(const silly_multi_poly& mpoly)
+double utils::area(const silly_multi_poly& multiPoly)
 {
     double total_area = 0;
-    for (const auto& poly : mpoly)
+    for (const auto& poly : multiPoly)
     {
         total_area += area(poly);
     }
     return total_area;
 }
-double utils::area_sqkm(const silly_multi_poly& mpoly, const double& l0)
+double utils::area_sqkm(const silly_multi_poly& multiPoly, const double& l0)
 {
     double total_area = 0;
-    for (const auto& poly : mpoly)
+    for (const auto& poly : multiPoly)
     {
         total_area += area_sqkm(poly, l0);
     }
     return total_area;
 }
-std::vector<silly_poly> utils::trans_intersection(const silly_multi_poly& mpoly1, const silly_multi_poly& mpoly2)
+std::vector<silly_poly> utils::trans_intersection(const silly_multi_poly& multiPoly1, const silly_multi_poly& multiPoly2)
 {
     std::vector<silly_poly> result;
     // TODO:
     return result;
 }
-std::vector<silly_line> utils::trans_intersection(const silly_multi_poly& mpoly1, const silly_line& line)
+std::vector<silly_line> utils::trans_intersection(const silly_multi_poly& multiPoly1, const silly_line& line)
 {
     std::vector<silly_line> result;
     // TODO:

@@ -289,7 +289,7 @@ bool geojson::load(const Json::Value& jv, silly_multi_poly& mpoly)
     return true;
 }
 
-bool geojson::load(const Json::Value& jv, std::map<std::string, silly_geo_prop>& props)
+bool geojson::load(const Json::Value& jv, std::unordered_map<std::string, silly_geo_prop>& props)
 {
     if (!jv.isObject())
         return false;

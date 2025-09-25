@@ -27,6 +27,9 @@ silly_geo_prop::silly_geo_prop(const long long &ll)
     m_data = ll;
     m_type = eGeoFieldType::Long;
 }
+silly_geo_prop::silly_geo_prop(const std::vector<unsigned char> &bs)
+{
+}
 
 silly_geo_prop::silly_geo_prop(const silly_geo_prop &other)
 {

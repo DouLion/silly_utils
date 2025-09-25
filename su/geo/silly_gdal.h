@@ -7,10 +7,15 @@
 #include <geo/silly_geo_coll.h>
 #if SU_THIRD_SUPPORT_GDAL
 #include <gdal_priv.h>
+#include <ogr_spatialref.h>
+#include <ogrsf_frmts.h>
+#include <gdal_alg.h>
+#include <ogr_api.h>
+
 #endif
 class silly_gdal
 {
-public:
+  public:
 #if SU_THIRD_SUPPORT_GDAL
 
     /// <summary>
@@ -156,6 +161,39 @@ public:
     /// <param name="geometry"></param>
     /// <returns></returns>
     static silly_geo_coll silly_geo_coll_from_ogr(const OGRGeometry* geometry);
+
+    /// ----------------------------------- shp文件读写相关 -----------------------------------------------
+
+    static std::string GradDriverName(const std::filesystem::path& file);
+    static void* GdalOpenDataset(const std::filesystem::path& file, const bool& read = true);
+    static bool check_field_info(const std::filesystem::path& file, std::map<uint16_t, GeoFiledInfo>& properties);
+
+    static bool read_property(const OGRFeature* feature, const std::map<uint16_t, GeoFiledInfo>& properties, std::unordered_map<std::string, silly_geo_prop>& props);
+    static bool read_all_types_data(const eGeometryType& feature_type, const OGRGeometry* geometry, silly_geo_coll& geo_coll);
+
+    /// <summary>
+    /// 是否为一个标准的shp文件
+    /// </summary>
+    /// <param name="file"></param>
+    /// <returns></returns>
+    static bool is_valid_shp(const std::filesystem::path& file);
+
+    /// <summary>
+    /// 检查shp文件组中缺失的文件
+    /// .shp: 存储几何矢量
+    /// .dbf: 存储属性信息 (该文件不存在 gdal也能打开shp,成功读取矢量,但是无法读取属性信息)
+    /// .shx: 存储几何矢量索引
+    /// </summary>
+    /// <param name="file"></param>
+    /// <returns></returns>
+    static std::vector<std::string> shp_missing_file(const std::filesystem::path& file);
+
+
+    // 写入所有类型的数据
+    static bool AddGeometry(OGRLayer* layer, const silly_geo_coll& geometry, bool writeProp= true);
+    static bool FillGeometry(const eGeometryType& type, OGRLayer* outputLayer, OGRFeature* feature, OGRGeometry* geometry, const silly_geo_coll& geo_coll);
+    static  bool FillField(OGRFeature* feature, const std::unordered_map<std::string, silly_geo_prop>& m_props);
+
 #endif
 };
 
