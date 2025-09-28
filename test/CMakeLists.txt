@@ -5,7 +5,7 @@ foreach(dirname ${CMAKE_CURRENT_SOURCE_DIR})
   file(
     GLOB_RECURSE SU_TEST_SRC_FILES
     RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
-    "${dirname}/*.h" "${dirname}/*.hpp" "${dirname}/*.c" "${dirname}/*.cpp")
+    "units/${dirname}/*.h" "units/${dirname}/*.hpp" "units/${dirname}/*.c" "units/${dirname}/*.cpp")
 endforeach()
 
 if(CATCH2_UNITS_DISABLED)
@@ -13,7 +13,7 @@ if(CATCH2_UNITS_DISABLED)
    find_package(glfw3 CONFIG REQUIRED)
     target_link_libraries(${PROJECT_NAME} PUBLIC glfw)
 else()
-  add_executable(${PROJECT_NAME} ${SU_TEST_SRC_FILES})
+  add_executable(${PROJECT_NAME} ${SU_TEST_SRC_FILES} test.cpp)
   add_definitions("-DCATCH2_UNIT_TEST")
 
 endif()
