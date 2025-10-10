@@ -4,6 +4,7 @@
 
 #include "silly_gdal.h"
 #include <system/silly_system.h>
+#include <encode/silly_encode.h>
 #if SU_THIRD_SUPPORT_GDAL
 
 const static std::map<OGRFieldType, eGeoFieldType> GEO_FIELD_TYPE_OGR2SU = {
@@ -335,7 +336,7 @@ bool silly_gdal::check_field_info(const std::filesystem::path& file, std::map<ui
         tmp.name = pDef->GetNameRef();
         if (IS_GBK(tmp.name))
         {
-            tmp.u8name = GBKToUTF8(tmp.name);
+            tmp.u8name = silly_encode::gbk_utf8(tmp.name);
         }
         if (GEO_FIELD_TYPE_OGR2SU.find(fieldType) == GEO_FIELD_TYPE_OGR2SU.end())
         {
@@ -375,7 +376,7 @@ bool silly_gdal::read_property(const OGRFeature* feature, const std::map<uint16_
                 std::string value = feature->GetFieldAsString(index);
                 if (!IS_UTF8(value))
                 {
-                    value = GBKToUTF8(value);
+                    value = silly_encode::gbk_utf8(value);
                 }
                 props[info.u8name] = {value};
             }
