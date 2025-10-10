@@ -95,7 +95,7 @@ class silly_mqtt_client
     bool m_disconnected = false;
 };
 
-typedef silly_mqtt_client sumqttc;
+typedef silly_mqtt_client sumqttcli;
 
 /* 订阅使用示例
 int main(int argc, char** argv)
