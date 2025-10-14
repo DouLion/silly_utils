@@ -4,7 +4,7 @@
  * @website: http://www.tianzhixiang.com.cn/
  * @author: dou li yang
  * @date: 2025-08-08
- * @file: silly_point.cpp
+ * @file: silly_other.cpp
  * @description: silly_point 头文件
  * @version: v1.0.1 2025-08-08 dou li yang
  */
@@ -25,29 +25,40 @@ class silly_point
         y = yy;
     }
 
-    silly_point& operator=(const silly_point& point) = default;
+    silly_point& operator=(const silly_point& other) = default;
 
-    silly_point operator+(const silly_point& point) const
+    silly_point operator+(const silly_point& other) const
     {
-        silly_point ret(x + point.x, y + point.y);
+        silly_point ret(x + other.x, y + other.y);
         return ret;
     }
-    silly_point operator+=(const silly_point& point)
+
+    double dot(const silly_point& other) const
     {
-        this->x += point.x;
-        this->y += point.y;
+        return x * other.x + y * other.y;
+    }
+
+    double cross(const silly_point& other) const
+    {
+        return x * other.y - y * other.x;  // 2D 叉积（标量）
+    }
+
+    silly_point operator+=(const silly_point& other)
+    {
+        this->x += other.x;
+        this->y += other.y;
         return *this;
     }
 
-    silly_point operator-(const silly_point& point) const
+    silly_point operator-(const silly_point& other) const
     {
-        silly_point ret(x - point.x, y - point.y);
+        silly_point ret(x - other.x, y - other.y);
         return ret;
     }
-    silly_point operator-=(const silly_point& point)
+    silly_point operator-=(const silly_point& other)
     {
-        this->x -= point.x;
-        this->y -= point.y;
+        this->x -= other.x;
+        this->y -= other.y;
         return *this;
     }
 
@@ -57,9 +68,9 @@ class silly_point
         return ret;
     }
 
-    silly_point operator*(const silly_point& point) const
+    silly_point operator*(const silly_point& other) const
     {
-        silly_point ret(x * point.x, y * point.y);
+        silly_point ret(x * other.x, y * other.y);
         return ret;
     }
 
@@ -70,10 +81,10 @@ class silly_point
         return *this;
     }
 
-    silly_point operator*=(const silly_point& point)
+    silly_point operator*=(const silly_point& other)
     {
-        this->y *= point.y;
-        this->x *= point.x;
+        this->y *= other.y;
+        this->x *= other.x;
         return *this;
     }
 
@@ -82,9 +93,9 @@ class silly_point
         return silly_point(x / scale, y / scale);
     }
 
-    silly_point operator/(const silly_point& point) const
+    silly_point operator/(const silly_point& other) const
     {
-        return silly_point(x / point.x, y / point.y);
+        return silly_point(x / other.x, y / other.y);
     }
 
     silly_point operator/=(double scale)
@@ -94,31 +105,31 @@ class silly_point
         return *this;
     }
 
-    silly_point operator/=(const silly_point& point)
+    silly_point operator/=(const silly_point& other)
     {
-        this->y /= point.y;
-        this->x /= point.x;
+        this->y /= other.y;
+        this->x /= other.x;
         return *this;
     }
 
-    bool operator==(const silly_point& point) const
+    bool operator==(const silly_point& other) const
     {
-        return std::abs(point.x - this->x) <= SU_GEO_EPSILON && std::abs(point.y - this->y) <= SU_GEO_EPSILON;
+        return std::abs(other.x - this->x) <= SU_GEO_EPSILON && std::abs(other.y - this->y) <= SU_GEO_EPSILON;
     }
 
-    bool operator<(const silly_point& point) const
+    bool operator<(const silly_point& other) const
     {
-        return point.y < y || (point.y == y && point.x < x);
+        return other.y < y || (other.y == y && other.x < x);
     }
 
-    bool operator>(const silly_point& point) const
+    bool operator>(const silly_point& other) const
     {
-        return point.y > y || (point.y == y && point.x > x);
+        return other.y > y || (other.y == y && other.x > x);
     }
 
-    bool operator!=(const silly_point& point) const
+    bool operator!=(const silly_point& other) const
     {
-        return std::abs(point.x - this->x) > SU_GEO_EPSILON || std::abs(point.y - this->y) > SU_GEO_EPSILON;
+        return std::abs(other.x - this->x) > SU_GEO_EPSILON || std::abs(other.y - this->y) > SU_GEO_EPSILON;
     }
 
   public:
