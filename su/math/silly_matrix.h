@@ -359,6 +359,92 @@ class matrix
     }
 
     /// <summary>
+    /// 双线性插值
+    /// </summary>
+    /// <param name="x"></param>
+    /// <param name="y"></param>
+    /// <returns></returns>
+    T bilinear(const double &x, const double &y)
+    {
+        // 边界检查，如果超出范围，可以 clamp 或 return 0.0，这里我们做简单的 clamp
+        double px = std::clamp(x, 0.0, static_cast<double>(m_col - 1));
+        double py = std::clamp(y, 0.0, static_cast<double>(m_row - 1));
+
+        size_t x1 = static_cast<size_t>(px);
+        size_t y1 = static_cast<size_t>(py);
+
+        size_t x2 = std::min(x1 + 1, m_col - 1);
+        size_t y2 = std::min(y1 + 1, m_row - 1);
+
+        double fx = px - x1;
+        double fy = py - y1;
+
+        // 获取四个点的值
+        double Q11 = m_data[y1 * m_col + x1];
+        double Q21 = m_data[y1 * m_col + x2];
+        double Q12 = m_data[y2 * m_col + x1];
+        double Q22 = m_data[y2 * m_col + x2];
+
+        // 双线性插值公式
+        double R1 = Q11 * (1 - fx) + Q21 * fx;  // 在 y1 行，x 方向插值
+        double R2 = Q12 * (1 - fx) + Q22 * fx;  // 在 y2 行，x 方向插值
+        double P = R1 * (1 - fy) + R2 * fy;     // 在 y 方向插值
+
+        return return static_cast<T>(P);
+    }
+
+    /// <summary>
+    /// 双三次插值
+    /// </summary>
+    /// <param name="x"></param>
+    /// <param name="y"></param>
+    /// <returns></returns>
+    T bicubic(const double& x, const double& y)
+    {
+        // clamp 到合法范围
+        double px = std::clamp(x, 0.0, static_cast<double>(m_col - 1));
+        double py = std::clamp(y, 0.0, static_cast<double>(m_row - 1));
+
+        size_t x0 = static_cast<size_t>(std::floor(px));
+        size_t y0 = static_cast<size_t>(std::floor(py));
+
+        double dx = px - x0;
+        double dy = py - y0;
+
+        double result = 0.0;
+        double weight_sum = 0.0;
+
+        // 遍历 4x4 邻域
+        for (int m = -1; m <= 2; ++m)
+        {
+            for (int n = -1; n <= 2; ++n)
+            {
+                size_t xi = x0 + n;
+                size_t yi = y0 + m;
+
+                // 边界处理：clamp 到有效范围
+                xi = std::clamp(xi, static_cast<size_t>(0), m_col - 1);
+                yi = std::clamp(yi, static_cast<size_t>(0), m_row - 1);
+
+                double value = m_data[yi * m_col + xi];
+
+                double wx = cubic_weight(n - dx);  // n - dx 是距离
+                double wy = cubic_weight(m - dy);
+
+                double w = wx * wy;
+                result += value * w;
+                weight_sum += w;
+            }
+        }
+
+        // 避免除零（理论上 weight_sum 不会为 0）
+        if (weight_sum != 0.0)
+            result /= weight_sum;
+
+        return static_cast<T>(result);
+    }
+
+    /// <summary>
     /// 复制数据内容到新的指针地址
     /// </summary>
     /// <returns></returns>
@@ -651,10 +737,10 @@ class matrix
     {
         if (flag == INTER_LINEAR)
         {
-            return inter_bilinear(row, col);
+            return inter_bilinear_resize(row, col);
         }
 
-        return inter_nearest(row, col);
+        return inter_nearest_resize(row, col);
     }
     // 高斯滤波
     matrix<T> gaussian_blur(double sigma = 1.0, int kernel_size = -1) const
@@ -792,7 +878,7 @@ class matrix
     }
 
   private:
-    matrix<T> inter_nearest(const size_t &row, const size_t &col) const
+    matrix<T> inter_nearest_resize(const size_t &row, const size_t &col) const
     {
         matrix<T> ret;
         if (!ret.create(row, col))
@@ -821,7 +907,7 @@ class matrix
         return ret;
     }
 
-    matrix<T> inter_bilinear(const size_t &row, const size_t &col) const
+    matrix<T> inter_bilinear_resize(const size_t &row, const size_t &col) const
     {
         matrix<T> ret;
 
@@ -934,6 +1020,20 @@ class matrix
         }
 
         return index;
+    }
+
+    double cubic_weight(double d)
+    {
+        d = std::abs(d);
+        if (d <= 1.0)
+        {
+            return 1.5 * d * d * d - 2.5 * d * d + 1.0;
+        }
+        else if (d < 2.0)
+        {
+            return -0.5 * d * d * d + 2.5 * d * d - 4.0 * d + 2.0;
+        }
+        return 0.0;
     }
 };
 

@@ -18,6 +18,7 @@ bool silly_egm::open(const std::filesystem::path& file)
     }
     return false;
 }
+
 double silly_egm::geoid(const double& lgtd, const double& lttd)
 {
     double result = 0;

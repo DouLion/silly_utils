@@ -31,12 +31,18 @@
 
 #define GAUSS2LONLAT silly::geo::proj::convert::gauss_to_lonlat
 #define LONLAT2GAUSS silly::geo::proj::convert::lonlat_to_gauss
+
 #define MERCATOR2LONLAT silly::geo::proj::convert::mercator_lonlat
 #define LONLAT2MERCATOR silly::geo::proj::convert::lonlat_to_mec
+
 #define MERCATOR2GAUSS silly::geo::proj::convert::mercator_gauss
 #define GAUSS2MERCATOR silly::geo::proj::convert::gauss_to_mec
+
 #define ECEF2LONLAT silly::geo::proj::convert::ecef_lonlat
 #define LONLAT2ECEF silly::geo::proj::convert::lonlat_to_ecef
+
+#define BUILD_HELMERT silly::geo::proj::convert::build
+#define TRANS_HELMERT silly::geo::proj::convert::trans
 
 namespace silly
 {
