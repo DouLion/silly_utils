@@ -80,14 +80,16 @@ class convert
 
     struct helmert  // 7参数
     {
-        double dx = 0.;
-        double dy = 0.;
-        double dz = 0.;
-        double rx = 0.;
-        double ry = 0.;
-        double rz = 0.;
-        double s = 0.;
+        // x y z 单位必须一致
+        double dx = 0.;  // 平移 X (米)
+        double dy = 0.;  // 平移 Y (米)
+        double dz = 0.;  // 平移 Z (米)
+        double rx = 0.;  // 旋转 X 轴，单位：弧度
+        double ry = 0.;  // 旋转 Y 轴，单位：弧度
+        double rz = 0.;  // 旋转 Z 轴，单位：弧度
+        double s = 0.;   // 尺度参数，单位：ppm (parts per million, 即 ×1e-6)
     };
+
 
   public:
     /// <summary>
@@ -212,7 +214,7 @@ class convert
     /// 根据测量点集和参考点集构建4参数
     /// </summary>
     /// <param name="measures">测量点</param>
-    /// <param name="origins">参考点</param>
+    /// <param name="origins">参考点,控制点</param>
     /// <returns></returns>
     static pfour build(const std::vector<point2d>& measures, const std::vector<point2d>& origins);
 
@@ -228,7 +230,7 @@ class convert
     ///  根据测量点集和参考点集 构建7参数
     /// </summary>
     /// <param name="measures">测量点</param>
-    /// <param name="origins">参考点</param>
+    /// <param name="origins">参考点,控制点</param>
     /// <returns></returns>
     static helmert build(const std::vector<point3d>& measures, const std::vector<point3d>& origins);
 

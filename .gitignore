@@ -10,3 +10,4 @@
 /test/test_main.cpp
 /build
 *.log
+/bak

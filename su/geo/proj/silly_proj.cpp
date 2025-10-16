@@ -13,6 +13,9 @@
 
 #pragma once
 #include "silly_proj.h"
+#if HAS_LIB_EIGEN3
+#include <Eigen/Dense>
+#endif
 using namespace silly::geo::proj;
 
 void convert::gauss_to_lonlat(const double& gx, const double& gy, double& lon, double& lat, const convert::param& p)
@@ -222,117 +225,196 @@ void convert::lonlat_to_ecef(const double& lon, const double& lat, const double&
 
 convert::pfour convert::build(const std::vector<convert::point2d>& measures, const std::vector<convert::point2d>& origins)
 {
-    pfour params;
-    throw std::runtime_error("Not implemented");
-    // assert(measures.size() == origins.size() && measures.size() >= 2);
+    pfour result;
+#if HAS_LIB_EIGEN3
+    if (measures.size() < 2 || origins.size() < 2 || measures.size() != origins.size())
+    {
+        throw std::invalid_argument("至少需要 2 对匹配的二维点，且数量一致");
+    }
 
-    // const size_t n = measures.size();
-    //  std::vector<std::vector<double>> A(2 * n, std::vector<double>(4));
-    //  std::vector<double> B(2 * n);
+    const size_t n = measures.size();
 
-    // // 构造矩阵方程（参考网页2公式3）
-    // for (size_t i = 0; i < n; ++i)
-    // {
-    //     double x = measures[i].x, y = measures[i].y;
-    //     double u = origins[i].x, v = origins[i].y;
+    // 构造超定线性方程组：A * [dx, dy, s*cos(r), s*sin(r)]^T = L
+    // 为了求解：dx, dy, s*cos(r), s*sin(r)
+    Eigen::MatrixXd A(2 * n, 4);
+    Eigen::VectorXd L(2 * n);
 
-    //     // 填充矩阵A和向量B
-    //     A[2 * i] = {1, 0, x, -y};
-    //     A[2 * i + 1] = {0, 1, y, x};
-    //     B[2 * i] = u;
-    //     B[2 * i + 1] = v;
-    // }
+    for (size_t i = 0; i < n; ++i)
+    {
+        const auto& p = measures[i];  // 源点 (x, y)
+        const auto& q = origins[i];  // 目标点 (xp, yp)
 
-    // // 手动计算最小二乘解：X = (A^T * A)^-1 * A^T * B
-    // std::vector<std::vector<double>> AT(4, std::vector<double>(2 * n));
-    // for (int i = 0; i < 4; ++i)
-    //     for (int j = 0; j < 2 * n; ++j)
-    //         AT[i][j] = A[j][i];
+        const double x = p.x;
+        const double y = p.y;
+        const double xp = q.x;
+        const double yp = q.y;
 
-    // // 计算ATA = A^T * A
-    // std::vector<std::vector<double>> ATA(4, std::vector<double>(4));
-    // for (int i = 0; i < 4; ++i)
-    //     for (int j = 0; j < 4; ++j)
-    //         for (int k = 0; k < 2 * n; ++k)
-    //             ATA[i][j] += AT[i][k] * A[k][j];
+        const int row = 2 * i;
 
-    // // 计算ATB = A^T * B
-    // std::vector<double> ATB(4);
-    // for (int i = 0; i < 4; ++i)
-    //     for (int k = 0; k < 2 * n; ++k)
-    //         ATB[i] += AT[i][k] * B[k];
+        // 第1行：x'
+        A(row, 0) = 1.0;  // dx
+        A(row, 1) = 0.0;  // dy
+        A(row, 2) = x;    // s*cos(r) * x
+        A(row, 3) = y;    // s*sin(r) * x
 
-    // // 求逆并解方程
-    // auto invATA = inverse4x4(ATA);
-    // std::vector<double> X(4);
-    // for (int i = 0; i < 4; ++i)
-    //     for (int j = 0; j < 4; ++j)
-    //         X[i] += invATA[i][j] * ATB[j];
+        L(row) = xp;
 
-    // // 参数计算（参考网页2公式4）
-    //
-    // params.dx = X[0];
-    // params.dy = X[1];
-    // params.s = std::hypot(X[2], X[3]);
-    // params.r = std::atan2(X[3], X[2]);
-    return params;
+        // 第2行：y'
+        A(row + 1, 0) = 0.0;  // dx
+        A(row + 1, 1) = 1.0;  // dy
+        A(row + 1, 2) = -y;   // s*cos(r) * (-y)
+        A(row + 1, 3) = x;    // s*sin(r) * y
+
+        L(row + 1) = yp;
+    }
+
+    // 最小二乘求解：[dx, dy, s*cos(r), s*sin(r)]^T = (A^T A)^-1 A^T L
+    Eigen::VectorXd params = A.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(L);
+
+    const double dx_est = params(0);
+    const double dy_est = params(1);
+    const double scos_r = params(2);
+    const double ssin_r = params(3);
+
+    // 计算旋转角度 r（弧度）和缩放 s
+    const double r_est = std::atan2(ssin_r, scos_r);                    // r = atan2(sin, cos)
+    const double s_est = std::sqrt(scos_r * scos_r + ssin_r * ssin_r);  // s = sqrt(cos² + sin²)
+
+    // 构造并返回 4 参数
+
+    result.dx = dx_est;
+    result.dy = dy_est;
+    result.r = r_est;
+    result.s = s_est;
+#else
+    throw std::runtime_error("需要支持EIGEN3");
+#endif
+
+    return result;
 }
 
-convert::point2d convert::trans(const convert::point2d& meas, const convert::pfour& p4)
+convert::point2d convert::trans(const convert::point2d& p, const convert::pfour& p4)
 {
-    const double c = p4.s * cos(p4.r);
-    const double d = p4.s * sin(p4.r);
-    return {p4.dx + c * meas.x - d * meas.y, p4.dy + d * meas.x + c * meas.y};
+    const double x = p.x;
+    const double y = p.y;
+
+    const double dx = p4.dx;
+    const double dy = p4.dy;
+    const double r = p4.r;
+    const double s = p4.s;
+
+    // 二维相似变换公式：
+    const double x_new = s * (std::cos(r) * x - std::sin(r) * y) + dx;
+    const double y_new = s * (std::sin(r) * x + std::cos(r) * y) + dy;
+
+    return point2d{x_new, y_new};
 }
 
 convert::helmert convert::build(const std::vector<convert::point3d>& measures, const std::vector<convert::point3d>& origins)
 {
-    helmert params;
-    throw std::runtime_error("Not implemented");
-    // assert(measures.size() == origins.size() && measures.size() >= 3);
+    // 构造返回的 helmert 结构体
+    helmert result;
+#if HAS_LIB_EIGEN3
+    // 至少需要3对点，推荐更多
+    if (measures.size() < 3 || origins.size() < 3 || measures.size() != origins.size())
+    {
+        throw std::invalid_argument("measures 和 origins 必须包含至少 3 对匹配点，且数量相同");
+    }
+    const size_t n = measures.size();  // 点对数
+    Eigen::MatrixXd A(3 * n, 7);       // 3n 行（每个点3个方程），7列（7参数）
+    Eigen::VectorXd L(3 * n);          // 残差向量
 
-    //// 构造最小二乘方程（参考网页6、7的矩阵方法）
-    // Eigen::MatrixXd A(3 * measures.size(), 7);
-    // Eigen::VectorXd L(3 * measures.size());
+    for (size_t i = 0; i < n; ++i)
+    {
+        // 当前点对
+        const auto& m = measures[i];  // 测量点 (X, Y, Z)
+        const auto& o = origins[i];   // 参考点 (X', Y', Z')
 
-    // for (size_t i = 0; i < measures.size(); ++i)
-    //{
-    //     double X = measures[i].x;
-    //     double Y = measures[i].y;
-    //     double Z = measures[i].z;
-    //     double x = origins[i].x;
-    //     double y = origins[i].y;
-    //     double z = origins[i].z;
+        const double X = m.x;
+        const double Y = m.y;
+        const double Z = m.z;
 
-    //    // 对应网页6的转换方程展开项
-    //    A.block<3, 7>(3 * i, 0) << 1, 0, 0, 0, -Z, Y, X, 0, 1, 0, Z, 0, -X, Y, 0, 0, 1, -Y, X, 0, Z;
+        const double Xp = o.x;
+        const double Yp = o.y;
+        const double Zp = o.z;
 
-    //    L.segment<3>(3 * i) << x - X, y - Y, z - Z;
-    //}
+        const int row = 3 * i;
 
-    // Eigen::VectorXd X = A.BDCSVD(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(L);
+        // 第1行：X' 方向
+        A(row, 0) = 1.0;  // dx
+        A(row, 1) = 0.0;
+        A(row, 2) = 0.0;
+        A(row, 3) = Z;   // R_y * Z （小角度模型中的旋转项）
+        A(row, 4) = -Y;  // -R_x * Y
+        A(row, 5) = 0.0;
+        A(row, 6) = X;  // s * X
 
-    // params.dx = X[0];  // X平移
-    // params.dy = X[1];  // Y平移
-    // params.dz = X[2];  // Z平移
-    // params.rx = X[3];  // X旋转（弧度）
-    // params.ry = X[4];  // Y旋转（弧度）
-    // params.rz = X[5];  // Z旋转（弧度）
-    // params.s = X[6];   // 尺度因子
+        L(row) = Xp - X;
 
-    return params;
+        // 第2行：Y' 方向
+        A(row + 1, 0) = 0.0;
+        A(row + 1, 1) = 1.0;
+        A(row + 1, 2) = 0.0;
+        A(row + 1, 3) = -Z;  // -R_z * Y
+        A(row + 1, 4) = 0.0;
+        A(row + 1, 5) = X;  // R_x * X
+        A(row + 1, 6) = Y;  // s * Y
+
+        L(row + 1) = Yp - Y;
+
+        // 第3行：Z' 方向
+        A(row + 2, 0) = 0.0;
+        A(row + 2, 1) = 0.0;
+        A(row + 2, 2) = 1.0;
+        A(row + 2, 3) = 0.0;
+        A(row + 2, 4) = Z;   // R_z * X
+        A(row + 2, 5) = -X;  // -R_y * X
+        A(row + 2, 6) = Z;   // s * Z
+
+        L(row + 2) = Zp - Z;
+    }
+
+    // 最小二乘求解：参数 = (A^T A)^{-1} A^T L
+    Eigen::VectorXd params = A.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(L);
+
+
+    result.dx = params(0);
+    result.dy = params(1);
+    result.dz = params(2);
+    result.rx = params(3);  // 弧度
+    result.ry = params(4);  // 弧度
+    result.rz = params(5);  // 弧度
+    result.s = params(6);   // 通常是 ppm，可直接使用，或 *1e6 转为 ppm 数值
+#else
+    throw std::runtime_error("需要支持EIGEN3");
+#endif
+    return result;
 }
 
-convert::point3d convert::trans(const convert::point3d& meas, const convert::helmert& p7)
+convert::point3d convert::trans(const convert::point3d& measures, const convert::helmert& p7)
 {
-    const double rx = p7.rx, ry = p7.ry, rz = p7.rz;
-    const double s = 1 + p7.s;
+    const double& X = measures.x;
+    const double& Y = measures.y;
+    const double& Z = measures.z;
 
-    const double R[3][3] = {{s * (cos(ry) * cos(rz)), s * (cos(ry) * sin(rz)), s * (-sin(ry))},
-                            {s * (sin(rx) * sin(ry) * cos(rz) - cos(rx) * sin(rz)), s * (sin(rx) * sin(ry) * sin(rz) + cos(rx) * cos(rz)), s * (sin(rx) * cos(ry))},
-                            {s * (cos(rx) * sin(ry) * cos(rz) + sin(rx) * sin(rz)), s * (cos(rx) * sin(ry) * sin(rz) - sin(rx) * cos(rz)), s * (cos(rx) * cos(ry))}};
+    const double& dx = p7.dx;
+    const double& dy = p7.dy;
+    const double& dz = p7.dz;
+    const double& rx = p7.rx;
+    const double& ry = p7.ry;
+    const double& rz = p7.rz;
+    const double& s = p7.s;
 
-    return {p7.dx + R[0][0] * meas.x + R[0][1] * meas.y + R[0][2] * meas.z, p7.dy + R[1][0] * meas.x + R[1][1] * meas.y + R[1][2] * meas.z, p7.dz + R[2][0] * meas.x + R[2][1] * meas.y + R[2][2] * meas.z};
+    // 七参数公式（小旋转，线性近似）：
+    const double scale = 1.0 + s * 1e-6;  // 缩放因子
+
+    // 旋转项（小角度，线性模型）
+    const double X_rot = (X - rz * Y + ry * Z) * scale + dx;
+    const double Y_rot = (Y + rz * X - rx * Z) * scale + dy;
+    const double Z_rot = (Z - ry * X + rx * Y) * scale + dz;
+
+    // 返回转换后的点
+    return point3d{X_rot, Y_rot, Z_rot};
 }
 
 void convert::cartesian_to_polar(double x, double y, double& r, double& th, double x0, double y0)
