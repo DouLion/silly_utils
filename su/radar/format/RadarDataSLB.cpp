@@ -246,55 +246,83 @@ bool BlockData::Read(std::fstream& input, const BlockInfo& info, SLB& slb)
 bool SLB::Read(const std::filesystem::path& file)
 {
     std::fstream input(file, std::ios::binary | std::ios::in);
+   
     if (!input.is_open())
     {
         return false;
     }
+    size_t size = std::filesystem::file_size(file);
     Clear();
-    assert(m_FileVol.Read(input));
-    assert(m_SiteInfo.Read(input));
-    assert(m_ObTime.Read(input));
-    assert(m_OpInfo.Read(input));
-    assert(m_Alerts.Read(input));
-    assert(m_BlockInfo.Read(input));
+    do
     {
-        const int layerNum = m_BlockInfo.LayerCounts; //层数
-        const int azNum = m_BlockInfo.RadialCounts; // 方向数
-        const int gateNum = m_BlockInfo.LayerParams.front().GateCounts.front();  // 每个径向的 gate 数
-        _th.resize(layerNum);
-        for (auto& layer : _th)
+        if (!m_FileVol.Read(input))
         {
-            layer.resize(azNum);
-            for (auto& radal : layer)
+            break;
+        }
+        if (m_FileVol.FileLength != size)
+        {
+            break;
+        }
+        if (!m_SiteInfo.Read(input))
+        {
+            break;
+        }
+        if (!m_ObTime.Read(input))
+        {
+            break;
+        }
+        if (!m_OpInfo.Read(input))
+        {
+            break;
+        }
+        if (!m_Alerts.Read(input))
+        {
+            break;
+        }
+        if (!m_BlockInfo.Read(input))
+        {
+            break;
+        }
+        {
+            const int layerNum = m_BlockInfo.LayerCounts;                            // 层数
+            const int azNum = m_BlockInfo.RadialCounts;                              // 方向数
+            const int gateNum = m_BlockInfo.LayerParams.front().GateCounts.front();  // 每个径向的 gate 数
+            _th.resize(layerNum);
+            for (auto& layer : _th)
             {
-                radal = std::vector<float>(gateNum, -9999);
+                layer.resize(azNum);
+                for (auto& radal : layer)
+                {
+                    radal = std::vector<float>(gateNum, -9999);
+                }
+            }
+            _zh = _th;
+            _vel = _th;
+            _width = _th;
+            _zdr = _th;
+            _phidp = _th;
+            _kdp = _th;
+            _cc = _th;
+            _tv = _th;
+        }
+        while (!input.eof())
+        {
+            BlockData tmp;
+            if (tmp.Read(input, m_BlockInfo, *this))
+            {
+                m_RadialBlocks.push_back(tmp);
             }
         }
-        _zh = _th;
-        _vel = _th;
-        _width = _th;
-        _zdr = _th;
-        _phidp = _th;
-        _kdp = _th;
-        _cc = _th;
-        _tv = _th;       
-
-    }
-    while (!input.eof())
-    {
-        BlockData tmp;
-        if (tmp.Read(input, m_BlockInfo, *this))
+        for (int i = 0; i < m_BlockInfo.LayerParams.size(); ++i)
         {
-            m_RadialBlocks.push_back(tmp);
+            m_Layer2Elevation[i] = m_BlockInfo.LayerParams[i].ElevationAngle;
         }
-    }
+        m_RadialNumber0 = m_RadialBlocks.front().head.RadialNumber;
+    } while (0);
+   
     input.close();
-    for (int i = 0; i < m_BlockInfo.LayerParams.size(); ++i)
-    {
-        m_Layer2Elevation[i] = m_BlockInfo.LayerParams[i].ElevationAngle;
-    }
-    m_RadialNumber0 = m_RadialBlocks.front().head.RadialNumber;
-    return true;
+    
+    return !m_RadialBlocks.empty();
 }
 
 static void MaxInRadial(std::vector<float>& ret, const std::vector<float>& src)
