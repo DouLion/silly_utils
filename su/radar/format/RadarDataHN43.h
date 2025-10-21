@@ -13,7 +13,7 @@
 
 #include "su_marco.h"
 
-namespace radar
+namespace RadarData
 {
 
 #define ELEMENTNUM 10
@@ -231,11 +231,11 @@ struct radialData
     std::vector<bzDualRVP9Record> Data;
 };
 
-class HunanData
+class HN43
 {
   public:
-    HunanData() = default;
-    ~HunanData() = default;
+    HN43() = default;
+    ~HN43() = default;
 
     bool LoadData(const char *FilePath);
     void Clear();

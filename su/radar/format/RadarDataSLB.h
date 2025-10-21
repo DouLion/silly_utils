@@ -11,14 +11,20 @@
 #ifndef SILLY_UTILS_SLB_DATA_V1_H
 #define SILLY_UTILS_SLB_DATA_V1_H
 
-#include "su_marco.h"
-#include <radar/format/HunanData.h>
-
-namespace radar
+// #include "su_marco.h"
+// #include <radar/format/RadarDataHN43.h>
+#include <fstream>
+#include <vector>
+#include <cstring>
+#include <iostream>
+#include <stdint.h>
+namespace RadarData
 {
+
 static const char VOL_LABEL_RD[4] = {'R', 'D', 0x00, 0x00};  // 雷达基数据
 static const char VOL_LABEL_GD[4] = {'G', 'D', 0x00, 0x00};  // 衍生数据
 static const char VOL_VER_NO[4] = {'1', '.', '0', 0x00};     // 衍生数据
+#pragma pack(1)
 enum RayOrder : uint8_t
 {
     AzimuthFirst = 0,  // 为 0 表示按先方位后俯仰
@@ -32,12 +38,51 @@ enum ScanMode : int32_t
 
 };
 
+enum eDataType : int32_t
+{
+    BYTE = 1,    // 1-BYTE
+    USHORT = 2,  // 2-USHORT
+    SHORT = 3,   // 3-SHORT
+    UINT = 4,    // 4-UINT
+    INT = 5,     // 5-INT
+    FLOAT = 6,   // 6-FLOAT
+    LONG = 7     // 7-LONG
+};
+
+enum eRadialState : int32_t
+{
+    AZB = 0,   // 0–仰角开始
+    MID = 1,   // 1–中间数据
+    AZE = 2,   // 2–仰角结束
+    SCB = 3,   // 3–体扫开始
+    SCE = 4,   // 4–体扫结束
+    RHIB = 5,  // 5–RHI开始
+    RHIE = 6   // 6–RHI结束
+};
+
+enum eType : int32_t
+{
+    DBZ = 0,    // 滤波前反射率
+    REF = 1,    // 滤波后反射率
+    VEL = 2,    // 径向速度
+    WIDTH = 3,  // 谱宽
+    ZDR = 4,    // 差分反射率
+    KDP = 5,    // 差分相移率
+    CC = 6,     // 相关系数
+    PHIDP = 7,  // 差分相位
+    TV = 8      // 原始垂直反射率因子
+};
+
+static std::vector TYPE_ORDER = {eType::DBZ, eType::REF, eType::VEL, eType::WIDTH, eType::ZDR, eType::PHIDP, eType::KDP, eType::CC, eType::TV};
+
 struct FileVolume  // 文件卷标基本信息结构
 {
     char VolumeLabel[4] = {0};       // 雷达基数据固定标识符，‘RD’为雷达基数据，‘GD’为衍生数据
     char VersionNo[4] = {0};         // 数据格式版本号，如‘1.0’
     uint64_t FileLength = 0;         // 无压缩的数据文件字节数?
     uint32_t RayOrder = PitchFirst;  // 径向数据排序
+
+    bool Read(std::fstream& input);
 };
 
 struct SiteInfo  // 达站基本信息
@@ -51,6 +96,7 @@ struct SiteInfo  // 达站基本信息
     int32_t Latitude = 0;      // 纬度 / 10000.0 度
     int32_t Height = 0;        // 高度 /10m
     char Reserved[44] = {0};
+    bool Read(std::fstream& input);
 };
 
 struct ObserveTime  // 水利测雨雷达观测起止时间
@@ -70,6 +116,7 @@ struct ObserveTime  // 水利测雨雷达观测起止时间
     int16_t EMinute = 0;
     int16_t ESecond = 0;
     char Reserved[8] = {0};
+    bool Read(std::fstream& input);
 };
 
 struct OperationInfo  // 运维数据信息
@@ -149,6 +196,7 @@ struct OperationInfo  // 运维数据信息
     float DPCalibrationValue = 0.0;         // 差分传播相位标定值
 
     char Reserved[92] = {0};
+    bool Read(std::fstream& input);
 };
 
 struct AlertInfo
@@ -161,13 +209,17 @@ struct AlertInfo
     int32_t AlarmLevel = 1;  // 1-一般；2-重要；3-严重；4-取消告警
     int32_t AlarmMode = 2;   // 1-短信；2-其他
     char Reserved[16] = {0};
+
+    bool Read(std::fstream& input);
 };
 
 struct Alerts
 {
     int32_t AlertCounts = 0;
     char Reserved[8] = {0};
-    std::vector<AlertInfo> AlertInfoList;
+    std::vector<AlertInfo> AlertList;
+
+    bool Read(std::fstream& input);
 };
 
 // 雷达层参数结构
@@ -181,128 +233,102 @@ struct LayerParam
     std::vector<int16_t> VarCode;     // VarCode[VarCounts]变量标识码
     std::vector<int16_t> GateCounts;  // GateCounts[VarCounts]本层变量库数
     char Reserved2[8] = {0};
+
+    bool Read(std::fstream& input);
 };
 
 // 雷达数据记录块信息
-struct DataRecordBlock
+struct BlockInfo
 {
     uint16_t LayerCounts = 0;       // 仰角层数
     uint16_t RadialCounts = 0;      // 扫描线根数
     float AngularResolution = 0.0;  // 方位角分辨率
     uint32_t DataWidth = 0;         // 数据库长,以米为单位
     char Reserved[4] = {0};
-    std::vector<LayerParam> LayerParamList;
+    std::vector<LayerParam> LayerParams;
+    bool Read(std::fstream& input);
 };
 
-struct RadialDataBlock
+struct BlockData
 {
-    int32_t RadialState = 0;        // 径向数据状态
-                                    // 0–仰角开始
-                                    // 1–中间数据
-                                    // 2–仰角结束
-                                    // 3–体扫开始
-                                    // 4–体扫结束
-                                    // 5–RHI开始
-                                    // 6–RHI结束
-    int32_t SequenceNumber = 0;     // 径向序号
-    int32_t RadialNumber = 0;       // 方位编号
-    int32_t ElevationNumber = 0;    // 仰角层编号，每个体扫从1计数
-    float Azimuth = 0.0;            // 扫描的方位角度
-    float Elevation = 0.0;          // 扫描的俯仰角度
-    uint32_t Seconds = 0;           // UTC计数的秒数,从1970年1月1日0时开始计数;
-    int32_t LengthOfData = 0;       // 仅本径向数据块所占用的长度
-    int32_t VarCounts = 0;          //  本径向变量个数（最多 9个）
-    std::vector<int32_t> DateType;  // 数值类型
-                                    // 1-BYTE
-                                    // 2-USHORT
-                                    // 3-SHORT
-                                    // 4-UINT
-                                    // 5-INT
-                                    // 6-FLOAT
-                                    // 7-LONG
-    std::vector<int32_t> Scale;     // 数据编码的比例
-    std::vector<int32_t> Offset;    // 数据编码的偏移
+    struct
+    {
+        eRadialState RadialState = AZB;  // 径向数据状态
+
+        int32_t SequenceNumber = 0;   // 径向序号
+        int32_t RadialNumber = 0;     // 方位编号
+        int32_t ElevationNumber = 0;  // 仰角层编号，每个体扫从1计数
+        float Azimuth = 0.0;          // 扫描的方位角度
+        float Elevation = 0.0;        // 扫描的俯仰角度
+        uint32_t Seconds = 0;         // UTC计数的秒数,从1970年1月1日0时开始计数;
+        int32_t LengthOfData = 0;     // 仅本径向数据块所占用的长度
+        int32_t VarCounts = 0;        //  本径向变量个数（最多 9个）
+    } head;
+
+    std::vector<eDataType> DataType;  // 数值类型
+
+    std::vector<int32_t> Scale;   // 数据编码的比例
+    std::vector<int32_t> Offset;  // 数据编码的偏移
     char Reserved[12] = {0};
 
-    // uint8_t OriginTh = 0;        // 原始水平反射率因子Th
     //  当[数值]为1时，表示距离模糊数据
     //  当[数值]为4时，表示无回波数据
-    std::vector<uint8_t> Th;     // 解码方式:([数值]-66)/2=[实际值]dBZ
-    std::vector<uint8_t> Zh;     // 水平反射率因子Zh;([数值]-66)/2=[实际值]dBZ
-    std::vector<uint8_t> V;      // 径向速度V;([数值]-129)/2=[实际值]米/秒
-    std::vector<uint8_t> W;      // 谱宽W ;([数值]-129)/2=[实际值]米/秒
-    std::vector<uint8_t> ZDR;    // 差分反射率因子ZDR;([数值]-130)/16=[实际值]dB
-    std::vector<int16_t> PHIDP;  // 差分传播相位PHIDP;([数值]-50)/100=[实际值]度
-    std::vector<uint8_t> KDP;    // 差分传播相位率KDP;([数值]-50)/10=[实际值]度/千米
-    std::vector<uint8_t> CC;     // 相关系数CC;([数值]-5)/200=[实际值]
-    std::vector<uint8_t> Tv;     //  原始垂直反射率因子Tv;([数值]-66)/2=[实际值]dBZ
+    // std::vector<uint8_t> data;
+    std::vector<float> _th;     // 解码方式:([数值]-66)/2=[实际值]dBZ
+    std::vector<float> _zh;     // 水平反射率因子Zh;([数值]-66)/2=[实际值]dBZ
+    std::vector<float> _vel;      // 径向速度V;([数值]-129)/2=[实际值]米/秒
+    std::vector<float> _width;      // 谱宽W ;([数值]-129)/2=[实际值]米/秒
+    std::vector<float> _zdr;    // 差分反射率因子ZDR;([数值]-130)/16=[实际值]dB
+    std::vector<float> _phidp;  // 差分传播相位PHIDP;([数值]-50)/100=[实际值]度
+    std::vector<float> _kdp;    // 差分传播相位率KDP;([数值]-50)/10=[实际值]度/千米
+    std::vector<float> _cc;     // 相关系数CC;([数值]-5)/200=[实际值]
+    std::vector<float> _tv;     //  原始垂直反射率因子Tv;([数值]-66)/2=[实际值]dBZ
+
+    bool Read(std::fstream& input, const BlockInfo& info);
 };
+#pragma pack()
 
-// struct CommonBlock
-//{
-//     // ---- 公共数据块 ----
-//     FileVolume fileVol; // 文件卷信息
-//     SiteInfo siteInfo; // 雷达站基本信息
-//     ObserveTime obTime; // 观测时间
-//     OperationInfo opInfo; // 运维数据信息
-//     Alerts alerts;// 1~M 个告警数据块
-//     std::vector<DataRecordBlock> dataRecords;// 1~N个层结构信息
-//
-//     // ---- 径向数据块 ----
-//     std::vector<RadialDataBlock> radialData;  // 径向数据
-// };
-
-class SLBDataV1
+class SLB
 {
   public:
-    SLBDataV1() = default;
-    ~SLBDataV1() = default;
+    SLB() = default;
+    ~SLB() = default;
+
+    bool Read(const std::filesystem::path& file);
 
     /// <summary>
-    /// 由国家标准数据转为国家标准
+    /// 
     /// </summary>
-    /// <param name="src"></param>
+    /// <param name="layer"></param>
+    /// <param name="type"></param>
     /// <returns></returns>
-    bool convert(const HunanData& src);
+    std::vector<std::vector<float>> GetData(const int& layer, const eType& type) const;
 
-    /// <summary>
-    /// 写入国家标准数据到文件中
-    /// </summary>
-    /// <param name="filename"></param>
-    /// <returns></returns>
-    bool write(const std::string& filename);
+    SiteInfo GetSiteInfo() const;
 
-    template <typename T>
-    void writeVector(std::ofstream& outFile, const std::vector<T>& vec)
-    {
-        uint32_t size = static_cast<uint32_t>(vec.size());
-        // 先写入vector大小
-        outFile.write(reinterpret_cast<const char*>(&size), sizeof(size));
-        for (const auto& item : vec)
-        {
-            outFile.write(reinterpret_cast<const char*>(&item), sizeof(item));  // 再依次写入每个元素
-        }
-    }
+    std::map<int, double> Layer2Elevation() const;
 
-    void writeLayerParam(std::ofstream& outFile, const DataRecordBlock& record);
-
-    void writeRadialDataBlock(std::ofstream& outFile, const RadialDataBlock& record);
-
+    void Clear();
   public:
     // ---- 公共数据块 ----
-    FileVolume fileVol;                        // 文件卷信息
-    SiteInfo siteInfo;                         // 雷达站基本信息
-    ObserveTime obTime;                        // 观测时间
-    OperationInfo opInfo;                      // 运维数据信息
-    Alerts alerts;                             // 1~M 个告警数据块
-    std::vector<DataRecordBlock> dataRecords;  // 1~N个层结构信息
+    FileVolume m_FileVol;    // 文件卷信息
+    SiteInfo m_SiteInfo;     // 雷达站基本信息
+    ObserveTime m_ObTime;    // 观测时间
+    OperationInfo m_OpInfo;  // 运维数据信息
+    Alerts m_Alerts;         // 1~M 个告警数据块
+    BlockInfo m_BlockInfo;
 
     // ---- 径向数据块 ----
-    std::vector<RadialDataBlock> radialData;  // 径向数据
+    std::vector<BlockData> m_RadialBlocks;  // 径向数据
+
+    std::map<int, double> m_Layer2Elevation;// 所有的方位角度
+    
+    std::set<int32_t> m_ElevationNumber;
+    int m_RadialNumber0 = 0; //  0度对应的径向序号
 
   private:
 };
 
-}  // namespace radar
+}  // namespace RadarData
 
 #endif  // SILLY_UTILS_SLB_DATA_V1_H

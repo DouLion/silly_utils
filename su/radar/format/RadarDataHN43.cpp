@@ -4,15 +4,15 @@
  * @website: http://www.tianzhixiang.com.cn/
  * @author: dou li yang
  * @date: 2025-03-05
- * @file: HunanData.cpp
- * @description: HunanData实现
+ * @file: HN43.cpp
+ * @description: HN43实现
  * @version: v1.0.1 2025-03-05 dou li yang
  */
-#include "HunanData.h"
+#include "RadarDataHN43.h"
 
-using namespace radar;
+using namespace RadarData;
 
-void HunanData::Clear()
+void HN43::Clear()
 {
     for (auto t : m_Data)
     {
@@ -25,7 +25,7 @@ void HunanData::Clear()
     memset(&m_RadialDatab, 0, sizeof(bzRadialDatab));
 }
 
-bool HunanData::LoadData(const char* FilePath)
+bool HN43::LoadData(const char* FilePath)
 {
     FILE* File = fopen(FilePath, "rb");
     if (!File)
@@ -240,7 +240,7 @@ bool HunanData::LoadData(const char* FilePath)
     return true;
 }
 
-std::vector<double> HunanData::GetAllLayer()
+std::vector<double> HN43::GetAllLayer()
 {
     std::vector<double> vLayer;
     for (int i = 0; i < m_Header.ObservationInfo.CutNumber; i++)
@@ -250,7 +250,7 @@ std::vector<double> HunanData::GetAllLayer()
     return vLayer;
 }
 
-double HunanData::GetLjVals(int Degree, int index, int Layer, double& dh, double& ddr)
+double HN43::GetLjVals(int Degree, int index, int Layer, double& dh, double& ddr)
 {
     dh = ddr = 0;
     return 0;
@@ -298,7 +298,7 @@ double HunanData::GetLjVals(int Degree, int index, int Layer, double& dh, double
     return dh;
 }
 
-double HunanData::GetVal(int Degree, int cType, int index, int Layer)
+double HN43::GetVal(int Degree, int cType, int index, int Layer)
 {
     if (Layer < 0 || Layer >= m_Data.size() || index < 0 || index >= m_Data[Layer].rawdata[Degree][cType].size() || cType < 0 || cType >= ELEMENTNUM)
     {
@@ -313,7 +313,7 @@ double HunanData::GetVal(int Degree, int cType, int index, int Layer)
     return val;
 }
 
-double HunanData::GetVal(int Degree, int cType, int index)
+double HN43::GetVal(int Degree, int cType, int index)
 {
     double val = -32768.0;
     if (index < 0 || cType < 0 || cType >= ELEMENTNUM)
@@ -346,7 +346,7 @@ double HunanData::GetVal(int Degree, int cType, int index)
     return val;
 }
 
-// double HunanData::GetRain(int Degree, int index, int Layer, int Type)
+// double HN43::GetRain(int Degree, int index, int Layer, int Type)
 //{
 //     if (index < 0 || Layer < 0 || Layer >= m_Data.size())
 //     {
@@ -361,7 +361,7 @@ double HunanData::GetVal(int Degree, int cType, int index)
 //     return Rain;
 // }
 
-int HunanData::GetRainClass(double Rain)
+int HN43::GetRainClass(double Rain)
 {
     int ClassID = -1;
     if (Rain <= 0.5)
@@ -404,13 +404,13 @@ int HunanData::GetRainClass(double Rain)
     }
     return ClassID;
 }
-// int HunanData::GetRainClass(int Degree, int index, int Layer, int Type)
+// int HN43::GetRainClass(int Degree, int index, int Layer, int Type)
 //{
 //     double Rain = GetRain(Degree, index, Layer, Type);
 //     return GetRainClass(Rain);
 // }
 
-int HunanData::GetClass(int Degree, int cType, int index, int Layer)
+int HN43::GetClass(int Degree, int cType, int index, int Layer)
 {
     if (cType < 0 || cType >= ELEMENTNUM || Layer < 0 || Layer >= m_Data.size() || index < 0 || index >= m_Data[Layer].rawdata[Degree][cType].size())
     {
@@ -440,7 +440,7 @@ int HunanData::GetClass(int Degree, int cType, int index, int Layer)
     return Class;
 }
 
-// double HunanData::CalcAzimuthAngleFromGeo(double LGTD, double LTTD)
+// double HN43::CalcAzimuthAngleFromGeo(double LGTD, double LTTD)
 //{
 //     double lon = m_Header.PerformanceInfo.longitude;
 //     double lat = m_Header.PerformanceInfo.latitude;
@@ -448,7 +448,7 @@ int HunanData::GetClass(int Degree, int cType, int index, int Layer)
 //     return CRadarData::CalcAzimuthAngleFromGeo(lon, lat, LGTD, LTTD);
 // }
 //
-// double HunanData::CalcDistance(double LGTD, double LTTD)
+// double HN43::CalcDistance(double LGTD, double LTTD)
 //{
 //     double lon = m_Header.PerformanceInfo.longitude;
 //     double lat = m_Header.PerformanceInfo.latitude;
@@ -456,25 +456,25 @@ int HunanData::GetClass(int Degree, int cType, int index, int Layer)
 //     return CRadarData::CalcDistance(lon, lat, LGTD, LTTD);
 // }
 
-// int HunanData::GetIndex(double LGTD, double LTTD)
+// int HN43::GetIndex(double LGTD, double LTTD)
 //{
 //     double dis = CalcDistance(LGTD, LTTD);
 //     return GetIndex(dis);
 // }
 
-int HunanData::GetIndex(double dis)
+int HN43::GetIndex(double dis)
 {
     int index = dis / m_ScanCut[0].LogResolution + 0.5;
     return index;
 }
 
-void HunanData::GetSiteCoord(double& LGTD, double& LTTD)
+void HN43::GetSiteCoord(double& LGTD, double& LTTD)
 {
     LGTD = m_Header.PerformanceInfo.longitude;
     LTTD = m_Header.PerformanceInfo.latitude;
 }
 
-bool HunanData::ProccessMerge(int ElementID, int* FinishedNum, void* pVoid)
+bool HN43::ProccessMerge(int ElementID, int* FinishedNum, void* pVoid)
 {
     bzDualRVP9Record* pData = (bzDualRVP9Record*)pVoid;
     int val = -32768;
@@ -530,14 +530,14 @@ bool HunanData::ProccessMerge(int ElementID, int* FinishedNum, void* pVoid)
     return true;
 }
 
-int HunanData::Merge()
+int HN43::Merge()
 {
     bzDualRVP9Record RData;
     int FinishedNum = 0;
 
     for (int i = 0; i < ELEMENTNUM; i++)
     {
-        std::thread theThread(&HunanData::ProccessMerge, this, i, &FinishedNum, &RData);
+        std::thread theThread(&HN43::ProccessMerge, this, i, &FinishedNum, &RData);
         theThread.detach();
     }
 
@@ -552,7 +552,7 @@ int HunanData::Merge()
     return m_Data.size() - 1;
 }
 
-int HunanData::MergeLayer()
+int HN43::MergeLayer()
 {
     int val = -32768;
     int index = 0, cType = 0, MaxNum = 1000;
