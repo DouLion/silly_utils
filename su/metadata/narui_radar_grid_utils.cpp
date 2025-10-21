@@ -226,7 +226,7 @@ bool silly_nrd_grid_utils::read_grid(const std::filesystem::path& file, const do
     }
     char* cpptr = idx;
     cpptr += sizeof(nrd_header);
-    su::matrix<float> tmp_grid;
+    suMatrix<float> tmp_grid;
     if (!tmp_grid.create(head.rows, head.cols))
     {
         SUM_MEM_DEL_ARR(idx)

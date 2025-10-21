@@ -33,7 +33,7 @@ template <typename T>
 class silly_render_param
 {
   public:
-    su::matrix<T> mtx;
+    suMatrix<T> mtx;
     std::vector<silly_val2color<T>> v2cs;  // 需要排好序
     supng pd;
     silly_geo_rect rect;
@@ -58,7 +58,7 @@ template <typename T>
 class silly_grid_render
 {
   public:
-    friend class su::matrix<T>;
+    friend class suMatrix<T>;
     friend class supng;
 
     void normal_render_greater(silly_render_param<T>& srp)
@@ -97,7 +97,7 @@ class silly_grid_render
 
     void geo_mc_render_greater(silly_render_param<T>& srp)
     {
-        su::matrix<T> mc_mtx;
+        suMatrix<T> mc_mtx;
         if (!silly_geo_convert::matrix_geo_to_mercator(srp.mtx, srp.rect, mc_mtx))
         {
             SLOG_ERROR("经纬坐标转换墨卡托坐标失败")
@@ -137,7 +137,7 @@ class silly_grid_render
 
     void geo_mc_render(silly_render_param<T>& srp, std::function<silly::color(T, std::vector<silly_val2color<T>>)> func)
     {
-        su::matrix<T> mc_mtx;
+        suMatrix<T> mc_mtx;
         if (!silly_geo_convert::matrix_geo_to_mercator(srp.mtx, srp.rect, mc_mtx))
         {
             SLOG_ERROR("经纬坐标转换墨卡托坐标失败")

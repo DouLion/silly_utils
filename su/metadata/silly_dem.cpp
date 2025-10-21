@@ -23,7 +23,7 @@
     rect0.max.x = std::max(x1, rect0.max.x);                        \
     rect0.max.y = std::max(y1, rect0.max.y);
 
-void sudem::gauss2lonlat(const sudem& rh, const double& cellsize, const double& l0)
+void suDem::gauss2lonlat(const suDem& rh, const double& cellsize, const double& l0)
 {
     if (this == &rh)
     {
@@ -65,7 +65,7 @@ void sudem::gauss2lonlat(const sudem& rh, const double& cellsize, const double& 
         }
     }
 }
-void sudem::lonlat2gauss(const sudem& rh, const double& cellsize, const double& l0)
+void suDem::lonlat2gauss(const suDem& rh, const double& cellsize, const double& l0)
 {
     if (this == &rh)
     {
@@ -113,7 +113,7 @@ void sudem::lonlat2gauss(const sudem& rh, const double& cellsize, const double& 
     }
 }
 
-void sudem::cover(const sudem& rh)
+void suDem::cover(const suDem& rh)
 {
     
     int xOff = 0, yOff = 0;

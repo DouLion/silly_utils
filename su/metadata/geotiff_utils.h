@@ -47,7 +47,7 @@ class tif_data
     double pixelSizeY;      // 纵向分辨率
 
     // 以字节为将tif矩阵存入
-    su::matrix<double> tif_matrix2;
+    suMatrix<double> tif_matrix2;
     // matrix<unsigned char> tif_matrix2;
 
   private:

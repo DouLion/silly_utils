@@ -62,7 +62,7 @@ class silly_micaps_diamond_4
     float iso_ev{0.};
     float smooth{0.};
     float bold{0.};
-    su::matrix<float> data;
+    suMatrix<float> data;
 };
 
 class silly_micaps_utils

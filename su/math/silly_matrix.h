@@ -14,10 +14,9 @@
 #ifndef SILLY_UTILS_SILLY_MATRIX_H
 #define SILLY_UTILS_SILLY_MATRIX_H
 #include <su_marco.h>
-namespace su
-{
+
 template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
-class matrix
+class suMatrix
 {
     /// <summary>
     /// 这个目前是线程不安全的,使用时需要注意
@@ -87,7 +86,7 @@ class matrix
     /// </summary>
     /// <param name="rh"></param>
     /// <returns></returns>
-    matrix<T> &operator=(const matrix<T> &rh)
+    suMatrix<T> &operator=(const suMatrix<T> &rh)
     {
         if (this != &rh)
         {  // 需添加此检查
@@ -104,7 +103,7 @@ class matrix
     /// 加运算符
     /// </summary>
     /// <param name="rh"></param>
-    matrix<T> operator+=(const matrix<T> &rh)
+    suMatrix<T> operator+=(const suMatrix<T> &rh)
     {
         if (rh.m_row != m_row || rh.m_col != m_col)
         {
@@ -120,9 +119,9 @@ class matrix
         return *this;
     }
 
-    matrix<T> operator+(const matrix<T> &rh) const
+    suMatrix<T> operator+(const suMatrix<T> &rh) const
     {
-        matrix<T> ret;
+        suMatrix<T> ret;
         if (rh.m_row != m_row || rh.m_col != m_col)
         {
             throw std::runtime_error("矩阵大小不匹配");
@@ -137,7 +136,7 @@ class matrix
         return ret;
     }
 
-    matrix<T> operator+=(const T &rh)
+    suMatrix<T> operator+=(const T &rh)
     {
         if (m_data)
         {
@@ -151,9 +150,9 @@ class matrix
         return *this;
     }
 
-    matrix<T> operator+(const T &rh) const
+    suMatrix<T> operator+(const T &rh) const
     {
-        matrix<T> ret;
+        suMatrix<T> ret;
         ret.create(m_row, m_col);
         size_t i = 0;
         while (i < m_total)
@@ -168,7 +167,7 @@ class matrix
     /// 减运算符
     /// </summary>
     /// <param name="rh"></param>
-    matrix<T> operator-=(const matrix<T> &rh)
+    suMatrix<T> operator-=(const suMatrix<T> &rh)
     {
         if (rh.m_row != m_row || rh.m_col != m_col)
         {
@@ -184,9 +183,9 @@ class matrix
         return *this;
     }
 
-    matrix<T> operator-(const matrix<T> &rh)
+    suMatrix<T> operator-(const suMatrix<T> &rh)
     {
-        matrix<T> ret;
+        suMatrix<T> ret;
         if (rh.m_row != m_row || rh.m_col != m_col)
         {
             throw std::runtime_error("矩阵大小不匹配");
@@ -201,7 +200,7 @@ class matrix
         return ret;
     }
 
-    matrix<T> operator-=(const T &rh)
+    suMatrix<T> operator-=(const T &rh)
     {
         if (m_data)
         {
@@ -215,9 +214,9 @@ class matrix
         return *this;
     }
 
-    matrix<T> operator-(const T &rh) const
+    suMatrix<T> operator-(const T &rh) const
     {
-        matrix<T> ret;
+        suMatrix<T> ret;
         ret.create(m_row, m_col);
         size_t i = 0;
         while (i < m_total)
@@ -233,7 +232,7 @@ class matrix
     /// </summary>
     /// <param name="rh"></param>
 
-    matrix<T> operator*(const matrix<T> &rh) const
+    suMatrix<T> operator*(const suMatrix<T> &rh) const
     {
         // 维度检查
         if (m_col != rh.m_row)
@@ -241,7 +240,7 @@ class matrix
             throw std::invalid_argument("矩阵维度不匹配：" + std::to_string(m_row) + "x" + std::to_string(m_col) + " * " + std::to_string(rh.m_row) + "x" + std::to_string(rh.m_col));
         }
 
-        matrix<T> ret;
+        suMatrix<T> ret;
         if (!ret.create(m_row, rh.m_col))
         {
             throw std::runtime_error("结果矩阵创建失败");
@@ -271,7 +270,7 @@ class matrix
     //    return *this;
     //}
 
-    matrix<T> operator*=(const T &rh)
+    suMatrix<T> operator*=(const T &rh)
     {
         if (m_data)
         {
@@ -285,9 +284,9 @@ class matrix
         return *this;
     }
 
-    matrix<T> operator*(const T &rh) const
+    suMatrix<T> operator*(const T &rh) const
     {
-        matrix<T> ret;
+        suMatrix<T> ret;
         ret.create(m_row, m_col);
         if (m_data)
         {
@@ -305,7 +304,7 @@ class matrix
     /// 除运算符
     /// </summary>
     /// <param name="rh"></param>
-    matrix<T> operator/=(const T &rh)
+    suMatrix<T> operator/=(const T &rh)
     {
         if (m_data)
         {
@@ -319,9 +318,9 @@ class matrix
         return *this;
     }
 
-    matrix<T> operator/(const T &rh) const
+    suMatrix<T> operator/(const T &rh) const
     {
-        matrix<T> ret;
+        suMatrix<T> ret;
         ret.create(m_row, m_col);
         if (m_data)
         {
@@ -370,27 +369,27 @@ class matrix
         double px = std::clamp(x, 0.0, static_cast<double>(m_col - 1));
         double py = std::clamp(y, 0.0, static_cast<double>(m_row - 1));
 
-        size_t x1 = static_cast<size_t>(px);
-        size_t y1 = static_cast<size_t>(py);
+        const auto x1 = static_cast<size_t>(px);
+        const auto y1 = static_cast<size_t>(py);
 
-        size_t x2 = std::min(x1 + 1, m_col - 1);
-        size_t y2 = std::min(y1 + 1, m_row - 1);
+        const size_t x2 = std::min(x1 + 1, m_col - 1);
+        const size_t y2 = std::min(y1 + 1, m_row - 1);
 
-        double fx = px - x1;
-        double fy = py - y1;
+        const double fx = px - x1;
+        const double fy = py - y1;
 
         // 获取四个点的值
-        double Q11 = m_data[y1 * m_col + x1];
-        double Q21 = m_data[y1 * m_col + x2];
-        double Q12 = m_data[y2 * m_col + x1];
-        double Q22 = m_data[y2 * m_col + x2];
+        const double Q11 = m_data[y1 * m_col + x1];
+        const double Q21 = m_data[y1 * m_col + x2];
+        const double Q12 = m_data[y2 * m_col + x1];
+        const double Q22 = m_data[y2 * m_col + x2];
 
         // 双线性插值公式
-        double R1 = Q11 * (1 - fx) + Q21 * fx;  // 在 y1 行，x 方向插值
-        double R2 = Q12 * (1 - fx) + Q22 * fx;  // 在 y2 行，x 方向插值
-        double P = R1 * (1 - fy) + R2 * fy;     // 在 y 方向插值
+        const double R1 = Q11 * (1 - fx) + Q21 * fx;  // 在 y1 行，x 方向插值
+        const double R2 = Q12 * (1 - fx) + Q22 * fx;  // 在 y2 行，x 方向插值
+        double P = R1 * (1 - fy) + R2 * fy;           // 在 y 方向插值
 
-        return return static_cast<T>(P);
+        return static_cast<T>(P);
     }
 
     /// <summary>
@@ -399,7 +398,7 @@ class matrix
     /// <param name="x"></param>
     /// <param name="y"></param>
     /// <returns></returns>
-    T bicubic(const double& x, const double& y)
+    T bicubic(const double &x, const double &y)
     {
         // clamp 到合法范围
         double px = std::clamp(x, 0.0, static_cast<double>(m_col - 1));
@@ -448,9 +447,9 @@ class matrix
     /// 复制数据内容到新的指针地址
     /// </summary>
     /// <returns></returns>
-    matrix<T> copy() const
+    suMatrix<T> copy() const
     {
-        matrix<T> ret;
+        suMatrix<T> ret;
         ret.create(m_row, m_col);
         if (m_data)
         {
@@ -465,7 +464,7 @@ class matrix
     /// </summary>
     /// <param name="mask"></param>
     /// <param name="invalid_value">设置无效数据值</param>
-    bool mask(const matrix<uint8_t> &mask, T invalid_value)
+    bool mask(const suMatrix<uint8_t> &mask, T invalid_value)
     {
         if (mask.row() != m_row || mask.col() != m_col || !mask.data() || !m_data)
         {
@@ -575,7 +574,7 @@ class matrix
     /// 相同格点取两个矩阵的最大值
     /// </summary>
     /// <param name="rh"></param>
-    void max(const matrix<T> &rh)
+    void max(const suMatrix<T> &rh)
     {
         if (m_data && rh.data() && rh.m_row == m_row && rh.m_col == m_col)
         {
@@ -645,7 +644,7 @@ class matrix
     /// 相同格点取两个矩阵的最小值
     /// </summary>
     /// <param name="rh"></param>
-    void min(const matrix<T> &rh)
+    void min(const suMatrix<T> &rh)
     {
         if (m_data && rh.data() && rh.m_row == m_row && rh.m_col == m_col)
         {
@@ -701,7 +700,7 @@ class matrix
     /// <param name="rh"></param>
     /// <returns></returns>
     template <typename U, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
-    void cast(const matrix<U> &rh)
+    void cast(const suMatrix<U> &rh)
     {
         create(rh.row(), rh.col(), true);
         if (!m_data)
@@ -733,7 +732,7 @@ class matrix
     /// <param name="dst_col"></param>
     /// <param name="flag"></param>
     /// <returns></returns>
-    matrix<T> resize(const size_t &row, const size_t &col, const eIpolMethod &flag = eIpolMethod::INTER_NEAREST) const
+    suMatrix<T> resize(const size_t &row, const size_t &col, const eIpolMethod &flag = eIpolMethod::INTER_NEAREST) const
     {
         if (flag == INTER_LINEAR)
         {
@@ -743,9 +742,9 @@ class matrix
         return inter_nearest_resize(row, col);
     }
     // 高斯滤波
-    matrix<T> gaussian_blur(double sigma = 1.0, int kernel_size = -1) const
+    suMatrix<T> gaussian_blur(double sigma = 1.0, int kernel_size = -1) const
     {
-        matrix<T> result;
+        suMatrix<T> result;
         if (empty())
             return result;
 
@@ -766,7 +765,7 @@ class matrix
         }
 
         // 应用高斯滤波（可分离的二维卷积）
-        matrix<T> temp;
+        suMatrix<T> temp;
         temp.create(m_row, m_col);
 
         // 水平方向卷积
@@ -820,9 +819,9 @@ class matrix
     }
 
     // 中值滤波
-    matrix<T> median_filter(int kernel_size = 3) const
+    suMatrix<T> median_filter(int kernel_size = 3) const
     {
-        matrix<T> result;
+        suMatrix<T> result;
         if (empty())
             return result;
 
@@ -878,9 +877,9 @@ class matrix
     }
 
   private:
-    matrix<T> inter_nearest_resize(const size_t &row, const size_t &col) const
+    suMatrix<T> inter_nearest_resize(const size_t &row, const size_t &col) const
     {
-        matrix<T> ret;
+        suMatrix<T> ret;
         if (!ret.create(row, col))
         {
             return ret;
@@ -907,9 +906,9 @@ class matrix
         return ret;
     }
 
-    matrix<T> inter_bilinear_resize(const size_t &row, const size_t &col) const
+    suMatrix<T> inter_bilinear_resize(const size_t &row, const size_t &col) const
     {
-        matrix<T> ret;
+        suMatrix<T> ret;
 
         // 处理空矩阵情况
         if (empty() || row == 0 || col == 0)
@@ -1037,17 +1036,15 @@ class matrix
     }
 };
 
-typedef matrix<int> IMatrix;
-typedef matrix<unsigned int> UIMatrix;
-typedef matrix<float> FMatrix;
-typedef matrix<double> DMatrix;
-typedef matrix<short> SMatrix;
-typedef matrix<unsigned short> USMatrix;
-typedef matrix<char> CMatrix;
-typedef matrix<unsigned char> UCMatrix;
-typedef matrix<long long> LMatrix;
-typedef matrix<unsigned long long> UMatrix;
-
-}  // namespace su
+typedef suMatrix<int> suIMatrix;
+typedef suMatrix<unsigned int> suUIMatrix;
+typedef suMatrix<float> suFMatrix;
+typedef suMatrix<double> suDMatrix;
+typedef suMatrix<short> suSMatrix;
+typedef suMatrix<unsigned short> suUSMatrix;
+typedef suMatrix<char> suCMatrix;
+typedef suMatrix<unsigned char> suUCMatrix;
+typedef suMatrix<long long> suLMatrix;
+typedef suMatrix<unsigned long long> suUMatrix;
 
 #endif  // SILLY_UTILS_SILLY_MATRIX_H

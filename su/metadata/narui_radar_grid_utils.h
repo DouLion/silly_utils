@@ -89,7 +89,7 @@ class silly_nrd_grid_utils
     // 头部信息
     nrd_header head;
     // 栅格数据
-    su::matrix<float> grid;
+    suMatrix<float> grid;
 
   private:
     bool read_header(const std::filesystem::path& file);

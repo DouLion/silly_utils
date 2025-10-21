@@ -83,16 +83,16 @@ void silly_tzx_grid::copy_info(const silly_tzx_grid& rh)
     m_col = rh.m_col;
 }
 
-su::FMatrix& silly_tzx_grid::frame(const size_t& i)
+suFMatrix& silly_tzx_grid::frame(const size_t& i)
 {
-    static su::FMatrix ret;
+    static suFMatrix ret;
     if (i < m_frames.size())
     {
         return m_frames[i];
     }
     else
     {
-        ret = su::FMatrix();
+        ret = suFMatrix();
     }
     return ret;
 }
@@ -140,7 +140,7 @@ bool silly_tzx_grid::add(const silly_tzx_grid& rh)
     return false;
 }
 
-bool silly_tzx_grid::add(const su::FMatrix& grid)
+bool silly_tzx_grid::add(const suFMatrix& grid)
 {
     if (grid.row() == m_row && grid.col() == m_col)
     {
@@ -149,7 +149,7 @@ bool silly_tzx_grid::add(const su::FMatrix& grid)
     }
     return false;
 }
-bool silly_tzx_grid::set(const std::vector<su::FMatrix>& grids)
+bool silly_tzx_grid::set(const std::vector<suFMatrix>& grids)
 {
     size_t currLen = m_frames.size();
     for (const auto& g : grids)
@@ -516,7 +516,7 @@ bool silly_tzx_grid::unserialize_v2(char* p, const int& index)
             std::string dCpsBin;
             bool status = lz4_dcps_data(cpsBin, dCpsBin);
             size_t dCpsLen = dCpsBin.size();
-            su::FMatrix tmpMatrix;
+            suFMatrix tmpMatrix;
             if (status && !dCpsBin.empty() && dCpsLen == m_row * m_col * sizeof(float))
             {
                 tmpMatrix.create(m_row, m_col, true);

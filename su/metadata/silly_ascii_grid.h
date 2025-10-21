@@ -12,7 +12,7 @@
 #include <files/silly_file.h>
 #include <metadata/silly_dem.h>
 
-class silly_ascii_grid : public sudem
+class silly_ascii_grid : public suDem
 {
   public:
     silly_ascii_grid() = default;

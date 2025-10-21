@@ -271,9 +271,9 @@ int64_t x_scan_line::num() const
 {
     return m_num;
 }
-su::matrix<uint8_t> x_scan_line::mask()
+suMatrix<uint8_t> x_scan_line::mask()
 {
-    su::matrix<uint8_t> ret;
+    suMatrix<uint8_t> ret;
     /*int row = std::round((m_rect.max.y - m_rect.min.y) / m_cell_size);
     int col = std::round((m_rect.max.x - m_rect.min.x) / m_cell_size);*/
     ret.create(m_height, m_width);

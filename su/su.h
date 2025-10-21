@@ -196,8 +196,8 @@
 #include <radar/silly_radar_polar.h>     // 雷达极坐标系数据存储
 #include <radar/silly_radar_proj.h>      // 雷达坐标系
 #include <radar/silly_radar_proj_ez.h>   // 雷达坐标系简化用法 未实现
-#include <radar/format/SLBDataV1.h>
-#include <radar/format/HunanData.h>
+#include <radar/format/RadarDataSLB.h>
+#include <radar/format/RadarDataHN43.h>
 
 // singleton (单例)
 #include <singleton/silly_singleton.h>  // 单例类

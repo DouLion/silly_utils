@@ -96,7 +96,7 @@ struct normal_info
 class grib_utils
 {
   public:
-    bool read(const std::string& grib_file, std::vector<su::DMatrix>& matrixs, int& type);
+    bool read(const std::string& grib_file, std::vector<suDMatrix>& matrixs, int& type);
 
     time_info m_time_info;
     geo_info m_geo_info;

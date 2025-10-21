@@ -132,7 +132,7 @@ class x_scan_line
     int64_t num() const;
 
     /// 生成掩膜
-    su::matrix<uint8_t> mask();
+    suMatrix<uint8_t> mask();
 
   private:
     /// <summary>

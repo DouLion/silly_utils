@@ -91,7 +91,7 @@ class silly_tzx_grid
     /// </summary>
     /// <param name="i"></param>
     /// <returns></returns>
-    su::FMatrix& frame(const size_t& i);
+    suFMatrix& frame(const size_t& i);
 
     /// <summary>
     ///
@@ -106,8 +106,8 @@ class silly_tzx_grid
     bool set(const size_t& i, const silly_tzx_grid& rh);
     /// 添加一个网格数据
     bool add(const silly_tzx_grid& rh);
-    bool add(const su::FMatrix& grid);
-    bool set(const std::vector<su::FMatrix>& grids);
+    bool add(const suFMatrix& grid);
+    bool set(const std::vector<suFMatrix>& grids);
 
     size_t row() const;
     void row(const size_t& r);
@@ -178,7 +178,7 @@ class silly_tzx_grid
     char m_name[32]{0};
     char m_units[32]{0};
     size_t m_header_len;
-    std::vector<su::FMatrix> m_frames;
+    std::vector<suFMatrix> m_frames;
     std::vector<std::string> m_buff;
 
   private:

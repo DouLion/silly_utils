@@ -91,9 +91,9 @@ void silly_gdal_raster::Close()
 
 #endif
 }
-su::DMatrix silly_gdal_raster::ROI(const silly_rect& rect) const
+suDMatrix silly_gdal_raster::ROI(const silly_rect& rect) const
 {
-    su::DMatrix ret;
+    suDMatrix ret;
 #if SU_THIRD_SUPPORT_GDAL
     if (!m_pPoBand0 && m_Bands <= 0)
     {

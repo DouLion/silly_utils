@@ -13,7 +13,7 @@
 #include "math/silly_matrix.h"
 #include <geo/silly_geo.h>
 #include <geo/proj/silly_proj.h>
-class sudem
+class suDem
 {
   public:
     /// getter and setter
@@ -31,13 +31,13 @@ class sudem
     size_t width() const;
     void rect(const silly_rect& r);
     silly_rect rect() const;
-    void data(const su::DMatrix& d);
-    su::DMatrix& data();
+    void data(const suDMatrix& d);
+    suDMatrix& data();
 
-    void gauss2lonlat(const sudem& rh, const double& cellsize, const double& l0);
-    void lonlat2gauss(const sudem& rh, const double& cellsize, const double& l0);
+    void gauss2lonlat(const suDem& rh, const double& cellsize, const double& l0);
+    void lonlat2gauss(const suDem& rh, const double& cellsize, const double& l0);
 
-    void cover(const sudem& rh);
+    void cover(const suDem& rh);
 
     void release();
 
@@ -50,78 +50,78 @@ class sudem
     double m_l0 = 0;
     /*double m_scale = 1.0;
     double m_offset = 0.0;*/
-    su::DMatrix m_data;
+    suDMatrix m_data;
     silly_rect m_rect;
 };
 
-inline void sudem::dx(const double& d)
+inline void suDem::dx(const double& d)
 {
     m_dx = d;
 }
-inline double sudem::dx() const
+inline double suDem::dx() const
 {
     return m_dx;
 }
-inline void sudem::dy(const double& d)
+inline void suDem::dy(const double& d)
 {
     m_dy = d;
 }
-inline double sudem::dy() const
+inline double suDem::dy() const
 {
     return m_dy;
 }
-inline void sudem::fill(const double& f)
+inline void suDem::fill(const double& f)
 {
     m_fill = f;
 }
-inline double sudem::fill() const
+inline double suDem::fill() const
 {
     return m_fill;
 }
-inline void sudem::l0(const double& l)
+inline void suDem::l0(const double& l)
 {
     m_l0 = l;
 }
-inline double sudem::l0() const
+inline double suDem::l0() const
 {
     return m_l0;
 }
-inline void sudem::height(const size_t& h)
+inline void suDem::height(const size_t& h)
 {
     m_height = h;
 }
-inline size_t sudem::height() const
+inline size_t suDem::height() const
 {
     return m_height;
 }
-inline void sudem::width(const size_t& w)
+inline void suDem::width(const size_t& w)
 {
     m_width = w;
 }
-inline size_t sudem::width() const
+inline size_t suDem::width() const
 {
     return m_width;
 }
-inline void sudem::rect(const silly_rect& r)
+inline void suDem::rect(const silly_rect& r)
 {
     m_rect = r;
 }
-inline silly_rect sudem::rect() const
+inline silly_rect suDem::rect() const
 {
     return m_rect;
 }
-inline void sudem::data(const su::DMatrix& d)
+inline void suDem::data(const suDMatrix& d)
 {
     m_data = d;
     m_width = d.col();
     m_height = d.row();
 }
-inline su::DMatrix& sudem::data()
+inline suDMatrix& suDem::data()
 {
     return m_data;
 }
 
-inline void sudem::release()
+inline void suDem::release()
 {
     m_data.release();
 }

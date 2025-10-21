@@ -32,7 +32,7 @@ class silly_gdal_raster
     int Width() const;
     int Height() const;
 
-    su::DMatrix ROI(const silly_rect& rect) const;
+    suDMatrix ROI(const silly_rect& rect) const;
 
     double Pick(const silly_point& p) const;
 

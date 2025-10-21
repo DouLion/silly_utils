@@ -187,7 +187,7 @@ class silly_cairo
     // void draw_line(const std::vector<silly_point>& line, const silly_geo_rect& rect);
     // void draw_ring_web_mercator(const std::vector<silly_point>& line, const silly_geo_rect& rect);
 
-  private:
+  public:
     int m_format{0};
     size_t m_width{0};
     size_t m_height{0};

@@ -15,7 +15,7 @@ static void convertToLower(std::string& str)
         str[i] = std::tolower(str[i]);  // 将每个字符转换为小写
     }
 }
-bool netcdf_utils::read_netcdf(const std::filesystem::path& file, const std::string& group, std::map<int, su::DMatrix>& data, nc_info& info)
+bool netcdf_utils::read_netcdf(const std::filesystem::path& file, const std::string& group, std::map<int, suDMatrix>& data, nc_info& info)
 {
     // TODO: 这里不应该假定数据的类型
     auto path = sufile::realpath(file);
@@ -212,7 +212,7 @@ bool netcdf_utils::read_netcdf(const std::filesystem::path& file, const std::str
     return ret_status;
 }
 
-bool netcdf_utils::write_netcdf(const std::filesystem::path& file, const nc_info& info, const std::string& name, std::map<int, su::DMatrix>& data)
+bool netcdf_utils::write_netcdf(const std::filesystem::path& file, const nc_info& info, const std::string& name, std::map<int, suDMatrix>& data)
 {
     bool status = false;
     auto path = sufile::realpath(file);
@@ -318,7 +318,7 @@ bool netcdf_utils::write_netcdf(const std::filesystem::path& file, const nc_info
     return status;
 }
 
-bool netcdf_utils::write_netcdf(const std::filesystem::path& file, const nc_info& info, const std::string& name, su::DMatrix data)
+bool netcdf_utils::write_netcdf(const std::filesystem::path& file, const nc_info& info, const std::string& name, suDMatrix data)
 {
     bool status = false;
     auto path = sufile::realpath(file);
@@ -431,7 +431,7 @@ nc_mat nc_mat::nc_or(const nc_mat& other, const T& fill)
 }
 
 template <typename T>
-su::matrix<T> nc_mat::convert_matrix()
+suMatrix<T> nc_mat::convert_matrix()
 {
-    return su::matrix<T>();
+    return suMatrix<T>();
 }

@@ -13,7 +13,7 @@
 #include <metadata/silly_dem.h>
 
 
-class sugeotiff : public sudem
+class sugeotiff : public suDem
 {
 public:
     struct header
