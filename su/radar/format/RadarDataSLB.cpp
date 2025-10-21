@@ -249,7 +249,7 @@ bool SLB::Read(const std::filesystem::path& file)
     {
         return false;
     }
-
+    Clear();
     assert(m_FileVol.Read(input));
     assert(m_SiteInfo.Read(input));
     assert(m_ObTime.Read(input));
@@ -269,6 +269,7 @@ bool SLB::Read(const std::filesystem::path& file)
     {
         m_Layer2Elevation[i] = m_BlockInfo.LayerParams[i].ElevationAngle;
     }
+    m_RadialNumber0 = m_RadialBlocks.front().head.RadialNumber;
     return true;
 }
 
@@ -290,7 +291,7 @@ static void MaxInRadial(std::vector<float>& ret, const std::vector<float>& src)
 }
 std::vector<std::vector<float>> SLB::GetData(const int& layer, const eType& type) const
 {
-    bool unionAll = layer < 0;
+    bool unionAll = layer == 9999;
     
     if (!unionAll)
     {
@@ -300,7 +301,6 @@ std::vector<std::vector<float>> SLB::GetData(const int& layer, const eType& type
         }
     }
 
-    int angleNum = std::round(360.0 / m_BlockInfo.AngularResolution);
     int typeIdx = 0;
     for (; typeIdx < TYPE_ORDER.size(); ++typeIdx)
     {
@@ -310,17 +310,17 @@ std::vector<std::vector<float>> SLB::GetData(const int& layer, const eType& type
         }
     }
 
-    int bankNum = m_BlockInfo.LayerParams[layer].GateCounts[typeIdx];
-    std::vector<std::vector<float>> ret(angleNum, std::vector<float>(bankNum, -9999.0));
+    int bankNum = m_BlockInfo.LayerParams[0].GateCounts[typeIdx];
+    std::vector<std::vector<float>> ret(m_BlockInfo.RadialCounts, std::vector<float>(bankNum, -9999.0));
     for (const auto& block : m_RadialBlocks)
     {
-        if (block.head.ElevationNumber == layer)
+        if ((block.head.ElevationNumber - 1) == layer || unionAll)
         {
             // int sort = std::round(block.head.Azimuth / m_BlockInfo.AngularResolution);
             int num = block.head.RadialNumber - m_RadialNumber0;
             if (num < 0)
             {
-                num += angleNum;
+                num += m_BlockInfo.RadialCounts;
             }
             std::vector<float>& tmp = ret[num];
             switch (type)
