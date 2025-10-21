@@ -18,6 +18,7 @@
 #include <cstring>
 #include <iostream>
 #include <stdint.h>
+using PolorGrid = std::vector<std::vector<float>>;
 namespace RadarData
 {
 
@@ -248,7 +249,7 @@ struct BlockInfo
     std::vector<LayerParam> LayerParams;
     bool Read(std::fstream& input);
 };
-
+class SLB;
 struct BlockData
 {
     struct
@@ -274,22 +275,15 @@ struct BlockData
     //  当[数值]为1时，表示距离模糊数据
     //  当[数值]为4时，表示无回波数据
     // std::vector<uint8_t> data;
-    std::vector<float> _th;     // 解码方式:([数值]-66)/2=[实际值]dBZ
-    std::vector<float> _zh;     // 水平反射率因子Zh;([数值]-66)/2=[实际值]dBZ
-    std::vector<float> _vel;      // 径向速度V;([数值]-129)/2=[实际值]米/秒
-    std::vector<float> _width;      // 谱宽W ;([数值]-129)/2=[实际值]米/秒
-    std::vector<float> _zdr;    // 差分反射率因子ZDR;([数值]-130)/16=[实际值]dB
-    std::vector<float> _phidp;  // 差分传播相位PHIDP;([数值]-50)/100=[实际值]度
-    std::vector<float> _kdp;    // 差分传播相位率KDP;([数值]-50)/10=[实际值]度/千米
-    std::vector<float> _cc;     // 相关系数CC;([数值]-5)/200=[实际值]
-    std::vector<float> _tv;     //  原始垂直反射率因子Tv;([数值]-66)/2=[实际值]dBZ
 
-    bool Read(std::fstream& input, const BlockInfo& info);
+    bool Read(std::fstream& input, const BlockInfo& info, SLB& slb);
 };
 #pragma pack()
 
 class SLB
 {
+    friend class BlockData;
+
   public:
     SLB() = default;
     ~SLB() = default;
@@ -297,19 +291,20 @@ class SLB
     bool Read(const std::filesystem::path& file);
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <param name="layer"></param>
     /// <param name="type"></param>
     /// <returns></returns>
-    std::vector<std::vector<float>> GetData(const int& layer, const eType& type) const;
+    PolorGrid GetData(const int& layer, const eType& type) const;
 
     SiteInfo GetSiteInfo() const;
 
     std::map<int, double> Layer2Elevation() const;
 
     void Clear();
-  public:
+
+  protected:
     // ---- 公共数据块 ----
     FileVolume m_FileVol;    // 文件卷信息
     SiteInfo m_SiteInfo;     // 雷达站基本信息
@@ -317,14 +312,21 @@ class SLB
     OperationInfo m_OpInfo;  // 运维数据信息
     Alerts m_Alerts;         // 1~M 个告警数据块
     BlockInfo m_BlockInfo;
-
     // ---- 径向数据块 ----
-    std::vector<BlockData> m_RadialBlocks;  // 径向数据
-
-    std::map<int, double> m_Layer2Elevation;// 所有的方位角度
-    
+    std::vector<BlockData> m_RadialBlocks;    // 径向数据
+    std::map<int, double> m_Layer2Elevation;  // 所有的方位角度
     std::set<int32_t> m_ElevationNumber;
-    int m_RadialNumber0 = 0; //  0度对应的径向序号
+    int m_RadialNumber0 = 0;  //  0度对应的径向序号
+
+    std::vector<PolorGrid> _th;                           // 解码方式:([数值]-66)/2=[实际值]dBZ
+    std::vector<PolorGrid> _zh;                           // 水平反射率因子Zh;([数值]-66)/2=[实际值]dBZ
+    std::vector<PolorGrid> _vel;                          // 径向速度V;([数值]-129)/2=[实际值]米/秒
+    std::vector<PolorGrid> _width;                        // 谱宽W ;([数值]-129)/2=[实际值]米/秒
+    std::vector<PolorGrid> _zdr;                          // 差分反射率因子ZDR;([数值]-130)/16=[实际值]dB
+    std::vector<PolorGrid> _phidp;                        // 差分传播相位PHIDP;([数值]-50)/100=[实际值]度
+    std::vector<PolorGrid> _kdp;                          // 差分传播相位率KDP;([数值]-50)/10=[实际值]度/千米
+    std::vector<PolorGrid> _cc;                           // 相关系数CC;([数值]-5)/200=[实际值]
+    std::vector<PolorGrid> _tv;                           //  原始垂直反射率因子Tv;([数值]-66)/2=[实际值]dBZ
 
   private:
 };

@@ -120,7 +120,7 @@ bool BlockInfo::Read(std::fstream& input)
 
     return true;
 }
-bool BlockData::Read(std::fstream& input, const BlockInfo& info)
+bool BlockData::Read(std::fstream& input, const BlockInfo& info, SLB& slb)
 {
     if (input.eof())
     {
@@ -141,6 +141,7 @@ bool BlockData::Read(std::fstream& input, const BlockInfo& info)
     for (int i = 0; i < head.VarCounts; i++)
     {
         const int layer = head.ElevationNumber - 1;
+        const int az = head.RadialNumber - 1;
         size_t count = info.LayerParams[layer].GateCounts[i];
         int32_t scale = Scale[i];
         int32_t offset = Offset[i];
@@ -209,32 +210,32 @@ bool BlockData::Read(std::fstream& input, const BlockInfo& info)
         switch (TYPE_ORDER[i])
         {
             case eType::DBZ:
-                CalcReal(tmp, _th, offset, scale);
+                CalcReal(tmp, slb._th[layer][az], offset, scale);
                 break;
 
             case eType::REF:
-                CalcReal(tmp, _zh, offset, scale);
+                CalcReal(tmp, slb._zh[layer][az], offset, scale);
                 break;
             case eType::VEL:
-                CalcReal(tmp, _vel, offset, scale);
+                CalcReal(tmp, slb._vel[layer][az], offset, scale);
                 break;
             case eType::WIDTH:
-                CalcReal(tmp, _width, offset, scale);
+                CalcReal(tmp, slb._width[layer][az], offset, scale);
                 break;
             case eType::ZDR:
-                CalcReal(tmp, _zdr, offset, scale);
+                CalcReal(tmp, slb._zdr[layer][az], offset, scale);
                 break;
             case eType::PHIDP:
-                CalcReal(tmp, _phidp, offset, scale);
+                CalcReal(tmp, slb._phidp[layer][az], offset, scale);
                 break;
             case eType::KDP:
-                CalcReal(tmp, _kdp, offset, scale);
+                CalcReal(tmp, slb._kdp[layer][az], offset, scale);
                 break;
             case eType::CC:
-                CalcReal(tmp, _cc, offset, scale);
+                CalcReal(tmp, slb._cc[layer][az], offset, scale);
                 break;
             case eType::TV:
-                CalcReal(tmp, _tv, offset, scale);
+                CalcReal(tmp, slb._tv[layer][az], offset, scale);
                 break;
             default:
                 break;
@@ -256,10 +257,33 @@ bool SLB::Read(const std::filesystem::path& file)
     assert(m_OpInfo.Read(input));
     assert(m_Alerts.Read(input));
     assert(m_BlockInfo.Read(input));
+    {
+        const int layerNum = m_BlockInfo.LayerCounts; //层数
+        const int azNum = m_BlockInfo.RadialCounts; // 方向数
+        const int gateNum = m_BlockInfo.LayerParams.front().GateCounts.front();  // 每个径向的 gate 数
+        _th.resize(layerNum);
+        for (auto& layer : _th)
+        {
+            layer.resize(azNum);
+            for (auto& radal : layer)
+            {
+                radal = std::vector<float>(gateNum, -9999);
+            }
+        }
+        _zh = _th;
+        _vel = _th;
+        _width = _th;
+        _zdr = _th;
+        _phidp = _th;
+        _kdp = _th;
+        _cc = _th;
+        _tv = _th;       
+
+    }
     while (!input.eof())
     {
         BlockData tmp;
-        if (tmp.Read(input, m_BlockInfo))
+        if (tmp.Read(input, m_BlockInfo, *this))
         {
             m_RadialBlocks.push_back(tmp);
         }
@@ -289,77 +313,98 @@ static void MaxInRadial(std::vector<float>& ret, const std::vector<float>& src)
     }
     return;
 }
-std::vector<std::vector<float>> SLB::GetData(const int& layer, const eType& type) const
+PolorGrid SLB::GetData(const int& layer, const eType& type) const
 {
-    bool unionAll = layer == 9999;
-    
-    if (!unionAll)
-    {
-        if (layer >= m_BlockInfo.LayerParams.size())
-        {
-            return {};
-        }
-    }
+    // layer == 9999 合并所有层级的最大值
+    // 或者获取指定层级的极坐标数据
+    bool mergeMax = layer == 9999;
+    // 1. 确定要访问的数据源容器
+    const std::vector<PolorGrid>* dataSource = nullptr;
 
-    int typeIdx = 0;
-    for (; typeIdx < TYPE_ORDER.size(); ++typeIdx)
+    switch (type)
     {
-        if (TYPE_ORDER[typeIdx] == type)
-        {
+        case eType::DBZ:
+            dataSource = &_th;
             break;
-        }
+        case eType::REF:
+            dataSource = &_zh;
+            break;
+        case eType::VEL:
+            dataSource = &_vel;
+            break;
+        case eType::WIDTH:
+            dataSource = &_width;
+            break;
+        case eType::ZDR:
+            dataSource = &_zdr;
+            break;
+        case eType::PHIDP:
+            dataSource = &_phidp;
+            break;
+        case eType::KDP:
+            dataSource = &_kdp;
+            break;
+        case eType::CC:
+            dataSource = &_cc;
+            break;
+        case eType::TV:
+            dataSource = &_tv;
+            break;
+        default:
+            return {};  // 未知类型，返回空的 PolorGrid
     }
+    // 2. 检查数据源是否有效
+    if (dataSource == nullptr || dataSource->empty())
+        return {};
 
-    int bankNum = m_BlockInfo.LayerParams[0].GateCounts[typeIdx];
-    std::vector<std::vector<float>> ret(m_BlockInfo.RadialCounts, std::vector<float>(bankNum, -9999.0));
-    for (const auto& block : m_RadialBlocks)
+    // 3. 处理普通单层请求
+    if (!mergeMax)
     {
-        if ((block.head.ElevationNumber - 1) == layer || unionAll)
-        {
-            // int sort = std::round(block.head.Azimuth / m_BlockInfo.AngularResolution);
-            int num = block.head.RadialNumber - m_RadialNumber0;
-            if (num < 0)
-            {
-                num += m_BlockInfo.RadialCounts;
-            }
-            std::vector<float>& tmp = ret[num];
-            switch (type)
-            {
-                case eType::DBZ:
-                    MaxInRadial(tmp, block._th);
-                    break;
+        int l = layer;
 
-                case eType::REF:
-                    MaxInRadial(tmp, block._th);
-                    break;
-                case eType::VEL:
-                    MaxInRadial(tmp, block._vel);
-                    break;
-                case eType::WIDTH:
-                    MaxInRadial(tmp, block._width);
-                    break;
-                case eType::ZDR:
-                    MaxInRadial(tmp, block._zdr);
-                    break;
-                case eType::PHIDP:
-                    MaxInRadial(tmp, block._phidp);
-                    break;
-                case eType::KDP:
-                    MaxInRadial(tmp, block._kdp);
-                    break;
-                case eType::CC:
-                    MaxInRadial(tmp, block._cc);
-                    break;
-                case eType::TV:
-                    MaxInRadial(tmp, block._tv);
-                    break;
-                default:
-                    break;
+        if (l < 0 || l >= static_cast<int>(dataSource->size()))
+            return {};  // 层号不合法
+
+        return (*dataSource)[l];  // 返回该层数据（PolorGrid = vector<vector<float>>）
+    }
+    // 4. 处理合并所有层（layer == 9999）
+    else
+    {
+        int numLayers = static_cast<int>(dataSource->size());
+
+        if (numLayers == 0)
+            return {};
+
+        // 假设所有 PolorGrids（每层数据）的大小完全一致，取第一个作为模板
+        const PolorGrid& firstGrid = (*dataSource)[0];
+        if (firstGrid.empty() || firstGrid[0].empty())
+            return {};
+
+        size_t rows = firstGrid.size();
+        size_t cols = firstGrid[0].size();
+
+        // 构造返回的合并结果网格，初始化为最小值（或根据需求）
+        PolorGrid mergedGrid(rows, std::vector<float>(cols, -std::numeric_limits<float>::infinity()));
+
+        // 遍历所有层，逐像素取最大值
+        for (int i = 0; i < numLayers; ++i)
+        {
+            const PolorGrid& grid = (*dataSource)[i];
+
+            for (size_t r = 0; r < rows; ++r)
+            {
+                for (size_t c = 0; c < cols; ++c)
+                {
+                    if (r < grid.size() && c < grid[r].size())
+                    {
+                        mergedGrid[r][c] = std::max(mergedGrid[r][c], grid[r][c]);
+                    }
+                }
             }
         }
-    }
 
-    return ret;
+        return mergedGrid;
+    }
 }
 
 SiteInfo SLB::GetSiteInfo() const
