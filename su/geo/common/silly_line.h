@@ -116,6 +116,10 @@ class suLine
      */
     suLine equidistant(const double& dist) const;
 
+    /**
+     * 总线长度
+     * @return
+     */
     double distance() const;
 
   protected:
@@ -228,6 +232,18 @@ class suLineZ
         m_points.resize(n);
     }
 
+    /**
+     * 构建等间距的折线
+     * @param dist
+     * @return
+     */
+    suLineZ equidistant(const double& dist) const;
+
+    /**
+     * 总线长度
+     * @return
+     */
+    double distance() const;
   public:
     std::vector<suPointZ> m_points;
 };
