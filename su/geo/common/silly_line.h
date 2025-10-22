@@ -109,6 +109,15 @@ class silly_line
         m_points.reserve(n);
     }
 
+    /**
+     * 构建等间距的折线
+     * @param dist
+     * @return
+     */
+    silly_line equidistant(const double& dist) const;
+
+    double distance() const;
+
   protected:
     std::vector<silly_point> m_points;
 };

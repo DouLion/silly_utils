@@ -25,40 +25,40 @@ class silly_point
         y = yy;
     }
 
-    silly_point& operator=(const silly_point& other) = default;
+    silly_point& operator=(const silly_point& rh) = default;
 
-    silly_point operator+(const silly_point& other) const
+    silly_point operator+(const silly_point& rh) const
     {
-        silly_point ret(x + other.x, y + other.y);
+        silly_point ret(x + rh.x, y + rh.y);
         return ret;
     }
 
-    double dot(const silly_point& other) const
+    double dot(const silly_point& rh) const
     {
-        return x * other.x + y * other.y;
+        return x * rh.x + y * rh.y;
     }
 
-    double cross(const silly_point& other) const
+    double cross(const silly_point& rh) const
     {
-        return x * other.y - y * other.x;  // 2D 叉积（标量）
+        return x * rh.y - y * rh.x;  // 2D 叉积（标量）
     }
 
-    silly_point operator+=(const silly_point& other)
+    silly_point operator+=(const silly_point& rh)
     {
-        this->x += other.x;
-        this->y += other.y;
+        this->x += rh.x;
+        this->y += rh.y;
         return *this;
     }
 
-    silly_point operator-(const silly_point& other) const
+    silly_point operator-(const silly_point& rh) const
     {
-        silly_point ret(x - other.x, y - other.y);
+        silly_point ret(x - rh.x, y - rh.y);
         return ret;
     }
-    silly_point operator-=(const silly_point& other)
+    silly_point operator-=(const silly_point& rh)
     {
-        this->x -= other.x;
-        this->y -= other.y;
+        this->x -= rh.x;
+        this->y -= rh.y;
         return *this;
     }
 
@@ -68,9 +68,9 @@ class silly_point
         return ret;
     }
 
-    silly_point operator*(const silly_point& other) const
+    silly_point operator*(const silly_point& rh) const
     {
-        silly_point ret(x * other.x, y * other.y);
+        silly_point ret(x * rh.x, y * rh.y);
         return ret;
     }
 
@@ -81,10 +81,10 @@ class silly_point
         return *this;
     }
 
-    silly_point operator*=(const silly_point& other)
+    silly_point operator*=(const silly_point& rh)
     {
-        this->y *= other.y;
-        this->x *= other.x;
+        this->y *= rh.y;
+        this->x *= rh.x;
         return *this;
     }
 
@@ -93,9 +93,9 @@ class silly_point
         return silly_point(x / scale, y / scale);
     }
 
-    silly_point operator/(const silly_point& other) const
+    silly_point operator/(const silly_point& rh) const
     {
-        return silly_point(x / other.x, y / other.y);
+        return silly_point(x / rh.x, y / rh.y);
     }
 
     silly_point operator/=(double scale)
@@ -105,31 +105,36 @@ class silly_point
         return *this;
     }
 
-    silly_point operator/=(const silly_point& other)
+    silly_point operator/=(const silly_point& rh)
     {
-        this->y /= other.y;
-        this->x /= other.x;
+        this->y /= rh.y;
+        this->x /= rh.x;
         return *this;
     }
 
-    bool operator==(const silly_point& other) const
+    bool operator==(const silly_point& rh) const
     {
-        return std::abs(other.x - this->x) <= SU_GEO_EPSILON && std::abs(other.y - this->y) <= SU_GEO_EPSILON;
+        return std::abs(rh.x - this->x) <= SU_GEO_EPSILON && std::abs(rh.y - this->y) <= SU_GEO_EPSILON;
     }
 
-    bool operator<(const silly_point& other) const
+    bool operator<(const silly_point& rh) const
     {
-        return other.y < y || (other.y == y && other.x < x);
+        return rh.y < y || (rh.y == y && rh.x < x);
     }
 
-    bool operator>(const silly_point& other) const
+    bool operator>(const silly_point& rh) const
     {
-        return other.y > y || (other.y == y && other.x > x);
+        return rh.y > y || (rh.y == y && rh.x > x);
     }
 
-    bool operator!=(const silly_point& other) const
+    bool operator!=(const silly_point& rh) const
     {
-        return std::abs(other.x - this->x) > SU_GEO_EPSILON || std::abs(other.y - this->y) > SU_GEO_EPSILON;
+        return std::abs(rh.x - this->x) > SU_GEO_EPSILON || std::abs(rh.y - this->y) > SU_GEO_EPSILON;
+    }
+
+    double distance(const silly_point& rh) const
+    {
+        return SU_DIST(x - rh.x, y - rh.y);
     }
 
   public:

@@ -12,20 +12,20 @@
 #include <files/silly_file.h>
 #include <metadata/silly_dem.h>
 
-class silly_ascii_grid : public suDem
+class suAsciiGrid : public suDem
 {
   public:
-    silly_ascii_grid() = default;
-    ~silly_ascii_grid() = default;
+    suAsciiGrid() = default;
+    ~suAsciiGrid() = default;
 
-    bool read(const std::filesystem::path& file);
+    bool read(const std::filesystem::path& file, const bool& onlyhead = false);
 
     bool write(const std::filesystem::path& file);
 
     std::string stringify_ll(const int& precision = 3);
 
   private:
-    bool read_asc(const std::filesystem::path& file);
+    bool read_asc(const std::filesystem::path& file, const bool& onlyhead = false);
     bool read_bin(const std::filesystem::path& file);
 
     bool write_asc(const std::filesystem::path& file);
@@ -33,9 +33,6 @@ class silly_ascii_grid : public suDem
 
     bool read_prj(const std::filesystem::path& file);
     bool write_prj(const std::filesystem::path& file);
-
-  public:
-    double cellsize = 0;
 
   private:
     std::string m_root;

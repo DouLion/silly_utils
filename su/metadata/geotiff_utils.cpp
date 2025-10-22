@@ -10,20 +10,20 @@
 #define SILLY_GEOTOFF_STRIP_TIF 1
 #define SILLY_GEOTOFF_TILE_TIF 2
 #define SILLY_GEOTOFF_SCANLINE_TIF 3
-bool geotiff_utils::get_tif_data(void* tttt, tif_data& res_tif)
+bool geotiff_utils::get_tif_data(void* tttt, tif_data& ret)
 {
     TIFF* tiff = (TIFF*)tttt;
     // 读取图像基本信息
-    TIFFGetField(tiff, TIFFTAG_IMAGEWIDTH, &res_tif.tif_width);
-    TIFFGetField(tiff, TIFFTAG_IMAGELENGTH, &res_tif.tif_height);
+    TIFFGetField(tiff, TIFFTAG_IMAGEWIDTH, &ret.tif_width);
+    TIFFGetField(tiff, TIFFTAG_IMAGELENGTH, &ret.tif_height);
 
     double* tif_coordinate = NULL;
     uint32_t tif_coordinate_count;
     TIFFGetField(tiff, GTIFF_TIEPOINTS, &tif_coordinate_count, &tif_coordinate);
     if (tif_coordinate_count > 4)
     {
-        res_tif.tif_letf = tif_coordinate[3];
-        res_tif.tif_top = tif_coordinate[4];
+        ret.tif_letf = tif_coordinate[3];
+        ret.tif_top = tif_coordinate[4];
     }
     else
     {
@@ -36,8 +36,8 @@ bool geotiff_utils::get_tif_data(void* tttt, tif_data& res_tif)
     TIFFGetField(tiff, GTIFF_PIXELSCALE, &pixel_scale_count, &pixel_scale);
     if (pixel_scale_count > 2)
     {
-        res_tif.pixelSizeX = pixel_scale[0];
-        res_tif.pixelSizeY = pixel_scale[1];
+        ret.pixelSizeX = pixel_scale[0];
+        ret.pixelSizeY = pixel_scale[1];
     }
     else
     {
@@ -46,7 +46,7 @@ bool geotiff_utils::get_tif_data(void* tttt, tif_data& res_tif)
     }
 
     // 每个点占的位数
-    TIFFGetField(tiff, TIFFTAG_BITSPERSAMPLE, &res_tif.tif_bitsPerSample);
+    TIFFGetField(tiff, TIFFTAG_BITSPERSAMPLE, &ret.tif_bitsPerSample);
 
     //// 获取分辨率单位
     // uint16_t resolutionUnit;
@@ -54,22 +54,22 @@ bool geotiff_utils::get_tif_data(void* tttt, tif_data& res_tif)
     // std::cout <<  "分辨率单位:  " << resolutionUnit << std::endl;
 
     // 获取每个像素的样本数
-    TIFFGetField(tiff, TIFFTAG_SAMPLESPERPIXEL, &res_tif.tif_samplesPerPixel);
+    TIFFGetField(tiff, TIFFTAG_SAMPLESPERPIXEL, &ret.tif_samplesPerPixel);
 
     //----------------------------------------------------
     //
     // 数据类型 :TIFFTAG_SAMPLEFORMAT
-    if (TIFFGetField(tiff, TIFFTAG_SAMPLEFORMAT, &res_tif.tif_sampleFormat))
+    if (TIFFGetField(tiff, TIFFTAG_SAMPLEFORMAT, &ret.tif_sampleFormat))
     {
-        if (res_tif.tif_sampleFormat == SAMPLEFORMAT_UINT)
+        if (ret.tif_sampleFormat == SAMPLEFORMAT_UINT)
         {
             std::cout << "type：uint " << std::endl;
         }
-        else if (res_tif.tif_sampleFormat == SAMPLEFORMAT_INT)
+        else if (ret.tif_sampleFormat == SAMPLEFORMAT_INT)
         {
             std::cout << "type：int " << std::endl;
         }
-        else if (res_tif.tif_sampleFormat == SAMPLEFORMAT_IEEEFP)
+        else if (ret.tif_sampleFormat == SAMPLEFORMAT_IEEEFP)
         {
             std::cout << "type：float " << std::endl;
         }
@@ -87,49 +87,49 @@ bool geotiff_utils::get_tif_data(void* tttt, tif_data& res_tif)
     }
 
     // 图像的方向标签
-    TIFFGetField(tiff, TIFFTAG_ORIENTATION, &res_tif.tif_orientation);
+    TIFFGetField(tiff, TIFFTAG_ORIENTATION, &ret.tif_orientation);
 
     // 图像的平面配置标签 planar_config
-    TIFFGetField(tiff, TIFFTAG_PLANARCONFIG, &res_tif.tif_planarConfig);
+    TIFFGetField(tiff, TIFFTAG_PLANARCONFIG, &ret.tif_planarConfig);
 
     // 图像的光度标签
-    TIFFGetField(tiff, TIFFTAG_PHOTOMETRIC, &res_tif.tif_photometric);
+    TIFFGetField(tiff, TIFFTAG_PHOTOMETRIC, &ret.tif_photometric);
 
     // 通道数
-    TIFFGetField(tiff, TIFFTAG_SAMPLESPERPIXEL, &res_tif.tif_numChannels);
+    TIFFGetField(tiff, TIFFTAG_SAMPLESPERPIXEL, &ret.tif_numChannels);
 
-    res_tif.tif_lineSize = TIFFScanlineSize64(tiff);  // 一行多少字节
-    res_tif.tif_tileSize = TIFFTileSize64(tiff);
+    ret.tif_lineSize = TIFFScanlineSize64(tiff);  // 一行多少字节
+    ret.tif_tileSize = TIFFTileSize64(tiff);
 
     uint32 nstrips = TIFFNumberOfStrips(tiff);  // Number of strips in file
     uint32 rowsperstrip = 0;
     int rc_1 = TIFFGetField(tiff, TIFFTAG_ROWSPERSTRIP, &rowsperstrip);
-    int rc_2 = TIFFGetField(tiff, TIFFTAG_TILEWIDTH, &res_tif.tif_tileWidth);
-    int rc_3 = TIFFGetField(tiff, TIFFTAG_TILELENGTH, &res_tif.tif_tileHeight);
+    int rc_2 = TIFFGetField(tiff, TIFFTAG_TILEWIDTH, &ret.tif_tileWidth);
+    int rc_3 = TIFFGetField(tiff, TIFFTAG_TILELENGTH, &ret.tif_tileHeight);
 
     // TIFFIsTiled(tiff) ? printf("图像存储类型: Tiled\n") : printf("图像存储类型: Strip\n");
-    // TIFFIsTiled(tiff) ? (res_tif.tif_type = TILE_TIF) : (res_tif.tif_type = STRIP_TIF);
+    // TIFFIsTiled(tiff) ? (ret.tif_type = TILE_TIF) : (ret.tif_type = STRIP_TIF);
 
     // Determine TIFF type
-    if (rc_2 && rc_3 && res_tif.tif_tileWidth > 1 && res_tif.tif_tileHeight > 1 && TIFFIsTiled(tiff))
+    if (rc_2 && rc_3 && ret.tif_tileWidth > 1 && ret.tif_tileHeight > 1 && TIFFIsTiled(tiff))
     {
         uint32 tiledepth;
         int rc_4 = TIFFGetField(tiff, TIFFTAG_TILEDEPTH, &tiledepth);
-        if (res_tif.tif_tileWidth % 16 == 0 && res_tif.tif_tileHeight % 16 == 0)
+        if (ret.tif_tileWidth % 16 == 0 && ret.tif_tileHeight % 16 == 0)
         {
-            res_tif.tif_type = SILLY_GEOTOFF_TILE_TIF;
+            ret.tif_type = SILLY_GEOTOFF_TILE_TIF;
         }
     }
     else if (rc_1 && nstrips >= 1 && rowsperstrip >= 1)
     {
-        res_tif.tif_type = SILLY_GEOTOFF_STRIP_TIF;
+        ret.tif_type = SILLY_GEOTOFF_STRIP_TIF;
     }
-    else if (res_tif.tif_lineSize > 0)
+    else if (ret.tif_lineSize > 0)
     {
-        res_tif.tif_type = SILLY_GEOTOFF_SCANLINE_TIF;
+        ret.tif_type = SILLY_GEOTOFF_SCANLINE_TIF;
     }
 
-    uint64_t tileSize = TIFFVTileSize64(tiff, res_tif.tif_height);
+    uint64_t tileSize = TIFFVTileSize64(tiff, ret.tif_height);
     uint64_t rowstileSize = TIFFTileRowSize64(tiff);
     int a = 0;
 
@@ -158,16 +158,16 @@ bool geotiff_utils::get_tif_data(void* tttt, tif_data& res_tif)
     // }
 }
 
-tif_data geotiff_utils::readGeoTiff(std::string filePath)
+tif_data geotiff_utils::read(const std::filesystem::path& file)
 {
-    tif_data res_tif;
+    tif_data ret;
     bool status = true;
     // 打开影像数据
-    TIFF* tiff = XTIFFOpen(filePath.c_str(), "r ");
+    TIFF* tiff = XTIFFOpen(file.string().c_str(), "r ");
     if (tiff == nullptr)
     {
         std::cout << "打开影像数据失败 " << std::endl;
-        return res_tif;
+        return ret;
     }
 
     // 获取影像属性信息
@@ -182,71 +182,71 @@ tif_data geotiff_utils::readGeoTiff(std::string filePath)
     GTIFFree(gtif);
 
     // 获取tif的参数属性
-    bool get_data = geotiff_utils::get_tif_data(tiff, res_tif);
+    bool get_data = geotiff_utils::get_tif_data(tiff, ret);
     if (!get_data)
     {
         // 关闭影像数据和GTIF对象
         XTIFFClose(tiff);
-        return res_tif;
+        return ret;
     }
     char* strip_buff = nullptr;
-    switch (res_tif.tif_type)
+    switch (ret.tif_type)
     {
         case SILLY_GEOTOFF_STRIP_TIF:
             // 逐行读取像素数据
-            res_tif.tif_matrix2.create(res_tif.tif_height, res_tif.tif_width);
-            strip_buff = new char[res_tif.tif_lineSize];
-            for (uint32_t row = 0; row < res_tif.tif_height; ++row)
+            ret.grid.create(ret.tif_height, ret.tif_width);
+            strip_buff = new char[ret.tif_lineSize];
+            for (uint32_t row = 0; row < ret.tif_height; ++row)
             {
-                // TIFFReadScanline(tiff, res_tif.tif_matrix2[row], row);
+                // TIFFReadScanline(tiff, ret.matrix[row], row);
                 TIFFReadScanline(tiff, strip_buff, row);
-                if (res_tif.tif_sampleFormat == SAMPLEFORMAT_IEEEFP && res_tif.tif_bitsPerSample == 32)
+                if (ret.tif_sampleFormat == SAMPLEFORMAT_IEEEFP && ret.tif_bitsPerSample == 32)
                 {
-                    memcpy(res_tif.tif_matrix2[row], strip_buff, res_tif.tif_lineSize);
+                    memcpy(ret.grid[row], strip_buff, ret.tif_lineSize);
                 }
-                else if (res_tif.tif_sampleFormat == SAMPLEFORMAT_IEEEFP && res_tif.tif_bitsPerSample == 64)
+                else if (ret.tif_sampleFormat == SAMPLEFORMAT_IEEEFP && ret.tif_bitsPerSample == 64)
                 {
-                    for (int col = 0; col < res_tif.tif_width; ++col)
+                    for (int col = 0; col < ret.tif_width; ++col)
                     {
-                        res_tif.tif_matrix2[row][col] = ((double*)strip_buff)[col];
+                        ret.grid[row][col] = ((double*)strip_buff)[col];
                     }
                 }
             }
             delete[] strip_buff;
             break;
         case SILLY_GEOTOFF_TILE_TIF:
-            if (res_tif.tif_lineSize > 0)
+            if (ret.tif_lineSize > 0)
             {
-                res_tif.tif_matrix2.create(res_tif.tif_height, res_tif.tif_width);
+                ret.grid.create(ret.tif_height, ret.tif_width);
                 // 读取图像数据
-                // void* line_buf = _TIFFmalloc(res_tif.tif_lineSize);
-                unsigned char* line_buf = (unsigned char*)_TIFFmalloc(res_tif.tif_lineSize);
-                unsigned char* tilebuf = (unsigned char*)_TIFFmalloc(res_tif.tif_tileSize);
-                // std::vector<std::vector<float>> res(res_tif.tif_height, std::vector<float>(res_tif.tif_width));
-                for (uint32_t row = 0; row < res_tif.tif_height; row++)
+                // void* line_buf = _TIFFmalloc(ret.tif_lineSize);
+                unsigned char* line_buf = (unsigned char*)_TIFFmalloc(ret.tif_lineSize);
+                unsigned char* tilebuf = (unsigned char*)_TIFFmalloc(ret.tif_tileSize);
+                // std::vector<std::vector<float>> res(ret.tif_height, std::vector<float>(ret.tif_width));
+                for (uint32_t row = 0; row < ret.tif_height; row++)
                 {
-                    for (uint32_t col = 0, buf_col = 0; col < res_tif.tif_width; col += res_tif.tif_tileWidth)
+                    for (uint32_t col = 0, buf_col = 0; col < ret.tif_width; col += ret.tif_tileWidth)
                     {
                         uint64 bytes_read = TIFFReadTile(tiff, tilebuf, col, row, 0, 1);
                         //-----------------------------------
-                        uint32 num_preceding_tile_rows = floor(row / res_tif.tif_tileHeight);
-                        uint32 row_in_tile = row - (num_preceding_tile_rows * res_tif.tif_tileHeight);
+                        uint32 num_preceding_tile_rows = floor(row / ret.tif_tileHeight);
+                        uint32 row_in_tile = row - (num_preceding_tile_rows * ret.tif_tileHeight);
                         uint32 idx = 0;
-                        for (uint32 i = 0; i < res_tif.tif_tileWidth && buf_col < res_tif.tif_width && (idx * res_tif.tif_samplesPerPixel) < res_tif.tif_tileSize; i++)
+                        for (uint32 i = 0; i < ret.tif_tileWidth && buf_col < ret.tif_width && (idx * ret.tif_samplesPerPixel) < ret.tif_tileSize; i++)
                         {
-                            if (res_tif.tif_planarConfig == PLANARCONFIG_SEPARATE)
+                            if (ret.tif_planarConfig == PLANARCONFIG_SEPARATE)
                             {
-                                idx = row_in_tile * res_tif.tif_tileWidth + i;
+                                idx = row_in_tile * ret.tif_tileWidth + i;
                             }
                             else
                             {
                                 // PLANARCONFIG_CONTIG
-                                idx = row_in_tile * (res_tif.tif_tileWidth * res_tif.tif_samplesPerPixel) + i * res_tif.tif_samplesPerPixel + res_tif.tif_numChannels;
+                                idx = row_in_tile * (ret.tif_tileWidth * ret.tif_samplesPerPixel) + i * ret.tif_samplesPerPixel + ret.tif_numChannels;
                             }
-                            switch (res_tif.tif_bitsPerSample)
+                            switch (ret.tif_bitsPerSample)
                             {
                                 case 8:
-                                    switch (res_tif.tif_sampleFormat)
+                                    switch (ret.tif_sampleFormat)
                                     {
                                         case SAMPLEFORMAT_UINT:
                                             ((uint8*)line_buf)[buf_col] = ((uint8*)tilebuf)[idx];
@@ -262,7 +262,7 @@ tif_data geotiff_utils::readGeoTiff(std::string filePath)
                                     }
                                     break;
                                 case 16:
-                                    switch (res_tif.tif_sampleFormat)
+                                    switch (ret.tif_sampleFormat)
                                     {
                                         case SAMPLEFORMAT_UINT:
                                             ((uint16*)line_buf)[buf_col] = ((uint16*)tilebuf)[idx];
@@ -278,7 +278,7 @@ tif_data geotiff_utils::readGeoTiff(std::string filePath)
                                     }
                                     break;
                                 case 32:
-                                    switch (res_tif.tif_sampleFormat)
+                                    switch (ret.tif_sampleFormat)
                                     {
                                         case SAMPLEFORMAT_UINT:
                                             ((uint32*)line_buf)[buf_col] = ((uint32*)tilebuf)[idx];
@@ -303,7 +303,7 @@ tif_data geotiff_utils::readGeoTiff(std::string filePath)
                             }
                         }
                     }
-                    memcpy(&(res_tif.tif_matrix2.at(row, 0)), line_buf, res_tif.tif_lineSize);
+                    memcpy(&(ret.grid.at(row, 0)), line_buf, ret.tif_lineSize);
                     // 读取一行
                 }
                 _TIFFfree(line_buf);
@@ -321,20 +321,20 @@ tif_data geotiff_utils::readGeoTiff(std::string filePath)
 
     // 关闭影像数据和GTIF对象
 
-    res_tif.tif_matrix2.release();
+    ret.grid.release();
     XTIFFClose(tiff);
-    return res_tif;
+    return ret;
 }
 
-bool geotiff_utils::writeGeoTiff(std::string filePath, tif_data tif_matrix2)
+bool geotiff_utils::write(const std::filesystem::path& file, const tif_data& matrix)
 {
     bool status = true;
     // 获取矩阵的行数和列数
-    size_t cols = tif_matrix2.tif_width;
-    size_t rows = tif_matrix2.tif_height;
+    size_t cols = matrix.tif_width;
+    size_t rows = matrix.tif_height;
 
     // 打开 TIFF 文件进行写入
-    TIFF* tiff = XTIFFOpen(filePath.c_str(), "w ");
+    TIFF* tiff = XTIFFOpen(file.string().c_str(), "w ");
     if (!tiff)
     {
         std::cerr << "Unable to open TIFF file for writing " << std::endl;
@@ -344,17 +344,17 @@ bool geotiff_utils::writeGeoTiff(std::string filePath, tif_data tif_matrix2)
     // 设置 TIFF 图像的基本信息
     TIFFSetField(tiff, TIFFTAG_IMAGEWIDTH, cols);
     TIFFSetField(tiff, TIFFTAG_IMAGELENGTH, rows);
-    // TIFFSetField(tiff, TIFFTAG_TILEWIDTH, tif_matrix2.tif_tileWidth);
-    // TIFFSetField(tiff, TIFFTAG_TILELENGTH, tif_matrix2.tif_tileHeight);
-    TIFFSetField(tiff, TIFFTAG_SAMPLESPERPIXEL, tif_matrix2.tif_samplesPerPixel);
-    TIFFSetField(tiff, TIFFTAG_BITSPERSAMPLE, tif_matrix2.tif_bitsPerSample);
-    TIFFSetField(tiff, TIFFTAG_SAMPLEFORMAT, tif_matrix2.tif_sampleFormat);
-    TIFFSetField(tiff, TIFFTAG_ORIENTATION, tif_matrix2.tif_orientation);    // 图像的方向标签
-    TIFFSetField(tiff, TIFFTAG_PLANARCONFIG, tif_matrix2.tif_planarConfig);  // 图像的平面配置标签 planar_config
-    TIFFSetField(tiff, TIFFTAG_PHOTOMETRIC, tif_matrix2.tif_photometric);    // 图像的光度标签.
+    // TIFFSetField(tiff, TIFFTAG_TILEWIDTH, matrix.tif_tileWidth);
+    // TIFFSetField(tiff, TIFFTAG_TILELENGTH, matrix.tif_tileHeight);
+    TIFFSetField(tiff, TIFFTAG_SAMPLESPERPIXEL, matrix.tif_samplesPerPixel);
+    TIFFSetField(tiff, TIFFTAG_BITSPERSAMPLE, matrix.tif_bitsPerSample);
+    TIFFSetField(tiff, TIFFTAG_SAMPLEFORMAT, matrix.tif_sampleFormat);
+    TIFFSetField(tiff, TIFFTAG_ORIENTATION, matrix.tif_orientation);    // 图像的方向标签
+    TIFFSetField(tiff, TIFFTAG_PLANARCONFIG, matrix.tif_planarConfig);  // 图像的平面配置标签 planar_config
+    TIFFSetField(tiff, TIFFTAG_PHOTOMETRIC, matrix.tif_photometric);    // 图像的光度标签.
 
-    double pixelScale[3] = {tif_matrix2.pixelSizeX, tif_matrix2.pixelSizeY, 1.0};
-    double modelTransform[6] = {0.0, 0.0, 0.0, tif_matrix2.tif_letf, tif_matrix2.tif_top, 0.0};
+    double pixelScale[3] = {matrix.pixelSizeX, matrix.pixelSizeY, 1.0};
+    double modelTransform[6] = {0.0, 0.0, 0.0, matrix.tif_letf, matrix.tif_top, 0.0};
 
     TIFFSetField(tiff, GTIFF_PIXELSCALE, 3, &pixelScale);
     TIFFSetField(tiff, GTIFF_TIEPOINTS, 6, &modelTransform);
@@ -362,7 +362,7 @@ bool geotiff_utils::writeGeoTiff(std::string filePath, tif_data tif_matrix2)
     // 写入像素数据
     for (size_t row = 0; row < rows; row++)
     {
-        if (TIFFWriteScanline(tiff, tif_matrix2.tif_matrix2[row], row, 0) < 0)
+        if (TIFFWriteScanline(tiff, matrix.grid[row], row, 0) < 0)
         {
             std::cout << "TIFFWriteScanline error " << std::endl;
         }
@@ -375,12 +375,12 @@ bool geotiff_utils::writeGeoTiff(std::string filePath, tif_data tif_matrix2)
     return status;
 }
 
-bool geotiff_utils::writeFourChannelTiff(std::string filePath, tif_data tif_matrix2)
+bool geotiff_utils::writeFourChannelTiff(std::string filePath, tif_data matrix)
 {
     bool status = true;
     // 获取矩阵的行数和列数
-    size_t cols = tif_matrix2.tif_width / 5;
-    size_t rows = tif_matrix2.tif_height / 5;
+    size_t cols = matrix.tif_width / 5;
+    size_t rows = matrix.tif_height / 5;
 
     // 打开 TIFF 文件进行写入
     TIFF* tiff = XTIFFOpen(filePath.c_str(), "w");
@@ -400,8 +400,8 @@ bool geotiff_utils::writeFourChannelTiff(std::string filePath, tif_data tif_matr
     TIFFSetField(tiff, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);  // 图像的平面配置标签 planar_config
     TIFFSetField(tiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);       // 图像的光度标签.
 
-    double pixelScale[3] = {tif_matrix2.pixelSizeX, tif_matrix2.pixelSizeY, 1.0};
-    double modelTransform[6] = {0.0, 0.0, 0.0, tif_matrix2.tif_letf, tif_matrix2.tif_top, 0.0};
+    double pixelScale[3] = {matrix.pixelSizeX, matrix.pixelSizeY, 1.0};
+    double modelTransform[6] = {0.0, 0.0, 0.0, matrix.tif_letf, matrix.tif_top, 0.0};
 
     TIFFSetField(tiff, GTIFF_PIXELSCALE, 3, pixelScale);
     TIFFSetField(tiff, GTIFF_TIEPOINTS, 6, modelTransform);
@@ -409,7 +409,7 @@ bool geotiff_utils::writeFourChannelTiff(std::string filePath, tif_data tif_matr
     // 写入像素数据
     for (size_t row = 0; row < rows; row++)
     {
-        if (TIFFWriteScanline(tiff, tif_matrix2.tif_matrix2[row], row, 0) < 0)
+        if (TIFFWriteScanline(tiff, matrix.grid[row], row, 0) < 0)
         {
             std::cout << "TIFFWriteScanline error " << std::endl;
             status = false;

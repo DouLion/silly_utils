@@ -47,7 +47,7 @@ class tif_data
     double pixelSizeY;      // 纵向分辨率
 
     // 以字节为将tif矩阵存入
-    suMatrix<double> tif_matrix2;
+    suDMatrix grid;
     // matrix<unsigned char> tif_matrix2;
 
   private:
@@ -59,18 +59,17 @@ class geotiff_utils
     /// <summary>
     /// 读取tif到tif_data结构体
     /// </summary>
-    /// <param name="filePath"></param>
-    /// <param name="tif_matrix"></param>
-    static tif_data readGeoTiff(std::string filePath);
+    /// <param name="file"></param>
+    static tif_data read( const std::filesystem::path& file);
 
     static bool get_tif_data(void* tif, tif_data& res_tif);
 
     /// <summary>
     /// tif_data结构体写入tif文件
     /// </summary>
-    /// <param name="filePath"></param>
+    /// <param name="file"></param>
     /// <param name="tif_matrix"></param>
-    static bool writeGeoTiff(std::string filePath, tif_data tif_matrix2);
+    static bool write(const std::filesystem::path& file, const tif_data& matrix);
 
     static bool writeFourChannelTiff(std::string filePath, tif_data tif_matrix2);
 };

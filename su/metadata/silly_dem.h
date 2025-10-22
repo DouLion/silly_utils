@@ -16,115 +16,60 @@
 class suDem
 {
   public:
-    /// getter and setter
-    void dx(const double& d);
-    double dx() const;
-    void dy(const double& d);
-    double dy() const;
-    void fill(const double& f);
-    double fill() const;
-    void l0(const double& l);
-    double l0() const;
-    void height(const size_t& h);
-    size_t height() const;
-    void width(const size_t& w);
-    size_t width() const;
-    void rect(const silly_rect& r);
-    silly_rect rect() const;
-    void data(const suDMatrix& d);
-    suDMatrix& data();
+    /*
+     * 根据central 的值判断是否是高斯
+     */
+    bool IsGauss() const;
+    /**
+     *
+     * @param rh
+     * @param cell_size
+     * @param l0
+     */
+    void Gauss2Lonlat(const suDem& rh, const double& cell_size, const double& l0);
 
-    void gauss2lonlat(const suDem& rh, const double& cellsize, const double& l0);
-    void lonlat2gauss(const suDem& rh, const double& cellsize, const double& l0);
+    /**
+     *
+     * @param rh
+     * @param cell_size
+     * @param l0
+     */
+    void Lonlat2Gauss(const suDem& rh, const double& cell_size, const double& l0);
+    void Cover(const suDem& rh);
 
-    void cover(const suDem& rh);
+    /**
+     * 将环外的点置为fill
+     * @param ring
+     */
+    void Extra(const silly_ring& ring);
 
-    void release();
+    /**
+     *  提取环内的点
+     * @param rh
+     * @param ring
+     */
+    void Extra(const suDem& rh, const silly_ring& ring);
 
-  protected:
-    double m_dx = 0;
-    double m_dy = 0;
-    double m_fill = -9999.0;
-    size_t m_width = 0;
-    size_t m_height = 0;
-    double m_l0 = 0;
-    /*double m_scale = 1.0;
-    double m_offset = 0.0;*/
-    suDMatrix m_data;
-    silly_rect m_rect;
+    /**
+     * 提取剖面高程
+     * @param line
+     * @return
+     */
+    std::vector<std::pair<double, double>> ProfileElev(const silly_line& line)  const;
+
+    void Release();
+
+  public:
+    struct
+    {
+        double dx = 0;
+        double dy = 0;
+        double fill = -9999.0;
+        size_t width = 0;
+        size_t height = 0;
+        silly_rect bound;
+        double central = 0; // 有效值 [75, 135] 间隔3, 否则认为高斯坐标系
+    }info;
+    suDMatrix raster;
 };
-
-inline void suDem::dx(const double& d)
-{
-    m_dx = d;
-}
-inline double suDem::dx() const
-{
-    return m_dx;
-}
-inline void suDem::dy(const double& d)
-{
-    m_dy = d;
-}
-inline double suDem::dy() const
-{
-    return m_dy;
-}
-inline void suDem::fill(const double& f)
-{
-    m_fill = f;
-}
-inline double suDem::fill() const
-{
-    return m_fill;
-}
-inline void suDem::l0(const double& l)
-{
-    m_l0 = l;
-}
-inline double suDem::l0() const
-{
-    return m_l0;
-}
-inline void suDem::height(const size_t& h)
-{
-    m_height = h;
-}
-inline size_t suDem::height() const
-{
-    return m_height;
-}
-inline void suDem::width(const size_t& w)
-{
-    m_width = w;
-}
-inline size_t suDem::width() const
-{
-    return m_width;
-}
-inline void suDem::rect(const silly_rect& r)
-{
-    m_rect = r;
-}
-inline silly_rect suDem::rect() const
-{
-    return m_rect;
-}
-inline void suDem::data(const suDMatrix& d)
-{
-    m_data = d;
-    m_width = d.col();
-    m_height = d.row();
-}
-inline suDMatrix& suDem::data()
-{
-    return m_data;
-}
-
-inline void suDem::release()
-{
-    m_data.release();
-}
-
-
 #endif //SILLY_DEM_H

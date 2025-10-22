@@ -11,14 +11,14 @@
 // 标准c++头文件
 // 输入输出库
 #pragma once
-
+#ifndef SU_MARCO_H
+#define SU_MARCO_H
 // 确认C++ 标准版本不小于C++17
 #if !defined(__cplusplus) || (__cplusplus < 201703L && !defined(_MSVC_LANG))
-    #error "This header requires C++17 or later. Please enable C++17 support."
+#error "This header requires C++17 or later. Please enable C++17 support."
 #elif defined(_MSVC_LANG) && _MSVC_LANG < 201703L
-    #error "This header requires C++17 or later. Please enable C++17 support in MSVC."
+#error "This header requires C++17 or later. Please enable C++17 support in MSVC."
 #endif
-
 
 // =============================================================================
 // C++ 标准库
@@ -309,6 +309,9 @@ using silly_handle = int;
 #define SU_MAX3(a, b, c) SU_MAX(a, SU_MAX(b, c))
 #define SU_MIN3(a, b, c) SU_MIN(a, SU_MIN(b, c))
 #endif
+#ifndef SU_DIST
+#define SU_DIST(a, b) std::sqrt((a) * (a) + (b) * (b))
+#endif
 
 // 按照小端序转换
 #define SU_LE_I64(p) ((p)[7] << 56 | ((p)[6] << 48) | ((p)[5] << 40) | ((p)[4] << 32) | ((p)[3] << 24) | ((p)[2] << 16) | ((p)[1] << 8) | (p)[0])
@@ -358,3 +361,5 @@ using silly_handle = int;
         (p) = nullptr;     \
     }
 #endif
+
+#endif  // SU_MARCO_H

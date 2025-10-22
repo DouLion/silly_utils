@@ -360,14 +360,14 @@ class suMatrix
     /// <summary>
     /// 双线性插值
     /// </summary>
-    /// <param name="x"></param>
-    /// <param name="y"></param>
+    /// <param name="frow"></param>
+    /// <param name="fcol"></param>
     /// <returns></returns>
-    T bilinear(const double &x, const double &y)
+    T bilinear(const double &frow, const double &fcol) const
     {
         // 边界检查，如果超出范围，可以 clamp 或 return 0.0，这里我们做简单的 clamp
-        double px = std::clamp(x, 0.0, static_cast<double>(m_col - 1));
-        double py = std::clamp(y, 0.0, static_cast<double>(m_row - 1));
+        double px = std::clamp(fcol, 0.0, static_cast<double>(m_col - 1));
+        double py = std::clamp(frow, 0.0, static_cast<double>(m_row - 1));
 
         const auto x1 = static_cast<size_t>(px);
         const auto y1 = static_cast<size_t>(py);
@@ -398,7 +398,7 @@ class suMatrix
     /// <param name="x"></param>
     /// <param name="y"></param>
     /// <returns></returns>
-    T bicubic(const double &x, const double &y)
+    T bicubic(const double &x, const double &y) const
     {
         // clamp 到合法范围
         double px = std::clamp(x, 0.0, static_cast<double>(m_col - 1));

@@ -6,13 +6,13 @@
 #include <geotiffio.h>
 #include <xtiffio.h>
 #include <geo_tiffp.h>
-bool sugeotiff::write(const std::filesystem::path& outfile)
+bool suGeoTiff::write(const std::filesystem::path& outfile)
 {
     // 同步宽度/高度 (防护不一致)
-    m_width = m_data.col();
-    m_height = m_data.row();
-    m_header.width = m_width;
-    m_header.height = m_height;
+    info.width = raster.col();
+    info.height = raster.row();
+    m_header.width = info.width;
+    m_header.height = info.height;
 
     TIFF* tif = XTIFFOpen(sufile::realpath(outfile).string().c_str(), "w");  // 假设sufile是自定义
     if (!tif)
@@ -22,8 +22,8 @@ bool sugeotiff::write(const std::filesystem::path& outfile)
     }
 
     // 1. 设置必需TIFF标签 (加返回值检查)
-    TIFFSetField(tif, TIFFTAG_IMAGEWIDTH, m_width);
-    TIFFSetField(tif, TIFFTAG_IMAGELENGTH, m_height);
+    TIFFSetField(tif, TIFFTAG_IMAGEWIDTH, info.width);
+    TIFFSetField(tif, TIFFTAG_IMAGELENGTH, info.height);
     TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE, m_header.bits_per_sample); // double类型使用64位
     TIFFSetField(tif, TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_IEEEFP);  // IEEE浮点格式
     TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, m_header.samples_per_pixel);             
@@ -36,12 +36,12 @@ bool sugeotiff::write(const std::filesystem::path& outfile)
 
     // 2. 设置地理信息
     double tiepoints[6] = {0, 0, 0, 0, 0, 0};
-    tiepoints[3] = m_rect.min.x;  // 左上角绑定
-    tiepoints[4] = m_rect.max.y;
+    tiepoints[3] = info.bound.min.x;  // 左上角绑定
+    tiepoints[4] = info.bound.max.y;
 
     double pixscale[3] = {0, 0, 0};
-    pixscale[0] = (m_rect.max.x - m_rect.min.x) / m_header.width;
-    pixscale[1] = -(m_rect.max.y - m_rect.min.y) / m_header.height;
+    pixscale[0] = (info.bound.max.x - info.bound.min.x) / m_header.width;
+    pixscale[1] = -(info.bound.max.y - info.bound.min.y) / m_header.height;
     TIFFSetField(tif, GTIFF_TIEPOINTS, 6, tiepoints);
     TIFFSetField(tif, GTIFF_PIXELSCALE, 3, pixscale);
 
@@ -56,10 +56,10 @@ bool sugeotiff::write(const std::filesystem::path& outfile)
     GTIFKeySet(gtif, GeogCitationGeoKey, TYPE_ASCII, 0, "WGS 84");
     GTIFKeySet(gtif, GeogAngularUnitsGeoKey, TYPE_SHORT, 1, Angular_Degree);
 
-    char* p = (char*)m_data.data();
-    for (uint32 row = 0; row < m_height; ++row)
+    char* p = (char*)raster.data();
+    for (uint32 row = 0; row < info.height; ++row)
     {
-        void* offP = p + row * m_width * sizeof(double);
+        void* offP = p + row * info.width * sizeof(double);
         if (TIFFWriteScanline(tif, offP, row, 0) < 0)
         {
             std::cerr << "写入扫描线失败: " << row << std::endl;
@@ -75,7 +75,7 @@ bool sugeotiff::write(const std::filesystem::path& outfile)
     XTIFFClose(tif);
     return true;
 }
-std::string sugeotiff::err() const
+std::string suGeoTiff::err() const
 {
     return m_err;
 }

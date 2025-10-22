@@ -29,20 +29,19 @@ static const std::string YLLCORNER = "yllcorner";
 static const std::string CELLSIZE = "cellsize";
 static const std::string NODATA_VALUE = "nodata_value";
 
-bool silly_ascii_grid::read(const std::filesystem::path& file)
+bool suAsciiGrid::read(const std::filesystem::path& file, const bool& onlyhead)
 {
     bool status = false;
-    std::filesystem::path realfp = sufile::realpath(file);
-    m_root = realfp.parent_path().string();
-    m_name = realfp.stem().string();
-    m_type = realfp.extension().string();
+    m_root = file.parent_path().string();
+    m_name = file.stem().string();
+    m_type = TO_LOWER(file.extension().string());
     if (ASC == m_type)
     {
-        return read_asc(realfp);
+        return read_asc(file, onlyhead);
     }
     else if (BIN == m_type)
     {
-        return read_bin(realfp);
+        return read_bin(file);
     }
     else
     {
@@ -51,52 +50,48 @@ bool silly_ascii_grid::read(const std::filesystem::path& file)
     return status;
 }
 
-static std::string to_lower(const std::string& str)
-{
-    std::string lower_str = str;
-    std::transform(lower_str.begin(), lower_str.end(), lower_str.begin(), ::tolower);
-    return lower_str;
-}
-
-bool silly_ascii_grid::read_asc(const std::filesystem::path& file)
+bool suAsciiGrid::read_asc(const std::filesystem::path& file, const bool& onlyhead)
 {
     bool status = false;
+    std::string prj_path = std::filesystem::path(m_root).append(m_name + PRJ).string();
+    read_prj(prj_path);
     std::string content;
-
-    if (!sufile::read(file, content))
+    std::fstream input(file, std::ios::binary | std::ios::in);
+    if (!input.is_open())
     {
-        std::cerr << "读取文件失败: " << file.u8string() << std::endl;
-        return status;
+        return false;
     }
+    double cellsize = 0;
 
-    std::stringstream linestream(content);
     std::string key;
-    while (!linestream.eof())
+    std::string line;
+    while (std::getline(input, line))
     {
+        std::istringstream linestream(line);
         linestream >> key;
-        if (NCOLS == to_lower(key))
+        if (NCOLS == TO_LOWER(key))
         {
-            linestream >> m_width;
+            linestream >> info.width;
         }
-        else if (NROWS == to_lower(key))
+        else if (NROWS == TO_LOWER(key))
         {
-            linestream >> m_height;
+            linestream >> info.height;
         }
-        else if (XLLCORNER == to_lower(key))
+        else if (XLLCORNER == TO_LOWER(key))
         {
-            linestream >> m_rect.min.x;
+            linestream >> info.bound.min.x;
         }
-        else if (YLLCORNER == to_lower(key))
+        else if (YLLCORNER == TO_LOWER(key))
         {
-            linestream >> m_rect.min.y;
+            linestream >> info.bound.min.y;
         }
-        else if (CELLSIZE == to_lower(key))
+        else if (CELLSIZE == TO_LOWER(key))
         {
             linestream >> cellsize;
         }
-        else if (NODATA_VALUE == to_lower(key))
+        else if (NODATA_VALUE == TO_LOWER(key))
         {
-            linestream >> m_fill;
+            linestream >> info.fill;
         }
         else
         {
@@ -104,32 +99,38 @@ bool silly_ascii_grid::read_asc(const std::filesystem::path& file)
             return status;
         }
 
-        if (NODATA_VALUE == to_lower(key))
+        if (NODATA_VALUE == TO_LOWER(key))
             break;  // header section ends after NODATA_value
     }
-    m_rect.max.x = m_rect.min.x + m_width * cellsize;
-    m_rect.max.y = m_rect.min.y + m_height * cellsize;
-    m_dx = cellsize;
-    m_dy = cellsize;
-
-    m_data.create(m_height, m_width, true);
+    info.dx = cellsize;
+    info.dy = cellsize;
+    info.bound.max.x = info.bound.min.x + info.width * cellsize;
+    info.bound.max.y = info.bound.min.y + info.height * cellsize;
+    if (onlyhead)
+    {
+        return true;
+    }
+    raster.create(info.height, info.width, true);
 
     double value;
-    for (int r = 0; r < m_height && linestream.good(); ++r)
+    while (std::getline(input, line))
     {
-        for (int c = 0; c < m_width && linestream.good(); ++c)
+        std::istringstream linestream(line);
+        for (int r = 0; r < info.height && linestream.good(); ++r)
         {
-            linestream >> value;
-            m_data.data()[r * m_width + c] = value;
+            for (int c = 0; c < info.width && linestream.good(); ++c)
+            {
+                linestream >> value;
+                raster.data()[r * info.width + c] = value;
+            }
         }
     }
-    std::string prj_path = std::filesystem::path(m_root).append(m_name + PRJ).string();
-    read_prj(prj_path);
+   
     status = true;
     return status;
 }
 
-bool silly_ascii_grid::write(const std::filesystem::path& file)
+bool suAsciiGrid::write(const std::filesystem::path& file)
 {
     bool status = false;
     std::string ext = file.extension().string();
@@ -144,29 +145,29 @@ bool silly_ascii_grid::write(const std::filesystem::path& file)
     std::cerr << "不支持的格式: " << ext << std::endl;
     return status;
 }
-std::string silly_ascii_grid::stringify_ll(const int& precision)
+std::string suAsciiGrid::stringify_ll(const int& precision)
 {
     std::string ret;
     {
         std::stringstream ssH;
         ssH << std::fixed << std::setprecision(15);
-        ssH << NCOLS << " " << m_width << "\n";
-        ssH << NROWS << " " << m_height << "\n";
-        ssH << XLLCORNER << " " << m_rect.min.x << "\n";
-        ssH << YLLCORNER << " " << m_rect.min.y << "\n";
-        ssH << CELLSIZE << " " << cellsize << "\n";
+        ssH << NCOLS << " " << info.width << "\n";
+        ssH << NROWS << " " << info.height << "\n";
+        ssH << XLLCORNER << " " << info.bound.min.x << "\n";
+        ssH << YLLCORNER << " " << info.bound.min.y << "\n";
+        ssH << CELLSIZE << " " << info.dx << "\n";
         ssH << std::fixed << std::setprecision(precision);
-        ssH << NODATA_VALUE << " " << m_fill << "\n";
+        ssH << NODATA_VALUE << " " << info.fill << "\n";
         ret.append(ssH.str());
     }
     {
         std::stringstream ssG;
         ssG << std::fixed << std::setprecision(precision);
-        for (int r = 0; r < m_height; ++r)
+        for (int r = 0; r < info.height; ++r)
         {
-            for (int c = 0; c < m_width; ++c)
+            for (int c = 0; c < info.width; ++c)
             {
-                ssG << m_data[r * m_width + c] << " ";
+                ssG << raster[r * info.width + c] << " ";
             }
             ssG << "\n";
         }
@@ -175,7 +176,7 @@ std::string silly_ascii_grid::stringify_ll(const int& precision)
     return ret;
 }
 
-bool silly_ascii_grid::read_bin(const std::filesystem::path& file)
+bool suAsciiGrid::read_bin(const std::filesystem::path& file)
 {
     bool status = false;
     std::string content;
@@ -185,22 +186,22 @@ bool silly_ascii_grid::read_bin(const std::filesystem::path& file)
         return status;
     }
     double* p = reinterpret_cast<double*>(content.data());
-    m_height = static_cast<size_t>(*p);
+    info.height = static_cast<size_t>(*p);
     p++;
-    m_width = static_cast<size_t>(*p);
+    info.width = static_cast<size_t>(*p);
     p++;
-    if ((m_height * m_width + 2) * sizeof(double) != content.size())
+    if ((info.height * info.width + 2) * sizeof(double) != content.size())
     {
         std::cerr << "bin文件数据和宽高不匹配" << std::endl;
         return false;
     }
-    m_data.create(m_height, m_width, true);
-    std::memcpy(m_data.data(), p, m_height * m_width * sizeof(double));
+    raster.create(info.height, info.width, true);
+    std::memcpy(raster.data(), p, info.height * info.width * sizeof(double));
 
     return true;
 }
 
-bool silly_ascii_grid::write_asc(const std::filesystem::path& file)
+bool suAsciiGrid::write_asc(const std::filesystem::path& file)
 {
 #ifndef NDEBUG
     silly_timer timer;
@@ -215,24 +216,24 @@ bool silly_ascii_grid::write_asc(const std::filesystem::path& file)
     {
         std::stringstream ssHead;
         ssHead << std::fixed << std::setprecision(15);
-        ssHead << NCOLS << " " << m_width << "\n";
-        ssHead << NROWS << " " << m_height << "\n";
-        ssHead << XLLCORNER << " " << m_rect.min.x << "\n";
-        ssHead << YLLCORNER << " " << m_rect.min.y << "\n";
-        ssHead << CELLSIZE << " " << cellsize << "\n";
+        ssHead << NCOLS << " " << info.width << "\n";
+        ssHead << NROWS << " " << info.height << "\n";
+        ssHead << XLLCORNER << " " << info.bound.min.x << "\n";
+        ssHead << YLLCORNER << " " << info.bound.min.y << "\n";
+        ssHead << CELLSIZE << " " << info.dx << "\n";
         ssHead << std::fixed << std::setprecision(3);
-        ssHead << NODATA_VALUE << " " << m_fill << "\n";
+        ssHead << NODATA_VALUE << " " << info.fill << "\n";
         ofs.write(ssHead.str().c_str(), ssHead.str().size());
     }
     std::stringstream ssGrid;
-    std::string fillV = SUFMT("{:.3f}", m_fill);
+    std::string fillV = SUFMT("{:.3f}", info.fill);
     ssGrid << std::fixed << std::setprecision(3);
-    double* p = m_data.data();
-    for (int r = 0; r < m_height; ++r)
+    double* p = raster.data();
+    for (int r = 0; r < info.height; ++r)
     {
-        for (int c = 0; c < m_width; ++c)
+        for (int c = 0; c < info.width; ++c)
         {
-            if (*p == m_fill)
+            if (*p == info.fill)
             {
                 ssGrid << fillV << " ";
             }
@@ -246,9 +247,11 @@ bool silly_ascii_grid::write_asc(const std::filesystem::path& file)
     }
     ofs.write(ssGrid.str().c_str(), ssGrid.str().size());
     ofs.close();
-
-    std::string prj_path = std::filesystem::path(_root).append(_name + PRJ).string();
-    write_prj(prj_path);
+    if (IsGauss())
+    {
+        std::string prj_path = std::filesystem::path(_root).append(_name + PRJ).string();
+        write_prj(prj_path);
+    }
 #ifndef NDEBUG
     SLOG_DEBUG("写入{}计时 : {:.3f}S", file.u8string(), timer.elapsed_ms() / 1000.0)
 #endif
@@ -256,7 +259,7 @@ bool silly_ascii_grid::write_asc(const std::filesystem::path& file)
     return true;
 }
 
-bool silly_ascii_grid::write_bin(const std::filesystem::path& file)
+bool suAsciiGrid::write_bin(const std::filesystem::path& file)
 {
     std::ofstream ofs(file);
     if (!ofs.is_open())
@@ -265,20 +268,20 @@ bool silly_ascii_grid::write_bin(const std::filesystem::path& file)
     }
     std::string header;
     header.resize(2 * sizeof(double));
-    std::memcpy(header.data(), &m_height, sizeof(double));
-    std::memcpy(header.data() + sizeof(double), &m_width, sizeof(double));
+    std::memcpy(header.data(), &info.height, sizeof(double));
+    std::memcpy(header.data() + sizeof(double), &info.width, sizeof(double));
     ofs.write(header.c_str(), header.size());
-    for (int r = 0; r < m_height; ++r)
+    for (int r = 0; r < info.height; ++r)
     {
-        std::string content = std::string(m_width * sizeof(double), 0);
-        std::memcpy(content.data(), m_data.data() + r * m_width, m_width * sizeof(double));
+        std::string content = std::string(info.width * sizeof(double), 0);
+        std::memcpy(content.data(), raster.data() + r * info.width, info.width * sizeof(double));
         ofs.write(content.c_str(), content.size());
     }
     ofs.close();
     return true;
 }
 
-bool silly_ascii_grid::write_prj(const std::filesystem::path& file)
+bool suAsciiGrid::write_prj(const std::filesystem::path& file)
 {
     // Projection    TRANSVERSE
     // Units         METERS
@@ -300,7 +303,7 @@ bool silly_ascii_grid::write_prj(const std::filesystem::path& file)
     ss << "Yshift        0.0\n";
     ss << "Parameters    6378137.0  6356752.314140356\n";
     ss << "1.0 /* scale factor at central meridian\n";
-    ss << static_cast<int>(m_l0) << "  0  0.0 /* longitude of central meridian\n";
+    ss << static_cast<int>(info.central) << "  0  0.0 /* longitude of central meridian\n";
     ss << "0  0  0.0 /* latitude of origin\n";
     ss << "500000.0 /* false easting (meters)\n";
     ss << "0.0 /* false northing (meters)\n";
@@ -311,7 +314,7 @@ bool silly_ascii_grid::write_prj(const std::filesystem::path& file)
     return false;
 }
 
-bool silly_ascii_grid::read_prj(const std::filesystem::path& file)
+bool suAsciiGrid::read_prj(const std::filesystem::path& file)
 {
     // 提取高斯分带中心线经度
     std::vector<std::string> lines;
@@ -320,7 +323,7 @@ bool silly_ascii_grid::read_prj(const std::filesystem::path& file)
         if (lines.size() >= 11)
         {
             std::stringstream ss(lines[7]);
-            ss >> m_l0;
+            ss >> info.central;
             return true;
         }
     }
