@@ -30,7 +30,7 @@ void silly_radar_occluder::set(const dem& info)
     {
         m_l0 = info.l0;
     }
-    silly_point G0;
+    suPoint G0;
     convert::lonlat_to_gauss(m_l0, m_center.x, m_center.y, G0.x, G0.y);
     for (size_t d = 0; d < m_dSize; ++d)
     {
@@ -42,9 +42,9 @@ void silly_radar_occluder::set(const dem& info)
             if (info.l0 == -9999.0)
             {
                 // 经纬度
-                silly_point gp;
+                suPoint gp;
                 convert::polar_to_cartesian(radius, rad, gp.x, gp.y, G0.x, G0.y);
-                silly_point llp;
+                suPoint llp;
                 convert::gauss_to_lonlat(m_l0, gp.x, gp.y, llp.x, llp.y);
 
                 row = std::round((info.rect.max.y - llp.y) / (info.rect.max.y - info.rect.min.y) * info.rows);
@@ -53,7 +53,7 @@ void silly_radar_occluder::set(const dem& info)
             else
             {
                 // 高斯
-                silly_point gp;
+                suPoint gp;
                 convert::polar_to_cartesian(radius, rad, gp.x, gp.y, G0.x, G0.y);
                 row = std::round((info.rect.max.y - gp.y) / (info.rect.max.y - info.rect.min.y) * info.rows);
                 col = std::round((gp.x - info.rect.min.x) / (info.rect.max.x - info.rect.min.x) * info.cols);
@@ -66,7 +66,7 @@ void silly_radar_occluder::set(const dem& info)
 
 // bool silly_radar_occluder::get_dem(const std::filesystem::path& file)
 //{
-//     // silly::geo::utils::init_gdal_env();
+//     // suGeoUtils::init_gdal_env();
 //     // 读取 tif 文件
 //     GDALDataset* poDataset;
 //     poDataset = (GDALDataset*)GDALOpen(file.c_str(), GA_ReadOnly);
@@ -91,14 +91,14 @@ void silly_radar_occluder::set(const dem& info)
 //     double max_x = min_x + x_size * x_res;
 //     double min_y = max_y + y_size * y_res;
 //
-//     left_top = silly_point(min_x, max_y);      // 左上角
-//     right_bottom = silly_point(max_x, min_y);  // 右下角
-//     left_bottom = silly_point(min_x, min_y);   // 左下
-//     right_top = silly_point(max_x, max_y);     // 右上
+//     left_top = suPoint(min_x, max_y);      // 左上角
+//     right_bottom = suPoint(max_x, min_y);  // 右下角
+//     left_bottom = suPoint(min_x, min_y);   // 左下
+//     right_top = suPoint(max_x, max_y);     // 右上
 //
 //     GDALClose(poDataset);
 //
-//     // silly::geo::utils::destroy_gdal_env();
+//     // suGeoUtils::destroy_gdal_env();
 //     return true;
 // }
 
@@ -125,13 +125,13 @@ void silly_radar_occluder::check_beam(size_t di, double pitch, double elev, doub
     *stopLen = i * m_rStep;
 }
 
-silly_poly silly_radar_occluder::occluder_poly(const double& pitch, const double& elev, const double& radius)
+suPoly silly_radar_occluder::occluder_poly(const double& pitch, const double& elev, const double& radius)
 {
     double uElev = elev == 0 ? m_elevation : elev;
     double uR = radius == 0 ? m_radius : radius;
-    silly_poly poly;
+    suPoly poly;
     std::vector<double> maxRadius(m_dSize, 0);
-    silly_point G0;
+    suPoint G0;
     convert::lonlat_to_gauss(m_l0, m_center.x, m_center.y, G0.x, G0.y);
     {
         silly_thread_pool pool(std::thread::hardware_concurrency() * 2);
@@ -145,7 +145,7 @@ silly_poly silly_radar_occluder::occluder_poly(const double& pitch, const double
 
     for (int i = 0; i < m_dSize; ++i)
     {
-        silly_point gp, llp;
+        suPoint gp, llp;
         convert::polar_to_cartesian(maxRadius[i], DEG2RAD(m_dStep * i), gp.x, gp.y, G0.x, G0.y);
         convert::gauss_to_lonlat(m_l0, gp.x, gp.y, llp.x, llp.y);
         poly.outer.points.push_back(llp);

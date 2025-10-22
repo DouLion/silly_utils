@@ -36,13 +36,13 @@ TEST_CASE("TestGEO")
                   << "DISTANCE"
                   << "****************" << std::endl;
 
-        //silly_point beg(80.95642, 43.95478);
-        //silly_point end(81.08218, 43.93080); // 10520.910 米
+        //suPoint beg(80.95642, 43.95478);
+        //suPoint end(81.08218, 43.93080); // 10520.910 米
 
         //80.92237	43.79439	
         //82.12174	43.88876	97019.759
-        //silly_point beg(80.92237, 43.79439);
-        //silly_point end(82.12174, 43.88876); // 97019.759 米
+        //suPoint beg(80.92237, 43.79439);
+        //suPoint end(82.12174, 43.88876); // 97019.759 米
 
 
         //silly_guass_param param;
@@ -80,22 +80,22 @@ TEST_CASE("TestGEO")
         std::filesystem::path point1 = geo_path;
         polyp += "/geojson/polyp.geojson";
         point1 += "/geojson/point1.geojson";
-        //silly_point ipoint(113.29056, 29.50031); // 外部
+        //suPoint ipoint(113.29056, 29.50031); // 外部
 
-        silly_point ipoint(113.336583, 29.486892);
+        suPoint ipoint(113.336583, 29.486892);
 
-        silly_poly first_poly;
+        suPoly first_poly;
         first_poly.outer.points =
         {
-            silly_point(113.31300, 29.50031),
-            silly_point(113.33942, 29.50031),
-            silly_point(113.35944, 29.51434), 
-            silly_point(113.36510, 29.49211), 
-            silly_point(113.36409, 29.48140), 
-            silly_point(113.38672, 29.46403),
-            silly_point(113.38672, 29.44801),
-            silly_point(113.31424, 29.46497),
-            silly_point(113.31300, 29.50031)
+            suPoint(113.31300, 29.50031),
+            suPoint(113.33942, 29.50031),
+            suPoint(113.35944, 29.51434), 
+            suPoint(113.36510, 29.49211), 
+            suPoint(113.36409, 29.48140), 
+            suPoint(113.38672, 29.46403),
+            suPoint(113.38672, 29.44801),
+            suPoint(113.31424, 29.46497),
+            suPoint(113.31300, 29.50031)
         };
         silly_geo_coll multiPolygonData;
         multiPolygonData.m_poly = first_poly;
@@ -144,24 +144,24 @@ TEST_CASE("TestGEO")
     //    result_intersect_wa += "/geojson/result_intersect_wa.geojson";
 
     //    // 多边形数据
-    //    silly_poly polygon;
-    //    polygon.outer.points = {silly_point(113.313136, 29.454240), silly_point(113.321927, 29.480330), silly_point(113.343102, 29.482221), silly_point(113.352366, 29.464071), silly_point(113.332711, 29.475509), silly_point(113.313136, 29.454240)};
+    //    suPoly polygon;
+    //    polygon.outer.points = {suPoint(113.313136, 29.454240), suPoint(113.321927, 29.480330), suPoint(113.343102, 29.482221), suPoint(113.352366, 29.464071), suPoint(113.332711, 29.475509), suPoint(113.313136, 29.454240)};
     //    polygon.outer.is_outer = 1;
 
     //    //        // 矩形数据
-    //    //        silly_poly rectangle;
+    //    //        suPoly rectangle;
     //    //        rectangle.outer.points =
     //    //        {
-    //    // silly_point(113.34110, 29.47770),
-    //    // silly_point(113.39760, 29.47770),
-    //    // silly_point(113.39760, 29.45472),
-    //    // silly_point(113.34110, 29.45472),
-    //    // silly_point(113.34110, 29.47770)
+    //    // suPoint(113.34110, 29.47770),
+    //    // suPoint(113.39760, 29.47770),
+    //    // suPoint(113.39760, 29.45472),
+    //    // suPoint(113.34110, 29.45472),
+    //    // suPoint(113.34110, 29.47770)
     //    //        };
 
     //    // 四边形数据
-    //    silly_poly rectangle;
-    //    rectangle.outer.points = {silly_point(113.31086, 29.47107), silly_point(113.35565, 29.47374), silly_point(113.35454, 29.46203), silly_point(113.31208, 29.45671), silly_point(113.31086, 29.47107)};
+    //    suPoly rectangle;
+    //    rectangle.outer.points = {suPoint(113.31086, 29.47107), suPoint(113.35565, 29.47374), suPoint(113.35454, 29.46203), suPoint(113.31208, 29.45671), suPoint(113.31086, 29.47107)};
 
     //    silly_geo_coll Polygon_coll;
     //    Polygon_coll.m_poly = polygon;
@@ -177,7 +177,7 @@ TEST_CASE("TestGEO")
     //    rect_colls.push_back(Rectangle_coll);
     //    // silly_geo_utils::write_geo_coll(rect4.string(), rect_colls);
 
-    //    // silly_poly result;
+    //    // suPoly result;
     //    // if (geo_utils::intersect_polygon_rectangle_sh(polygon, rectangle, result))
     //    //{
     //    //     std::cout << "Intersection found.\n";
@@ -193,7 +193,7 @@ TEST_CASE("TestGEO")
     //    //     std::cout << "No intersection.\n";
     //    // }
 
-    //    std::vector<silly_poly> intersections;
+    //    std::vector<suPoly> intersections;
     //    if (geo_utils::intersect_polygon_rectangle_wa(polygon, rectangle, intersections))
     //    {
     //        std::cout << "Intersection polys:" << intersections.size() << std::endl;
@@ -248,34 +248,34 @@ TEST_CASE("TestGEO")
         geo_poly2 += "/geojson/src_poly2.geojson";
         silly_geo_coll multiPolygonData;
 
-        silly_multi_poly multi_poly;
+        suMultiPoly multi_poly;
         std::vector<silly_geo_coll> multiPolygonDataVec;
 
         // ============ 单点 ==================
-        silly_point point0 = silly_point(113.32007, 29.51516);
+        suPoint point0 = suPoint(113.32007, 29.51516);
         // multiPolygonData.m_type = eGeometryType::egtPoint;
         multiPolygonData.m_point = point0;
 
         // ============ 多点 ==================
-        silly_point point1 = silly_point(113.34245, 29.51446);
-        silly_point point2 = silly_point(113.38534, 29.49290);
-        silly_point point3 = silly_point(113.38909, 29.46805);
-        silly_point point4 = silly_point(113.36683, 29.45751);
-        silly_point point5 = silly_point(113.33683, 29.46102);
-        silly_point point6 = silly_point(113.28784, 29.49055);
-        silly_point point7 = silly_point(113.28784, 29.51540);
-        silly_point point8 = silly_point(113.41417, 29.46360);
-        silly_point point9 = silly_point(113.38745, 29.51329);
-        silly_point point10 = silly_point(113.41417, 29.51212);
+        suPoint point1 = suPoint(113.34245, 29.51446);
+        suPoint point2 = suPoint(113.38534, 29.49290);
+        suPoint point3 = suPoint(113.38909, 29.46805);
+        suPoint point4 = suPoint(113.36683, 29.45751);
+        suPoint point5 = suPoint(113.33683, 29.46102);
+        suPoint point6 = suPoint(113.28784, 29.49055);
+        suPoint point7 = suPoint(113.28784, 29.51540);
+        suPoint point8 = suPoint(113.41417, 29.46360);
+        suPoint point9 = suPoint(113.38745, 29.51329);
+        suPoint point10 = suPoint(113.41417, 29.51212);
         // multiPolygonData.m_type = eGeometryType::egtMultiPoint;
-        std::vector<silly_point> ppxa{point1, point2, point3, point4, point5, point6, point7, point8, point9, point10};
+        std::vector<suPoint> ppxa{point1, point2, point3, point4, point5, point6, point7, point8, point9, point10};
         multiPolygonData.m_m_points = silly_multi_point(ppxa);
 
         // 创建第一条线
-        silly_line line1 = silly_line({silly_point(113.31176, 29.51434), silly_point(113.35944, 29.51494), silly_point(113.36510, 29.49211), silly_point(113.36409, 29.48140), silly_point(113.38672, 29.46403)});
+        suLine line1 = suLine({suPoint(113.31176, 29.51434), suPoint(113.35944, 29.51494), suPoint(113.36510, 29.49211), suPoint(113.36409, 29.48140), suPoint(113.38672, 29.46403)});
 
         // 创建第二条线
-        silly_line line2({silly_point(113.28711, 29.43998), silly_point(113.31236, 29.43958), silly_point(113.41096, 29.48747), silly_point(113.41319, 29.44140)});
+        suLine line2({suPoint(113.28711, 29.43998), suPoint(113.31236, 29.43958), suPoint(113.41096, 29.48747), suPoint(113.41319, 29.44140)});
 
         // ============ 单线 ==================
         multiPolygonData.m_line = line2;
@@ -285,13 +285,13 @@ TEST_CASE("TestGEO")
         multiPolygonData.m_m_lines.push_back(line2);
 
         // 第一个面
-        silly_poly first_poly;
-        first_poly.outer.points = {silly_point(113.30624, 29.48780), silly_point(113.36182, 29.51534), silly_point(113.41794, 29.49356), silly_point(113.36582, 29.43773), silly_point(113.30624, 29.48780)};
+        suPoly first_poly;
+        first_poly.outer.points = {suPoint(113.30624, 29.48780), suPoint(113.36182, 29.51534), suPoint(113.41794, 29.49356), suPoint(113.36582, 29.43773), suPoint(113.30624, 29.48780)};
         first_poly.outer.is_outer = 1;
 
         // 第二个面
-        silly_poly second_poly;
-        second_poly.outer.points = {silly_point(113.28985, 29.44375), silly_point(113.41716, 29.43845), silly_point(113.43422, 29.41111), silly_point(113.29779, 29.40876), silly_point(113.28985, 29.44375)};
+        suPoly second_poly;
+        second_poly.outer.points = {suPoint(113.28985, 29.44375), suPoint(113.41716, 29.43845), suPoint(113.43422, 29.41111), suPoint(113.29779, 29.40876), suPoint(113.28985, 29.44375)};
         second_poly.outer.is_outer = 1;
 
         // ============ 单面 ==================
@@ -388,11 +388,11 @@ TEST_CASE("TestGEO")
 //    silly_geo_coll inte2;
 //
 //     // 创建四个点
-//    silly_point point1(110.471936116999998, 29.127132289799999);
-//    silly_point point2(110.643753739999994, 27.814949836800000);
-//    silly_point point3(111.243302495999998, 28.911672899199999);
-//    silly_point point4(112.015486134000000, 28.868794475200001);
-//    silly_poly myPoly;
+//    suPoint point1(110.471936116999998, 29.127132289799999);
+//    suPoint point2(110.643753739999994, 27.814949836800000);
+//    suPoint point3(111.243302495999998, 28.911672899199999);
+//    suPoint point4(112.015486134000000, 28.868794475200001);
+//    suPoly myPoly;
 //    myPoly.outer.points.push_back(point1);
 //    myPoly.outer.points.push_back(point2);
 //    myPoly.outer.points.push_back(point3);
@@ -401,11 +401,11 @@ TEST_CASE("TestGEO")
 //    main.m_type = eGeometryType::egtPolygon;
 //    area.push_back(main);
 //
-//    silly_point point5(110.240719904000002, 27.896483680300001);
-//    silly_point point6(111.364970111999995, 28.297547021200000);
-//    silly_point point7(111.895851020999999, 29.484422094100001);
-//    silly_point point8(112.332973569999993, 27.773595216699999);
-//    silly_poly myPoly2;
+//    suPoint point5(110.240719904000002, 27.896483680300001);
+//    suPoint point6(111.364970111999995, 28.297547021200000);
+//    suPoint point7(111.895851020999999, 29.484422094100001);
+//    suPoint point8(112.332973569999993, 27.773595216699999);
+//    suPoly myPoly2;
 //    myPoly2.outer.points.push_back(point5);
 //    myPoly2.outer.points.push_back(point6);
 //    myPoly2.outer.points.push_back(point7);
@@ -414,10 +414,10 @@ TEST_CASE("TestGEO")
 //    deputy.m_type = eGeometryType::egtPolygon;
 //    area.push_back(deputy);
 //
-//    silly_point point9(112.347873938000006, 28.156742433800002);
-//    silly_point point10(111.788640903000001, 27.742213901600000);
-//    silly_point point11(112.332973569999993, 27.773595216699999);
-//    silly_poly myPoly3;
+//    suPoint point9(112.347873938000006, 28.156742433800002);
+//    suPoint point10(111.788640903000001, 27.742213901600000);
+//    suPoint point11(112.332973569999993, 27.773595216699999);
+//    suPoly myPoly3;
 //    myPoly3.outer.points.push_back(point9);
 //    myPoly3.outer.points.push_back(point10);
 //    myPoly3.outer.points.push_back(point11);
@@ -561,7 +561,7 @@ SECTION("CENTER")
         if (xian.m_poly.holes.size() > 0)
         {
            /* std::cout << "n:" << n << "  size: " << xian.m_poly.holes.size() << std::endl;
-            silly_point temp_point = geo_utils::poly_centroid(xian.m_poly);
+            suPoint temp_point = geo_utils::poly_centroid(xian.m_poly);
             OGRPolygon onePoly = geo_utils::silly_poly_to_ogr(xian.m_poly);
             OGRPoint te_point;
             onePoly.Centroid(&te_point);
@@ -764,30 +764,30 @@ SECTION("READ_VECTOR_POINT_LINE")
     std::map<std::string, std::string> properties;
     // geo_utils::check_shp_info(geo_point.string().c_str(), type, properties);
 
-    // std::vector<silly_line> geo_lines_v = geo_utils::read_vector_lines(geo_line.string().c_str());
+    // std::vector<suLine> geo_lines_v = geo_utils::read_vector_lines(geo_line.string().c_str());
 
-    // std::vector<silly_multi_poly> geojson_r_2 = geo_utils::read_vector_polys(geo_rings.string().c_str());
+    // std::vector<suMultiPoly> geojson_r_2 = geo_utils::read_vector_polys(geo_rings.string().c_str());
 
-    // std::vector<silly_poly> geojson_rings;
+    // std::vector<suPoly> geojson_rings;
 
-    // std::vector<silly_point> geo_points_v = geo_utils::read_vector_points(geo_point.string().c_str());
+    // std::vector<suPoint> geo_points_v = geo_utils::read_vector_points(geo_point.string().c_str());
 
     eGeometryType type2;
     std::map<std::string, std::string> properties2;
     // geo_utils::check_shp_info(geo_line.string().c_str(), type2, properties2);
 
-    silly_point point1(111.968714032999998, 28.454693591900000);
-    silly_point point2(110.597357514999999, 28.566656802200001);
-    silly_point point3(110.944020641999998, 27.341329958599999);
-    silly_point point4(112.183755619999999, 27.461293052100000);
-    std::vector<silly_point> geojson_out_point_1{point1, point2, point3, point4};
+    suPoint point1(111.968714032999998, 28.454693591900000);
+    suPoint point2(110.597357514999999, 28.566656802200001);
+    suPoint point3(110.944020641999998, 27.341329958599999);
+    suPoint point4(112.183755619999999, 27.461293052100000);
+    std::vector<suPoint> geojson_out_point_1{point1, point2, point3, point4};
 
-    silly_point point5(112.356701048999994, 27.115445539900001);
-    silly_point point6(111.922501862999994, 26.480037323600001);
-    silly_point point7(112.586770721999997, 25.864427972100000);
-    silly_point point8(113.352719886000003, 26.569850828900002);
-    std::vector<silly_point> geojson_out_point_2{point5, point6, point7, point8};
-    std::vector<std::vector<silly_point>> rings{geojson_out_point_1, geojson_out_point_2};
+    suPoint point5(112.356701048999994, 27.115445539900001);
+    suPoint point6(111.922501862999994, 26.480037323600001);
+    suPoint point7(112.586770721999997, 25.864427972100000);
+    suPoint point8(113.352719886000003, 26.569850828900002);
+    std::vector<suPoint> geojson_out_point_2{point5, point6, point7, point8};
+    std::vector<std::vector<suPoint>> rings{geojson_out_point_1, geojson_out_point_2};
     std::filesystem::path geojson_1013_1(DEFAULT_SU_DATA_DIR);
     geojson_1013_1 += "/shp/draw_line_1.shp";
     std::filesystem::path draw_rings(DEFAULT_SU_DATA_DIR);
@@ -797,7 +797,7 @@ SECTION("READ_VECTOR_POINT_LINE")
     std::filesystem::path draw_lines(DEFAULT_SU_DATA_DIR);
     draw_lines += "/shp/lines_1.shp";
 
-    std::vector<silly_line> lines{geojson_out_point_1, geojson_out_point_2};
+    std::vector<suLine> lines{geojson_out_point_1, geojson_out_point_2};
 
     // lines_to_shp(lines, draw_lines.string().c_str());
 
@@ -892,16 +892,16 @@ SECTION("SILLY_TO_SPATIALITE")
 
     //// 创建silly中点线面的假数据
     //// 五个点-------------
-    // std::vector<silly_point> milt_point;
-    // milt_point.push_back(silly_point(1.0, 2.0));
-    // milt_point.push_back(silly_point(3.0, 4.0));
-    // milt_point.push_back(silly_point(5.0, 6.0));
-    // milt_point.push_back(silly_point(7.0, 8.0));
-    // milt_point.push_back(silly_point(9.0, 10.0));
+    // std::vector<suPoint> milt_point;
+    // milt_point.push_back(suPoint(1.0, 2.0));
+    // milt_point.push_back(suPoint(3.0, 4.0));
+    // milt_point.push_back(suPoint(5.0, 6.0));
+    // milt_point.push_back(suPoint(7.0, 8.0));
+    // milt_point.push_back(suPoint(9.0, 10.0));
     // gaiaGeomCollPtr gaia_point ;
     ////bool aa = silly_point_to_gaiageo(milt_point[1], gaia_point);
     // geometry_printout(gaia_point);
-    // silly_point re_point;
+    // suPoint re_point;
     ////bool bb = gaiageo_to_silly_point(gaia_point, re_point);
     // std::cout << "=================================" << std::endl;
 
@@ -913,70 +913,70 @@ SECTION("SILLY_TO_SPATIALITE")
     // std::cout << "=================================" << std::endl;
 
     //// 一条线包含四个点--------------------
-    // silly_line single_line;
-    // single_line.push_back(silly_point(1.0, 2.0));
-    // single_line.push_back(silly_point(3.0, 4.0));
-    // single_line.push_back(silly_point(5.0, 6.0));
-    // single_line.push_back(silly_point(7.0, 8.0));
+    // suLine single_line;
+    // single_line.push_back(suPoint(1.0, 2.0));
+    // single_line.push_back(suPoint(3.0, 4.0));
+    // single_line.push_back(suPoint(5.0, 6.0));
+    // single_line.push_back(suPoint(7.0, 8.0));
     // gaiaGeomCollPtr gaia_single_line;
     ////bool ee = silly_line_to_gaiageo(single_line, gaia_single_line);
     // geometry_printout(gaia_single_line);
-    // silly_line res_single_line;
+    // suLine res_single_line;
     ////bool ff = gaiageo_to_silly_line(gaia_single_line, res_single_line);
     // std::cout << "=================================" << std::endl;
 
     //// 两条线，每条线包含四个点-----------------
-    // silly_multi_line multi_lines;
-    // silly_line line1;
-    // line1.push_back(silly_point(1.0, 2.0));
-    // line1.push_back(silly_point(3.0, 4.0));
-    // line1.push_back(silly_point(5.0, 6.0));
-    // line1.push_back(silly_point(7.0, 8.0));
-    // silly_line line2;
-    // line2.push_back(silly_point(10.0, 20.0));
-    // line2.push_back(silly_point(30.0, 40.0));
-    // line2.push_back(silly_point(50.0, 60.0));
-    // line2.push_back(silly_point(70.0, 80.0));
+    // suMultiLine multi_lines;
+    // suLine line1;
+    // line1.push_back(suPoint(1.0, 2.0));
+    // line1.push_back(suPoint(3.0, 4.0));
+    // line1.push_back(suPoint(5.0, 6.0));
+    // line1.push_back(suPoint(7.0, 8.0));
+    // suLine line2;
+    // line2.push_back(suPoint(10.0, 20.0));
+    // line2.push_back(suPoint(30.0, 40.0));
+    // line2.push_back(suPoint(50.0, 60.0));
+    // line2.push_back(suPoint(70.0, 80.0));
     // multi_lines.push_back(line1);
     // multi_lines.push_back(line2);
     // gaiaGeomCollPtr gaia_multi_line;
     ////bool gg = silly_multi_silly_line_to_gaiageo(multi_lines, gaia_multi_line);
     // geometry_printout(gaia_multi_line);
-    // silly_multi_line re_multi_line;
+    // suMultiLine re_multi_line;
     ////bool hh = gaiageo_to_silly_multi_line(gaia_multi_line, re_multi_line);
     // std::cout << "=================================" << std::endl;
 
     //// 两个面----------------------------------
-    // silly_multi_poly multi_polygons;
+    // suMultiPoly multi_polygons;
     //// 创建第一个面
-    // silly_poly poly1;
-    // poly1.outer.points.push_back(silly_point(0, 0));
-    // poly1.outer.points.push_back(silly_point(10, 0));
-    // poly1.outer.points.push_back(silly_point(10, 10));
-    // silly_ring innerRing1;
-    // innerRing1.points.push_back(silly_point(2, 2));
-    // innerRing1.points.push_back(silly_point(4, 2));
-    // innerRing1.points.push_back(silly_point(3, 4));
-    // silly_ring innerRing2;
-    // innerRing2.points.push_back(silly_point(5, 5));
-    // innerRing2.points.push_back(silly_point(7, 5));
-    // innerRing2.points.push_back(silly_point(6, 7));
+    // suPoly poly1;
+    // poly1.outer.points.push_back(suPoint(0, 0));
+    // poly1.outer.points.push_back(suPoint(10, 0));
+    // poly1.outer.points.push_back(suPoint(10, 10));
+    // suRing innerRing1;
+    // innerRing1.points.push_back(suPoint(2, 2));
+    // innerRing1.points.push_back(suPoint(4, 2));
+    // innerRing1.points.push_back(suPoint(3, 4));
+    // suRing innerRing2;
+    // innerRing2.points.push_back(suPoint(5, 5));
+    // innerRing2.points.push_back(suPoint(7, 5));
+    // innerRing2.points.push_back(suPoint(6, 7));
     // poly1.holes.push_back(innerRing1);
     // poly1.holes.push_back(innerRing2);
     // multi_polygons.push_back(poly1);
     //// 创建第二个面
-    // silly_poly poly2;
-    // poly2.outer.points.push_back(silly_point(15, 15));
-    // poly2.outer.points.push_back(silly_point(25, 15));
-    // poly2.outer.points.push_back(silly_point(25, 25));
-    // silly_ring innerRing3;
-    // innerRing3.points.push_back(silly_point(17, 17));
-    // innerRing3.points.push_back(silly_point(20, 17));
-    // innerRing3.points.push_back(silly_point(19, 19));
-    // silly_ring innerRing4;
-    // innerRing4.points.push_back(silly_point(21, 21));
-    // innerRing4.points.push_back(silly_point(23, 21));
-    // innerRing4.points.push_back(silly_point(22, 23));
+    // suPoly poly2;
+    // poly2.outer.points.push_back(suPoint(15, 15));
+    // poly2.outer.points.push_back(suPoint(25, 15));
+    // poly2.outer.points.push_back(suPoint(25, 25));
+    // suRing innerRing3;
+    // innerRing3.points.push_back(suPoint(17, 17));
+    // innerRing3.points.push_back(suPoint(20, 17));
+    // innerRing3.points.push_back(suPoint(19, 19));
+    // suRing innerRing4;
+    // innerRing4.points.push_back(suPoint(21, 21));
+    // innerRing4.points.push_back(suPoint(23, 21));
+    // innerRing4.points.push_back(suPoint(22, 23));
     // poly2.holes.push_back(innerRing3);
     // poly2.holes.push_back(innerRing4);
     // multi_polygons.push_back(poly2);
@@ -984,14 +984,14 @@ SECTION("SILLY_TO_SPATIALITE")
     // gaiaGeomCollPtr gaia_single_polygons;
     ////bool ii = silly_poly_to_gaiageo(multi_polygons[0], gaia_single_polygons);
     // geometry_printout(gaia_single_polygons);
-    // silly_poly res_single_polygons;
+    // suPoly res_single_polygons;
     ////bool jj = gaiageo_to_silly_poly(gaia_single_polygons, res_single_polygons);
     // std::cout << "=================================" << std::endl;
 
     // gaiaGeomCollPtr gaia_multi_polygons;
     ////bool kk = silly_multi_poly_to_gaiageo(multi_polygons, gaia_multi_polygons);
     // geometry_printout(gaia_multi_polygons);
-    // silly_multi_poly res_multi_polygons;
+    // suMultiPoly res_multi_polygons;
     ////bool ll = gaiageo_to_silly_multi_poly(gaia_multi_polygons, res_multi_polygons);
     // std::cout << "=================================" << std::endl;
 
@@ -1037,13 +1037,13 @@ SECTION("READ_GEOJSON_RINGS")
     //// 读取geojson的环
     //	std::filesystem::path geofile_1(DEFAULT_SU_DATA_DIR);
     // geofile_1 += "/geojson/risk2.geojson";
-    // std::vector<silly_poly> geojson_rings; // = geo_utils::read_vector_rings(geofile_1.string().c_str());
+    // std::vector<suPoly> geojson_rings; // = geo_utils::read_vector_rings(geofile_1.string().c_str());
 
     //// 读取湖南市区的环
     // std::filesystem::path huanan(DEFAULT_SU_DATA_DIR);
     // huanan += "/shp/hunan_shi_boundary.shp";
 
-    // std::vector<silly_point> geojson_out_point;
+    // std::vector<suPoint> geojson_out_point;
     // for (auto& poly : geojson_rings)
     //{
     //	for (auto& point : poly.outer.points)
@@ -1066,8 +1066,8 @@ SECTION("READ_GEOJSON_RINGS")
 
     // std::filesystem::path shp_1(DEFAULT_SU_DATA_DIR);
     // shp_1 += "/shp/risk2.shp";
-    // std::vector<silly_poly> shp_rings;// = geo_utils::read_vector_rings(shp_1.string().c_str());
-    // std::vector<silly_point> shp_out_point;
+    // std::vector<suPoly> shp_rings;// = geo_utils::read_vector_rings(shp_1.string().c_str());
+    // std::vector<suPoint> shp_out_point;
     // for (auto& poly : shp_rings)
     //{
     //	for (auto& point : poly.outer.points)
@@ -1101,7 +1101,7 @@ SECTION("READ_GEOJSON_RINGS")
 //	// 读取湖南市区的环
 //	std::filesystem::path huanan(DEFAULT_SU_DATA_DIR);
 //	huanan += "/read_shp/hunan_shi_boundary.shp";
-//	std::vector<silly_ring> shp_rings = geo_operation::read_shp_ring(huanan.string().c_str());
+//	std::vector<suRing> shp_rings = geo_operation::read_shp_ring(huanan.string().c_str());
 //	if (shp_rings.empty())
 //	{
 //		std::cout << "Read huanan SHP error! " << std::endl;
@@ -1110,31 +1110,31 @@ SECTION("READ_GEOJSON_RINGS")
 //	// 计算预警区域外环
 //	std::filesystem::path risk2(DEFAULT_SU_DATA_DIR);
 //	risk2 += "/read_shp/risk2.shp";
-//	std::vector<silly_ring> risk_rings = geo_operation::read_shp_ring(risk2.string().c_str());
+//	std::vector<suRing> risk_rings = geo_operation::read_shp_ring(risk2.string().c_str());
 //	if (risk_rings.empty())
 //	{
 //		std::cout << "Read risk SHP error! " << std::endl;
 //	}
 //	int b = 0;
 //	// 排列组合求出相交区域
-//	std::vector<silly_ring> intersect_ring;
+//	std::vector<suRing> intersect_ring;
 //	for (int i = 0; i < risk_rings.size(); i++)
 //	{
 //		for (int j = 0; j < shp_rings.size(); j++)
 //		{
 //			// 求出相交区域
-//			std::vector<silly_ring> temp = geo_operation::intersect_area(risk_rings.at(i), shp_rings.at(j));
+//			std::vector<suRing> temp = geo_operation::intersect_area(risk_rings.at(i), shp_rings.at(j));
 //			for (int m = 0; m < temp.size(); m++)
 //			{
 //				if (!temp[m].points.empty())
 //				{
 //					std::cout << "j: " << j << std::endl;
 //					// 计算市的形心
-//					silly_point city_center = geo_operation::ring_to_center(shp_rings.at(j));
+//					suPoint city_center = geo_operation::ring_to_center(shp_rings.at(j));
 //					std::cout << "city_center: " << "x:" << city_center.lgtd << "   y:" << city_center.lttd << std::endl;
 //
 //					// 计算预警区域的形心
-//					silly_point intersect_center = geo_operation::ring_to_center(temp[m]);
+//					suPoint intersect_center = geo_operation::ring_to_center(temp[m]);
 //					std::cout << "intersect_center: " << "x:" << intersect_center.lgtd << "   y:" << intersect_center.lttd << std::endl;
 //
 //					// 测试画出相交区域和形心点(待删)
@@ -1151,7 +1151,7 @@ SECTION("READ_GEOJSON_RINGS")
 //						sprintf(buff2, "/read_shp/intersect_center_%d.shp", b);
 //						b++;
 //						intersect_center_path += buff2;
-//						std::vector<silly_point> temp_inter{ intersect_center };
+//						std::vector<suPoint> temp_inter{ intersect_center };
 //						//// 画形心点
 //						points_to_shp(temp_inter, huanan.string().c_str(), intersect_center_path.string().c_str());
 //
@@ -1214,32 +1214,32 @@ SECTION("READ_GEOJSON_RINGS")
 //
 //
 //
-//	silly_ring square_1;
-//	silly_ring square_2;
+//	suRing square_1;
+//	suRing square_2;
 //	// 起始点左下角
-//	square_1.points.push_back(silly_point(0, 0));
-//	square_1.points.push_back(silly_point(3, 2));
-//	square_1.points.push_back(silly_point(4, 5));
-//	square_1.points.push_back(silly_point(1, 6));
-//	square_2.points.push_back(silly_point(3, 0));
-//	square_2.points.push_back(silly_point(7, 1));
-//	square_2.points.push_back(silly_point(6, 4));
-//	square_2.points.push_back(silly_point(3, 3));
+//	square_1.points.push_back(suPoint(0, 0));
+//	square_1.points.push_back(suPoint(3, 2));
+//	square_1.points.push_back(suPoint(4, 5));
+//	square_1.points.push_back(suPoint(1, 6));
+//	square_2.points.push_back(suPoint(3, 0));
+//	square_2.points.push_back(suPoint(7, 1));
+//	square_2.points.push_back(suPoint(6, 4));
+//	square_2.points.push_back(suPoint(3, 3));
 //
 //	// 左上角坐标系
-//	//square_1.points.push_back(silly_point(0, -6));
-//	//square_1.points.push_back(silly_point(3, -4));
-//	//square_1.points.push_back(silly_point(4, -1));
-//	//square_1.points.push_back(silly_point(1, 0));
-//	//square_2.points.push_back(silly_point(3, -6));
-//	//square_2.points.push_back(silly_point(7, -5));
-//	//square_2.points.push_back(silly_point(6, -2));
-//	//square_2.points.push_back(silly_point(3, -3));
+//	//square_1.points.push_back(suPoint(0, -6));
+//	//square_1.points.push_back(suPoint(3, -4));
+//	//square_1.points.push_back(suPoint(4, -1));
+//	//square_1.points.push_back(suPoint(1, 0));
+//	//square_2.points.push_back(suPoint(3, -6));
+//	//square_2.points.push_back(suPoint(7, -5));
+//	//square_2.points.push_back(suPoint(6, -2));
+//	//square_2.points.push_back(suPoint(3, -3));
 //
-//	silly_point center_1 = geo_operation::ring_to_center(square_1);
-//	silly_point center_2 = geo_operation::ring_to_center(square_2);
-//	silly_point from(0,0);
-//	silly_point to(-1, 1.73);
+//	suPoint center_1 = geo_operation::ring_to_center(square_1);
+//	suPoint center_2 = geo_operation::ring_to_center(square_2);
+//	suPoint from(0,0);
+//	suPoint to(-1, 1.73);
 //
 //
 //

@@ -38,7 +38,7 @@ eGeometryType Geometry::Type() const
     }
     return eGeometryType::Invalid;
 }
-std::shared_ptr<silly_point> Geometry::Point() const
+std::shared_ptr<suPoint> Geometry::Point() const
 {
     if (mType == eGeometryType::Point && mPoint)
     {
@@ -54,7 +54,7 @@ std::shared_ptr<silly_multi_point> Geometry::MultiPoint() const
     }
     return nullptr;
 }
-std::shared_ptr<silly_line> Geometry::Line() const
+std::shared_ptr<suLine> Geometry::Line() const
 {
     if (mType == eGeometryType::LineString && mLine)
     {
@@ -62,7 +62,7 @@ std::shared_ptr<silly_line> Geometry::Line() const
     }
     return nullptr;
 }
-std::shared_ptr<silly_multi_line> Geometry::MultiLine() const
+std::shared_ptr<suMultiLine> Geometry::MultiLine() const
 {
     if (mType == eGeometryType::MultiLineString && mMultiLine)
     {
@@ -70,7 +70,7 @@ std::shared_ptr<silly_multi_line> Geometry::MultiLine() const
     }
     return nullptr;
 }
-std::shared_ptr<silly_poly> Geometry::Poly() const
+std::shared_ptr<suPoly> Geometry::Poly() const
 {
     if (mType == eGeometryType::Polygon && mPoly)
     {
@@ -78,7 +78,7 @@ std::shared_ptr<silly_poly> Geometry::Poly() const
     }
     return nullptr;
 }
-std::shared_ptr<silly_multi_poly> Geometry::MultiPoly() const
+std::shared_ptr<suMultiPoly> Geometry::MultiPoly() const
 {
     if (mType == eGeometryType::MultiPolygon && mMultiPoly)
     {

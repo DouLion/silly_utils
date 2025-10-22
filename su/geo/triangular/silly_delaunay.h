@@ -18,7 +18,7 @@
 #include <geo/silly_geo.h>
 #include <files/silly_file.h>
 
-class silly_dt_point : public silly_point
+class silly_dt_point : public suPoint
 {
   public:
     silly_dt_point() = default;

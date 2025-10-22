@@ -164,16 +164,16 @@ bool silly_tzx_grid::set(const std::vector<suFMatrix>& grids)
     return true;
 }
 
-silly_rect silly_tzx_grid::rect() const
+suRect silly_tzx_grid::rect() const
 {
-    silly_rect ret;
+    suRect ret;
     ret.min.x = m_left;
     ret.min.y = m_bottom;
     ret.max.x = m_right;
     ret.max.y = m_top;
     return ret;
 }
-void silly_tzx_grid::rect(const silly_rect& boundary)
+void silly_tzx_grid::rect(const suRect& boundary)
 {
     m_left = boundary.min.x;
     m_right = boundary.max.x;
@@ -534,7 +534,7 @@ bool silly_tzx_grid::unserialize_v2(char* p, const int& index)
     return !m_frames.empty();
 }
 
-void silly_tzx_grid::puzzle(const std::vector<silly_tzx_grid>& grids, const silly_rect& boundary, const float& d)
+void silly_tzx_grid::puzzle(const std::vector<silly_tzx_grid>& grids, const suRect& boundary, const float& d)
 {
     if (grids.empty())
     {

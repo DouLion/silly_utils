@@ -22,7 +22,7 @@ struct Point
         y = yy;
     }
 
-    Point(silly_point sp)
+    Point(suPoint sp)
     {
         x = sp.x;
         y = sp.y;
@@ -37,9 +37,9 @@ struct CrossSection
 {
     std::vector<double> distances;   // 起点距
     std::vector<double> elevations;  // 高程
-    silly_point startPoint;          // 起点的高斯坐标
-    silly_point leftEndpoint;        // 断面左起点高斯坐标
-    silly_point rightEndpoint;       // 断面右端点高斯坐标
+    suPoint startPoint;          // 起点的高斯坐标
+    suPoint leftEndpoint;        // 断面左起点高斯坐标
+    suPoint rightEndpoint;       // 断面右端点高斯坐标
 };
 
 // 计算点到线段的距离
@@ -559,9 +559,9 @@ std::vector<Point> generatePolyline(const std::vector<Point>& centerline, Point 
     return polyline;
 }
 
-bool depict::process(const silly_lineZ& cs0, const silly_lineZ& cs1, silly_lineZ& vsections, options& opt)
+bool depict::process(const suLineZ& cs0, const suLineZ& cs1, suLineZ& vsections, options& opt)
 {
-    // std::vector<silly_lineZ> csections;
+    // std::vector<suLineZ> csections;
     // csections.push_back(cs0);
     // csections.push_back(cs1);
     // ValidateCrossSection(csections);
@@ -643,10 +643,10 @@ bool depict::process(const silly_lineZ& cs0, const silly_lineZ& cs1, silly_lineZ
     return false;
 }
 
-std::vector<std::vector<double>> depict::process(const std::vector<silly_lineZ> css, std::vector<silly_lineZ>& vsections, options& opt)
+std::vector<std::vector<double>> depict::process(const std::vector<suLineZ> css, std::vector<suLineZ>& vsections, options& opt)
 {
     std::vector<std::vector<double>> channelData;
-    // std::vector<silly_lineZ> csections = css;
+    // std::vector<suLineZ> csections = css;
     // ValidateCrossSection(csections);
 
     // double xMin, xMax, yMin, yMax;

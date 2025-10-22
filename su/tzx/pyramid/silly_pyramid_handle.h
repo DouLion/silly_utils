@@ -62,7 +62,7 @@ class handle
     /// 范围经纬度范围
     /// </summary>
     /// <returns></returns>
-    silly_rect bound() const;
+    suRect bound() const;
 
     /// <summary>
     /// 读取块信息,包含索引等
@@ -109,7 +109,7 @@ class handle
     /// 设置经纬度范围
     /// </summary>
     /// <param name="rect"></param>
-    void bound(const silly_rect& rect);
+    void bound(const suRect& rect);
 
     void format(const std::string& fmt);
     void project(const std::string& proj);

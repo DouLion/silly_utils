@@ -36,7 +36,7 @@
 #define CALC_LINE_2_INTER(m, r, c, p) interpolation(m[r + 1][c], m[r + 1][c + 1], p)
 #define CALC_LINE_3_INTER(m, r, c, p) interpolation(m[r][c], m[r + 1][c], p)
 
-void silly_vectorizer::interpolation(const silly_trace_node &n1, const silly_trace_node &n2, silly_point &point)
+void silly_vectorizer::interpolation(const silly_trace_node &n1, const silly_trace_node &n2, suPoint &point)
 {
     switch (m_interpolation_mode)
     {
@@ -82,7 +82,7 @@ void silly_vectorizer::interpolation(const silly_trace_node &n1, const silly_tra
     }
 }
 
-bool silly_vectorizer::recurse_trace_line(int r, int c, silly_ring &ring)
+bool silly_vectorizer::recurse_trace_line(int r, int c, suRing &ring)
 {
     if (r > -1 && c > -1 && r < m_height + 2 && c < m_width + 2)
     {
@@ -108,7 +108,7 @@ bool silly_vectorizer::recurse_trace_line(int r, int c, silly_ring &ring)
     return false;
 }
 
-void silly_vectorizer::trace_one_line(int r0l, int c0l, silly_ring &ring)
+void silly_vectorizer::trace_one_line(int r0l, int c0l, suRing &ring)
 {
     bool has_next = true;
 
@@ -157,7 +157,7 @@ void silly_vectorizer::trace_one_line(int r0l, int c0l, silly_ring &ring)
     return;
 }
 
-bool silly_vectorizer::point_in_ring(const silly_point &p, const silly_ring &ring, const double &maxx)
+bool silly_vectorizer::point_in_ring(const suPoint &p, const suRing &ring, const double &maxx)
 {
     /* OGRPoint* po = geo_utils::SillyPointToOGRPoint(p);
 
@@ -171,8 +171,8 @@ bool silly_vectorizer::point_in_ring(const silly_point &p, const silly_ring &rin
     bool inside = false;
     for (int i = 0, j = n - 1; i < n; j = i++)
     {
-        const silly_point &a = ring.points[i];
-        const silly_point &b = ring.points[j];
+        const suPoint &a = ring.points[i];
+        const suPoint &b = ring.points[j];
 
         // 检查线段 (a, b) 是否与射线交叉
         if ((a.y > p.y) != (b.y > p.y) && (p.x < (b.x - a.x) * (p.y - a.y) / (b.y - a.y) + a.x))
@@ -183,17 +183,17 @@ bool silly_vectorizer::point_in_ring(const silly_point &p, const silly_ring &rin
     return inside;
 }
 
-std::vector<silly_poly> silly_vectorizer::trace_all_polys()
+std::vector<suPoly> silly_vectorizer::trace_all_polys()
 {
-    std::vector<silly_poly> result;
+    std::vector<suPoly> result;
     bool has_not_traced = true;
     int count = 0;
-    std::vector<silly_ring> all_rings;
+    std::vector<suRing> all_rings;
     while (has_not_traced)
     {
         has_not_traced = false;
-        silly_ring ring;
-        silly_point mark_point;  // TODO:
+        suRing ring;
+        suPoint mark_point;  // TODO:
         // 检查第一个未被追踪到的点
         for (int r = 1; r < m_height + 2 && !has_not_traced; ++r)
         {
@@ -318,7 +318,7 @@ std::vector<silly_poly> silly_vectorizer::trace_all_polys()
     {
         if (r.is_outer)
         {
-            silly_poly tmp;
+            suPoly tmp;
             tmp.outer = r;
             r.points.clear();
             result.push_back(tmp);
@@ -343,7 +343,7 @@ std::vector<silly_poly> silly_vectorizer::trace_all_polys()
         if (!r.points.empty())
         {
             SLOG_DEBUG("XXXX{}", r.points.size())
-            silly_poly tmp;
+            suPoly tmp;
             tmp.outer = r;
             r.points.clear();
             result.push_back(tmp);
@@ -622,9 +622,9 @@ void silly_vectorizer::set(const std::vector<trace_square_point> &points, const 
     }
     fill_mat();
 }
-std::vector<std::vector<silly_point>> silly_vectorizer::trace_all_lines()
+std::vector<std::vector<suPoint>> silly_vectorizer::trace_all_lines()
 {
-    return std::vector<std::vector<silly_point>>();
+    return std::vector<std::vector<suPoint>>();
 }
 void silly_vectorizer::fill_mat()
 {
@@ -645,7 +645,7 @@ void silly_vectorizer::fill_mat()
         m_mat[m_height + 1][i].p.x = m_left + i * m_xdelta - m_xdelta;
     }
 }
-std::vector<silly_poly> silly_vectorizer::vectorize(const std::vector<trace_square_point> &points, const double &t)
+std::vector<suPoly> silly_vectorizer::vectorize(const std::vector<trace_square_point> &points, const double &t)
 {
     set(points, t);
     mark();
@@ -723,13 +723,13 @@ static double bezier_In(const double &t, double x1, double x2, double x3)
 }
 #include <math/spline/silly_b_spline.h>
 #include <math/silly_bezier_curve.h>
-std::vector<silly_poly> silly_vectorizer::smooth_poly(const std::vector<silly_poly> &polys)
+std::vector<suPoly> silly_vectorizer::smooth_poly(const std::vector<suPoly> &polys)
 
 {
-    std::vector<silly_poly> smooth_polys;
+    std::vector<suPoly> smooth_polys;
     for (auto poly : polys)
     {
-        silly_poly tmp;
+        suPoly tmp;
         /*tmp.outer.points = silly_bezier_curve::bezier_smooth(poly.outer.points, poly.outer.points.size() * 5); //smooth_ring(poly.outer);
 
         for (auto ring : poly.holes)
@@ -743,7 +743,7 @@ std::vector<silly_poly> silly_vectorizer::smooth_poly(const std::vector<silly_po
     return smooth_polys;
 }
 
-bool is_less_than_slope(const silly_point &p1, const silly_point &p2, const silly_point &p3, const double angle)
+bool is_less_than_slope(const suPoint &p1, const suPoint &p2, const suPoint &p3, const double angle)
 {
     double x1_diff = p2.x - p1.x;
     double y1_diff = p2.y - p1.y;
@@ -769,12 +769,12 @@ bool is_less_than_slope(const silly_point &p1, const silly_point &p2, const sill
     return false;
 }
 
-std::vector<silly_poly> silly_vectorizer::simplify_poly_less_angle(const std::vector<silly_poly> &polys, const double &angle)
+std::vector<suPoly> silly_vectorizer::simplify_poly_less_angle(const std::vector<suPoly> &polys, const double &angle)
 {
-    std::vector<silly_poly> simple_polys;
+    std::vector<suPoly> simple_polys;
     for (auto poly : polys)
     {
-        silly_poly simple_poly;
+        suPoly simple_poly;
 
         simple_poly.outer = simplify_ring_douglas(poly.outer, angle);
 
@@ -789,12 +789,12 @@ std::vector<silly_poly> silly_vectorizer::simplify_poly_less_angle(const std::ve
 
     return simple_polys;
 }
-std::vector<silly_poly> silly_vectorizer::simplify_poly_mid_point(const std::vector<silly_poly> &polys)
+std::vector<suPoly> silly_vectorizer::simplify_poly_mid_point(const std::vector<suPoly> &polys)
 {
-    std::vector<silly_poly> simple_polys;
+    std::vector<suPoly> simple_polys;
     for (auto poly : polys)
     {
-        silly_poly simple_poly;
+        suPoly simple_poly;
 
         size_t p_size = poly.outer.points.size();
         double x = 0, y = 0;
@@ -816,7 +816,7 @@ std::vector<silly_poly> silly_vectorizer::simplify_poly_mid_point(const std::vec
             {
                 ring.points.pop_back();
             }
-            silly_ring simple_ring;
+            suRing simple_ring;
             simple_ring.points.push_back(ring.points[0]);
             p_size = ring.points.size();
             for (j = 0; j < ring.points.size() - 1; j++)
@@ -838,12 +838,12 @@ std::vector<silly_poly> silly_vectorizer::simplify_poly_mid_point(const std::vec
 
     return simple_polys;
 }
-std::vector<silly_poly> silly_vectorizer::simplify_poly_same_slope(const std::vector<silly_poly> &polys)
+std::vector<suPoly> silly_vectorizer::simplify_poly_same_slope(const std::vector<suPoly> &polys)
 {
-    std::vector<silly_poly> result;
+    std::vector<suPoly> result;
     for (auto poly : polys)
     {
-        silly_poly tmp;
+        suPoly tmp;
         tmp.outer = simplify_ring_same_slope(poly.outer);
         for (auto ring : poly.holes)
         {
@@ -863,9 +863,9 @@ size_t silly_vectorizer::height() const
 {
     return m_height;
 }
-silly_ring silly_vectorizer::simplify_ring_same_slope(const silly_ring &ring)
+suRing silly_vectorizer::simplify_ring_same_slope(const suRing &ring)
 {
-    silly_ring result;
+    suRing result;
     if (ring.points.size() < 3)
     {
         return ring;
@@ -900,9 +900,9 @@ silly_ring silly_vectorizer::simplify_ring_same_slope(const silly_ring &ring)
 
     return result;
 }
-silly_ring silly_vectorizer::simplify_ring_less_angle(const silly_ring &ring, double angle)
+suRing silly_vectorizer::simplify_ring_less_angle(const suRing &ring, double angle)
 {
-    silly_ring result;
+    suRing result;
     if (ring.points.size() < 3)
     {
         return result;
@@ -929,9 +929,9 @@ silly_ring silly_vectorizer::simplify_ring_less_angle(const silly_ring &ring, do
     }
     return result;
 }
-silly_ring silly_vectorizer::smooth_ring(const silly_ring &ring)
+suRing silly_vectorizer::smooth_ring(const suRing &ring)
 {
-    silly_ring result;
+    suRing result;
 
     double x = 0, y = 0;
     size_t p_size = ring.points.size();
@@ -962,9 +962,9 @@ silly_ring silly_vectorizer::smooth_ring(const silly_ring &ring)
     result.points.push_back(ring.points[0]);
     return result;
 }
-silly_ring silly_vectorizer::simplify_ring_less_angle_1(const silly_ring &ring, double angle)
+suRing silly_vectorizer::simplify_ring_less_angle_1(const suRing &ring, double angle)
 {
-    silly_ring result;
+    suRing result;
     if (ring.points.size() < 3)
     {
         return result;
@@ -993,9 +993,9 @@ silly_ring silly_vectorizer::simplify_ring_less_angle_1(const silly_ring &ring, 
     }
     return result;
 }
-silly_ring silly_vectorizer::simplify_ring_douglas(const silly_ring &ring, double dist)
+suRing silly_vectorizer::simplify_ring_douglas(const suRing &ring, double dist)
 {
-    silly_ring result;
+    suRing result;
     if (ring.points.size() < 3)
     {
         return result;

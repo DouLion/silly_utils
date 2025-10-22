@@ -362,7 +362,7 @@ size_t index::cols(const uint8_t& layer) const
     return m_pack.layers[layer].cols;
 }
 
-silly_rect index::bound() const
+suRect index::bound() const
 {
     return m_pack.bound;
 }
@@ -387,7 +387,7 @@ void index::end_layer(const uint8_t& end) noexcept
     m_pack.elayer = end;
 }
 
-void index::bound(const silly_rect& rect)
+void index::bound(const suRect& rect)
 {
     m_pack.bound = rect;
 }

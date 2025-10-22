@@ -62,7 +62,7 @@ class info : public silly::pyramid::base
     void project(const std::string& proj);
 
     void bound(const std::string& bd);
-    void bound(const silly_rect& bd);
+    void bound(const suRect& bd);
 
     void format(const ePyramidTileFormat& fmt);
 
@@ -70,7 +70,7 @@ class info : public silly::pyramid::base
 
     std::string source();
     std::string project();
-    silly_rect bound();
+    suRect bound();
 
     std::string format();
 

@@ -140,7 +140,7 @@ void suDem::Cover(const suDem& rh)
         }
     }
 }
-void suDem::Extra(const silly_ring& ring)
+void suDem::Extra(const suRing& ring)
 {
     double* ptr = raster.data();
     if (!ptr)
@@ -151,7 +151,7 @@ void suDem::Extra(const silly_ring& ring)
     {
         for (int c = 0; c < info.width; ++ c)
         {
-            silly_point p;
+            suPoint p;
             p.x = info.bound.min.x + c * info.dx;
             p.y = info.bound.min.y + r * info.dy;
             if (!sugeoutils::intersect(p, ring.points)) // 点在环外
@@ -161,7 +161,7 @@ void suDem::Extra(const silly_ring& ring)
         }
     }
 }
-void suDem::Extra(const suDem& rh, const silly_ring& ring)
+void suDem::Extra(const suDem& rh, const suRing& ring)
 {
     if (this != &rh)
     {
@@ -171,12 +171,12 @@ void suDem::Extra(const suDem& rh, const silly_ring& ring)
 
     Extra(ring);
 }
-std::vector<std::pair<double, double>> suDem::ProfileElev(const silly_line& line) const
+std::vector<std::pair<double, double>> suDem::ProfileElev(const suLine& line) const
 {
     // line等间距划分
     std::vector<std::pair<double, double>> ret;
     double dist = (info.dx + info.dy)/4;
-    silly_line eqLine = line.equidistant(dist);
+    suLine eqLine = line.equidistant(dist);
     double xl = info.bound.min.x - dist * info.dx;
     double yl = info.bound.max.y - dist * info.dy;
     for (size_t i = 0; i < eqLine.size(); i++)

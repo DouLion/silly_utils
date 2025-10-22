@@ -134,7 +134,7 @@ class silly_cairo
     /// <param name="sct"></param>
     void draw_text(silly_cairo_text sct);
 
-    void draw_point(const silly_point& p, const double& size, const silly_geo_rect& rect);
+    void draw_point(const suPoint& p, const double& size, const silly_geo_rect& rect);
 
     /// <summary>
     /// 计算字符串占用字符宽度, (约)中文2个宽度,数字字母一个宽度
@@ -148,14 +148,14 @@ class silly_cairo
     /// </summary>
     /// <param name="poly"></param>
     /// <param name="rect"></param>
-    void draw_poly(const silly_poly& poly, const silly_geo_rect& rect);
+    void draw_poly(const suPoly& poly, const silly_geo_rect& rect);
 
     /// <summary>
     /// 绘制矢量面, 将geo坐标转为web mercator坐标后绘制
     /// </summary>
     /// <param name="poly"></param>
     /// <param name="rect"></param>
-    void draw_poly_web_mercator(const silly_poly& poly, const silly_geo_rect& rect);
+    void draw_poly_web_mercator(const suPoly& poly, const silly_geo_rect& rect);
 
     /// <summary>
     /// 绘制矢量面, 这个可以扩展出很多用法,
@@ -163,14 +163,14 @@ class silly_cairo
     /// </summary>
     /// <param name="poly"></param>
     /// <param name="rect"></param>
-    void draw_line(const std::vector<silly_point>& line, const silly_geo_rect& rect);
+    void draw_line(const std::vector<suPoint>& line, const silly_geo_rect& rect);
 
     /// <summary>
     /// 绘制矢量面, 将geo坐标转为web mercator坐标后绘制
     /// </summary>
     /// <param name="poly"></param>
     /// <param name="rect"></param>
-    void draw_line_web_mercator(const std::vector<silly_point>& line, const silly_geo_rect& rect);
+    void draw_line_web_mercator(const std::vector<suPoint>& line, const silly_geo_rect& rect);
 
     /// <summary>
     /// 释放cairo资源
@@ -181,11 +181,11 @@ class silly_cairo
     size_t height() const;
 
   private:
-    void draw_ring(const silly_ring& ring, const silly_geo_rect& rect);
-    void draw_ring_web_mercator(const silly_ring& ring, const silly_geo_rect& rect);
+    void draw_ring(const suRing& ring, const silly_geo_rect& rect);
+    void draw_ring_web_mercator(const suRing& ring, const silly_geo_rect& rect);
 
-    // void draw_line(const std::vector<silly_point>& line, const silly_geo_rect& rect);
-    // void draw_ring_web_mercator(const std::vector<silly_point>& line, const silly_geo_rect& rect);
+    // void draw_line(const std::vector<suPoint>& line, const silly_geo_rect& rect);
+    // void draw_ring_web_mercator(const std::vector<suPoint>& line, const silly_geo_rect& rect);
 
   public:
     int m_format{0};

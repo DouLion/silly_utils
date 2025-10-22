@@ -542,7 +542,7 @@ void silly_cairo::clean(silly::color color)
     cairo_paint(m_cr);
 }
 
-void silly_cairo::draw_poly(const silly_poly &poly, const silly_geo_rect &rect)
+void silly_cairo::draw_poly(const suPoly &poly, const silly_geo_rect &rect)
 {
     std::unique_lock loc(m_mtx);
     // 画外环
@@ -558,7 +558,7 @@ void silly_cairo::draw_poly(const silly_poly &poly, const silly_geo_rect &rect)
     cairo_stroke(m_cr);
 }
 
-void silly_cairo::draw_poly_web_mercator(const silly_poly &poly, const silly_geo_rect &rect)
+void silly_cairo::draw_poly_web_mercator(const suPoly &poly, const silly_geo_rect &rect)
 {
     std::unique_lock loc(m_mtx);
     // 画外环
@@ -574,7 +574,7 @@ void silly_cairo::draw_poly_web_mercator(const silly_poly &poly, const silly_geo
     cairo_stroke(m_cr);
 }
 
-void silly_cairo::draw_ring(const silly_ring &ring, const silly_geo_rect &rect)
+void silly_cairo::draw_ring(const suRing &ring, const silly_geo_rect &rect)
 {
     cairo_new_sub_path(m_cr);
 
@@ -590,13 +590,13 @@ void silly_cairo::draw_ring(const silly_ring &ring, const silly_geo_rect &rect)
     cairo_close_path(m_cr);
 }
 
-void silly_cairo::draw_ring_web_mercator(const silly_ring &ring, const silly_geo_rect &rect)
+void silly_cairo::draw_ring_web_mercator(const suRing &ring, const silly_geo_rect &rect)
 {
     if (ring.points.empty())
     {
         return;
     }
-    silly_rect mcr;
+    suRect mcr;
     silly::geo::proj::convert::lonlat_to_mercator(rect.min.x, rect.max.y, mcr.min.x, mcr.max.y);
     silly::geo::proj::convert::lonlat_to_mercator(rect.max.x, rect.min.y, mcr.max.x, mcr.min.y);
 
@@ -705,7 +705,7 @@ void silly_cairo::set(const cairo_operator_t &opt)
     cairo_set_operator(m_cr, opt);
 }
 
-void silly_cairo::draw_line(const std::vector<silly_point> &line, const silly_geo_rect &rect)
+void silly_cairo::draw_line(const std::vector<suPoint> &line, const silly_geo_rect &rect)
 {
     double x_pixel_per_degree = m_width / (rect.max.x - rect.min.x);
     double y_pixel_per_degree = m_height / (rect.max.y - rect.min.y);
@@ -718,9 +718,9 @@ void silly_cairo::draw_line(const std::vector<silly_point> &line, const silly_ge
     cairo_stroke(m_cr);
 }
 
-void silly_cairo::draw_line_web_mercator(const std::vector<silly_point> &line, const silly_geo_rect &rect)
+void silly_cairo::draw_line_web_mercator(const std::vector<suPoint> &line, const silly_geo_rect &rect)
 {
-    silly_rect mcr;
+    suRect mcr;
     silly::geo::proj::convert::lonlat_to_mercator(rect.min.x, rect.max.y, mcr.min.x, mcr.max.y);
     silly::geo::proj::convert::lonlat_to_mercator(rect.max.x, rect.min.y, mcr.max.x, mcr.min.y);
 
@@ -738,7 +738,7 @@ void silly_cairo::draw_line_web_mercator(const std::vector<silly_point> &line, c
     cairo_stroke(m_cr);
 }
 
-void silly_cairo::draw_point(const silly_point &p, const double &size, const silly_geo_rect &rect)
+void silly_cairo::draw_point(const suPoint &p, const double &size, const silly_geo_rect &rect)
 {
     cairo_set_line_width(m_cr, size);  // 圆点的直径
 

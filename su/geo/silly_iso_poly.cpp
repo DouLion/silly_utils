@@ -11,7 +11,7 @@
 #include "silly_iso_poly.h"
 #include <files/silly_file.h>
 #include <geo/silly_geo_utils.h>
-bool silly::geo::iso_poly::read(const std::filesystem::path& file, silly_multi_poly& mpoly)
+bool silly::geo::iso_poly::read(const std::filesystem::path& file, suMultiPoly& mpoly)
 {
     bool status = false;
     try
@@ -30,12 +30,12 @@ bool silly::geo::iso_poly::read(const std::filesystem::path& file, silly_multi_p
         {
             return status;
         }
-        std::vector<silly_ring> rings;
+        std::vector<suRing> rings;
 
         for (int i = 0; i < part_num; ++i)
         {
             sstream >> point_num;
-            silly_ring ring;
+            suRing ring;
             while (point_num && !sstream.eof())
             {
                 double x, y;
@@ -57,7 +57,7 @@ bool silly::geo::iso_poly::read(const std::filesystem::path& file, silly_multi_p
         }
 
         // 检查内外环
-        silly_multi_poly tmp;
+        suMultiPoly tmp;
         tmp.resize(200);
         tmp[0].outer = rings[0];
         int poly_num = 1;
@@ -70,7 +70,7 @@ bool silly::geo::iso_poly::read(const std::filesystem::path& file, silly_multi_p
             bool is_outer = true;
             for (auto& poly : tmp)
             {
-                if (silly::geo::utils::intersect(rings[i].points.front(), poly.outer.points))
+                if (suGeoUtils::intersect(rings[i].points.front(), poly.outer.points))
                 {
                     poly.holes.push_back(rings[i]);
                     is_outer = false;
@@ -98,7 +98,7 @@ bool silly::geo::iso_poly::read(const std::filesystem::path& file, silly_multi_p
 
     return status;
 }
-bool silly::geo::iso_poly::write(const std::filesystem::path& file, const silly_multi_poly& mpoly, const int& precision)
+bool silly::geo::iso_poly::write(const std::filesystem::path& file, const suMultiPoly& mpoly, const int& precision)
 {
     bool status = false;
     int part_num = mpoly.size();

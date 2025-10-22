@@ -20,8 +20,8 @@ class iso_poly
   public:
     iso_poly() = default;
     ~iso_poly() = default;
-    bool read(const std::filesystem::path& file, silly_multi_poly& mpoly);
-    bool write(const std::filesystem::path& file, const silly_multi_poly& mpoly, const int& precision = 8);
+    bool read(const std::filesystem::path& file, suMultiPoly& mpoly);
+    bool write(const std::filesystem::path& file, const suMultiPoly& mpoly, const int& precision = 8);
 
   private:
 };

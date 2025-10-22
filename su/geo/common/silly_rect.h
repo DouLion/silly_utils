@@ -4,24 +4,24 @@
  * @website: http://www.tianzhixiang.com.cn/
  * @author: dou li yang
  * @date: 2025-08-08
- * @file: silly_rect.cpp
- * @description: silly_rect 头文件
+ * @file: suRect.cpp
+ * @description: suRect 头文件
  * @version: v1.0.1 2025-08-08 dou li yang
  */
 #ifndef SILLY_RECT_H
 #define SILLY_RECT_H
 
 #include <geo/common/silly_point.h>
-class silly_rect  // 普通坐标点
+class suRect  // 普通坐标点
 {
 public:
-    silly_point min;
-    silly_point max;
+    suPoint min;
+    suPoint max;
   public:
-    silly_rect() = default;
-    ~silly_rect() = default;
+    suRect() = default;
+    ~suRect() = default;
 
-    silly_rect(const double& l, const double& t, const double& r, const double& b)
+    suRect(const double& l, const double& t, const double& r, const double& b)
     {
         min.x = l;
         max.y = t;
@@ -41,9 +41,9 @@ public:
         }
     }
 
-    silly_rect& operator=(const silly_rect& rect) = default;
+    suRect& operator=(const suRect& rect) = default;
 
-    bool operator==(const silly_rect& rect) const
+    bool operator==(const suRect& rect) const
     {
         bool result = true;
         result &= std::abs(rect.min.x - this->min.x) <= SU_EPSILON;
@@ -53,7 +53,7 @@ public:
         return result;
     }
 
-    bool operator!=(const silly_rect& rect) const
+    bool operator!=(const suRect& rect) const
     {
         bool result = true;
         result &= std::abs(rect.min.x - this->min.x) > SU_EPSILON;
@@ -64,7 +64,7 @@ public:
     }
 
     /// 两个矩形框是否相交
-    bool intersect(const silly_rect& rh) const
+    bool intersect(const suRect& rh) const
     {
         // 判断两个矩形是否有交集
         bool no_overlap = rh.max.x <= min.x ||  // rh 在左边
@@ -76,13 +76,13 @@ public:
     }
 
     /// 相交区域
-    silly_rect intersection(const silly_rect& rh) const
+    suRect intersection(const suRect& rh) const
     {
-        silly_rect ret;
+        suRect ret;
         if (!this->intersect(rh))
         {
             // 返回空矩形或抛出异常
-            return silly_rect{0, 0, 0, 0};
+            return suRect{0, 0, 0, 0};
         }
         ret.min.x = std::max(min.x, rh.min.x);
         ret.min.y = std::max(min.y, rh.min.y);
@@ -123,7 +123,7 @@ public:
         return false;
     }
 
-    bool contain(const silly_point& p, const bool& containBoundary = true) const
+    bool contain(const suPoint& p, const bool& containBoundary = true) const
     {
         if (!containBoundary)
         {
@@ -142,9 +142,9 @@ public:
         return false;
     }
 
-    silly_rect MBR(const silly_rect& rh) const
+    suRect MBR(const suRect& rh) const
     {
-        silly_rect ret;
+        suRect ret;
         ret.min.x = std::min(min.x, rh.min.x);
         ret.max.y = std::max(max.y, rh.max.y);
         ret.max.x = std::max(max.x, rh.max.x);
@@ -154,6 +154,7 @@ public:
 
 
 };
-using silly_geo_rect = silly_rect;
+using silly_geo_rect = suRect;
+using silly_rect = suRect;
 
 #endif  // SILLY_RECT_H

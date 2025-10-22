@@ -19,7 +19,7 @@
 /// <param name="point">silly类型点</param>
 /// <param name="ggcp">spatialite类型点</param>
 /// <returns></returns>
-static bool silly_point_to_gaiageo(const silly_point &point, gaiaGeomCollPtr &ggcp)
+static bool silly_point_to_gaiageo(const suPoint &point, gaiaGeomCollPtr &ggcp)
 {
     ggcp = gaiaAllocGeomColl();
     ggcp->DimensionModel = GAIA_XY;
@@ -55,7 +55,7 @@ static bool silly_multi_point_to_gaiageo(const silly_multi_point &mpoint, gaiaGe
 /// <param name="line">silly类型单线</param>
 /// <param name="ggcp">spatialite类型单线</param>
 /// <returns></returns>
-static bool silly_line_to_gaiageo(const silly_line &line, gaiaGeomCollPtr &ggcp)
+static bool silly_line_to_gaiageo(const suLine &line, gaiaGeomCollPtr &ggcp)
 {
     if (!line.empty())
     {
@@ -77,7 +77,7 @@ static bool silly_line_to_gaiageo(const silly_line &line, gaiaGeomCollPtr &ggcp)
 /// <param name="mline">silly类型多线</param>
 /// <param name="ggcp">spatialite类型多线</param>
 /// <returns></returns>
-static bool silly_multi_silly_line_to_gaiageo(const silly_multi_line &mline, gaiaGeomCollPtr &ggcp)
+static bool silly_multi_silly_line_to_gaiageo(const suMultiLine &mline, gaiaGeomCollPtr &ggcp)
 {
     if (!mline.empty())
     {
@@ -102,7 +102,7 @@ static bool silly_multi_silly_line_to_gaiageo(const silly_multi_line &mline, gai
 /// <param name="poly">silly类型单面</param>
 /// <param name="ggcp">spatialite类型多面</param>
 /// <returns></returns>
-static bool silly_poly_to_gaiageo(const silly_poly &poly, gaiaGeomCollPtr &ggcp)
+static bool silly_poly_to_gaiageo(const suPoly &poly, gaiaGeomCollPtr &ggcp)
 {
     if (!poly.outer.points.empty())
     {
@@ -141,7 +141,7 @@ static bool silly_poly_to_gaiageo(const silly_poly &poly, gaiaGeomCollPtr &ggcp)
 /// <param name="mpoly">silly类型多面</param>
 /// <param name="ggcp">spatialite类型多面</param>
 /// <returns></returns>
-static bool silly_multi_poly_to_gaiageo(const silly_multi_poly &mpoly, gaiaGeomCollPtr &ggcp)
+static bool silly_multi_poly_to_gaiageo(const suMultiPoly &mpoly, gaiaGeomCollPtr &ggcp)
 {
     if (!mpoly.empty())
     {
@@ -183,13 +183,13 @@ static bool silly_multi_poly_to_gaiageo(const silly_multi_poly &mpoly, gaiaGeomC
 /// <param name="ggcp">spatialite类型点</param>
 /// <param name="point">silly类型点</param>
 /// <returns></returns>
-static bool gaiageo_to_silly_point(gaiaGeomCollPtr ggcp, silly_point &point)
+static bool gaiageo_to_silly_point(gaiaGeomCollPtr ggcp, suPoint &point)
 {
     if (ggcp->FirstPoint)
     {
         gaiaPointPtr pt;
         pt = ggcp->FirstPoint;
-        point = silly_point(pt->X, pt->Y);
+        point = suPoint(pt->X, pt->Y);
         return true;
     }
     return false;
@@ -207,7 +207,7 @@ static bool gaiageo_to_silly_multi_point(gaiaGeomCollPtr ggcp, silly_multi_point
     pt = ggcp->FirstPoint;
     while (pt)
     {
-        mpoint.push_back(silly_point(pt->X, pt->Y));
+        mpoint.push_back(suPoint(pt->X, pt->Y));
         pt = pt->Next;
     }
     return true;
@@ -219,7 +219,7 @@ static bool gaiageo_to_silly_multi_point(gaiaGeomCollPtr ggcp, silly_multi_point
 /// <param name="ggcp">spatialite类型单线</param>
 /// <param name="line">silly类型单线</param>
 /// <returns></returns>
-static bool gaiageo_to_silly_line(gaiaGeomCollPtr ggcp, silly_line &line)
+static bool gaiageo_to_silly_line(gaiaGeomCollPtr ggcp, suLine &line)
 {
     gaiaLinestringPtr gaia_line = ggcp->FirstLinestring;
     if (gaia_line)
@@ -228,7 +228,7 @@ static bool gaiageo_to_silly_line(gaiaGeomCollPtr ggcp, silly_line &line)
         {
             double x = 0.0, y = 0.0;
             gaiaGetPoint(gaia_line->Coords, i, &x, &y);
-            line.push_back(silly_point(x, y));
+            line.push_back(suPoint(x, y));
         }
         return true;
     }
@@ -242,17 +242,17 @@ static bool gaiageo_to_silly_line(gaiaGeomCollPtr ggcp, silly_line &line)
 /// <param name="ggcp">spatialite类型多线</param>
 /// <param name="mline">silly类型多线</param>
 /// <returns></returns>
-static bool gaiageo_to_silly_multi_line(gaiaGeomCollPtr ggcp, silly_multi_line &mline)
+static bool gaiageo_to_silly_multi_line(gaiaGeomCollPtr ggcp, suMultiLine &mline)
 {
     gaiaLinestringPtr line = ggcp->FirstLinestring;
     while (line)
     {
-        silly_line sillyLine;
+        suLine sillyLine;
         for (int i = 0; i < line->Points; i++)
         {
             double x = 0.0, y = 0.0;
             gaiaGetPoint(line->Coords, i, &x, &y);
-            sillyLine.push_back(silly_point(x, y));
+            sillyLine.push_back(suPoint(x, y));
         }
         mline.push_back(sillyLine);
         line = line->Next;
@@ -266,19 +266,19 @@ static bool gaiageo_to_silly_multi_line(gaiaGeomCollPtr ggcp, silly_multi_line &
 /// <param name="ggcp">spatialite类型单面</param>
 /// <param name="poly">silly类型单面</param>
 /// <returns></returns>
-static bool gaiageo_to_silly_poly(gaiaGeomCollPtr ggcp, silly_poly &sillyPoly)
+static bool gaiageo_to_silly_poly(gaiaGeomCollPtr ggcp, suPoly &sillyPoly)
 {
     gaiaPolygonPtr ggcpoly = ggcp->FirstPolygon;
     if (ggcpoly)
     {
         // 外环
-        silly_ring outerRing;
+        suRing outerRing;
         gaiaRingPtr exteriorRing = ggcpoly->Exterior;
         for (int i = 0; i < exteriorRing->Points; i++)
         {
             double x = 0.0, y = 0.0;
             gaiaGetPoint(exteriorRing->Coords, i, &x, &y);
-            outerRing.points.push_back(silly_point(x, y));
+            outerRing.points.push_back(suPoint(x, y));
         }
         sillyPoly.outer = outerRing;
         // 内环
@@ -288,12 +288,12 @@ static bool gaiageo_to_silly_poly(gaiaGeomCollPtr ggcp, silly_poly &sillyPoly)
             gaiaRingPtr interiorRing = ggcpoly->Interiors;
             while (interiorRing)
             {
-                silly_ring innerRing;
+                suRing innerRing;
                 for (int j = 0; j < interiorRing->Points; j++)
                 {
                     double x = 0.0, y = 0.0;
                     gaiaGetPoint(interiorRing->Coords, j, &x, &y);
-                    innerRing.points.push_back(silly_point(x, y));
+                    innerRing.points.push_back(suPoint(x, y));
                 }
                 sillyPoly.holes.push_back(innerRing);
                 interiorRing = interiorRing->Next;
@@ -309,20 +309,20 @@ static bool gaiageo_to_silly_poly(gaiaGeomCollPtr ggcp, silly_poly &sillyPoly)
 /// <param name="ggcp">spatialite类型多面</param>
 /// <param name="mpoly">silly类型多多面</param>
 /// <returns></returns>
-static bool gaiageo_to_silly_multi_poly(gaiaGeomCollPtr ggcp, silly_multi_poly &mpoly)
+static bool gaiageo_to_silly_multi_poly(gaiaGeomCollPtr ggcp, suMultiPoly &mpoly)
 {
     gaiaPolygonPtr poly = ggcp->FirstPolygon;
     while (poly)
     {
-        silly_poly sillyPoly;
+        suPoly sillyPoly;
         // 外环
-        silly_ring outerRing;
+        suRing outerRing;
         gaiaRingPtr exteriorRing = poly->Exterior;
         for (int i = 0; i < exteriorRing->Points; i++)
         {
             double x = 0.0, y = 0.0;
             gaiaGetPoint(exteriorRing->Coords, i, &x, &y);
-            outerRing.points.push_back(silly_point(x, y));
+            outerRing.points.push_back(suPoint(x, y));
         }
         sillyPoly.outer = outerRing;
         // 内环
@@ -332,12 +332,12 @@ static bool gaiageo_to_silly_multi_poly(gaiaGeomCollPtr ggcp, silly_multi_poly &
             gaiaRingPtr interiorRing = poly->Interiors;
             while (interiorRing)
             {
-                silly_ring innerRing;
+                suRing innerRing;
                 for (int j = 0; j < interiorRing->Points; j++)
                 {
                     double x = 0.0, y = 0.0;
                     gaiaGetPoint(interiorRing->Coords, j, &x, &y);
-                    innerRing.points.push_back(silly_point(x, y));
+                    innerRing.points.push_back(suPoint(x, y));
                 }
                 sillyPoly.holes.push_back(innerRing);
                 interiorRing = interiorRing->Next;

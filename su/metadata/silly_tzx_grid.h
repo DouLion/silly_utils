@@ -69,7 +69,7 @@ class silly_tzx_grid
      * @param boundary 目标的范围
      * @param d 每个格点的大小
      */
-    void puzzle(const std::vector<silly_tzx_grid>& grids, const silly_rect& boundary, const float& d = 0.0025);
+    void puzzle(const std::vector<silly_tzx_grid>& grids, const suRect& boundary, const float& d = 0.0025);
 
     silly_tzx_grid& operator=(const silly_tzx_grid& rh);
 
@@ -119,8 +119,8 @@ class silly_tzx_grid
     float ydelta() const;
     // void delta(const float& d);
 
-    silly_rect rect() const;
-    void rect(const silly_rect& boundary);
+    suRect rect() const;
+    void rect(const suRect& boundary);
 
     /// <summary>
     /// 释放内存

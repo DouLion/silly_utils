@@ -5,7 +5,7 @@
 #include "silly_vector_to_raster.h"
 using namespace silly::geo::rasterization;
 
-void x_scan_line::check_line_point(silly_point point, std::vector<_point>& vct, int& last_x, int& last_y)
+void x_scan_line::check_line_point(suPoint point, std::vector<_point>& vct, int& last_x, int& last_y)
 {
     // m_row_pairs.clear();
     int tmp_x = static_cast<int>(std::round((point.x - m_rect.min.x) / m_cell_size));
@@ -18,7 +18,7 @@ void x_scan_line::check_line_point(silly_point point, std::vector<_point>& vct, 
     }
 }
 
-void x_scan_line::rasterize(const silly_point& point)
+void x_scan_line::rasterize(const suPoint& point)
 {
     int x = static_cast<int>(std::round((point.x - m_rect.min.x) / m_cell_size));
     int y = static_cast<int>(std::round((m_rect.max.y - point.y) / m_cell_size));
@@ -37,7 +37,7 @@ void x_scan_line::rasterize(const silly_multi_point& points)
     }
 }
 
-void x_scan_line::rasterize(const silly_line& line)
+void x_scan_line::rasterize(const suLine& line)
 {
     if (line.empty())
     {
@@ -59,7 +59,7 @@ void x_scan_line::rasterize(const silly_line& line)
     }
 }
 
-void x_scan_line::rasterize(const silly_multi_line& lines)
+void x_scan_line::rasterize(const suMultiLine& lines)
 {
     // m_row_pairs.clear();
     for (const auto& line : lines)
@@ -68,7 +68,7 @@ void x_scan_line::rasterize(const silly_multi_line& lines)
     }
 }
 
-void x_scan_line::rasterize(const silly_poly& poly)
+void x_scan_line::rasterize(const suPoly& poly)
 {
     // m_row_pairs.clear();
     std::vector<std::vector<_point>> vertices_arr;
@@ -99,7 +99,7 @@ void x_scan_line::rasterize(const silly_poly& poly)
     rasterize(vertices_arr);
 }
 
-void x_scan_line::rasterize(const silly_multi_poly& m_polys)
+void x_scan_line::rasterize(const suMultiPoly& m_polys)
 {
     // m_row_pairs.clear();
     std::vector<std::vector<_point>> vertices_arr;
@@ -293,9 +293,9 @@ suMatrix<uint8_t> x_scan_line::mask()
     return ret;
 }
 
-std::vector<silly_poly> x_scan_line::grids() const
+std::vector<suPoly> x_scan_line::grids() const
 {
-    std::vector<silly_poly> ret;
+    std::vector<suPoly> ret;
     for (auto& [r, b_es] : m_row_pairs)
     {
         for (const auto& [beg, end] : b_es)
@@ -304,7 +304,7 @@ std::vector<silly_poly> x_scan_line::grids() const
             {
                 double lon = m_rect.min.x + c * m_cell_size;
                 double lat = m_rect.max.y - r * m_cell_size;
-                silly_poly poly;
+                suPoly poly;
                 poly.outer.points.push_back({lon, lat});
                 poly.outer.points.push_back({lon + m_cell_size, lat});
                 poly.outer.points.push_back({lon + m_cell_size, lat - m_cell_size});

@@ -17,25 +17,25 @@ namespace silly_render
 class ellipse
 {
   public:
-    silly_point m_center;
+    suPoint m_center;
     double m_radius_x;
     double m_radius_y;
 };
 
-class line : silly_line
+class line : suLine
 {
   public:
 };
-class rectangle : silly_rect
+class rectangle : suRect
 {
   public:
 };
 
-class polygon : silly_poly
+class polygon : suPoly
 {
-    std::vector<silly_point> m_points;
+    std::vector<suPoint> m_points;
 };
-class multi_polygon : silly_multi_poly
+class multi_polygon : suMultiPoly
 {
     std::vector<polygon> m_polygons;
 };

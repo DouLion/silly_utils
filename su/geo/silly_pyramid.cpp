@@ -1,8 +1,8 @@
 #include "silly_pyramid.h"
 
-// silly_rect silly_google_pyramid::get_rect(const tile_index& index)
+// suRect silly_google_pyramid::get_rect(const tile_index& index)
 //{
-//     silly_rect ret;
+//     suRect ret;
 //     size_t ceil_num = std::pow(2, index.layer);               // 该层的行数列数
 //     if (!(index.row < ceil_num && index.col < ceil_num))
 //     {
@@ -17,7 +17,7 @@
 //
 //     return ret;
 // }
-// tile_index silly_google_pyramid::get_index(const size_t& layer, const silly_point& point)
+// tile_index silly_google_pyramid::get_index(const size_t& layer, const suPoint& point)
 //{
 //     if (point.x < SILLY_GLOBAL_LEFT || point.x > SILLY_GLOBAL_RIGHT || point.y < SILLY_GLOBAL_BOTTOM || point.y > SILLY_GLOBAL_TOP)
 //     {
@@ -46,7 +46,7 @@ void silly_tile::size(const screen_point& sp1, const screen_point& sp2, size_t& 
     height = std::abs(static_cast<int64_t>(sp1.pixY) - static_cast<int64_t>(sp2.pixY));
 }
 
-tile_index silly_tile::geo2tile(const uint8_t& layer, const silly_point& gp, const uint64_t& tilesize)
+tile_index silly_tile::geo2tile(const uint8_t& layer, const suPoint& gp, const uint64_t& tilesize)
 {
     tile_index ret;
 
@@ -55,16 +55,16 @@ tile_index silly_tile::geo2tile(const uint8_t& layer, const silly_point& gp, con
     return ret;
 }
 
-silly_rect silly_tile::tile2geo(const tile_index& index, const uint64_t& tilesize)
+suRect silly_tile::tile2geo(const tile_index& index, const uint64_t& tilesize)
 {
-    silly_rect ret;
+    suRect ret;
     screen_rect screen = tile2screen(index, tilesize);
     ret.max = screen2geo(index.layer, screen.max, tilesize);
     ret.min = screen2geo(index.layer, screen.min, tilesize);
     return ret;
 }
 
-screen_point silly_tile::geo2screen(const uint8_t& layer, const silly_point& gp, const uint64_t& tilesize)
+screen_point silly_tile::geo2screen(const uint8_t& layer, const suPoint& gp, const uint64_t& tilesize)
 {
     screen_point ret;
     double total_tilesize = tilesize << layer;  // 第layer层的瓦片大小
@@ -74,7 +74,7 @@ screen_point silly_tile::geo2screen(const uint8_t& layer, const silly_point& gp,
     return ret;
 }
 
-screen_rect silly_tile::geo2screen(const uint8_t& layer, const silly_rect& rect, const uint64_t& tilesize)
+screen_rect silly_tile::geo2screen(const uint8_t& layer, const suRect& rect, const uint64_t& tilesize)
 {
     screen_rect ret;
     double total_tilesize = tilesize << layer;  // 第layer层的瓦片大小
@@ -87,9 +87,9 @@ screen_rect silly_tile::geo2screen(const uint8_t& layer, const silly_rect& rect,
     return ret;
 }
 
-silly_point silly_tile::screen2geo(const uint8_t& layer, const screen_point& sp, const uint64_t& tilesize)
+suPoint silly_tile::screen2geo(const uint8_t& layer, const screen_point& sp, const uint64_t& tilesize)
 {
-    silly_point ret;
+    suPoint ret;
     double total_tilesize = tilesize << layer;
     // 计算经度
     ret.x = (sp.pixX / total_tilesize) * 360.0 - 180.0;
@@ -122,7 +122,7 @@ screen_rect silly_tile::tile2screen(const tile_index& index, const uint64_t& til
     return ret;
 }
 
-silly_point silly_tile::mvt2geo(const tile_index& index, const mvt_geometry geometry, const uint64_t& extent)
+suPoint silly_tile::mvt2geo(const tile_index& index, const mvt_geometry geometry, const uint64_t& extent)
 {
     screen_point sp;
     sp.layer = index.layer;

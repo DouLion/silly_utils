@@ -79,7 +79,7 @@ class idx_pack
     uint8_t blayer = 0;
     uint8_t elayer = len::MAX_ZOOM;
     size_t indexpos = len::IDXFIXED;
-    silly_rect bound;
+    suRect bound;
     layer layers[len::MAX_ZOOM];
 };
 
@@ -127,7 +127,7 @@ class index : public silly::pyramid::base
     /// 范围经纬度范围
     /// </summary>
     /// <returns></returns>
-    silly_rect bound() const;
+    suRect bound() const;
 
     ////////////////////////////////////////////////////////////
     /// 写入功能
@@ -157,7 +157,7 @@ class index : public silly::pyramid::base
     /// 设置经纬度范围
     /// </summary>
     /// <param name="rect"></param>
-    void bound(const silly_rect& rect);
+    void bound(const suRect& rect);
 
     /// <summary>
     /// 写模式时,构建索引

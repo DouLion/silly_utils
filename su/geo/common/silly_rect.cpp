@@ -4,8 +4,8 @@
  * @website: http://www.tianzhixiang.com.cn/
  * @author: dou li yang
  * @date: 2025-08-08
- * @file: silly_rect.c
- * @description: silly_rect实现
+ * @file: suRect.c
+ * @description: suRect实现
  * @version: v1.0.1 2025-08-08 dou li yang
  */
 #include "silly_rect.h"

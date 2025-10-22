@@ -5,7 +5,7 @@
  * @author: dou li yang
  * @date: 2025-08-08
  * @file: silly_other.cpp
- * @description: silly_point 头文件
+ * @description: suPoint 头文件
  * @version: v1.0.1 2025-08-08 dou li yang
  */
 #ifndef SILLY_POINT_H
@@ -13,126 +13,126 @@
 
 #include <su_marco.h>
 #define SU_GEO_EPSILON (1e-8)
-class silly_point
+class suPoint
 {
   public:
-    silly_point() = default;
-    ~silly_point() = default;
+    suPoint() = default;
+    ~suPoint() = default;
 
-    silly_point(const double& xx, const double& yy)
+    suPoint(const double& xx, const double& yy)
     {
         x = xx;
         y = yy;
     }
 
-    silly_point& operator=(const silly_point& rh) = default;
+    suPoint& operator=(const suPoint& rh) = default;
 
-    silly_point operator+(const silly_point& rh) const
+    suPoint operator+(const suPoint& rh) const
     {
-        silly_point ret(x + rh.x, y + rh.y);
+        suPoint ret(x + rh.x, y + rh.y);
         return ret;
     }
 
-    double dot(const silly_point& rh) const
+    double dot(const suPoint& rh) const
     {
         return x * rh.x + y * rh.y;
     }
 
-    double cross(const silly_point& rh) const
+    double cross(const suPoint& rh) const
     {
         return x * rh.y - y * rh.x;  // 2D 叉积（标量）
     }
 
-    silly_point operator+=(const silly_point& rh)
+    suPoint operator+=(const suPoint& rh)
     {
         this->x += rh.x;
         this->y += rh.y;
         return *this;
     }
 
-    silly_point operator-(const silly_point& rh) const
+    suPoint operator-(const suPoint& rh) const
     {
-        silly_point ret(x - rh.x, y - rh.y);
+        suPoint ret(x - rh.x, y - rh.y);
         return ret;
     }
-    silly_point operator-=(const silly_point& rh)
+    suPoint operator-=(const suPoint& rh)
     {
         this->x -= rh.x;
         this->y -= rh.y;
         return *this;
     }
 
-    silly_point operator*(double scale) const
+    suPoint operator*(double scale) const
     {
-        silly_point ret(x * scale, y * scale);
+        suPoint ret(x * scale, y * scale);
         return ret;
     }
 
-    silly_point operator*(const silly_point& rh) const
+    suPoint operator*(const suPoint& rh) const
     {
-        silly_point ret(x * rh.x, y * rh.y);
+        suPoint ret(x * rh.x, y * rh.y);
         return ret;
     }
 
-    silly_point operator*=(double scale)
+    suPoint operator*=(double scale)
     {
         this->x *= scale;
         this->y *= scale;
         return *this;
     }
 
-    silly_point operator*=(const silly_point& rh)
+    suPoint operator*=(const suPoint& rh)
     {
         this->y *= rh.y;
         this->x *= rh.x;
         return *this;
     }
 
-    silly_point operator/(double scale) const
+    suPoint operator/(double scale) const
     {
-        return silly_point(x / scale, y / scale);
+        return suPoint(x / scale, y / scale);
     }
 
-    silly_point operator/(const silly_point& rh) const
+    suPoint operator/(const suPoint& rh) const
     {
-        return silly_point(x / rh.x, y / rh.y);
+        return suPoint(x / rh.x, y / rh.y);
     }
 
-    silly_point operator/=(double scale)
+    suPoint operator/=(double scale)
     {
         this->x /= scale;
         this->y /= scale;
         return *this;
     }
 
-    silly_point operator/=(const silly_point& rh)
+    suPoint operator/=(const suPoint& rh)
     {
         this->y /= rh.y;
         this->x /= rh.x;
         return *this;
     }
 
-    bool operator==(const silly_point& rh) const
+    bool operator==(const suPoint& rh) const
     {
         return std::abs(rh.x - this->x) <= SU_GEO_EPSILON && std::abs(rh.y - this->y) <= SU_GEO_EPSILON;
     }
 
-    bool operator<(const silly_point& rh) const
+    bool operator<(const suPoint& rh) const
     {
         return rh.y < y || (rh.y == y && rh.x < x);
     }
 
-    bool operator>(const silly_point& rh) const
+    bool operator>(const suPoint& rh) const
     {
         return rh.y > y || (rh.y == y && rh.x > x);
     }
 
-    bool operator!=(const silly_point& rh) const
+    bool operator!=(const suPoint& rh) const
     {
         return std::abs(rh.x - this->x) > SU_GEO_EPSILON || std::abs(rh.y - this->y) > SU_GEO_EPSILON;
     }
 
-    double distance(const silly_point& rh) const
+    double distance(const suPoint& rh) const
     {
         return SU_DIST(x - rh.x, y - rh.y);
     }
@@ -141,37 +141,37 @@ class silly_point
     double x{0.};
     double y{0.};
 };
-
-class silly_pointZ : public silly_point
+using silly_point = suPoint;
+class suPointZ : public suPoint
 {
   public:
-    silly_pointZ() = default;
-    silly_pointZ(const double& xx, const double& yy)
+    suPointZ() = default;
+    suPointZ(const double& xx, const double& yy)
     {
         x = xx;
         y = yy;
     }
-    silly_pointZ(const double& xx, const double& yy, const double& zz)
+    suPointZ(const double& xx, const double& yy, const double& zz)
     {
         x = xx;
         y = yy;
         z = zz;
     }
 
-    silly_pointZ(const silly_point& rh)
+    suPointZ(const suPoint& rh)
     {
         x = rh.x;
         y = rh.y;
     }
 
-    silly_pointZ(const silly_pointZ& rh) : silly_point(rh)
+    suPointZ(const suPointZ& rh) : suPoint(rh)
     {
         x = rh.x;
         y = rh.y;
         z = rh.z;
     }
 
-    silly_pointZ& operator=(const silly_pointZ& rh)
+    suPointZ& operator=(const suPointZ& rh)
     {
         x = rh.x;
         y = rh.y;
@@ -191,17 +191,17 @@ class silly_multi_point
     silly_multi_point() = default;
     ~silly_multi_point() = default;
     /*silly_multi_point(const silly_multi_point& rh);
-    silly_multi_point(const std::vector<silly_point>& rh);*/
-    using iterator = typename std::vector<silly_point>::iterator;
-    using const_iterator = typename std::vector<silly_point>::const_iterator;
-    using value_type = silly_point;  // 兼容STL容器类型定义
+    silly_multi_point(const std::vector<suPoint>& rh);*/
+    using iterator = typename std::vector<suPoint>::iterator;
+    using const_iterator = typename std::vector<suPoint>::const_iterator;
+    using value_type = suPoint;  // 兼容STL容器类型定义
 
     // 代理vector的常用接口
-    void push_back(const silly_point& p)
+    void push_back(const suPoint& p)
     {
         m_points.push_back(p);
     }
-    void push_back(silly_point&& p)
+    void push_back(suPoint&& p)
     {
         m_points.push_back(std::move(p));
     }
@@ -219,27 +219,27 @@ class silly_multi_point
     }
 
     // 元素访问（引用传递，避免拷贝）
-    silly_point& operator[](size_t pos)
+    suPoint& operator[](size_t pos)
     {
         return m_points[pos];
     }
-    const silly_point& operator[](size_t pos) const
+    const suPoint& operator[](size_t pos) const
     {
         return m_points[pos];
     }
-    silly_point& front()
+    suPoint& front()
     {
         return m_points.front();
     }
-    const silly_point& front() const
+    const suPoint& front() const
     {
         return m_points.front();
     }
-    silly_point& back()
+    suPoint& back()
     {
         return m_points.back();
     }
-    const silly_point& back() const
+    const suPoint& back() const
     {
         return m_points.back();
     }
@@ -271,7 +271,7 @@ class silly_multi_point
     }
 
   protected:
-    std::vector<silly_point> m_points;
+    std::vector<suPoint> m_points;
 };
 
 #endif  // SILLY_POINT_H

@@ -79,10 +79,10 @@ SECTION("LAWSON_TRI")      // Delaunay 劳森算法
 	}
 	triangleSet output;
 	DelaunayTri.Triangulate(vertices, output);
-	std::vector<silly_poly> polys;
+	std::vector<suPoly> polys;
 	for (auto& tri : output)
 	{
-		silly_poly poly;
+		suPoly poly;
 		poly.outer.points.push_back({tri.GetVertex(0)->GetX(), tri.GetVertex(0)->GetY() });
 		poly.outer.points.push_back({ tri.GetVertex(1)->GetX(), tri.GetVertex(1)->GetY() });
 		poly.outer.points.push_back({ tri.GetVertex(2)->GetX(), tri.GetVertex(2)->GetY() });

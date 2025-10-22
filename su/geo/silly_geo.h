@@ -47,7 +47,7 @@ enum class eGeometryType : int8_t
 // 多面
 #define GEOJSON_GEOMETRY_MULTI_POLYGON "MultiPolygon"
 
-namespace sugeo
+namespace suGeo
 {
 static std::string type2str(const eGeometryType& type)
 {
@@ -97,6 +97,6 @@ static eGeometryType str2type(const std::string& str)
     }
     return eGeometryType::Invalid;
 }
-}  // namespace sugeo
+}  // namespace suGeo
 
 #endif  // SILLY_UTILS_SILLY_GEO_H

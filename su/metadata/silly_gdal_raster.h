@@ -26,15 +26,15 @@ class silly_gdal_raster
     bool Open(const std::filesystem::path& file);
     void Close();
 
-    silly_rect Bound() const;
+    suRect Bound() const;
     double XDelta() const;
     double YDelta() const;
     int Width() const;
     int Height() const;
 
-    suDMatrix ROI(const silly_rect& rect) const;
+    suDMatrix ROI(const suRect& rect) const;
 
-    double Pick(const silly_point& p) const;
+    double Pick(const suPoint& p) const;
 
   protected:
     double m_x0 = 0;
@@ -42,7 +42,7 @@ class silly_gdal_raster
     int m_Bands = 0;
     int m_width = 0;
     int m_height = 0;
-    silly_rect m_rect;
+    suRect m_rect;
     double m_xdelta = 0;
     double m_ydelta = 0;
     bool UP2DOWN = true;

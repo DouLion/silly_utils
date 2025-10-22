@@ -17,11 +17,11 @@
 using namespace silly::geo;
 using namespace ClipperLib;
 
-void utils::init_proj_env()
+void suGeoUtils::init_proj_env()
 {
     SET_ENV("PROJ_LIB", std::filesystem::current_path().append("share").append("proj").append("proj.db").string());
 }
-void utils::init_gdal_env()
+void suGeoUtils::init_gdal_env()
 {
 #if SU_THIRD_SUPPORT_GDAL
     init_proj_env();
@@ -32,7 +32,7 @@ void utils::init_gdal_env()
 #endif
 }
 
-void utils::destroy_gdal_env()
+void suGeoUtils::destroy_gdal_env()
 {
 #if SU_THIRD_SUPPORT_GDAL
     OGRCleanupAll();
@@ -40,7 +40,7 @@ void utils::destroy_gdal_env()
 }
 
 
-void utils::centroid(const silly_ring& ring, double& area, double& sumX, double& sumY)
+void suGeoUtils::centroid(const suRing& ring, double& area, double& sumX, double& sumY)
 {
     area = 0.0;
     sumX = 0.0;
@@ -62,7 +62,7 @@ void utils::centroid(const silly_ring& ring, double& area, double& sumX, double&
     area *= 0.5;  // 实际面积
 }
 
-silly_point utils::centroid(const silly_poly& poly)
+suPoint suGeoUtils::centroid(const suPoly& poly)
 {
     double total_area = 0.0;
     double total_sum_x = 0.0;
@@ -85,35 +85,35 @@ silly_point utils::centroid(const silly_poly& poly)
     }
 
     // 计算质心
-    silly_point ret;
+    suPoint ret;
     if (std::abs(total_area) > 1e-10) {  // 避免除以零
         ret.x = total_sum_x / (3.0 * total_area);
         ret.y = total_sum_y / (3.0 * total_area);
     } else {
         // 面积为0时（如线状多边形），返回第一个点
-        ret = poly.outer.points.empty() ? silly_point{0, 0} : poly.outer.points[0];
+        ret = poly.outer.points.empty() ? suPoint{0, 0} : poly.outer.points[0];
     }
 
     return ret;
 }
-void utils::centroid(const silly_poly& poly, silly_point& polyCentroid, double& polyArea)
+void suGeoUtils::centroid(const suPoly& poly, suPoint& polyCentroid, double& polyArea)
 {
     double total_area = 0.0;
     double sum_x = 0.0, sum_y = 0.0;
 
     // 处理外环
-    double outer_area = utils::area(poly.outer.points);
-    silly_point outer_centroid;
-    utils::centroid(poly.outer, outer_area, outer_centroid.x, outer_centroid.y);
+    double outer_area = suGeoUtils::area(poly.outer.points);
+    suPoint outer_centroid;
+    suGeoUtils::centroid(poly.outer, outer_area, outer_centroid.x, outer_centroid.y);
     total_area += outer_area;
     sum_x += outer_area * outer_centroid.x;
     sum_y += outer_area * outer_centroid.y;
 
     // 处理内环（孔洞）
     for (const auto& hole : poly.holes) {
-        double hole_area = utils::area(hole.points);
-        silly_point hole_centroid;
-        utils::centroid(hole, hole_area, hole_centroid.x, hole_centroid.y);
+        double hole_area = suGeoUtils::area(hole.points);
+        suPoint hole_centroid;
+        suGeoUtils::centroid(hole, hole_area, hole_centroid.x, hole_centroid.y);
         total_area -= hole_area;  // 孔洞面积为负
         sum_x -= hole_area * hole_centroid.x;
         sum_y -= hole_area * hole_centroid.y;
@@ -125,18 +125,18 @@ void utils::centroid(const silly_poly& poly, silly_point& polyCentroid, double& 
         polyCentroid.x = sum_x / total_area;
         polyCentroid.y = sum_y / total_area;
     } else {
-        polyCentroid = poly.outer.points.empty() ? silly_point{0, 0} : poly.outer.points[0];
+        polyCentroid = poly.outer.points.empty() ? suPoint{0, 0} : poly.outer.points[0];
     }
 }
-silly_point utils::centroid(const silly_multi_poly& multiPoly)
+suPoint suGeoUtils::centroid(const suMultiPoly& multiPoly)
 {
-    silly_point total_centroid = {0, 0};
+    suPoint total_centroid = {0, 0};
     double total_area = 0.0;
 
     for (const auto& poly : multiPoly) {
-        silly_point poly_centroid;
+        suPoint poly_centroid;
         double poly_area;
-        utils::centroid(poly, poly_centroid, poly_area);
+        suGeoUtils::centroid(poly, poly_centroid, poly_area);
 
         if (std::abs(poly_area) > 1e-10) {
             total_centroid.x += poly_area * poly_centroid.x;
@@ -155,14 +155,14 @@ silly_point utils::centroid(const silly_multi_poly& multiPoly)
     return total_centroid;
 }
 
-double utils::azimuth(const silly_point& from, const silly_point& to)
+double suGeoUtils::azimuth(const suPoint& from, const suPoint& to)
 {
     double theta = atan2(to.x - from.x, to.y - from.y);
     theta = theta * 180.0 / SU_PI;
     return theta;
 }
 
-std::string utils::angle_to_desc(const double& angle)
+std::string suGeoUtils::angle_to_desc(const double& angle)
 {
     std::string desc;
     if (angle >= -15.0 && angle <= 15.0)
@@ -204,14 +204,14 @@ std::string utils::angle_to_desc(const double& angle)
     return desc;
 }
 
-std::vector<silly_geo_coll> utils::read(const std::filesystem::path& file, const bool& ignore_prop)
+std::vector<silly_geo_coll> suGeoUtils::read(const std::filesystem::path& file, const bool& ignore_prop)
 {
     std::vector<silly_geo_coll> ret;
     read(file, ret, ignore_prop);
     return ret;
 }
 
-bool utils::read(const std::filesystem::path& file, std::vector<silly_geo_coll>& collections, const bool& ignore_prop)
+bool suGeoUtils::read(const std::filesystem::path& file, std::vector<silly_geo_coll>& collections, const bool& ignore_prop)
 {
     bool status = false;
 #if SU_THIRD_SUPPORT_GDAL
@@ -318,7 +318,7 @@ OGRFieldType convertToOGRFieldType(const eGeoFieldType& type)
 }
 
 #endif
-bool utils::write(const std::filesystem::path& file, const std::vector<silly_geo_coll>& collection, const eCrsEpsgCode& prj, const std::string& encode)
+bool suGeoUtils::write(const std::filesystem::path& file, const std::vector<silly_geo_coll>& collection, const eCrsEpsgCode& prj, const std::string& encode)
 {
     bool status = false;
 #if SU_THIRD_SUPPORT_GDAL
@@ -373,12 +373,12 @@ bool utils::write(const std::filesystem::path& file, const std::vector<silly_geo
     return status;
 }
 
-bool utils::intersect(const silly_geo_coll& gc1, const silly_geo_coll& gc2)
+bool suGeoUtils::intersect(const silly_geo_coll& gc1, const silly_geo_coll& gc2)
 {
     return false;
 }
 
-bool utils::intersect(const silly_multi_poly& multiPoly1, const silly_multi_poly& multiPoly2)
+bool suGeoUtils::intersect(const suMultiPoly& multiPoly1, const suMultiPoly& multiPoly2)
 {
     // TODO:
 #if SU_THIRD_SUPPORT_GDAL
@@ -394,9 +394,9 @@ bool utils::intersect(const silly_multi_poly& multiPoly1, const silly_multi_poly
 #endif
     return false;
 }
-std::vector<silly_poly> utils::intersection(const silly_multi_poly& multiPoly1, const silly_multi_poly& multiPoly2)
+std::vector<suPoly> suGeoUtils::intersection(const suMultiPoly& multiPoly1, const suMultiPoly& multiPoly2)
 {
-    std::vector<silly_poly> result;
+    std::vector<suPoly> result;
 #if SU_THIRD_SUPPORT_GDAL
     // 创建 OGRPolygon 对象
     OGRMultiPolygon org_ploy_1 = silly_gdal::silly_multi_poly_to_ogr(multiPoly1);
@@ -442,7 +442,7 @@ std::vector<silly_poly> utils::intersection(const silly_multi_poly& multiPoly1, 
 
     return result;
 }
-std::optional<silly_point> utils::intersection(const silly_segment& s1, const silly_segment& s2)
+std::optional<suPoint> suGeoUtils::intersection(const suSegment& s1, const suSegment& s2)
 {
     double x1 = s1.p0.x;
     double y1 = s1.p0.y;
@@ -472,14 +472,14 @@ std::optional<silly_point> utils::intersection(const silly_segment& s1, const si
     {
         double intersectX = x1 + t * (x2 - x1);
         double intersectY = y1 + t * (y2 - y1);
-        return silly_point(intersectX, intersectY);
+        return suPoint(intersectX, intersectY);
     }
 
     // 交点不在两条线段上
     return std::nullopt;
 }
 
-std::optional<silly_pointZ> utils::intersection(const silly_segmentZ& s1, const silly_segmentZ& s2)
+std::optional<suPointZ> suGeoUtils::intersection(const suSegmentZ& s1, const suSegmentZ& s2)
 {
     double x1 = s1.p0.x;
     double y1 = s1.p0.y;
@@ -516,16 +516,16 @@ std::optional<silly_pointZ> utils::intersection(const silly_segmentZ& s1, const 
         double intersectX = x1 + t * (x2 - x1);
         double intersectY = y1 + t * (y2 - y1);
         double intersectZ = ((z1 + t * (z2 - z1)) + (z3 + t * (z4 - z3))) / 2.0;
-        return silly_pointZ(intersectX, intersectY, intersectZ);
+        return suPointZ(intersectX, intersectY, intersectZ);
     }
 
     // 交点不在两条线段上
     return std::nullopt;
 }
 
-bool utils::intersect(const silly_poly& multiPoly, const silly_point& point)
+bool suGeoUtils::intersect(const suPoly& multiPoly, const suPoint& point)
 {
-    silly_point ray_end(point.x + 1000, point.y);  // 向右引一条射线 1000单位
+    suPoint ray_end(point.x + 1000, point.y);  // 向右引一条射线 1000单位
 
     // 外环
     bool is_in_outer = intersect(point, multiPoly.outer.points);
@@ -544,7 +544,7 @@ bool utils::intersect(const silly_poly& multiPoly, const silly_point& point)
     return false;
 }
 
-bool utils::intersect(const silly_multi_poly& multiPoly, const silly_point& point)
+bool suGeoUtils::intersect(const suMultiPoly& multiPoly, const suPoint& point)
 {
     bool is_in = false;
     for (const auto& poly : multiPoly)
@@ -557,22 +557,22 @@ bool utils::intersect(const silly_multi_poly& multiPoly, const silly_point& poin
     }
     return is_in;
 }
-bool utils::intersect(const silly_multi_poly& multiPoly, const silly_line& line)
+bool suGeoUtils::intersect(const suMultiPoly& multiPoly, const suLine& line)
 {
     // TODO:
     return false;
 }
-bool utils::nearby(const silly_point& point, const silly_line& line, const double& dist)
+bool suGeoUtils::nearby(const suPoint& point, const suLine& line, const double& dist)
 {
     // TODO:
     return false;
 }
-std::vector<silly_line> utils::intersection(const silly_multi_poly& multiPoly, const silly_line& line)
+std::vector<suLine> suGeoUtils::intersection(const suMultiPoly& multiPoly, const suLine& line)
 {
     // TODO:
-    return std::vector<silly_line>();
+    return std::vector<suLine>();
 }
-double utils::area(const std::vector<silly_point>& points)
+double suGeoUtils::area(const std::vector<suPoint>& points)
 {
     double result = 0.0;
     size_t pnum = points.size();
@@ -590,7 +590,7 @@ double utils::area(const std::vector<silly_point>& points)
     }
     return std::abs(result) / 2.0;
 }
-double utils::area(const silly_poly& poly)
+double suGeoUtils::area(const suPoly& poly)
 {
     double total_area = area(poly.outer.points);
     if (total_area < 1.E-15)
@@ -605,7 +605,7 @@ double utils::area(const silly_poly& poly)
 
     return total_area;
 }
-double utils::area_sqkm(const silly_poly& poly, const double& l0)
+double suGeoUtils::area_sqkm(const suPoly& poly, const double& l0)
 {
     double total_area = area_sqkm(poly.outer.points, l0);
     if (total_area < 1.E-15)
@@ -618,7 +618,7 @@ double utils::area_sqkm(const silly_poly& poly, const double& l0)
     }
     return total_area;
 }
-double utils::area(const silly_multi_poly& multiPoly)
+double suGeoUtils::area(const suMultiPoly& multiPoly)
 {
     double total_area = 0;
     for (const auto& poly : multiPoly)
@@ -627,7 +627,7 @@ double utils::area(const silly_multi_poly& multiPoly)
     }
     return total_area;
 }
-double utils::area_sqkm(const silly_multi_poly& multiPoly, const double& l0)
+double suGeoUtils::area_sqkm(const suMultiPoly& multiPoly, const double& l0)
 {
     double total_area = 0;
     for (const auto& poly : multiPoly)
@@ -636,19 +636,19 @@ double utils::area_sqkm(const silly_multi_poly& multiPoly, const double& l0)
     }
     return total_area;
 }
-std::vector<silly_poly> utils::trans_intersection(const silly_multi_poly& multiPoly1, const silly_multi_poly& multiPoly2)
+std::vector<suPoly> suGeoUtils::trans_intersection(const suMultiPoly& multiPoly1, const suMultiPoly& multiPoly2)
 {
-    std::vector<silly_poly> result;
+    std::vector<suPoly> result;
     // TODO:
     return result;
 }
-std::vector<silly_line> utils::trans_intersection(const silly_multi_poly& multiPoly1, const silly_line& line)
+std::vector<suLine> suGeoUtils::trans_intersection(const suMultiPoly& multiPoly1, const suLine& line)
 {
-    std::vector<silly_line> result;
+    std::vector<suLine> result;
     // TODO:
     return result;
 }
-double utils::area_sqkm(const std::vector<silly_point>& points, const double& l0)
+double suGeoUtils::area_sqkm(const std::vector<suPoint>& points, const double& l0)
 {
     double maxx = -1e10, minx = 1e10;
     for (auto p : points)
@@ -656,33 +656,33 @@ double utils::area_sqkm(const std::vector<silly_point>& points, const double& l0
         maxx = std::max(maxx, p.x);
         minx = std::min(minx, p.x);
     }
-    std::vector<silly_point> gpoints;
+    std::vector<suPoint> gpoints;
     for (auto p : points)
     {
-        silly_point tmp;
+        suPoint tmp;
         proj::convert::lonlat_to_gauss(l0, p.x, p.y, tmp.y, tmp.x);
         gpoints.push_back(tmp);
     }
     return area(gpoints) / 1e6;
 }
-std::vector<silly_point> utils::smooth_line(const std::vector<silly_point>& line, const int& mod, const int& interp)
+std::vector<suPoint> suGeoUtils::smooth_line(const std::vector<suPoint>& line, const int& mod, const int& interp)
 {
-    return std::vector<silly_point>();
+    return std::vector<suPoint>();
 }
-std::vector<silly_point> utils::smooth_ring(const std::vector<silly_point>& ring, const int& mod, const int& interp)
+std::vector<suPoint> suGeoUtils::smooth_ring(const std::vector<suPoint>& ring, const int& mod, const int& interp)
 {
-    return std::vector<silly_point>();
+    return std::vector<suPoint>();
 }
-std::vector<silly_point> utils::simplify_line(const std::vector<silly_point>& line, const double& dist)
+std::vector<suPoint> suGeoUtils::simplify_line(const std::vector<suPoint>& line, const double& dist)
 {
-    return std::vector<silly_point>();
+    return std::vector<suPoint>();
 }
-std::vector<silly_point> utils::simplify_ring(const std::vector<silly_point>& ring, const double& dist)
+std::vector<suPoint> suGeoUtils::simplify_ring(const std::vector<suPoint>& ring, const double& dist)
 {
-    return std::vector<silly_point>();
+    return std::vector<suPoint>();
 }
 
-bool utils::intersect(const silly_point& point, const std::vector<silly_point>& points)
+bool suGeoUtils::intersect(const suPoint& point, const std::vector<suPoint>& points)
 {
     bool is_inside = false;
     const size_t count = points.size();
@@ -714,11 +714,11 @@ bool utils::intersect(const silly_point& point, const std::vector<silly_point>& 
     }
     return is_inside;
 }
-double utils::distance(const silly_point& p1, const silly_point& p2)
+double suGeoUtils::distance(const suPoint& p1, const suPoint& p2)
 {
     return std::sqrt(distance_sq(p1, p2));
 }
-double utils::distance_km(const silly_point& p1, const silly_point& p2)
+double suGeoUtils::distance_km(const suPoint& p1, const suPoint& p2)
 {
     /// https://github.com/atychang/geo-distance/blob/master/vincenty/cpp/CalcDistance.cc
     const double a = 6378137.0;            // WGS-84 Earth semi-major axis (m)
@@ -786,12 +786,12 @@ double utils::distance_km(const silly_point& p1, const silly_point& p2)
 
     return s / 1000.0;
 }
-double utils::distance_sq(const silly_point& p1, const silly_point& p2)
+double suGeoUtils::distance_sq(const suPoint& p1, const suPoint& p2)
 {
     return (p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y);
 }
 
-silly_geo_coll utils::buffer(const silly_geo_coll& coll, const double& distance)
+silly_geo_coll suGeoUtils::buffer(const silly_geo_coll& coll, const double& distance)
 {
     silly_geo_coll ret;
     // TODO: 这个下面实现有问题, bufferedGeom可能会有内存泄露
@@ -825,9 +825,9 @@ silly_geo_coll utils::buffer(const silly_geo_coll& coll, const double& distance)
 #endif
     return ret;
 }
-std::vector<std::pair<silly_point, double>> utils::adjust(const std::vector<std::pair<silly_point, double>>& linez, const double& bz, const double& ez)
+std::vector<std::pair<suPoint, double>> suGeoUtils::adjust(const std::vector<std::pair<suPoint, double>>& linez, const double& bz, const double& ez)
 {
-    std::vector<std::pair<silly_point, double>> ret;
+    std::vector<std::pair<suPoint, double>> ret;
     double dzB = (bz - linez.front().second);
     double dzE = (ez - linez.back().second);
     double totalDist = 0;

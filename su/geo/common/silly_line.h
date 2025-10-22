@@ -4,33 +4,33 @@
  * @website: http://www.tianzhixiang.com.cn/
  * @author: dou li yang
  * @date: 2025-08-08
- * @file: silly_line.cpp
- * @description: silly_line 头文件
+ * @file: suLine.cpp
+ * @description: suLine 头文件
  * @version: v1.0.1 2025-08-08 dou li yang
  */
 #ifndef SILLY_LINE_H
 #define SILLY_LINE_H
 #include <geo/common/silly_point.h>
 
-class silly_line
+class suLine
 {
   public:
     // 类型别名（兼容STL迭代器）
-    using iterator = typename std::vector<silly_point>::iterator;
-    using const_iterator = typename std::vector<silly_point>::const_iterator;
-    using value_type = silly_point;  // 兼容STL容器类型定义
+    using iterator = typename std::vector<suPoint>::iterator;
+    using const_iterator = typename std::vector<suPoint>::const_iterator;
+    using value_type = suPoint;  // 兼容STL容器类型定义
     // 构造函数
-    silly_line() = default;
-    explicit silly_line(std::vector<silly_point> points) : m_points(std::move(points))
+    suLine() = default;
+    explicit suLine(std::vector<suPoint> points) : m_points(std::move(points))
     {
     }
 
     // 代理vector的常用接口
-    void push_back(const silly_point& p)
+    void push_back(const suPoint& p)
     {
         m_points.push_back(p);
     }
-    void push_back(silly_point&& p)
+    void push_back(suPoint&& p)
     {
         m_points.push_back(std::move(p));
     }
@@ -48,27 +48,27 @@ class silly_line
     }
 
     // 元素访问（引用传递，避免拷贝）
-    silly_point& operator[](size_t pos)
+    suPoint& operator[](size_t pos)
     {
         return m_points[pos];
     }
-    const silly_point& operator[](size_t pos) const
+    const suPoint& operator[](size_t pos) const
     {
         return m_points[pos];
     }
-    silly_point& front()
+    suPoint& front()
     {
         return m_points.front();
     }
-    const silly_point& front() const
+    const suPoint& front() const
     {
         return m_points.front();
     }
-    silly_point& back()
+    suPoint& back()
     {
         return m_points.back();
     }
-    const silly_point& back() const
+    const suPoint& back() const
     {
         return m_points.back();
     }
@@ -114,36 +114,37 @@ class silly_line
      * @param dist
      * @return
      */
-    silly_line equidistant(const double& dist) const;
+    suLine equidistant(const double& dist) const;
 
     double distance() const;
 
   protected:
-    std::vector<silly_point> m_points;
+    std::vector<suPoint> m_points;
 };
 
+using silly_line = suLine;
 /****************************************/
 /// 带高程的线段
 /****************************************/
-class silly_lineZ
+class suLineZ
 {
   public:
     // 类型别名（兼容STL迭代器）
-    using iterator = typename std::vector<silly_pointZ>::iterator;
-    using const_iterator = typename std::vector<silly_pointZ>::const_iterator;
-    using value_type = silly_pointZ;  // 兼容STL容器类型定义
+    using iterator = typename std::vector<suPointZ>::iterator;
+    using const_iterator = typename std::vector<suPointZ>::const_iterator;
+    using value_type = suPointZ;  // 兼容STL容器类型定义
     // 构造函数
-    silly_lineZ() = default;
-    explicit silly_lineZ(std::vector<silly_pointZ> points) : m_points(std::move(points))
+    suLineZ() = default;
+    explicit suLineZ(std::vector<suPointZ> points) : m_points(std::move(points))
     {
     }
 
     // 代理vector的常用接口
-    void push_back(const silly_pointZ& p)
+    void push_back(const suPointZ& p)
     {
         m_points.push_back(p);
     }
-    void push_back(silly_pointZ&& p)
+    void push_back(suPointZ&& p)
     {
         m_points.push_back(std::move(p));
     }
@@ -161,27 +162,27 @@ class silly_lineZ
     }
 
     // 元素访问（引用传递，避免拷贝）
-    silly_pointZ& operator[](size_t pos)
+    suPointZ& operator[](size_t pos)
     {
         return m_points[pos];
     }
-    const silly_pointZ& operator[](size_t pos) const
+    const suPointZ& operator[](size_t pos) const
     {
         return m_points[pos];
     }
-    silly_pointZ& front()
+    suPointZ& front()
     {
         return m_points.front();
     }
-    const silly_pointZ& front() const
+    const suPointZ& front() const
     {
         return m_points.front();
     }
-    silly_pointZ& back()
+    suPointZ& back()
     {
         return m_points.back();
     }
-    const silly_pointZ& back() const
+    const suPointZ& back() const
     {
         return m_points.back();
     }
@@ -228,30 +229,30 @@ class silly_lineZ
     }
 
   public:
-    std::vector<silly_pointZ> m_points;
+    std::vector<suPointZ> m_points;
 };
 
 /****************************************/
 /// 多线
 /****************************************/
-class silly_multi_line
+class suMultiLine
 {
   public:
     // 类型别名（兼容STL迭代器）
-    using iterator = typename std::vector<silly_line>::iterator;
-    using const_iterator = typename std::vector<silly_line>::const_iterator;
-    using value_type = silly_line;  // 兼容STL容器类型定义
-    silly_multi_line() = default;
-    explicit silly_multi_line(std::vector<silly_line> lines) : m_lines(std::move(lines))
+    using iterator = typename std::vector<suLine>::iterator;
+    using const_iterator = typename std::vector<suLine>::const_iterator;
+    using value_type = suLine;  // 兼容STL容器类型定义
+    suMultiLine() = default;
+    explicit suMultiLine(std::vector<suLine> lines) : m_lines(std::move(lines))
     {
     }
 
     // 代理vector的常用接口
-    void push_back(const silly_line& p)
+    void push_back(const suLine& p)
     {
         m_lines.push_back(p);
     }
-    void push_back(silly_line&& p)
+    void push_back(suLine&& p)
     {
         m_lines.push_back(std::move(p));
     }
@@ -269,27 +270,27 @@ class silly_multi_line
     }
 
     // 元素访问（引用传递，避免拷贝）
-    silly_line& operator[](size_t pos)
+    suLine& operator[](size_t pos)
     {
         return m_lines[pos];
     }
-    const silly_line& operator[](size_t pos) const
+    const suLine& operator[](size_t pos) const
     {
         return m_lines[pos];
     }
-    silly_line& front()
+    suLine& front()
     {
         return m_lines.front();
     }
-    const silly_line& front() const
+    const suLine& front() const
     {
         return m_lines.front();
     }
-    silly_line& back()
+    suLine& back()
     {
         return m_lines.back();
     }
-    const silly_line& back() const
+    const suLine& back() const
     {
         return m_lines.back();
     }
@@ -331,7 +332,7 @@ class silly_multi_line
     }
 
   protected:
-    std::vector<silly_line> m_lines;
+    std::vector<suLine> m_lines;
 };
-
+using silly_multi_line = suLine;
 #endif  // SILLY_LINE_H

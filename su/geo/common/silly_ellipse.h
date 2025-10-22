@@ -4,20 +4,20 @@
  * @website: http://www.tianzhixiang.com.cn/
  * @author: dou li yang
  * @date: 2025-08-08
- * @file: silly_ellipse.cpp
- * @description: silly_ellipse 头文件
+ * @file: suEllipse.cpp
+ * @description: suEllipse 头文件
  * @version: v1.0.1 2025-08-08 dou li yang
  */
 #ifndef SILLY_ELLIPSE_H
 #define SILLY_ELLIPSE_H
 #include <geo/common/silly_point.h>
 
-class silly_ellipse
+class suEllipse
 {
   public:
-    silly_ellipse() = default;
-    ~silly_ellipse() = default;
-    silly_ellipse(silly_point p, double x, double y) : center(p), rx(x), ry(y)
+    suEllipse() = default;
+    ~suEllipse() = default;
+    suEllipse(suPoint p, double x, double y) : center(p), rx(x), ry(y)
     {
     }
 
@@ -39,7 +39,7 @@ class silly_ellipse
     }
 
   public:
-    silly_point center;  // 中心点
+    suPoint center;  // 中心点
     // 长半轴 和 短半轴, 不分
     double rx = 0.0;
     double ry = 0.0;

@@ -93,7 +93,7 @@ void info::project(const std::string& proj)
 {
     memcpy(m_projection, proj.c_str(), len::INFO_PROJ);
 }
-void info::bound(const silly_rect& bd)
+void info::bound(const suRect& bd)
 {
     return bound(bd.stringify());
 }
@@ -135,9 +135,9 @@ std::string info::project()
 {
     return m_projection;
 }
-silly_rect info::bound()
+suRect info::bound()
 {
-    silly_rect rect;
+    suRect rect;
     rect.destringify(m_bound);
     return rect;
 }

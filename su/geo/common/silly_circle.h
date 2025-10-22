@@ -4,19 +4,19 @@
  * @website: http://www.tianzhixiang.com.cn/
  * @author: dou li yang
  * @date: 2025-08-08
- * @file: silly_circle.cpp
- * @description: silly_circle 头文件
+ * @file: suCircle.cpp
+ * @description: suCircle 头文件
  * @version: v1.0.1 2025-08-08 dou li yang
  */
 #ifndef SILLY_CIRCLE_H
 #define SILLY_CIRCLE_H
 #include <geo/common/silly_point.h>
-class silly_circle
+class suCircle
 {
   public:
-    silly_circle() = default;
-    ~silly_circle() = default;
-    silly_circle(const silly_point& cp, const double& r) : center(cp), radius(r)
+    suCircle() = default;
+    ~suCircle() = default;
+    suCircle(const suPoint& cp, const double& r) : center(cp), radius(r)
     {
     }
 
@@ -26,7 +26,7 @@ class silly_circle
     }
 
   public:
-    silly_point center;
+    suPoint center;
     double radius = 0.0;
 };
 

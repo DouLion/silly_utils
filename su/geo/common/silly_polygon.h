@@ -11,44 +11,46 @@
 #ifndef SILLY_POLYGON_H
 #define SILLY_POLYGON_H
 #include <geo/common/silly_point.h>
-class silly_ring
+class suRing
 {
   public:
-    std::vector<silly_point> points;
+    std::vector<suPoint> points;
     int is_outer{1};
 };
+
+using silly_ring = suRing;
 
 /****************************************/
 /// 面
 /****************************************/
-class silly_poly
+class suPoly
 {
   public:
-    silly_ring outer;               // 外环
-    std::vector<silly_ring> holes;  // 内环, 孔, 洞
+    suRing outer;               // 外环
+    std::vector<suRing> holes;  // 内环, 孔, 洞
 };
-
+using silly_poly = suPoly;
 /****************************************/
 /// 多面
 /****************************************/
-class silly_multi_poly
+class suMultiPoly
 {
   public:
-    silly_multi_poly() = default;
+    suMultiPoly() = default;
     // 类型别名（兼容STL迭代器）
-    using iterator = typename std::vector<silly_poly>::iterator;
-    using const_iterator = typename std::vector<silly_poly>::const_iterator;
-    using value_type = silly_poly;  // 兼容STL容器类型定义
-    explicit silly_multi_poly(std::vector<silly_poly> lines) : m_polys(std::move(lines))
+    using iterator = typename std::vector<suPoly>::iterator;
+    using const_iterator = typename std::vector<suPoly>::const_iterator;
+    using value_type = suPoly;  // 兼容STL容器类型定义
+    explicit suMultiPoly(std::vector<suPoly> lines) : m_polys(std::move(lines))
     {
     }
 
     // 代理vector的常用接口
-    void push_back(const silly_poly& p)
+    void push_back(const suPoly& p)
     {
         m_polys.push_back(p);
     }
-    void push_back(silly_poly&& p)
+    void push_back(suPoly&& p)
     {
         m_polys.push_back(std::move(p));
     }
@@ -66,27 +68,27 @@ class silly_multi_poly
     }
 
     // 元素访问（引用传递，避免拷贝）
-    silly_poly& operator[](size_t pos)
+    suPoly& operator[](size_t pos)
     {
         return m_polys[pos];
     }
-    const silly_poly& operator[](size_t pos) const
+    const suPoly& operator[](size_t pos) const
     {
         return m_polys[pos];
     }
-    silly_poly& front()
+    suPoly& front()
     {
         return m_polys.front();
     }
-    const silly_poly& front() const
+    const suPoly& front() const
     {
         return m_polys.front();
     }
-    silly_poly& back()
+    suPoly& back()
     {
         return m_polys.back();
     }
-    const silly_poly& back() const
+    const suPoly& back() const
     {
         return m_polys.back();
     }
@@ -132,7 +134,7 @@ class silly_multi_poly
     }
 
   protected:
-    std::vector<silly_poly> m_polys;
+    std::vector<suPoly> m_polys;
 };
-
+using silly_multi_poly = suMultiPoly;
 #endif  // SILLY_POLYGON_H

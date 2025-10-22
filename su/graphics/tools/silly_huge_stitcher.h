@@ -87,7 +87,7 @@ class silly_huge_stitcher
 #endif  // SILLY_UTILS_SILLY_HUGE_STITCHER_H
 
 /* 用法示例1: 根据经纬范围,切割tile,拼接完整图像
- silly::geo::utils::init_gdal_env();
+ suGeoUtils::init_gdal_env();
 std::string file = R"(Z:\DATA\Dats\MapRoot\public\union_bitmap_pyramid\basemap\00_P)";
 std::string png = R"(Z:\stitcher2.png)";
 silly::pyramid::handle hdl;
@@ -96,7 +96,7 @@ hdl.begin_read(file);
 // 28.9825,116.7450
 // 109.736122881,125.512817797,21.825408231,33.637908231 [EPSG:4326]
 uint8_t layer = 8;
-silly_rect rect;
+suRect rect;
 rect.min.x = 109.736122881;
 rect.max.x = 125.512817797;
 rect.min.y = 21.825408231;
@@ -174,7 +174,7 @@ hdl.close();
 
 /* 用法示例2,根据经纬范围,保留完整tile,拼接为大图像
 
-silly::geo::utils::init_gdal_env();
+suGeoUtils::init_gdal_env();
 std::string file = R"(Z:\DATA\Dats\MapRoot\public\union_bitmap_pyramid\basemap\00_P)";
 std::string png = R"(Z:\stitcher.png)";
 silly::pyramid::handle hdl;
@@ -182,7 +182,7 @@ hdl.begin_read(file);
 // 29.9433,115.5065
 // 28.9825,116.7450
 uint8_t layer = 8;
-silly_rect rect;
+suRect rect;
 rect.min.x = 109.736122881;
 rect.max.x = 125.512817797;
 rect.min.y = 21.825408231;

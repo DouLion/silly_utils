@@ -41,21 +41,21 @@ class suDem
      * 将环外的点置为fill
      * @param ring
      */
-    void Extra(const silly_ring& ring);
+    void Extra(const suRing& ring);
 
     /**
      *  提取环内的点
      * @param rh
      * @param ring
      */
-    void Extra(const suDem& rh, const silly_ring& ring);
+    void Extra(const suDem& rh, const suRing& ring);
 
     /**
      * 提取剖面高程
      * @param line
      * @return
      */
-    std::vector<std::pair<double, double>> ProfileElev(const silly_line& line)  const;
+    std::vector<std::pair<double, double>> ProfileElev(const suLine& line)  const;
 
     void Release();
 
@@ -67,7 +67,7 @@ class suDem
         double fill = -9999.0;
         size_t width = 0;
         size_t height = 0;
-        silly_rect bound;
+        suRect bound;
         double central = 0; // 有效值 [75, 135] 间隔3, 否则认为高斯坐标系
     }info;
     suDMatrix raster;

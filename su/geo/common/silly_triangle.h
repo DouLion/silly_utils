@@ -4,20 +4,20 @@
  * @website: http://www.tianzhixiang.com.cn/
  * @author: dou li yang
  * @date: 2025-08-08
- * @file: silly_triangle.cpp
- * @description: silly_triangle 头文件
+ * @file: suTriangle.cpp
+ * @description: suTriangle 头文件
  * @version: v1.0.1 2025-08-08 dou li yang
  */
 #ifndef SILLY_TRIANGLE_H
 #define SILLY_TRIANGLE_H
 #include <geo/common/silly_point.h>
 
-class silly_triangle
+class suTriangle
 {
   public:
-    silly_triangle() = default;
-    ~silly_triangle() = default;
-    silly_triangle(silly_point a, silly_point b, silly_point c) : a(a), b(b), c(c)
+    suTriangle() = default;
+    ~suTriangle() = default;
+    suTriangle(suPoint a, suPoint b, suPoint c) : a(a), b(b), c(c)
     {
     }
 
@@ -33,7 +33,7 @@ class silly_triangle
     }
 
     /// 外接圆
-    silly_circle circumscribed_circle() const
+    suCircle circumscribed_circle() const
     {
         // 计算外接圆的中心
         double A = a.x * a.x + a.y * a.y;
@@ -41,7 +41,7 @@ class silly_triangle
         double C = c.x * c.x + c.y * c.y;
         double D = a.x * (b.y - c.y) + b.x * (c.y - a.y) + c.x * (a.y - b.y);
 
-        silly_circle circle;
+        suCircle circle;
         if (D == 0)
         {
             // 如果D为0，则无法计算外接圆
@@ -76,9 +76,9 @@ class silly_triangle
     }
 
   public:
-    silly_point a;
-    silly_point b;
-    silly_point c;
+    suPoint a;
+    suPoint b;
+    suPoint c;
 };
 
 #endif  // SILLY_TRIANGLE_H

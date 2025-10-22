@@ -58,7 +58,7 @@ class x_scan_line
     /// </summary>
     /// <param name="line"></param>
     /// <returns></returns>
-    void rasterize(const silly_point& point);
+    void rasterize(const suPoint& point);
 
     /// <summary>
     /// 光栅化多点
@@ -72,28 +72,28 @@ class x_scan_line
     /// </summary>
     /// <param name="line"></param>
     /// <returns></returns>
-    void rasterize(const silly_line& line);
+    void rasterize(const suLine& line);
 
     /// <summary>
     /// 光栅化多条线
     /// </summary>
     /// <param name="lines">多线</param>
     /// <returns></returns>
-    void rasterize(const silly_multi_line& lines);
+    void rasterize(const suMultiLine& lines);
 
     /// <summary>
     /// 光栅化一个单点矢量
     /// </summary>
     /// <param name="poly"></param>
     /// <returns></returns>
-    void rasterize(const silly_poly& poly);
+    void rasterize(const suPoly& poly);
 
     /// <summary>
     /// 光栅化一个多面矢量
     /// </summary>
     /// <param name="m_polys"></param>
     /// <returns></returns>
-    void rasterize(const silly_multi_poly& m_polys);
+    void rasterize(const suMultiPoly& m_polys);
 
     /// <summary>
     /// 光栅化任意一个矢量
@@ -122,7 +122,7 @@ class x_scan_line
     /// 将光栅化结果转为网格面输出
     /// </summary>
     /// <param name="path"></param>
-    std::vector<silly_poly> grids() const;
+    std::vector<suPoly> grids() const;
 
     /// <summary>
     /// 清空row_pairs
@@ -142,7 +142,7 @@ class x_scan_line
     /// <returns></returns>
     void rasterize(const std::vector<std::vector<_point>> vertices_arr);
 
-    void check_line_point(silly_point point, std::vector<_point>& vct, int& last_x, int& last_y);
+    void check_line_point(suPoint point, std::vector<_point>& vct, int& last_x, int& last_y);
 
     /// <summary>
     /// 添加新的行记录,会在

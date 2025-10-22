@@ -170,7 +170,7 @@ int main(int argc, char** argv)
     return 0;
 
     std::vector<silly_dt_point>  npoints;
-    silly_multi_poly mpolyz;
+    suMultiPoly mpolyz;
     bool status = silly_geo_utils::read_iso_polygon("Z://tmp//hebei_out.txt", mpolyz);
     silly_geo_utils::write_iso_polygon("Z://tmp//hebei_out2.txt", mpolyz);
     silly_cairo scz;
@@ -355,7 +355,7 @@ int main(int argc, char** argv)
     {
         for (int c = 0; c < pd.width; ++c)
         {
-            points.push_back({silly_point(c, pd.height - r - 1), 255.0 - static_cast<double>(pd.data[r][c * 4])});
+            points.push_back({suPoint(c, pd.height - r - 1), 255.0 - static_cast<double>(pd.data[r][c * 4])});
         }
     }
     auto polys1 = vc.vectorize(points, 1);

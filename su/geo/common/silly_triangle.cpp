@@ -4,8 +4,8 @@
  * @website: http://www.tianzhixiang.com.cn/
  * @author: dou li yang
  * @date: 2025-08-08
- * @file: silly_triangle.c
- * @description: silly_triangle实现
+ * @file: suTriangle.c
+ * @description: suTriangle实现
  * @version: v1.0.1 2025-08-08 dou li yang
  */
 #include "silly_triangle.h"

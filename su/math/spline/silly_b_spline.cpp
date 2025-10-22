@@ -15,7 +15,7 @@ double silly_b_spline::N_i_p(int i, int p, double u, const std::vector<double>& 
     return d1 * N_i_p(i, p - 1, u, knots) + d2 * N_i_p(i + 1, p - 1, u, knots);
 }
 
-std::vector<silly_point> silly_b_spline::interpolation(const std::vector<silly_point>& points, int degree, int numPoints)
+std::vector<suPoint> silly_b_spline::interpolation(const std::vector<suPoint>& points, int degree, int numPoints)
 {
     int n = points.size();                      // 控制点数量
     std::vector<double> knots(n + degree + 1);  // 结点向量
@@ -24,7 +24,7 @@ std::vector<silly_point> silly_b_spline::interpolation(const std::vector<silly_p
     for (int i = degree + 1; i < n + degree + 1; ++i)
         knots[i] = 1.0;
 
-    std::vector<silly_point> result(numPoints);
+    std::vector<suPoint> result(numPoints);
 
     // 插值计算
     for (int j = 0; j < numPoints; ++j)

@@ -33,7 +33,7 @@ class meta
 {
   public:
     std::vector<message> m_messages;
-    silly_rect m_rect;
+    suRect m_rect;
     size_t m_rows = 0;
     size_t m_cols = 0;
     double m_xdelta = 0.0;

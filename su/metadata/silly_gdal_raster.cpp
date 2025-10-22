@@ -91,7 +91,7 @@ void silly_gdal_raster::Close()
 
 #endif
 }
-suDMatrix silly_gdal_raster::ROI(const silly_rect& rect) const
+suDMatrix silly_gdal_raster::ROI(const suRect& rect) const
 {
     suDMatrix ret;
 #if SU_THIRD_SUPPORT_GDAL
@@ -110,7 +110,7 @@ suDMatrix silly_gdal_raster::ROI(const silly_rect& rect) const
         return ret;
     }
 
-    silly_rect useR = m_rect.intersection(rect);
+    suRect useR = m_rect.intersection(rect);
 
     // 地理坐标 -> 像素坐标（行列）
     const int startX = std::round((useR.min.x - m_rect.min.x) / dx);
@@ -175,7 +175,7 @@ suDMatrix silly_gdal_raster::ROI(const silly_rect& rect) const
     return ret;
 }
 
-double silly_gdal_raster::Pick(const silly_point& p) const
+double silly_gdal_raster::Pick(const suPoint& p) const
 {
     double ret = NAN;
 #if SU_THIRD_SUPPORT_GDAL
@@ -226,7 +226,7 @@ double silly_gdal_raster::Pick(const silly_point& p) const
     return ret;
 }
 
-silly_rect silly_gdal_raster::Bound() const
+suRect silly_gdal_raster::Bound() const
 {
     return m_rect;
 }

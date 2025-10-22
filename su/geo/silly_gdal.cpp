@@ -31,8 +31,8 @@ const static std::map<eGeoFieldType, OGRFieldType> GEO_FIELD_TYPE_SU2OGR = {
 };
 
 const static std::string DATE_TIME_FMT = "{:04d}-{:02d}-{:02d} {:02d}:{:02d}:{:02d} TZ{}";
-// 将 silly_ring 转换为 OGRPolygon
-OGRLinearRing silly_gdal::silly_ring_to_ogr(const silly_ring& ring)
+// 将 suRing 转换为 OGRPolygon
+OGRLinearRing silly_gdal::silly_ring_to_ogr(const suRing& ring)
 {
     OGRLinearRing result;
     std::vector<double> xs(ring.points.size());
@@ -47,10 +47,10 @@ OGRLinearRing silly_gdal::silly_ring_to_ogr(const silly_ring& ring)
     return result;
 }
 
-// 环OGRLinearRing对象，将其转换为silly_ring对象  (环)
-silly_ring silly_gdal::silly_ring_from_ogr(const OGRLinearRing* ring)
+// 环OGRLinearRing对象，将其转换为suRing对象  (环)
+suRing silly_gdal::silly_ring_from_ogr(const OGRLinearRing* ring)
 {
-    silly_ring result;
+    suRing result;
     int pointCount = ring->getNumPoints();
     for (int i = 0; i < pointCount; i++)
     {
@@ -61,15 +61,15 @@ silly_ring silly_gdal::silly_ring_from_ogr(const OGRLinearRing* ring)
     return result;
 }
 
-// 将 OGRPoint(单点) 转换为 silly_point(单点) 类型
-silly_point silly_gdal::silly_point_from_ogr(const OGRPoint* ogrPoint)
+// 将 OGRPoint(单点) 转换为 suPoint(单点) 类型
+suPoint silly_gdal::silly_point_from_ogr(const OGRPoint* ogrPoint)
 {
-    silly_point result(ogrPoint->getX(), ogrPoint->getY());
+    suPoint result(ogrPoint->getX(), ogrPoint->getY());
     return result;
 }
 
-// 将 silly_point(单点) 转换为 OGRPoint(单点) 类型
-OGRPoint silly_gdal::silly_point_to_ogr(const silly_point& point)
+// 将 suPoint(单点) 转换为 OGRPoint(单点) 类型
+OGRPoint silly_gdal::silly_point_to_ogr(const suPoint& point)
 {
     OGRPoint ogrPoint(point.x, point.y);
     return ogrPoint;
@@ -82,7 +82,7 @@ silly_multi_point silly_gdal::silly_multi_point_from_ogr(const OGRMultiPoint* og
     int pointCount = ogrMultiPoint->getNumGeometries();
     for (int i = 0; i < pointCount; i++)
     {
-        silly_point sillyPoint = silly_point_from_ogr(ogrMultiPoint->getGeometryRef(i));
+        suPoint sillyPoint = silly_point_from_ogr(ogrMultiPoint->getGeometryRef(i));
         multiPoint.push_back(sillyPoint);
     }
     return multiPoint;
@@ -92,7 +92,7 @@ silly_multi_point silly_gdal::silly_multi_point_from_ogr(const OGRMultiPoint* og
 OGRMultiPoint silly_gdal::silly_multi_point_to_ogr(const silly_multi_point& mulitPoint)
 {
     OGRMultiPoint orgMultiPoint;
-    for (const silly_point& point : mulitPoint)
+    for (const suPoint& point : mulitPoint)
     {
         OGRPoint ogrPoint = silly_point_to_ogr(point);
         // orgMultiPoint.addGeometryDirectly(ogrPoint.clone());
@@ -101,10 +101,10 @@ OGRMultiPoint silly_gdal::silly_multi_point_to_ogr(const silly_multi_point& muli
     return orgMultiPoint;
 }
 
-// OGRLineString(线)类型转为silly_line(线)类型
-silly_line silly_gdal::silly_line_from_ogr(const OGRLineString* lineString)
+// OGRLineString(线)类型转为suLine(线)类型
+suLine silly_gdal::silly_line_from_ogr(const OGRLineString* lineString)
 {
-    silly_line line;
+    suLine line;
     int num_points = lineString->getNumPoints();
     for (int j = 0; j < num_points; j++)
     {
@@ -113,8 +113,8 @@ silly_line silly_gdal::silly_line_from_ogr(const OGRLineString* lineString)
     return line;
 }
 
-// 将 silly_line(线) 转换为 OGRLineString(线)类型
-OGRLineString silly_gdal::silly_line_to_ogr(const silly_line& line)
+// 将 suLine(线) 转换为 OGRLineString(线)类型
+OGRLineString silly_gdal::silly_line_to_ogr(const suLine& line)
 {
     OGRLineString ogrLineString;
     std::vector<double> xs(line.size());
@@ -129,16 +129,16 @@ OGRLineString silly_gdal::silly_line_to_ogr(const silly_line& line)
 }
 
 // OGRMultiLineString(多线)类型转为 silly_multiline(多线)类型
-silly_multi_line silly_gdal::silly_multi_line_from_ogr(const OGRMultiLineString* multiLineString)
+suMultiLine silly_gdal::silly_multi_line_from_ogr(const OGRMultiLineString* multiLineString)
 {
-    silly_multi_line multiLine;
+    suMultiLine multiLine;
     int numLines = multiLineString->getNumGeometries();
     for (int i = 0; i < numLines; i++)
     {
         auto lineString = (OGRLineString*)multiLineString->getGeometryRef(i);
         if (lineString != nullptr)
         {
-            silly_line line = silly_line_from_ogr(lineString);
+            suLine line = silly_line_from_ogr(lineString);
             multiLine.push_back(line);
         }
     }
@@ -146,11 +146,11 @@ silly_multi_line silly_gdal::silly_multi_line_from_ogr(const OGRMultiLineString*
 }
 
 // 将 silly_multiline(多线) 转换为 OGRMultiLineString(多线)类型
-OGRMultiLineString silly_gdal::silly_multi_line_to_ogr(const silly_multi_line& multiLine)
+OGRMultiLineString silly_gdal::silly_multi_line_to_ogr(const suMultiLine& multiLine)
 {
     OGRMultiLineString ogrMultiLineString;
 
-    for (const silly_line& line : multiLine)
+    for (const suLine& line : multiLine)
     {
         OGRLineString ogrLineString = silly_line_to_ogr(line);
         ogrMultiLineString.addGeometry(&ogrLineString);
@@ -159,10 +159,10 @@ OGRMultiLineString silly_gdal::silly_multi_line_to_ogr(const silly_multi_line& m
     return ogrMultiLineString;
 }
 
-// OGRPolygon对象转换为silly_poly(多环:外环+内环)对象  (单面)
-silly_poly silly_gdal::silly_poly_from_ogr(const OGRPolygon* polygon)
+// OGRPolygon对象转换为suPoly(多环:外环+内环)对象  (单面)
+suPoly silly_gdal::silly_poly_from_ogr(const OGRPolygon* polygon)
 {
-    silly_poly poly;
+    suPoly poly;
     // 处理OGRPolygon外环
     auto outerRing = (OGRLinearRing*)polygon->getExteriorRing();
     poly.outer = silly_ring_from_ogr(outerRing);
@@ -171,14 +171,14 @@ silly_poly silly_gdal::silly_poly_from_ogr(const OGRPolygon* polygon)
     for (int k = 0; k < innerRingCount; k++)
     {
         auto ring = (OGRLinearRing*)polygon->getInteriorRing(k);
-        silly_ring innerRing = silly_ring_from_ogr(ring);
+        suRing innerRing = silly_ring_from_ogr(ring);
         poly.holes.push_back(innerRing);
     }
     return poly;
 }
 
-// 将 silly_poly 转换为 OGRPolygon(单面)
-OGRPolygon silly_gdal::silly_poly_to_ogr(const silly_poly& poly)
+// 将 suPoly 转换为 OGRPolygon(单面)
+OGRPolygon silly_gdal::silly_poly_to_ogr(const suPoly& poly)
 {
     OGRPolygon org;
     // 设置外环
@@ -186,7 +186,7 @@ OGRPolygon silly_gdal::silly_poly_to_ogr(const silly_poly& poly)
     // double a = outerRing.get_Area();
     org.addRing(&outerRing);
     // 设置内环
-    for (const silly_ring& innerRing : poly.holes)
+    for (const suRing& innerRing : poly.holes)
     {
         OGRLinearRing innerOGRRing = silly_ring_to_ogr(innerRing);
         org.addRing(&innerOGRRing);
@@ -195,14 +195,14 @@ OGRPolygon silly_gdal::silly_poly_to_ogr(const silly_poly& poly)
     return org;
 }
 
-// 多面的OGRMultiPolygon对象转换为silly_multi_poly(多面)
-silly_multi_poly silly_gdal::silly_multi_poly_from_ogr(const OGRMultiPolygon* multiPolygon)
+// 多面的OGRMultiPolygon对象转换为suMultiPoly(多面)
+suMultiPoly silly_gdal::silly_multi_poly_from_ogr(const OGRMultiPolygon* multiPolygon)
 {
-    silly_multi_poly multi_poly;
+    suMultiPoly multi_poly;
     int polygonCount = multiPolygon->getNumGeometries();
     for (int i = 0; i < polygonCount; i++)
     {
-        silly_poly tmp_poly;
+        suPoly tmp_poly;
         auto polygon = (OGRPolygon*)multiPolygon->getGeometryRef(i);
         tmp_poly = silly_poly_from_ogr(polygon);
         multi_poly.push_back(tmp_poly);
@@ -210,11 +210,11 @@ silly_multi_poly silly_gdal::silly_multi_poly_from_ogr(const OGRMultiPolygon* mu
     return multi_poly;
 }
 
-// 将silly_multi_poly对象转换为OGRMultiPolygon对象(多面)
-OGRMultiPolygon silly_gdal::silly_multi_poly_to_ogr(const silly_multi_poly& multiPoly)
+// 将suMultiPoly对象转换为OGRMultiPolygon对象(多面)
+OGRMultiPolygon silly_gdal::silly_multi_poly_to_ogr(const suMultiPoly& multiPoly)
 {
     OGRMultiPolygon ogrMultiPolygon;
-    for (const silly_poly& poly : multiPoly)
+    for (const suPoly& poly : multiPoly)
     {
         OGRPolygon ogrPolygon = silly_poly_to_ogr(poly);
         ogrMultiPolygon.addGeometry(&ogrPolygon);

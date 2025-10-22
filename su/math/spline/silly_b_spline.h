@@ -26,9 +26,9 @@ class silly_b_spline
     }
 
     // 二次 B 样条插值
-    silly_point quadratic_b_Spline(double t, const std::vector<silly_point>& controlPoints, const std::vector<double>& knots)
+    suPoint quadratic_b_Spline(double t, const std::vector<suPoint>& controlPoints, const std::vector<double>& knots)
     {
-        silly_point result = {0.0, 0.0};
+        suPoint result = {0.0, 0.0};
         for (size_t i = 0; i < controlPoints.size(); ++i)
         {
             double b = b2(i, t, knots);

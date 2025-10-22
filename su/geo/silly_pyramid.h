@@ -79,7 +79,7 @@ class silly_tile
     /// <param name="layer"></param>
     /// <param name="geo"></param>
     /// <returns></returns>
-    static tile_index geo2tile(const uint8_t& layer, const silly_point& geo, const uint64_t& tilesize = 256);
+    static tile_index geo2tile(const uint8_t& layer, const suPoint& geo, const uint64_t& tilesize = 256);
 
     /// <summary>
     /// 瓦片所在的经纬度范围
@@ -87,7 +87,7 @@ class silly_tile
     /// <param name="layer"></param>
     /// <param name="geo"></param>
     /// <returns></returns>
-    static silly_rect tile2geo(const tile_index& index, const uint64_t& tilesize = 256);
+    static suRect tile2geo(const tile_index& index, const uint64_t& tilesize = 256);
 
     /// <summary>
     /// 经纬度对应的屏幕位置
@@ -96,7 +96,7 @@ class silly_tile
     /// <param name="geo"></param>
     /// <param name="tilesize">瓦片宽高均为 tilesize</param>
     /// <returns></returns>
-    static screen_point geo2screen(const uint8_t& layer, const silly_point& geo, const uint64_t& tilesize = 256);
+    static screen_point geo2screen(const uint8_t& layer, const suPoint& geo, const uint64_t& tilesize = 256);
 
     /// <summary>
     /// 经纬度对应的屏幕位置
@@ -105,7 +105,7 @@ class silly_tile
     /// <param name="geo"></param>
     /// <param name="tilesize">瓦片宽高均为 tilesize</param>
     /// <returns></returns>
-    static screen_rect geo2screen(const uint8_t& layer, const silly_rect& rect, const uint64_t& tilesize = 256);
+    static screen_rect geo2screen(const uint8_t& layer, const suRect& rect, const uint64_t& tilesize = 256);
 
     /// <summary>
     /// 屏幕位置对应的经纬度
@@ -114,7 +114,7 @@ class silly_tile
     /// <param name="geo"></param>
     /// <param name="tilesize">瓦片宽高均为 tilesize</param>
     /// <returns></returns>
-    static silly_point screen2geo(const uint8_t& layer, const screen_point& point, const uint64_t& tilesize = 256);
+    static suPoint screen2geo(const uint8_t& layer, const screen_point& point, const uint64_t& tilesize = 256);
 
     /// <summary>
     /// 屏幕位置对应的瓦片
@@ -141,7 +141,7 @@ class silly_tile
     /// <param name="geometry"></param>
     /// <param name="extent"></param>
     /// <returns></returns>
-    static silly_point mvt2geo(const tile_index& index, const mvt_geometry geometry, const uint64_t& extent = 4096);
+    static suPoint mvt2geo(const tile_index& index, const mvt_geometry geometry, const uint64_t& extent = 4096);
 };
 
 #endif  // SILLY_UTILS_SILLY_PYRAMID_H

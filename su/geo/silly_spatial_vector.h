@@ -37,9 +37,9 @@ class silly_spatial_vector
     /// <param name="p3"></param>
     /// <param name="distance"></param>
     /// <returns></returns>
-    static silly_point left_distance(const silly_point& p1, const silly_point& p2, const silly_point& p3, const double& distance);
+    static suPoint left_distance(const suPoint& p1, const suPoint& p2, const suPoint& p3, const double& distance);
 
-    static silly_point right_distance(const silly_point& p1, const silly_point& p2, const silly_point& p3, const double& distance);
+    static suPoint right_distance(const suPoint& p1, const suPoint& p2, const suPoint& p3, const double& distance);
 
     /// <summary>
     /// 点p在向量from1->to的 左侧或者右侧, 或者其所在延长线上
@@ -48,24 +48,24 @@ class silly_spatial_vector
     /// <param name="to"></param>
     /// <param name="p"></param>
     /// <returns></returns>
-    static eSpatialSide side_ot_vec(const silly_point& from, const silly_point& to, const silly_point& p);
+    static eSpatialSide side_ot_vec(const suPoint& from, const suPoint& to, const suPoint& p);
 
     // 计算两点之间的向量
-    static silly_point vectorSub(const silly_point& a, const silly_point& b);
+    static suPoint vectorSub(const suPoint& a, const suPoint& b);
 
     // 向量加法
-    static silly_point vectorAdd(const silly_point& a, const silly_point& b);
+    static suPoint vectorAdd(const suPoint& a, const suPoint& b);
     // 向量数乘
-    static silly_point vectorScale(const silly_point& v, const double& s);
+    static suPoint vectorScale(const suPoint& v, const double& s);
 
     // 向量单位化
-    static silly_point normalize(const silly_point& v);
+    static suPoint normalize(const suPoint& v);
 
     // 顺时针旋转90度(用于获取右侧法向量)
-    static silly_point rotateRIGHT90(const silly_point& v);
+    static suPoint rotateRIGHT90(const suPoint& v);
 
     // 逆时针旋转90度(用于获取左侧法向量)
-    static silly_point rotateLEFT90(const silly_point& v);
+    static suPoint rotateLEFT90(const suPoint& v);
 
     /// <summary>
     /// 角平分线左侧点
@@ -75,7 +75,7 @@ class silly_spatial_vector
     /// <param name="p3"></param>
     /// <param name="distance"></param>
     /// <returns></returns>
-    static silly_point angle_bisector_left(const silly_point& p1, const silly_point& p2, const silly_point& p3, const double& distance);
+    static suPoint angle_bisector_left(const suPoint& p1, const suPoint& p2, const suPoint& p3, const double& distance);
 
     /// <summary>
     /// 角平分线右侧点
@@ -85,7 +85,7 @@ class silly_spatial_vector
     /// <param name="p3"></param>
     /// <param name="distance"></param>
     /// <returns></returns>
-    static silly_point angle_bisector_right(const silly_point& p1, const silly_point& p2, const silly_point& p3, const double& distance);
+    static suPoint angle_bisector_right(const suPoint& p1, const suPoint& p2, const suPoint& p3, const double& distance);
 };
 
 #endif  // SILLY_UTILS_SILLY_SPATIAL_VECTOR_H

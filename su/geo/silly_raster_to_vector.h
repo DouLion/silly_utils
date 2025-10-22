@@ -16,15 +16,15 @@
 /// 线段
 struct trace_line_segment
 {
-    silly_point f;  // from point
-    silly_point t;  // to point
+    suPoint f;  // from point
+    suPoint t;  // to point
     int traced{0};
 };
 
 struct silly_trace_node
 {
     double val{0};
-    silly_point p;
+    suPoint p;
     int traced{0};  // 是否被跟踪过
     int cv{0};      // 类型
     int tc{1};      // trace count 被追踪次数, 最多2次
@@ -34,7 +34,7 @@ struct silly_trace_node
 
 struct trace_square_point
 {
-    silly_point p;
+    suPoint p;
     double v;
 };
 
@@ -42,7 +42,7 @@ struct trace_grid_info
 {
     double xdelta{0.05};
     double ydelta{0.05};
-    silly_rect rect{74.0, 54., 135., 18.};
+    suRect rect{74.0, 54., 135., 18.};
 };
 
 struct trace_algo_info
@@ -68,7 +68,7 @@ class silly_vectorizer
     /// <param name="points"></param>
     /// <param name="t">过滤阈值</param>
     /// <returns></returns>
-    std::vector<silly_poly> vectorize(const std::vector<trace_square_point>& points, const double& t);
+    std::vector<suPoly> vectorize(const std::vector<trace_square_point>& points, const double& t);
 
     /// <summary>
     /// 设置网格点信息
@@ -96,17 +96,17 @@ class silly_vectorizer
     // useless
     void set(const std::vector<trace_square_point>& points, const double& low, const double& high);
 
-    std::vector<silly_poly> smooth_poly(const std::vector<silly_poly>& polys);
-    std::vector<silly_poly> simplify_poly_less_angle(const std::vector<silly_poly>& polys, const double& angle);
-    std::vector<silly_poly> simplify_poly_same_slope(const std::vector<silly_poly>& polys);
-    std::vector<silly_poly> simplify_poly_mid_point(const std::vector<silly_poly>& polys);
+    std::vector<suPoly> smooth_poly(const std::vector<suPoly>& polys);
+    std::vector<suPoly> simplify_poly_less_angle(const std::vector<suPoly>& polys, const double& angle);
+    std::vector<suPoly> simplify_poly_same_slope(const std::vector<suPoly>& polys);
+    std::vector<suPoly> simplify_poly_mid_point(const std::vector<suPoly>& polys);
 
     /// <summary>
     /// 消除斜率相同的连续点, 以简化环
     /// </summary>
     /// <param name="ring"></param>
     /// <returns></returns>
-    silly_ring simplify_ring_same_slope(const silly_ring& ring);
+    suRing simplify_ring_same_slope(const suRing& ring);
 
     /// <summary>
     /// 跟具连续两个线段的夹角差小于一定一定角度,简化环
@@ -114,7 +114,7 @@ class silly_vectorizer
     /// <param name="ring"></param>
     /// <param name="angle"></param>
     /// <returns></returns>
-    silly_ring simplify_ring_less_angle(const silly_ring& ring, double angle);
+    suRing simplify_ring_less_angle(const suRing& ring, double angle);
 
     /// <summary>
     /// 根据具两个连续点与参照点的夹角差小于一定一定角度,简化环
@@ -122,8 +122,8 @@ class silly_vectorizer
     /// <param name="ring"></param>
     /// <param name="angle"></param>
     /// <returns></returns>
-    silly_ring simplify_ring_less_angle_1(const silly_ring& ring, double angle);
-    silly_ring smooth_ring(const silly_ring& ring);
+    suRing simplify_ring_less_angle_1(const suRing& ring, double angle);
+    suRing smooth_ring(const suRing& ring);
 
     /// <summary>
     /// 道格拉斯曲线抽稀
@@ -131,7 +131,7 @@ class silly_vectorizer
     /// <param name="ring"></param>
     /// <param name="dist">距离容差, 不确定具体含义,但是调整可以获得更好的效果</param>
     /// <returns></returns>
-    silly_ring simplify_ring_douglas(const silly_ring& ring, double dist);
+    suRing simplify_ring_douglas(const suRing& ring, double dist);
 
     /// <summary>
     /// 标记所有大于threshold的点,为提取边界做准备
@@ -148,16 +148,16 @@ class silly_vectorizer
 
     // 坐标插值
 
-    void interpolation(const silly_trace_node& pv1, const silly_trace_node& pv2, silly_point& point);
+    void interpolation(const silly_trace_node& pv1, const silly_trace_node& pv2, suPoint& point);
 
-    void trace_one_line(int r0l, int c0l, silly_ring& ring);
+    void trace_one_line(int r0l, int c0l, suRing& ring);
 
-    bool recurse_trace_line(int r, int c, silly_ring& ring);
+    bool recurse_trace_line(int r, int c, suRing& ring);
 
-    static bool point_in_ring(const silly_point& point, const silly_ring& ring, const double& maxx = 1.e8);
+    static bool point_in_ring(const suPoint& point, const suRing& ring, const double& maxx = 1.e8);
 
-    std::vector<std::vector<silly_point>> trace_all_lines();
-    std::vector<silly_poly> trace_all_polys();
+    std::vector<std::vector<suPoint>> trace_all_lines();
+    std::vector<suPoly> trace_all_polys();
 
     size_t width() const;
     size_t height() const;

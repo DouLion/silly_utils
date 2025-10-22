@@ -147,13 +147,13 @@ uint8_t handle::end_layer() const
     }
     return 0;
 }
-silly_rect handle::bound() const
+suRect handle::bound() const
 {
     if (m_info)
     {
         return m_info->bound();
     }
-    return silly_rect();
+    return suRect();
 }
 void handle::beg_layer(const uint8_t& beg) noexcept
 {
@@ -192,7 +192,7 @@ void handle::version(const char ver[4])
     }
 }
 
-void handle::bound(const silly_rect& rect)
+void handle::bound(const suRect& rect)
 {
     if (!m_index || !m_info)
         return;
