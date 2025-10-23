@@ -20,24 +20,24 @@ class suAsciiGrid : public suDem
 
     bool read(const std::filesystem::path& file, const bool& onlyhead = false);
 
-    bool write(const std::filesystem::path& file);
+    bool write(const std::filesystem::path& file) const;
 
-    std::string stringify_ll(const int& precision = 3);
+    std::string stringify_ll(const int& precision = 3) const;
 
   private:
     bool read_asc(const std::filesystem::path& file, const bool& onlyhead = false);
     bool read_bin(const std::filesystem::path& file);
-
-    bool write_asc(const std::filesystem::path& file);
-    bool write_bin(const std::filesystem::path& file);
-
     bool read_prj(const std::filesystem::path& file);
-    bool write_prj(const std::filesystem::path& file);
+
+    bool write_asc(const std::filesystem::path& file) const;
+    bool write_bin(const std::filesystem::path& file) const;
+    bool write_prj(const std::filesystem::path& file) const;
 
   private:
     std::string m_root;
     std::string m_name;
     std::string m_type;
+    std::string m_err;
 };
 
 #endif  // SILLY_UTILS_SILLY_ASCII_GRID_H

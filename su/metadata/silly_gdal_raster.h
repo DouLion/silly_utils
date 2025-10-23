@@ -5,7 +5,13 @@
  * @author: dou li yang
  * @date: 2025-08-14
  * @file: silly_gdal_raster.cpp
- * @description: silly_gdal_raster 头文件
+ * @description: 1. 主要使用此类加载高程数据;
+ *               2. 其他类型数据需要扩展,使其支持多波段数据的读取;
+ *               3. 始终需要明确点表示的是网格的中心位置还是其他,
+ *                  这个会涉及到矩阵返回的确定,尽管偏差会很小,现
+ *                  在默认所有的高程数据中,每个网格都用其中心点表
+ *                  示其坐标位置
+ *
  * @version: v1.0.1 2025-08-14 dou li yang
  */
 #ifndef SILLY_GDAL_RASTER_H
@@ -15,11 +21,11 @@
 #include <gdal.h>
 #include <gdal_priv.h>
 
-class silly_gdal_raster
+class suGdalRaster
 {
   public:
-    silly_gdal_raster() = default;
-    ~silly_gdal_raster()
+    suGdalRaster() = default;
+    ~suGdalRaster()
     {
         Close();
     }
@@ -27,14 +33,29 @@ class silly_gdal_raster
     void Close();
 
     suRect Bound() const;
-    double XDelta() const;
-    double YDelta() const;
+    double DX() const;
+    double DY() const;
     int Width() const;
     int Height() const;
 
-    suDMatrix ROI(const suRect& rect) const;
+    /**
+     * 根据给定的矩形范围提取出目标区域
+     * 并且返回与原始dx,dy保持一致的矩形框
+     * 以减少后续计算中的偏差
+     * @param bound 给定的矩形范围
+     * @param fixed 与返回的高程矩阵完全一致的矩形范围, 仅包含相交区域
+     * @return
+     */
+    suDMatrix ROI(const suRect& bound, suRect& fixed) const;
 
-    double Pick(const suPoint& p) const;
+    /**
+     * 获取指定点的高程
+     * @param p 点位置
+     * @return
+     */
+    double Get(const suPoint& p) const;
+    double GetBiLinear(const suPoint& p) const;
+    double GetBiCubic(const suPoint& p) const;
 
   protected:
     double m_x0 = 0;
@@ -43,15 +64,15 @@ class silly_gdal_raster
     int m_width = 0;
     int m_height = 0;
     suRect m_rect;
-    double m_xdelta = 0;
-    double m_ydelta = 0;
-    bool UP2DOWN = true;
+    double m_dx = 0;
+    double m_dy = 0;
+    bool m_UP2DOWN = true;
 #if SU_THIRD_SUPPORT_GDAL
     GDALDataset* m_pPoDataset = nullptr;
     GDALRasterBand* m_pPoBand0 = nullptr;
 
     GDALDataType m_DataType = GDT_Unknown;
- 
+
 #endif
 };
 

@@ -142,21 +142,17 @@ void suDem::Cover(const suDem& rh)
 }
 void suDem::Extra(const suRing& ring)
 {
-    double* ptr = raster.data();
-    if (!ptr)
-    {
-        return;
-    }
+  
     for (int r = 0; r < info.height; ++ r)
     {
         for (int c = 0; c < info.width; ++ c)
         {
             suPoint p;
             p.x = info.bound.min.x + c * info.dx;
-            p.y = info.bound.min.y + r * info.dy;
+            p.y = info.bound.max.y - r * info.dy;
             if (!sugeoutils::intersect(p, ring.points)) // 点在环外
             {
-                *ptr = info.fill;
+                raster[r][c] = info.fill;
             }
         }
     }

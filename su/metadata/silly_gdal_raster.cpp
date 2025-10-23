@@ -9,7 +9,7 @@
  * @version: v1.0.1 2025-08-14 dou li yang
  */
 #include "silly_gdal_raster.h"
-bool silly_gdal_raster::Open(const std::filesystem::path& file)
+bool suGdalRaster::Open(const std::filesystem::path& file)
 {
 #if SU_THIRD_SUPPORT_GDAL
     // CPLSetConfigOption("GDAL_CACHEMAX", "512");  // 设置 GDAL 缓存为 512MB
@@ -29,6 +29,7 @@ bool silly_gdal_raster::Open(const std::filesystem::path& file)
         return false;
     }
 
+    // TODO: 多波段数据默认获取第一个波段
     m_pPoBand0 = m_pPoDataset->GetRasterBand(1);
     if (!m_pPoBand0)
     {
@@ -58,14 +59,14 @@ bool silly_gdal_raster::Open(const std::filesystem::path& file)
     m_height = m_pPoDataset->GetRasterYSize();
     m_x0 = m_adfGeoTransform[0];
     m_y0 = m_adfGeoTransform[3];
-    m_xdelta = m_adfGeoTransform[1];
-    m_ydelta = m_adfGeoTransform[5];
-    double x1 = m_x0 + m_width * m_xdelta;
-    double y1 = m_y0 + m_height * m_ydelta;
-    UP2DOWN = false;
-    if (m_ydelta < 0.0)
+    m_dx = m_adfGeoTransform[1];
+    m_dy = m_adfGeoTransform[5];
+    double x1 = m_x0 + m_width * m_dx;
+    double y1 = m_y0 + m_height * m_dy;
+    m_UP2DOWN = false;
+    if (m_dy < 0.0)
     {
-        UP2DOWN = true;
+        m_UP2DOWN = true;
     }
 
     m_rect.min.x = std::min(m_x0, x1);
@@ -76,7 +77,7 @@ bool silly_gdal_raster::Open(const std::filesystem::path& file)
 #endif
     return false;
 }
-void silly_gdal_raster::Close()
+void suGdalRaster::Close()
 {
 #if SU_THIRD_SUPPORT_GDAL
     if (m_pPoBand0)
@@ -91,7 +92,7 @@ void silly_gdal_raster::Close()
 
 #endif
 }
-suDMatrix silly_gdal_raster::ROI(const suRect& rect) const
+suDMatrix suGdalRaster::ROI(const suRect& bound, suRect& fixed) const
 {
     suDMatrix ret;
 #if SU_THIRD_SUPPORT_GDAL
@@ -100,84 +101,73 @@ suDMatrix silly_gdal_raster::ROI(const suRect& rect) const
         return ret;
     }
     // 计算目标地理范围对应的像素坐标
-    /* m_xdelta = m_adfGeoTransform[1];
-     m_ydelta = m_adfGeoTransform[5];*/
-    double dx = std::abs(m_xdelta);
-    double dy = std::abs(m_ydelta);
-    if (!m_rect.intersect(rect))
+    double dx = std::abs(m_dx);
+    double dy = std::abs(m_dy);
+    if (!m_rect.intersect(bound))
     {
         std::cerr << "不相交" << std::endl;
         return ret;
     }
+    fixed = m_rect.intersection(bound);
 
-    suRect useR = m_rect.intersection(rect);
+    // 此处后续需要谨慎, 根据 相交区域计算出的坐标应该不会超出 原始DEM的宽高
+    const int minX = std::floor((fixed.min.x - m_rect.min.x) / dx);
+    const int minY = std::floor((m_rect.max.y - fixed.max.y) / dy);
+    const int maxX = std::ceil((fixed.max.x - m_rect.min.x) / dx);
+    const int maxY = std::ceil((m_rect.max.y - fixed.max.y) / dy);
+    fixed.min.x = m_rect.min.x + minX * dx;
+    fixed.max.y = m_rect.max.y - minY * dy;
+    fixed.max.x = fixed.min.x + maxX * dx;
+    fixed.min.y = fixed.max.y - maxY * dy;
 
-    // 地理坐标 -> 像素坐标（行列）
-    const int startX = std::round((useR.min.x - m_rect.min.x) / dx);
-    int startY = std::round((m_rect.max.y - useR.max.y) / dy);
-    int xOff = std::round((useR.min.x - rect.min.x) / dx);
-    int yOff = std::round((rect.max.y - useR.max.y) / dy);
-
-    if (dy > 0)
+    if (!m_UP2DOWN)
     {
         // TODO, 从下而上
     }
 
-    int roiW = std::round((rect.max.x - rect.min.x) / dx);
-    int roiH = std::round((rect.max.y - rect.min.y) / dy);
-
-    // 修正超出边界的裁剪区域
-    int readW = std::round((useR.max.x - useR.min.x) / dx);
-    int readH = std::round((useR.max.y - useR.min.y) / dy);
+    const int readW = (maxX - minX);
+    const int readH = (maxY - minY);
 
     // 分配缓存（自动根据数据类型计算大小）
-    int nBytes = GDALGetDataTypeSizeBytes(m_DataType) * readW * readH;
-    void* pData = CPLMalloc(nBytes);
+    const int byteNum = GDALGetDataTypeSizeBytes(m_DataType) * readW * readH;
+    void* pData = CPLMalloc(byteNum);
 
-    CPLErr err = m_pPoBand0->RasterIO(GF_Read, startX, startY, readW, readH, pData, readW, readH, m_DataType, 0, 0, nullptr);
+    CPLErr err = m_pPoBand0->RasterIO(GF_Read, minX, minY, readW, readH, pData, readW, readH, m_DataType, 0, 0, nullptr);
     if (err != CE_None)
     {
         std::cerr << "读取波段失败!" << std::endl;
         CPLFree(pData);
     }
-
+    ret.create(readH, readW);
+    double* pRet = ret.data();
     if (GDT_Float32 == m_DataType)
     {
-        ret.create(roiH, roiW);
-        float* p = static_cast<float*>(pData);
+        float* ptr = static_cast<float*>(pData);
+
         for (int r = 0; r < readH; ++r)
         {
             for (int c = 0; c < readW; ++c)
             {
-                int rR = r + yOff;
-                int rC = c + xOff;
-                ret[rR][rC] = p[r * readW + c];
-                // ret[r][c] = p[rR * readW + rC];
+                *pRet = *ptr;
+                ++pRet;
+                ++ptr;
             }
         }
     }
     else if (GDT_Float64 == m_DataType)
     {
-        ret.create(roiH, roiW);
-        double* p = static_cast<double*>(pData);
-        for (int r = 0; r < readH; ++r)
-        {
-            for (int c = 0; c < readW; ++c)
-            {
-                int rR = r + yOff;
-                int rC = c + xOff;
-                ret[rR][roiW - rC - 1] = p[r * readW + c];
-            }
-        }
+        double* ptr = static_cast<double*>(pData);
+        std::memcpy(pRet, ptr, readW * readH * sizeof(double));
     }
     CPLFree(pData);
 #endif
     return ret;
 }
 
-double silly_gdal_raster::Pick(const suPoint& p) const
+double suGdalRaster::Get(const suPoint& p) const
 {
-    double ret = NAN;
+    double ret = std::numeric_limits<double>::quiet_NaN();
+    ;
 #if SU_THIRD_SUPPORT_GDAL
     if (!m_pPoBand0 && m_Bands <= 0)
     {
@@ -188,10 +178,10 @@ double silly_gdal_raster::Pick(const suPoint& p) const
         return ret;
     }
     // 读取该像素的值
-    int nBytes = GDALGetDataTypeSizeBytes(m_DataType);
-    std::vector<char> buffer(nBytes);
-    int px = std::round((p.x - m_x0) / m_xdelta);
-    int py = std::round((p.y - m_y0) / m_ydelta);
+    int byteNum = GDALGetDataTypeSizeBytes(m_DataType);
+    std::vector<char> buffer(byteNum);
+    int px = std::round((p.x - m_x0) / m_dx);
+    int py = std::round((p.y - m_y0) / m_dy);
     CPLErr err = m_pPoBand0->RasterIO(GF_Read, px, py, 1, 1, buffer.data(), 1, 1, m_DataType, 0, 0, nullptr);
     if (err != CE_None)
     {
@@ -225,24 +215,34 @@ double silly_gdal_raster::Pick(const suPoint& p) const
 #endif
     return ret;
 }
+double suGdalRaster::GetBiLinear(const suPoint& p) const
+{
+    return std::numeric_limits<double>::quiet_NaN();
+    ;
+}
+double suGdalRaster::GetBiCubic(const suPoint& p) const
+{
+    return std::numeric_limits<double>::quiet_NaN();
+    ;
+}
 
-suRect silly_gdal_raster::Bound() const
+suRect suGdalRaster::Bound() const
 {
     return m_rect;
 }
-double silly_gdal_raster::XDelta() const
+double suGdalRaster::DX() const
 {
-    return m_xdelta;
+    return m_dx;
 }
-double silly_gdal_raster::YDelta() const
+double suGdalRaster::DY() const
 {
-    return m_ydelta;
+    return m_dy;
 }
-int silly_gdal_raster::Width() const
+int suGdalRaster::Width() const
 {
     return m_width;
 }
-int silly_gdal_raster::Height() const
+int suGdalRaster::Height() const
 {
     return m_height;
 }

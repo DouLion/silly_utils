@@ -31,23 +31,20 @@ static const std::string NODATA_VALUE = "nodata_value";
 
 bool suAsciiGrid::read(const std::filesystem::path& file, const bool& onlyhead)
 {
-    bool status = false;
     m_root = file.parent_path().string();
     m_name = file.stem().string();
-    m_type = TO_LOWER(file.extension().string());
-    if (ASC == m_type)
+    m_type = file.extension().string();
+    if (ASC == TO_LOWER(m_type))
     {
         return read_asc(file, onlyhead);
     }
-    else if (BIN == m_type)
+    if (BIN == TO_LOWER(m_type))
     {
         return read_bin(file);
     }
-    else
-    {
-        std::cerr << "不支持的格式: " << m_type << std::endl;
-    }
-    return status;
+    m_err = "不支持的格式: " + m_type;
+    std::cerr << m_err << std::endl;
+    return false;
 }
 
 bool suAsciiGrid::read_asc(const std::filesystem::path& file, const bool& onlyhead)
@@ -95,7 +92,8 @@ bool suAsciiGrid::read_asc(const std::filesystem::path& file, const bool& onlyhe
         }
         else
         {
-            std::cerr << "Invalid key: " << key << std::endl;
+            m_err = "无效的Key: " + key;
+            std::cerr << m_err << std::endl;
             return status;
         }
 
@@ -108,44 +106,50 @@ bool suAsciiGrid::read_asc(const std::filesystem::path& file, const bool& onlyhe
     info.bound.max.y = info.bound.min.y + info.height * cellsize;
     if (onlyhead)
     {
+        input.close();
         return true;
     }
     raster.create(info.height, info.width, true);
 
     double value;
-    while (std::getline(input, line))
+    int r = 0;
+    while (std::getline(input, line) && r < info.height)
     {
         std::istringstream linestream(line);
-        for (int r = 0; r < info.height && linestream.good(); ++r)
+        int c = 0;
+        while (c < info.width)
         {
-            for (int c = 0; c < info.width && linestream.good(); ++c)
+            linestream >> value;
+            if (value == 0)
             {
-                linestream >> value;
-                raster.data()[r * info.width + c] = value;
+                int ccc = 1;
             }
+            raster[r][c] = value;
+            c++;
         }
+        r++;
     }
-   
+    input.close();
     status = true;
     return status;
 }
 
-bool suAsciiGrid::write(const std::filesystem::path& file)
+bool suAsciiGrid::write(const std::filesystem::path& file) const
 {
     bool status = false;
     std::string ext = file.extension().string();
-    if (ASC == ext)
+    if (ASC == TO_LOWER(ext))
     {
         return write_asc(file);
     }
-    if (BIN == ext)
+    if (BIN == TO_LOWER(ext))
     {
         return write_bin(file);
     }
-    std::cerr << "不支持的格式: " << ext << std::endl;
+    std::cerr <<  std::string("不支持的格式: ") + ext << std::endl;
     return status;
 }
-std::string suAsciiGrid::stringify_ll(const int& precision)
+std::string suAsciiGrid::stringify_ll(const int& precision) const
 {
     std::string ret;
     {
@@ -178,12 +182,12 @@ std::string suAsciiGrid::stringify_ll(const int& precision)
 
 bool suAsciiGrid::read_bin(const std::filesystem::path& file)
 {
-    bool status = false;
     std::string content;
     if (!sufile::read(file, content))
     {
-        std::cerr << "读取文件失败: " << file.u8string() << std::endl;
-        return status;
+        m_err = "读取文件失败: " + file.u8string();
+        std::cerr << m_err << std::endl;
+        return false;
     }
     double* p = reinterpret_cast<double*>(content.data());
     info.height = static_cast<size_t>(*p);
@@ -201,7 +205,7 @@ bool suAsciiGrid::read_bin(const std::filesystem::path& file)
     return true;
 }
 
-bool suAsciiGrid::write_asc(const std::filesystem::path& file)
+bool suAsciiGrid::write_asc(const std::filesystem::path& file) const
 {
 #ifndef NDEBUG
     silly_timer timer;
@@ -249,8 +253,12 @@ bool suAsciiGrid::write_asc(const std::filesystem::path& file)
     ofs.close();
     if (IsGauss())
     {
-        std::string prj_path = std::filesystem::path(_root).append(_name + PRJ).string();
-        write_prj(prj_path);
+        const auto prjFile = std::filesystem::path(_root).append(_name + PRJ);
+        if (!write_prj(prjFile))
+        {
+            std::cerr << "写回投影信息失败: " << prjFile.u8string() << std::endl;
+            return false;
+        }
     }
 #ifndef NDEBUG
     SLOG_DEBUG("写入{}计时 : {:.3f}S", file.u8string(), timer.elapsed_ms() / 1000.0)
@@ -259,7 +267,7 @@ bool suAsciiGrid::write_asc(const std::filesystem::path& file)
     return true;
 }
 
-bool suAsciiGrid::write_bin(const std::filesystem::path& file)
+bool suAsciiGrid::write_bin(const std::filesystem::path& file) const
 {
     std::ofstream ofs(file);
     if (!ofs.is_open())
@@ -281,7 +289,7 @@ bool suAsciiGrid::write_bin(const std::filesystem::path& file)
     return true;
 }
 
-bool suAsciiGrid::write_prj(const std::filesystem::path& file)
+bool suAsciiGrid::write_prj(const std::filesystem::path& file) const
 {
     // Projection    TRANSVERSE
     // Units         METERS
@@ -307,7 +315,7 @@ bool suAsciiGrid::write_prj(const std::filesystem::path& file)
     ss << "0  0  0.0 /* latitude of origin\n";
     ss << "500000.0 /* false easting (meters)\n";
     ss << "0.0 /* false northing (meters)\n";
-    if (sufile::write(filepath, ss.str()))
+    if (sufile::write(filepath, ss.str()) > 0)
     {
         return true;
     }
