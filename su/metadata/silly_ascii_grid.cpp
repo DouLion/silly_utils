@@ -29,6 +29,13 @@ static const std::string YLLCORNER = "yllcorner";
 static const std::string CELLSIZE = "cellsize";
 static const std::string NODATA_VALUE = "nodata_value";
 
+bool suAsciiGrid::create(const suDem::Info& _info)
+{
+    info = _info;
+    raster.create(info.height, info.width, true);
+    raster.set(info.fill);
+    return true;
+}
 bool suAsciiGrid::read(const std::filesystem::path& file, const bool& onlyhead)
 {
     m_root = file.parent_path().string();

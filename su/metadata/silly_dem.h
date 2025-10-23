@@ -15,6 +15,17 @@
 #include <geo/proj/silly_proj.h>
 class suDem
 {
+public:
+    struct Info
+    {
+        double dx = 0;
+        double dy = 0;
+        double fill = -9999.0;
+        size_t width = 0;
+        size_t height = 0;
+        suRect bound;
+        double central = 0; // 有效值 [75, 135] 间隔3, 否则认为高斯坐标系
+    };
   public:
     /*
      * 根据central 的值判断是否是高斯
@@ -57,19 +68,34 @@ class suDem
      */
     std::vector<std::pair<double, double>> ProfileElev(const suLine& line)  const;
 
+    /**
+     * 梯度幅值
+     * @return 梯度幅值矩阵
+     */
+    suDMatrix SlopeGradient(const int& method = 5) const;
+
+    /**
+     * 计算梯度角度值
+     * @return 梯度角度值矩阵
+     */
+    suDMatrix SlopeDegree(const int& method = 5) const;
+
+    /**
+     * 计算梯度弧度值
+     * @return 梯度弧度值矩阵
+     */
+    suDMatrix SlopeRadian(const int& method = 5) const;
+
+    /**
+     * 梯度百分比值
+     * @return 梯度百分比矩阵
+     */
+    suDMatrix SlopePercent(const int& method = 5) const;
+
     void Release();
 
   public:
-    struct
-    {
-        double dx = 0;
-        double dy = 0;
-        double fill = -9999.0;
-        size_t width = 0;
-        size_t height = 0;
-        suRect bound;
-        double central = 0; // 有效值 [75, 135] 间隔3, 否则认为高斯坐标系
-    }info;
+    Info info;
     suDMatrix raster;
 };
 #endif //SILLY_DEM_H

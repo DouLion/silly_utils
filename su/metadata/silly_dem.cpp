@@ -185,6 +185,131 @@ std::vector<std::pair<double, double>> suDem::ProfileElev(const suLine& line) co
     }
     return ret;
 }
+suDMatrix suDem::SlopeGradient(const int& method) const
+{
+    suDMatrix ret;
+    if (!raster.data())
+    {
+        return ret;
+    }
+    // 创建一个与 DEM 尺寸相同的矩阵，用于存储坡度梯度值
+    ret.create(info.height, info.width);  // 假设构造函数是 suDMatrix(rows, cols)
+
+    auto func9 = [this](const int& r, const int& c) ->double {
+        // 加权差分法（Horn 方法）
+        double z1 = raster[r][c];
+        double z2 = raster[r][c];
+        double z3 = raster[r][c];
+        double z4 = raster[r][c];
+        double z5 = this->raster[r][c];
+        double z6 = raster[r][c];
+        double z7 = raster[r][c];
+        double z8 = raster[r][c];
+        double z9 = raster[r][c];
+        double grad_x = ((z3+2*z6+z9)-(z1+2*z4+z7))/8*info.dx;
+        double grad_y = ((z7+2*z8+z9)-(z1+2*z2+z3))/8*info.dy;
+        double slope_gradient = std::sqrt(grad_x * grad_x + grad_y * grad_y);
+        return slope_gradient;
+    };
+
+    auto func5 = [this](const int& r, const int& c) ->double {
+        double z_center = raster[r][c]/* 获取 (r, c) 的高程，比如 this->getElevation(r, c) */;
+        double z_left   = raster[r][c-1]/* 获取 (r, c - 1) 的高程 */;
+        double z_right  = raster[r][c+1]/* 获取 (r, c + 1) 的高程 */;
+        double z_up     = raster[r-1][c]/* 获取 (r - 1, c) 的高程 */;
+        double z_down   = raster[r+1][c]/* 获取 (r + 1, c) 的高程 */;
+
+        // 【推荐使用中心差分计算 x 和 y 方向的梯度】
+        double grad_x = (z_right - z_left) / (2.0 * info.dx);
+        double grad_y = (z_down - z_up) / (2.0 * info.dy);
+
+        // 坡度梯度 = sqrt(grad_x^2 + grad_y^2)
+        double slope_gradient = std::sqrt(grad_x * grad_x + grad_y * grad_y);
+        return slope_gradient;
+    };
+
+
+
+
+    for (int r = 1; r < info.height - 1; ++r)
+    {
+        for (int c = 1; c < info.width - 1; ++c)
+        {
+            // 获取当前像元以及周围像元的高程值
+            // 请根据你实际的高程数据来源进行修改，比如：
+            double slope_gradient = 0;
+            if (method == 5)
+            {
+                slope_gradient = func5(r, c);
+            }
+            else if (method == 9)
+            {
+                slope_gradient = func9(r, c);
+            }
+
+            // 将计算结果存入返回的矩阵对应位置
+            ret[r][c] = slope_gradient;  // 假设支持 ret(r,c) = value，否则用一维指针方式
+        }
+    }
+    // 边界处理：边界像元（r=0, r=height-1, c=0, c=width-1）可以不计算，或者用其他方法填充
+    // 目前我们只计算了内部区域 (1 ~ height-2, 1 ~ width-2)
+
+    return ret;
+}
+suDMatrix suDem::SlopeDegree(const int& method) const
+{
+    suDMatrix ret = SlopeGradient(method);
+    double* ptr = ret.data();
+    if (ptr)
+    {
+        for (int r = 1; r < info.height -1 && ptr; r++)
+        {
+            for (int c = 1; c < info.width -1  && ptr; c++)
+            {
+                *ptr = RAD2DEG(std::atan(*ptr));
+                ptr++;
+            }
+        }
+    }
+
+    return ret;
+}
+suDMatrix suDem::SlopeRadian(const int& method) const
+{
+    suDMatrix ret = SlopeGradient(method);
+    double* ptr = ret.data();
+    if (ptr)
+    {
+        for (int r = 1; r < info.height -1 && ptr; r++)
+        {
+            for (int c = 1; c < info.width -1  && ptr; c++)
+            {
+                *ptr = std::atan(*ptr);
+                ptr++;
+            }
+        }
+    }
+
+    return ret;
+}
+suDMatrix suDem::SlopePercent(const int& method) const
+{
+    suDMatrix ret = SlopeGradient(method);
+    double* ptr = ret.data();
+    if (ptr)
+    {
+        for (int r = 1; r < info.height -1 && ptr; r++)
+        {
+            for (int c = 1; c < info.width -1  && ptr; c++)
+            {
+                *ptr = *ptr * 100;
+                ptr++;
+            }
+        }
+    }
+
+    return ret;
+}
 
 void suDem::Release()
 {

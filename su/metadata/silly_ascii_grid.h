@@ -18,6 +18,8 @@ class suAsciiGrid : public suDem
     suAsciiGrid() = default;
     ~suAsciiGrid() = default;
 
+    bool create(const suDem::Info& _info );
+
     bool read(const std::filesystem::path& file, const bool& onlyhead = false);
 
     bool write(const std::filesystem::path& file) const;
