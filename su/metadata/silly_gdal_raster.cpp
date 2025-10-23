@@ -116,8 +116,8 @@ suDem suGdalRaster::ROI(const suRect& bound) const
     const int minY = std::floor((m_rect.max.y - ret.info.bound.max.y) / ret.info.dy);
     const int maxY = std::ceil((m_rect.max.y - ret.info.bound.min.y) / ret.info.dy);
     ret.info.bound.min.x = m_rect.min.x + minX * ret.info.dx;
-    ret.info.bound.max.x = ret.info.bound.min.x + maxX * ret.info.dx;
-    ret.info.bound.min.y = ret.info.bound.max.y - maxY * ret.info.dy;
+    ret.info.bound.max.x = m_rect.min.x + maxX * ret.info.dx;
+    ret.info.bound.min.y = m_rect.max.y - maxY * ret.info.dy;
     ret.info.bound.max.y = m_rect.max.y - minY * ret.info.dy;
 
     if (!m_UP2DOWN)
