@@ -137,6 +137,11 @@ class suPoint
         return SU_DIST(x - rh.x, y - rh.y);
     }
 
+    void swap()
+    {
+        std::swap(x, y);
+    }
+
   public:
     double x{0.};
     double y{0.};
