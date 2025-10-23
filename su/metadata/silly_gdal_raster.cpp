@@ -112,13 +112,13 @@ suDMatrix suGdalRaster::ROI(const suRect& bound, suRect& fixed) const
 
     // 此处后续需要谨慎, 根据 相交区域计算出的坐标应该不会超出 原始DEM的宽高
     const int minX = std::floor((fixed.min.x - m_rect.min.x) / dx);
-    const int minY = std::floor((m_rect.max.y - fixed.max.y) / dy);
     const int maxX = std::ceil((fixed.max.x - m_rect.min.x) / dx);
-    const int maxY = std::ceil((m_rect.max.y - fixed.max.y) / dy);
+    const int minY = std::floor((m_rect.max.y - fixed.max.y) / dy);
+    const int maxY = std::ceil((m_rect.max.y - fixed.min.y) / dy);
     fixed.min.x = m_rect.min.x + minX * dx;
-    fixed.max.y = m_rect.max.y - minY * dy;
     fixed.max.x = fixed.min.x + maxX * dx;
     fixed.min.y = fixed.max.y - maxY * dy;
+    fixed.max.y = m_rect.max.y - minY * dy;
 
     if (!m_UP2DOWN)
     {
