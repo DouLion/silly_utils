@@ -356,6 +356,16 @@ class suMatrix
         }
         return nullptr;
     }
+    /// <summary>
+    /// 获取值
+    /// </summary>
+    /// <param name="r"></param>
+    /// <param name="c"></param>
+    /// <returns></returns>
+    T &at(size_t r, size_t c) const
+    {
+        return m_data[r * m_col + c];
+    }
 
     /// <summary>
     /// 双线性插值
@@ -480,23 +490,6 @@ class suMatrix
             }
         }
         return true;
-    }
-
-    /// <summary>
-    /// 等同at函数
-    /// </summary>
-    /// <param name="r"></param>
-    /// <param name="c"></param>
-    /// <returns></returns>
-    T &at(size_t r, size_t c) const
-    {
-        /*if (r < m_row && c < m_col && m_data)
-        {
-            return m_data[r * m_col + c];
-        }
-        return m_mp;*/
-        // 这个地方应该考虑如何更优雅的实现保护
-        return m_data[r * m_col + c];
     }
 
     /// <summary>
@@ -1021,7 +1014,7 @@ class suMatrix
         return index;
     }
 
-    double cubic_weight(double d)
+    double cubic_weight(double d) const
     {
         d = std::abs(d);
         if (d <= 1.0)

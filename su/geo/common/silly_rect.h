@@ -63,6 +63,23 @@ public:
         return result;
     }
 
+    /**
+     * 外扩一定比例
+     * 如scale = 0.1, 上下左右均扩充现有宽高的0.1
+     * @param scale 比例
+     * @return
+     */
+    suRect expand(const double& scale) const
+    {
+        suRect ret;
+        double w = (max.x - min.x);
+        double h = (max.x - min.x);
+        ret.min.x = min.x + scale * w;
+        ret.min.y = min.y + scale * h;
+        ret.max.x = max.x + scale * w;
+        ret.max.y = max.y + scale * h;
+        return ret;
+    }
     /// 两个矩形框是否相交
     bool intersect(const suRect& rh) const
     {

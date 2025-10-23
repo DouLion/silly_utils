@@ -167,11 +167,75 @@ void suDem::Extra(const suDem& rh, const suRing& ring)
 
     Extra(ring);
 }
+
+suPoint suDem::ColRow(const suPoint& p) const
+{
+    suPoint ret;
+    ret.x = (p.x - info.bound.min.x) / (info.bound.max.x - info.bound.min.x) * info.width;
+    ret.y = (info.bound.max.y - p.y) / (info.bound.max.y - info.bound.min.y) * info.height;
+    return ret;
+}
+double suDem::Round(const suPoint& p) const
+{
+    double ret = NAN;
+    
+    auto cr = ColRow(p);
+    if (cr.x > 0 && cr.x < info.width && cr.y > 0 && cr.y < info.height)
+    {
+        ret = raster.at(std::round(cr.y),std::round(cr.x));
+    }
+    return ret;
+
+}
+double suDem::BiLiner(const suPoint& p) const
+{
+    double ret = NAN;
+
+    auto cr = ColRow(p);
+    if (cr.x > 0 && cr.x < info.width && cr.y > 0 && cr.y < info.height)
+    {
+        ret = raster.bilinear(std::round(cr.y), std::round(cr.x));
+    }
+    return ret;
+}
+double suDem::BiCubic(const suPoint& p) const
+{
+    double ret = NAN;
+
+    auto cr = ColRow(p);
+    if (cr.x > 0 && cr.x < info.width && cr.y > 0 && cr.y < info.height)
+    {
+        ret = raster.bicubic(std::round(cr.y), std::round(cr.x));
+    }
+    return ret;
+}
 std::vector<std::pair<double, double>> suDem::ProfileElev(const suLine& line) const
+{
+    std::vector<std::pair<double, double>> ret;
+    if (line.size() < 2)
+    {
+        return ret;
+    }
+    double dist = 0;
+    suPoint p0 = line.front();
+    for (const auto& p : line)
+    {
+        double elev = BiLiner(p);
+        ret.push_back({dist, elev});
+        dist += p.distance(p0);
+        p0 = p;
+    }
+    return ret;
+}
+std::vector<std::pair<double, double>> suDem::ProfileElev(const suLine& line, const double& dist) const
 {
     // line等间距划分
     std::vector<std::pair<double, double>> ret;
-    double dist = (info.dx + info.dy)/4;
+    if (line.size() < 2)
+    {
+        return ret;
+    }
+    //double dist = (info.dx + info.dy)/4;
     suLine eqLine = line.equidistant(dist);
     double xl = info.bound.min.x - dist * info.dx;
     double yl = info.bound.max.y - dist * info.dy;

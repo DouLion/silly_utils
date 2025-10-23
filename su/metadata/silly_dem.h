@@ -61,12 +61,26 @@ public:
      */
     void Extra(const suDem& rh, const suRing& ring);
 
+    suPoint ColRow(const suPoint& p) const;
+
+    double Round(const suPoint& p) const;
+    double BiLiner(const suPoint& p) const;
+    double BiCubic(const suPoint& p) const;
+
     /**
      * 提取剖面高程
      * @param line
      * @return
      */
     std::vector<std::pair<double, double>> ProfileElev(const suLine& line)  const;
+
+    /**
+     * 提取等间距的剖面高程
+     * @param line
+     * @param dist 等间距的
+     * @return
+     */
+    std::vector<std::pair<double, double>> ProfileElev(const suLine& line, const double& dist) const;
 
     /**
      * 梯度幅值

@@ -46,7 +46,7 @@ class suGdalRaster
      * @param fixed 与返回的高程矩阵完全一致的矩形范围, 仅包含相交区域
      * @return
      */
-    suDMatrix ROI(const suRect& bound, suRect& fixed) const;
+    suDem ROI(const suRect& bound) const;
 
     /**
      * 获取指定点的高程

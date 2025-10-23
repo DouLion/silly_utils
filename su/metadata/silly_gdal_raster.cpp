@@ -92,61 +92,61 @@ void suGdalRaster::Close()
 
 #endif
 }
-suDMatrix suGdalRaster::ROI(const suRect& bound, suRect& fixed) const
+suDem suGdalRaster::ROI(const suRect& bound) const
 {
-    suDMatrix ret;
+    suDem ret;
 #if SU_THIRD_SUPPORT_GDAL
     if (!m_pPoBand0 && m_Bands <= 0)
     {
         return ret;
     }
     // 计算目标地理范围对应的像素坐标
-    double dx = std::abs(m_dx);
-    double dy = std::abs(m_dy);
+    ret.info.dx = std::abs(m_dx);
+    ret.info.dy = std::abs(m_dy);
     if (!m_rect.intersect(bound))
     {
         std::cerr << "不相交" << std::endl;
         return ret;
     }
-    fixed = m_rect.intersection(bound);
+    ret.info.bound = m_rect.intersection(bound);
 
     // 此处后续需要谨慎, 根据 相交区域计算出的坐标应该不会超出 原始DEM的宽高
-    const int minX = std::floor((fixed.min.x - m_rect.min.x) / dx);
-    const int maxX = std::ceil((fixed.max.x - m_rect.min.x) / dx);
-    const int minY = std::floor((m_rect.max.y - fixed.max.y) / dy);
-    const int maxY = std::ceil((m_rect.max.y - fixed.min.y) / dy);
-    fixed.min.x = m_rect.min.x + minX * dx;
-    fixed.max.x = fixed.min.x + maxX * dx;
-    fixed.min.y = fixed.max.y - maxY * dy;
-    fixed.max.y = m_rect.max.y - minY * dy;
+    const int minX = std::floor((ret.info.bound.min.x - m_rect.min.x) / ret.info.dx);
+    const int maxX = std::ceil((ret.info.bound.max.x - m_rect.min.x) / ret.info.dx);
+    const int minY = std::floor((m_rect.max.y - ret.info.bound.max.y) / ret.info.dy);
+    const int maxY = std::ceil((m_rect.max.y - ret.info.bound.min.y) / ret.info.dy);
+    ret.info.bound.min.x = m_rect.min.x + minX * ret.info.dx;
+    ret.info.bound.max.x = ret.info.bound.min.x + maxX * ret.info.dx;
+    ret.info.bound.min.y = ret.info.bound.max.y - maxY * ret.info.dy;
+    ret.info.bound.max.y = m_rect.max.y - minY * ret.info.dy;
 
     if (!m_UP2DOWN)
     {
         // TODO, 从下而上
     }
 
-    const int readW = (maxX - minX);
-    const int readH = (maxY - minY);
+    ret.info.width = (maxX - minX);
+    ret.info.height = (maxY - minY);
 
     // 分配缓存（自动根据数据类型计算大小）
-    const int byteNum = GDALGetDataTypeSizeBytes(m_DataType) * readW * readH;
+    const int byteNum = GDALGetDataTypeSizeBytes(m_DataType) * ret.info.width * ret.info.height;
     void* pData = CPLMalloc(byteNum);
 
-    CPLErr err = m_pPoBand0->RasterIO(GF_Read, minX, minY, readW, readH, pData, readW, readH, m_DataType, 0, 0, nullptr);
+    CPLErr err = m_pPoBand0->RasterIO(GF_Read, minX, minY, ret.info.width, ret.info.height, pData, ret.info.width, ret.info.height, m_DataType, 0, 0, nullptr);
     if (err != CE_None)
     {
         std::cerr << "读取波段失败!" << std::endl;
         CPLFree(pData);
     }
-    ret.create(readH, readW);
-    double* pRet = ret.data();
+    ret.raster.create(ret.info.height, ret.info.width);
+    double* pRet = ret.raster.data();
     if (GDT_Float32 == m_DataType)
     {
         float* ptr = static_cast<float*>(pData);
 
-        for (int r = 0; r < readH; ++r)
+        for (int r = 0; r < ret.info.height; ++r)
         {
-            for (int c = 0; c < readW; ++c)
+            for (int c = 0; c < ret.info.width; ++c)
             {
                 *pRet = *ptr;
                 ++pRet;
@@ -157,7 +157,7 @@ suDMatrix suGdalRaster::ROI(const suRect& bound, suRect& fixed) const
     else if (GDT_Float64 == m_DataType)
     {
         double* ptr = static_cast<double*>(pData);
-        std::memcpy(pRet, ptr, readW * readH * sizeof(double));
+        std::memcpy(pRet, ptr, ret.info.width * ret.info.height * sizeof(double));
     }
     CPLFree(pData);
 #endif
