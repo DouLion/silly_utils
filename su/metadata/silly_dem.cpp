@@ -25,12 +25,10 @@
     rect0.max.x = std::max(x1, rect0.max.x);                        \
     rect0.max.y = std::max(y1, rect0.max.y);
 
-
 bool suDem::IsGauss() const
 {
     static std::set<int> valid = {75, 78, 81, 84, 87, 90, 93, 96, 99, 102, 105, 108, 111, 114, 117, 120, 123, 126, 129, 132, 135};
     return valid.find(static_cast<int>(info.central)) != std::end(valid);
-
 }
 
 void suDem::Gauss2Lonlat(const suDem& rh, const double& cell_size, const double& l0)
@@ -142,15 +140,14 @@ void suDem::Cover(const suDem& rh)
 }
 void suDem::Extra(const suRing& ring)
 {
-  
-    for (int r = 0; r < info.height; ++ r)
+    for (int r = 0; r < info.height; ++r)
     {
-        for (int c = 0; c < info.width; ++ c)
+        for (int c = 0; c < info.width; ++c)
         {
             suPoint p;
             p.x = info.bound.min.x + c * info.dx;
             p.y = info.bound.max.y - r * info.dy;
-            if (!sugeoutils::intersect(p, ring.points)) // 点在环外
+            if (!sugeoutils::intersect(p, ring.points))  // 点在环外
             {
                 raster[r][c] = info.fill;
             }
@@ -175,17 +172,29 @@ suPoint suDem::ColRow(const suPoint& p) const
     ret.y = (info.bound.max.y - p.y) / (info.bound.max.y - info.bound.min.y) * info.height;
     return ret;
 }
-double suDem::Round(const suPoint& p) const
+
+double suDem::At(const suPoint& p) const
 {
     double ret = NAN;
-    
+
     auto cr = ColRow(p);
     if (cr.x > 0 && cr.x < info.width && cr.y > 0 && cr.y < info.height)
     {
-        ret = raster.at(std::round(cr.y),std::round(cr.x));
+        ret = raster.at(cr.y, cr.x);
     }
     return ret;
+}
 
+double suDem::Round(const suPoint& p) const
+{
+    double ret = NAN;
+
+    auto cr = ColRow(p);
+    if (cr.x > 0 && cr.x < info.width && cr.y > 0 && cr.y < info.height)
+    {
+        ret = raster.at(std::round(cr.y), std::round(cr.x));
+    }
+    return ret;
 }
 double suDem::BiLiner(const suPoint& p) const
 {
@@ -194,7 +203,7 @@ double suDem::BiLiner(const suPoint& p) const
     auto cr = ColRow(p);
     if (cr.x > 0 && cr.x < info.width && cr.y > 0 && cr.y < info.height)
     {
-        ret = raster.bilinear(std::round(cr.y), std::round(cr.x));
+        ret = raster.bilinear(cr.y, cr.x);
     }
     return ret;
 }
@@ -205,7 +214,7 @@ double suDem::BiCubic(const suPoint& p) const
     auto cr = ColRow(p);
     if (cr.x > 0 && cr.x < info.width && cr.y > 0 && cr.y < info.height)
     {
-        ret = raster.bicubic(std::round(cr.y), std::round(cr.x));
+        ret = raster.bicubic(cr.y, cr.x);
     }
     return ret;
 }
@@ -235,7 +244,7 @@ std::vector<std::pair<double, double>> suDem::ProfileElev(const suLine& line, co
     {
         return ret;
     }
-    //double dist = (info.dx + info.dy)/4;
+    // double dist = (info.dx + info.dy)/4;
     suLine eqLine = line.equidistant(dist);
     double xl = info.bound.min.x - dist * info.dx;
     double yl = info.bound.max.y - dist * info.dy;
@@ -245,7 +254,7 @@ std::vector<std::pair<double, double>> suDem::ProfileElev(const suLine& line, co
         double r = (info.bound.max.y - p.y) / yl;
         double c = (info.bound.max.x - p.x) / xl;
         double v = raster.bilinear(r, c);
-        ret.push_back({i*dist, v});
+        ret.push_back({i * dist, v});
     }
     return ret;
 }
@@ -259,7 +268,7 @@ suDMatrix suDem::SlopeGradient(const int& method) const
     // 创建一个与 DEM 尺寸相同的矩阵，用于存储坡度梯度值
     ret.create(info.height, info.width);  // 假设构造函数是 suDMatrix(rows, cols)
 
-    auto func9 = [this](const int& r, const int& c) ->double {
+    auto func9 = [this](const int& r, const int& c) -> double {
         // 加权差分法（Horn 方法）
         double z1 = raster[r][c];
         double z2 = raster[r][c];
@@ -270,18 +279,18 @@ suDMatrix suDem::SlopeGradient(const int& method) const
         double z7 = raster[r][c];
         double z8 = raster[r][c];
         double z9 = raster[r][c];
-        double grad_x = ((z3+2*z6+z9)-(z1+2*z4+z7))/8*info.dx;
-        double grad_y = ((z7+2*z8+z9)-(z1+2*z2+z3))/8*info.dy;
+        double grad_x = ((z3 + 2 * z6 + z9) - (z1 + 2 * z4 + z7)) / 8 * info.dx;
+        double grad_y = ((z7 + 2 * z8 + z9) - (z1 + 2 * z2 + z3)) / 8 * info.dy;
         double slope_gradient = std::sqrt(grad_x * grad_x + grad_y * grad_y);
         return slope_gradient;
     };
 
-    auto func5 = [this](const int& r, const int& c) ->double {
-        double z_center = raster[r][c]/* 获取 (r, c) 的高程，比如 this->getElevation(r, c) */;
-        double z_left   = raster[r][c-1]/* 获取 (r, c - 1) 的高程 */;
-        double z_right  = raster[r][c+1]/* 获取 (r, c + 1) 的高程 */;
-        double z_up     = raster[r-1][c]/* 获取 (r - 1, c) 的高程 */;
-        double z_down   = raster[r+1][c]/* 获取 (r + 1, c) 的高程 */;
+    auto func5 = [this](const int& r, const int& c) -> double {
+        double z_center = raster[r][c] /* 获取 (r, c) 的高程，比如 this->getElevation(r, c) */;
+        double z_left = raster[r][c - 1] /* 获取 (r, c - 1) 的高程 */;
+        double z_right = raster[r][c + 1] /* 获取 (r, c + 1) 的高程 */;
+        double z_up = raster[r - 1][c] /* 获取 (r - 1, c) 的高程 */;
+        double z_down = raster[r + 1][c] /* 获取 (r + 1, c) 的高程 */;
 
         // 【推荐使用中心差分计算 x 和 y 方向的梯度】
         double grad_x = (z_right - z_left) / (2.0 * info.dx);
@@ -291,9 +300,6 @@ suDMatrix suDem::SlopeGradient(const int& method) const
         double slope_gradient = std::sqrt(grad_x * grad_x + grad_y * grad_y);
         return slope_gradient;
     };
-
-
-
 
     for (int r = 1; r < info.height - 1; ++r)
     {
@@ -326,9 +332,9 @@ suDMatrix suDem::SlopeDegree(const int& method) const
     double* ptr = ret.data();
     if (ptr)
     {
-        for (int r = 1; r < info.height -1 && ptr; r++)
+        for (int r = 1; r < info.height - 1 && ptr; r++)
         {
-            for (int c = 1; c < info.width -1  && ptr; c++)
+            for (int c = 1; c < info.width - 1 && ptr; c++)
             {
                 *ptr = RAD2DEG(std::atan(*ptr));
                 ptr++;
@@ -344,9 +350,9 @@ suDMatrix suDem::SlopeRadian(const int& method) const
     double* ptr = ret.data();
     if (ptr)
     {
-        for (int r = 1; r < info.height -1 && ptr; r++)
+        for (int r = 1; r < info.height - 1 && ptr; r++)
         {
-            for (int c = 1; c < info.width -1  && ptr; c++)
+            for (int c = 1; c < info.width - 1 && ptr; c++)
             {
                 *ptr = std::atan(*ptr);
                 ptr++;
@@ -362,9 +368,9 @@ suDMatrix suDem::SlopePercent(const int& method) const
     double* ptr = ret.data();
     if (ptr)
     {
-        for (int r = 1; r < info.height -1 && ptr; r++)
+        for (int r = 1; r < info.height - 1 && ptr; r++)
         {
-            for (int c = 1; c < info.width -1  && ptr; c++)
+            for (int c = 1; c < info.width - 1 && ptr; c++)
             {
                 *ptr = *ptr * 100;
                 ptr++;

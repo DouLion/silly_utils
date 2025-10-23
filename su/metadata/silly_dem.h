@@ -15,7 +15,7 @@
 #include <geo/proj/silly_proj.h>
 class suDem
 {
-public:
+  public:
     struct Info
     {
         double dx = 0;
@@ -24,8 +24,9 @@ public:
         size_t width = 0;
         size_t height = 0;
         suRect bound;
-        double central = 0; // 有效值 [75, 135] 间隔3, 否则认为高斯坐标系
+        double central = 0;  // 有效值 [75, 135] 间隔3, 否则认为高斯坐标系
     };
+
   public:
     /*
      * 根据central 的值判断是否是高斯
@@ -63,6 +64,7 @@ public:
 
     suPoint ColRow(const suPoint& p) const;
 
+    double At(const suPoint& p) const;
     double Round(const suPoint& p) const;
     double BiLiner(const suPoint& p) const;
     double BiCubic(const suPoint& p) const;
@@ -72,7 +74,7 @@ public:
      * @param line
      * @return
      */
-    std::vector<std::pair<double, double>> ProfileElev(const suLine& line)  const;
+    std::vector<std::pair<double, double>> ProfileElev(const suLine& line) const;
 
     /**
      * 提取等间距的剖面高程
@@ -112,4 +114,4 @@ public:
     Info info;
     suDMatrix raster;
 };
-#endif //SILLY_DEM_H
+#endif  // SILLY_DEM_H

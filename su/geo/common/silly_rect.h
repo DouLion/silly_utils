@@ -74,8 +74,8 @@ public:
         suRect ret;
         double w = (max.x - min.x);
         double h = (max.x - min.x);
-        ret.min.x = min.x + scale * w;
-        ret.min.y = min.y + scale * h;
+        ret.min.x = min.x - scale * w;
+        ret.min.y = min.y - scale * h;
         ret.max.x = max.x + scale * w;
         ret.max.y = max.y + scale * h;
         return ret;
