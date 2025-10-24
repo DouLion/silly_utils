@@ -14,6 +14,7 @@
 #ifndef SILLY_UTILS_SILLY_MATRIX_H
 #define SILLY_UTILS_SILLY_MATRIX_H
 #include <su_marco.h>
+#include <files/silly_memory_map.h>
 
 template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
 class suMatrix
@@ -79,6 +80,11 @@ class suMatrix
         memset(m_data, 0, m_total * sizeof(T));
 
         return true;
+    }
+
+    bool create(const size_t &row, const size_t &col, const std::filesystem::path& mmap)
+    {
+
     }
 
     /// <summary>
