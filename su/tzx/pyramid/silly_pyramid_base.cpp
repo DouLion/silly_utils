@@ -5,13 +5,12 @@
 #include "silly_pyramid_base.h"
 
 using namespace silly::pyramid;
-using namespace silly::file;
-bool base::open(const std::filesystem::path& f, const memory_map::access_mode& mode, const bool& usemmap)
+bool base::open(const std::filesystem::path& f, const eMMFMode& mode, const bool& usemmap)
 {
     m_mode = mode;
     m_normal = !usemmap;
     auto file = sufile::realpath(f);
-    if (memory_map::access_mode::Read == mode)
+    if (eMMFMode::Read == mode)
     {
         if (usemmap)
         {
@@ -24,7 +23,7 @@ bool base::open(const std::filesystem::path& f, const memory_map::access_mode& m
 
         read_info();
     }
-    else if (memory_map::access_mode::Write == mode)
+    else if (eMMFMode::Write == mode)
     {
         if (usemmap)
         {
@@ -86,7 +85,7 @@ void base::seek(const size_t& pos)
 {
     if (m_stream)
     {
-        if (m_mode == memory_map::access_mode::Write)
+        if (m_mode == eMMFMode::Write)
         {
             m_stream.seekp(pos);
         }
@@ -136,7 +135,7 @@ bool base::mmap_read(const size_t& seek_offset, char* data, const size_t& size)
 {
     if (m_opened)
     {
-        memory_map::cur* cur = m_mmap.ptr(seek_offset + size);  // 追踪到数据尾部,防止访问越界
+        suMemMapFile::cur* cur = m_mmap.ptr(seek_offset + size);  // 追踪到数据尾部,防止访问越界
         if (cur)
         {
             memcpy(data, cur - size, size);
@@ -190,7 +189,7 @@ size_t base::end()
 {
     if (m_normal)
     {
-        if (m_mode == memory_map::access_mode::Write)
+        if (m_mode == eMMFMode::Write)
         {
             return m_stream.tellp();
         }
