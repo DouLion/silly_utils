@@ -16,11 +16,11 @@ info::info()
     m_version[3] = 0x00;
 }
 
-bool info::open(const std::filesystem::path& file, const sumemf::access_mode& mode, const bool& usemmap)
+bool info::open(const std::filesystem::path& file, const eMMFMode& mode, const bool& usemmap)
 {
     if (base::open(file, mode, usemmap))
     {
-        if (m_mode == sumemf::access_mode::Read)
+        if (m_mode == eMMFMode::Read)
         {
             read();
             close();
@@ -78,7 +78,7 @@ void info::write_info()
 
 void info::close()
 {
-    if (m_mode == sumemf::access_mode::Write)
+    if (m_mode == eMMFMode::Write)
     {
         write_info();
     }

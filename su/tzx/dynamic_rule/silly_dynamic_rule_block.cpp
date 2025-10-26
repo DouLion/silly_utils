@@ -231,7 +231,7 @@ bool tzx::dynamic_rule_block::open_dat(const std::string& year_str)
             ofs.close();
         }
         std::shared_ptr<sumemf> tmp = std::make_shared<sumemf>();
-        sumemf::access_mode mode = m_read_mode ? sumemf::Read : sumemf::Write;
+        eMMFMode mode = m_read_mode ? eMMFMode::Read : eMMFMode::Write;
         if (!tmp->open(file, mode))
         {
             tmp->close();

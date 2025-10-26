@@ -4,11 +4,9 @@
 
 #include "silly_memory_map.h"
 #include <files/silly_file.h>
-using namespace silly::file;
 #ifdef IS_WIN32
 namespace win
 {
-
 /** Returns the 4 upper bytes of an 8-byte integer. */
 inline DWORD int64_high(int64_t n) noexcept
 {
@@ -24,14 +22,30 @@ inline DWORD int64_low(int64_t n) noexcept
 }  // namespace win
 #endif
 
-memory_map::memory_map(void)
+#ifdef _WIN32
+   // Windows 定义
+#define CREATE_NEW 1
+#define CREATE_ALWAYS 2
+#define OPEN_EXISTING 3
+#define OPEN_ALWAYS 4
+#define TRUNCATE_EXISTING 5
+#else
+// Linux/Unix 兼容定义
+#define CREATE_NEW (O_CREAT | O_EXCL | O_RDWR)
+#define CREATE_ALWAYS (O_CREAT | O_TRUNC | O_RDWR)
+#define OPEN_EXISTING O_RDWR
+#define OPEN_ALWAYS (O_CREAT | O_RDWR)
+#define TRUNCATE_EXISTING (O_TRUNC | O_RDWR)
+#endif
+
+suMemMapFile::suMemMapFile(void)
 {
 }
-memory_map::~memory_map(void)
+suMemMapFile::~suMemMapFile(void)
 {
 }
 
-memory_map::cur* memory_map::ptr(const size_t& offset) const
+suMemMapFile::cur* suMemMapFile::ptr(const size_t& offset) const
 {
     if (m_mmap && offset < m_map_len)
     {
@@ -39,7 +53,7 @@ memory_map::cur* memory_map::ptr(const size_t& offset) const
     }
     return nullptr;
 }
-bool memory_map::read(memory_map::cur* dst, const size_t& size, const size_t& offset) const
+bool suMemMapFile::read(suMemMapFile::cur* dst, const size_t& size, const size_t& offset) const
 {
     if (m_mmap && dst && size + offset < m_map_len)
     {
@@ -48,7 +62,7 @@ bool memory_map::read(memory_map::cur* dst, const size_t& size, const size_t& of
     }
     return false;
 }
-bool memory_map::write(memory_map::cur* src, const size_t& size, const size_t& offset)
+bool suMemMapFile::write(suMemMapFile::cur* src, const size_t& size, const size_t& offset)
 {
     bool status = false;
     if (m_mmap)
@@ -71,7 +85,7 @@ bool memory_map::write(memory_map::cur* src, const size_t& size, const size_t& o
     return status;
 }
 
-// bool memory_map::sync()
+// bool suMemMapFile::sync()
 //{
 //     if (!is_open())
 //     {
@@ -91,15 +105,29 @@ bool memory_map::write(memory_map::cur* src, const size_t& size, const size_t& o
 //     }
 //     return true;
 // }
-void memory_map::close()
+void suMemMapFile::close(bool del)
 {
     if (unmap())
     {
         clear();
     }
+    if (del)
+    {
+        if (std::filesystem::exists(m_param.path))
+        {
+            try
+            {
+                // 删除文件或目录
+                std::filesystem::remove_all(m_param.path);
+            }
+            catch (const std::filesystem::filesystem_error& ex)
+            {
+            }
+        }
+    }
 }
 
-void memory_map::cleanup_and_throw(const char* msg)
+void suMemMapFile::cleanup_and_throw(const char* msg)
 {
 #ifdef WIN32
     DWORD error = GetLastError();
@@ -116,7 +144,7 @@ void memory_map::cleanup_and_throw(const char* msg)
 #endif
     throw std::runtime_error(msg);
 }
-bool memory_map::map_file()
+bool suMemMapFile::map_file()
 {
     try
     {
@@ -137,7 +165,7 @@ bool memory_map::map_file()
     }
     return true;
 }
-void memory_map::try_map_file()
+void suMemMapFile::try_map_file()
 {
     int64_t length = filesize();  // TODO 这个是假的
 
@@ -148,9 +176,9 @@ void memory_map::try_map_file()
     SLOG_DEBUG(ss.str())
 #endif
     const int64_t aligned_offset = make_offset_page_aligned(m_param.offset);
-    const int64_t length_to_map = m_param.offset - aligned_offset + length;
-    const int64_t max_file_size = m_param.offset + length;
-    DWORD access = m_param.flag == access_mode::Read ? PAGE_READONLY : PAGE_READWRITE;
+    const int64_t length_to_map = m_param.offset - aligned_offset + m_param.length;
+    const int64_t max_file_size = m_param.offset + m_param.length;
+    DWORD access = m_param.flag == eMMFMode::Read ? PAGE_READONLY : PAGE_READWRITE;
     m_hdl_map = ::CreateFileMapping(m_hdl_file, 0, access, win::int64_high(max_file_size), win::int64_low(max_file_size), 0);
     if (m_hdl_map == INVALID_HANDLE_VALUE)
     {
@@ -169,12 +197,12 @@ void memory_map::try_map_file()
 #endif
     m_mmap = static_cast<char*>(mapping_start);
 }
-bool memory_map::resize(size_t size)
+bool suMemMapFile::resize(size_t size)
 {
     return false;
 }
 
-void memory_map::clear()
+void suMemMapFile::clear()
 {
     m_mmap = 0;
     m_map_len = 0;
@@ -183,7 +211,7 @@ void memory_map::clear()
     m_hdl_map = INVALID_HANDLE_VALUE;
 #endif
 }
-std::uintmax_t memory_map::filesize()
+std::uintmax_t suMemMapFile::filesize()
 {
     if (is_open())
     {
@@ -206,7 +234,7 @@ std::uintmax_t memory_map::filesize()
     return 0;
 }
 
-bool memory_map::open_file()
+bool suMemMapFile::open_file()
 {
 #ifdef IS_WIN32
 #ifndef NDEBUG
@@ -216,9 +244,9 @@ bool memory_map::open_file()
 #endif
     DWORD access = GENERIC_READ | GENERIC_WRITE;
     DWORD share = FILE_SHARE_READ | FILE_SHARE_WRITE;
-    DWORD disposition = OPEN_EXISTING;
+    // DWORD disposition = CREATE_ALWAYS;
     DWORD attr = FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN;
-    m_hdl_file = ::CreateFileW(m_param.path.wstring().c_str(), access, share, 0, disposition, attr, 0);
+    m_hdl_file = ::CreateFileW(m_param.path.wstring().c_str(), access, share, 0, m_param.disposition, attr, 0);
     if (m_hdl_file == INVALID_HANDLE_VALUE)
     {
         return false;
@@ -235,7 +263,7 @@ bool memory_map::open_file()
     return true;
 }
 
-bool memory_map::unmap()
+bool suMemMapFile::unmap()
 {
 #ifndef NDEBUG
     std::stringstream ss;
@@ -272,11 +300,11 @@ bool memory_map::unmap()
     return true;
 }
 
-bool memory_map::is_open()
+bool suMemMapFile::is_open()
 {
     return m_hdl_file != INVALID_HANDLE_VALUE;
 }
-bool memory_map::is_mapped()
+bool suMemMapFile::is_mapped()
 {
 #ifdef _WIN32
     return m_hdl_map != INVALID_HANDLE_VALUE;
@@ -285,7 +313,7 @@ bool memory_map::is_mapped()
 #endif
 }
 
-bool memory_map::open(const std::filesystem::path& file, const int& mode, const int64_t& off)
+bool suMemMapFile::open(const std::filesystem::path& file, const int& mode, const int64_t& off)
 {
     if (!std::filesystem::exists(file))
     {
@@ -298,18 +326,18 @@ bool memory_map::open(const std::filesystem::path& file, const int& mode, const 
          return false;
      }*/
     m_param.path = std::filesystem::path(file);
-    m_param.flag = static_cast<memory_map::access_mode>(m_param.flag);
+    m_param.flag = static_cast<eMMFMode>(m_param.flag);
     m_param.offset = off;
-    m_map_len = file::utils::size(m_param.path.string());
+    m_map_len = sufile::size(m_param.path.string());
     return open();
 }
-bool memory_map::open(const memory_map::param& p)
+bool suMemMapFile::open(const suMemMapFile::param& p)
 {
     m_param = p;
     return open();
 }
 
-bool memory_map::open()
+bool suMemMapFile::open()
 {
     open_file();
     return map_file();  // May modify p.hint

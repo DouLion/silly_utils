@@ -16,7 +16,7 @@ data::data()
     m_version[3] = 0x00;
 }
 
-bool data::open(const std::filesystem::path& file, const sumemf::access_mode& mode, const bool& usemmap)
+bool data::open(const std::filesystem::path& file, const eMMFMode& mode, const bool& usemmap)
 {
     return base::open(file, mode, usemmap);
 }
@@ -65,7 +65,7 @@ void data::set(index* idx)
 
 void data::close()
 {
-    if (m_mode == sumemf::access_mode::Write)
+    if (m_mode == eMMFMode::Write)
     {
         base::write_info();
     }

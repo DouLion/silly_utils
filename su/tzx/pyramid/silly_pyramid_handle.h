@@ -141,7 +141,7 @@ class handle
     silly::pyramid::index* m_index;
     silly::pyramid::info* m_info;
     silly::pyramid::data* m_data;
-    sumemf::access_mode m_mode;
+    eMMFMode m_mode;
     bool m_use_mmap = false;
 
     std::mutex m_open_mutex;

@@ -18,14 +18,14 @@ index::index()
     m_version[3] = 0x00;
 }
 
-bool index::open(const std::filesystem::path& file, const sumemf::access_mode& mode, const bool& usemmap)
+bool index::open(const std::filesystem::path& file, const eMMFMode& mode, const bool& usemmap)
 {
     if (!base::open(file, mode, usemmap))
     {
         return false;
     }
 
-    if (mode == memory_map::access_mode::Read)
+    if (mode == eMMFMode::Read)
     {
         // 读取时需要从文件中接卸
         return parse();
@@ -152,7 +152,7 @@ bool index::write(const block& blk)
 
 void index::close()
 {
-    if (m_mode == memory_map::access_mode::Write)
+    if (m_mode == eMMFMode::Write)
     {
         write_info();
     }

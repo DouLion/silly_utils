@@ -6,7 +6,7 @@
  * @date: 2023/8/10 18:06
  * @version: 1.0.1
  * @software: silly_utils
- * @description:
+ * @description: 内存文件映射
  */
 #pragma once
 
@@ -25,10 +25,7 @@
 /// https://learn.microsoft.com/en-us/windows/win32/debug/system-error-codes--0-499-
 /// boost/libs/iostreams/src/mapped_file.cpp
 /// </summary>
-namespace silly
-{
-namespace file
-{
+
 static inline size_t page_size()
 {
     static const size_t page_size = [] {
@@ -48,15 +45,16 @@ size_t inline make_offset_page_aligned(size_t offset) noexcept
     // Use integer division to round down to the nearest page alignment.
     return offset / page_size_ * page_size_;
 }
+enum eMMFMode : int
+{
+    Read = 1,
+    Write = 2
+};
 
-class memory_map
+class suMemMapFile
 {
   public:
-    enum access_mode : int
-    {
-        Read = 1,
-        Write = 2
-    };
+    
 
   public:
     using cur = char;
@@ -67,15 +65,16 @@ class memory_map
         std::uintmax_t new_file_size = 0;
         std::size_t length = std::numeric_limits<std::size_t>::max();
         int64_t offset = 0;
-        access_mode flag;
+        eMMFMode flag;
+        unsigned long disposition = 2;//CREATE_ALWAYS;
     };
 
   public:
-    memory_map(void);
-    ~memory_map(void);
+    suMemMapFile(void);
+    ~suMemMapFile(void);
     // 禁用拷贝构造函数和赋值运算符
-    memory_map(const memory_map& rh) = delete;
-    memory_map& operator=(const memory_map& rh) = delete;
+    suMemMapFile(const suMemMapFile& rh) = delete;
+    suMemMapFile& operator=(const suMemMapFile& rh) = delete;
 
     bool open(const param& p);
     /// <summary>
@@ -84,7 +83,7 @@ class memory_map
     /// <param name="file"></param>
     /// <param name="mode"></param>
     /// <returns></returns>
-    bool open(const std::filesystem::path& file, const int& mode = access_mode::Read, const int64_t& off = 0);
+    bool open(const std::filesystem::path& file, const int& mode = eMMFMode::Read, const int64_t& off = 0);
 
     /// <summary>
     /// 根据偏移量索引到内存位置
@@ -122,7 +121,7 @@ class memory_map
     /// <summary>
     /// 关闭,析构函数已经调用此函数,要注意
     /// </summary>
-    void close();
+    void close(bool del=false);
 
     /* size_t size()
      {
@@ -156,7 +155,5 @@ class memory_map
 #endif
     // bool m_is_hdl_internal = false;
 };
-}  // namespace file
-}  // namespace silly
-using sumemf = silly::file::memory_map;
+using sumemf = suMemMapFile;
 #endif  // SILLY_UTILS_SILLY_MMAP_H

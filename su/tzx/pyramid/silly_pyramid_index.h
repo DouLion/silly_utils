@@ -95,7 +95,7 @@ class index : public silly::pyramid::base
     /// <param name="mode"></param>
     /// <param name="usemmap"></param>
     /// <returns></returns>
-    bool open(const std::filesystem::path& file, const sumemf::access_mode& mode, const bool& usemmap) override;
+    bool open(const std::filesystem::path& file, const eMMFMode& mode, const bool& usemmap) override;
 
     /// <summary>
     /// 读取指定块在数据文件中的索引位置和数据大小

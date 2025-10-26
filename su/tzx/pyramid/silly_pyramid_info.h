@@ -51,7 +51,7 @@ class info : public silly::pyramid::base
     /// <param name="mode"></param>
     /// <param name="usemmap"></param>
     /// <returns></returns>
-    bool open(const std::filesystem::path& file, const sumemf::access_mode& mode, const bool& usemmap) override;
+    bool open(const std::filesystem::path& file, const eMMFMode& mode, const bool& usemmap) override;
 
     bool read();
 
