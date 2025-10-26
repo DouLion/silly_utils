@@ -38,6 +38,78 @@ std::string CRS::proj4(const eCrsEpsgCode &def)
     }
     return mEPSG2PROJ4.at(def);
 }
+eCrsEpsgCode CRS::central2cgcs2000(const int &central)
+{
+    eCrsEpsgCode ret = CGCS_2000;
+    switch (central)
+    {
+        case 75:
+            ret = CGCS2000_GAUSS_E75;
+            break;
+        case 78:
+            ret = CGCS2000_GAUSS_E78;
+            break;
+        case 81:
+            ret = CGCS2000_GAUSS_E81;
+            break;
+        case 84:
+            ret = CGCS2000_GAUSS_E84;
+            break;
+        case 87:
+            ret = CGCS2000_GAUSS_E87;
+            break;
+        case 90:
+            ret = CGCS2000_GAUSS_E90;
+            break;
+        case 93:
+            ret = CGCS2000_GAUSS_E93;
+            break;
+        case 96:
+            ret = CGCS2000_GAUSS_E96;
+            break;
+        case 99:
+            ret = CGCS2000_GAUSS_E99;
+            break;
+        case 102:
+            ret = CGCS2000_GAUSS_E102;
+            break;
+        case 105:
+            ret = CGCS2000_GAUSS_E105;
+            break;
+        case 108:
+            ret = CGCS2000_GAUSS_E108;
+            break;
+        case 111:
+            ret = CGCS2000_GAUSS_E111;
+            break;
+        case 114:
+            ret = CGCS2000_GAUSS_E114;
+            break;
+        case 117:
+            ret = CGCS2000_GAUSS_E117;
+            break;
+        case 120:
+            ret = CGCS2000_GAUSS_E120;
+            break;
+        case 123:
+            ret = CGCS2000_GAUSS_E123;
+            break;
+        case 126:
+            ret = CGCS2000_GAUSS_E126;
+            break;
+        case 129:
+            ret = CGCS2000_GAUSS_E129;
+            break;
+        case 132:
+            ret = CGCS2000_GAUSS_E132;
+            break;
+        case 135:
+            ret = CGCS2000_GAUSS_E135;
+        default:
+            break;
+    }
+    return ret;
+}
 #if SU_THIRD_SUPPORT_GDAL
 OGRSpatialReference CRS::reference(const eCrsEpsgCode &def)
 {
@@ -49,9 +121,7 @@ OGRSpatialReference CRS::reference(const eCrsEpsgCode &def)
 
 // 访问 https://epsg.io/4534 获取更多字符串
 
-std::unordered_map<eCrsEpsgCode, std::string> CRS::mEPSG2WKT =
-{
-    {WGS_84_WORLD_MERCATOR,R"(
+std::unordered_map<eCrsEpsgCode, std::string> CRS::mEPSG2WKT = {{WGS_84_WORLD_MERCATOR, R"(
 PROJCS["WGS 84 / Pseudo-Mercator",
     GEOGCS["WGS 84",
         DATUM["WGS_1984",
@@ -75,7 +145,7 @@ PROJCS["WGS 84 / Pseudo-Mercator",
     EXTENSION["PROJ4","+proj=merc +a=6378137 +b=6378137 +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +k=1 +units=m +nadgrids=@null +wktext +no_defs"],
     AUTHORITY["EPSG","3857"]]
 )"},
-    {GCS_WGS_1984,R"(
+                                                                {GCS_WGS_1984, R"(
 GEOGCS["WGS 84",
     DATUM["WGS_1984",
         SPHEROID["WGS 84",6378137,298.257223563,
@@ -87,7 +157,7 @@ GEOGCS["WGS 84",
         AUTHORITY["EPSG","9122"]],
     AUTHORITY["EPSG","4326"]]
 )"},
-    {CGCS_2000,R"(
+                                                                {CGCS_2000, R"(
 GEOGCS["China Geodetic Coordinate System 2000",
     DATUM["China_2000",
         SPHEROID["CGCS2000",6378137,298.257222101,
@@ -99,7 +169,7 @@ GEOGCS["China Geodetic Coordinate System 2000",
         AUTHORITY["EPSG","9122"]],
     AUTHORITY["EPSG","4490"]]
 )"},
-    {CGCS2000_GAUSS_E75,R"(
+                                                                {CGCS2000_GAUSS_E75, R"(
 PROJCS["CGCS2000 / 3-degree Gauss-Kruger CM 75E",
     GEOGCS["China Geodetic Coordinate System 2000",
         DATUM["China_2000",
@@ -121,7 +191,7 @@ PROJCS["CGCS2000 / 3-degree Gauss-Kruger CM 75E",
         AUTHORITY["EPSG","9001"]],
     AUTHORITY["EPSG","4534"]]
 )"},
-    {CGCS2000_GAUSS_E78,R"(
+                                                                {CGCS2000_GAUSS_E78, R"(
 PROJCS["CGCS2000 / 3-degree Gauss-Kruger CM 78E",
     GEOGCS["China Geodetic Coordinate System 2000",
         DATUM["China_2000",
@@ -143,7 +213,7 @@ PROJCS["CGCS2000 / 3-degree Gauss-Kruger CM 78E",
         AUTHORITY["EPSG","9001"]],
     AUTHORITY["EPSG","4535"]]
 )"},
-    {CGCS2000_GAUSS_E81,R"(
+                                                                {CGCS2000_GAUSS_E81, R"(
 PROJCS["CGCS2000 / 3-degree Gauss-Kruger CM 81E",
     GEOGCS["China Geodetic Coordinate System 2000",
         DATUM["China_2000",
@@ -165,7 +235,7 @@ PROJCS["CGCS2000 / 3-degree Gauss-Kruger CM 81E",
         AUTHORITY["EPSG","9001"]],
     AUTHORITY["EPSG","4536"]]
 )"},
-    {CGCS2000_GAUSS_E84,R"(
+                                                                {CGCS2000_GAUSS_E84, R"(
 PROJCS["CGCS2000 / 3-degree Gauss-Kruger CM 84E",
     GEOGCS["China Geodetic Coordinate System 2000",
         DATUM["China_2000",
@@ -187,7 +257,7 @@ PROJCS["CGCS2000 / 3-degree Gauss-Kruger CM 84E",
         AUTHORITY["EPSG","9001"]],
     AUTHORITY["EPSG","4537"]]
 )"},
-    {CGCS2000_GAUSS_E87,R"(
+                                                                {CGCS2000_GAUSS_E87, R"(
 PROJCS["CGCS2000 / 3-degree Gauss-Kruger CM 87E",
     GEOGCS["China Geodetic Coordinate System 2000",
         DATUM["China_2000",
@@ -209,7 +279,7 @@ PROJCS["CGCS2000 / 3-degree Gauss-Kruger CM 87E",
         AUTHORITY["EPSG","9001"]],
     AUTHORITY["EPSG","4538"]]
 )"},
-    {CGCS2000_GAUSS_E90,R"(
+                                                                {CGCS2000_GAUSS_E90, R"(
 PROJCS["CGCS2000 / 3-degree Gauss-Kruger CM 90E",
     GEOGCS["China Geodetic Coordinate System 2000",
         DATUM["China_2000",
@@ -231,7 +301,7 @@ PROJCS["CGCS2000 / 3-degree Gauss-Kruger CM 90E",
         AUTHORITY["EPSG","9001"]],
     AUTHORITY["EPSG","4539"]]
 )"},
-    {CGCS2000_GAUSS_E93,R"(
+                                                                {CGCS2000_GAUSS_E93, R"(
 PROJCS["CGCS2000 / 3-degree Gauss-Kruger CM 93E",
     GEOGCS["China Geodetic Coordinate System 2000",
         DATUM["China_2000",
@@ -253,7 +323,7 @@ PROJCS["CGCS2000 / 3-degree Gauss-Kruger CM 93E",
         AUTHORITY["EPSG","9001"]],
     AUTHORITY["EPSG","4540"]]
 )"},
-    {CGCS2000_GAUSS_E96,R"(
+                                                                {CGCS2000_GAUSS_E96, R"(
 PROJCS["CGCS2000 / 3-degree Gauss-Kruger CM 96E",
     GEOGCS["China Geodetic Coordinate System 2000",
         DATUM["China_2000",
@@ -275,7 +345,7 @@ PROJCS["CGCS2000 / 3-degree Gauss-Kruger CM 96E",
         AUTHORITY["EPSG","9001"]],
     AUTHORITY["EPSG","4541"]]
 )"},
-    {CGCS2000_GAUSS_E99,R"(
+                                                                {CGCS2000_GAUSS_E99, R"(
 PROJCS["CGCS2000 / 3-degree Gauss-Kruger CM 99E",
     GEOGCS["China Geodetic Coordinate System 2000",
         DATUM["China_2000",
@@ -297,7 +367,7 @@ PROJCS["CGCS2000 / 3-degree Gauss-Kruger CM 99E",
         AUTHORITY["EPSG","9001"]],
     AUTHORITY["EPSG","4542"]]
 )"},
-    {CGCS2000_GAUSS_E102,R"(
+                                                                {CGCS2000_GAUSS_E102, R"(
 PROJCS["CGCS2000 / 3-degree Gauss-Kruger CM 102E",
     GEOGCS["China Geodetic Coordinate System 2000",
         DATUM["China_2000",
@@ -319,7 +389,7 @@ PROJCS["CGCS2000 / 3-degree Gauss-Kruger CM 102E",
         AUTHORITY["EPSG","9001"]],
     AUTHORITY["EPSG","4543"]]
 )"},
-    {CGCS2000_GAUSS_E105,R"(
+                                                                {CGCS2000_GAUSS_E105, R"(
 PROJCS["CGCS2000 / 3-degree Gauss-Kruger CM 105E",
     GEOGCS["China Geodetic Coordinate System 2000",
         DATUM["China_2000",
@@ -341,7 +411,7 @@ PROJCS["CGCS2000 / 3-degree Gauss-Kruger CM 105E",
         AUTHORITY["EPSG","9001"]],
     AUTHORITY["EPSG","4544"]]
 )"},
-    {CGCS2000_GAUSS_E108,R"(
+                                                                {CGCS2000_GAUSS_E108, R"(
 PROJCS["CGCS2000 / 3-degree Gauss-Kruger CM 108E",
     GEOGCS["China Geodetic Coordinate System 2000",
         DATUM["China_2000",
@@ -363,7 +433,7 @@ PROJCS["CGCS2000 / 3-degree Gauss-Kruger CM 108E",
         AUTHORITY["EPSG","9001"]],
     AUTHORITY["EPSG","4545"]]
 )"},
-    {CGCS2000_GAUSS_E111,R"(
+                                                                {CGCS2000_GAUSS_E111, R"(
 PROJCS["CGCS2000 / 3-degree Gauss-Kruger CM 111E",
     GEOGCS["China Geodetic Coordinate System 2000",
         DATUM["China_2000",
@@ -385,7 +455,7 @@ PROJCS["CGCS2000 / 3-degree Gauss-Kruger CM 111E",
         AUTHORITY["EPSG","9001"]],
     AUTHORITY["EPSG","4546"]]
 )"},
-    {CGCS2000_GAUSS_E114,R"(
+                                                                {CGCS2000_GAUSS_E114, R"(
 PROJCS["CGCS2000 / 3-degree Gauss-Kruger CM 114E",
     GEOGCS["China Geodetic Coordinate System 2000",
         DATUM["China_2000",
@@ -407,7 +477,7 @@ PROJCS["CGCS2000 / 3-degree Gauss-Kruger CM 114E",
         AUTHORITY["EPSG","9001"]],
     AUTHORITY["EPSG","4547"]]
 )"},
-    {CGCS2000_GAUSS_E117,R"(
+                                                                {CGCS2000_GAUSS_E117, R"(
 PROJCS["CGCS2000 / 3-degree Gauss-Kruger CM 117E",
     GEOGCS["China Geodetic Coordinate System 2000",
         DATUM["China_2000",
@@ -429,7 +499,7 @@ PROJCS["CGCS2000 / 3-degree Gauss-Kruger CM 117E",
         AUTHORITY["EPSG","9001"]],
     AUTHORITY["EPSG","4548"]]
 )"},
-    {CGCS2000_GAUSS_E120,R"(
+                                                                {CGCS2000_GAUSS_E120, R"(
 PROJCS["CGCS2000 / 3-degree Gauss-Kruger CM 120E",
     GEOGCS["China Geodetic Coordinate System 2000",
         DATUM["China_2000",
@@ -451,7 +521,7 @@ PROJCS["CGCS2000 / 3-degree Gauss-Kruger CM 120E",
         AUTHORITY["EPSG","9001"]],
     AUTHORITY["EPSG","4549"]]
 )"},
-    {CGCS2000_GAUSS_E123,R"(
+                                                                {CGCS2000_GAUSS_E123, R"(
 PROJCS["CGCS2000 / 3-degree Gauss-Kruger CM 123E",
     GEOGCS["China Geodetic Coordinate System 2000",
         DATUM["China_2000",
@@ -473,7 +543,7 @@ PROJCS["CGCS2000 / 3-degree Gauss-Kruger CM 123E",
         AUTHORITY["EPSG","9001"]],
     AUTHORITY["EPSG","4550"]]
 )"},
-    {CGCS2000_GAUSS_E126,R"(
+                                                                {CGCS2000_GAUSS_E126, R"(
 PROJCS["CGCS2000 / 3-degree Gauss-Kruger CM 126E",
     GEOGCS["China Geodetic Coordinate System 2000",
         DATUM["China_2000",
@@ -495,7 +565,7 @@ PROJCS["CGCS2000 / 3-degree Gauss-Kruger CM 126E",
         AUTHORITY["EPSG","9001"]],
     AUTHORITY["EPSG","4551"]]
 )"},
-    {CGCS2000_GAUSS_E129,R"(
+                                                                {CGCS2000_GAUSS_E129, R"(
 PROJCS["CGCS2000 / 3-degree Gauss-Kruger CM 129E",
     GEOGCS["China Geodetic Coordinate System 2000",
         DATUM["China_2000",
@@ -517,7 +587,7 @@ PROJCS["CGCS2000 / 3-degree Gauss-Kruger CM 129E",
         AUTHORITY["EPSG","9001"]],
     AUTHORITY["EPSG","4552"]]
 )"},
-    {CGCS2000_GAUSS_E132,R"(
+                                                                {CGCS2000_GAUSS_E132, R"(
 PROJCS["CGCS2000 / 3-degree Gauss-Kruger CM 132E",
     GEOGCS["China Geodetic Coordinate System 2000",
         DATUM["China_2000",
@@ -539,7 +609,7 @@ PROJCS["CGCS2000 / 3-degree Gauss-Kruger CM 132E",
         AUTHORITY["EPSG","9001"]],
     AUTHORITY["EPSG","4553"]]
 )"},
-    {CGCS2000_GAUSS_E135,R"(
+                                                                {CGCS2000_GAUSS_E135, R"(
 PROJCS["CGCS2000 / 3-degree Gauss-Kruger CM 135E",
     GEOGCS["China Geodetic Coordinate System 2000",
         DATUM["China_2000",
@@ -560,38 +630,34 @@ PROJCS["CGCS2000 / 3-degree Gauss-Kruger CM 135E",
     UNIT["metre",1,
         AUTHORITY["EPSG","9001"]],
     AUTHORITY["EPSG","4554"]]
-)"}
-};
-std::unordered_map<eCrsEpsgCode, std::string> CRS::mEPSG2PROJ4 =
-{
-    {GCS_WGS_1984,R"(+proj=longlat +datum=WGS84 +no_defs)"},
-    {WGS_84_WORLD_MERCATOR,R"(+proj=merc +a=6378137 +b=6378137 +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +k=1 +units=m +nadgrids=@null +wktext +no_defs +type=crs)"},
-    {CGCS_2000,R"(+proj=longlat +ellps=GRS80 +no_defs +type=crs)"},
-    {CGCS2000_GAUSS_E75,R"(+proj=tmerc +lat_0=0 +lon_0=75 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs +type=crs)"},
-    {CGCS2000_GAUSS_E78,R"(+proj=tmerc +lat_0=0 +lon_0=78 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs +type=crs)"},
-    {CGCS2000_GAUSS_E81,R"(+proj=tmerc +lat_0=0 +lon_0=81 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs +type=crs)"},
-    {CGCS2000_GAUSS_E84,R"(+proj=tmerc +lat_0=0 +lon_0=84 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs +type=crs)"},
-    {CGCS2000_GAUSS_E87,R"(+proj=tmerc +lat_0=0 +lon_0=87 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs +type=crs)"},
-    {CGCS2000_GAUSS_E90,R"(+proj=tmerc +lat_0=0 +lon_0=90 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs +type=crs)"},
-    {CGCS2000_GAUSS_E93,R"(+proj=tmerc +lat_0=0 +lon_0=93 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs +type=crs)"},
-    {CGCS2000_GAUSS_E96,R"(+proj=tmerc +lat_0=0 +lon_0=96 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs +type=crs)"},
-    {CGCS2000_GAUSS_E99,R"(+proj=tmerc +lat_0=0 +lon_0=99 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs +type=crs)"},
-    {CGCS2000_GAUSS_E102,R"(+proj=tmerc +lat_0=0 +lon_0=102 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs +type=crs)"},
-    {CGCS2000_GAUSS_E105,R"(+proj=tmerc +lat_0=0 +lon_0=105 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs +type=crs)"},
-    {CGCS2000_GAUSS_E108,R"(+proj=tmerc +lat_0=0 +lon_0=108 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs +type=crs)"},
-    {CGCS2000_GAUSS_E111,R"(+proj=tmerc +lat_0=0 +lon_0=111 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs +type=crs)"},
-    {CGCS2000_GAUSS_E114,R"(+proj=tmerc +lat_0=0 +lon_0=114 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs +type=crs)"},
-    {CGCS2000_GAUSS_E117,R"(+proj=tmerc +lat_0=0 +lon_0=117 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs +type=crs)"},
-    {CGCS2000_GAUSS_E120,R"(+proj=tmerc +lat_0=0 +lon_0=120 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs +type=crs)"},
-    {CGCS2000_GAUSS_E123,R"(+proj=tmerc +lat_0=0 +lon_0=123 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs +type=crs)"},
-    {CGCS2000_GAUSS_E126,R"(+proj=tmerc +lat_0=0 +lon_0=126 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs +type=crs)"},
-    {CGCS2000_GAUSS_E129,R"(+proj=tmerc +lat_0=0 +lon_0=129 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs +type=crs)"},
-    {CGCS2000_GAUSS_E132,R"(+proj=tmerc +lat_0=0 +lon_0=132 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs +type=crs)"},
-    {CGCS2000_GAUSS_E135,R"(+proj=tmerc +lat_0=0 +lon_0=135 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs +type=crs)"}
-};
+)"}};
+std::unordered_map<eCrsEpsgCode, std::string> CRS::mEPSG2PROJ4 = {{GCS_WGS_1984, R"(+proj=longlat +datum=WGS84 +no_defs)"},
+                                                                  {WGS_84_WORLD_MERCATOR, R"(+proj=merc +a=6378137 +b=6378137 +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +k=1 +units=m +nadgrids=@null +wktext +no_defs +type=crs)"},
+                                                                  {CGCS_2000, R"(+proj=longlat +ellps=GRS80 +no_defs +type=crs)"},
+                                                                  {CGCS2000_GAUSS_E75, R"(+proj=tmerc +lat_0=0 +lon_0=75 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs +type=crs)"},
+                                                                  {CGCS2000_GAUSS_E78, R"(+proj=tmerc +lat_0=0 +lon_0=78 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs +type=crs)"},
+                                                                  {CGCS2000_GAUSS_E81, R"(+proj=tmerc +lat_0=0 +lon_0=81 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs +type=crs)"},
+                                                                  {CGCS2000_GAUSS_E84, R"(+proj=tmerc +lat_0=0 +lon_0=84 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs +type=crs)"},
+                                                                  {CGCS2000_GAUSS_E87, R"(+proj=tmerc +lat_0=0 +lon_0=87 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs +type=crs)"},
+                                                                  {CGCS2000_GAUSS_E90, R"(+proj=tmerc +lat_0=0 +lon_0=90 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs +type=crs)"},
+                                                                  {CGCS2000_GAUSS_E93, R"(+proj=tmerc +lat_0=0 +lon_0=93 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs +type=crs)"},
+                                                                  {CGCS2000_GAUSS_E96, R"(+proj=tmerc +lat_0=0 +lon_0=96 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs +type=crs)"},
+                                                                  {CGCS2000_GAUSS_E99, R"(+proj=tmerc +lat_0=0 +lon_0=99 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs +type=crs)"},
+                                                                  {CGCS2000_GAUSS_E102, R"(+proj=tmerc +lat_0=0 +lon_0=102 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs +type=crs)"},
+                                                                  {CGCS2000_GAUSS_E105, R"(+proj=tmerc +lat_0=0 +lon_0=105 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs +type=crs)"},
+                                                                  {CGCS2000_GAUSS_E108, R"(+proj=tmerc +lat_0=0 +lon_0=108 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs +type=crs)"},
+                                                                  {CGCS2000_GAUSS_E111, R"(+proj=tmerc +lat_0=0 +lon_0=111 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs +type=crs)"},
+                                                                  {CGCS2000_GAUSS_E114, R"(+proj=tmerc +lat_0=0 +lon_0=114 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs +type=crs)"},
+                                                                  {CGCS2000_GAUSS_E117, R"(+proj=tmerc +lat_0=0 +lon_0=117 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs +type=crs)"},
+                                                                  {CGCS2000_GAUSS_E120, R"(+proj=tmerc +lat_0=0 +lon_0=120 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs +type=crs)"},
+                                                                  {CGCS2000_GAUSS_E123, R"(+proj=tmerc +lat_0=0 +lon_0=123 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs +type=crs)"},
+                                                                  {CGCS2000_GAUSS_E126, R"(+proj=tmerc +lat_0=0 +lon_0=126 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs +type=crs)"},
+                                                                  {CGCS2000_GAUSS_E129, R"(+proj=tmerc +lat_0=0 +lon_0=129 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs +type=crs)"},
+                                                                  {CGCS2000_GAUSS_E132, R"(+proj=tmerc +lat_0=0 +lon_0=132 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs +type=crs)"},
+                                                                  {CGCS2000_GAUSS_E135, R"(+proj=tmerc +lat_0=0 +lon_0=135 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs +type=crs)"}};
 
 std::unordered_map<eCrsEsriCode, std::string> CRS::mESRI2WKT = {
-    {WGS_84_WEB_MERCATOR,R"(
+    {WGS_84_WEB_MERCATOR, R"(
 
 )"},
 };
