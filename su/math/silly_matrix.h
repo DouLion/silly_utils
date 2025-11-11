@@ -15,7 +15,6 @@
 #define SILLY_UTILS_SILLY_MATRIX_H
 #include <su_marco.h>
 #include <files/silly_memory_map.h>
-
 template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
 class suMatrix
 {
@@ -45,6 +44,7 @@ class suMatrix
     size_t m_col{0};
     // 总数据量(个数) m_row * m_col
     size_t m_total{0};
+    sumemf *m_mmf = nullptr;
 
   public:
     /// <summary>
@@ -82,9 +82,40 @@ class suMatrix
         return true;
     }
 
-    bool create(const size_t &row, const size_t &col, const std::filesystem::path& mmap)
+    bool create(const size_t &row, const size_t &col, const std::filesystem::path &mmap)
     {
+        if (!row || !col)
+        {
+            return false;
+        }
+        if (!m_mmf)
+        {
+            m_mmf = new sumemf();
+            m_col = col;
+            m_row = row;
+            sumemf::param p;
+            p.flag = eMMFMode::Write;
+            p.path = mmap;
+            p.length = row * col * sizeof(T) * 1.1;
 
+            if (std::filesystem::exists(mmap))
+            {
+                p.disposition = 3;
+            }
+            else
+            {
+                p.disposition = 2;
+            }
+
+            // 2.创建内存映射
+            if (!m_mmf->open(p))
+            {
+                return false;
+            }
+            m_data = (T *)m_mmf->ptr();
+        }
+
+        return true;
     }
 
     /// <summary>
@@ -463,7 +494,7 @@ class suMatrix
     /// 复制数据内容到新的指针地址
     /// </summary>
     /// <returns></returns>
-    suMatrix<T> copy() const
+    suMatrix<T> &copy() const
     {
         suMatrix<T> ret;
         ret.create(m_row, m_col);
@@ -659,6 +690,12 @@ class suMatrix
     /// </summary>
     void release()
     {
+        if (m_mmf)
+        {
+            m_mmf->close(true);
+            m_mmf = nullptr;
+        }
+
         if (m_data)
         {
             free(m_data);

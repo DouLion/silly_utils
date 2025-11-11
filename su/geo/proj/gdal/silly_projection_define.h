@@ -55,6 +55,7 @@ enum eCrsEpsgCode : int
 #define ESPG_WKT silly::geo::proj::CRS::wkt
 #define ESPG_PROJ4 silly::geo::proj::CRS::proj4
 #define ESRI_WKT silly::geo::proj::CRS::esri_wkt
+#define CENTRAL2CGCS200 silly::geo::proj::CRS::central2cgcs2000
 #if SU_THIRD_SUPPORT_GDAL
 #define ORG_SP_REF silly::geo::proj::CRS::reference
 #endif
@@ -66,7 +67,15 @@ class CRS
   public:
     static std::string wkt(const eCrsEpsgCode &def);
     static std::string esri_wkt(const eCrsEpsgCode &def);
+    
     static std::string proj4(const eCrsEpsgCode &def);
+
+    /**
+     *
+     * @param central 中央经线获取CGCS2000的EPSG编码
+     * @return
+     */
+    static eCrsEpsgCode central2cgcs2000(const int &central);
 #if SU_THIRD_SUPPORT_GDAL
     static OGRSpatialReference reference(const eCrsEpsgCode &def);
 #endif
@@ -75,7 +84,6 @@ class CRS
     static std::unordered_map<eCrsEpsgCode, std::string> mEPSG2WKT;
     static std::unordered_map<eCrsEpsgCode, std::string> mEPSG2PROJ4;
     static std::unordered_map<eCrsEsriCode, std::string> mESRI2WKT;
-
 };
 //{
 
@@ -92,8 +100,6 @@ class CRS
 //    Gauss_Kruger_6 = 80106,            // 高斯投影6度带
 
 //};
-} // namespace silly::geo::proj
-
-
+}  // namespace silly::geo::proj
 
 #endif  // SILLY_UTILS_SILLY_PROJECTION_DEFINE_H

@@ -7,7 +7,6 @@
 #ifdef IS_WIN32
 namespace win
 {
-
 /** Returns the 4 upper bytes of an 8-byte integer. */
 inline DWORD int64_high(int64_t n) noexcept
 {
@@ -21,6 +20,22 @@ inline DWORD int64_low(int64_t n) noexcept
 }
 
 }  // namespace win
+#endif
+
+#ifdef _WIN32
+   // Windows 定义
+#define CREATE_NEW 1
+#define CREATE_ALWAYS 2
+#define OPEN_EXISTING 3
+#define OPEN_ALWAYS 4
+#define TRUNCATE_EXISTING 5
+#else
+// Linux/Unix 兼容定义
+#define CREATE_NEW (O_CREAT | O_EXCL | O_RDWR)
+#define CREATE_ALWAYS (O_CREAT | O_TRUNC | O_RDWR)
+#define OPEN_EXISTING O_RDWR
+#define OPEN_ALWAYS (O_CREAT | O_RDWR)
+#define TRUNCATE_EXISTING (O_TRUNC | O_RDWR)
 #endif
 
 suMemMapFile::suMemMapFile(void)
@@ -90,11 +105,25 @@ bool suMemMapFile::write(suMemMapFile::cur* src, const size_t& size, const size_
 //     }
 //     return true;
 // }
-void suMemMapFile::close()
+void suMemMapFile::close(bool del)
 {
     if (unmap())
     {
         clear();
+    }
+    if (del)
+    {
+        if (std::filesystem::exists(m_param.path))
+        {
+            try
+            {
+                // 删除文件或目录
+                std::filesystem::remove_all(m_param.path);
+            }
+            catch (const std::filesystem::filesystem_error& ex)
+            {
+            }
+        }
     }
 }
 
@@ -147,8 +176,8 @@ void suMemMapFile::try_map_file()
     SLOG_DEBUG(ss.str())
 #endif
     const int64_t aligned_offset = make_offset_page_aligned(m_param.offset);
-    const int64_t length_to_map = m_param.offset - aligned_offset + length;
-    const int64_t max_file_size = m_param.offset + length;
+    const int64_t length_to_map = m_param.offset - aligned_offset + m_param.length;
+    const int64_t max_file_size = m_param.offset + m_param.length;
     DWORD access = m_param.flag == eMMFMode::Read ? PAGE_READONLY : PAGE_READWRITE;
     m_hdl_map = ::CreateFileMapping(m_hdl_file, 0, access, win::int64_high(max_file_size), win::int64_low(max_file_size), 0);
     if (m_hdl_map == INVALID_HANDLE_VALUE)
@@ -215,9 +244,9 @@ bool suMemMapFile::open_file()
 #endif
     DWORD access = GENERIC_READ | GENERIC_WRITE;
     DWORD share = FILE_SHARE_READ | FILE_SHARE_WRITE;
-    DWORD disposition = OPEN_EXISTING;
+    // DWORD disposition = CREATE_ALWAYS;
     DWORD attr = FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN;
-    m_hdl_file = ::CreateFileW(m_param.path.wstring().c_str(), access, share, 0, disposition, attr, 0);
+    m_hdl_file = ::CreateFileW(m_param.path.wstring().c_str(), access, share, 0, m_param.disposition, attr, 0);
     if (m_hdl_file == INVALID_HANDLE_VALUE)
     {
         return false;
