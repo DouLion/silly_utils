@@ -17,7 +17,7 @@
      nc_SHORT    = NC_SHORT, 	//!< signed 2 byte integer
      nc_INT      = NC_INT,	//!< signed 4 byte integer
      nc_FLOAT    = NC_FLOAT, 	//!< single precision floating point number
-     nc_DOUBLE   = NC_DOUBLE, 	//!< double precision floating point number
+     nc_DOUBLE   = NC_DOUBLE, 	//!< float precision floating point number
      nc_UBYTE    = NC_UBYTE,	//!< unsigned 1 byte int
      nc_USHORT   = NC_USHORT,	//!< unsigned 2-byte int
      nc_UINT     = NC_UINT,	//!< unsigned 4-byte int
@@ -30,7 +30,7 @@
      nc_COMPOUND = NC_COMPOUND //!< "NcCompound type"
    };
  * */
-bool silly_netcdf::open(const std::filesystem::path& file)
+bool suNetCDF::open(const std::filesystem::path& file)
 {
     bool status = false;
     auto fp = sufile::realpath(file);
@@ -47,29 +47,29 @@ bool silly_netcdf::open(const std::filesystem::path& file)
 
     return status;
 }
-std::vector<std::string> silly_netcdf::members()
+std::vector<std::string> suNetCDF::members()
 {
     std::vector<std::string> result;
     NcGroup m_nc_all_grps = m_nc_file.getGroup("/", NcGroup::GroupLocation::AllGrps);
     auto nc_all_vars = m_nc_all_grps.getVars(netCDF::NcGroup::Current);
-    for (auto [k, var] : nc_all_vars)
+    for (auto& [k, var] : nc_all_vars)
     {
         result.push_back(k);
     }
-    for (auto nm : result)
+    for (auto& nm : result)
     {
         // m_nc_all_grps
     }
     return result;
 }
-bool silly_netcdf::geometry(const std::string& lon, const std::string& lat)
+bool suNetCDF::geometry(const std::string& lon, const std::string& lat)
 {
     /*  NcVar lon_var = m_nc_all_grps.getVar(lon);
       NcVar lat_var = m_nc_all_grps.getVar(lat);
       lon_var.getDimCount();*/
     return false;
 }
-void silly_netcdf::close()
+void suNetCDF::close()
 {
     m_nc_file.close();
 }
@@ -92,7 +92,7 @@ std::vector<std::string> read_band_names(NcVar nv, std::string name, size_t len)
     std::vector<unsigned int> v_ui;
     std::vector<unsigned long long> v_ull;
     std::vector<float> v_f;
-    std::vector<double> v_d;
+    std::vector<float> v_d;
 
     switch (nv.getType().getId())
     {
@@ -191,9 +191,13 @@ std::vector<std::string> read_band_names(NcVar nv, std::string name, size_t len)
 
     return result;
 }
-bool silly_netcdf::read(const std::string& group, const std::string& lon, const std::string& lat)
+bool suNetCDF::read(const std::string& group, const std::string& lon, const std::string& lat)
 {
     bool status = false;
+    m_bands.clear();
+    m_dem_names.clear();
+    m_attr_names.clear();
+    m_geo = Geo();
     m_nc_all_grps = m_nc_file.getGroup("/", NcGroup::GroupLocation::AllGrps);
     NcVar nv_dst = m_nc_all_grps.getVar(group);
     if (nv_dst.isNull())
@@ -212,23 +216,24 @@ bool silly_netcdf::read(const std::string& group, const std::string& lon, const 
     std::vector<std::tuple<std::string, size_t, NcVar>> name_nvdims;
     std::vector<float> lat_data, lon_data, val_data;
     size_t total_val_size = 1;
-    for (auto ndim : ndims)
+    for (const auto& ndim : ndims)
     {
         std::string name = ndim.getName();
-        SLOG_DEBUG(name)
-        /* if(ndim.getSize() == 1)
+         if(ndim.getSize() == 1)
          {
              continue;
-         }*/
+         }
+         m_dem_names.push_back(name);
+         SLOG_DEBUG(name)
         if (lon == name)
         {
-            m_width = ndim.getSize();
-            lon_data.resize(m_width);
+            m_geo.xlen = ndim.getSize();
+            lon_data.resize(m_geo.xlen);
         }
         else if (lat == name)
         {
-            m_height = ndim.getSize();
-            lat_data.resize(m_height);
+            m_geo.ylen = ndim.getSize();
+            lat_data.resize(m_geo.ylen);
         }
         total_val_size *= ndim.getSize();
         name_nvdims.push_back({name, ndim.getSize(), m_nc_all_grps.getVar(ndim.getName())});
@@ -252,12 +257,12 @@ bool silly_netcdf::read(const std::string& group, const std::string& lon, const 
     }
     std::get<2>(*riter).getVar(&lat_data[0]);
     // 判断矢量方向
-    m_left = std::min(lon_data.back(), lon_data.front());
-    m_right = std::max(lon_data.back(), lon_data.front());
-    m_bottom = std::min(lat_data.back(), lat_data.front());
-    m_top = std::max(lat_data.back(), lat_data.front());
-    m_xdelta = (m_right - m_left) / (m_width - 1);
-    m_ydelta = (m_top - m_bottom) / (m_height - 1);
+    m_geo.xmin = std::min(lon_data.back(), lon_data.front());
+    m_geo.xmax = std::max(lon_data.back(), lon_data.front());
+    m_geo.ymin = std::min(lat_data.back(), lat_data.front());
+    m_geo.ymax = std::max(lat_data.back(), lat_data.front());
+    m_geo.xstep = (m_geo.xmax - m_geo.xmin) / (m_geo.xlen - 1);
+    m_geo.ystep = (m_geo.ymax - m_geo.ymin) / (m_geo.ylen - 1);
     if (lat.front() < lat.back())  // 纬度由小到大
     {
         m_sort = 0;
@@ -297,60 +302,65 @@ bool silly_netcdf::read(const std::string& group, const std::string& lon, const 
             band_names = new_band_names;
         }
     }
-    for (auto bn : band_names)
+    for (const auto& bn : band_names)
     {
         std::cout << bn << std::endl;
     }
     std::map<std::string, NcVarAtt> attr_vars = nv_dst.getAtts();
-    for (auto [key_, attr_] : attr_vars)
+    for (const auto& [key, attr] : attr_vars)
     {
-        if (key_ == "_FillValue")
+        m_attr_names.push_back(key);
+        if (key == "_FillValue")
         {
-            attr_.getValues(&m_fill);
+            attr.getValues(&m_fill);
         }
-        else if (key_ == "add_offset")
+        else if (key == "add_offset")
         {
-            attr_.getValues(&m_offset);
+            attr.getValues(&m_offset);
         }
-        else if (key_ == "scale_factor")
+        else if (key == "scale_factor")
         {
-            attr_.getValues(&m_scale);
+            attr.getValues(&m_scale);
         }
     }
 
     val_data.resize(total_val_size);
     nv_dst.getVar(&val_data[0]);
     size_t curr_i = 0;
-    size_t each_band_size = m_width * m_height;
-    for (auto bn : band_names)
+    size_t each_band_size = m_geo.xlen * m_geo.ylen;
+    for (const auto& bn : band_names)
     {
-        std::vector<float> tmp_data(each_band_size);
+        Band nbd;
+        nbd.group = group;
+        nbd.name = bn;
+
+        nbd.grid.resize(each_band_size);
         if (m_sort)
         {
-            memcpy(&tmp_data[0], &val_data[curr_i], each_band_size * sizeof(float));
+            memcpy(&nbd.grid[0], &val_data[curr_i], each_band_size * sizeof(float));
         }
         else
         {
-            for (int i = m_height - 1, j = 0; i >= 0; --i, ++j)
+            for (int i = m_geo.ylen - 1, j = 0; i >= 0; --i, ++j)
             {
-                memcpy(&tmp_data[j * m_width], &val_data[curr_i + i * m_width], m_width * sizeof(float));
+                memcpy(&nbd.grid[j * m_geo.xlen], &val_data[curr_i + i * m_geo.xlen], m_geo.xlen * sizeof(float));
             }
         }
         if (m_scale != 1.0)
         {
-            for (auto& f : tmp_data)
+            for (auto& f : nbd.grid)
             {
                 f *= m_scale;
             }
         }
         if (m_offset != 0.0)
         {
-            for (auto& f : tmp_data)
+            for (auto& f : nbd.grid)
             {
                 f += m_offset;
             }
         }
-        /*  for(auto f : tmp_data)
+        /*  for(auto f : nbd.grid)
           {
               if(f> 0)
               {
@@ -358,97 +368,112 @@ bool silly_netcdf::read(const std::string& group, const std::string& lon, const 
                   break;
               }
           }*/
-        m_nm_data.push_back({bn, tmp_data});
+        m_bands.emplace_back(nbd);
         curr_i += each_band_size;
     }
     return true;
 }
-std::string silly_netcdf::err()
+std::string suNetCDF::err()
 {
     return m_err;
 }
-double silly_netcdf::left() const
+
+suNetCDF::Geo suNetCDF::geo() const
 {
-    return m_left;
-}
-double silly_netcdf::right() const
+    return m_geo;
+ }
+float suNetCDF::left() const
 {
-    return m_right;
+    return m_geo.xmin;
 }
-double silly_netcdf::bottom() const
+float suNetCDF::right() const
 {
-    return m_bottom;
+    return m_geo.xmax;
 }
-double silly_netcdf::top() const
+float suNetCDF::bottom() const
 {
-    return m_top;
+    return m_geo.ymin;
 }
-double silly_netcdf::scale() const
+float suNetCDF::top() const
+{
+    return m_geo.ymax;
+}
+float suNetCDF::scale() const
 {
     return m_scale;
 }
-double silly_netcdf::fill() const
+float suNetCDF::fill() const
 {
     return m_fill;
 }
-double silly_netcdf::offset() const
+float suNetCDF::offset() const
 {
     return m_offset;
 }
-std::vector<float> silly_netcdf::data(const std::string& band_name)
+std::vector<float> suNetCDF::data(const std::string& band_name) const
 {
-    for (auto [name, data] : m_nm_data)
+    for (const auto& band : m_bands)
     {
-        if (name == band_name)
+        if (band_name == band.name)
         {
-            return data;
+            return band.grid;
         }
     }
     return {};
 }
-std::vector<float> silly_netcdf::data(const size_t& index)
+std::vector<float> suNetCDF::data(const size_t& index) const
 {
-    if (index >= m_nm_data.size())
+    if (index >= m_bands.size())
     {
         return {};
     }
-    return m_nm_data[index].second;
+    return m_bands[index].grid;
 }
-std::vector<std::vector<float>> silly_netcdf::data()
+std::vector<std::vector<float>> suNetCDF::data() const
 {
     std::vector<std::vector<float>> result;
-    for (auto [name, data] : m_nm_data)
+    for (const auto& band : m_bands)
     {
-        result.push_back(data);
+        result.push_back(band.grid);
     }
     return result;
 }
-std::vector<std::string> silly_netcdf::band_names()
+
+std::vector<suNetCDF::Band> suNetCDF::bands(const size_t& b, const size_t& e) const
+{
+    std::vector<suNetCDF::Band> ret;
+    for (size_t i = b; i < e && i < m_bands.size(); ++i)
+    {
+        ret.push_back(m_bands[i]);
+    }
+    return ret;
+}
+std::vector<std::string> suNetCDF::band_names() const
 {
     std::vector<std::string> result;
-    for (auto [name, data] : m_nm_data)
+    for (const auto& band : m_bands)
     {
-        result.push_back(name);
+        result.push_back(band.name);
     }
     return result;
 }
-size_t silly_netcdf::width() const
+size_t suNetCDF::width() const
 {
-    return m_width;
+    return m_geo.xlen;
 }
-size_t silly_netcdf::height() const
+size_t suNetCDF::height() const
 {
-    return m_height;
+    return m_geo.ylen;
 }
-double silly_netcdf::xdelta() const
+float suNetCDF::xdelta() const
 {
-    return m_xdelta;
+    return m_geo.xstep;
 }
-double silly_netcdf::ydelta() const
+float suNetCDF::ydelta() const
 {
-    return m_ydelta;
+    return m_geo.ystep;
 }
-bool silly_netcdf::write(const std::filesystem::path& file, const silly_netcdf_data& nd)
+bool suNetCDF::write(const std::filesystem::path& file, const Data& nd) const
 {
     bool status{false};
     auto fp = sufile::realpath(file);
@@ -458,17 +483,21 @@ bool silly_netcdf::write(const std::filesystem::path& file, const silly_netcdf_d
         sfc.open(fp.string(), NcFile::replace, NcFile::nc4);
         // 创建dims
         std::vector<NcDim> dims;
-        for (auto tdinfo : nd.dextra)
+        for (const auto& tdinfo : nd.dextra)
         {
             std::string name = std::get<0>(tdinfo);
-            auto vars = std::get<1>(tdinfo);
+            auto& vars = std::get<1>(tdinfo);
             std::string units = std::get<2>(tdinfo);
             NcDim tmpDim = sfc.addDim(name, vars.size());
             NcVar tmpVar = sfc.addVar(name, ncFloat, tmpDim);  //
 
             tmpVar.putVar(&vars[0]);
             dims.push_back(tmpDim);
-            tmpVar.putAtt("units", units);
+            if (!units.empty())
+            {
+                tmpVar.putAtt("units", units);
+            }
+           
         }
         // 坐标维度
         {
@@ -478,13 +507,13 @@ bool silly_netcdf::write(const std::filesystem::path& file, const silly_netcdf_d
             NcVar xVar = sfc.addVar(nd.dgeo.xname, ncFloat, xDim);
             std::vector<float> xs(nd.dgeo.xlen);
             std::vector<float> ys(nd.dgeo.ylen);
-            float xstep = (nd.dgeo.xlast - nd.dgeo.xfirst) / (nd.dgeo.xlen - 1);
+            float xstep = (nd.dgeo.xmax - nd.dgeo.xmin) / (nd.dgeo.xlen - 1);
             for (int i = 0; i < nd.dgeo.xlen; i++)
-                xs[i] = nd.dgeo.xfirst + i * xstep;
+                xs[i] = nd.dgeo.xmin + i * xstep;
 
-            float ystep = (nd.dgeo.ylast - nd.dgeo.yfirst) / (nd.dgeo.ylen - 1);
+            float ystep = (nd.dgeo.ymax - nd.dgeo.ymin) / (nd.dgeo.ylen - 1);
             for (int i = 0; i < nd.dgeo.ylen; i++)
-                ys[i] = nd.dgeo.yfirst + i * ystep;
+                ys[i] = nd.dgeo.ymin + i * ystep;
             yVar.putVar(&ys[0]);
             xVar.putVar(&xs[0]);
             yVar.putAtt("units", nd.dgeo.yunits);
@@ -501,7 +530,7 @@ bool silly_netcdf::write(const std::filesystem::path& file, const silly_netcdf_d
             dims.push_back(xDim);
         }
 
-        for (auto [grp, bands] : nd.grp_bands)
+        for (const auto& [grp, bands] : nd.grp_bands)
         {
             NcVar data = sfc.addVar(grp, ncFloat, dims);
             data.putAtt("_FillValue", ncFloat, bands[0].fill);
@@ -509,6 +538,7 @@ bool silly_netcdf::write(const std::filesystem::path& file, const silly_netcdf_d
             data.putAtt("scale", ncFloat, bands[0].scale);
             data.putAtt("units", bands[0].units);
             std::vector<float> all(bands.size() * bands[0].grid.size());
+            data.setCompression(true, true, 5);
             for (int i = 0; i < bands.size(); i++)
             {
                 memcpy(((char*)&all[0]) + i * bands[0].grid.size() * sizeof(float), (char*)&bands[i].grid[0], bands[i].grid.size() * sizeof(float));
@@ -524,5 +554,86 @@ bool silly_netcdf::write(const std::filesystem::path& file, const silly_netcdf_d
         SLOG_ERROR("NC: {}", std::string(e.what()))
         return status;
     }
+    return status;
+}
+
+ 
+bool suNetCDF::write(const std::filesystem::path& file) const
+{
+    bool status{false};
+    //auto fp = sufile::realpath(file);
+    //try
+    //{
+    //    NcFile sfc;
+    //    sfc.open(fp.string(), NcFile::replace, NcFile::nc4);
+    //    // 创建dims
+    //    std::vector<NcDim> dims;
+    //    for (auto tdinfo : nd.dextra)
+    //    {
+    //        std::string name = std::get<0>(tdinfo);
+    //        auto vars = std::get<1>(tdinfo);
+    //        std::string units = std::get<2>(tdinfo);
+    //        NcDim tmpDim = sfc.addDim(name, vars.size());
+    //        NcVar tmpVar = sfc.addVar(name, ncFloat, tmpDim);  //
+
+    //        tmpVar.putVar(&vars[0]);
+    //        dims.push_back(tmpDim);
+    //        tmpVar.putAtt("units", units);
+    //    }
+    //    // 坐标维度
+    //    {
+    //        NcDim yDim = sfc.addDim(nd.dgeo.yname, nd.dgeo.ylen);
+    //        NcDim xDim = sfc.addDim(nd.dgeo.xname, nd.dgeo.xlen);
+    //        NcVar yVar = sfc.addVar(nd.dgeo.yname, ncFloat, yDim);  // creates variable
+    //        NcVar xVar = sfc.addVar(nd.dgeo.xname, ncFloat, xDim);
+    //        std::vector<float> xs(nd.dgeo.xlen);
+    //        std::vector<float> ys(nd.dgeo.ylen);
+    //        float xstep = (nd.dgeo.xmax - nd.dgeo.xmin) / (nd.dgeo.xlen - 1);
+    //        for (int i = 0; i < nd.dgeo.xlen; i++)
+    //            xs[i] = nd.dgeo.xmin + i * xstep;
+
+    //        float ystep = (nd.dgeo.ymax - nd.dgeo.ymin) / (nd.dgeo.ylen - 1);
+    //        for (int i = 0; i < nd.dgeo.ylen; i++)
+    //            ys[i] = nd.dgeo.ymin + i * ystep;
+    //        yVar.putVar(&ys[0]);
+    //        xVar.putVar(&xs[0]);
+    //        yVar.putAtt("units", nd.dgeo.yunits);
+    //        yVar.putAtt("valid_min", ncFloat, nd.dgeo.ymin);
+    //        yVar.putAtt("valid_max", ncFloat, nd.dgeo.ymax);
+    //        // yVar.putAtt("positive ", "south");
+
+    //        xVar.putAtt("units", nd.dgeo.xunits);
+    //        xVar.putAtt("valid_min", ncFloat, nd.dgeo.xmin);
+    //        xVar.putAtt("valid_max", ncFloat, nd.dgeo.xmax);
+    //        // xVar.putAtt("positive ", std::string("east"));
+
+    //        dims.push_back(yDim);
+    //        dims.push_back(xDim);
+    //    }
+
+    //    for (const auto& [grp, bands] : m_nm_data)
+    //    {
+    //        NcVar data = sfc.addVar(grp, ncFloat, dims);
+    //        data.putAtt("_FillValue", ncFloat, m_fill);
+    //        data.putAtt("offset", ncFloat, m_offset);
+    //        data.putAtt("scale", ncFloat, m_scale);
+    //        data.putAtt("units", m_nm_unit.at(grp));
+    //        std::vector<float> all(bands);
+    //        data.setCompression(true, true, 5);
+    //        for (int i = 0; i < bands.size(); i++)
+    //        {
+    //            memcpy(((char*)&all[0]) + i * bands[0].grid.size() * sizeof(float), (char*)&bands[i].grid[0], bands[i].grid.size() * sizeof(float));
+    //        }
+    //        data.putVar(&all[0]);
+    //    }
+
+    //    sfc.close();
+    //    status = true;
+    //}
+    //catch (NcException& e)
+    //{
+    //    SLOG_ERROR("NC: {}", std::string(e.what()))
+    //    return status;
+    //}
     return status;
 }

@@ -32,52 +32,55 @@ using namespace netCDF::exceptions;
  *
  */
 
-class silly_netcdf_geo
+class suNetCDF
 {
   public:
-    float xfirst{0.0f};
-    float xlast{0.0f};
-    size_t xlen{0};
-    std::string xname{"lon"};
-    // 默认经度 东为正方向
-    std::string xunits{"degrees_east"};
-    float xmax{180.0f};
-    float xmin{-180.0f};
-    float yfirst{0.0f};
-    float ylast{0.0f};
-    size_t ylen{0};
-    std::string yname{"lat"};
-    // 默认纬度 北为正方向
-    std::string yunits{"degrees_north"};
-    float ymax{90.0f};
-    float ymin{-90.0f};
-};
+    class Geo
+    {
+      public:
+        /*float xfirst{0.0f};
+        float xlast{0.0f};*/
+        size_t xlen{0};
+        std::string xname{"lon"};
+        // 默认经度 东为正方向
+        std::string xunits{"degrees_east"};
+        float xmax{180.0f};
+        float xmin{-180.0f};
+        float xstep{0.0};
+        /*float yfirst{0.0f};
+        float ylast{0.0f};*/
+        size_t ylen{0};
+        std::string yname{"lat"};
+        // 默认纬度 北为正方向
+        std::string yunits{"degrees_north"};
+        float ymax{90.0f};
+        float ymin{-90.0f};
+        float ystep{0.0};
+    };
 
-// 单波段的数据
-class silly_netcdf_band_data
-{
-  public:
-    std::string group{"acc"};
-    float scale{1.};
-    float fill{-9999.};
-    float offset{0.};
-    std::string units{"mm"};
-    std::vector<float> grid;  // 西北角为原点,逐行存储
-};
+    // 单波段的数据
+    class Band
+    {
+      public:
+        std::string group{"acc"};
+        std::string name;
+        float scale{1.};
+        float fill{-9999.};
+        float offset{0.};
+        std::string units{"mm"};
+        std::vector<float> grid;  // 西北角为原点,逐行存储
+    };
 
-class silly_netcdf_data
-{
-  public:
-    // 坐标信息维度
-    silly_netcdf_geo dgeo;
-    // 其他维度, 必须具有实际意义
-    std::vector<std::tuple<std::string, std::vector<float>, std::string>> dextra;
-    // 波段数据
-    std::map<std::string, std::vector<silly_netcdf_band_data>> grp_bands;
-};
-
-class silly_netcdf
-{
+    class Data
+    {
+      public:
+        // 坐标信息维度
+        Geo dgeo;
+        // 其他维度, 必须具有实际意义
+        std::vector<std::tuple<std::string, std::vector<float>, std::string>> dextra;
+        // 波段数据
+        std::map<std::string, std::vector<Band>> grp_bands;
+    };
   public:
     /// <summary>
     /// 打开netcdf文件
@@ -100,12 +103,14 @@ class silly_netcdf
     /// 读取netcdf完整内容
     /// </summary>
     /// <param name="group">组名称</param>
-    /// <param name="lon">经度</param>
-    /// <param name="lat">纬度</param>
+    /// <param name="lon">经度字段名称</param>
+    /// <param name="lat">纬度字段名称</param>
     /// <returns></returns>
-    bool read(const std::string& group, const std::string& lon, const std::string& lat);
+    bool read(const std::string& group, const std::string& lon = "lon", const std::string& lat = "lat");
 
-    bool write(const std::filesystem::path& file, const silly_netcdf_data& snd);
+    bool write(const std::filesystem::path& file, const Data& snd) const;
+
+    bool write(const std::filesystem::path& file) const;
 
     /// <summary>
     /// 关闭netcdf文件
@@ -115,23 +120,25 @@ class silly_netcdf
 
     std::string err();
 
-    double left() const;
+    Geo geo() const;
 
-    double right() const;
+    float left() const;
 
-    double bottom() const;
+    float right() const;
 
-    double top() const;
+    float bottom() const;
 
-    double scale() const;
+    float top() const;
 
-    double fill() const;
+    float scale() const;
 
-    double offset() const;
+    float fill() const;
 
-    double xdelta() const;
+    float offset() const;
 
-    double ydelta() const;
+    float xdelta() const;
+
+    float ydelta() const;
 
     size_t width() const;
 
@@ -140,15 +147,17 @@ class silly_netcdf
     /// <summary>
     /// 获取数据, 均按照数据存储顺序返回
     /// </summary>
-    std::vector<float> data(const std::string& band_name);
-    std::vector<float> data(const size_t& index);
-    std::vector<std::vector<float>> data();
+    std::vector<float> data(const std::string& band_name) const;
+    std::vector<float> data(const size_t& index) const;
+    std::vector<std::vector<float>> data() const;
+
+    std::vector<Band> bands(const size_t& b, const size_t& e) const;
 
     /// <summary>
     /// 获取波段名称
     /// </summary>
     /// <returns></returns>
-    std::vector<std::string> band_names();
+    std::vector<std::string> band_names() const;
 
   private:
     /* 网格点顺序
@@ -160,18 +169,13 @@ class silly_netcdf
     NcFile m_nc_file;
     NcGroup m_nc_all_grps;
     std::string m_err;
-    size_t m_width{0};
-    size_t m_height{0};
-    double m_scale{1.};
-    double m_fill{-9999.};
-    double m_offset{0.};
-    double m_left{0.};
-    double m_right{0.};
-    double m_bottom{0.};
-    double m_top{0.};
-    double m_xdelta{0.};
-    double m_ydelta{0.};
-    std::vector<std::pair<std::string, std::vector<float>>> m_nm_data;
+    Geo m_geo;
+    float m_fill = -9999.0;
+    float m_offset = 0.0;
+    float m_scale = 1.0;
+    std::vector<std::string> m_dem_names;
+    std::vector<std::string> m_attr_names;
+    std::vector<Band> m_bands;
 };
 
 #endif  // SILLY_UTILS_SILLY_NETCDF_H
