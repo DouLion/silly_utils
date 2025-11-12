@@ -43,7 +43,7 @@ std::filesystem::path utils::realpath(const std::string &ftpstr)
 {
 #ifdef IS_WIN32
    
-    if (!IS_GBK(ftpstr))
+    if (IS_UTF8(ftpstr))
     {
         try
         {
