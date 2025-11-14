@@ -302,10 +302,10 @@ bool suNetCDF::read(const std::string& group, const std::string& lon, const std:
             band_names = new_band_names;
         }
     }
-    for (const auto& bn : band_names)
+    /*for (const auto& bn : band_names)
     {
         std::cout << bn << std::endl;
-    }
+    }*/
     std::map<std::string, NcVarAtt> attr_vars = nv_dst.getAtts();
     for (const auto& [key, attr] : attr_vars)
     {
