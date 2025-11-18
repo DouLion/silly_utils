@@ -11,11 +11,14 @@
 #ifndef SILLY_UTILS_SILLY_HTTP_SERVER_H
 #define SILLY_UTILS_SILLY_HTTP_SERVER_H
 #include <json/silly_jsonpp.h>
+#include <system/silly_system.h>
 
 #define SU_HTTP_JSON_RESPONSE_DATA "data"
 // 1 表示成功 0 表示失败
 #define SU_HTTP_JSON_RESPONSE_STATUS "status"
 #define SU_HTTP_JSON_RESPONSE_MESSAGE "message"
+
+using suHttpKV = std::unordered_map<std::string, std::string>;
 
 #define SU_CREATE_JSON_DEFAULT_RESPONSE                                      \
     auto resp = HttpResponse::newHttpResponse();                             \
@@ -34,10 +37,26 @@
     respJson[SU_HTTP_JSON_RESPONSE_STATUS] = 0;                              \
     respJson[SU_HTTP_JSON_RESPONSE_MESSAGE] = "未实现.";
 
+
+#define SU_HTTP_CONVERT_KV(_dragon_kv_)  \
+    [_dragon_kv_]() -> suHttpKV {         \
+        suHttpKV ret;                     \
+        for (const auto& [k, v] : params) \
+        {                                 \
+            std::string nk = k;           \
+            ret[TO_LOWER(nk)] = v;        \
+        }                                 \
+        return ret;                       \
+    }()
+
 #define SU_REQUEST_CALLBACK(data) \
     resp->setBody(data);          \
     callback(resp);               \
     return;
+
+#define SU_CONVERT_KV_PARAM
+
+
 
 /// 以下宏定义只会在旧的服务中使用
 #define SU_OLD_HTTP_JSON_RESPONSE_HEADER "header"
@@ -58,59 +77,29 @@
     respJson[SU_OLD_HTTP_JSON_RESPONSE_HEADER][SU_OLD_HTTP_JSON_RESPONSE_RET_CODE] = 1; \
     respJson[SU_OLD_HTTP_JSON_RESPONSE_HEADER][SU_OLD_HTTP_JSON_RESPONSE_RET_MESSAGE] = "not implement.";
 
-namespace silly
-{
 
-namespace http
-{
-class post_param
-{
-    /// <summary>
-    /// 处理前端post请求数据的基类
-    /// </summary>
-  public:
-    /// <summary>
-    /// 解析请求数据
-    /// </summary>
-    /// <param name="str"></param>
-    /// <returns></returns>
-    virtual bool parse(const std::string& str) = 0;
+#define SU_HTTP_CHECK_STR suHttpUtils::CheckStr
+#define SU_HTTP_TRY_STR suHttpUtils::TryStr
+#define SU_HTTP_CHECK_NUM suHttpUtils::CheckNum
+#define SU_HTTP_TRY_NUM suHttpUtils::TruNum
 
-    /// <summary>
-    /// 返回请求示例数据
-    /// </summary>
-    /// <returns></returns>
-    virtual Json::Value example() = 0;
+class suHttpUtils
+{
+    /**
+    * 查找指定key,获取其对应的值,如果找不到以按照默认值返回
+    * 
+    */
+    static std::string CheckStr(const std::unordered_map<std::string, std::string>& k2v, const std::string& key, const std::string& dv = "");
 
-  public:
-    int status = 0;
-    std::string message = "未实现";
+    /**
+     * 查找指定key,获取其对应的值,如果找不到,抛出异常
+     *
+     */
+    static std::string TryStr(const std::unordered_map<std::string, std::string>& k2v, const std::string& key);
+
+    static double CheckNum(const std::unordered_map<std::string, std::string>& k2v, const std::string& key, const double& dv = 0.0);
+
+    static double TruNum(const std::unordered_map<std::string, std::string>& k2v, const std::string& key);
 };
-
-class post_result
-{
-    /// <summary>
-    /// 处理返回结果的基类
-    /// </summary>
-  public:
-    /// <summary>
-    /// 将实际返回值转成json格式
-    /// </summary>
-    /// <returns></returns>
-    virtual Json::Value jsonify() = 0;
-
-    /// <summary>
-    /// 返回示例结果
-    /// </summary>
-    /// <returns></returns>
-    virtual Json::Value example() = 0;
-
-  public:
-    int status = 0;
-    std::string message = "未实现";
-};
-
-}  // namespace http
-}  // namespace silly
 
 #endif  // SILLY_UTILS_SILLY_HTTP_SERVER_H
