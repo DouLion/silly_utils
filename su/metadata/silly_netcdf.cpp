@@ -219,12 +219,12 @@ bool suNetCDF::read(const std::string& group, const std::string& lon, const std:
     for (const auto& ndim : ndims)
     {
         std::string name = ndim.getName();
-         if(ndim.getSize() == 1)
-         {
-             continue;
-         }
-         m_dem_names.push_back(name);
-         SLOG_DEBUG(name)
+        if (ndim.getSize() == 1)
+        {
+            continue;
+        }
+        m_dem_names.push_back(name);
+        SLOG_DEBUG(name)
         if (lon == name)
         {
             m_geo.xlen = ndim.getSize();
@@ -263,7 +263,7 @@ bool suNetCDF::read(const std::string& group, const std::string& lon, const std:
     m_geo.ymax = std::max(lat_data.back(), lat_data.front());
     m_geo.xstep = (m_geo.xmax - m_geo.xmin) / (m_geo.xlen - 1);
     m_geo.ystep = (m_geo.ymax - m_geo.ymin) / (m_geo.ylen - 1);
-    if (lat.front() < lat.back())  // 纬度由小到大
+    if (lat_data.front() < lat_data.back())  // 纬度由小到大
     {
         m_sort = 0;
         SLOG_DEBUG("从南往北")
@@ -291,9 +291,9 @@ bool suNetCDF::read(const std::string& group, const std::string& lon, const std:
                 continue;
             }
             std::vector<std::string> new_band_names;
-            for (auto & band_name : band_names)
+            for (auto& band_name : band_names)
             {
-                for (auto & tmp_band : tmp_bands)
+                for (auto& tmp_band : tmp_bands)
                 {
                     std::string tmp_name = silly_format::format("{}/{}", band_name, tmp_band);
                     new_band_names.push_back(tmp_name);
@@ -302,10 +302,6 @@ bool suNetCDF::read(const std::string& group, const std::string& lon, const std:
             band_names = new_band_names;
         }
     }
-    /*for (const auto& bn : band_names)
-    {
-        std::cout << bn << std::endl;
-    }*/
     std::map<std::string, NcVarAtt> attr_vars = nv_dst.getAtts();
     for (const auto& [key, attr] : attr_vars)
     {
@@ -325,9 +321,9 @@ bool suNetCDF::read(const std::string& group, const std::string& lon, const std:
     }
 
     val_data.resize(total_val_size);
-    nv_dst.getVar(&val_data[0]);
-    size_t curr_i = 0;
-    size_t each_band_size = m_geo.xlen * m_geo.ylen;
+    nv_dst.getVar(val_data.data());
+    const size_t each_band_size = m_geo.xlen * m_geo.ylen;
+    float* ptr = val_data.data();
     for (const auto& bn : band_names)
     {
         Band nbd;
@@ -335,17 +331,19 @@ bool suNetCDF::read(const std::string& group, const std::string& lon, const std:
         nbd.name = bn;
 
         nbd.grid.resize(each_band_size);
+        float* dptr = nbd.grid.data();
         if (m_sort)
         {
-            memcpy(&nbd.grid[0], &val_data[curr_i], each_band_size * sizeof(float));
+            memcpy(dptr, ptr, each_band_size * sizeof(float));
         }
         else
         {
-            for (int i = m_geo.ylen - 1, j = 0; i >= 0; --i, ++j)
+            for (int r = 0; r < m_geo.ylen; ++r)
             {
-                memcpy(&nbd.grid[j * m_geo.xlen], &val_data[curr_i + i * m_geo.xlen], m_geo.xlen * sizeof(float));
+                memcpy(dptr + (m_geo.ylen - r - 1) * m_geo.xlen, ptr + r * m_geo.xlen, m_geo.xlen * sizeof(float));
             }
         }
+        ptr += each_band_size;
         if (m_scale != 1.0)
         {
             for (auto& f : nbd.grid)
@@ -360,16 +358,8 @@ bool suNetCDF::read(const std::string& group, const std::string& lon, const std:
                 f += m_offset;
             }
         }
-        /*  for(auto f : nbd.grid)
-          {
-              if(f> 0)
-              {
-                  SLOG_DEBUG("{:.3f}", f)
-                  break;
-              }
-          }*/
         m_bands.emplace_back(nbd);
-        curr_i += each_band_size;
+
     }
     return true;
 }
@@ -381,7 +371,7 @@ std::string suNetCDF::err()
 suNetCDF::Geo suNetCDF::geo() const
 {
     return m_geo;
- }
+}
 float suNetCDF::left() const
 {
     return m_geo.xmin;
@@ -451,6 +441,7 @@ std::vector<suNetCDF::Band> suNetCDF::bands(const size_t& b, const size_t& e) co
 std::vector<std::string> suNetCDF::band_names() const
 {
     std::vector<std::string> result;
+    result.reserve(m_bands.size());
     for (const auto& band : m_bands)
     {
         result.push_back(band.name);
@@ -473,7 +464,7 @@ float suNetCDF::ydelta() const
 {
     return m_geo.ystep;
 }
-bool suNetCDF::write(const std::filesystem::path& file, const Data& nd) const
+bool suNetCDF::write(const std::filesystem::path& file, const Data& snd)
 {
     bool status{false};
     auto fp = sufile::realpath(file);
@@ -483,67 +474,64 @@ bool suNetCDF::write(const std::filesystem::path& file, const Data& nd) const
         sfc.open(fp.string(), NcFile::replace, NcFile::nc4);
         // 创建dims
         std::vector<NcDim> dims;
-        for (const auto& tdinfo : nd.dextra)
+        for (const auto& di : snd.dextra)
         {
-            std::string name = std::get<0>(tdinfo);
-            auto& vars = std::get<1>(tdinfo);
-            std::string units = std::get<2>(tdinfo);
+            std::string name = std::get<0>(di);
+            auto& vars = std::get<1>(di);
+            std::string units = std::get<2>(di);
             NcDim tmpDim = sfc.addDim(name, vars.size());
             NcVar tmpVar = sfc.addVar(name, ncFloat, tmpDim);  //
-
-            tmpVar.putVar(&vars[0]);
-            dims.push_back(tmpDim);
             if (!units.empty())
             {
                 tmpVar.putAtt("units", units);
             }
-           
+            tmpVar.putVar(&vars[0]);
+            dims.push_back(tmpDim);
         }
         // 坐标维度
         {
-            NcDim yDim = sfc.addDim(nd.dgeo.yname, nd.dgeo.ylen);
-            NcDim xDim = sfc.addDim(nd.dgeo.xname, nd.dgeo.xlen);
-            NcVar yVar = sfc.addVar(nd.dgeo.yname, ncFloat, yDim);  // creates variable
-            NcVar xVar = sfc.addVar(nd.dgeo.xname, ncFloat, xDim);
-            std::vector<float> xs(nd.dgeo.xlen);
-            std::vector<float> ys(nd.dgeo.ylen);
-            float xstep = (nd.dgeo.xmax - nd.dgeo.xmin) / (nd.dgeo.xlen - 1);
-            for (int i = 0; i < nd.dgeo.xlen; i++)
-                xs[i] = nd.dgeo.xmin + i * xstep;
+            NcDim yDim = sfc.addDim(snd.dgeo.yname, snd.dgeo.ylen);
+            NcDim xDim = sfc.addDim(snd.dgeo.xname, snd.dgeo.xlen);
+            NcVar yVar = sfc.addVar(snd.dgeo.yname, ncFloat, yDim);  // creates variable
+            NcVar xVar = sfc.addVar(snd.dgeo.xname, ncFloat, xDim);
+            std::vector<float> xs(snd.dgeo.xlen);
+            std::vector<float> ys(snd.dgeo.ylen);
+            for (int i = 0; i < snd.dgeo.xlen; i++)
+            {
+                xs[i] = snd.dgeo.xmin + i * snd.dgeo.xstep;
+            }
 
-            float ystep = (nd.dgeo.ymax - nd.dgeo.ymin) / (nd.dgeo.ylen - 1);
-            for (int i = 0; i < nd.dgeo.ylen; i++)
-                ys[i] = nd.dgeo.ymin + i * ystep;
-            yVar.putVar(&ys[0]);
-            xVar.putVar(&xs[0]);
-            yVar.putAtt("units", nd.dgeo.yunits);
-            yVar.putAtt("valid_min", ncFloat, nd.dgeo.ymin);
-            yVar.putAtt("valid_max", ncFloat, nd.dgeo.ymax);
-            // yVar.putAtt("positive ", "south");
+            for (int i = 0; i < snd.dgeo.ylen; i++)
+            {
+                ys[i] = snd.dgeo.ymax - i * snd.dgeo.ystep;
+            }
 
-            xVar.putAtt("units", nd.dgeo.xunits);
-            xVar.putAtt("valid_min", ncFloat, nd.dgeo.xmin);
-            xVar.putAtt("valid_max", ncFloat, nd.dgeo.xmax);
-            // xVar.putAtt("positive ", std::string("east"));
-
+            yVar.putVar(ys.data());
+            xVar.putVar(xs.data());
             dims.push_back(yDim);
             dims.push_back(xDim);
         }
 
-        for (const auto& [grp, bands] : nd.grp_bands)
+        for (const auto& [grp, bands] : snd.grp_bands)
         {
             NcVar data = sfc.addVar(grp, ncFloat, dims);
-            data.putAtt("_FillValue", ncFloat, bands[0].fill);
-            data.putAtt("offset", ncFloat, bands[0].offset);
-            data.putAtt("scale", ncFloat, bands[0].scale);
-            data.putAtt("units", bands[0].units);
-            std::vector<float> all(bands.size() * bands[0].grid.size());
-            data.setCompression(true, true, 5);
-            for (int i = 0; i < bands.size(); i++)
+            data.putAtt("_FillValue", ncFloat, bands.front().fill);
+            data.putAtt("offset", ncFloat, bands.front().offset);
+            data.putAtt("scale", ncFloat, bands.front().scale);
+            if (!bands.front().units.empty())
             {
-                memcpy(((char*)&all[0]) + i * bands[0].grid.size() * sizeof(float), (char*)&bands[i].grid[0], bands[i].grid.size() * sizeof(float));
+                data.putAtt("units", bands.front().units);
             }
-            data.putVar(&all[0]);
+            std::vector<float> all(bands.size() * bands.front().grid.size());
+            data.setCompression(true, true, 5); // 设置压缩
+            float* ptr = all.data();
+            const size_t step = snd.dgeo.xlen * snd.dgeo.ylen * sizeof(float);
+            for (const auto& band : bands)
+            {
+                memcpy(ptr, band.grid.data(), step);
+                ptr += snd.dgeo.xlen * snd.dgeo.ylen;
+            }
+            data.putVar(all.data());
         }
 
         sfc.close();
@@ -557,24 +545,23 @@ bool suNetCDF::write(const std::filesystem::path& file, const Data& nd) const
     return status;
 }
 
- 
 bool suNetCDF::write(const std::filesystem::path& file) const
 {
     bool status{false};
-    //auto fp = sufile::realpath(file);
-    //try
+    // auto fp = sufile::realpath(file);
+    // try
     //{
-    //    NcFile sfc;
-    //    sfc.open(fp.string(), NcFile::replace, NcFile::nc4);
-    //    // 创建dims
-    //    std::vector<NcDim> dims;
-    //    for (auto tdinfo : nd.dextra)
-    //    {
-    //        std::string name = std::get<0>(tdinfo);
-    //        auto vars = std::get<1>(tdinfo);
-    //        std::string units = std::get<2>(tdinfo);
-    //        NcDim tmpDim = sfc.addDim(name, vars.size());
-    //        NcVar tmpVar = sfc.addVar(name, ncFloat, tmpDim);  //
+    //     NcFile sfc;
+    //     sfc.open(fp.string(), NcFile::replace, NcFile::nc4);
+    //     // 创建dims
+    //     std::vector<NcDim> dims;
+    //     for (auto tdinfo : nd.dextra)
+    //     {
+    //         std::string name = std::get<0>(tdinfo);
+    //         auto vars = std::get<1>(tdinfo);
+    //         std::string units = std::get<2>(tdinfo);
+    //         NcDim tmpDim = sfc.addDim(name, vars.size());
+    //         NcVar tmpVar = sfc.addVar(name, ncFloat, tmpDim);  //
 
     //        tmpVar.putVar(&vars[0]);
     //        dims.push_back(tmpDim);
@@ -630,7 +617,7 @@ bool suNetCDF::write(const std::filesystem::path& file) const
     //    sfc.close();
     //    status = true;
     //}
-    //catch (NcException& e)
+    // catch (NcException& e)
     //{
     //    SLOG_ERROR("NC: {}", std::string(e.what()))
     //    return status;
@@ -638,11 +625,10 @@ bool suNetCDF::write(const std::filesystem::path& file) const
     return status;
 }
 
-
 silly_tzx_grid suNetCDF::convert(const size_t& b, const size_t& e) const
 {
     silly_tzx_grid ret;
-    if (m_bands.empty() || b> e)
+    if (m_bands.empty() || b > e)
     {
         return ret;
     }
@@ -655,12 +641,12 @@ silly_tzx_grid suNetCDF::convert(const size_t& b, const size_t& e) const
     ret.row(m_geo.ylen);
     ret.col(m_geo.xlen);
 
-    for (size_t i = b; i< e&& i< m_bands.size(); ++i)
+    for (size_t i = b; i < e && i < m_bands.size(); ++i)
     {
         suFMatrix tmp;
         tmp.create(m_geo.ylen, m_geo.xlen);
         auto max_it = std::max_element(m_bands[i].grid.begin(), m_bands[i].grid.end());
-        //auto min_it = std::min_element(m_bands[i].grid.begin(), m_bands[i].grid.end());
+        // auto min_it = std::min_element(m_bands[i].grid.begin(), m_bands[i].grid.end());
         memcpy(tmp.data(), m_bands[i].grid.data(), m_bands[i].grid.size() * sizeof(float));
         SLOG_DEBUG("{}: {}, {}", i, tmp.max(), *max_it)
         ret.add(tmp);

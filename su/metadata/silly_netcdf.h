@@ -82,6 +82,7 @@ class suNetCDF
         // 波段数据
         std::map<std::string, std::vector<Band>> grp_bands;
     };
+
   public:
     /// <summary>
     /// 打开netcdf文件
@@ -111,7 +112,7 @@ class suNetCDF
 
     silly_tzx_grid convert(const size_t& b, const size_t& e) const;
 
-    bool write(const std::filesystem::path& file, const Data& snd) const;
+    static bool write(const std::filesystem::path& file, const Data& snd);
 
     bool write(const std::filesystem::path& file) const;
 
@@ -164,9 +165,8 @@ class suNetCDF
 
   private:
     /* 网格点顺序
-     * 0 自西向东, 自南向北
+     * 0 自东向西, 自南向北
      * 1 自东向西, 自北向南
-     * 2 自南向北, 自西向东
      * */
     int m_sort{0};
     NcFile m_nc_file;
