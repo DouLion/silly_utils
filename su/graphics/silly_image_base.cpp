@@ -10,12 +10,12 @@
  */
 #include "silly_image_base.h"
 
-bool silly::image::base::valid(const std::string& bin)
+bool suImgBase::valid(const std::string& bin)
 {
     return valid(bin.c_str(), bin.size());
 }
 
-bool silly::image::base::valid(const char* data, const size_t len)
+bool suImgBase::valid(const char* data, const size_t len)
 {
     if (len < HEADER.size())
     {
@@ -31,12 +31,12 @@ bool silly::image::base::valid(const char* data, const size_t len)
     return true;
 }
 
-bool silly::image::base::empty()
+bool suImgBase::empty()
 {
     return m_bytes.empty() || !m_height || !m_width;
 }
 
-void silly::image::base::release()
+void suImgBase::release()
 {
     //   SU_MEM_DEL(m_bytes)
     ///*   for(int i = 0; i < m_height; ++i)

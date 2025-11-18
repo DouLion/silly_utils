@@ -62,7 +62,7 @@ static J_COLOR_SPACE silly2jpegctype(const eColorType& type)
     return J_COLOR_SPACE::JCS_UNKNOWN;
 }
 #endif
-void sujpeg::pixel(const size_t& row, const size_t& col, const silly::color& pixel)
+void suJPEG::pixel(const size_t& row, const size_t& col, const suColor& pixel)
 {
 #if SU_THIRD_SUPPORT_JPEG
     if (row >= m_height || col >= m_width)
@@ -86,9 +86,9 @@ void sujpeg::pixel(const size_t& row, const size_t& col, const silly::color& pix
     return;
 }
 
-silly::color sujpeg::pixel(const size_t& row, const size_t& col) const
+suColor suJPEG::pixel(const size_t& row, const size_t& col) const
 {
-    silly::color pixel = {0, 0, 0};
+    suColor pixel = {0, 0, 0};
     if (row >= m_height || col >= m_width)
     {
         std::cout << "Coordinates out of bounds " << std::endl;
@@ -110,7 +110,7 @@ silly::color sujpeg::pixel(const size_t& row, const size_t& col) const
     return pixel;
 }
 
-sujpeg& sujpeg::operator=(const sujpeg& rh)
+suJPEG& suJPEG::operator=(const suJPEG& rh)
 {
     this->m_width = rh.m_width;
     this->m_height = rh.m_height;
@@ -122,7 +122,7 @@ sujpeg& sujpeg::operator=(const sujpeg& rh)
 
     return *this;
 }
-bool sujpeg::create(const size_t& width, const size_t& height, const eColorType& type, const uint8_t& depth)
+bool suJPEG::create(const size_t& width, const size_t& height, const eColorType& type, const uint8_t& depth)
 {
     m_type = type;
     switch (m_type)
@@ -152,7 +152,7 @@ bool sujpeg::create(const size_t& width, const size_t& height, const eColorType&
     // memset(m_bytes.data(), 0, sizeof(uint8_t) * m_width * m_height * m_channels);
     return true;
 }
-bool sujpeg::read(const std::filesystem::path& file)
+bool suJPEG::read(const std::filesystem::path& file)
 {
     bool status = false;
     std::string content;
@@ -163,7 +163,7 @@ bool sujpeg::read(const std::filesystem::path& file)
 
     return decode(content);
 }
-bool sujpeg::write(const std::filesystem::path& file) const
+bool suJPEG::write(const std::filesystem::path& file) const
 {
     std::string content = encode();
     if (content.empty())
@@ -173,7 +173,7 @@ bool sujpeg::write(const std::filesystem::path& file) const
 
     return sufile::write(file, content) > 0;
 }
-bool sujpeg::decode(const std::string& bin)
+bool suJPEG::decode(const std::string& bin)
 {
     bool status = false;
 #if SU_THIRD_SUPPORT_JPEG
@@ -220,7 +220,7 @@ bool sujpeg::decode(const std::string& bin)
 #endif
     return status;
 }
-std::string sujpeg::encode() const
+std::string suJPEG::encode() const
 {
     std::string ret;
 #if SU_THIRD_SUPPORT_JPEG

@@ -11,11 +11,11 @@
 #ifndef SILLY_UTILS_SILLY_GIF_H
 #define SILLY_UTILS_SILLY_GIF_H
 
-class sugif
+class suGIF
 {
   public:
-    sugif();
-    ~sugif();
+    suGIF();
+    ~suGIF();
 
   private:
 };

@@ -44,11 +44,11 @@
 // 输出jpeg的压缩质量
 #define JPEG_QUALITY (90)
 
-std::map<std::string, FT_Face> silly_cairo::CAIRO_NAME_FONT = {};
+std::map<std::string, FT_Face> suCairo::CAIRO_NAME_FONT = {};
 
-FT_Library silly_cairo::CAIRO_FONT_LIB = nullptr;
+FT_Library suCairo::CAIRO_FONT_LIB = nullptr;
 
-bool silly_cairo::m_enable_font = false;
+bool suCairo::m_enable_font = false;
 namespace silly
 {
 
@@ -363,14 +363,14 @@ cairo_surface_t *surface_create_from_file(const char *filename)
 }  // namespace cairo
 }  // namespace silly
 
-bool silly_cairo::create(const size_t ww, const size_t &hh, const int &type)
+bool suCairo::create(const size_t& cols, const size_t& rows, const int &type)
 {
-    if (!ww || !hh)
+    if (cols == 0 || rows == 0)
     {
         return false;
     }
-    m_height = hh;
-    m_width = ww;
+    m_height = rows;
+    m_width = cols;
     m_format = CAIRO_FORMAT_ARGB32;
     switch (type)
     {
@@ -397,7 +397,7 @@ bool silly_cairo::create(const size_t ww, const size_t &hh, const int &type)
     return true;
 }
 
-bool silly_cairo::read(const std::filesystem::path &file, const bool &png)
+bool suCairo::read(const std::filesystem::path &file, const bool &png)
 {
     if (png)
     {
@@ -425,7 +425,7 @@ bool silly_cairo::read(const std::filesystem::path &file, const bool &png)
     return true;
 }
 
-bool silly_cairo::write(const std::filesystem::path &file, const bool &png)
+bool suCairo::write(const std::filesystem::path &file, const bool &png)
 {
     if (png)
     {
@@ -440,19 +440,19 @@ bool silly_cairo::write(const std::filesystem::path &file, const bool &png)
     return false;
 }
 
-bool silly_cairo::decode(const std::string &bin)
+bool suCairo::decode(const std::string &bin)
 {
     return decode((const unsigned char *)bin.c_str(), bin.size());
 }
 
-bool silly_cairo::decode(const unsigned char *data, const size_t size)
+bool suCairo::decode(const unsigned char *data, const size_t size)
 {
-    if (supng().valid(reinterpret_cast<const char *>(data), size))
+    if (suPNG().valid(reinterpret_cast<const char *>(data), size))
     {
         m_surface = silly::cairo::png::surface_create_from_stream(data, size);
     }
 #if SU_THIRD_SUPPORT_JPEG
-    else if (sujpeg().valid(reinterpret_cast<const char *>(data), size))
+    else if (suJPEG().valid(reinterpret_cast<const char *>(data), size))
     {
         m_surface = silly::cairo::jpeg::surface_create_from_stream((void *)data, size);
     }
@@ -473,7 +473,7 @@ bool silly_cairo::decode(const unsigned char *data, const size_t size)
     return true;
 }
 
-bool silly_cairo::encode(std::string &bin, const bool &png)
+bool suCairo::encode(std::string &bin, const bool &png)
 {
     if (png)
     {
@@ -489,13 +489,13 @@ bool silly_cairo::encode(std::string &bin, const bool &png)
     return !bin.empty();
 }
 
-void silly_cairo::release()
+void suCairo::release()
 {
     DESTROY_CONTEXT(m_cr)
     DESTROY_SURFACE(m_surface)
 }
 
-void silly_cairo::draw_text(silly_cairo_text sct)
+void suCairo::draw_text(const suCairoText &sct)
 {
     if (sct.tff_name.empty())
     {
@@ -518,7 +518,7 @@ void silly_cairo::draw_text(silly_cairo_text sct)
     cairo_stroke(m_cr);
 }
 
-void silly_cairo::set(const silly::color &color)
+void suCairo::set(const suColor &color)
 {
     switch (m_format)
     {
@@ -536,13 +536,13 @@ void silly_cairo::set(const silly::color &color)
     }
 }
 
-void silly_cairo::clean(silly::color color)
+void suCairo::clean(suColor color)
 {
     set(color);
     cairo_paint(m_cr);
 }
 
-void silly_cairo::draw_poly(const suPoly &poly, const silly_geo_rect &rect)
+void suCairo::draw_poly(const suPoly &poly, const silly_geo_rect &rect)
 {
     std::unique_lock loc(m_mtx);
     // 画外环
@@ -558,7 +558,7 @@ void silly_cairo::draw_poly(const suPoly &poly, const silly_geo_rect &rect)
     cairo_stroke(m_cr);
 }
 
-void silly_cairo::draw_poly_web_mercator(const suPoly &poly, const silly_geo_rect &rect)
+void suCairo::draw_poly_web_mercator(const suPoly &poly, const silly_geo_rect &rect)
 {
     std::unique_lock loc(m_mtx);
     // 画外环
@@ -574,7 +574,7 @@ void silly_cairo::draw_poly_web_mercator(const suPoly &poly, const silly_geo_rec
     cairo_stroke(m_cr);
 }
 
-void silly_cairo::draw_ring(const suRing &ring, const silly_geo_rect &rect)
+void suCairo::draw_ring(const suRing &ring, const silly_geo_rect &rect)
 {
     cairo_new_sub_path(m_cr);
 
@@ -590,7 +590,7 @@ void silly_cairo::draw_ring(const suRing &ring, const silly_geo_rect &rect)
     cairo_close_path(m_cr);
 }
 
-void silly_cairo::draw_ring_web_mercator(const suRing &ring, const silly_geo_rect &rect)
+void suCairo::draw_ring_web_mercator(const suRing &ring, const silly_geo_rect &rect)
 {
     if (ring.points.empty())
     {
@@ -615,23 +615,23 @@ void silly_cairo::draw_ring_web_mercator(const suRing &ring, const silly_geo_rec
     cairo_close_path(m_cr);
 }
 
-void silly_cairo::paint(const silly_cairo &other, const double &x, const double &y, const double &alpha)
+void suCairo::paint(const suCairo &other, const double &x, const double &y, const double &alpha)
 {
     cairo_set_source_surface(m_cr, other.m_surface, x, y);
     cairo_paint_with_alpha(m_cr, alpha);
 }
 
-size_t silly_cairo::width() const
+size_t suCairo::width() const
 {
     return m_width;
 }
 
-size_t silly_cairo::height() const
+size_t suCairo::height() const
 {
     return m_height;
 }
 
-bool silly_cairo::add_font(const std::string &name, const std::filesystem::path &file)
+bool suCairo::add_font(const std::string &name, const std::filesystem::path &file)
 {
     bool status = false;
     FT_Face ft_face;
@@ -650,7 +650,7 @@ bool silly_cairo::add_font(const std::string &name, const std::filesystem::path 
     return status;
 }
 
-void silly_cairo::enable_fonts()
+void suCairo::enable_fonts()
 {
     if (!m_enable_font)
     {
@@ -660,7 +660,7 @@ void silly_cairo::enable_fonts()
     }
 }
 
-void silly_cairo::disable_fonts()
+void suCairo::disable_fonts()
 {
     for (auto &[nm, ft] : CAIRO_NAME_FONT)
     {
@@ -672,7 +672,7 @@ void silly_cairo::disable_fonts()
     m_enable_font = false;
 }
 
-size_t silly_cairo::count_occupy(const std::string &u8str)
+size_t suCairo::count_occupy(const std::string &u8str)
 {
     size_t count = 0;
     for (size_t i = 0; i < u8str.size(); ++i)
@@ -700,12 +700,12 @@ size_t silly_cairo::count_occupy(const std::string &u8str)
     return count;
 }
 
-void silly_cairo::set(const cairo_operator_t &opt)
+void suCairo::set(const cairo_operator_t &opt)
 {
     cairo_set_operator(m_cr, opt);
 }
 
-void silly_cairo::draw_line(const std::vector<suPoint> &line, const silly_geo_rect &rect)
+void suCairo::draw_line(const std::vector<suPoint> &line, const silly_geo_rect &rect)
 {
     double x_pixel_per_degree = m_width / (rect.max.x - rect.min.x);
     double y_pixel_per_degree = m_height / (rect.max.y - rect.min.y);
@@ -718,7 +718,7 @@ void silly_cairo::draw_line(const std::vector<suPoint> &line, const silly_geo_re
     cairo_stroke(m_cr);
 }
 
-void silly_cairo::draw_line_web_mercator(const std::vector<suPoint> &line, const silly_geo_rect &rect)
+void suCairo::draw_line_web_mercator(const std::vector<suPoint> &line, const silly_geo_rect &rect)
 {
     suRect mcr;
     silly::geo::proj::convert::lonlat_to_mercator(rect.min.x, rect.max.y, mcr.min.x, mcr.max.y);
@@ -738,7 +738,7 @@ void silly_cairo::draw_line_web_mercator(const std::vector<suPoint> &line, const
     cairo_stroke(m_cr);
 }
 
-void silly_cairo::draw_point(const suPoint &p, const double &size, const silly_geo_rect &rect)
+void suCairo::draw_point(const suPoint &p, const double &size, const silly_geo_rect &rect)
 {
     cairo_set_line_width(m_cr, size);  // 圆点的直径
 

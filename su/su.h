@@ -135,10 +135,7 @@
 #include <math/spline/silly_pqs_interp_spline.h>   // 未实现
 
 // 常用气象地理信息元数据读写
-#include <metadata/geotiff_utils.h>           // geotiff
-#include <metadata/grib_utils.h>              // grid
 #include <metadata/narui_radar_grid_utils.h>  // 纳睿达网格文件
-#include <metadata/netcdf_utils.h>            // netcdf
 #include <metadata/silly_ascii_grid.h>        // ascii网格文件
 #include <metadata/silly_egm.h>               // 地球重力场文件数据
 #include <metadata/silly_geotiff.h>           // 未实现

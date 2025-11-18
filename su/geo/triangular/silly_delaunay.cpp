@@ -104,7 +104,7 @@ double silly_delaunay_utils::sq_dist(const silly_dt_point& p0, const silly_dt_po
 #include <graphics/render/canvas/silly_cairo.h>
 void silly_delaunay::draw(const std::filesystem::path& file)
 {
-    silly_cairo sc;
+    suCairo sc;
     sc.create(2000, 2000);
     silly_geo_rect rect{xmin, ymax, xmax, ymin};
     rect.correct();

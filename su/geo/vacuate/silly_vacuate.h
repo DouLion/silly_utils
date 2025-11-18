@@ -10,7 +10,7 @@
  */
 #ifndef SILLY_UTILS_SILLY_VACUATE_H
 #define SILLY_UTILS_SILLY_VACUATE_H
-#include <su_marco.h>
+#include <geo/silly_geo.h>
 
 enum eVacuateAlgo
 {
@@ -25,23 +25,33 @@ enum eVacuateAlgo
     DOUGLAS_PEUCKER_VARIANT  // 使用点数容差代替点到边距离容差; 是一次处理单个边缘（选择伪随机）
 };
 
-namespace silly
-{
-namespace geo
-{
-class vacuate
+class suVacuate
 {
   public:
+      
     static bool n_point(const int& n, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims = 2);
+    static bool n_point(const int& n, const std::vector<suPoint>& inputs, std::vector<suPoint>& outputs, const int& dims = 2);
+
     static bool radial_distance(const double& radialDistance, const std::vector<double>& points, std::vector<double>& outputs, const int& dims = 2);
+    static bool radial_distance(const double& radialDistance, const std::vector<suPoint>& points, std::vector<suPoint>& outputs, const int& dims = 2);
+
     static bool perpendicular_distance(const int& repeat, const double& distance, const std::vector<double>& points, std::vector<double>& outputs, const int& dims = 2);
+    static bool perpendicular_distance(const int& repeat, const double& distance, const std::vector<suPoint>& points, std::vector<suPoint>& outputs, const int& dims = 2);
+
     static bool reumann_witkam(const double& distance, const std::vector<double>& points, std::vector<double>& outputs, const int& dims = 2);
+    static bool reumann_witkam(const double& distance, const std::vector<suPoint>& points, std::vector<suPoint>& outputs, const int& dims = 2);
+
     static bool opheim(const double& minDistance, const double& maxDistance, const std::vector<double>& points, std::vector<double>& outputs, const int& dims = 2);
+    static bool opheim(const double& minDistance, const double& maxDistance, const std::vector<suPoint>& points, std::vector<suPoint>& outputs, const int& dims = 2);
+
     static bool lang(const int& lookAhead, const double& distance, const std::vector<double>& points, std::vector<double>& outputs, const int& dims = 2);
+    static bool lang(const int& lookAhead, const double& distance, const std::vector<suPoint>& points, std::vector<suPoint>& outputs, const int& dims = 2);
+    
     static bool douglas_peucker(const double& distance, const std::vector<double>& points, std::vector<double>& outputs, const int& dims = 2);
+    static bool douglas_peucker(const double& distance, const std::vector<suPoint>& points, std::vector<suPoint>& outputs, const int& dims = 2);
+
     static bool douglas_peucker_variant(const int& pointNum, const std::vector<double>& points, std::vector<double>& outputs, const int& dims = 2);
+    static bool douglas_peucker_variant(const int& pointNum, const std::vector<suPoint>& points, std::vector<suPoint>& outputs, const int& dims = 2);
 };
-}  // namespace geo
-}  // namespace silly
 
 #endif  // SILLY_UTILS_SILLY_VACUATE_H

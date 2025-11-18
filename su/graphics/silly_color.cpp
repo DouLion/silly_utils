@@ -12,7 +12,7 @@
 #define MAX_ENCODE_V 12799.9999
 #define MIN_ENCODE_V (-12799.9999)
 
-int silly::color::channels(const eColorType& t)
+int suColor::channels(const eColorType& t)
 {
     switch (t)
     {
@@ -29,7 +29,7 @@ int silly::color::channels(const eColorType& t)
     }
 }
 
-bool silly::color::hex2argb(const char* color)
+bool suColor::hex2argb(const char* color)
 {
     unsigned int v = 0;
     if (1 != sscanf(color, "%x", &v) || strlen(color) != 8)
@@ -45,7 +45,7 @@ bool silly::color::hex2argb(const char* color)
     return true;
 }
 
-bool silly::color::hex2rgb(const char* color)
+bool suColor::hex2rgb(const char* color)
 {
     unsigned int v = 0;
     if (1 != sscanf(color, "%x", &v) || strlen(color) != 6)
@@ -58,7 +58,7 @@ bool silly::color::hex2rgb(const char* color)
     return true;
 }
 
-bool silly::color::hex2rgba(const char* color)
+bool suColor::hex2rgba(const char* color)
 {
     unsigned int v = 0;
     if (1 != sscanf(color, "%x", &v) || strlen(color) != 8)
@@ -72,7 +72,7 @@ bool silly::color::hex2rgba(const char* color)
     return true;
 }
 
-double silly::color::vdecode() const
+double suColor::vdecode() const
 {
     double ret = 0;
     ret += red * 1.e2;
@@ -82,7 +82,7 @@ double silly::color::vdecode() const
     return ret + MIN_ENCODE_V;
 }
 
-void silly::color::vencode(const double& vv)
+void suColor::vencode(const double& vv)
 {
     double v = vv - MIN_ENCODE_V;
     red = static_cast<unsigned char>(static_cast<int>(v / 1e2));
@@ -91,7 +91,7 @@ void silly::color::vencode(const double& vv)
     alpha = static_cast<unsigned char>(static_cast<int>(v * 10000) % 100);
 }
 
-std::string silly::color::argb2hex() const
+std::string suColor::argb2hex() const
 {
     std::ostringstream oss;
     oss << std::uppercase << std::hex << std::setfill('0');
@@ -102,7 +102,7 @@ std::string silly::color::argb2hex() const
     return oss.str();
 }
 
-std::string silly::color::rgb2hex() const
+std::string suColor::rgb2hex() const
 {
     std::ostringstream oss;
     oss << std::uppercase << std::hex << std::setfill('0');
@@ -112,7 +112,7 @@ std::string silly::color::rgb2hex() const
     return oss.str();
 }
 
-std::string silly::color::rgba2hex() const
+std::string suColor::rgba2hex() const
 {
     std::ostringstream oss;
     oss << std::uppercase << std::hex << std::setfill('0');
@@ -123,7 +123,7 @@ std::string silly::color::rgba2hex() const
     return oss.str();
 }
 
-std::string silly::color::abgr2hex() const
+std::string suColor::abgr2hex() const
 {
     std::ostringstream oss;
     oss << std::uppercase << std::hex << std::setfill('0');
@@ -133,7 +133,7 @@ std::string silly::color::abgr2hex() const
     oss << std::setw(2) << red;
     return oss.str();
 }
-std::string silly::color::bgra2hex() const
+std::string suColor::bgra2hex() const
 {
     std::ostringstream oss;
     oss << std::uppercase << std::hex << std::setfill('0');
@@ -144,7 +144,7 @@ std::string silly::color::bgra2hex() const
     return oss.str();
 }
 
-std::string silly::color::bgr2hex() const
+std::string suColor::bgr2hex() const
 {
     std::ostringstream oss;
     oss << std::uppercase << std::hex << std::setfill('0');

@@ -11,11 +11,11 @@
 #ifndef SILLY_UTILS_SILLY_ICON_H
 #define SILLY_UTILS_SILLY_ICON_H
 
-class silly_icon
+class suIcon
 {
   public:
-    silly_icon();
-    ~silly_icon();
+    suIcon();
+    ~suIcon();
 
   private:
 };

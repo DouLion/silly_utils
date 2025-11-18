@@ -12,14 +12,11 @@
 #define SILLY_UTILS_SILLY_IMAGE_BASE_H
 #include <graphics/silly_color.h>
 #include <files/silly_file.h>
-namespace silly
-{
-namespace image
-{
-class base
+
+class suImgBase
 {
   public:
-    virtual ~base() = default;
+    virtual ~suImgBase() = default;
     /// <summary>
     /// 创建指定宽高和颜色类型的空图像,颜色为全为0
     /// </summary>
@@ -49,7 +46,7 @@ class base
     /// <param name="row"></param>
     /// <param name="col"></param>
     /// <param name="pixel"></param>
-    virtual void pixel(const size_t& row, const size_t& col, const silly::color& pixel) = 0;
+    virtual void pixel(const size_t& row, const size_t& col, const suColor& pixel) = 0;
 
     /// <summary>
     /// 获取指定位置的颜色
@@ -57,7 +54,7 @@ class base
     /// <param name="row"></param>
     /// <param name="col"></param>
     /// <returns></returns>
-    virtual silly::color pixel(const size_t& row, const size_t& col) const = 0;
+    virtual suColor pixel(const size_t& row, const size_t& col) const = 0;
 
     /// <summary>
     /// 从二进制数据创建图像
@@ -141,8 +138,5 @@ class base
     std::string m_err;
     // unsigned char** m_nbytes = nullptr;
 };
-}  // namespace image
-
-}  // namespace silly
 
 #endif  // SILLY_UTILS_SILLY_IMAGE_BASE_H

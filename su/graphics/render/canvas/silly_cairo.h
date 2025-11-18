@@ -5,7 +5,7 @@
  * @author: dou li yang
  * @date: 24-8-9 下午2:32
  * @version: 1.0.1
- * @description: silly_cairo 类声明
+ * @description: suCairo 类声明
  */
 #ifndef SILLY_UTILS_SILLY_CAIRO_H
 #define SILLY_UTILS_SILLY_CAIRO_H
@@ -18,7 +18,7 @@
 #include <graphics/font/silly_font.h>
 #include FT_FREETYPE_H
 
-enum enum_silly_cairo_align
+enum eCairoAlign
 {
     Middle = 1,  // 居中对齐
     LeftTop = 2,
@@ -27,7 +27,7 @@ enum enum_silly_cairo_align
     RightBottom = 5
 };
 
-class silly_cairo_text
+class suCairoText
 {
   public:
     double x{0};
@@ -38,32 +38,32 @@ class silly_cairo_text
     std::string tff_name;  // 自定义字体的名称
 };
 
-class silly_cairo
+class suCairo
 {
     /// <summary>
     /// 读写均只支持png 和 jpg 图片格式,其他未作兼容
     /// </summary>
   public:
-    silly_cairo() = default;
+    suCairo() = default;
     /// <summary>
     /// 创建
     /// </summary>
-    /// <param name="ww"></param>
-    /// <param name="hh"></param>
+    /// <param name="cols"></param>
+    /// <param name="rows"></param>
     /// <param name="type"></param>
     /// <returns></returns>
-    bool create(const size_t ww, const size_t& hh, const int& type = eColorType::RGBA);
+    bool create(const size_t& cols, const size_t& rows, const int& type = eColorType::RGBA);
 
     /// <summary>
     /// 使用颜色清空画布
     /// </summary>
     /// <param name="color"></param>
-    void clean(silly::color color = {0, 0, 0, 0});
+    void clean(suColor color = {0, 0, 0, 0});
 
     /// <summary>
     /// 从文件读取图片
     /// </summary>
-    /// <param name="path"></param>
+    /// <param name="file"></param>
     /// <param name="png">true 以png读取, false 以 jpeg 格式读取</param>
     /// <returns></returns>
     bool read(const std::filesystem::path& file, const bool& png = true);
@@ -71,7 +71,7 @@ class silly_cairo
     /// <summary>
     /// 将图片写入文件
     /// </summary>
-    /// <param name="path"></param>
+    /// <param name="file"></param>
     /// <param name="png">true 写为 png, false 写为 jpeg格式</param>
     /// <returns></returns>
     bool write(const std::filesystem::path& file, const bool& png = true);
@@ -104,14 +104,14 @@ class silly_cairo
     /// 添加一个字体
     /// </summary>
     /// <param name="name">自定义字体名称</param>
-    /// <param name="path">字体文件(.tff)的路径</param>
+    /// <param name="file">字体文件(.tff)的路径</param>
     static bool add_font(const std::string& name, const std::filesystem::path& file);
 
     /// <summary>
     /// 设置颜色, 自动由 0-255转为 0-1.0
     /// </summary>
     /// <param name="color"></param>
-    void set(const silly::color& color);
+    void set(const suColor& color);
 
     /// <summary>
     /// 设置操作
@@ -126,13 +126,13 @@ class silly_cairo
     /// <param name="x"></param>
     /// <param name="y"></param>
     /// <param name="alpha"></param>
-    void paint(const silly_cairo& other, const double& x = 0, const double& y = 0, const double& alpha = 1.);
+    void paint(const suCairo& other, const double& x = 0, const double& y = 0, const double& alpha = 1.);
 
     /// <summary>
     /// 绘制文字
     /// </summary>
     /// <param name="sct"></param>
-    void draw_text(silly_cairo_text sct);
+    void draw_text(const suCairoText& sct);
 
     void draw_point(const suPoint& p, const double& size, const silly_geo_rect& rect);
 

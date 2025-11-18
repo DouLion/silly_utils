@@ -219,7 +219,7 @@ void x_scan_line::rasterize(const silly_geo_coll& geo_coll)
 void x_scan_line::image(const std::filesystem::path& file)
 {
 #ifndef NDEBUG
-    supng pd;
+    suPNG pd;
     pd.create(m_width, m_height, eColorType::GRAYA);
     for (int r = 0; r < m_height; ++r)
     {
@@ -228,7 +228,7 @@ void x_scan_line::image(const std::filesystem::path& file)
         {
             for (int i = p.beg; i <= p.end; ++i)
             {
-                pd.pixel(r, i, silly::color(255, 0, 0, 255));
+                pd.pixel(r, i, suColor(255, 0, 0, 255));
             }
             old = p.end;
         }

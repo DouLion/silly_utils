@@ -19,27 +19,25 @@ enum eColorType : uint8_t
     GRAY = 3,  // PNG_COLOR_TYPE_GRAY,
     GRAYA = 4  // PNG_COLOR_TYPE_GRAY_ALPHA
 };
-namespace silly
-{
-class color
+class suColor
 {
   public:
-    color(uint8_t r, uint8_t g, uint8_t b, uint8_t a) : red(r), green(g), blue(b), alpha(a)
+    suColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a) : red(r), green(g), blue(b), alpha(a)
     {
     }
 
-    color(uint8_t r, uint8_t g, uint8_t b) : red(r), green(g), blue(b)
+    suColor(uint8_t r, uint8_t g, uint8_t b) : red(r), green(g), blue(b)
     {
     }
 
-    color(uint8_t g, uint8_t a) : alpha(a), gray(g)
+    suColor(uint8_t g, uint8_t a) : alpha(a), gray(g)
     {
     }
 
-    color(uint8_t g) : gray(g)
+    suColor(uint8_t g) : gray(g)
     {
     }
-    color()
+    suColor()
     {
     }
 
@@ -109,7 +107,6 @@ class color
     uint8_t blue{0};
     uint8_t alpha{0};
 };
-}  // namespace silly
 #endif  // SILLY_UTILS_SILLY_COLOR_H
 
 /* shader中的恢复函数

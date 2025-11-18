@@ -19,10 +19,10 @@ const static std::vector<uint8_t> EMPTY_1X1_RGBA_PNG = {0x89, 0x50, 0x4E, 0x47, 
 
 const static std::string EMPTY_1X1_RGBA_PNG_STR(EMPTY_1X1_RGBA_PNG.begin(), EMPTY_1X1_RGBA_PNG.end());
 
-class supng : public silly::image::base
+class suPNG : public suImgBase
 {
   public:
-    supng()
+    suPNG()
     {
         HEADER = {0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A};
     }
@@ -56,7 +56,7 @@ class supng : public silly::image::base
     /// <param name="row"></param>
     /// <param name="col"></param>
     /// <param name="pixel"></param>
-    void pixel(const size_t &row, const size_t &col, const silly::color &pixel) override;
+    void pixel(const size_t &row, const size_t &col, const suColor &pixel) override;
 
     /// <summary>
     /// 获取指定位置的颜色
@@ -64,7 +64,7 @@ class supng : public silly::image::base
     /// <param name="row"></param>
     /// <param name="col"></param>
     /// <returns></returns>
-    silly::color pixel(const size_t &row, const size_t &col) const override;
+    suColor pixel(const size_t &row, const size_t &col) const override;
 
     /// <summary>
     /// 从二进制数据创建图像
@@ -89,7 +89,7 @@ class supng : public silly::image::base
         return m_nbytes.data();
     }
 
-    supng &operator=(const supng &rh);
+    suPNG &operator=(const suPNG &rh);
 
   protected:
     std::vector<uint8_t *> m_nbytes;

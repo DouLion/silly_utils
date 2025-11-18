@@ -18,7 +18,7 @@ class silly_val2color
 {
   public:
     silly_val2color() = default;
-    silly_val2color(T v, silly::color c)
+    silly_val2color(T v, suColor c)
     {
         val = v;
         color = c;
@@ -26,7 +26,7 @@ class silly_val2color
 
   public:
     T val;
-    silly::color color;
+    suColor color;
 };
 
 template <typename T>
@@ -35,7 +35,7 @@ class silly_render_param
   public:
     suMatrix<T> mtx;
     std::vector<silly_val2color<T>> v2cs;  // 需要排好序
-    supng pd;
+    suPNG pd;
     silly_geo_rect rect;
 
     // 将 v2cs 按照 val 的值进行排序 默认升序排序
@@ -59,7 +59,7 @@ class silly_grid_render
 {
   public:
     friend class suMatrix<T>;
-    friend class supng;
+    friend class suPNG;
 
     void normal_render_greater(silly_render_param<T>& srp)
     {
@@ -113,7 +113,7 @@ class silly_grid_render
         srp.pd = srp2.pd;
     }
 
-    void normal_render(silly_render_param<T>& srp, std::function<silly::color(T, std::vector<silly_val2color<T>>)> func)
+    void normal_render(silly_render_param<T>& srp, std::function<suColor(T, std::vector<silly_val2color<T>>)> func)
     {
         int color_num = srp.v2cs.size();
         T* ptr = srp.mtx.data();
@@ -129,13 +129,13 @@ class silly_grid_render
             {
                 T v = ptr[0];
                 ptr++;
-                silly::color tmp_color = func(v, srp.v2cs);
+                suColor tmp_color = func(v, srp.v2cs);
                 srp.pd.pixel(r, c, tmp_color);
             }
         }
     }
 
-    void geo_mc_render(silly_render_param<T>& srp, std::function<silly::color(T, std::vector<silly_val2color<T>>)> func)
+    void geo_mc_render(silly_render_param<T>& srp, std::function<suColor(T, std::vector<silly_val2color<T>>)> func)
     {
         suMatrix<T> mc_mtx;
         if (!silly_geo_convert::matrix_geo_to_mercator(srp.mtx, srp.rect, mc_mtx))

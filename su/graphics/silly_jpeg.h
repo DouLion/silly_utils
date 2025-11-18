@@ -12,10 +12,10 @@
 #define SILLY_UTILS_SILLY_JPEG_H
 
 #include <graphics/silly_image_base.h>
-class sujpeg: public silly::image::base
+class suJPEG: public suImgBase
 {
   public:
-    sujpeg()
+    suJPEG()
     {
         HEADER = {0xFF, 0xD8};
     }
@@ -48,7 +48,7 @@ class sujpeg: public silly::image::base
     /// <param name="row"></param>
     /// <param name="col"></param>
     /// <param name="pixel"></param>
-    void pixel(const size_t &row, const size_t &col, const silly::color &pixel) override;
+    void pixel(const size_t &row, const size_t &col, const suColor &pixel) override;
 
     /// <summary>
     /// 获取指定位置的颜色
@@ -56,7 +56,7 @@ class sujpeg: public silly::image::base
     /// <param name="row"></param>
     /// <param name="col"></param>
     /// <returns></returns>
-    silly::color pixel(const size_t &row, const size_t &col) const override;
+    suColor pixel(const size_t &row, const size_t &col) const override;
 
     /// <summary>
     /// 从二进制数据创建图像
@@ -71,7 +71,7 @@ class sujpeg: public silly::image::base
     /// <returns></returns>
     std::string encode() const override;
 
-    sujpeg &operator=(const sujpeg &rh);
+    suJPEG &operator=(const suJPEG &rh);
 
   protected:
     int m_quality{75};

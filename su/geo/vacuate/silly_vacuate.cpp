@@ -15,7 +15,7 @@
 using namespace psimpl;
 using namespace silly::geo;
 
-bool vacuate::n_point(const int& n, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
+bool suVacuate::n_point(const int& n, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
 {
     try
     {
@@ -40,8 +40,33 @@ bool vacuate::n_point(const int& n, const std::vector<double>& inputs, std::vect
     }
     return true;
 }
+bool suVacuate::n_point(const int& n, const std::vector<suPoint>& inputs, std::vector<suPoint>& outputs, const int& dims)
+{
+    return false;
+}
+bool suVacuate::radial_distance(const double& radialDistance, const std::vector<suPoint>& points, std::vector<suPoint>& outputs, const int& dims)
+{
+    return false;
+}
+bool suVacuate::perpendicular_distance(const int& repeat, const double& distance, const std::vector<suPoint>& points, std::vector<suPoint>& outputs, const int& dims)
+{
+    return false;
+}
+bool suVacuate::reumann_witkam(const double& distance, const std::vector<suPoint>& points, std::vector<suPoint>& outputs, const int& dims)
+{
+    return false;
+}
+bool suVacuate::opheim(const double& minDistance, const double& maxDistance, const std::vector<suPoint>& points, std::vector<suPoint>& outputs, const int& dims)
+{
+    return false;
+}
+bool suVacuate::lang(const int& lookAhead, const double& distance, const std::vector<suPoint>& points, std::vector<suPoint>& outputs, const int& dims)
+{
+    return false;
+}
 
-bool vacuate::radial_distance(const double& radialDistance, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
+
+bool suVacuate::radial_distance(const double& radialDistance, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
 {
     try
     {
@@ -67,7 +92,7 @@ bool vacuate::radial_distance(const double& radialDistance, const std::vector<do
     return true;
 }
 
-bool vacuate::perpendicular_distance(const int& repeat, const double& distance, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
+bool suVacuate::perpendicular_distance(const int& repeat, const double& distance, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
 {
     try
     {
@@ -93,7 +118,7 @@ bool vacuate::perpendicular_distance(const int& repeat, const double& distance, 
     return true;
 }
 
-bool vacuate::reumann_witkam(const double& distance, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
+bool suVacuate::reumann_witkam(const double& distance, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
 {
     try
     {
@@ -119,7 +144,7 @@ bool vacuate::reumann_witkam(const double& distance, const std::vector<double>& 
     return true;
 }
 
-bool vacuate::opheim(const double& minDistance, const double& maxDistance, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
+bool suVacuate::opheim(const double& minDistance, const double& maxDistance, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
 {
     try
     {
@@ -145,7 +170,7 @@ bool vacuate::opheim(const double& minDistance, const double& maxDistance, const
     return true;
 }
 
-bool vacuate::lang(const int& lookAhead, const double& distance, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
+bool suVacuate::lang(const int& lookAhead, const double& distance, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
 {
     try
     {
@@ -171,7 +196,7 @@ bool vacuate::lang(const int& lookAhead, const double& distance, const std::vect
     return true;
 }
 
-bool vacuate::douglas_peucker(const double& distance, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
+bool suVacuate::douglas_peucker(const double& distance, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
 {
     try
     {
@@ -196,8 +221,31 @@ bool vacuate::douglas_peucker(const double& distance, const std::vector<double>&
     }
     return true;
 }
+bool suVacuate::douglas_peucker(const double& distance, const std::vector<suPoint>& points, std::vector<suPoint>& outputs, const int& dims)
+{
+    std::vector<double> in ,out;
+    in.resize(points.size() * 2);
+    for (size_t i = 0; i < points.size(); i++)
+    {
+        in[i*2] = points[i].x;
+        in[i*2+1] = points[i].y;
+    }
+    if (douglas_peucker(distance, in, out, dims))
+    {
 
-bool vacuate::douglas_peucker_variant(const int& pointNum, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
+        size_t pnum = out.size()/2;
+        outputs.resize(pnum);
+        for (size_t i = 0; i < pnum; i++)
+        {
+            outputs[i] = {out[i*2], out[i*2+1]};
+        }
+        return true;
+
+    }
+    return false;
+}
+
+bool suVacuate::douglas_peucker_variant(const int& pointNum, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
 {
     try
     {
@@ -221,4 +269,28 @@ bool vacuate::douglas_peucker_variant(const int& pointNum, const std::vector<dou
         return false;
     }
     return true;
+}
+
+bool suVacuate::douglas_peucker_variant(const int& pointNum, const std::vector<suPoint>& points, std::vector<suPoint>& outputs, const int& dims)
+{
+    std::vector<double> in ,out;
+    in.resize(points.size() * 2);
+    for (size_t i = 0; i < points.size() * 2; i++)
+    {
+        in[i*2] = points[i].x;
+        in[i*2+1] = points[i].y;
+    }
+    if (douglas_peucker(pointNum, in, out, dims))
+    {
+
+        size_t pnum = out.size()/2;
+        outputs.resize(pnum);
+        for (size_t i = 0; i < pnum; i++)
+        {
+            outputs[i] = {out[i*2], out[i*2+1]};
+        }
+        return true;
+
+    }
+    return false;
 }

@@ -11,11 +11,11 @@
 #ifndef SILLY_UTILS_SILLY_RAW_H
 #define SILLY_UTILS_SILLY_RAW_H
 
-class suraw
+class suRaw
 {
   public:
-    suraw();
-    ~suraw();
+    suRaw();
+    ~suRaw();
 
   private:
 };

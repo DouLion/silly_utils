@@ -77,7 +77,7 @@ static void silly_png_read_callback(png_structp pngPtr, png_bytep outBytes, png_
     reader->offset += byteCount;
 }
 
-supng &supng::operator=(const supng &rh)
+suPNG &suPNG::operator=(const suPNG &rh)
 {
     this->m_bytes = rh.m_bytes;
     this->m_width = rh.m_width;
@@ -94,7 +94,7 @@ supng &supng::operator=(const supng &rh)
     return *this;
 }
 
-void supng::pixel(const size_t &r, const size_t &c, const silly::color &sp)
+void suPNG::pixel(const size_t &r, const size_t &c, const suColor &sp)
 {
     if (!(r < m_height && c < m_width))
     {
@@ -127,9 +127,9 @@ void supng::pixel(const size_t &r, const size_t &c, const silly::color &sp)
     }
 }
 
-silly::color supng::pixel(const size_t &r, const size_t &c) const
+suColor suPNG::pixel(const size_t &r, const size_t &c) const
 {
-    silly::color sp;
+    suColor sp;
 
     if (!(r < m_height && c < m_width))
     {
@@ -163,10 +163,10 @@ silly::color supng::pixel(const size_t &r, const size_t &c) const
 
     return sp;
 }
-bool supng::create(const size_t &width, const size_t &height, const eColorType &type, const uint8_t &depth)
+bool suPNG::create(const size_t &width, const size_t &height, const eColorType &type, const uint8_t &depth)
 {
     m_type = static_cast<eColorType>(type);
-    m_channels = silly::color::channels(m_type);
+    m_channels = suColor::channels(m_type);
     if (!m_channels)
     {
         return false;
@@ -190,7 +190,7 @@ bool supng::create(const size_t &width, const size_t &height, const eColorType &
 
     return true;
 }
-bool supng::read(const std::filesystem::path &file)
+bool suPNG::read(const std::filesystem::path &file)
 {
     bool status = false;
     png_structp png_ptr = nullptr;
@@ -243,7 +243,7 @@ bool supng::read(const std::filesystem::path &file)
     fclose(fp);
     return true;
 }
-bool supng::write(const std::filesystem::path &file) const
+bool suPNG::write(const std::filesystem::path &file) const
 {
     if (!m_height || !m_width || m_bytes.empty())
     {
@@ -282,7 +282,7 @@ bool supng::write(const std::filesystem::path &file) const
     fclose(output_fp);
     return true;
 }
-bool supng::decode(const std::string &bin)
+bool suPNG::decode(const std::string &bin)
 {
     // 检查字符串是否为空
     if (!valid(bin))
@@ -374,7 +374,7 @@ bool supng::decode(const std::string &bin)
 
     return true;
 }
-std::string supng::encode() const
+std::string suPNG::encode() const
 {
     std::string buff;
     png_structp png_ptr = nullptr;
