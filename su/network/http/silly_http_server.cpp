@@ -39,7 +39,7 @@ double suHttpUtils::CheckNum(const std::unordered_map<std::string, std::string>&
     return dv;
 }
 
-double suHttpUtils::TruNum(const std::unordered_map<std::string, std::string>& k2v, const std::string& key)
+double suHttpUtils::TryNum(const std::unordered_map<std::string, std::string>& k2v, const std::string& key)
 {
     std::string lkey = TO_LOWER(key);
     if (k2v.find(lkey) != std::end(k2v))

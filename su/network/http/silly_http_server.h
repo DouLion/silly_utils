@@ -100,7 +100,7 @@ public:
 
     static double CheckNum(const std::unordered_map<std::string, std::string>& k2v, const std::string& key, const double& dv = 0.0);
 
-    static double TruNum(const std::unordered_map<std::string, std::string>& k2v, const std::string& key);
+    static double TryNum(const std::unordered_map<std::string, std::string>& k2v, const std::string& key);
 };
 
 #endif  // SILLY_UTILS_SILLY_HTTP_SERVER_H
