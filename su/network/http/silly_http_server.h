@@ -38,10 +38,10 @@ using suHttpKV = std::unordered_map<std::string, std::string>;
     respJson[SU_HTTP_JSON_RESPONSE_MESSAGE] = "未实现.";
 
 
-#define SU_HTTP_CONVERT_KV(_dragon_kv_)  \
-    [_dragon_kv_]() -> suHttpKV {         \
+#define SU_HTTP_CONVERT_KV(_dragon_req_)  \
+    [_dragon_req_]() -> suHttpKV {         \
         suHttpKV ret;                     \
-        for (const auto& [k, v] : params) \
+        for (const auto& [k, v] : _dragon_req_->getParameters()) \
         {                                 \
             std::string nk = k;           \
             ret[TO_LOWER(nk)] = v;        \
