@@ -12,6 +12,7 @@
 #include <netcdf>
 #include <log/silly_log.h>
 #include <files/silly_file.h>
+#include <metadata/silly_tzx_grid.h>
 using namespace netCDF;
 using namespace netCDF::exceptions;
 // lon维度必须在倒数第一个
@@ -107,6 +108,8 @@ class suNetCDF
     /// <param name="lat">纬度字段名称</param>
     /// <returns></returns>
     bool read(const std::string& group, const std::string& lon = "lon", const std::string& lat = "lat");
+
+    silly_tzx_grid convert(const size_t& b, const size_t& e) const;
 
     bool write(const std::filesystem::path& file, const Data& snd) const;
 

@@ -11,7 +11,7 @@
 #include "silly_iso_poly.h"
 #include <files/silly_file.h>
 #include <geo/silly_geo_utils.h>
-bool silly::geo::iso_poly::read(const std::filesystem::path& file, suMultiPoly& mpoly)
+bool suIsoPoly::read(const std::filesystem::path& file, suMultiPoly& mpoly)
 {
     bool status = false;
     try
@@ -98,7 +98,7 @@ bool silly::geo::iso_poly::read(const std::filesystem::path& file, suMultiPoly& 
 
     return status;
 }
-bool silly::geo::iso_poly::write(const std::filesystem::path& file, const suMultiPoly& mpoly, const int& precision)
+bool suIsoPoly::write(const std::filesystem::path& file, const suMultiPoly& mpoly, const int& precision)
 {
     bool status = false;
     int part_num = mpoly.size();

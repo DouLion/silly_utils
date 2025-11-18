@@ -236,7 +236,7 @@ bool suNetCDF::read(const std::string& group, const std::string& lon, const std:
             lat_data.resize(m_geo.ylen);
         }
         total_val_size *= ndim.getSize();
-        name_nvdims.push_back({name, ndim.getSize(), m_nc_all_grps.getVar(ndim.getName())});
+        name_nvdims.emplace_back(name, ndim.getSize(), m_nc_all_grps.getVar(ndim.getName()));
     }
 
     if (name_nvdims.size() < 2)
@@ -291,21 +291,21 @@ bool suNetCDF::read(const std::string& group, const std::string& lon, const std:
                 continue;
             }
             std::vector<std::string> new_band_names;
-            for (size_t n = 0; n < band_names.size(); ++n)
+            for (auto & band_name : band_names)
             {
-                for (size_t m = 0; m < tmp_bands.size(); ++m)
+                for (auto & tmp_band : tmp_bands)
                 {
-                    std::string tmp_name = silly_format::format("{}/{}", band_names[n], tmp_bands[m]);
+                    std::string tmp_name = silly_format::format("{}/{}", band_name, tmp_band);
                     new_band_names.push_back(tmp_name);
                 }
             }
             band_names = new_band_names;
         }
     }
-    for (const auto& bn : band_names)
+    /*for (const auto& bn : band_names)
     {
         std::cout << bn << std::endl;
-    }
+    }*/
     std::map<std::string, NcVarAtt> attr_vars = nv_dst.getAtts();
     for (const auto& [key, attr] : attr_vars)
     {
@@ -636,4 +636,35 @@ bool suNetCDF::write(const std::filesystem::path& file) const
     //    return status;
     //}
     return status;
+}
+
+
+silly_tzx_grid suNetCDF::convert(const size_t& b, const size_t& e) const
+{
+    silly_tzx_grid ret;
+    if (m_bands.empty() || b> e)
+    {
+        return ret;
+    }
+    suRect bound;
+    bound.min.x = m_geo.xmin;
+    bound.min.y = m_geo.ymin;
+    bound.max.x = m_geo.xmax;
+    bound.max.y = m_geo.ymax;
+    ret.rect(bound);
+    ret.row(m_geo.ylen);
+    ret.col(m_geo.xlen);
+
+    for (size_t i = b; i< e&& i< m_bands.size(); ++i)
+    {
+        suFMatrix tmp;
+        tmp.create(m_geo.ylen, m_geo.xlen);
+        auto max_it = std::max_element(m_bands[i].grid.begin(), m_bands[i].grid.end());
+        //auto min_it = std::min_element(m_bands[i].grid.begin(), m_bands[i].grid.end());
+        memcpy(tmp.data(), m_bands[i].grid.data(), m_bands[i].grid.size() * sizeof(float));
+        SLOG_DEBUG("{}: {}, {}", i, tmp.max(), *max_it)
+        ret.add(tmp);
+    }
+
+    return ret;
 }

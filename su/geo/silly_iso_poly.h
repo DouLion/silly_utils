@@ -11,21 +11,16 @@
 #ifndef SILLY_UTILS_SILLY_ISO_POLY_H
 #define SILLY_UTILS_SILLY_ISO_POLY_H
 #include <geo/silly_geo.h>
-namespace silly
-{
-namespace geo
-{
-class iso_poly
+
+class suIsoPoly
 {
   public:
-    iso_poly() = default;
-    ~iso_poly() = default;
-    bool read(const std::filesystem::path& file, suMultiPoly& mpoly);
-    bool write(const std::filesystem::path& file, const suMultiPoly& mpoly, const int& precision = 8);
+    suIsoPoly() = default;
+    ~suIsoPoly() = default;
+    static bool read(const std::filesystem::path& file, suMultiPoly& mpoly);
+    static bool write(const std::filesystem::path& file, const suMultiPoly& mpoly, const int& precision = 8);
 
   private:
 };
-}  // namespace geo
-}  // namespace silly
 
 #endif  // SILLY_UTILS_SILLY_ISO_POLY_H
