@@ -184,7 +184,7 @@ void suMemMapFile::try_map_file()
     {
         throw std::runtime_error("Failed to create file mapping");
     }
-    // void* mapping_start = ::MapViewOfFile(m_hdl_map, m_param.flag == access_mode::Read ? FILE_MAP_READ : FILE_MAP_WRITE, win::int64_high(aligned_offset), win::int64_low(aligned_offset), length_to_map);
+    // void* mapping_start = ::MapViewOfFile(m_hdl_map, m_param.flag == eMMFMode::Read ? FILE_MAP_READ : FILE_MAP_WRITE, win::int64_high(aligned_offset), win::int64_low(aligned_offset), length_to_map);
     void* mapping_start = ::MapViewOfFile(m_hdl_map, FILE_MAP_ALL_ACCESS, 0, 0, 0);
     if (mapping_start == nullptr)
     {
@@ -193,7 +193,7 @@ void suMemMapFile::try_map_file()
         throw std::runtime_error("Failed to create file mapping");
     }
 #else  // POSIX
-    void* mapping_start = ::mmap(0, m_map_len, m_param.flag == access_mode::Read ? PROT_READ : PROT_WRITE, MAP_SHARED, m_hdl_file, m_map_offset);
+    void* mapping_start = ::mmap(0, m_map_len, m_param.flag == eMMFMode::Read ? PROT_READ : PROT_WRITE, MAP_SHARED, m_hdl_file, m_map_offset);
 #endif
     m_mmap = static_cast<char*>(mapping_start);
 }
@@ -253,7 +253,7 @@ bool suMemMapFile::open_file()
     }
 #else
     // Open file
-    int mode = (m_param.flag == access_mode::Read ? O_RDONLY : O_RDWR);
+    int mode = (m_param.flag == eMMFMode::Read ? O_RDONLY : O_RDWR);
     m_hdl_file = ::open(m_param.path.c_str(), mode, (mode_t)0600);
     if (m_hdl_file == INVALID_HANDLE_VALUE)
     {
@@ -320,7 +320,7 @@ bool suMemMapFile::open(const std::filesystem::path& file, const int& mode, cons
         std::cerr << "文件不存在" << std::endl;
         return false;
     }
-    /* if (mode != access_mode::Read)
+    /* if (mode != eMMFMode::Read)
      {
          std::cerr << "目前仅完整支持读取功能" << std::endl;
          return false;
