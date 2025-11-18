@@ -85,6 +85,7 @@ using suHttpKV = std::unordered_map<std::string, std::string>;
 
 class suHttpUtils
 {
+public:
     /**
     * 查找指定key,获取其对应的值,如果找不到以按照默认值返回
     * 
