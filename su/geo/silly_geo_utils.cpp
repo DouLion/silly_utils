@@ -39,7 +39,6 @@ void suGeoUtils::destroy_gdal_env()
 #endif
 }
 
-
 void suGeoUtils::centroid(const suRing& ring, double& area, double& sumX, double& sumY)
 {
     area = 0.0;
@@ -47,9 +46,11 @@ void suGeoUtils::centroid(const suRing& ring, double& area, double& sumX, double
     sumY = 0.0;
 
     const auto& pts = ring.points;
-    if (pts.size() < 3) return;  // 至少需要3个点
+    if (pts.size() < 3)
+        return;  // 至少需要3个点
 
-    for (size_t i = 0; i < pts.size(); i++) {
+    for (size_t i = 0; i < pts.size(); i++)
+    {
         size_t j = (i + 1) % pts.size();
         double xi = pts[i].x, yi = pts[i].y;
         double xj = pts[j].x, yj = pts[j].y;
@@ -76,7 +77,8 @@ suPoint suGeoUtils::centroid(const suPoly& poly)
     total_sum_y += outer_sum_y;
 
     // 处理内环（孔洞）
-    for (const auto& hole : poly.holes) {
+    for (const auto& hole : poly.holes)
+    {
         double hole_area, hole_sum_x, hole_sum_y;
         centroid(hole, hole_area, hole_sum_x, hole_sum_y);
         total_area -= hole_area;  // 孔洞面积为负
@@ -86,10 +88,13 @@ suPoint suGeoUtils::centroid(const suPoly& poly)
 
     // 计算质心
     suPoint ret;
-    if (std::abs(total_area) > 1e-10) {  // 避免除以零
+    if (std::abs(total_area) > 1e-10)
+    {  // 避免除以零
         ret.x = total_sum_x / (3.0 * total_area);
         ret.y = total_sum_y / (3.0 * total_area);
-    } else {
+    }
+    else
+    {
         // 面积为0时（如线状多边形），返回第一个点
         ret = poly.outer.points.empty() ? suPoint{0, 0} : poly.outer.points[0];
     }
@@ -110,7 +115,8 @@ void suGeoUtils::centroid(const suPoly& poly, suPoint& polyCentroid, double& pol
     sum_y += outer_area * outer_centroid.y;
 
     // 处理内环（孔洞）
-    for (const auto& hole : poly.holes) {
+    for (const auto& hole : poly.holes)
+    {
         double hole_area = suGeoUtils::area(hole.points);
         suPoint hole_centroid;
         suGeoUtils::centroid(hole, hole_area, hole_centroid.x, hole_centroid.y);
@@ -121,10 +127,13 @@ void suGeoUtils::centroid(const suPoly& poly, suPoint& polyCentroid, double& pol
 
     // 返回结果
     polyArea = total_area;
-    if (std::abs(total_area) > 1e-10) {
+    if (std::abs(total_area) > 1e-10)
+    {
         polyCentroid.x = sum_x / total_area;
         polyCentroid.y = sum_y / total_area;
-    } else {
+    }
+    else
+    {
         polyCentroid = poly.outer.points.empty() ? suPoint{0, 0} : poly.outer.points[0];
     }
 }
@@ -133,22 +142,27 @@ suPoint suGeoUtils::centroid(const suMultiPoly& multiPoly)
     suPoint total_centroid = {0, 0};
     double total_area = 0.0;
 
-    for (const auto& poly : multiPoly) {
+    for (const auto& poly : multiPoly)
+    {
         suPoint poly_centroid;
         double poly_area;
         suGeoUtils::centroid(poly, poly_centroid, poly_area);
 
-        if (std::abs(poly_area) > 1e-10) {
+        if (std::abs(poly_area) > 1e-10)
+        {
             total_centroid.x += poly_area * poly_centroid.x;
             total_centroid.y += poly_area * poly_centroid.y;
             total_area += poly_area;
         }
     }
 
-    if (std::abs(total_area) > 1e-10) {
+    if (std::abs(total_area) > 1e-10)
+    {
         total_centroid.x /= total_area;
         total_centroid.y /= total_area;
-    } else {
+    }
+    else
+    {
         total_centroid = {0, 0};  // 所有多边形面积为零
     }
 
@@ -204,44 +218,45 @@ std::string suGeoUtils::angle_to_desc(const double& angle)
     return desc;
 }
 
-std::vector<silly_geo_coll> suGeoUtils::read(const std::filesystem::path& file, const bool& ignore_prop)
+std::vector<suGeoColl> suGeoUtils::read(const std::filesystem::path& file, const bool& ignore_prop)
 {
-    std::vector<silly_geo_coll> ret;
+    std::vector<suGeoColl> ret;
     read(file, ret, ignore_prop);
     return ret;
 }
 
-bool suGeoUtils::read(const std::filesystem::path& file, std::vector<silly_geo_coll>& collections, const bool& ignore_prop)
+bool suGeoUtils::read(const std::filesystem::path& file, std::vector<suGeoColl>& collections, const bool& ignore_prop)
 {
     bool status = false;
 #if SU_THIRD_SUPPORT_GDAL
-    std::filesystem::path realPath = sufile::realpath(file);
     std::map<uint16_t, GeoFiledInfo> properties;
-    if (!silly_gdal::check_field_info(realPath.string(), properties))
+    if (!suGDAL::CheckFieldInfo(file.string(), properties))
     {
-        SLOG_ERROR("检查矢量[{}]信息失败\n", realPath.u8string());
+        SLOG_ERROR("检查矢量[{}]信息失败\n", file.u8string());
         return status;
     }
     // 打开现有 shp 文件
-    auto dataset = static_cast<GDALDataset*>(GDALOpenEx(realPath.string().c_str(), GDAL_OF_ALL | GDAL_OF_READONLY, nullptr, nullptr, nullptr));
+    auto dataset = static_cast<GDALDataset*>(GDALOpenEx(file.string().c_str(), GDAL_OF_ALL | GDAL_OF_READONLY, nullptr, nullptr, nullptr));
     if (dataset == nullptr)
     {
         // 处理文件打开失败的情况
-        SLOG_ERROR("Error: Failed to open shapefile\n");
+        SLOG_ERROR("打开文件失败: {}", file.u8string())
         return status;
     }
     // 获得数据集中图层数
     int layerCount = dataset->GetLayerCount();
+    SLOG_DEBUG("图层数: {}", layerCount);
     for (int i = 0; i < layerCount; i++)
     {
         OGRLayer* layer = dataset->GetLayer(i);
         if (layer == nullptr)
         {
             // 处理图层获取失败的情况
-            SLOG_ERROR("Error: Failed to get layer\n");
+            SLOG_ERROR("获取图层失败");
             GDALClose(dataset);
             return status;
         }
+        SLOG_DEBUG("图层名: {}", layer->GetName())
         layer->ResetReading();
         OGRFeature* feature;
         int64_t iEntities = layer->GetFeatureCount();  // 获取属性的个数,即矢量数据的个数
@@ -252,28 +267,29 @@ bool suGeoUtils::read(const std::filesystem::path& file, std::vector<silly_geo_c
         }
         while ((feature = layer->GetNextFeature()) != nullptr)  // 遍历 矢量数据
         {
-            silly_geo_coll temp_geo_coll;
-            OGRGeometry* geometry = feature->GetGeometryRef();  // 获取矢量数据
-            if (geometry == nullptr)
+            suGeoColl tmp;
+            OGRGeometry* ogrGeo = feature->GetGeometryRef();  // 获取矢量数据
+            if (ogrGeo == nullptr)
             {
                 OGRFeature::DestroyFeature(feature);
                 continue;
             }
-            auto feature_type = (eGeometryType)wkbFlatten(geometry->getGeometryType());
-            temp_geo_coll.m_type = feature_type;  // 添加矢量数据类型
             if (!ignore_prop)
             {
-                silly_gdal::read_property(feature, properties, temp_geo_coll.m_props);  // 读取属性数据
+                // 读取属性数据
+                suGDAL::ReadProperties(feature, properties, tmp.properties());
             }
-            status = silly_gdal::read_all_types_data(feature_type, geometry, temp_geo_coll);  // 添加所有数据类型,如果是复合数据类型会递归的调用
+            if (suGDAL::ReadGeometry(ogrGeo, tmp))
+            {
+                collections.push_back(tmp);
+            }
             OGRFeature::DestroyFeature(feature);
-            collections.push_back(temp_geo_coll);
         }
-
-    }  // 一个图层结束
+        // 一个图层结束
+    }
     GDALClose(dataset);
 #endif
-    return status;
+    return !collections.empty();
 }
 
 #if SU_THIRD_SUPPORT_GDAL
@@ -318,7 +334,7 @@ OGRFieldType convertToOGRFieldType(const eGeoFieldType& type)
 }
 
 #endif
-bool suGeoUtils::write(const std::filesystem::path& file, const std::vector<silly_geo_coll>& collection, const eCrsEpsgCode& prj, const std::string& encode)
+bool suGeoUtils::write(const std::filesystem::path& file, const std::vector<suGeoColl>& collection, const eCrsEpsgCode& prj, const std::string& encode)
 {
     bool status = false;
 #if SU_THIRD_SUPPORT_GDAL
@@ -329,7 +345,7 @@ bool suGeoUtils::write(const std::filesystem::path& file, const std::vector<sill
     }
     std::filesystem::path realPath = sufile::realpath(file);
 
-    GDALDataset* outputData = static_cast<GDALDataset*>(silly_gdal::GdalOpenDataset(realPath, false));
+    GDALDataset* outputData = static_cast<GDALDataset*>(suGDAL::GdalOpenDataset(realPath, false));
     if (outputData == nullptr)
     {
         SLOG_ERROR("创建输出文件失败");
@@ -348,7 +364,7 @@ bool suGeoUtils::write(const std::filesystem::path& file, const std::vector<sill
     }
     // TODO :
 
-    for (const auto& [k, p] : collection.front().m_props)  // 添加属性
+    for (const auto& [k, p] : collection.front().properties())  // 添加属性
     {
         OGRFieldType ogrType = convertToOGRFieldType(p.type());
         OGRFieldDefn fieldDef(k.c_str(), ogrType);
@@ -360,9 +376,9 @@ bool suGeoUtils::write(const std::filesystem::path& file, const std::vector<sill
     }
     for (const auto& coll : collection)
     {
-        silly_gdal::AddGeometry(outputLayer, coll);
+        suGDAL::AddGeometry(outputLayer, coll);
     }
-    //手动创建.cpg文件
+    // 手动创建.cpg文件
     std::filesystem::path cpgFile = realPath.parent_path();
     cpgFile.append(realPath.stem().string().append(".cpg"));
     sufile::write(cpgFile, encode);
@@ -373,7 +389,7 @@ bool suGeoUtils::write(const std::filesystem::path& file, const std::vector<sill
     return status;
 }
 
-bool suGeoUtils::intersect(const silly_geo_coll& gc1, const silly_geo_coll& gc2)
+bool suGeoUtils::intersect(const suGeoColl& gc1, const suGeoColl& gc2)
 {
     return false;
 }
@@ -383,8 +399,8 @@ bool suGeoUtils::intersect(const suMultiPoly& multiPoly1, const suMultiPoly& mul
     // TODO:
 #if SU_THIRD_SUPPORT_GDAL
     // 创建 OGRPolygon 对象
-    OGRMultiPolygon p1 = silly_gdal::silly_multi_poly_to_ogr(multiPoly1);
-    OGRMultiPolygon p2 = silly_gdal::silly_multi_poly_to_ogr(multiPoly2);
+    OGRMultiPolygon p1 = suGDAL::MultiPolyToOGR(multiPoly1);
+    OGRMultiPolygon p2 = suGDAL::MultiPolyToOGR(multiPoly2);
 
     // 判断两个 OGRPolygon 是否相交
     if (p1.Intersects(&p2))
@@ -399,8 +415,8 @@ std::vector<suPoly> suGeoUtils::intersection(const suMultiPoly& multiPoly1, cons
     std::vector<suPoly> result;
 #if SU_THIRD_SUPPORT_GDAL
     // 创建 OGRPolygon 对象
-    OGRMultiPolygon org_ploy_1 = silly_gdal::silly_multi_poly_to_ogr(multiPoly1);
-    OGRMultiPolygon org_ploy_2 = silly_gdal::silly_multi_poly_to_ogr(multiPoly2);
+    OGRMultiPolygon org_ploy_1 = suGDAL::MultiPolyToOGR(multiPoly1);
+    OGRMultiPolygon org_ploy_2 = suGDAL::MultiPolyToOGR(multiPoly2);
 
     /*// 判断两个 OGRPolygon 是否相交
     if (!org_ploy_1.Intersects(&org_ploy_2))
@@ -420,7 +436,7 @@ std::vector<suPoly> suGeoUtils::intersection(const suMultiPoly& multiPoly1, cons
         case wkbPolygon25D:
         {
             auto intersectingPolygon = (OGRPolygon*)(intersection);
-            result.emplace_back(silly_gdal::silly_poly_from_ogr(intersectingPolygon));
+            result.emplace_back(suGDAL::PolyFromOGR(intersectingPolygon));
             break;
         }
         // 多面
@@ -428,7 +444,7 @@ std::vector<suPoly> suGeoUtils::intersection(const suMultiPoly& multiPoly1, cons
         case wkbMultiPolygon25D:
         {
             auto intersectingMultiPolygon = (OGRMultiPolygon*)(intersection);
-            auto m_polys = silly_gdal::silly_multi_poly_from_ogr(intersectingMultiPolygon);
+            auto m_polys = suGDAL::MultiPolyFromOGR(intersectingMultiPolygon);
             for (const auto& poly : m_polys)
             {
                 result.emplace_back(poly);
@@ -791,16 +807,16 @@ double suGeoUtils::distance_sq(const suPoint& p1, const suPoint& p2)
     return (p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y);
 }
 
-silly_geo_coll suGeoUtils::buffer(const silly_geo_coll& coll, const double& distance)
+suGeoColl suGeoUtils::buffer(const suGeoColl& coll, const double& distance)
 {
-    silly_geo_coll ret;
+    suGeoColl ret;
     // TODO: 这个下面实现有问题, bufferedGeom可能会有内存泄露
     // 返回结果一定是个面或者多面, 使用多面作为返回值
 #if SU_THIRD_SUPPORT_GDAL
-    OGRGeometry* resOGRGeom = silly_gdal::silly_geo_coll_to_ogr(coll);
+    OGRGeometry* resOGRGeom = suGDAL::GeoCollToOGR(coll);
     if (resOGRGeom == nullptr)
     {
-        SLOG_ERROR("Failed to convert silly_geo_coll to OGRGeometry");
+        SLOG_ERROR("Failed to convert suGeoColl to OGRGeometry");
         return ret;
     }
     OGRGeometry* bufferedGeom = resOGRGeom->Buffer(distance);  // 创建缓冲区
@@ -811,7 +827,7 @@ silly_geo_coll suGeoUtils::buffer(const silly_geo_coll& coll, const double& dist
         SLOG_ERROR("Failed to buffer OGRGeometry");
         return ret;
     }
-    ret = silly_gdal::silly_geo_coll_from_ogr(bufferedGeom);
+    ret = suGDAL::GeoCollFromOGR(bufferedGeom);
     if (resOGRGeom != nullptr)
     {
         OGRGeometryFactory::destroyGeometry(resOGRGeom);

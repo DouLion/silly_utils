@@ -96,7 +96,6 @@ class convert
         double s = 0.;   // 尺度参数，单位：ppm (parts per million, 即 ×1e-6)
     };
 
-
   public:
     /// <summary>
     /// 高斯投影反算经纬度

@@ -37,8 +37,7 @@ using suHttpKV = std::unordered_map<std::string, std::string>;
     respJson[SU_HTTP_JSON_RESPONSE_STATUS] = 0;                              \
     respJson[SU_HTTP_JSON_RESPONSE_MESSAGE] = "未实现.";
 
-
-#define SU_HTTP_CONVERT_KV(_dragon_kv_)  \
+#define SU_HTTP_CONVERT_KV(_dragon_kv_)   \
     [_dragon_kv_]() -> suHttpKV {         \
         suHttpKV ret;                     \
         for (const auto& [k, v] : params) \
@@ -55,8 +54,6 @@ using suHttpKV = std::unordered_map<std::string, std::string>;
     return;
 
 #define SU_CONVERT_KV_PARAM
-
-
 
 /// 以下宏定义只会在旧的服务中使用
 #define SU_OLD_HTTP_JSON_RESPONSE_HEADER "header"
@@ -77,7 +74,6 @@ using suHttpKV = std::unordered_map<std::string, std::string>;
     respJson[SU_OLD_HTTP_JSON_RESPONSE_HEADER][SU_OLD_HTTP_JSON_RESPONSE_RET_CODE] = 1; \
     respJson[SU_OLD_HTTP_JSON_RESPONSE_HEADER][SU_OLD_HTTP_JSON_RESPONSE_RET_MESSAGE] = "not implement.";
 
-
 #define SU_HTTP_CHECK_STR suHttpUtils::CheckStr
 #define SU_HTTP_TRY_STR suHttpUtils::TryStr
 #define SU_HTTP_CHECK_NUM suHttpUtils::CheckNum
@@ -86,9 +82,9 @@ using suHttpKV = std::unordered_map<std::string, std::string>;
 class suHttpUtils
 {
     /**
-    * 查找指定key,获取其对应的值,如果找不到以按照默认值返回
-    * 
-    */
+     * 查找指定key,获取其对应的值,如果找不到以按照默认值返回
+     *
+     */
     static std::string CheckStr(const std::unordered_map<std::string, std::string>& k2v, const std::string& key, const std::string& dv = "");
 
     /**

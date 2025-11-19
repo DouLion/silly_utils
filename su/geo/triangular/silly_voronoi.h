@@ -11,7 +11,4 @@
 #ifndef SILLY_VORONOI_H
 #define SILLY_VORONOI_H
 
-
-
-
-#endif //SILLY_VORONOI_H
+#endif  // SILLY_VORONOI_H

@@ -363,7 +363,7 @@ cairo_surface_t *surface_create_from_file(const char *filename)
 }  // namespace cairo
 }  // namespace silly
 
-bool suCairo::create(const size_t& cols, const size_t& rows, const int &type)
+bool suCairo::create(const size_t &cols, const size_t &rows, const int &type)
 {
     if (cols == 0 || rows == 0)
     {

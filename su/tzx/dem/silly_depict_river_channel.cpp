@@ -37,9 +37,9 @@ struct CrossSection
 {
     std::vector<double> distances;   // 起点距
     std::vector<double> elevations;  // 高程
-    suPoint startPoint;          // 起点的高斯坐标
-    suPoint leftEndpoint;        // 断面左起点高斯坐标
-    suPoint rightEndpoint;       // 断面右端点高斯坐标
+    suPoint startPoint;              // 起点的高斯坐标
+    suPoint leftEndpoint;            // 断面左起点高斯坐标
+    suPoint rightEndpoint;           // 断面右端点高斯坐标
 };
 
 // 计算点到线段的距离

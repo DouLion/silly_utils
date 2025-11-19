@@ -244,6 +244,7 @@ class suLineZ
      * @return
      */
     double distance() const;
+
   public:
     std::vector<suPointZ> m_points;
 };

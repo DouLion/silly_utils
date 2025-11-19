@@ -10,7 +10,6 @@
 class suGeoUtils
 {
   public:
-
     static void init_proj_env();
 
     /// <summary>
@@ -53,24 +52,24 @@ class suGeoUtils
     /// 读取矢量文件中的数据存储到silly_geo_coll数据结构中
     /// </summary>
     /// <param name="file"></param>
-    /// <param name="collection"></param>
+    /// <param name="collections"></param>
     /// <returns></returns>
     /// 注:读取 shp , geojson 类型文件中可以实现
-    static bool read(const std::filesystem::path& file, std::vector<silly_geo_coll>& collection, const bool& ignore_prop = false);
-    static std::vector<silly_geo_coll> read(const std::filesystem::path& file, const bool& ignore_prop = false);
+    static bool read(const std::filesystem::path& file, std::vector<suGeoColl>& collections, const bool& ignore_prop = false);
+    static std::vector<suGeoColl> read(const std::filesystem::path& file, const bool& ignore_prop = false);
 
     /// <summary>
     /// 将silly_geo_coll数据结构写入矢量文件(如shp文件)
     /// </summary>
     /// <param name="file"></param>
-    /// <param name="collection"></param>
+    /// <param name="collections"></param>
     /// <param name="prj">指定坐标系</param>
     /// <param name="encode">指定输出的中文编码</param>
     /// <returns></returns>
     /// 注:写入 shp , geojson 类型文件中经测试可以实现
-    static bool write(const std::filesystem::path& file, const std::vector<silly_geo_coll>& collection, const eCrsEpsgCode& prj = GCS_WGS_1984, const std::string& encode = "UTF-8");
+    static bool write(const std::filesystem::path& file, const std::vector<suGeoColl>& collections, const eCrsEpsgCode& prj = GCS_WGS_1984, const std::string& encode = "UTF-8");
 
-    static bool intersect(const silly_geo_coll& gc1, const silly_geo_coll& gc2);
+    static bool intersect(const suGeoColl& gc1, const suGeoColl& gc2);
 
     /// <summary>
     /// 矢量与面是否相交
@@ -289,7 +288,7 @@ class suGeoUtils
     /// <param name="coll"></param>
     /// <param name="distance">缓冲区大小(正负均可),要求coll中矢量的单位和distance单位保持一致</param>
     /// <returns></returns>
-    static silly_geo_coll buffer(const silly_geo_coll& coll, const double& distance);
+    static suGeoColl buffer(const suGeoColl& coll, const double& distance);
 
     /// <summary>
     /// 根据首尾高程调整线高程

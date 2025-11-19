@@ -10,13 +10,13 @@
 #ifndef SILLY_UTILS_SILLY_INTERPOLATE_H
 #define SILLY_UTILS_SILLY_INTERPOLATE_H
 
-//template <typename double>
+// template <typename double>
 /*
  Q3(x0,y1) ------ Q4(x1,y1)
-    |               |    
+    |               |
     |               |
     |     (x,y)     |
-    |               |     
+    |               |
  Q1(x0,y0) ------ Q2(x1,y0)
 
 Q1 = (x0, y0) 高程为 z11
@@ -43,9 +43,9 @@ class silly_bilinear_interpolate
     double y1;  // top
 
     double Q1;  // left bottom
-    double Q2;   // top bottom
+    double Q2;  // top bottom
     double Q3;  // left top
-    double Q4;   // right top
+    double Q4;  // right top
 };
 
 #endif  // SILLY_UTILS_SILLY_INTERPOLATE_H

@@ -10,8 +10,6 @@ using namespace silly::file;
 // 为什么用notepad++ 打开时 有些是中文编码(GBK23..)有些是ANSI
 //
 
-
-
 std::filesystem::path utils::realpath(const std::filesystem::path &fp)
 {
 #ifdef IS_WIN32
@@ -42,7 +40,7 @@ std::filesystem::path utils::realpath(const std::filesystem::path &fp)
 std::filesystem::path utils::realpath(const std::string &ftpstr)
 {
 #ifdef IS_WIN32
-   
+
     if (IS_UTF8(ftpstr))
     {
         try

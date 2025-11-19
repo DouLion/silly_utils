@@ -66,9 +66,9 @@ std::string REGEX_REPLACE(const std::string& str, const std::string& pattern, co
 std::vector<std::string> SPLIT(const std::string& str, const char& delimiter);
 std::vector<std::string> SPLIT(const std::string& str, const std::string& delimiter);
 
-std::string WILDCARD2REGEX(const std::string &pattern);
+std::string WILDCARD2REGEX(const std::string& pattern);
 
-bool IS_UTF8(const std::string &str);
-bool IS_GBK(const std::string &str);
+bool IS_UTF8(const std::string& str);
+bool IS_GBK(const std::string& str);
 
 #endif

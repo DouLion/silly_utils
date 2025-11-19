@@ -12,7 +12,7 @@
 #define SILLY_UTILS_SILLY_JPEG_H
 
 #include <graphics/silly_image_base.h>
-class suJPEG: public suImgBase
+class suJPEG : public suImgBase
 {
   public:
     suJPEG()

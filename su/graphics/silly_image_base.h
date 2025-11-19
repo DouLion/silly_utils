@@ -133,8 +133,8 @@ class suImgBase
     uint8_t m_depth{0};            // 位深度
     int m_compress_level = 6;      // 压缩等级,[1,9], 1最快,压缩率最低, 9最慢,压缩率最高,以libpng为准,其他库根据这个自信调整
     uint8_t m_pixel_size{0};
-    eColorType m_type{2};  // 颜色类型
-    std::vector<uint8_t> HEADER;   // 固定头部,由于判断类型
+    eColorType m_type{2};         // 颜色类型
+    std::vector<uint8_t> HEADER;  // 固定头部,由于判断类型
     std::string m_err;
     // unsigned char** m_nbytes = nullptr;
 };

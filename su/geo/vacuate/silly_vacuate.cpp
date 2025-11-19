@@ -65,7 +65,6 @@ bool suVacuate::lang(const int& lookAhead, const double& distance, const std::ve
     return false;
 }
 
-
 bool suVacuate::radial_distance(const double& radialDistance, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
 {
     try
@@ -223,24 +222,22 @@ bool suVacuate::douglas_peucker(const double& distance, const std::vector<double
 }
 bool suVacuate::douglas_peucker(const double& distance, const std::vector<suPoint>& points, std::vector<suPoint>& outputs, const int& dims)
 {
-    std::vector<double> in ,out;
+    std::vector<double> in, out;
     in.resize(points.size() * 2);
     for (size_t i = 0; i < points.size(); i++)
     {
-        in[i*2] = points[i].x;
-        in[i*2+1] = points[i].y;
+        in[i * 2] = points[i].x;
+        in[i * 2 + 1] = points[i].y;
     }
     if (douglas_peucker(distance, in, out, dims))
     {
-
-        size_t pnum = out.size()/2;
+        size_t pnum = out.size() / 2;
         outputs.resize(pnum);
         for (size_t i = 0; i < pnum; i++)
         {
-            outputs[i] = {out[i*2], out[i*2+1]};
+            outputs[i] = {out[i * 2], out[i * 2 + 1]};
         }
         return true;
-
     }
     return false;
 }
@@ -273,24 +270,22 @@ bool suVacuate::douglas_peucker_variant(const int& pointNum, const std::vector<d
 
 bool suVacuate::douglas_peucker_variant(const int& pointNum, const std::vector<suPoint>& points, std::vector<suPoint>& outputs, const int& dims)
 {
-    std::vector<double> in ,out;
+    std::vector<double> in, out;
     in.resize(points.size() * 2);
     for (size_t i = 0; i < points.size() * 2; i++)
     {
-        in[i*2] = points[i].x;
-        in[i*2+1] = points[i].y;
+        in[i * 2] = points[i].x;
+        in[i * 2 + 1] = points[i].y;
     }
     if (douglas_peucker(pointNum, in, out, dims))
     {
-
-        size_t pnum = out.size()/2;
+        size_t pnum = out.size() / 2;
         outputs.resize(pnum);
         for (size_t i = 0; i < pnum; i++)
         {
-            outputs[i] = {out[i*2], out[i*2+1]};
+            outputs[i] = {out[i * 2], out[i * 2 + 1]};
         }
         return true;
-
     }
     return false;
 }

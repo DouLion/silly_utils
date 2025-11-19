@@ -24,9 +24,9 @@ bool suGeoTiff::write(const std::filesystem::path& outfile)
     // 1. 设置必需TIFF标签 (加返回值检查)
     TIFFSetField(tif, TIFFTAG_IMAGEWIDTH, info.width);
     TIFFSetField(tif, TIFFTAG_IMAGELENGTH, info.height);
-    TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE, m_header.bits_per_sample); // double类型使用64位
-    TIFFSetField(tif, TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_IEEEFP);  // IEEE浮点格式
-    TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, m_header.samples_per_pixel);             
+    TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE, m_header.bits_per_sample);  // double类型使用64位
+    TIFFSetField(tif, TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_IEEEFP);        // IEEE浮点格式
+    TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, m_header.samples_per_pixel);
 
     // TIFFSetField(tif, TIFFTAG_COMPRESSION, COMPRESSION_LZMA);
     TIFFSetField(tif, TIFFTAG_COMPRESSION, COMPRESSION_NONE);

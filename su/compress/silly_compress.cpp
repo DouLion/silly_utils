@@ -64,11 +64,11 @@ eCompressErr su::CompressBin(const std::string& src, std::string& dst, const eCo
     }
     else if (eCompressMethod::LZ4 == method)
     {
-        ret =  eCompressErr::NotImplement;
+        ret = eCompressErr::NotImplement;
     }
     else if (eCompressMethod::Brotli == method)
     {
-        ret =  eCompressErr::NotImplement;
+        ret = eCompressErr::NotImplement;
     }
     else
     {

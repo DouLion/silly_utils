@@ -67,7 +67,7 @@ class CRS
   public:
     static std::string wkt(const eCrsEpsgCode &def);
     static std::string esri_wkt(const eCrsEpsgCode &def);
-    
+
     static std::string proj4(const eCrsEpsgCode &def);
 
     /**

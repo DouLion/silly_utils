@@ -97,11 +97,11 @@ TEST_CASE("TestGEO")
             suPoint(113.31424, 29.46497),
             suPoint(113.31300, 29.50031)
         };
-        silly_geo_coll multiPolygonData;
+        suGeoColl multiPolygonData;
         multiPolygonData.m_poly = first_poly;
 
         multiPolygonData.m_point = ipoint;
-        std::vector<silly_geo_coll> multiPolygonDataVec;
+        std::vector<suGeoColl> multiPolygonDataVec;
         multiPolygonData.m_type = eGeometryType::egtPoint;
         multiPolygonDataVec.push_back(multiPolygonData);
 
@@ -163,17 +163,17 @@ TEST_CASE("TestGEO")
     //    suPoly rectangle;
     //    rectangle.outer.points = {suPoint(113.31086, 29.47107), suPoint(113.35565, 29.47374), suPoint(113.35454, 29.46203), suPoint(113.31208, 29.45671), suPoint(113.31086, 29.47107)};
 
-    //    silly_geo_coll Polygon_coll;
+    //    suGeoColl Polygon_coll;
     //    Polygon_coll.m_poly = polygon;
     //    Polygon_coll.m_type = eGeometryType::egtPolygon;
-    //    std::vector<silly_geo_coll> poly_colls;
+    //    std::vector<suGeoColl> poly_colls;
     //    poly_colls.push_back(Polygon_coll);
     //    // silly_geo_utils::write_geo_coll(poly.string(), poly_colls);
 
-    //    silly_geo_coll Rectangle_coll;
+    //    suGeoColl Rectangle_coll;
     //    Rectangle_coll.m_poly = rectangle;
     //    Rectangle_coll.m_type = eGeometryType::egtPolygon;
-    //    std::vector<silly_geo_coll> rect_colls;
+    //    std::vector<suGeoColl> rect_colls;
     //    rect_colls.push_back(Rectangle_coll);
     //    // silly_geo_utils::write_geo_coll(rect4.string(), rect_colls);
 
@@ -181,10 +181,10 @@ TEST_CASE("TestGEO")
     //    // if (geo_utils::intersect_polygon_rectangle_sh(polygon, rectangle, result))
     //    //{
     //    //     std::cout << "Intersection found.\n";
-    //    //     silly_geo_coll result_coll;
+    //    //     suGeoColl result_coll;
     //    //     result_coll.m_poly = result;
     //    //     result_coll.m_type = eGeometryType::egtPolygon;
-    //    //     std::vector<silly_geo_coll> result_colls;
+    //    //     std::vector<suGeoColl> result_colls;
     //    //     result_colls.push_back(result_coll);
     //    //     silly_geo_utils::write_geo_coll(result_intersect.string(), result_colls);
     //    // }
@@ -197,13 +197,13 @@ TEST_CASE("TestGEO")
     //    if (geo_utils::intersect_polygon_rectangle_wa(polygon, rectangle, intersections))
     //    {
     //        std::cout << "Intersection polys:" << intersections.size() << std::endl;
-    //        silly_geo_coll result_coll;
+    //        suGeoColl result_coll;
     //        for (auto& intersection : intersections)
     //        {
     //            result_coll.m_m_polys.push_back(intersection);
     //        }
     //        result_coll.m_type = eGeometryType::egtMultiPolygon;
-    //        std::vector<silly_geo_coll> result_colls;
+    //        std::vector<suGeoColl> result_colls;
     //        result_colls.push_back(result_coll);
     //        silly_geo_utils::write_geo_coll(result_intersect_wa.string(), result_colls);
     //    }
@@ -246,10 +246,10 @@ TEST_CASE("TestGEO")
         geo_line2 += "/geojson/src_line2.geojson";
         geo_poly1 += "/geojson/src_poly1.geojson";
         geo_poly2 += "/geojson/src_poly2.geojson";
-        silly_geo_coll multiPolygonData;
+        suGeoColl multiPolygonData;
 
         suMultiPoly multi_poly;
-        std::vector<silly_geo_coll> multiPolygonDataVec;
+        std::vector<suGeoColl> multiPolygonDataVec;
 
         // ============ 单点 ==================
         suPoint point0 = suPoint(113.32007, 29.51516);
@@ -269,7 +269,7 @@ TEST_CASE("TestGEO")
         suPoint point10 = suPoint(113.41417, 29.51212);
         // multiPolygonData.m_type = eGeometryType::egtMultiPoint;
         std::vector<suPoint> ppxa{point1, point2, point3, point4, point5, point6, point7, point8, point9, point10};
-        multiPolygonData.m_m_points = silly_multi_point(ppxa);
+        multiPolygonData.m_m_points = suMultiPoint(ppxa);
 
         // 创建第一条线
         suLine line1 = suLine({suPoint(113.31176, 29.51434), suPoint(113.35944, 29.51494), suPoint(113.36510, 29.49211), suPoint(113.36409, 29.48140), suPoint(113.38672, 29.46403)});
@@ -356,7 +356,7 @@ TEST_CASE("TestGEO")
         std::filesystem::path geo_ppolys(DEFAULT_SU_DATA_DIR);
         geo_ppolys += "/geojson/ppoly.geojson";
 
-        std::vector<silly_geo_coll> collection_xian;
+        std::vector<suGeoColl> collection_xian;
         geo_utils::read(geo_polys.string().c_str(), collection_xian);
 
         // geo_utils::write_geo_coll(writ_coll_Polygon.string().c_str(), collection_xian);
@@ -379,13 +379,13 @@ TEST_CASE("TestGEO")
 //              << "****************" << std::endl;
 //    geo_utils::init_gdal_env();
 //
-//    std::vector<silly_geo_coll> area;
-//    std::vector<silly_geo_coll> intersects;
-//    silly_geo_coll main;
-//    silly_geo_coll deputy;
-//    silly_geo_coll temp;
-//    silly_geo_coll inte;
-//    silly_geo_coll inte2;
+//    std::vector<suGeoColl> area;
+//    std::vector<suGeoColl> intersects;
+//    suGeoColl main;
+//    suGeoColl deputy;
+//    suGeoColl temp;
+//    suGeoColl inte;
+//    suGeoColl inte2;
 //
 //     // 创建四个点
 //    suPoint point1(110.471936116999998, 29.127132289799999);
@@ -456,7 +456,7 @@ SECTION("READ_WRITE_SHP_SILLY_GEO_COLL")
     // SU_INFO_PRINT("=");
     // b = a;
 
-    // silly_geo_prop ttt;
+    // suGeoProp ttt;
     // ttt.data=new  unsigned char[10];
 
     // 读取点  //测试完成
@@ -503,7 +503,7 @@ SECTION("READ_WRITE_SHP_SILLY_GEO_COLL")
     std::filesystem::path geo_ppolys(DEFAULT_SU_DATA_DIR);
     geo_ppolys += "/geojson/ppoly.geojson";
 
-    std::vector<silly_geo_coll> collection_xian;
+    std::vector<suGeoColl> collection_xian;
     geo_utils::read(Polygon.string().c_str(), collection_xian);
 
     //geo_utils::write_geo_coll(writ_coll_Polygon.string().c_str(), collection_xian);
@@ -535,12 +535,12 @@ SECTION("CENTER")
     ring1.closeRings();
     // 添加第一个线性环到多边形
     polygon.addRing(&ring1);
-    silly_geo_coll sgc_creat;
-    sgc_creat.m_poly = geo_utils::silly_poly_from_ogr(&polygon);
+    suGeoColl sgc_creat;
+    sgc_creat.m_poly = geo_utils::PolyFromOGR(&polygon);
     sgc_creat.m_type = eGeometryType::egtPolygon;
     std::filesystem::path creat_poly(DEFAULT_SU_DATA_DIR);
     creat_poly += "/shp/creat.shp";
-    std::vector<silly_geo_coll> jia;
+    std::vector<suGeoColl> jia;
     jia.push_back(sgc_creat);
     geo_utils::write_geo_coll(creat_poly.string().c_str(), jia);
 
@@ -548,11 +548,11 @@ SECTION("CENTER")
 
     std::filesystem::path Polygon(DEFAULT_SU_DATA_DIR);
     Polygon += "/shp/xian_poly.shp";
-    std::vector<silly_geo_coll> collection_xian;
+    std::vector<suGeoColl> collection_xian;
     geo_utils::read(Polygon.string().c_str(), collection_xian);
-    std::vector<silly_geo_coll> out_center;
-    std::vector<silly_geo_coll> out_xian;
-    std::vector<silly_geo_coll> intersects;
+    std::vector<suGeoColl> out_center;
+    std::vector<suGeoColl> out_xian;
+    std::vector<suGeoColl> intersects;
 
     int e = 0;
     int n = 0;
@@ -562,7 +562,7 @@ SECTION("CENTER")
         {
            /* std::cout << "n:" << n << "  size: " << xian.m_poly.holes.size() << std::endl;
             suPoint temp_point = geo_utils::poly_centroid(xian.m_poly);
-            OGRPolygon onePoly = geo_utils::silly_poly_to_ogr(xian.m_poly);
+            OGRPolygon onePoly = geo_utils::PolyToOGR(xian.m_poly);
             OGRPoint te_point;
             onePoly.Centroid(&te_point);
             OGRGeometry* inter = IntersectArea(onePoly, &polygon);
@@ -575,7 +575,7 @@ SECTION("CENTER")
                     case wkbPolygon25D:
                     {
                         OGRPolygon* intersect = dynamic_cast<OGRPolygon*>(inter);
-                        silly_geo_coll temp_poly;
+                        suGeoColl temp_poly;
                         temp_poly.m_poly = geo_utils::OGRPolyToSillyPoly(intersect);
                         temp_poly.m_type = eGeometryType::egtPolygon;
                         intersects.push_back(temp_poly);
@@ -587,7 +587,7 @@ SECTION("CENTER")
                     case wkbMultiPolygon25D:
                     {
                         OGRMultiPolygon* intersectMulti = dynamic_cast<OGRMultiPolygon*>(inter);
-                        silly_geo_coll temp_Multipoly;
+                        suGeoColl temp_Multipoly;
                         temp_Multipoly.m_m_polys = geo_utils::OGRMulPolyToSillyMulPoly(intersectMulti);
                         temp_Multipoly.m_type = eGeometryType::egtMultiPolygon;
                         intersects.push_back(temp_Multipoly);
@@ -601,7 +601,7 @@ SECTION("CENTER")
             }
             OGRPoint point;
             inter->Centroid(&point);
-            silly_geo_coll s_point;
+            suGeoColl s_point;
             s_point.m_type = eGeometryType::egtPoint;
             s_point.m_point.lgtd = point.getX();
             s_point.m_point.lttd = point.getY();
@@ -729,7 +729,7 @@ SECTION("READ_WIRTE_JSON_GEO_COLL")
 
     std::string geo;
 
-    silly_geo_coll temp_coll;
+    suGeoColl temp_coll;
     // temp_coll = silly_geo::load_geo_coll(fileContent);
 
     // std::string result = silly_geo::dump_geo_coll(temp_coll);
@@ -908,7 +908,7 @@ SECTION("SILLY_TO_SPATIALITE")
     // gaiaGeomCollPtr gaia_mult_point;
     ////bool cc = silly_multi_point_to_gaiageo(milt_point, gaia_mult_point);
     // geometry_printout(gaia_mult_point);
-    // silly_multi_point re_mul_point;
+    // suMultiPoint re_mul_point;
     ////bool dd = gaiageo_to_silly_multi_point(gaia_mult_point, re_mul_point);
     // std::cout << "=================================" << std::endl;
 

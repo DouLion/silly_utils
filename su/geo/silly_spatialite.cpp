@@ -33,7 +33,7 @@ static bool silly_point_to_gaiageo(const suPoint &point, gaiaGeomCollPtr &ggcp)
 /// <param name="mpoint">silly类型多点</param>
 /// <param name="ggcp">spatialite类型多点</param>
 /// <returns></returns>
-static bool silly_multi_point_to_gaiageo(const silly_multi_point &mpoint, gaiaGeomCollPtr &ggcp)
+static bool silly_multi_point_to_gaiageo(const suMultiPoint &mpoint, gaiaGeomCollPtr &ggcp)
 {
     if (!mpoint.empty())
     {
@@ -201,7 +201,7 @@ static bool gaiageo_to_silly_point(gaiaGeomCollPtr ggcp, suPoint &point)
 /// <param name="ggcp">spatialite类型多点</param>
 /// <param name="mpoint">silly类型多点</param>
 /// <returns></returns>
-static bool gaiageo_to_silly_multi_point(gaiaGeomCollPtr ggcp, silly_multi_point &mpoint)
+static bool gaiageo_to_silly_multi_point(gaiaGeomCollPtr ggcp, suMultiPoint &mpoint)
 {
     gaiaPointPtr pt;
     pt = ggcp->FirstPoint;
@@ -355,28 +355,28 @@ static bool gaiageo_to_silly_multi_poly(gaiaGeomCollPtr ggcp, suMultiPoly &mpoly
 /// <param name="gc">包含silly_geo类型的结构体</param>
 /// <param name="ggcp">spatialite的矢量类型</param>
 /// <returns></returns>
-bool geo_silly_to_spatialite(const silly_geo_coll &gc, gaiaGeomCollPtr &ggcp)
+bool geo_silly_to_spatialite(const suGeoColl &gc, gaiaGeomCollPtr &ggcp)
 {
     bool status = false;
-    switch (gc.m_type)
+    switch (gc.type())
     {
         case eGeometryType::Point:
-            status = silly_point_to_gaiageo(gc.m_point, ggcp);
+            status = silly_point_to_gaiageo(gc.point(), ggcp);
             break;
         case eGeometryType::MultiPoint:
-            status = silly_multi_point_to_gaiageo(gc.m_m_points, ggcp);
+            status = silly_multi_point_to_gaiageo(gc.multiPoint(), ggcp);
             break;
         case eGeometryType::LineString:
-            status = silly_line_to_gaiageo(gc.m_line, ggcp);
+            status = silly_line_to_gaiageo(gc.line(), ggcp);
             break;
         case eGeometryType::MultiLineString:
-            status = silly_multi_silly_line_to_gaiageo(gc.m_m_lines, ggcp);
+            status = silly_multi_silly_line_to_gaiageo(gc.multiLine(), ggcp);
             break;
         case eGeometryType::Polygon:
-            status = silly_poly_to_gaiageo(gc.m_poly, ggcp);
+            status = silly_poly_to_gaiageo(gc.poly(), ggcp);
             break;
         case eGeometryType::MultiPolygon:
-            status = silly_multi_poly_to_gaiageo(gc.m_m_polys, ggcp);
+            status = silly_multi_poly_to_gaiageo(gc.multiPoly(), ggcp);
             break;
         default:
             break;
@@ -420,7 +420,7 @@ int check_geom_type(int type)
 /// <param name="ggcp">spatialite的矢量类型</param>
 /// <param name="gc">包含silly_geo类型的结构体</param>
 /// <returns></returns>
-bool geo_spatialite_to_silly(const gaiaGeomCollPtr &ggcp, silly_geo_coll &gc)
+bool geo_spatialite_to_silly(const gaiaGeomCollPtr &ggcp, suGeoColl &gc)
 {
     bool status = false;
     // TODO: 下面这个函数在做什么事情
@@ -524,7 +524,7 @@ bool silly_spatialite::create_table(const std::string &sql)
     return result;
 }
 
-int silly_spatialite::insert_geo(const std::vector<silly_geo_coll> &gc, const std::string &sql, int bind_index)
+int silly_spatialite::insert_geo(const std::vector<suGeoColl> &gc, const std::string &sql, int bind_index)
 {
     int affect_rows = 0;
     if (!m_is_init)
@@ -586,7 +586,7 @@ int silly_spatialite::insert_geo(const std::vector<silly_geo_coll> &gc, const st
     return affect_rows;
 }
 
-int silly_spatialite::select_geo(std::vector<silly_geo_coll> &gc, const std::string &sql)
+int silly_spatialite::select_geo(std::vector<suGeoColl> &gc, const std::string &sql)
 {
     int affect_rows = 0;
     if (!m_is_init)
@@ -619,10 +619,10 @@ int silly_spatialite::select_geo(std::vector<silly_geo_coll> &gc, const std::str
             continue;
         }
         // gaiaGeomCollPtr类型转化为silly_geo_coll
-        silly_geo_coll temp_gc;
+        suGeoColl temp_gc;
         if (!geo_spatialite_to_silly(geomColl, temp_gc))
         {
-            std::cout << "Unable to convert gaiaGeomCollPtr data to silly_geo_coll type " << std::endl;
+            std::cout << "Unable to convert gaiaGeomCollPtr data to suGeoColl type " << std::endl;
             gaiaFreeGeomColl(geomColl);
             continue;
         }
@@ -675,7 +675,7 @@ int silly_spatialite::remove_geo(const std::string &sql)
     }
 }
 
-int silly_spatialite::modify_geo(const silly_geo_coll &gc, const std::string &sql, int bind_index)
+int silly_spatialite::modify_geo(const suGeoColl &gc, const std::string &sql, int bind_index)
 {
     int affect_rows = 0;
     if (!m_is_init)

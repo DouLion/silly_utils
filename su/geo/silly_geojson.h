@@ -12,9 +12,7 @@
 #include <geo/silly_geo_coll.h>
 #include <json/silly_jsonpp.h>
 
-namespace silly
-{
-class geojson
+class suGeoJson
 {
   public:
     ////////////////读///////////////////
@@ -24,24 +22,24 @@ class geojson
     /// </summary>
     /// <param name="file"></param>
     /// <returns></returns>
-    static std::vector<silly_geo_coll> read(const std::filesystem::path& file);
+    static std::vector<suGeoColl> read(const std::filesystem::path& file);
 
     /// <summary>
     /// 从字符串加载所有矢量
     /// </summary>
     /// <param name="geojson"></param>
     /// <returns></returns>
-    static std::vector<silly_geo_coll> load(const std::string& geojson);
+    static std::vector<suGeoColl> load(const std::string& geojson);
 
     /// <summary>
     /// 从Json::Value对象加载所有矢量
     /// </summary>
     /// <param name="jv"></param>
     /// <returns></returns>
-    static std::vector<silly_geo_coll> load(const Json::Value& jv);
+    static std::vector<suGeoColl> load(const Json::Value& jv);
 
     static bool check(const Json::Value& jv, suPoint& point);
-    static bool check(const Json::Value& jv, silly_multi_point& mpoint);
+    static bool check(const Json::Value& jv, suMultiPoint& mpoint);
     static bool check(const Json::Value& jv, suLine& line);
     static bool check(const Json::Value& jv, suMultiLine& mline);
     static bool check(const Json::Value& jv, suPoly& poly);
@@ -61,7 +59,7 @@ class geojson
     /// <param name="jv"></param>
     /// <param name="mpoint"></param>
     /// <returns></returns>
-    static bool load(const Json::Value& jv, silly_multi_point& mpoint);
+    static bool load(const Json::Value& jv, suMultiPoint& mpoint);
 
     /// <summary>
     /// 从 Json::Value对象加载线
@@ -109,7 +107,7 @@ class geojson
     /// <param name="jv"></param>
     /// <param name="gc"></param>
     /// <returns></returns>
-    static bool load(const Json::Value& jv, silly_geo_coll& gc);
+    static bool load(const Json::Value& jv, suGeoColl& gc);
 
     /// <summary>
     /// 从 Json::Value对象加载属性
@@ -117,7 +115,7 @@ class geojson
     /// <param name="jv"></param>
     /// <param name="props"></param>
     /// <returns></returns>
-    static bool load(const Json::Value& jv, std::unordered_map<std::string, silly_geo_prop>& props);
+    static bool load(const Json::Value& jv, std::unordered_map<std::string, suGeoProp>& props);
 
     ///////////////////////////////////写
 
@@ -127,11 +125,11 @@ class geojson
     /// <param name="geo_colls"></param>
     /// <param name="precision"></param>
     /// <returns></returns>
-    static std::string stringify(const std::vector<silly_geo_coll>& geo_colls, const int& precision = 8);
+    static std::string stringify(const std::vector<suGeoColl>& geo_colls, const int& precision = 8);
     static std::string stringify(const std::vector<suPoint>& points, const int& precision = 8);
     static std::string stringify(const std::vector<suLine>& lines, const int& precision = 8);
     static std::string stringify(const std::vector<suPoly>& polys, const int& precision = 8);
-    static std::string stringify(const std::vector<silly_multi_point>& mpoints, const int& precision = 8);
+    static std::string stringify(const std::vector<suMultiPoint>& mpoints, const int& precision = 8);
     static std::string stringify(const std::vector<suMultiLine>& mlines, const int& precision = 8);
     static std::string stringify(const std::vector<suMultiPoly>& mpolys, const int& precision = 8);
 
@@ -141,11 +139,11 @@ class geojson
     /// <param name="geo_coll"></param>
     /// <returns></returns>
 
-    static Json::Value jsonify(const silly_geo_coll& geo_coll);
+    static Json::Value jsonify(const suGeoColl& geo_coll);
     static Json::Value jsonify(const suPoint& point);
     static Json::Value jsonify(const suLine& line);
     static Json::Value jsonify(const suPoly& poly);
-    static Json::Value jsonify(const silly_multi_point& mpoint);
+    static Json::Value jsonify(const suMultiPoint& mpoint);
     static Json::Value jsonify(const suMultiLine& mline);
     static Json::Value jsonify(const suMultiPoly& mpoly);
 
@@ -155,16 +153,13 @@ class geojson
     /// <param name="geo_coll"></param>
     /// <param name="precision"></param>
     /// <returns></returns>
-    static Json::Value stringify(const silly_geo_coll& geo_coll, const int& precision = 8);
+    static Json::Value stringify(const suGeoColl& geo_coll, const int& precision = 8);
     static std::string stringify(const suPoint& point, const int& precision = 8);
     static std::string stringify(const suLine& line, const int& precision = 8);
     static std::string stringify(const suPoly& poly, const int& precision = 8);
-    static std::string stringify(const silly_multi_point& mpoint, const int& precision = 8);
+    static std::string stringify(const suMultiPoint& mpoint, const int& precision = 8);
     static std::string stringify(const suMultiLine& mline, const int& precision = 8);
     static std::string stringify(const suMultiPoly& mpoly, const int& precision = 8);
 };
-}  // namespace silly
-
-using sugeojson = silly::geojson;
 
 #endif  // SILLY_UTILS_SILLY_GEOJSON_H

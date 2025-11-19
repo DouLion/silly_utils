@@ -21,7 +21,7 @@ class Geometry
   public:
     eGeometryType Type() const;
     std::shared_ptr<suPoint> Point() const;
-    std::shared_ptr<silly_multi_point> MultiPoint() const;
+    std::shared_ptr<suMultiPoint> MultiPoint() const;
     std::shared_ptr<suLine> Line() const;
     std::shared_ptr<suMultiLine> MultiLine() const;
     std::shared_ptr<suPoly> Poly() const;
@@ -37,14 +37,14 @@ class Geometry
   protected:
     eGeometryType mType{eGeometryType::Invalid};
     // 内容
-    std::shared_ptr<suPoint> mPoint = nullptr;             // 单点
-    std::shared_ptr<silly_multi_point> mMultiPoint = nullptr;  // 多点
-    std::shared_ptr<suLine> mLine = nullptr;               // 单线
+    std::shared_ptr<suPoint> mPoint = nullptr;            // 单点
+    std::shared_ptr<suMultiPoint> mMultiPoint = nullptr;  // 多点
+    std::shared_ptr<suLine> mLine = nullptr;              // 单线
     std::shared_ptr<suMultiLine> mMultiLine = nullptr;    // 多线
-    std::shared_ptr<suPoly> mPoly = nullptr;               // 单面(内环+外环)
+    std::shared_ptr<suPoly> mPoly = nullptr;              // 单面(内环+外环)
     std::shared_ptr<suMultiPoly> mMultiPoly = nullptr;    // 多面(多个 单面)
     // 属性列表
-    std::unordered_map<std::string, silly_geo_prop> mFields;
+    std::unordered_map<std::string, suGeoProp> mFields;
 };
 }  // namespace su
 

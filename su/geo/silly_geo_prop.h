@@ -10,7 +10,6 @@
 #ifndef SILLY_UTILS_SILLY_GEO_PROP_H
 #define SILLY_UTILS_SILLY_GEO_PROP_H
 #include <su_marco.h>
-#include <tiff.h>
 
 // 属性段类型,与org_core.h中定义的OGRFieldType一致
 enum class eGeoFieldType : int8_t
@@ -33,17 +32,17 @@ struct GeoFiledInfo
     eGeoFieldType type;
     uint16_t index;
 };
-class silly_geo_prop
+class suGeoProp
 {
   public:
-    silly_geo_prop() = default;
-    silly_geo_prop(const std::string& s);
-    silly_geo_prop(const int& i);
-    silly_geo_prop(const double& d);
-    silly_geo_prop(const long long& ll);
-    silly_geo_prop(const std::vector<unsigned char>& bs);
-    silly_geo_prop(const silly_geo_prop& other);
-    ~silly_geo_prop();
+    suGeoProp() = default;
+    suGeoProp(const std::string& s);
+    suGeoProp(const int& i);
+    suGeoProp(const double& d);
+    suGeoProp(const long long& ll);
+    suGeoProp(const std::vector<unsigned char>& bs);
+    suGeoProp(const suGeoProp& other);
+    ~suGeoProp();
 
   public:
     eGeoFieldType type() const;

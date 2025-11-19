@@ -242,7 +242,7 @@ convert::pfour convert::build(const std::vector<convert::point2d>& measures, con
     for (size_t i = 0; i < n; ++i)
     {
         const auto& p = measures[i];  // 源点 (x, y)
-        const auto& q = origins[i];  // 目标点 (xp, yp)
+        const auto& q = origins[i];   // 目标点 (xp, yp)
 
         const double x = p.x;
         const double y = p.y;
@@ -376,7 +376,6 @@ convert::helmert convert::build(const std::vector<convert::point3d>& measures, c
 
     // 最小二乘求解：参数 = (A^T A)^{-1} A^T L
     Eigen::VectorXd params = A.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(L);
-
 
     result.dx = params(0);
     result.dy = params(1);

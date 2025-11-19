@@ -12,37 +12,183 @@
 #include <geo/silly_geo.h>
 #include <geo/silly_geo_prop.h>
 
-class silly_geo_coll
+class suGeoColl
 {
-  public:
-    silly_geo_coll() = default;
-
-    silly_geo_coll(const suPoint& p);
-    silly_geo_coll(const silly_multi_point& mp);
-    silly_geo_coll(const suLine& l);
-    silly_geo_coll(const suMultiLine& ml);
-    silly_geo_coll(const suPoly& p);
-    silly_geo_coll(const suMultiPoly& mp);
-
-    void add(const suPoint& p);
-    void add(const silly_multi_point& mp);
-    void add(const suLine& l);
-    void add(const suMultiLine& ml);
-    void add(const suPoly& p);
-    void add(const suMultiPoly& mp);
+    using suGeoCollType = std::variant<suPoint, suMultiPoint, suLine, suMultiLine, suPoly, suMultiPoly>;
 
   public:
+    suGeoColl() = default;
+
+    explicit suGeoColl(const suPoint& p) : m_geometry(p), m_type(eGeometryType::Point)
+    {
+    }
+    explicit suGeoColl(const suMultiPoint& mp) : m_geometry(mp), m_type(eGeometryType::MultiPoint)
+    {
+    }
+    explicit suGeoColl(const suLine& l) : m_geometry(l), m_type(eGeometryType::LineString)
+    {
+    }
+    explicit suGeoColl(const suMultiLine& ml) : m_geometry(ml), m_type(eGeometryType::MultiLineString)
+    {
+    }
+    explicit suGeoColl(const suPoly& p) : m_geometry(p), m_type(eGeometryType::Polygon)
+    {
+    }
+    explicit suGeoColl(const suMultiPoly& mp) : m_geometry(mp), m_type(eGeometryType::MultiPolygon)
+    {
+    }
+
+    void set(const suPoint& p)
+    {
+        m_geometry = p;
+        m_type = eGeometryType::Point;
+    }
+    void set(const suMultiPoint& mp)
+    {
+        m_geometry = mp;
+        m_type = eGeometryType::MultiPoint;
+    }
+    void set(const suLine& l)
+    {
+        m_geometry = l;
+        m_type = eGeometryType::LineString;
+    }
+    void set(const suMultiLine& ml)
+    {
+        m_geometry = ml;
+        m_type = eGeometryType::MultiLineString;
+    }
+    void set(const suPoly& p)
+    {
+        m_geometry = p;
+        m_type = eGeometryType::Polygon;
+    }
+    void set(const suMultiPoly& mp)
+    {
+        m_geometry = mp;
+        m_type = eGeometryType::MultiPolygon;
+    }
+
+    // 访问函数示例：安全地返回 suPoint&
+    suPoint& point()
+    {
+        if (m_type != eGeometryType::Point)
+            throw std::runtime_error("Not a Point!");
+        return std::get<suPoint>(m_geometry);
+    }
+
+    const suPoint& point() const
+    {
+        if (m_type != eGeometryType::Point)
+            throw std::runtime_error("Not a Point!");
+        return std::get<suPoint>(m_geometry);
+    }
+    suMultiPoint& multiPoint()
+    {
+        if (m_type != eGeometryType::MultiPoint)
+            throw std::runtime_error("Not a MultiPoint!");
+        return std::get<suMultiPoint>(m_geometry);
+    }
+
+    const suMultiPoint& multiPoint() const
+    {
+        if (m_type != eGeometryType::MultiPoint)
+            throw std::runtime_error("Not a MultiPoint!");
+        return std::get<suMultiPoint>(m_geometry);
+    }
+
+    suLine& line()
+    {
+        if (m_type != eGeometryType::LineString)
+        {
+            throw std::runtime_error("Not a LineString!");
+        }
+        return std::get<suLine>(m_geometry);
+    }
+
+    const suLine& line() const
+    {
+        if (m_type != eGeometryType::LineString)
+        {
+            throw std::runtime_error("Not a LineString!");
+        }
+        return std::get<suLine>(m_geometry);
+    }
+
+    suMultiLine& multiLine()
+    {
+        if (m_type != eGeometryType::MultiLineString)
+        {
+            throw std::runtime_error("Not a MultiLineString!");
+        }
+        return std::get<suMultiLine>(m_geometry);
+    }
+
+    const suMultiLine& multiLine() const
+    {
+        if (m_type != eGeometryType::MultiLineString)
+        {
+            throw std::runtime_error("Not a MultiLineString!");
+        }
+        return std::get<suMultiLine>(m_geometry);
+    }
+
+    suPoly& poly()
+    {
+        if (m_type != eGeometryType::Polygon)
+        {
+            throw std::runtime_error("Not a Polygon!");
+        }
+        return std::get<suPoly>(m_geometry);
+    }
+
+    const suPoly& poly() const
+    {
+        if (m_type != eGeometryType::Polygon)
+        {
+            throw std::runtime_error("Not a Polygon!");
+        }
+        return std::get<suPoly>(m_geometry);
+    }
+
+    suMultiPoly& multiPoly()
+    {
+        if (m_type != eGeometryType::MultiPolygon)
+        {
+            throw std::runtime_error("Not a MultiPolygon!");
+        }
+        return std::get<suMultiPoly>(m_geometry);
+    }
+
+    const suMultiPoly& multiPoly() const
+    {
+        if (m_type != eGeometryType::MultiPolygon)
+        {
+            throw std::runtime_error("Not a MultiPolygon!");
+        }
+        return std::get<suMultiPoly>(m_geometry);
+    }
+
+    eGeometryType type() const
+    {
+        return m_type;
+    }
+    std::unordered_map<std::string, suGeoProp>& properties()
+    {
+        return m_properties;
+    }
+
+    const std::unordered_map<std::string, suGeoProp>& properties() const
+    {
+        return m_properties;
+    }
+
+  private:
     // 类型
+    suGeoCollType m_geometry;
     eGeometryType m_type{eGeometryType::Invalid};
-    // 内容
-    suPoint m_point;           // 单点
-    silly_multi_point m_m_points;  // 多点
-    suLine m_line;             // 单线
-    suMultiLine m_m_lines;    // 多线
-    suPoly m_poly;             // 单面(内环+外环)
-    suMultiPoly m_m_polys;    // 多面(多个 单面)
     // 属性列表
-    std::unordered_map<std::string, silly_geo_prop> m_props;
+    std::unordered_map<std::string, suGeoProp> m_properties;
     std::map<uint16_t, std::string> m_prop_index;
 };
 

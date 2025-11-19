@@ -54,8 +54,6 @@ enum eMMFMode : int
 class suMemMapFile
 {
   public:
-    
-
   public:
     using cur = char;
     class param
@@ -66,7 +64,7 @@ class suMemMapFile
         std::size_t length = std::numeric_limits<std::size_t>::max();
         int64_t offset = 0;
         eMMFMode flag;
-        unsigned long disposition = 2;//CREATE_ALWAYS;
+        unsigned long disposition = 2;  // CREATE_ALWAYS;
     };
 
   public:
@@ -121,7 +119,7 @@ class suMemMapFile
     /// <summary>
     /// 关闭,析构函数已经调用此函数,要注意
     /// </summary>
-    void close(bool del=false);
+    void close(bool del = false);
 
     /* size_t size()
      {

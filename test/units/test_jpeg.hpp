@@ -66,7 +66,7 @@ TEST_CASE("TestJPEG")
             {
                 for (int j = 0; j < jped_data_1.height(); j++)
                 {
-                    silly::color tc = jped_data_1.pixel(i, j);
+                    suColor tc = jped_data_1.pixel(i, j);
                     jped_data_2.pixel(i, j, tc);
                 }
             }
@@ -121,7 +121,7 @@ TEST_CASE("TestJPEG")
         for (int index = 0; index < 100; index++)
         {
             silly::jpeg::data jped_data_1;
-            if (!jped_data_1.create(100, 100, silly::color::eptGRAY))
+            if (!jped_data_1.create(100, 100, suColor::eptGRAY))
             {
                 std::cout << "create jpeg failed" << std::endl;
             }
@@ -129,7 +129,7 @@ TEST_CASE("TestJPEG")
             {
                 for (int j = 0; j < 100; j++)
                 {
-                    jped_data_1.pixel(i, j, silly::color(std::rand() % 256));
+                    jped_data_1.pixel(i, j, suColor(std::rand() % 256));
                 }
             }
             std::filesystem::path temp = data_root;

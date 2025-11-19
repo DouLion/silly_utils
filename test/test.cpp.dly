@@ -250,9 +250,9 @@ int main(int argc, char** argv)
     std::string input = "Z:/tmp/filter.shp";
     double left = 74.0, top = 54.0, right =135.0, bottom = 3.0;
     double cell_size = 0.05;
-    std::vector<silly_geo_coll> collections;
+    std::vector<suGeoColl> collections;
     silly_geo_utils::read_geo_coll(input, collections);
-    std::vector<silly_geo_coll> new_colls;
+    std::vector<suGeoColl> new_colls;
     int width = (right - left)/cell_size;
     int height = (top - bottom)/cell_size;
 
@@ -299,12 +299,12 @@ int main(int argc, char** argv)
     std::string g = "Z://tmp//poly_sheng_s5000.shp";
     xscan_line_raster xlr;
     xlr.set({108, 30, 114, 25}, 0.005);
-    std::vector<silly_geo_coll> gcs;
+    std::vector<suGeoColl> gcs;
     geo_utils::read_geo_coll(g, gcs, false);
 
     std::cout << " : " << silly_geo_utils::area(gcs.front().m_poly) << std::endl;
 
-    OGRPolygon org = silly_geo_utils::silly_poly_to_ogr(gcs.front().m_poly);
+    OGRPolygon org = silly_geo_utils::PolyToOGR(gcs.front().m_poly);
     std::cout << " : " << org.get_Area() << std::endl;
     int num = gcs.front().m_poly.outer.points.size();
     std::vector<double> xs(num), ys(num);

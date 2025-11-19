@@ -46,7 +46,7 @@ std::shared_ptr<suPoint> Geometry::Point() const
     }
     return nullptr;
 }
-std::shared_ptr<silly_multi_point> Geometry::MultiPoint() const
+std::shared_ptr<suMultiPoint> Geometry::MultiPoint() const
 {
     if (mType == eGeometryType::MultiPoint && mMultiPoint)
     {

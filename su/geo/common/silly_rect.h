@@ -14,9 +14,10 @@
 #include <geo/common/silly_point.h>
 class suRect  // 普通坐标点
 {
-public:
+  public:
     suPoint min;
     suPoint max;
+
   public:
     suRect() = default;
     ~suRect() = default;
@@ -168,8 +169,6 @@ public:
         ret.min.y = std::min(min.y, rh.min.y);
         return ret;
     }
-
-
 };
 using silly_geo_rect = suRect;
 using silly_rect = suRect;

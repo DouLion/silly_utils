@@ -25,7 +25,7 @@ class silly_radar_occluder
     struct site
     {
         double radius = 0;     // 半径 单位(米)
-        suPoint position;  // 位置
+        suPoint position;      // 位置
         double elevation = 0;  // 高程
         double altitude = 0;   // 相对地面高度,这个可以没有
     };

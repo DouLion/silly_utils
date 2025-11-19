@@ -28,7 +28,7 @@ void x_scan_line::rasterize(const suPoint& point)
     }
 }
 
-void x_scan_line::rasterize(const silly_multi_point& points)
+void x_scan_line::rasterize(const suMultiPoint& points)
 {
     // m_row_pairs.clear();
     for (const auto& point : points)
@@ -183,28 +183,28 @@ void x_scan_line::rasterize(const std::vector<std::vector<_point>> vertices_arr)
     }
 }
 
-void x_scan_line::rasterize(const silly_geo_coll& geo_coll)
+void x_scan_line::rasterize(const suGeoColl& geo_coll)
 {
-    eGeometryType feature_type = geo_coll.m_type;
+    eGeometryType feature_type = geo_coll.type();
     switch (feature_type)
     {
         case eGeometryType::Point:  // 单点
-            rasterize(geo_coll.m_point);
+            rasterize(geo_coll.point());
             break;
         case eGeometryType::LineString:  // 单线
-            rasterize(geo_coll.m_line);
+            rasterize(geo_coll.line());
             break;
         case eGeometryType::Polygon:  // 单面
-            rasterize(geo_coll.m_poly);
+            rasterize(geo_coll.poly());
             break;
         case eGeometryType::MultiPoint:  // 多点
-            rasterize(geo_coll.m_m_points);
+            rasterize(geo_coll.multiPoint());
             break;
         case eGeometryType::MultiLineString:  // 多线
-            rasterize(geo_coll.m_m_lines);
+            rasterize(geo_coll.multiLine());
             break;
         case eGeometryType::MultiPolygon:  // 多面
-            rasterize(geo_coll.m_m_polys);
+            rasterize(geo_coll.multiPoly());
             break;
         default:
             std::cerr << "无效类型" << std::endl;
@@ -286,7 +286,7 @@ suMatrix<uint8_t> x_scan_line::mask()
         {
             for (int c = beg; c <= end; ++c)
             {
-                memcpy(p + c, &fv, sizeof(uint8_t) * (end- beg + 1));
+                memcpy(p + c, &fv, sizeof(uint8_t) * (end - beg + 1));
             }
         }
     }

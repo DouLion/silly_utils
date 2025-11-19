@@ -153,7 +153,6 @@ eCharset silly_encode::check_file_encode(const std::filesystem::path &file)
     return code;
 }
 
-
 std::string silly_encode::to_hex(const unsigned char *s_byte, const size_t &len)
 {
     std::string ret;

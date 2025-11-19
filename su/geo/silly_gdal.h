@@ -13,7 +13,7 @@
 #include <ogr_api.h>
 
 #endif
-class silly_gdal
+class suGDAL
 {
   public:
 #if SU_THIRD_SUPPORT_GDAL
@@ -34,30 +34,30 @@ class silly_gdal
     /// </summary>
     /// <param name="ogrPoint"></param>
     /// <returns></returns>
-    static suPoint silly_point_from_ogr(const OGRPoint* ogrPoint);
+    static suPoint PointFromOGR(const OGRPoint* ogrPoint);
 
     /// <summary>
     /// 将 suPoint(单点) 转换为 OGRPoint(单点) 类型
     /// </summary>
     /// <param name="point"></param>
     /// <returns></returns>
-    static OGRPoint silly_point_to_ogr(const suPoint& point);
+    static OGRPoint PointToOGR(const suPoint& point);
 
     /// ================ 多点 ================
 
     /// <summary>
-    /// 将 OGRMultiPoint(多点) 转换为 silly_multi_point(多点) 类型
+    /// 将 OGRMultiPoint(多点) 转换为 suMultiPoint(多点) 类型
     /// </summary>
     /// <param name="ogrMultiPoint"></param>
     /// <returns></returns>
-    static silly_multi_point silly_multi_point_from_ogr(const OGRMultiPoint* ogrMultiPoint);
+    static suMultiPoint MultiPointFromOGR(const OGRMultiPoint* ogrMultiPoint);
 
     /// <summary>
-    /// 将 silly_multi_point(多点) 转换为 OGRMultiPoint(多点) 类型
+    /// 将 suMultiPoint(多点) 转换为 OGRMultiPoint(多点) 类型
     /// </summary>
     /// <param name="multiPoint"></param>
     /// <returns></returns>
-    static OGRMultiPoint silly_multi_point_to_ogr(const silly_multi_point& multiPoint);
+    static OGRMultiPoint MultiPointToOGR(const suMultiPoint& multiPoint);
 
     /// ================ 单线 ================
 
@@ -66,78 +66,78 @@ class silly_gdal
     /// </summary>
     /// <param name="lineString"></param>
     /// <returns></returns>
-    static suLine silly_line_from_ogr(const OGRLineString* lineString);
+    static suLine LineFromOGR(const OGRLineString* lineString);
 
     /// <summary>
     /// 将 suLine(线) 转换为 OGRLineString(线)类型
     /// </summary>
     /// <param name="line"></param>
     /// <returns></returns>
-    static OGRLineString silly_line_to_ogr(const suLine& line);
+    static OGRLineString LineToOGR(const suLine& line);
 
     /// ================ 多线 ================
 
     /// <summary>
-    /// OGRMultiLineString(多线)类型转为 silly_multiline(多线)类型
+    /// OGRMultiLineString(多线)类型转为 silly_multiline(多线)类型 MultiLineFromOGR
     /// </summary>
     /// <param name="multiLineString"></param>
     /// <returns></returns>
-    static suMultiLine silly_multi_line_from_ogr(const OGRMultiLineString* multiLineString);
+    static suMultiLine MultiLineFromOGR(const OGRMultiLineString* multiLineString);
 
     /// <summary>
     /// 将 silly_multiline(多线) 转换为 OGRMultiLineString(多线)类型
     /// </summary>
     /// <param name="multiLine"></param>
     /// <returns></returns>
-    static OGRMultiLineString silly_multi_line_to_ogr(const suMultiLine& multiLine);
+    static OGRMultiLineString MultiLineToOGR(const suMultiLine& multiLine);
 
     /// ================ 闭合环 ================
 
     /// <summary>
-    /// 环OGRLinearRing对象，将其转换为suRing对象  (环)
+    /// 环OGRLinearRing对象，将其转换为suRing对象  (环) RingFromOGR
     /// </summary>
     /// <param name="ring"></param>
     /// <returns></returns>
-    static suRing silly_ring_from_ogr(const OGRLinearRing* ring);
+    static suRing RingFromOGR(const OGRLinearRing* ring);
 
     /// <summary>
     /// 将 suRing 转换为 OGRPolygon
     /// </summary>
     /// <param name="ring"></param>
     /// <returns></returns>
-    static OGRLinearRing silly_ring_to_ogr(const suRing& ring);
+    static OGRLinearRing RingToOGR(const suRing& ring);
 
     /// ================ 单面 ================
 
     /// <summary>
-    /// OGRPolygon 对象转换为 suPoly (多环:外环+内环)对象  (单面)
+    /// OGRPolygon 对象转换为 suPoly (多环:外环+内环)对象  (单面) PolyFromOGR
     /// </summary>
     /// <param name="polygon"></param>
     /// <returns></returns>
-    static suPoly silly_poly_from_ogr(const OGRPolygon* polygon);
+    static suPoly PolyFromOGR(const OGRPolygon* polygon);
 
     /// <summary>
     /// 将 suPoly 转换为 OGRPolygon(单面)
     /// </summary>
     /// <param name="poly"></param>
     /// <returns></returns>
-    static OGRPolygon silly_poly_to_ogr(const suPoly& poly);
+    static OGRPolygon PolyToOGR(const suPoly& poly);
 
     /// ================ 多面 ================
 
     /// <summary>
-    /// 多面的OGRMultiPolygon对象转换为suMultiPoly(多面)
+    /// 多面的OGRMultiPolygon对象转换为suMultiPoly(多面) MultiPolyFromOGR
     /// </summary>
     /// <param name="multiPolygon"></param>
     /// <returns></returns>
-    static suMultiPoly silly_multi_poly_from_ogr(const OGRMultiPolygon* multiPolygon);
+    static suMultiPoly MultiPolyFromOGR(const OGRMultiPolygon* multiPolygon);
 
     /// <summary>
     /// 将suMultiPoly对象转换为OGRMultiPolygon对象(多面)
     /// </summary>
     /// <param name="multiPoly"></param>
     /// <returns></returns>
-    static OGRMultiPolygon silly_multi_poly_to_ogr(const suMultiPoly& multiPoly);
+    static OGRMultiPolygon MultiPolyToOGR(const suMultiPoly& multiPoly);
 
     /// ================ OGRGeometry ================
 
@@ -153,30 +153,30 @@ class silly_gdal
     /// </summary>
     /// <param name="coll"></param>
     /// <returns></returns>
-    static OGRGeometry* silly_geo_coll_to_ogr(const silly_geo_coll& coll);
+    static OGRGeometry* GeoCollToOGR(const suGeoColl& coll);
 
     /// <summary>
     /// 将silly_geo_coll对象转换为OGRGeometry对象
     /// </summary>
     /// <param name="geometry"></param>
     /// <returns></returns>
-    static silly_geo_coll silly_geo_coll_from_ogr(const OGRGeometry* geometry);
+    static suGeoColl GeoCollFromOGR(const OGRGeometry* geometry);
 
     /// ----------------------------------- shp文件读写相关 -----------------------------------------------
 
     static std::string GradDriverName(const std::filesystem::path& file);
     static void* GdalOpenDataset(const std::filesystem::path& file, const bool& read = true);
-    static bool check_field_info(const std::filesystem::path& file, std::map<uint16_t, GeoFiledInfo>& properties);
+    static bool CheckFieldInfo(const std::filesystem::path& file, std::map<uint16_t, GeoFiledInfo>& idx2prop);
 
-    static bool read_property(const OGRFeature* feature, const std::map<uint16_t, GeoFiledInfo>& properties, std::unordered_map<std::string, silly_geo_prop>& props);
-    static bool read_all_types_data(const eGeometryType& feature_type, const OGRGeometry* geometry, silly_geo_coll& geo_coll);
+    static bool ReadProperties(const OGRFeature* feature, const std::map<uint16_t, GeoFiledInfo>& idx2prop, std::unordered_map<std::string, suGeoProp>& props);
+    static bool ReadGeometry(const OGRGeometry* geometry, suGeoColl& geoColl);
 
     /// <summary>
     /// 是否为一个标准的shp文件
     /// </summary>
     /// <param name="file"></param>
     /// <returns></returns>
-    static bool is_valid_shp(const std::filesystem::path& file);
+    static bool IsValidShp(const std::filesystem::path& file);
 
     /// <summary>
     /// 检查shp文件组中缺失的文件
@@ -186,13 +186,12 @@ class silly_gdal
     /// </summary>
     /// <param name="file"></param>
     /// <returns></returns>
-    static std::vector<std::string> shp_missing_file(const std::filesystem::path& file);
-
+    static std::vector<std::string> ShpMissingFile(const std::filesystem::path& file);
 
     // 写入所有类型的数据
-    static bool AddGeometry(OGRLayer* layer, const silly_geo_coll& geometry, bool writeProp= true);
-    static bool FillGeometry(const eGeometryType& type, OGRLayer* outputLayer, OGRFeature* feature, OGRGeometry* geometry, const silly_geo_coll& geo_coll);
-    static  bool FillField(OGRFeature* feature, const std::unordered_map<std::string, silly_geo_prop>& m_props);
+    static bool AddGeometry(OGRLayer* layer, const suGeoColl& geometry, bool writeProp = true);
+    static bool FillGeometry(const eGeometryType& type, OGRLayer* outputLayer, OGRFeature* feature, OGRGeometry* geometry, const suGeoColl& geo_coll);
+    static bool FillField(OGRFeature* feature, const std::unordered_map<std::string, suGeoProp>& properties);
 
 #endif
 };

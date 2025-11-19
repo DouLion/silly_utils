@@ -56,7 +56,7 @@ bool gdal_convert::convert(const std::vector<double>& fromX, const std::vector<d
         std::vector<double> tmpX = fromX;
         std::vector<double> tmpY = fromY;
         int num = SU_MIN(tmpX.size(), fromY.size());
-        if ( poCT->Transform(num, tmpX.data(), tmpY.data()))
+        if (poCT->Transform(num, tmpX.data(), tmpY.data()))
         {
             /*toX.resize(num);
             toY.resize(num);

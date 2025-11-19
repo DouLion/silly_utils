@@ -200,8 +200,8 @@
 #include <singleton/silly_singleton.h>  // 单例类
 
 // string (字符串)
-#include <string/silly_format.h>     // 字符串格式化
-#include <string/silly_regex.h>      // 正则表达式
+#include <string/silly_format.h>  // 字符串格式化
+#include <string/silly_regex.h>   // 正则表达式
 
 // system (系统)
 #include <system/silly_disk.h>     // 获取磁盘信息工具

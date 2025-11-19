@@ -273,5 +273,5 @@ class HN43
   private:
 };
 
-}  // namespace radar
+}  // namespace RadarData
 #endif  // SILLY_UTILS_HUNANDATA_H

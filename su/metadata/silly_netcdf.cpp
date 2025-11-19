@@ -359,7 +359,6 @@ bool suNetCDF::read(const std::string& group, const std::string& lon, const std:
             }
         }
         m_bands.emplace_back(nbd);
-
     }
     return true;
 }
@@ -523,7 +522,7 @@ bool suNetCDF::write(const std::filesystem::path& file, const Data& snd)
                 data.putAtt("units", bands.front().units);
             }
             std::vector<float> all(bands.size() * bands.front().grid.size());
-            data.setCompression(true, true, 5); // 设置压缩
+            data.setCompression(true, true, 5);  // 设置压缩
             float* ptr = all.data();
             const size_t step = snd.dgeo.xlen * snd.dgeo.ylen * sizeof(float);
             for (const auto& band : bands)

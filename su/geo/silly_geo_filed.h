@@ -12,7 +12,6 @@
 #define SILLY_UTILS_SILLY_GEO_FILED_H
 class silly_geo_filed
 {
-
 };
 
 #endif  // SILLY_UTILS_SILLY_GEO_FILED_H

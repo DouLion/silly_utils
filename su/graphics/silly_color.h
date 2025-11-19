@@ -42,8 +42,6 @@ class suColor
     }
 
   public:
-    
-
   public:
     static int channels(const eColorType& t);
 

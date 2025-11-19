@@ -17,21 +17,21 @@ using namespace silly;
 #define V_FEATURE "Feature"
 #define V_FEATURE_COLLECTION "FeatureCollection"
 
-std::vector<silly_geo_coll> geojson::read(const std::filesystem::path& file)
+std::vector<suGeoColl> suGeoJson::read(const std::filesystem::path& file)
 {
     Json::Value jv = jsonpp::loadf(file);
     return load(jv);
 }
 
-std::vector<silly_geo_coll> geojson::load(const std::string& geojson)
+std::vector<suGeoColl> suGeoJson::load(const std::string& geojson)
 {
     Json::Value jv = jsonpp::loads(geojson);
     return load(jv);
 }
 
-std::vector<silly_geo_coll> geojson::load(const Json::Value& jv)
+std::vector<suGeoColl> suGeoJson::load(const Json::Value& jv)
 {
-    std::vector<silly_geo_coll> ret;
+    std::vector<suGeoColl> ret;
     std::string type;
     sujson::check_str(jv, K_TYPE, type);
     if (V_FEATURE_COLLECTION == type)
@@ -41,7 +41,7 @@ std::vector<silly_geo_coll> geojson::load(const Json::Value& jv)
         {
             for (auto& jvf : jvFeatures)
             {
-                silly_geo_coll gc;
+                suGeoColl gc;
                 if (load(jvf, gc))
                 {
                     ret.push_back(gc);
@@ -51,7 +51,7 @@ std::vector<silly_geo_coll> geojson::load(const Json::Value& jv)
     }
     else if (V_FEATURE == type)
     {
-        silly_geo_coll gc;
+        suGeoColl gc;
         if (load(jv, gc))
         {
             ret.push_back(gc);
@@ -59,38 +59,43 @@ std::vector<silly_geo_coll> geojson::load(const Json::Value& jv)
     }
     else if (type.empty())
     {
-        silly_geo_coll gc;
-        switch (suGeo::str2type(type))
+        suGeoColl gc;
+        suPoint _p;
+        suMultiPoint _mp;
+        suLine _l;
+        suMultiLine _ml;
+        suPoly _pl;
+        suMultiPoly _mpl;
+        switch (suGeoStr2Type(type))
         {
             case eGeometryType::Point:
-                gc.m_type = eGeometryType::Point;
-                load(jv[K_COORDINATES], gc.m_point);
+                load(jv[K_COORDINATES], _p);
+                gc.set(_p);
                 break;
             case eGeometryType::MultiPoint:
-                gc.m_type = eGeometryType::MultiPoint;
-                load(jv[K_COORDINATES], gc.m_m_points);
+                load(jv[K_COORDINATES], _mp);
+                gc.set(_mp);
                 break;
             case eGeometryType::LineString:
-                gc.m_type = eGeometryType::LineString;
-                load(jv[K_COORDINATES], gc.m_line);
+                load(jv[K_COORDINATES], _l);
+                gc.set(_l);
                 break;
             case eGeometryType::MultiLineString:
-                gc.m_type = eGeometryType::MultiLineString;
-                load(jv[K_COORDINATES], gc.m_m_lines);
+                load(jv[K_COORDINATES], _ml);
+                gc.set(_ml);
                 break;
             case eGeometryType::Polygon:
-                gc.m_type = eGeometryType::Polygon;
-                load(jv[K_COORDINATES], gc.m_poly);
+                load(jv[K_COORDINATES], _pl);
+                gc.set(_pl);
                 break;
             case eGeometryType::MultiPolygon:
-                gc.m_type = eGeometryType::MultiPolygon;
-                load(jv[K_COORDINATES], gc.m_m_polys);
+                load(jv[K_COORDINATES], _mpl);
+                gc.set(_mpl);
                 break;
             default:
-                gc.m_type = eGeometryType::Invalid;
                 break;
         }
-        if (gc.m_type != eGeometryType::Invalid)
+        if (gc.type() != eGeometryType::Invalid)
         {
             ret.push_back(gc);
         }
@@ -99,7 +104,7 @@ std::vector<silly_geo_coll> geojson::load(const Json::Value& jv)
     return ret;
 }
 
-bool geojson::load(const Json::Value& jv, silly_geo_coll& gc)
+/*bool suGeoJson::load(const Json::Value& jv, suGeoColl& gc)
 {
     std::string type;
     Json::Value jvGeo, jvProps;
@@ -121,51 +126,50 @@ bool geojson::load(const Json::Value& jv, silly_geo_coll& gc)
         return false;
     }
 
-    switch (suGeo::str2type(jvGeo[K_TYPE].asString()))
+    switch (suGeoStr2Type(jvGeo[K_TYPE].asString()))
     {
         case eGeometryType::Point:
-            gc.m_type = eGeometryType::Point;
+            gc.type() = eGeometryType::Point;
             load(jvGeo[K_COORDINATES], gc.m_point);
             break;
         case eGeometryType::MultiPoint:
-            gc.m_type = eGeometryType::MultiPoint;
+            gc.type() = eGeometryType::MultiPoint;
             load(jvGeo[K_COORDINATES], gc.m_m_points);
             break;
         case eGeometryType::LineString:
-            gc.m_type = eGeometryType::LineString;
+            gc.type() = eGeometryType::LineString;
             load(jvGeo[K_COORDINATES], gc.m_line);
             break;
         case eGeometryType::MultiLineString:
-            gc.m_type = eGeometryType::MultiLineString;
+            gc.type() = eGeometryType::MultiLineString;
             load(jvGeo[K_COORDINATES], gc.m_m_lines);
             break;
         case eGeometryType::Polygon:
-            gc.m_type = eGeometryType::Polygon;
+            gc.type() = eGeometryType::Polygon;
             load(jvGeo[K_COORDINATES], gc.m_poly);
             break;
         case eGeometryType::MultiPolygon:
-            gc.m_type = eGeometryType::MultiPolygon;
+            gc.type() = eGeometryType::MultiPolygon;
             load(jvGeo[K_COORDINATES], gc.m_m_polys);
             break;
         default:
-            gc.m_type = eGeometryType::Invalid;
             break;
     }
-    if (eGeometryType::Invalid == gc.m_type)
+    if (eGeometryType::Invalid == gc.type())
     {
         return false;
     }
     if (jsonpp::check_obj(jv, K_PROPERTIES, jvProps))
     {
-        if (!load(jvProps, gc.m_props))
+        if (!load(jvProps, gc.properties()))
         {
             // 提示?
         }
     }
     return true;
-}
+}*/
 
-bool geojson::load(const Json::Value& jv, suPoint& point)
+bool suGeoJson::load(const Json::Value& jv, suPoint& point)
 {
     if (!jv.isArray())
         return false;
@@ -182,7 +186,7 @@ bool geojson::load(const Json::Value& jv, suPoint& point)
     return false;
 }
 
-bool geojson::load(const Json::Value& jv, silly_multi_point& mpoint)
+bool suGeoJson::load(const Json::Value& jv, suMultiPoint& mpoint)
 {
     if (!jv.isArray())
         return false;
@@ -198,7 +202,7 @@ bool geojson::load(const Json::Value& jv, silly_multi_point& mpoint)
     return true;
 }
 
-bool geojson::load(const Json::Value& jv, suLine& line)
+bool suGeoJson::load(const Json::Value& jv, suLine& line)
 {
     if (!jv.isArray())
         return false;
@@ -215,7 +219,7 @@ bool geojson::load(const Json::Value& jv, suLine& line)
     return true;
 }
 
-bool geojson::load(const Json::Value& jv, suMultiLine& mline)
+bool suGeoJson::load(const Json::Value& jv, suMultiLine& mline)
 {
     if (!jv.isArray())
         return false;
@@ -231,7 +235,7 @@ bool geojson::load(const Json::Value& jv, suMultiLine& mline)
     return true;
 }
 
-bool geojson::load(const Json::Value& jv, suRing& ring)
+bool suGeoJson::load(const Json::Value& jv, suRing& ring)
 {
     if (!jv.isArray())
         return false;
@@ -247,7 +251,7 @@ bool geojson::load(const Json::Value& jv, suRing& ring)
     return true;
 }
 
-bool geojson::load(const Json::Value& jv, suPoly& poly)
+bool suGeoJson::load(const Json::Value& jv, suPoly& poly)
 {
     if (!jv.isArray())
         return false;
@@ -273,7 +277,7 @@ bool geojson::load(const Json::Value& jv, suPoly& poly)
     return true;
 }
 
-bool geojson::load(const Json::Value& jv, suMultiPoly& mpoly)
+bool suGeoJson::load(const Json::Value& jv, suMultiPoly& mpoly)
 {
     if (!jv.isArray())
         return false;
@@ -289,7 +293,7 @@ bool geojson::load(const Json::Value& jv, suMultiPoly& mpoly)
     return true;
 }
 
-bool geojson::load(const Json::Value& jv, std::unordered_map<std::string, silly_geo_prop>& props)
+bool suGeoJson::load(const Json::Value& jv, std::unordered_map<std::string, suGeoProp>& props)
 {
     if (!jv.isObject())
         return false;
@@ -297,25 +301,25 @@ bool geojson::load(const Json::Value& jv, std::unordered_map<std::string, silly_
     {
         if (jv[name].isString())
         {
-            props[name] = silly_geo_prop(jv[name].asString());
+            props[name] = suGeoProp(jv[name].asString());
         }
         else if (jv[name].isInt64())
         {
-            props[name] = silly_geo_prop(static_cast<long long>(jv[name].asInt64()));
+            props[name] = suGeoProp(static_cast<long long>(jv[name].asInt64()));
         }
         else if (jv[name].isDouble())
         {
-            props[name] = silly_geo_prop(jv[name].asDouble());
+            props[name] = suGeoProp(jv[name].asDouble());
         }
         else if (jv[name].isInt())
         {
-            props[name] = silly_geo_prop(jv[name].asInt());
+            props[name] = suGeoProp(jv[name].asInt());
         }
     }
     return true;
 }
 
-std::string geojson::stringify(const std::vector<silly_geo_coll>& geo_colls, const int& precision)
+std::string suGeoJson::stringify(const std::vector<suGeoColl>& geo_colls, const int& precision)
 {
     sujson::style opt;
     opt.precision = precision;
@@ -329,7 +333,7 @@ std::string geojson::stringify(const std::vector<silly_geo_coll>& geo_colls, con
     jvObj[K_FEATURES] = jvArr;
     return sujson::stringify(jvObj, opt);
 }
-std::string geojson::stringify(const std::vector<suPoint>& points, const int& precision)
+std::string suGeoJson::stringify(const std::vector<suPoint>& points, const int& precision)
 {
     sujson::style opt;
     opt.precision = precision;
@@ -340,7 +344,7 @@ std::string geojson::stringify(const std::vector<suPoint>& points, const int& pr
     }
     return sujson::stringify(jvArr, opt);
 }
-std::string geojson::stringify(const std::vector<suLine>& lines, const int& precision)
+std::string suGeoJson::stringify(const std::vector<suLine>& lines, const int& precision)
 {
     sujson::style opt;
     opt.precision = precision;
@@ -351,7 +355,7 @@ std::string geojson::stringify(const std::vector<suLine>& lines, const int& prec
     }
     return sujson::stringify(jvArr, opt);
 }
-std::string geojson::stringify(const std::vector<suPoly>& polys, const int& precision)
+std::string suGeoJson::stringify(const std::vector<suPoly>& polys, const int& precision)
 {
     sujson::style opt;
     opt.precision = precision;
@@ -362,7 +366,7 @@ std::string geojson::stringify(const std::vector<suPoly>& polys, const int& prec
     }
     return sujson::stringify(jvArr, opt);
 }
-std::string geojson::stringify(const std::vector<silly_multi_point>& mpoints, const int& precision)
+std::string suGeoJson::stringify(const std::vector<suMultiPoint>& mpoints, const int& precision)
 {
     sujson::style opt;
     opt.precision = precision;
@@ -373,7 +377,7 @@ std::string geojson::stringify(const std::vector<silly_multi_point>& mpoints, co
     }
     return sujson::stringify(jvArr, opt);
 }
-std::string geojson::stringify(const std::vector<suMultiLine>& mlines, const int& precision)
+std::string suGeoJson::stringify(const std::vector<suMultiLine>& mlines, const int& precision)
 {
     sujson::style opt;
     opt.precision = precision;
@@ -384,7 +388,7 @@ std::string geojson::stringify(const std::vector<suMultiLine>& mlines, const int
     }
     return sujson::stringify(jvArr, opt);
 }
-std::string geojson::stringify(const std::vector<suMultiPoly>& mpolys, const int& precision)
+std::string suGeoJson::stringify(const std::vector<suMultiPoly>& mpolys, const int& precision)
 {
     sujson::style opt;
     opt.precision = precision;
@@ -396,36 +400,36 @@ std::string geojson::stringify(const std::vector<suMultiPoly>& mpolys, const int
     return sujson::stringify(jvArr, opt);
 }
 
-Json::Value geojson::jsonify(const silly_geo_coll& gc)
+Json::Value suGeoJson::jsonify(const suGeoColl& gc)
 {
     Json::Value ret;
-    switch (gc.m_type)
+    switch (gc.type())
     {
         case eGeometryType::Point:
-            ret = jsonify(gc.m_point);
+            ret = jsonify(gc.point());
             break;
         case eGeometryType::MultiPoint:
-            ret = jsonify(gc.m_m_points);
+            ret = jsonify(gc.multiPoint());
             break;
         case eGeometryType::LineString:
-            ret = jsonify(gc.m_line);
+            ret = jsonify(gc.line());
             break;
         case eGeometryType::MultiLineString:
-            ret = jsonify(gc.m_m_lines);
+            ret = jsonify(gc.multiLine());
             break;
         case eGeometryType::Polygon:
-            ret = jsonify(gc.m_poly);
+            ret = jsonify(gc.poly());
             break;
         case eGeometryType::MultiPolygon:
-            ret = jsonify(gc.m_m_polys);
+            ret = jsonify(gc.multiLine());
             break;
         default:
             return Json::nullValue;
     }
     Json::Value jvProp = Json::objectValue;
-    if (!gc.m_props.empty())
+    if (!gc.properties().empty())
     {
-        for (const auto& [k, v] : gc.m_props)
+        for (const auto& [k, v] : gc.properties())
         {
             switch (v.type())
             {
@@ -450,24 +454,24 @@ Json::Value geojson::jsonify(const silly_geo_coll& gc)
     }
     return ret;
 }
-Json::Value geojson::jsonify(const suPoint& point)
+Json::Value suGeoJson::jsonify(const suPoint& point)
 {
     Json::Value ret = Json::objectValue;
     ret[K_TYPE] = V_FEATURE;
     Json::Value jvGeo = Json::objectValue;
-    ret[K_GEOMETRY][K_TYPE] = suGeo::type2str(eGeometryType::Point);
+    ret[K_GEOMETRY][K_TYPE] = suGeoType2Str(eGeometryType::Point);
     Json::Value jvPoint = Json::arrayValue;
     jvPoint.append(point.x);
     jvPoint.append(point.y);
     ret[K_GEOMETRY][K_COORDINATES] = jvPoint;
     return ret;
 }
-Json::Value geojson::jsonify(const suLine& line)
+Json::Value suGeoJson::jsonify(const suLine& line)
 {
     Json::Value ret = Json::objectValue;
     ret[K_TYPE] = V_FEATURE;
     Json::Value jvGeo = Json::objectValue;
-    ret[K_GEOMETRY][K_TYPE] = suGeo::type2str(eGeometryType::LineString);
+    ret[K_GEOMETRY][K_TYPE] = suGeoType2Str(eGeometryType::LineString);
     Json::Value jvLine = Json::arrayValue;
     for (auto& pt : line)
     {
@@ -479,12 +483,12 @@ Json::Value geojson::jsonify(const suLine& line)
     ret[K_GEOMETRY][K_COORDINATES] = jvLine;
     return ret;
 }
-Json::Value geojson::jsonify(const suPoly& poly)
+Json::Value suGeoJson::jsonify(const suPoly& poly)
 {
     Json::Value ret = Json::objectValue;
     ret[K_TYPE] = V_FEATURE;
     Json::Value jvGeo = Json::objectValue;
-    jvGeo[K_TYPE] = suGeo::type2str(eGeometryType::Polygon);
+    jvGeo[K_TYPE] = suGeoType2Str(eGeometryType::Polygon);
     Json::Value jvPoly = Json::arrayValue;
     Json::Value jvOuter = Json::arrayValue;
     for (auto& pt : poly.outer.points)
@@ -512,12 +516,12 @@ Json::Value geojson::jsonify(const suPoly& poly)
     ret[K_GEOMETRY][K_COORDINATES] = jvGeo;
     return ret;
 }
-Json::Value geojson::jsonify(const silly_multi_point& mpoint)
+Json::Value suGeoJson::jsonify(const suMultiPoint& mpoint)
 {
     Json::Value ret = Json::objectValue;
     ret[K_TYPE] = V_FEATURE;
     Json::Value jvGeo = Json::objectValue;
-    ret[K_GEOMETRY][K_TYPE] = suGeo::type2str(eGeometryType::MultiPoint);
+    ret[K_GEOMETRY][K_TYPE] = suGeoType2Str(eGeometryType::MultiPoint);
     Json::Value jvPoints = Json::arrayValue;
     for (const auto& point : mpoint)
     {
@@ -530,12 +534,12 @@ Json::Value geojson::jsonify(const silly_multi_point& mpoint)
     ret[K_GEOMETRY][K_COORDINATES] = jvPoints;
     return ret;
 }
-Json::Value geojson::jsonify(const suMultiLine& mline)
+Json::Value suGeoJson::jsonify(const suMultiLine& mline)
 {
     Json::Value ret = Json::objectValue;
     ret[K_TYPE] = V_FEATURE;
     Json::Value jvGeo = Json::objectValue;
-    ret[K_GEOMETRY][K_TYPE] = suGeo::type2str(eGeometryType::MultiLineString);
+    ret[K_GEOMETRY][K_TYPE] = suGeoType2Str(eGeometryType::MultiLineString);
     Json::Value jvLines = Json::arrayValue;
     for (const auto& line : mline)
     {
@@ -553,12 +557,12 @@ Json::Value geojson::jsonify(const suMultiLine& mline)
     ret[K_GEOMETRY][K_COORDINATES] = jvLines;
     return ret;
 }
-Json::Value geojson::jsonify(const suMultiPoly& mpoly)
+Json::Value suGeoJson::jsonify(const suMultiPoly& mpoly)
 {
     Json::Value ret = Json::objectValue;
     ret[K_TYPE] = V_FEATURE;
     Json::Value jvGeo = Json::objectValue;
-    jvGeo[K_TYPE] = suGeo::type2str(eGeometryType::MultiPolygon);
+    jvGeo[K_TYPE] = suGeoType2Str(eGeometryType::MultiPolygon);
     Json::Value jvPolys = Json::arrayValue;
     for (const auto& poly : mpoly)
     {
@@ -592,92 +596,92 @@ Json::Value geojson::jsonify(const suMultiPoly& mpoly)
     return ret;
 }
 
-Json::Value geojson::stringify(const silly_geo_coll& geo_coll, const int& precision)
+Json::Value suGeoJson::stringify(const suGeoColl& geo_coll, const int& precision)
 {
     sujson::style opt;
     opt.precision = precision;
     return sujson::stringify(jsonify(geo_coll), opt);
 }
-std::string geojson::stringify(const suPoint& point, const int& precision)
+std::string suGeoJson::stringify(const suPoint& point, const int& precision)
 {
     sujson::style opt;
     opt.precision = precision;
     return sujson::stringify(jsonify(point), opt);
 }
-std::string geojson::stringify(const suLine& line, const int& precision)
+std::string suGeoJson::stringify(const suLine& line, const int& precision)
 {
     sujson::style opt;
     opt.precision = precision;
     return sujson::stringify(jsonify(line), opt);
 }
-std::string geojson::stringify(const suPoly& poly, const int& precision)
+std::string suGeoJson::stringify(const suPoly& poly, const int& precision)
 {
     sujson::style opt;
     opt.precision = precision;
     return sujson::stringify(jsonify(poly), opt);
 }
-std::string geojson::stringify(const silly_multi_point& mpoint, const int& precision)
+std::string suGeoJson::stringify(const suMultiPoint& mpoint, const int& precision)
 {
     sujson::style opt;
     opt.precision = precision;
     return sujson::stringify(jsonify(mpoint), opt);
 }
-std::string geojson::stringify(const suMultiLine& mline, const int& precision)
+std::string suGeoJson::stringify(const suMultiLine& mline, const int& precision)
 {
     sujson::style opt;
     opt.precision = precision;
     return sujson::stringify(jsonify(mline), opt);
 }
-std::string geojson::stringify(const suMultiPoly& mpoly, const int& precision)
+std::string suGeoJson::stringify(const suMultiPoly& mpoly, const int& precision)
 {
     sujson::style opt;
     opt.precision = precision;
     return sujson::stringify(jsonify(mpoly), opt);
 }
 
-bool geojson::check(const Json::Value& jv, suPoint& point)
+bool suGeoJson::check(const Json::Value& jv, suPoint& point)
 {
-    if (suGeo::str2type(jv[K_TYPE].asString()) == eGeometryType::Point)
+    if (suGeoStr2Type(jv[K_TYPE].asString()) == eGeometryType::Point)
     {
         return load(jv[K_COORDINATES], point);
     }
     return false;
 }
-bool geojson::check(const Json::Value& jv, silly_multi_point& mpoint)
+bool suGeoJson::check(const Json::Value& jv, suMultiPoint& mpoint)
 {
-    if (suGeo::str2type(jv[K_TYPE].asString()) == eGeometryType::MultiPoint)
+    if (suGeoStr2Type(jv[K_TYPE].asString()) == eGeometryType::MultiPoint)
     {
         return load(jv[K_COORDINATES], mpoint);
     }
     return false;
 }
-bool geojson::check(const Json::Value& jv, suLine& line)
+bool suGeoJson::check(const Json::Value& jv, suLine& line)
 {
-    if (suGeo::str2type(jv[K_TYPE].asString()) == eGeometryType::LineString)
+    if (suGeoStr2Type(jv[K_TYPE].asString()) == eGeometryType::LineString)
     {
         return load(jv[K_COORDINATES], line);
     }
     return false;
 }
-bool geojson::check(const Json::Value& jv, suMultiLine& mline)
+bool suGeoJson::check(const Json::Value& jv, suMultiLine& mline)
 {
-    if (suGeo::str2type(jv[K_TYPE].asString()) == eGeometryType::MultiLineString)
+    if (suGeoStr2Type(jv[K_TYPE].asString()) == eGeometryType::MultiLineString)
     {
         return load(jv[K_COORDINATES], mline);
     }
     return false;
 }
-bool geojson::check(const Json::Value& jv, suPoly& poly)
+bool suGeoJson::check(const Json::Value& jv, suPoly& poly)
 {
-    if (suGeo::str2type(jv[K_TYPE].asString()) == eGeometryType::Polygon)
+    if (suGeoStr2Type(jv[K_TYPE].asString()) == eGeometryType::Polygon)
     {
         return load(jv[K_COORDINATES], poly);
     }
     return false;
 }
-bool geojson::check(const Json::Value& jv, suMultiPoly& mpoly)
+bool suGeoJson::check(const Json::Value& jv, suMultiPoly& mpoly)
 {
-    if (suGeo::str2type(jv[K_TYPE].asString()) == eGeometryType::MultiPolygon)
+    if (suGeoStr2Type(jv[K_TYPE].asString()) == eGeometryType::MultiPolygon)
     {
         return load(jv[K_COORDINATES], mpoly);
     }

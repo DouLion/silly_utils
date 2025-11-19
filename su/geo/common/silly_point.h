@@ -190,13 +190,13 @@ class suPointZ : public suPoint
 /****************************************/
 /// 多点
 /****************************************/
-class silly_multi_point
+class suMultiPoint
 {
   public:
-    silly_multi_point() = default;
-    ~silly_multi_point() = default;
-    /*silly_multi_point(const silly_multi_point& rh);
-    silly_multi_point(const std::vector<suPoint>& rh);*/
+    suMultiPoint() = default;
+    ~suMultiPoint() = default;
+    /*suMultiPoint(const suMultiPoint& rh);
+    suMultiPoint(const std::vector<suPoint>& rh);*/
     using iterator = typename std::vector<suPoint>::iterator;
     using const_iterator = typename std::vector<suPoint>::const_iterator;
     using value_type = suPoint;  // 兼容STL容器类型定义

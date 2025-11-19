@@ -40,7 +40,7 @@ class silly_spatialite
     /// <param name="sql"></param>
     /// <param name="bind_index">gc数据绑定到sql语句中占位符的位置,默认是1</param>
     /// <returns></returns>
-    int insert_geo(const std::vector<silly_geo_coll> &gc, const std::string &sql, int bind_index = 1);
+    int insert_geo(const std::vector<suGeoColl> &gc, const std::string &sql, int bind_index = 1);
 
     /// <summary>
     /// 获取矢量对象
@@ -48,7 +48,7 @@ class silly_spatialite
     /// <param name="gc"></param>
     /// <param name="sql"></param>
     /// <returns>几条数据收到影响</returns>
-    int select_geo(std::vector<silly_geo_coll> &gc, const std::string &sql);
+    int select_geo(std::vector<suGeoColl> &gc, const std::string &sql);
 
     /// <summary>
     /// 修改矢量对象
@@ -57,7 +57,7 @@ class silly_spatialite
     /// <param name="sql"></param>
     /// <param name="bind_index">gc数据绑定到sql语句中占位符的位置,默认是1</param>
     /// <returns>几条数据收到影响</returns>
-    int modify_geo(const silly_geo_coll &gc, const std::string &sql, int bind_index = 1);
+    int modify_geo(const suGeoColl &gc, const std::string &sql, int bind_index = 1);
 
     /// <summary>
     /// 移除矢量对象

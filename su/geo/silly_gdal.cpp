@@ -32,7 +32,7 @@ const static std::map<eGeoFieldType, OGRFieldType> GEO_FIELD_TYPE_SU2OGR = {
 
 const static std::string DATE_TIME_FMT = "{:04d}-{:02d}-{:02d} {:02d}:{:02d}:{:02d} TZ{}";
 // 将 suRing 转换为 OGRPolygon
-OGRLinearRing silly_gdal::silly_ring_to_ogr(const suRing& ring)
+OGRLinearRing suGDAL::RingToOGR(const suRing& ring)
 {
     OGRLinearRing result;
     std::vector<double> xs(ring.points.size());
@@ -48,7 +48,7 @@ OGRLinearRing silly_gdal::silly_ring_to_ogr(const suRing& ring)
 }
 
 // 环OGRLinearRing对象，将其转换为suRing对象  (环)
-suRing silly_gdal::silly_ring_from_ogr(const OGRLinearRing* ring)
+suRing suGDAL::RingFromOGR(const OGRLinearRing* ring)
 {
     suRing result;
     int pointCount = ring->getNumPoints();
@@ -62,39 +62,39 @@ suRing silly_gdal::silly_ring_from_ogr(const OGRLinearRing* ring)
 }
 
 // 将 OGRPoint(单点) 转换为 suPoint(单点) 类型
-suPoint silly_gdal::silly_point_from_ogr(const OGRPoint* ogrPoint)
+suPoint suGDAL::PointFromOGR(const OGRPoint* ogrPoint)
 {
     suPoint result(ogrPoint->getX(), ogrPoint->getY());
     return result;
 }
 
 // 将 suPoint(单点) 转换为 OGRPoint(单点) 类型
-OGRPoint silly_gdal::silly_point_to_ogr(const suPoint& point)
+OGRPoint suGDAL::PointToOGR(const suPoint& point)
 {
     OGRPoint ogrPoint(point.x, point.y);
     return ogrPoint;
 }
 
-// 将 OGRMultiPoint(多点) 转换为 silly_multi_point(多点) 类型
-silly_multi_point silly_gdal::silly_multi_point_from_ogr(const OGRMultiPoint* ogrMultiPoint)
+// 将 OGRMultiPoint(多点) 转换为 suMultiPoint(多点) 类型
+suMultiPoint suGDAL::MultiPointFromOGR(const OGRMultiPoint* ogrMultiPoint)
 {
-    silly_multi_point multiPoint;
+    suMultiPoint multiPoint;
     int pointCount = ogrMultiPoint->getNumGeometries();
     for (int i = 0; i < pointCount; i++)
     {
-        suPoint sillyPoint = silly_point_from_ogr(ogrMultiPoint->getGeometryRef(i));
+        suPoint sillyPoint = PointFromOGR(ogrMultiPoint->getGeometryRef(i));
         multiPoint.push_back(sillyPoint);
     }
     return multiPoint;
 }
 
-// 将 silly_multi_point(多点) 转换为 OGRMultiPoint(多点) 类型
-OGRMultiPoint silly_gdal::silly_multi_point_to_ogr(const silly_multi_point& mulitPoint)
+// 将 suMultiPoint(多点) 转换为 OGRMultiPoint(多点) 类型
+OGRMultiPoint suGDAL::MultiPointToOGR(const suMultiPoint& mulitPoint)
 {
     OGRMultiPoint orgMultiPoint;
     for (const suPoint& point : mulitPoint)
     {
-        OGRPoint ogrPoint = silly_point_to_ogr(point);
+        OGRPoint ogrPoint = PointToOGR(point);
         // orgMultiPoint.addGeometryDirectly(ogrPoint.clone());
         orgMultiPoint.addGeometry(&ogrPoint);
     }
@@ -102,7 +102,7 @@ OGRMultiPoint silly_gdal::silly_multi_point_to_ogr(const silly_multi_point& muli
 }
 
 // OGRLineString(线)类型转为suLine(线)类型
-suLine silly_gdal::silly_line_from_ogr(const OGRLineString* lineString)
+suLine suGDAL::LineFromOGR(const OGRLineString* lineString)
 {
     suLine line;
     int num_points = lineString->getNumPoints();
@@ -114,7 +114,7 @@ suLine silly_gdal::silly_line_from_ogr(const OGRLineString* lineString)
 }
 
 // 将 suLine(线) 转换为 OGRLineString(线)类型
-OGRLineString silly_gdal::silly_line_to_ogr(const suLine& line)
+OGRLineString suGDAL::LineToOGR(const suLine& line)
 {
     OGRLineString ogrLineString;
     std::vector<double> xs(line.size());
@@ -129,7 +129,7 @@ OGRLineString silly_gdal::silly_line_to_ogr(const suLine& line)
 }
 
 // OGRMultiLineString(多线)类型转为 silly_multiline(多线)类型
-suMultiLine silly_gdal::silly_multi_line_from_ogr(const OGRMultiLineString* multiLineString)
+suMultiLine suGDAL::MultiLineFromOGR(const OGRMultiLineString* multiLineString)
 {
     suMultiLine multiLine;
     int numLines = multiLineString->getNumGeometries();
@@ -138,7 +138,7 @@ suMultiLine silly_gdal::silly_multi_line_from_ogr(const OGRMultiLineString* mult
         auto lineString = (OGRLineString*)multiLineString->getGeometryRef(i);
         if (lineString != nullptr)
         {
-            suLine line = silly_line_from_ogr(lineString);
+            suLine line = LineFromOGR(lineString);
             multiLine.push_back(line);
         }
     }
@@ -146,13 +146,13 @@ suMultiLine silly_gdal::silly_multi_line_from_ogr(const OGRMultiLineString* mult
 }
 
 // 将 silly_multiline(多线) 转换为 OGRMultiLineString(多线)类型
-OGRMultiLineString silly_gdal::silly_multi_line_to_ogr(const suMultiLine& multiLine)
+OGRMultiLineString suGDAL::MultiLineToOGR(const suMultiLine& multiLine)
 {
     OGRMultiLineString ogrMultiLineString;
 
     for (const suLine& line : multiLine)
     {
-        OGRLineString ogrLineString = silly_line_to_ogr(line);
+        OGRLineString ogrLineString = LineToOGR(line);
         ogrMultiLineString.addGeometry(&ogrLineString);
     }
 
@@ -160,35 +160,35 @@ OGRMultiLineString silly_gdal::silly_multi_line_to_ogr(const suMultiLine& multiL
 }
 
 // OGRPolygon对象转换为suPoly(多环:外环+内环)对象  (单面)
-suPoly silly_gdal::silly_poly_from_ogr(const OGRPolygon* polygon)
+suPoly suGDAL::PolyFromOGR(const OGRPolygon* polygon)
 {
     suPoly poly;
     // 处理OGRPolygon外环
     auto outerRing = (OGRLinearRing*)polygon->getExteriorRing();
-    poly.outer = silly_ring_from_ogr(outerRing);
+    poly.outer = RingFromOGR(outerRing);
     // 处理OGRPolygon内环
     int innerRingCount = polygon->getNumInteriorRings();
     for (int k = 0; k < innerRingCount; k++)
     {
         auto ring = (OGRLinearRing*)polygon->getInteriorRing(k);
-        suRing innerRing = silly_ring_from_ogr(ring);
+        suRing innerRing = RingFromOGR(ring);
         poly.holes.push_back(innerRing);
     }
     return poly;
 }
 
 // 将 suPoly 转换为 OGRPolygon(单面)
-OGRPolygon silly_gdal::silly_poly_to_ogr(const suPoly& poly)
+OGRPolygon suGDAL::PolyToOGR(const suPoly& poly)
 {
     OGRPolygon org;
     // 设置外环
-    OGRLinearRing outerRing = silly_ring_to_ogr(poly.outer);
+    OGRLinearRing outerRing = RingToOGR(poly.outer);
     // double a = outerRing.get_Area();
     org.addRing(&outerRing);
     // 设置内环
     for (const suRing& innerRing : poly.holes)
     {
-        OGRLinearRing innerOGRRing = silly_ring_to_ogr(innerRing);
+        OGRLinearRing innerOGRRing = RingToOGR(innerRing);
         org.addRing(&innerOGRRing);
         org.closeRings();
     }
@@ -196,7 +196,7 @@ OGRPolygon silly_gdal::silly_poly_to_ogr(const suPoly& poly)
 }
 
 // 多面的OGRMultiPolygon对象转换为suMultiPoly(多面)
-suMultiPoly silly_gdal::silly_multi_poly_from_ogr(const OGRMultiPolygon* multiPolygon)
+suMultiPoly suGDAL::MultiPolyFromOGR(const OGRMultiPolygon* multiPolygon)
 {
     suMultiPoly multi_poly;
     int polygonCount = multiPolygon->getNumGeometries();
@@ -204,75 +204,75 @@ suMultiPoly silly_gdal::silly_multi_poly_from_ogr(const OGRMultiPolygon* multiPo
     {
         suPoly tmp_poly;
         auto polygon = (OGRPolygon*)multiPolygon->getGeometryRef(i);
-        tmp_poly = silly_poly_from_ogr(polygon);
+        tmp_poly = PolyFromOGR(polygon);
         multi_poly.push_back(tmp_poly);
     }
     return multi_poly;
 }
 
 // 将suMultiPoly对象转换为OGRMultiPolygon对象(多面)
-OGRMultiPolygon silly_gdal::silly_multi_poly_to_ogr(const suMultiPoly& multiPoly)
+OGRMultiPolygon suGDAL::MultiPolyToOGR(const suMultiPoly& multiPoly)
 {
     OGRMultiPolygon ogrMultiPolygon;
     for (const suPoly& poly : multiPoly)
     {
-        OGRPolygon ogrPolygon = silly_poly_to_ogr(poly);
+        OGRPolygon ogrPolygon = PolyToOGR(poly);
         ogrMultiPolygon.addGeometry(&ogrPolygon);
     }
 
     return ogrMultiPolygon;
 }
 
-OGRGeometry* silly_gdal::silly_geo_coll_to_ogr(const silly_geo_coll& coll)
+OGRGeometry* suGDAL::GeoCollToOGR(const suGeoColl& coll)
 {
-    switch (coll.m_type)
+    switch (coll.type())
     {
         case eGeometryType::Point:
-            return new OGRPoint(silly_point_to_ogr(coll.m_point));
+            return new OGRPoint(PointToOGR(coll.point()));
 
         case eGeometryType::MultiPoint:
-            return new OGRMultiPoint(silly_multi_point_to_ogr(coll.m_m_points));
+            return new OGRMultiPoint(MultiPointToOGR(coll.multiPoint()));
 
         case eGeometryType::LineString:
-            return new OGRLineString(silly_line_to_ogr(coll.m_line));
+            return new OGRLineString(LineToOGR(coll.line()));
 
         case eGeometryType::MultiLineString:
-            return new OGRMultiLineString(silly_multi_line_to_ogr(coll.m_m_lines));
+            return new OGRMultiLineString(MultiLineToOGR(coll.multiLine()));
 
         case eGeometryType::Polygon:
-            return new OGRPolygon(silly_poly_to_ogr(coll.m_poly));
+            return new OGRPolygon(PolyToOGR(coll.poly()));
 
         case eGeometryType::MultiPolygon:
-            return new OGRMultiPolygon(silly_multi_poly_to_ogr(coll.m_m_polys));
+            return new OGRMultiPolygon(MultiPolyToOGR(coll.multiPoly()));
 
         default:
-            SLOG_ERROR("Error: Unsupported type: {}");
+            SLOG_ERROR("Error: Unsupported type: {}", suGeoType2Str(coll.type()));
             return nullptr;
     }
 }
 
-silly_geo_coll silly_gdal::silly_geo_coll_from_ogr(const OGRGeometry* geometry)
+suGeoColl suGDAL::GeoCollFromOGR(const OGRGeometry* geometry)
 {
     switch (geometry->getGeometryType())
     {
         case wkbPoint:
-            return silly_point_from_ogr(static_cast<const OGRPoint*>(geometry));
+            return suGeoColl(PointFromOGR(static_cast<const OGRPoint*>(geometry)));
         case wkbMultiPoint:
-            return silly_multi_point_from_ogr(static_cast<const OGRMultiPoint*>(geometry));
+            return suGeoColl(MultiPointFromOGR(static_cast<const OGRMultiPoint*>(geometry)));
         case wkbLineString:
-            return silly_line_from_ogr(static_cast<const OGRLineString*>(geometry));
+            return suGeoColl(LineFromOGR(static_cast<const OGRLineString*>(geometry)));
         case wkbMultiLineString:
-            return silly_multi_line_from_ogr(static_cast<const OGRMultiLineString*>(geometry));
+            return suGeoColl(MultiLineFromOGR(static_cast<const OGRMultiLineString*>(geometry)));
         case wkbPolygon:
-            return silly_poly_from_ogr(static_cast<const OGRPolygon*>(geometry));
+            return suGeoColl(PolyFromOGR(static_cast<const OGRPolygon*>(geometry)));
         case wkbMultiPolygon:
-            return silly_multi_poly_from_ogr(static_cast<const OGRMultiPolygon*>(geometry));
+            return suGeoColl(MultiPolyFromOGR(static_cast<const OGRMultiPolygon*>(geometry)));
         default:
             SLOG_ERROR("Error: Unsupported type: {}");
-            return silly_geo_coll();
+            return suGeoColl();
     }
 }
-std::string silly_gdal::GradDriverName(const std::filesystem::path& file)
+std::string suGDAL::GradDriverName(const std::filesystem::path& file)
 {
     static const std::unordered_map<std::string, std::string> DRIVER_NAMES = {{".shp", "ESRI Shapefile"}, {".tab", "Mapinfo File"}, {".geojson", "GeoJSON"}, {".sqlite", "SQLite"}, {".csv", "CSV"}, {".kml", "KML"}, {".gml", "GML"}, {".xlsx", "XLSX"}};
     std::string ext = TO_LOWER(file.extension().string());
@@ -285,7 +285,7 @@ std::string silly_gdal::GradDriverName(const std::filesystem::path& file)
     }
     return "";
 }
-void* silly_gdal::GdalOpenDataset(const std::filesystem::path& file, const bool& read)
+void* suGDAL::GdalOpenDataset(const std::filesystem::path& file, const bool& read)
 {
     if (read)
     {
@@ -301,7 +301,7 @@ void* silly_gdal::GdalOpenDataset(const std::filesystem::path& file, const bool&
     GDALDriver* outDriver = GetGDALDriverManager()->GetDriverByName(gdalDriverName.c_str());
     return outDriver->Create(file.string().c_str(), 0, 0, 0, GDT_Unknown, nullptr);
 }
-bool silly_gdal::check_field_info(const std::filesystem::path& file, std::map<uint16_t, GeoFiledInfo>& properties)
+bool suGDAL::CheckFieldInfo(const std::filesystem::path& file, std::map<uint16_t, GeoFiledInfo>& idx2prop)
 {
     bool status = false;
     std::map<std::string, std::string> result;
@@ -344,16 +344,16 @@ bool silly_gdal::check_field_info(const std::filesystem::path& file, std::map<ui
         }
         tmp.type = GEO_FIELD_TYPE_OGR2SU.at(fieldType);
         tmp.index = i;
-        properties[i] = tmp;
+        idx2prop[i] = tmp;
     }
 
     GDALClose(poDSr);
     status = true;
     return status;
 }
-bool silly_gdal::read_property(const OGRFeature* feature, const std::map<uint16_t, GeoFiledInfo>& properties, std::unordered_map<std::string, silly_geo_prop>& props)
+bool suGDAL::ReadProperties(const OGRFeature* feature, const std::map<uint16_t, GeoFiledInfo>& idx2prop, std::unordered_map<std::string, suGeoProp>& props)
 {
-    for (const auto& [index, info] : properties)
+    for (const auto& [index, info] : idx2prop)
     {
         switch (info.type)
         {
@@ -405,64 +405,68 @@ bool silly_gdal::read_property(const OGRFeature* feature, const std::map<uint16_
 
     return true;
 }
-bool silly_gdal::read_all_types_data(const eGeometryType& feature_type, const OGRGeometry* geometry, silly_geo_coll& geo_coll)
-
+bool suGDAL::ReadGeometry(const OGRGeometry* geometry, suGeoColl& geoColl)
 {
+    if (!geometry)
+    {
+        return false;
+    }
+    const eGeometryType type = (eGeometryType)geometry->getGeometryType();
     bool status = false;
-    switch (feature_type)
+    switch (type)
     {
         case eGeometryType::Point:  // 单点
         {
             auto point = (OGRPoint*)(geometry);
-            geo_coll.m_point = silly_gdal::silly_point_from_ogr(point);
+            geoColl.set(PointFromOGR(point));
             status = true;
         }
         break;
         case eGeometryType::LineString:  // 单线
         {
             auto lineString = (OGRLineString*)(geometry);
-            geo_coll.m_line = silly_gdal::silly_line_from_ogr(lineString);
+            geoColl.set(LineFromOGR(lineString));
             status = true;
         }
         break;
         case eGeometryType::Polygon:  // 单面
         {
             auto polygon = (OGRPolygon*)(geometry);
-            geo_coll.m_poly = silly_gdal::silly_poly_from_ogr(polygon);
+            geoColl.set(PolyFromOGR(polygon));
             status = true;
         }
         break;
         case eGeometryType::MultiPoint:  // 多点
         {
             auto multiPoint = (OGRMultiPoint*)(geometry);
-            geo_coll.m_m_points = silly_gdal::silly_multi_point_from_ogr(multiPoint);
+            geoColl.set(suGDAL::MultiPointFromOGR(multiPoint));
             status = true;
         }
         break;
         case eGeometryType::MultiLineString:  // 多线
         {
             auto multiLineString = (OGRMultiLineString*)(geometry);
-            geo_coll.m_m_lines = silly_gdal::silly_multi_line_from_ogr(multiLineString);
+            geoColl.set(MultiLineFromOGR(multiLineString));
             status = true;
         }
         break;
         case eGeometryType::MultiPolygon:  // 多面
         {
             auto multiPolygon = (OGRMultiPolygon*)(geometry);
-            geo_coll.m_m_polys = silly_gdal::silly_multi_poly_from_ogr(multiPolygon);
+            geoColl.set(MultiPolyFromOGR(multiPolygon));
             status = true;
         }
         break;
         default:
         {
-            SLOG_ERROR("Unprocessable data types: {}\n", static_cast<int>(feature_type));
+            SLOG_ERROR("无法处理矢量数据类型s: {}", suGeoType2Str(type))
         }
         break;
     }
     return status;
 }
 
-bool silly_gdal::is_valid_shp(const std::filesystem::path& file)
+bool suGDAL::IsValidShp(const std::filesystem::path& file)
 {
     auto poDSr = static_cast<GDALDataset*>(GDALOpenEx(file.string().c_str(), GDAL_OF_ALL | GDAL_OF_READONLY, nullptr, nullptr, nullptr));
     if (nullptr == poDSr)
@@ -473,7 +477,7 @@ bool silly_gdal::is_valid_shp(const std::filesystem::path& file)
     return true;
 }
 
-std::vector<std::string> silly_gdal::shp_missing_file(const std::filesystem::path& file)
+std::vector<std::string> suGDAL::ShpMissingFile(const std::filesystem::path& file)
 {
     std::vector<std::string> ret;
     static std::set<std::string> necessary_files{".shx", ".dbf"};
@@ -497,52 +501,52 @@ std::vector<std::string> silly_gdal::shp_missing_file(const std::filesystem::pat
 
     return ret;
 }
-bool silly_gdal::AddGeometry(OGRLayer* layer, const silly_geo_coll& geometry, bool writeProp)
+bool suGDAL::AddGeometry(OGRLayer* layer, const suGeoColl& geometry, bool writeProp)
 {
-    if (!layer || geometry.m_type == eGeometryType::Invalid)
+    if (!layer || geometry.type() == eGeometryType::Invalid)
     {
         return false;
     }
 
     OGRFeature* feature = OGRFeature::CreateFeature(layer->GetLayerDefn());
     // 添加矢量
-    OGRGeometry* pGeometry = OGRGeometryFactory::createGeometry((OGRwkbGeometryType)geometry.m_type);
-    if (!geometry.m_props.empty() && writeProp)
+    OGRGeometry* pGeometry = OGRGeometryFactory::createGeometry((OGRwkbGeometryType)geometry.type());
+    if (!geometry.properties().empty() && writeProp)
     {
-        if (!FillField(feature, geometry.m_props))  // 添加属性
+        if (!FillField(feature, geometry.properties()))  // 添加属性
         {
             SLOG_ERROR("写入属性失败")
         }
     }
     // 添加矢量数据
-   bool  status = FillGeometry(geometry.m_type, layer, feature, pGeometry, geometry);
+    bool status = FillGeometry(geometry.type(), layer, feature, pGeometry, geometry);
 
     OGRFeature::DestroyFeature(feature);
     OGRGeometryFactory::destroyGeometry(pGeometry);
     return status;
 }
-bool silly_gdal::FillGeometry(const eGeometryType& type, OGRLayer* outputLayer, OGRFeature* feature, OGRGeometry* geometry, const silly_geo_coll& geo_coll)
+bool suGDAL::FillGeometry(const eGeometryType& type, OGRLayer* outputLayer, OGRFeature* feature, OGRGeometry* geometry, const suGeoColl& geoColl)
 {
     bool status = false;
     switch (type)
     {
         case eGeometryType::Point:
-            geometry = OGRPoint(geo_coll.m_point.x, geo_coll.m_point.y).clone();
+            geometry = OGRPoint(geoColl.point().x, geoColl.point().y).clone();
             break;
         case eGeometryType::LineString:
-            geometry = silly_line_to_ogr(geo_coll.m_line).clone();
+            geometry = LineToOGR(geoColl.line()).clone();
             break;
         case eGeometryType::Polygon:
-             geometry = silly_poly_to_ogr(geo_coll.m_poly).clone();
+            geometry = PolyToOGR(geoColl.poly()).clone();
             break;
         case eGeometryType::MultiPoint:
-            geometry = silly_multi_point_to_ogr(geo_coll.m_m_points).clone();
+            geometry = MultiPointToOGR(geoColl.multiPoint()).clone();
             break;
         case eGeometryType::MultiLineString:
-           geometry = silly_multi_line_to_ogr(geo_coll.m_m_lines).clone();
+            geometry = MultiLineToOGR(geoColl.multiLine()).clone();
             break;
         case eGeometryType::MultiPolygon:
-            geometry = silly_multi_poly_to_ogr(geo_coll.m_m_polys).clone();
+            geometry = MultiPolyToOGR(geoColl.multiPoly()).clone();
 
             break;
         default:
@@ -560,10 +564,10 @@ bool silly_gdal::FillGeometry(const eGeometryType& type, OGRLayer* outputLayer, 
 
     return status;
 }
-bool silly_gdal::FillField(OGRFeature* feature, const std::unordered_map<std::string, silly_geo_prop>& m_props)
+bool suGDAL::FillField(OGRFeature* feature, const std::unordered_map<std::string, suGeoProp>& properties)
 {
     bool status = true;
-    for (const auto& [key, prop] : m_props)
+    for (const auto& [key, prop] : properties)
     {
         int fieldIndex = feature->GetFieldIndex(key.c_str());
         if (fieldIndex >= 0)

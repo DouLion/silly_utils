@@ -246,7 +246,7 @@ bool BlockData::Read(std::fstream& input, const BlockInfo& info, SLB& slb)
 bool SLB::Read(const std::filesystem::path& file)
 {
     std::fstream input(file, std::ios::binary | std::ios::in);
-   
+
     if (!input.is_open())
     {
         return false;
@@ -319,9 +319,9 @@ bool SLB::Read(const std::filesystem::path& file)
         }
         m_RadialNumber0 = m_RadialBlocks.front().head.RadialNumber;
     } while (0);
-   
+
     input.close();
-    
+
     return !m_RadialBlocks.empty();
 }
 

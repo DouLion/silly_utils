@@ -89,7 +89,6 @@ enum class eCharset : int
 class silly_encode
 {
   public:
-
     static eCharset system_encode();
 
     /// <summary>

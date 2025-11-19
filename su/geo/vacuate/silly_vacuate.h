@@ -28,7 +28,6 @@ enum eVacuateAlgo
 class suVacuate
 {
   public:
-      
     static bool n_point(const int& n, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims = 2);
     static bool n_point(const int& n, const std::vector<suPoint>& inputs, std::vector<suPoint>& outputs, const int& dims = 2);
 
@@ -46,7 +45,7 @@ class suVacuate
 
     static bool lang(const int& lookAhead, const double& distance, const std::vector<double>& points, std::vector<double>& outputs, const int& dims = 2);
     static bool lang(const int& lookAhead, const double& distance, const std::vector<suPoint>& points, std::vector<suPoint>& outputs, const int& dims = 2);
-    
+
     static bool douglas_peucker(const double& distance, const std::vector<double>& points, std::vector<double>& outputs, const int& dims = 2);
     static bool douglas_peucker(const double& distance, const std::vector<suPoint>& points, std::vector<suPoint>& outputs, const int& dims = 2);
 

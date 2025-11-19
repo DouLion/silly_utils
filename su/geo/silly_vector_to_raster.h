@@ -17,7 +17,6 @@
 #include <geo/silly_geo_coll.h>
 #include <math/silly_matrix.h>
 
-
 namespace silly::geo::rasterization
 {
 
@@ -65,7 +64,7 @@ class x_scan_line
     /// </summary>
     /// <param name="points">多点</param>
     /// <returns></returns>
-    void rasterize(const silly_multi_point& points);
+    void rasterize(const suMultiPoint& points);
 
     /// <summary>
     /// 光栅化单线的算法, TODO: 有问题
@@ -100,7 +99,7 @@ class x_scan_line
     /// </summary>
     /// <param name="geo_coll"></param>
     /// <returns></returns>
-    void rasterize(const silly_geo_coll& geo_coll);
+    void rasterize(const suGeoColl& geo_coll);
 
     /// <summary>
     /// 将光栅化结果绘制到灰度图上
@@ -163,8 +162,6 @@ class x_scan_line
     int64_t m_num = 0;
 };
 
-} // namespace silly::geo::rasterization
-
-
+}  // namespace silly::geo::rasterization
 
 #endif  // SILLY_UTILS_SILLY_VECTOR_TO_RASTER_H

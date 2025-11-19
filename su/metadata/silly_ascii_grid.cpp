@@ -153,7 +153,7 @@ bool suAsciiGrid::write(const std::filesystem::path& file) const
     {
         return write_bin(file);
     }
-    std::cerr <<  std::string("不支持的格式: ") + ext << std::endl;
+    std::cerr << std::string("不支持的格式: ") + ext << std::endl;
     return status;
 }
 std::string suAsciiGrid::stringify_ll(const int& precision) const

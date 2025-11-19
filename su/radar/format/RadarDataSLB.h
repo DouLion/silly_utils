@@ -318,15 +318,15 @@ class SLB
     std::set<int32_t> m_ElevationNumber;
     int m_RadialNumber0 = 0;  //  0度对应的径向序号
 
-    std::vector<PolorGrid> _th;                           // 解码方式:([数值]-66)/2=[实际值]dBZ
-    std::vector<PolorGrid> _zh;                           // 水平反射率因子Zh;([数值]-66)/2=[实际值]dBZ
-    std::vector<PolorGrid> _vel;                          // 径向速度V;([数值]-129)/2=[实际值]米/秒
-    std::vector<PolorGrid> _width;                        // 谱宽W ;([数值]-129)/2=[实际值]米/秒
-    std::vector<PolorGrid> _zdr;                          // 差分反射率因子ZDR;([数值]-130)/16=[实际值]dB
-    std::vector<PolorGrid> _phidp;                        // 差分传播相位PHIDP;([数值]-50)/100=[实际值]度
-    std::vector<PolorGrid> _kdp;                          // 差分传播相位率KDP;([数值]-50)/10=[实际值]度/千米
-    std::vector<PolorGrid> _cc;                           // 相关系数CC;([数值]-5)/200=[实际值]
-    std::vector<PolorGrid> _tv;                           //  原始垂直反射率因子Tv;([数值]-66)/2=[实际值]dBZ
+    std::vector<PolorGrid> _th;     // 解码方式:([数值]-66)/2=[实际值]dBZ
+    std::vector<PolorGrid> _zh;     // 水平反射率因子Zh;([数值]-66)/2=[实际值]dBZ
+    std::vector<PolorGrid> _vel;    // 径向速度V;([数值]-129)/2=[实际值]米/秒
+    std::vector<PolorGrid> _width;  // 谱宽W ;([数值]-129)/2=[实际值]米/秒
+    std::vector<PolorGrid> _zdr;    // 差分反射率因子ZDR;([数值]-130)/16=[实际值]dB
+    std::vector<PolorGrid> _phidp;  // 差分传播相位PHIDP;([数值]-50)/100=[实际值]度
+    std::vector<PolorGrid> _kdp;    // 差分传播相位率KDP;([数值]-50)/10=[实际值]度/千米
+    std::vector<PolorGrid> _cc;     // 相关系数CC;([数值]-5)/200=[实际值]
+    std::vector<PolorGrid> _tv;     //  原始垂直反射率因子Tv;([数值]-66)/2=[实际值]dBZ
 
   private:
 };

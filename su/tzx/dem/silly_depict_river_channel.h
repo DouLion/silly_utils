@@ -23,7 +23,7 @@ class depict
   public:
     struct options
     {
-        suRect rect;       // 横断面和纵断面的矩形范围,高斯坐标
+        suRect rect;           // 横断面和纵断面的矩形范围,高斯坐标
         double cell_size = 5;  // 单位米
         double l0;             // 中央经线
     };
