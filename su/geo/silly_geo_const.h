@@ -10,17 +10,15 @@
  */
 #ifndef SILLY_UTILS_SILLY_GEO_CONST_H
 #define SILLY_UTILS_SILLY_GEO_CONST_H
-namespace silly
-{
-namespace geo
-{
-namespace EarthRadius
+
+namespace suEarthRadius
 {
 static constexpr double MEAN = 6371000.0;        // 平均半径 米
 static constexpr double EQUATORIAL = 6378137.0;  // 赤道半径 米
 static constexpr double POLAR = 6356752.3142;    // 极地半径 米
-}  // namespace EarthRadius
-namespace WGS84
+}  // namespace suEarthRadius
+
+namespace suWGS84
 {
 static constexpr double A = 6378137.0;         // 长半轴 米
 static constexpr double INVF = 298.257223563;  // 扁率的倒数
@@ -30,8 +28,9 @@ static constexpr double E2 = (2 * F - F * F);  // 第一偏心扁率的平方
 static constexpr double GM = 3.986004418e14;   // 地心引力常数 立方米/秒的平方
 static constexpr double W = 7.2921151467e-5;   // 自转角速度 弧度每秒
 static constexpr double J2 = 1.08262983226e-3;
-}  // namespace WGS84
-namespace CGCS2000
+}  // namespace suWGS84
+
+namespace suCGCS2000
 {
 // CGCS2000 大多数参数跟WGS84 一致
 static constexpr double A = 6378137.0;
@@ -42,8 +41,9 @@ static constexpr double E2 = (2 * F - F * F);
 static constexpr double GM = 3.9860044181e14;   // 地心引力常数 立方米/秒的平方
 static constexpr double W = 7.2921151467e-5;    // 自转角速度 弧度每秒
 static constexpr double J2 = 1.08262983226e-3;  // 重力场谐系数
-}  // namespace CGCS2000
-namespace XIAN80
+}  // namespace suCGCS2000
+
+namespace suXIAN80
 {
 
 static constexpr double A = 6378140.0;     // 长半轴
@@ -51,8 +51,9 @@ static constexpr double INVF = 298.257;    // 扁率的倒数
 static constexpr double F = (1.0 / INVF);  // 扁率
 static constexpr double B = (A * (1.0 - F));
 static constexpr double E2 = (2 * F - F * F);
-}  // namespace XIAN80
-namespace BEIJING54
+}  // namespace suXIAN80
+
+namespace suBEIJING54
 {
 
 static constexpr double A = 6378245.0;     // 长半轴
@@ -61,8 +62,5 @@ static constexpr double F = (1.0 / INVF);  // 扁率
 static constexpr double B = (A * (1.0 - F));
 static constexpr double E2 = (2 * F - F * F);
 }  // namespace BEIJING54
-
-}  // namespace geo
-}  // namespace silly
 
 #endif  // SILLY_UTILS_SILLY_GEO_CONST_H

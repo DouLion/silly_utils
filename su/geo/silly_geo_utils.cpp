@@ -676,7 +676,7 @@ double suGeoUtils::area_sqkm(const std::vector<suPoint>& points, const double& l
     for (auto p : points)
     {
         suPoint tmp;
-        proj::convert::lonlat_to_gauss(l0, p.x, p.y, tmp.y, tmp.x);
+        suGeoProj::lonlat_to_gauss(l0, p.x, p.y, tmp.y, tmp.x);
         gpoints.push_back(tmp);
     }
     return area(gpoints) / 1e6;

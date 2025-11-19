@@ -54,9 +54,6 @@ using suHttpKV = std::unordered_map<std::string, std::string>;
     callback(resp);               \
     return;
 
-#define SU_CONVERT_KV_PARAM
-
-
 
 /// 以下宏定义只会在旧的服务中使用
 #define SU_OLD_HTTP_JSON_RESPONSE_HEADER "header"

@@ -597,19 +597,19 @@ void suCairo::draw_ring_web_mercator(const suRing &ring, const silly_geo_rect &r
         return;
     }
     suRect mcr;
-    silly::geo::proj::convert::lonlat_to_mercator(rect.min.x, rect.max.y, mcr.min.x, mcr.max.y);
-    silly::geo::proj::convert::lonlat_to_mercator(rect.max.x, rect.min.y, mcr.max.x, mcr.min.y);
+    suGeoProj::lonlat_to_mercator(rect.min.x, rect.max.y, mcr.min.x, mcr.max.y);
+    suGeoProj::lonlat_to_mercator(rect.max.x, rect.min.y, mcr.max.x, mcr.min.y);
 
     cairo_new_sub_path(m_cr);
     double mcx, mcy;
 
     double xdist = (mcr.max.x - mcr.min.x);
     double ydist = (mcr.max.y - mcr.min.y);
-    silly::geo::proj::convert::lonlat_to_mercator(ring.points[0].x, ring.points[0].y, mcx, mcy);
+    suGeoProj::lonlat_to_mercator(ring.points[0].x, ring.points[0].y, mcx, mcy);
     cairo_move_to(m_cr, (mcx - mcr.min.x) * m_width / xdist, (mcr.max.y - mcy) * m_height / ydist);
     for (int i = 1; i < ring.points.size(); ++i)
     {
-        silly::geo::proj::convert::lonlat_to_mercator(ring.points[i].x, ring.points[i].y, mcx, mcy);
+        suGeoProj::lonlat_to_mercator(ring.points[i].x, ring.points[i].y, mcx, mcy);
         cairo_line_to(m_cr, (mcx - mcr.min.x) * m_width / xdist, (mcr.max.y - mcy) * m_height / ydist);
     }
     cairo_close_path(m_cr);
@@ -721,18 +721,18 @@ void suCairo::draw_line(const std::vector<suPoint> &line, const silly_geo_rect &
 void suCairo::draw_line_web_mercator(const std::vector<suPoint> &line, const silly_geo_rect &rect)
 {
     suRect mcr;
-    silly::geo::proj::convert::lonlat_to_mercator(rect.min.x, rect.max.y, mcr.min.x, mcr.max.y);
-    silly::geo::proj::convert::lonlat_to_mercator(rect.max.x, rect.min.y, mcr.max.x, mcr.min.y);
+    suGeoProj::lonlat_to_mercator(rect.min.x, rect.max.y, mcr.min.x, mcr.max.y);
+    suGeoProj::lonlat_to_mercator(rect.max.x, rect.min.y, mcr.max.x, mcr.min.y);
 
     double mcx, mcy;
 
     double x_pixel_per_degree = m_width / (mcr.max.x - mcr.min.x);
     double y_pixel_per_degree = m_height / (mcr.max.y - mcr.min.y);
-    silly::geo::proj::convert::lonlat_to_mercator(line[0].x, line[0].y, mcx, mcy);
+    suGeoProj::lonlat_to_mercator(line[0].x, line[0].y, mcx, mcy);
     cairo_move_to(m_cr, (mcx - mcr.min.x) * x_pixel_per_degree, (mcr.max.y - mcy) * y_pixel_per_degree);
     for (int i = 1; i < line.size(); ++i)
     {
-        silly::geo::proj::convert::lonlat_to_mercator(line[i].x, line[i].y, mcx, mcy);
+        suGeoProj::lonlat_to_mercator(line[i].x, line[i].y, mcx, mcy);
         cairo_line_to(m_cr, (mcx - mcr.min.x) * x_pixel_per_degree, (mcr.max.y - mcy) * y_pixel_per_degree);
     }
     cairo_stroke(m_cr);

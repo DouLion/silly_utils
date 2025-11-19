@@ -29,29 +29,22 @@
 #define SU_GAUSS3_L0(_no_) (static_cast<double>(3 * _no_))
 #define SU_GAUSS6_L0(_no_) (static_cast<double>(6 * _no_ - 3.0))
 
-#define GAUSS2LONLAT silly::geo::proj::convert::gauss_to_lonlat
-#define LONLAT2GAUSS silly::geo::proj::convert::lonlat_to_gauss
+#define GAUSS2LONLAT suGeoProj::gauss_to_lonlat
+#define LONLAT2GAUSS suGeoProj::lonlat_to_gauss
 
-#define MERCATOR2LONLAT silly::geo::proj::convert::mercator_lonlat
-#define LONLAT2MERCATOR silly::geo::proj::convert::lonlat_to_mec
+#define MERCATOR2LONLAT suGeoProj::mercator_lonlat
+#define LONLAT2MERCATOR suGeoProj::lonlat_to_mec
 
-#define MERCATOR2GAUSS silly::geo::proj::convert::mercator_gauss
-#define GAUSS2MERCATOR silly::geo::proj::convert::gauss_to_mec
+#define MERCATOR2GAUSS suGeoProj::mercator_gauss
+#define GAUSS2MERCATOR suGeoProj::gauss_to_mec
 
-#define ECEF2LONLAT silly::geo::proj::convert::ecef_lonlat
-#define LONLAT2ECEF silly::geo::proj::convert::lonlat_to_ecef
+#define ECEF2LONLAT suGeoProj::ecef_lonlat
+#define LONLAT2ECEF suGeoProj::lonlat_to_ecef
 
-#define BUILD_HELMERT silly::geo::proj::convert::build
-#define TRANS_HELMERT silly::geo::proj::convert::trans
+#define BUILD_HELMERT suGeoProj::build
+#define TRANS_HELMERT suGeoProj::trans
 
-namespace silly
-{
-namespace geo
-{
-
-namespace proj
-{
-class convert
+class suGeoProj
 {
   public:
     struct param
@@ -61,9 +54,9 @@ class convert
         double scale{0.9996};
         double easting{500000.0};  // 东偏移
         // 长半轴
-        double major_axis{silly::geo::WGS84::A};
+        double major_axis{suWGS84::A};
         // 扁率
-        double flatten{silly::geo::WGS84::F};
+        double flatten{suWGS84::F};
     };
     struct point2d
     {
@@ -301,9 +294,5 @@ class convert
         lttd = nlat;
     }
 };
-}  // namespace proj
-
-}  // namespace geo
-}  // namespace silly
 
 #endif  // SILLY_UTILS_SILLY_PROJ_H

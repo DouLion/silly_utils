@@ -64,8 +64,8 @@ bool silly_geo_convert::matrix_geo_to_mercator(suMatrix<T> src, const silly_geo_
         return false;
     }
     double m_left{0}, m_top{0}, m_right{0}, m_bottom{0};
-    silly::geo::proj::convert::Tlonlat_to_mercator(rect.max.x, rect.min.y, m_right, m_bottom);
-    silly::geo::proj::convert::Tlonlat_to_mercator(rect.min.x, rect.max.y, m_left, m_top);
+    suGeoProj::Tlonlat_to_mercator(rect.max.x, rect.min.y, m_right, m_bottom);
+    suGeoProj::Tlonlat_to_mercator(rect.min.x, rect.max.y, m_left, m_top);
     double mc_xdelta = (m_right - m_left) / tmp.col();
     double mc_ydelta = (m_top - m_bottom) / tmp.row();
 
@@ -84,7 +84,7 @@ bool silly_geo_convert::matrix_geo_to_mercator(suMatrix<T> src, const silly_geo_
             double m_x = c * mc_xdelta + m_left;  // 每个matrix网格点对应的mecator坐标
             double m_y = m_top - r * mc_ydelta;
             double lgtd, lttd;
-            silly::geo::proj::convert::Tmercator_to_lonlat(m_x, m_y, lgtd, lttd);
+            suGeoProj::Tmercator_to_lonlat(m_x, m_y, lgtd, lttd);
             int dst_c = std::round((lgtd - rect.min.x) / geo_xdelta);
             int dst_r = std::round((rect.max.y - lttd) / geo_ydelta);
             // TODO: 这一步是不是有问题,是否是必须的,防止访问溢出

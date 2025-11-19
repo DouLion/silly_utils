@@ -31,7 +31,7 @@ void silly_radar_occluder::set(const dem& info)
         m_l0 = info.l0;
     }
     suPoint G0;
-    convert::lonlat_to_gauss(m_l0, m_center.x, m_center.y, G0.x, G0.y);
+    suGeoProj::lonlat_to_gauss(m_l0, m_center.x, m_center.y, G0.x, G0.y);
     for (size_t d = 0; d < m_dSize; ++d)
     {
         for (size_t r = 0; r < m_rSize; ++r)
@@ -43,9 +43,9 @@ void silly_radar_occluder::set(const dem& info)
             {
                 // 经纬度
                 suPoint gp;
-                convert::polar_to_cartesian(radius, rad, gp.x, gp.y, G0.x, G0.y);
+                suGeoProj::polar_to_cartesian(radius, rad, gp.x, gp.y, G0.x, G0.y);
                 suPoint llp;
-                convert::gauss_to_lonlat(m_l0, gp.x, gp.y, llp.x, llp.y);
+                suGeoProj::gauss_to_lonlat(m_l0, gp.x, gp.y, llp.x, llp.y);
 
                 row = std::round((info.rect.max.y - llp.y) / (info.rect.max.y - info.rect.min.y) * info.rows);
                 col = std::round((llp.x - info.rect.min.x) / (info.rect.max.x - info.rect.min.x) * info.cols);
@@ -54,7 +54,7 @@ void silly_radar_occluder::set(const dem& info)
             {
                 // 高斯
                 suPoint gp;
-                convert::polar_to_cartesian(radius, rad, gp.x, gp.y, G0.x, G0.y);
+                suGeoProj::polar_to_cartesian(radius, rad, gp.x, gp.y, G0.x, G0.y);
                 row = std::round((info.rect.max.y - gp.y) / (info.rect.max.y - info.rect.min.y) * info.rows);
                 col = std::round((gp.x - info.rect.min.x) / (info.rect.max.x - info.rect.min.x) * info.cols);
             }
@@ -132,7 +132,7 @@ suPoly silly_radar_occluder::occluder_poly(const double& pitch, const double& el
     suPoly poly;
     std::vector<double> maxRadius(m_dSize, 0);
     suPoint G0;
-    convert::lonlat_to_gauss(m_l0, m_center.x, m_center.y, G0.x, G0.y);
+    suGeoProj::lonlat_to_gauss(m_l0, m_center.x, m_center.y, G0.x, G0.y);
     {
         silly_thread_pool pool(std::thread::hardware_concurrency() * 2);
         for (int i = 0; i < m_polar_dem.size(); ++i)
@@ -146,8 +146,8 @@ suPoly silly_radar_occluder::occluder_poly(const double& pitch, const double& el
     for (int i = 0; i < m_dSize; ++i)
     {
         suPoint gp, llp;
-        convert::polar_to_cartesian(maxRadius[i], DEG2RAD(m_dStep * i), gp.x, gp.y, G0.x, G0.y);
-        convert::gauss_to_lonlat(m_l0, gp.x, gp.y, llp.x, llp.y);
+        suGeoProj::polar_to_cartesian(maxRadius[i], DEG2RAD(m_dStep * i), gp.x, gp.y, G0.x, G0.y);
+        suGeoProj::gauss_to_lonlat(m_l0, gp.x, gp.y, llp.x, llp.y);
         poly.outer.points.push_back(llp);
     }
     return poly;

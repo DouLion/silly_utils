@@ -12,14 +12,14 @@
 
 #include "geo/silly_geo_utils.h"
 #define CVT_CHECK_G2LL_BOUND(l0, x0, y0, x1, y1, rect0)             \
-    silly::geo::proj::convert::gauss_to_lonlat(l0, x0, y0, x1, y1); \
+    suGeoProj::gauss_to_lonlat(l0, x0, y0, x1, y1); \
     rect0.min.x = std::min(x1, rect0.min.x);                        \
     rect0.min.y = std::min(y1, rect0.min.y);                        \
     rect0.max.x = std::max(x1, rect0.max.x);                        \
     rect0.max.y = std::max(y1, rect0.max.y);
 
 #define CVT_CHECK_LL2G_BOUND(l0, x0, y0, x1, y1, rect0)             \
-    silly::geo::proj::convert::lonlat_to_gauss(l0, x0, y0, x1, y1); \
+    suGeoProj::lonlat_to_gauss(l0, x0, y0, x1, y1); \
     rect0.min.x = std::min(x1, rect0.min.x);                        \
     rect0.min.y = std::min(y1, rect0.min.y);                        \
     rect0.max.x = std::max(x1, rect0.max.x);                        \

@@ -9,11 +9,9 @@
  * @version: v1.0.1 2024-08-28 dou li yang
  */
 #include "silly_vacuate.h"
-
 #include "psimpl.h"
 
 using namespace psimpl;
-using namespace silly::geo;
 
 bool suVacuate::n_point(const int& n, const std::vector<double>& inputs, std::vector<double>& outputs, const int& dims)
 {
