@@ -13,7 +13,7 @@
 
 #pragma once
 #include "silly_proj.h"
-#if HAS_LIB_EIGEN3
+#if SU_THIRD_SUPPORT_EIGEN3
 #include <Eigen/Dense>
 #endif
 
@@ -225,7 +225,7 @@ void suGeoProj::lonlat_to_ecef(const double& lon, const double& lat, const doubl
 suGeoProj::pfour suGeoProj::build(const std::vector<suGeoProj::point2d>& measures, const std::vector<suGeoProj::point2d>& origins)
 {
     pfour result;
-#if HAS_LIB_EIGEN3
+#if SU_THIRD_SUPPORT_EIGEN3
     if (measures.size() < 2 || origins.size() < 2 || measures.size() != origins.size())
     {
         throw std::invalid_argument("至少需要 2 对匹配的二维点，且数量一致");
@@ -313,7 +313,7 @@ suGeoProj::helmert suGeoProj::build(const std::vector<suGeoProj::point3d>& measu
 {
     // 构造返回的 helmert 结构体
     helmert result;
-#if HAS_LIB_EIGEN3
+#if SU_THIRD_SUPPORT_EIGEN3
     // 至少需要3对点，推荐更多
     if (measures.size() < 3 || origins.size() < 3 || measures.size() != origins.size())
     {
