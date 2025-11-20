@@ -494,7 +494,7 @@ class suMatrix
     /// 复制数据内容到新的指针地址
     /// </summary>
     /// <returns></returns>
-    suMatrix<T> &copy() const
+    suMatrix<T> copy() const
     {
         suMatrix<T> ret;
         ret.create(m_row, m_col);
