@@ -90,7 +90,7 @@ class silly_huge_stitcher
  suGeoUtils::init_gdal_env();
 std::string file = R"(Z:\DATA\Dats\MapRoot\public\union_bitmap_pyramid\basemap\00_P)";
 std::string png = R"(Z:\stitcher2.png)";
-silly::pyramid::handle hdl;
+handle hdl;
 hdl.begin_read(file);
 // 29.9433,115.5065
 // 28.9825,116.7450
@@ -117,7 +117,7 @@ for (auto r = brow; r <= erow; ++r)
 {
     for (auto c = bcol; c <= ecol; ++c)
     {
-        silly::pyramid::block blk;
+        block blk;
         blk.zoom = layer;
         blk.row = r;
         blk.col = c;
@@ -177,7 +177,7 @@ hdl.close();
 suGeoUtils::init_gdal_env();
 std::string file = R"(Z:\DATA\Dats\MapRoot\public\union_bitmap_pyramid\basemap\00_P)";
 std::string png = R"(Z:\stitcher.png)";
-silly::pyramid::handle hdl;
+handle hdl;
 hdl.begin_read(file);
 // 29.9433,115.5065
 // 28.9825,116.7450
@@ -199,7 +199,7 @@ for (auto r = lt.row; r <= rb.row; ++r)
 {
     for (auto c = lt.col; c <= rb.col; ++c)
     {
-        silly::pyramid::block blk;
+        block blk;
         blk.zoom = layer;
         blk.row = r;
         blk.col = c;
