@@ -49,11 +49,6 @@
 #endif
 
 #define SILLY_OTL_ODBC_MAX_LEN 1024
-#define otl_long_str_to_str silly::lstr2str
-#define otl_datetime_to_str silly::datetime2str
-#define str_to_otl_datetime silly::str2otltime
-#define str_to_db_type silly::otl::str2type
-#define db_type_to_str silly::otl::type2str
 
 enum class eOtlDbType
 {
@@ -67,93 +62,25 @@ enum class eOtlDbType
     dbMariaDB = 7     // MYSQL的一个开源分支,基本能够兼容mysql
 };
 
-/// <summary>
-/// long_string 转换为字符串
-/// </summary>
-/// <param name="ls"></param>
-/// <returns></returns>
-static std::string lstr2str(otl_long_string ls)
-{
-    std::string ret;
-    ret.resize(ls.len());
-    memcpy(&ret[0], ls.v, ls.len());
-    return ret;
-}
-
-static std::string otllob2string(otl_lob_stream* stream)
-{
-    std::string ret;
-    while (!stream->eof())
-    {
-        std::string tmp;
-        otl_long_string _sols;
-        *stream >> _sols;
-        tmp.resize(_sols.len());
-        memcpy(&tmp[0], _sols.v, _sols.len());
-        ret += tmp;
-    }
-    stream->close();
-
-    return ret;
-}
-
-static std::string otltime2str(otl_datetime dt, bool millisecond = false)
-{
-    char buff[32];
-    if (millisecond)
-    {
-        SU_SPRINTF(buff, "%04d-%02d-%02d %02d:%02d:%02d.%03d", dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second, dt.fraction / 1e6);
-    }
-    else
-    {
-        SU_SPRINTF(buff, "%04d-%02d-%02d %02d:%02d:%02d", dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second);
-    }
-    return std::string(buff);
-}
-
-static otl_datetime str2otltime(const std::string& str)
-{
-    otl_datetime dt;
-    sscanf(str.c_str(), "%04d-%02d-%02d %02d:%02d:%02d.%03d", &dt.year, &dt.month, &dt.day, &dt.hour, &dt.minute, &dt.second, dt.fraction);
-    dt.fraction = dt.fraction * 1e6;
-    return dt;
-}
-
-/// @brief 时间戳转换为+8区时间
-/// @param[in] dt
-/// @return 时间戳
-static std::time_t otltime2stamp(otl_datetime dt)
-{
-    std::tm stm;
-    stm.tm_year = dt.year - 1900;
-    stm.tm_mon = dt.month - 1;
-    stm.tm_mday = dt.day;
-    stm.tm_hour = dt.hour;
-    stm.tm_min = dt.minute;
-    stm.tm_sec = dt.second;
-    return std::mktime(&stm);
-}
-
-/// @brief +8区时间转换为时间戳
-/// @param[in] stamp
-/// @return 时间
-static otl_datetime stamp2otltime(std::time_t stamp)
-{
-    std::tm* stm = std::localtime(&stamp);
-    otl_datetime dt;
-    dt.year = stm->tm_year + 1900;
-    dt.month = stm->tm_mon + 1;
-    dt.day = stm->tm_mday;
-    dt.hour = stm->tm_hour;
-    dt.minute = stm->tm_min;
-    dt.second = stm->tm_sec;
-    dt.fraction = 0;
-    return dt;
-}
 
 class suOTL
 {
   public:
+    static std::string LStr2Str(const otl_long_string& lstr);
+    static std::string Lob2Str(otl_lob_stream* stream);
+    static std::string Time2Str(const otl_datetime& dt, const bool& millisecond = false);
+    static otl_datetime Str2Time(const std::string& str);
+
+    /// @brief 时间戳转换为+8区时间
+    /// @param[in] dt
+    /// @return 时间戳
+    static std::time_t Time2Stamp(const otl_datetime& dt);
+
+    /// @brief +8区时间转换为时间戳
+    /// @param[in] stamp
+    /// @return 时间
+    static otl_datetime Stamp2Time(const std::time_t& stamp);
+
     /// <summary>
     /// 从字符串加载otl连接属性, 可以传入json字符串, 也可以直接传入odbc字符串
     /// </summary>

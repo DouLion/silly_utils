@@ -131,6 +131,124 @@ static std::map<std::string, std::string> parse_odbc(const std::string& odbc)
     return result;
 }
 
+
+std::string suOTL::LStr2Str(const otl_long_string& lstr)
+{
+    std::string ret;
+    ret.resize(lstr.len());
+    std::memcpy(&ret[0], lstr.v, lstr.len());
+    return ret;
+}
+std::string suOTL::Lob2Str(otl_lob_stream* stream)
+{
+    std::string ret;
+    while (!stream->eof())
+    {
+        std::string tmp;
+        otl_long_string _sols;
+        *stream >> _sols;
+        tmp.resize(_sols.len());
+        std::memcpy(&tmp[0], _sols.v, _sols.len());
+        ret += tmp;
+    }
+    stream->close();
+
+    return ret;
+}
+std::string suOTL::Time2Str(const otl_datetime& dt, const bool& millisecond)
+{
+    char buff[32];
+    if (millisecond)
+    {
+        SU_SPRINTF(buff, "%04d-%02d-%02d %02d:%02d:%02d.%03d", dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second, int(dt.fraction / 1e6));
+    }
+    else
+    {
+        SU_SPRINTF(buff, "%04d-%02d-%02d %02d:%02d:%02d", dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second);
+    }
+    return buff;
+}
+otl_datetime suOTL::Str2Time(const std::string& str)
+{
+    otl_datetime dt{};
+    // 正则：年(4位) - 月(1~2) - 日(1~2) [空格 时(1~2) : 分(1~2) [: 秒(1~2) [ . 毫秒(1~3) ]]]
+    const std::regex pattern(
+        R"((\d{4})-(\d{1,2})-(\d{1,2})(?: (\d{1,2}):(\d{1,2})(?::(\d{1,2})(?:\.(\d{1,3}))?)?)?)"
+    );
+
+    std::smatch matches;
+
+    if (std::regex_search(str, matches, pattern)) {
+        // ===== 必选部分：年、月、日 =====
+        dt.year  = std::stoi(matches[1]);
+        dt.month = std::stoi(matches[2]);
+        dt.day   = std::stoi(matches[3]);
+
+        // ===== 可选部分：时:分:秒.毫秒 =====
+        if (matches.size() > 4 && matches[4].matched) {  // 有时:分
+            dt.hour   = std::stoi(matches[4]);
+            dt.minute = std::stoi(matches[5]);
+
+            if (matches.size() > 6 && matches[6].matched) {  // 有秒
+                dt.second = std::stoi(matches[6]);
+
+                if (matches.size() > 7 && matches[7].matched) {  // 有毫秒
+                    std::string ms_str = matches[7];
+                    int ms_len = ms_str.length();
+
+                    dt.fraction = ms_str.empty() ? 0 : static_cast<unsigned long>(std::stoul(ms_str));
+
+                    // 可选：记录毫秒精度（1~3位）
+                    dt.frac_precision = ms_len;  // 1, 2, 或 3
+
+                    // 如果你希望 fraction 是微秒，可以乘以 10^(3-ms_len)
+                    // 例如 .1 → 100, .12 → 120, .123 → 123
+                    // 但目前我们直接存原始值，你可以后续按需处理
+                } else {
+                    dt.fraction = 0;
+                    dt.frac_precision = 0;
+                }
+            } else {
+                dt.second = 0;
+                dt.fraction = 0;
+                dt.frac_precision = 0;
+            }
+        } else {
+            // 只有年月日
+            dt.hour = 0;
+            dt.minute = 0;
+            dt.second = 0;
+            dt.fraction = 0;
+            dt.frac_precision = 0;
+        }
+    }
+
+    return dt;
+}
+std::time_t suOTL::Time2Stamp(const otl_datetime& dt)
+{
+    std::tm stm;
+    stm.tm_year = dt.year - 1900;
+    stm.tm_mon = dt.month - 1;
+    stm.tm_mday = dt.day;
+    stm.tm_hour = dt.hour;
+    stm.tm_min = dt.minute;
+    stm.tm_sec = dt.second;
+    return std::mktime(&stm);
+}
+otl_datetime suOTL::Stamp2Time(const std::time_t& stamp)
+{
+    std::tm* stm = std::localtime(&stamp);
+    otl_datetime dt;
+    dt.year = stm->tm_year + 1900;
+    dt.month = stm->tm_mon + 1;
+    dt.day = stm->tm_mday;
+    dt.hour = stm->tm_hour;
+    dt.minute = stm->tm_min;
+    dt.second = stm->tm_sec;
+    dt.fraction = 0;
+    return dt;
+}
 bool suOTL::load(const std::string& cfg)
 {
     clean();
