@@ -1,12 +1,80 @@
-# 第三方库支持
+# ##############################################################################
+# 第三方库开关, 禁用时设为ON
+# ##############################################################################
+set(DISABLE_FMT OFF)        # 字符串格式化
+set(DISABLE_SPDLOG OFF)     # 日志库
+set(DISABLE_JSONPP OFF)     # json处理
 
-set(ENABLE_ECCODES ON) # GRIB2文件支持
-set(ENABLE_CUDA OFF) # 检查cuda开发环境
-set(ENABLE_DM8 OFF) # 检查达梦DPI是否可用, 不影响ODBC方式
-set(ENABLE_GDAL ON) # gdal支持
-set(ENABLE_WEBSOCKET_PP ON) # websocket支持
-set(ENABLE_PAHO_MQTT ON) # mqtt支持
-set(ENABLE_ICONV ON) # iconv支持
-set(ENABLE_LIBARCHIVE ON) # rar支持
-set(ENABLE_JPEG ON) # jpeg
-set(ENABLE_SPATIALITE ON)
+set(DISABLE_GDAL OFF)       # Gdal
+set(DISABLE_POLY_CLIPPING OFF) # 矢量切割算法
+
+set(DISABLE_GEOTIFF OFF)    # 栅格数据读写
+set(DISABLE_NETCDF_CXX OFF)
+set(DISABLE_ECCODES OFF)
+
+set(DISABLE_CAIRO OFF)      # 矢量绘制
+set(DISABLE_FREE_TYPE OFF)  # 自定义字体支持
+set(DISABLE_PNG OFF)        # PNG
+set(DISABLE_JPEG OFF)       # JPEG 一般不用这个
+
+set(DISABLE_LIBARCHIVE OFF) # RAR 压缩
+set(DISABLE_7ZIP ON)
+set(DISABLE_BZIP2 OFF)
+set(DISABLE_LIBZIP OFF)
+set(DISABLE_LZ4 OFF)        # 这个使用tzx_grid类时需要
+set(DISABLE_MINI_ZIP OFF)
+set(DISABLE_GZIP OFF)
+set(DISABLE_ZLIB OFF)
+
+set(DISABLE_CRYPTOPP OFF)   # 通用加密解密算法
+set(DISABLE_CURL OFF)       # 网络请求
+set(DISABLE_ICONV OFF)      # 字符串编码转化
+
+set(DISABLE_OPENSSL OFF)
+set(DISABLE_PAHO_MQTT OFF)
+
+set(DISABLE_PROTO_ZERO ON)
+
+set(DISABLE_SPATIALITE ON)
+
+set(DISABLE_SQLITE3 ON)
+
+set(DISABLE_EIGEN3 ON)
+
+set(DISABLE_CGAL ON)
+
+
+# ##############################################################################
+# 设置默认值
+# ##############################################################################
+set(SU_THIRD_SUPPORT_GDAL 0)
+set(SU_THIRD_SUPPORT_ECCODES 0)
+set(SU_THIRD_SUPPORT_JPEG 0)
+set(SU_THIRD_SUPPORT_CRYPTOPP 0)
+set(SU_THIRD_SUPPORT_ICONV 0)
+set(SU_THIRD_SUPPORT_CURL 0)
+set(SU_THIRD_SUPPORT_JSONPP 0)
+set(SU_THIRD_SUPPORT_ZLIB 0)
+set(SU_THIRD_SUPPORT_LIBARCHIVE 0)
+set(SU_THIRD_SUPPORT_LIBZIP 0)
+set(SU_THIRD_SUPPORT_BZIP2 0)
+set(SU_THIRD_SUPPORT_MINI_ZIP 0)
+set(SU_THIRD_SUPPORT_GZIP 0)
+set(SU_THIRD_SUPPORT_7ZIP 0)
+set(SU_THIRD_SUPPORT_LZ4 0)
+set(SU_THIRD_SUPPORT_NETCDF_CXX 0)
+set(SU_THIRD_SUPPORT_PNG 0)
+set(SU_THIRD_SUPPORT_OPENSSL 0)
+set(SU_THIRD_SUPPORT_PROTO_ZERO 0)
+set(SU_THIRD_SUPPORT_GEOTIFF 0)
+set(SU_THIRD_SUPPORT_SQLITE3 0)
+set(SU_THIRD_SUPPORT_FMT 0)
+set(SU_THIRD_SUPPORT_SPDLOG 0)
+set(SU_THIRD_SUPPORT_CAIRO 0)
+set(SU_THIRD_SUPPORT_FREE_TYPE 0)
+set(SU_THIRD_SUPPORT_POLY_CLIPPING 0)
+set(SU_THIRD_SUPPORT_SPATIALITE 0)
+set(SU_THIRD_SUPPORT_WEBSOCKET_PP 0)
+set(SU_THIRD_SUPPORT_PAHO_MQTT 0)
+set(SU_THIRD_SUPPORT_EIGEN3 0)
+set(SU_THIRD_SUPPORT_CGAL 0)
