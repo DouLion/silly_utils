@@ -18,7 +18,9 @@
 // a.k.a. as Open BSD license
 // (http://www.openbsd.org/cgi-bin/cvsweb/~checkout~/src/share/misc/license.template
 // =================================================================================
-
+#ifndef SILLY_OTL_H
+#error "错误：依赖 silly_otl.h中的宏定义, 必须先包含 <silly_otl.h>，再包含 <otl.h>。请调整包含顺序！"
+#endif
 #ifndef OTL_H
 #define OTL_H
 #if defined(OTL_INCLUDE_0)

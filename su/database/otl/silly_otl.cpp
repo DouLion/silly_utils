@@ -258,7 +258,7 @@ bool suOTL::load(const std::string& cfg)
         return status;
     }
     bool valid_json = false;
-#if USE_JSON_PARSE
+#if SU_THIRD_SUPPORT_JSONPP
     valid_json = from_json(cfg);
 #endif
 
@@ -596,7 +596,7 @@ bool suOTL::check_column_info(const std::string& sql)
         for (int i = 0; i < col_num; ++i)
         {
             std::cout << "[" << i + 1 << "] "
-                      << "列名: " << desc_list[i].name << "  类型: " << otl_type_name(static_cast<otl_var_enum>(desc_list[i].otl_var_dbtype)) << std::endl;
+                      << "列名: " << desc_list[i].name << "  类型: " << VarType2Name(static_cast<otl_var_enum>(desc_list[i].otl_var_dbtype)) << std::endl;
         }
         stream.close();
         status = true;
@@ -616,7 +616,7 @@ bool suOTL::check_column_info(const std::string& sql)
     return status;
 }
 
-std::string suOTL::otl_type_name(const otl_var_enum& vt)
+std::string suOTL::VarType2Name(const otl_var_enum& vt)
 {
     switch (vt)
     {
@@ -682,7 +682,7 @@ std::string suOTL::otl_type_name(const otl_var_enum& vt)
     return "unknown";
 }
 
-#if USE_JSON_PARSE
+#if SU_THIRD_SUPPORT_JSONPP
 
 bool suOTL::from_json(const std::string& jstr)
 {
@@ -708,7 +708,7 @@ bool suOTL::from_json(const Json::Value& root)
             m_err = "指定链接类型";
             return status;
         }
-        m_type = str_to_db_type(type_str);
+        m_type = Str2DbType(type_str);
         if (eOtlDbType::dbINVALID == m_type)
         {
             m_err = SUFMT("不支持的数据库类型 (Unsupported database type): {}.", type_str);
@@ -875,7 +875,7 @@ void suOTL::timeout(const int& to)
 {
     m_timeout = to;
 }
-eOtlDbType suOTL::str2type(const std::string& desc)
+eOtlDbType suOTL::Str2DbType(const std::string& desc)
 {
     if (TYPE_MSSQL_STR == desc)
     {
@@ -908,7 +908,7 @@ eOtlDbType suOTL::str2type(const std::string& desc)
     return eOtlDbType::dbINVALID;
 }
 
-std::string suOTL::type2str(const eOtlDbType& type)
+std::string suOTL::DbType2Str(const eOtlDbType& type)
 {
     std::string s_ret;
     switch (type)

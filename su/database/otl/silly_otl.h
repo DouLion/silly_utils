@@ -7,9 +7,9 @@
  * @version: 1.0.1
  * @description:
  */
-#ifndef SILLY_UTILS_SILLY_OTL_H
-#define SILLY_UTILS_SILLY_OTL_H
-
+#ifndef SILLY_OTL_H
+#define SILLY_OTL_H
+#include <su_marco.h>
 #define OTL_ODBC
 #define OTL_ODBC_LOGOFF_FREES_HANDLES
 #ifndef _WIN32
@@ -80,6 +80,12 @@ class suOTL
     /// @param[in] stamp
     /// @return 时间
     static otl_datetime Stamp2Time(const std::time_t& stamp);
+
+    static std::string VarType2Name(const otl_var_enum& vt);
+
+    static eOtlDbType Str2DbType(const std::string& desc);
+
+    static std::string DbType2Str(const eOtlDbType& type);
 
     /// <summary>
     /// 从字符串加载otl连接属性, 可以传入json字符串, 也可以直接传入odbc字符串
@@ -474,17 +480,6 @@ class suOTL
     /// <returns>执行是否成功</returns>
     bool check_column_info(const std::string& sql);
 
-    /// <summary>
-    /// otl类型枚举对应的字符串
-    /// </summary>
-    /// <param name="vt"></param>
-    /// <returns>执行是否成功</returns>
-    static std::string otl_type_name(const otl_var_enum& vt);
-
-    static eOtlDbType str2type(const std::string& desc);
-
-    static std::string type2str(const eOtlDbType& type);
-
     void make_otl_err(otl_exception& e)
     {
         m_err = "OTL_ERR \nCONN:";
@@ -519,7 +514,7 @@ class suOTL
     void timeout(const int& to);
     void verbose(const bool& vb);
 
-#if USE_JSON_PARSE
+#if SU_THIRD_SUPPORT_JSONPP
     bool from_json(const std::string& jstr);
     bool from_json(const Json::Value& jv);
 
@@ -562,4 +557,4 @@ class suOTL
     UID=sa;PWD=xxx;DSN=RWDB_DSN;
 */
 
-#endif  // SILLY_UTILS_SILLY_OTL_H
+#endif  // SILLY_OTL_H
