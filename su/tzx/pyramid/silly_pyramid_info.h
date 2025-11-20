@@ -8,10 +8,8 @@
  * @software: silly_utils
  * @description:
  */
-#pragma once
-
-#ifndef SILLY_UTILS_SILLY_PYRAMID_INFO_H
-#define SILLY_UTILS_SILLY_PYRAMID_INFO_H
+#ifndef SILLY_PYRAMID_INFO_H
+#define SILLY_PYRAMID_INFO_H
 
 #include <tzx/pyramid/silly_pyramid_base.h>
 #include <geo/silly_geo.h>
@@ -22,28 +20,11 @@ enum ePyramidTileFormat
     terrain,
     pbf
 };
-namespace silly
-{
-namespace pyramid
-{
-const static std::string INFO_NAME = "TzxImage.info";
-namespace len
-{
-constexpr size_t INFO_SRC = 512;
-constexpr size_t INFO_PROJ = 1024;
-constexpr size_t INFO_BOUND = 128;
-constexpr size_t INFO_BT = 8;
-constexpr size_t INFO_ET = 8;
-constexpr size_t INFO_INTV = 4;
-constexpr size_t INFO_FMT = 12;
 
-// 预留
-constexpr size_t INFO_TOTAL = 5640;
-}  // namespace len
-class info : public silly::pyramid::base
+class TzxPyramidInfo : public TzxPyramidBase
 {
   public:
-    info();
+    TzxPyramidInfo();
 
     /// <summary>
     /// 打开文件, 如果是读模式,读完会自动关闭
@@ -82,20 +63,18 @@ class info : public silly::pyramid::base
     void write_info();
 
   protected:
-    char m_source[len::INFO_SRC] = {0};
-    /// Projection info.
-    char m_projection[len::INFO_PROJ] = {0};
-    /// Bound info.
-    char m_bound[len::INFO_BOUND] = {0};
+    char m_source[SU_PYRAMID_INF_SRC_LEN] = {0};
+    /// Projection TzxPyramidInfo.
+    char m_projection[SU_PYRAMID_INF_PROJ_LEN] = {0};
+    /// Bound TzxPyramidInfo.
+    char m_bound[SU_PYRAMID_INF_BOUND_LEN] = {0};
     /// version 1
     int64_t m_bt = 0;
     int64_t m_et = 0;
     int32_t m_interval = 0;
     /// version 2
-    /// Tiling format info.
-    char m_format[len::INFO_FMT] = {0};
+    /// Tiling format TzxPyramidInfo.
+    char m_format[SU_PYRAMID_INF_FMT_LEN] = {0};
 };
-}  // namespace pyramid
-}  // namespace silly
 
-#endif  // SILLY_UTILS_SILLY_PYRAMID_INFO_H
+#endif  // SILLY_PYRAMID_INFO_H

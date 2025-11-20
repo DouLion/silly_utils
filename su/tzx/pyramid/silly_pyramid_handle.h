@@ -6,27 +6,24 @@
  * @date: 2025-01-10
  * @file: silly_pyramid_handle.h
  * @description: 处理金字塔数据的对象,本处理对象会自动覆盖源文件内容
- *               Handle of process pyramid data, this handle will cover the source file
+ *               Handle of process pyramid data, this TzxPyramidHandle will cover the source file
  * @version: v1.0.1 2025-01-10 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_PYRAMID_HANDLE_H
-#define SILLY_UTILS_SILLY_PYRAMID_HANDLE_H
+#ifndef SILLY_PYRAMID_HANDLE_H
+#define SILLY_PYRAMID_HANDLE_H
 #include <tzx/pyramid/silly_pyramid_info.h>
 #include <tzx/pyramid/silly_pyramid_index.h>
 #include <tzx/pyramid/silly_pyramid_data.h>
-namespace silly
-{
-namespace pyramid
-{
-class handle
+
+class TzxPyramidHandle
 {
   public:
-    handle();
-    ~handle();
+    TzxPyramidHandle();
+    ~TzxPyramidHandle();
     // 删除拷贝构造函数
-    handle(const handle&) = delete;
+    TzxPyramidHandle(const TzxPyramidHandle&) = delete;
     // 删除拷贝赋值操作符
-    handle& operator=(const handle&) = delete;
+    TzxPyramidHandle& operator=(const TzxPyramidHandle&) = delete;
     bool begin_read(const char* root);
     bool begin_read(const std::string& root);
     bool begin_read(const std::filesystem::path& root);
@@ -69,14 +66,14 @@ class handle
     /// </summary>
     /// <param name="blk"></param>
     /// <returns></returns>
-    bool read(block& blk);
+    bool read(TzxPyramidBlock& blk);
 
     /// <summary>
     /// 读取块信息,仅包含数据
     /// </summary>
     /// <param name="blk"></param>
     /// <returns></returns>
-    std::string read(const block& blk);
+    std::string read(const TzxPyramidBlock& blk);
 
     std::string format() const;
     std::string project() const;
@@ -99,8 +96,8 @@ class handle
 
     /// <summary>
     /// 设置版本号
-    /// PYRAMID_VERSION_1 或者 PYRAMID_VERSION_2
-    /// 不要使用 PYRAMID_VERSION_11
+    /// SU_PYRAMID_VERSION_1 或者 SU_PYRAMID_VERSION_2
+    /// 不要使用 SU_PYRAMID_VERSION_11
     /// </summary>
     /// <param name="ver"></param>
     void version(const char ver[4]);
@@ -125,7 +122,7 @@ class handle
     /// </summary>
     /// <param name="blk">写入完成后会包含索引位置等信息</param>
     /// <returns></returns>
-    bool write(block& blk);
+    bool write(TzxPyramidBlock& blk);
 
     ////////////////////////////////////////////////////////////
     /// 其他
@@ -138,15 +135,13 @@ class handle
   private:
     bool m_opened = false;
     std::string m_root;
-    silly::pyramid::index* m_index;
-    silly::pyramid::info* m_info;
-    silly::pyramid::data* m_data;
-    eMMFMode m_mode;
+    TzxPyramidIndex* m_index = nullptr;
+    TzxPyramidInfo* m_info = nullptr;
+    TzxPyramidData* m_data = nullptr;
+    eMMFMode m_mode = eMMFMode::Read;
     bool m_use_mmap = false;
 
     std::mutex m_open_mutex;
 };
-}  // namespace pyramid
-}  // namespace silly
 
-#endif  // SILLY_UTILS_SILLY_PYRAMID_HANDLE_H
+#endif  // SILLY_PYRAMID_HANDLE_H

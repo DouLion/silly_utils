@@ -10,17 +10,14 @@
  */
 #pragma once
 
-#ifndef SILLY_UTILS_SILLY_PYRAMID_FULL_TEXT_H
-#define SILLY_UTILS_SILLY_PYRAMID_FULL_TEXT_H
+#ifndef SILLY_PYRAMID_FULL_TEXT_H
+#define SILLY_PYRAMID_FULL_TEXT_H
 #include "tzx/pyramid/silly_pyramid_base.h"
-namespace silly
-{
-namespace pyramid
-{
-class full_text : public silly::pyramid::base
-{
-};
-}  // namespace pyramid
-}  // namespace silly
 
-#endif  // SILLY_UTILS_SILLY_PYRAMID_FULL_TEXT_H
+class TzxPyramidFullText : public TzxPyramidBase
+{
+  public:
+
+};
+
+#endif  // SILLY_PYRAMID_FULL_TEXT_H

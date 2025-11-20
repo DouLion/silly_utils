@@ -8,14 +8,10 @@
  * @description: silly_pyramid_block 类声明
  * @version: v1.0.1 2024-09-24 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_PYRAMID_BLOCK_H
-#define SILLY_UTILS_SILLY_PYRAMID_BLOCK_H
+#ifndef SILLY_PYRAMID_BLOCK_H
+#define SILLY_PYRAMID_BLOCK_H
 #include <su_marco.h>
-namespace silly
-{
-namespace pyramid
-{
-class block
+class TzxPyramidBlock
 {
   public:
     uint32_t zoom = 0;
@@ -36,7 +32,4 @@ class block
     }
 };
 
-}  // namespace pyramid
-}  // namespace silly
-
-#endif  // SILLY_UTILS_SILLY_PYRAMID_BLOCK_H
+#endif  // SILLY_PYRAMID_BLOCK_H

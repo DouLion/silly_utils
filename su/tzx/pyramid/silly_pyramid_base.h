@@ -8,38 +8,19 @@
  * @software: silly_utils
  * @description:
  */
-#pragma once
-
-#ifndef SILLY_UTILS_PYRAMID_BASE_H
-#define SILLY_UTILS_PYRAMID_BASE_H
-
+#ifndef SILLY_PYRAMID_BASE_H
+#define SILLY_PYRAMID_BASE_H
+#include <tzx/pyramid/silly_pyramid_marco.h>
 #include <files/silly_memory_map.h>
 #include <log/silly_log.h>
 
-#define PYRAMID_MATCH_VERSION(a, b) ((a)[0] == (b)[0] && (a)[1] == (b)[1] && (a)[2] == (b)[2] && (a)[3] == (b)[3])
-
-namespace silly
-{
-namespace pyramid
-{
-
-namespace len
-{
-constexpr size_t HEAD = 4;       // 头长度
-constexpr size_t VER = 4;        // 版本信息长度
-constexpr size_t MAX_ZOOM = 25;  // 最大层级数
-}  // namespace len
-constexpr char PYRAMID_VERSION_1[len::VER] = {0x00, 0x01, 0x00, 0x00};   // 0x00010000;
-constexpr char PYRAMID_VERSION_2[len::VER] = {0x02, 0x00, 0x00, 0x00};   // 0x00020000;
-constexpr char PYRAMID_VERSION_11[len::VER] = {0x01, 0x00, 0x00, 0x00};  // 0x01000000;
-
-class base
+class TzxPyramidBase
 {
     /// <summary>
     /// 读取时使用mmap, 创建和修改时使用普通文件流
     /// </summary>
   public:
-    base() = default;
+    TzxPyramidBase() = default;
     /// <summary>
     ///
     /// </summary>
@@ -165,9 +146,12 @@ class base
 
     void write_info();
 
+  public:
+
+
   protected:
-    char m_head[len::HEAD] = {0};
-    char m_version[len::VER] = {0x00, 0x02, 0x00, 0x00};
+    char m_head[SU_PYRAMID_HEAD_LEN] = {0};
+    char m_version[SU_PYRAMID_VER_LEN] = {0x00, 0x02, 0x00, 0x00};
     // 读写类型
     eMMFMode m_mode;
     // private:
@@ -185,7 +169,5 @@ class base
     // 多线程写时用的锁
     std::mutex m_mutex;
 };
-}  // namespace pyramid
-}  // namespace silly
 
-#endif  // SILLY_UTILS_PYRAMID_BASE_H
+#endif  // SILLY_PYRAMID_BASE_H

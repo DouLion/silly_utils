@@ -3,8 +3,7 @@
 //
 
 #include "silly_pyramid_info.h"
-using namespace silly::pyramid;
-info::info()
+TzxPyramidInfo::TzxPyramidInfo()
 {
     m_head[0] = 'I';
     m_head[1] = 'I';
@@ -16,9 +15,9 @@ info::info()
     m_version[3] = 0x00;
 }
 
-bool info::open(const std::filesystem::path& file, const eMMFMode& mode, const bool& usemmap)
+bool TzxPyramidInfo::open(const std::filesystem::path& file, const eMMFMode& mode, const bool& usemmap)
 {
-    if (base::open(file, mode, usemmap))
+    if (TzxPyramidBase::open(file, mode, usemmap))
     {
         if (m_mode == eMMFMode::Read)
         {
@@ -31,77 +30,77 @@ bool info::open(const std::filesystem::path& file, const eMMFMode& mode, const b
     return false;
 }
 
-bool info::read()
+bool TzxPyramidInfo::read()
 {
     size_t p = 0;
-    base::read(p, m_head, len::HEAD);
-    p += len::HEAD;
-    base::read(p, m_version, len::VER);
-    p += len::VER;
-    base::read(p, m_source, len::INFO_SRC);
-    p += len::INFO_SRC;
-    base::read(p, m_projection, len::INFO_PROJ);
-    p += len::INFO_PROJ;
-    base::read(p, m_bound, len::INFO_BOUND);
-    p += len::INFO_BOUND;
+    TzxPyramidBase::read(p, m_head, sizeof(m_head));
+    p += sizeof(m_head);
+    TzxPyramidBase::read(p, m_version, sizeof(m_version));
+    p += sizeof(m_version);
+    TzxPyramidBase::read(p, m_source, sizeof(m_source));
+    p += sizeof(m_source);
+    TzxPyramidBase::read(p, m_projection, sizeof(m_projection));
+    p += sizeof(m_projection);
+    TzxPyramidBase::read(p, m_bound, sizeof(m_bound));
+    p += sizeof(m_bound);
     /* if ((uint64_t*)m_version == 0x00010000)
      {
      }
      else if ((uint64_t)m_version == 0x00020000)*/
     {
-        return base::read(p, m_format, len::INFO_FMT);
+        return TzxPyramidBase::read(p, m_format, SU_PYRAMID_INF_FMT_LEN);
     }
 }
-void info::write_info()
+void TzxPyramidInfo::write_info()
 {
-    char buff[len::INFO_TOTAL] = {0};
+    char buff[SU_PYRAMID_INF_TOTAL_LEN] = {0};
     size_t p = 0;
-    memcpy(buff, m_head, len::HEAD);
-    p += len::HEAD;
-    memcpy(buff + p, m_version, len::VER);
-    p += len::VER;
-    memcpy(buff + p, m_source, strlen(m_source));
-    p += len::INFO_SRC;
-    memcpy(buff + p, m_projection, strlen(m_projection));
-    p += len::INFO_PROJ;
-    memcpy(buff + p, m_bound, strlen(m_bound));
-    p += len::INFO_BOUND;
+    memcpy(buff, m_head, sizeof(m_head));
+    p += sizeof(m_head);
+    memcpy(buff + p, m_version, sizeof(m_version));
+    p += sizeof(m_version);
+    memcpy(buff + p, m_source, sizeof(m_source));
+    p += sizeof(m_source);
+    memcpy(buff + p, m_projection, sizeof(m_projection));
+    p += sizeof(m_projection);
+    memcpy(buff + p, m_bound, sizeof(m_bound));
+    p += sizeof(m_bound);
     /* if ((uint64_t)m_version == 0x00010000)
      {
      }
      else if ((uint64_t)m_version == 0x00020000)*/
     {
-        memcpy(buff + p, m_format, strlen(m_format));
+        memcpy(buff + p, m_format, sizeof(m_format));
     }
-    base::write(0, buff, len::INFO_TOTAL);
+    TzxPyramidBase::write(0, buff, SU_PYRAMID_INF_TOTAL_LEN);
 }
 
-void info::close()
+void TzxPyramidInfo::close()
 {
     if (m_mode == eMMFMode::Write)
     {
         write_info();
     }
-    base::close();
+    TzxPyramidBase::close();
 }
 
-void info::source(const std::string& src)
+void TzxPyramidInfo::source(const std::string& src)
 {
-    memcpy(m_source, src.c_str(), len::INFO_SRC);
+    memcpy(m_source, src.c_str(), sizeof(m_source));
 }
-void info::project(const std::string& proj)
+void TzxPyramidInfo::project(const std::string& proj)
 {
-    memcpy(m_projection, proj.c_str(), len::INFO_PROJ);
+    memcpy(m_projection, proj.c_str(), sizeof(m_projection));
 }
-void info::bound(const suRect& bd)
+void TzxPyramidInfo::bound(const suRect& bd)
 {
     return bound(bd.stringify());
 }
-void info::bound(const std::string& bound)
+void TzxPyramidInfo::bound(const std::string& bound)
 {
-    memcpy(m_bound, bound.data(), len::INFO_BOUND);
+    memcpy(m_bound, bound.data(), sizeof(m_bound));
 }
-void info::format(const ePyramidTileFormat& fmt)
+void TzxPyramidInfo::format(const ePyramidTileFormat& fmt)
 {
     switch (fmt)
     {
@@ -122,26 +121,26 @@ void info::format(const ePyramidTileFormat& fmt)
     }
 }
 
-void info::format(const std::string fmt)
+void TzxPyramidInfo::format(const std::string fmt)
 {
     memcpy(m_format, fmt.c_str(), fmt.size());
 }
 
-std::string info::source()
+std::string TzxPyramidInfo::source()
 {
     return m_source;
 }
-std::string info::project()
+std::string TzxPyramidInfo::project()
 {
     return m_projection;
 }
-suRect info::bound()
+suRect TzxPyramidInfo::bound()
 {
     suRect rect;
     rect.destringify(m_bound);
     return rect;
 }
-std::string info::format()
+std::string TzxPyramidInfo::format()
 {
     return m_format;
 }

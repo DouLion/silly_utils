@@ -4,8 +4,8 @@
 
 #include <geo/silly_pyramid.h>
 #include "silly_pyramid_index.h"
-using namespace silly::pyramid;
-index::index()
+
+TzxPyramidIndex::TzxPyramidIndex()
 {
     m_head[0] = 'I';
     m_head[1] = 'H';
@@ -17,9 +17,9 @@ index::index()
     m_version[3] = 0x00;
 }
 
-bool index::open(const std::filesystem::path& file, const eMMFMode& mode, const bool& usemmap)
+bool TzxPyramidIndex::open(const std::filesystem::path& file, const eMMFMode& mode, const bool& usemmap)
 {
-    if (!base::open(file, mode, usemmap))
+    if (!TzxPyramidBase::open(file, mode, usemmap))
     {
         return false;
     }
@@ -37,9 +37,9 @@ bool index::open(const std::filesystem::path& file, const eMMFMode& mode, const 
     return true;
 }
 
-bool index::read(block& blk)
+bool TzxPyramidIndex::read(TzxPyramidBlock& blk)
 {
-    if (blk.zoom >= len::MAX_ZOOM)
+    if (blk.zoom >= SU_PYRAMID_MAX_ZOOM)
     {
         return false;
     }
@@ -49,23 +49,23 @@ bool index::read(block& blk)
     }
 
     size_t offset = m_pack.layers[blk.zoom].offset(blk.row, blk.col);
-    position pos;
-    base::read(offset, (char*)&pos, sizeof(position));
+    BlockPos pos;
+    TzxPyramidBase::read(offset, (char*)&pos, sizeof(BlockPos));
     blk.pos = pos.offset;
     blk.size = pos.size;
     return blk.size > 0;
 }
 
-bool index::parse()
+bool TzxPyramidIndex::parse()
 {
-    size_t p = len::HEAD + len::VER;
-    if (PYRAMID_MATCH_VERSION(PYRAMID_VERSION_2, m_version))
+    size_t p = SU_PYRAMID_HEAD_LEN + SU_PYRAMID_VER_LEN;
+    if (PYRAMID_MATCH_VERSION(SU_PYRAMID_VERSION_2, m_version))
     {
         bool find_beg = true;
-        for (uint8_t l = 0; l <= len::MAX_ZOOM; ++l)
+        for (uint8_t l = 0; l <= SU_PYRAMID_MAX_ZOOM; ++l)
         {
             std::vector<size_t> buff(5);
-            base::read(p, (char*)&buff[0], sizeof(size_t) * 5);
+            TzxPyramidBase::read(p, (char*)&buff[0], sizeof(size_t) * 5);
             m_pack.layers[l].brow = buff[0];
             m_pack.layers[l].bcol = buff[1];
             m_pack.layers[l].erow = buff[2];
@@ -93,17 +93,17 @@ bool index::parse()
         }
         SLOG_DEBUG("\n起始层级: {}\n结束层级:{}", (int)m_pack.blayer, (int)m_pack.elayer)
     }
-    else if (PYRAMID_MATCH_VERSION(PYRAMID_VERSION_1, m_version) || PYRAMID_MATCH_VERSION(PYRAMID_VERSION_11, m_version))
+    else if (PYRAMID_MATCH_VERSION(SU_PYRAMID_VERSION_1, m_version) || PYRAMID_MATCH_VERSION(SU_PYRAMID_VERSION_11, m_version))
     {
-        base::read(p, (char*)(&m_pack.blayer), sizeof(m_pack.blayer));
+        TzxPyramidBase::read(p, (char*)(&m_pack.blayer), sizeof(m_pack.blayer));
         p += sizeof(m_pack.blayer);
-        base::read(p, (char*)(&m_pack.elayer), sizeof(m_pack.elayer));
+        TzxPyramidBase::read(p, (char*)(&m_pack.elayer), sizeof(m_pack.elayer));
         p += sizeof(m_pack.elayer);
 
         for (uint8_t l = m_pack.blayer; l <= m_pack.elayer; ++l)
         {
             uint32_t buff[4];
-            base::read(p, (char*)&buff, sizeof(uint32_t) * 4);
+            TzxPyramidBase::read(p, (char*)&buff, sizeof(uint32_t) * 4);
             m_pack.layers[l].brow = buff[0];
             m_pack.layers[l].bcol = buff[1];
             m_pack.layers[l].erow = buff[2];
@@ -117,7 +117,7 @@ bool index::parse()
         for (uint8_t l = m_pack.blayer; l <= m_pack.elayer; ++l)
         {
             m_pack.layers[l].pos0 = p;
-            p += m_pack.layers[l].rows * m_pack.layers[l].cols * (sizeof(position));
+            p += m_pack.layers[l].rows * m_pack.layers[l].cols * (sizeof(BlockPos));
         }
     }
     else
@@ -129,9 +129,9 @@ bool index::parse()
     return true;
 }
 
-bool index::write(const block& blk)
+bool TzxPyramidIndex::write(const TzxPyramidBlock& blk)
 {
-    if (blk.zoom >= len::MAX_ZOOM)
+    if (blk.zoom >= SU_PYRAMID_MAX_ZOOM)
     {
         return false;
     }
@@ -141,30 +141,30 @@ bool index::write(const block& blk)
     }
 
     size_t offset = m_pack.layers[blk.zoom].offset(blk.row, blk.col);
-    position pos;
+    BlockPos pos;
     pos.offset = blk.pos;
     pos.size = blk.size;
-    base::write(offset, (char*)&pos, sizeof(position));
+    TzxPyramidBase::write(offset, (char*)&pos, sizeof(BlockPos));
 
     return true;
 }
 
-void index::close()
+void TzxPyramidIndex::close()
 {
     if (m_mode == eMMFMode::Write)
     {
         write_info();
     }
-    base::close();
+    TzxPyramidBase::close();
 }
-void index::write_info()
+void TzxPyramidIndex::write_info()
 {
-    if (PYRAMID_MATCH_VERSION(m_version, PYRAMID_VERSION_2))
+    if (PYRAMID_MATCH_VERSION(m_version, SU_PYRAMID_VERSION_2))
     {
-        char buffer[len::IDXFIXED] = {0};
-        memcpy(buffer, m_head, len::HEAD);
-        memcpy(buffer + len::HEAD, m_version, len::VER);
-        size_t p = len::HEAD + len::VER;
+        char buffer[SU_PYRAMID_IDX_FIXED] = {0};
+        memcpy(buffer, m_head, SU_PYRAMID_HEAD_LEN);
+        memcpy(buffer + SU_PYRAMID_HEAD_LEN, m_version, SU_PYRAMID_VER_LEN);
+        size_t p = SU_PYRAMID_HEAD_LEN + SU_PYRAMID_VER_LEN;
         for (uint8_t i = m_pack.blayer; i <= m_pack.elayer; ++i)
         {
             std::vector<size_t> buff;
@@ -176,14 +176,14 @@ void index::write_info()
             memcpy(buffer + p, (char*)&buff[0], sizeof(size_t) * 5);
             p += sizeof(size_t) * 5;
         }
-        base::write(0, buffer, len::IDXFIXED);
+        TzxPyramidBase::write(0, buffer, SU_PYRAMID_IDX_FIXED);
     }
-    else if (PYRAMID_MATCH_VERSION(m_version, PYRAMID_VERSION_1) || PYRAMID_MATCH_VERSION(m_version, PYRAMID_VERSION_11))
+    else if (PYRAMID_MATCH_VERSION(m_version, SU_PYRAMID_VERSION_1) || PYRAMID_MATCH_VERSION(m_version, SU_PYRAMID_VERSION_11))
     {
         char buffer[10240] = {0};
-        memcpy(buffer, m_head, len::HEAD);
-        memcpy(buffer + len::HEAD, m_version, len::VER);
-        size_t p = len::HEAD + len::VER;
+        memcpy(buffer, m_head, SU_PYRAMID_HEAD_LEN);
+        memcpy(buffer + SU_PYRAMID_HEAD_LEN, m_version, SU_PYRAMID_VER_LEN);
+        size_t p = SU_PYRAMID_HEAD_LEN + SU_PYRAMID_VER_LEN;
         memcpy(buffer + p, &m_pack.blayer, sizeof(m_pack.blayer));
         p += sizeof(m_pack.blayer);
         memcpy(buffer + p, &m_pack.elayer, sizeof(m_pack.elayer));
@@ -198,20 +198,20 @@ void index::write_info()
             memcpy(buffer + p, (char*)&buff, sizeof(uint32_t) * 4);
             p += sizeof(uint32_t) * 4;
         }
-        base::write(0, buffer, p);
+        TzxPyramidBase::write(0, buffer, p);
     }
 }
-bool index::build()
+bool TzxPyramidIndex::build()
 {
     if (m_pack.init())
     {
-        if (PYRAMID_MATCH_VERSION(m_version, PYRAMID_VERSION_1) || PYRAMID_MATCH_VERSION(m_version, PYRAMID_VERSION_11))
+        if (PYRAMID_MATCH_VERSION(m_version, SU_PYRAMID_VERSION_1) || PYRAMID_MATCH_VERSION(m_version, SU_PYRAMID_VERSION_11))
         {
-            size_t pos = len::HEAD + len::VER + 2 + (m_pack.elayer - m_pack.blayer + 1) * sizeof(uint32_t) * 4;
+            size_t pos = SU_PYRAMID_HEAD_LEN + SU_PYRAMID_VER_LEN + 2 + (m_pack.elayer - m_pack.blayer + 1) * sizeof(uint32_t) * 4;
             for (uint8_t i = m_pack.blayer; i <= m_pack.elayer; ++i)
             {
                 m_pack.layers[i].pos0 = pos;
-                pos += m_pack.layers[i].rows * m_pack.layers[i].cols * (sizeof(position));
+                pos += m_pack.layers[i].rows * m_pack.layers[i].cols * (sizeof(BlockPos));
             }
         }
         return true;
@@ -222,11 +222,11 @@ bool index::build()
 ////////////////////////////////////////////////////
 /// idx_pack
 ////////////////////////////////////////////////////
-bool idx_pack::layer::in(size_t row, size_t col) const
+bool TzxPyramidIndex::Layer::in(size_t row, size_t col) const
 {
     return row >= brow && row <= erow && col >= bcol && col <= ecol;
 }
-position idx_pack::layer::seek(size_t row, size_t col) const
+TzxPyramidIndex::BlockPos TzxPyramidIndex::Layer::seek(size_t row, size_t col) const
 {
     size_t pos = cols * (row - brow) + col - bcol;
     if (pos >= index.size())
@@ -234,12 +234,12 @@ position idx_pack::layer::seek(size_t row, size_t col) const
 
     return index[cols * (row - brow) + col - bcol];
 }
-size_t idx_pack::layer::offset(size_t row, size_t col) const
+size_t TzxPyramidIndex::Layer::offset(size_t row, size_t col) const
 {
     size_t pos = cols * (row - brow) + col - bcol;
-    return pos * sizeof(position) + pos0;
+    return pos * sizeof(BlockPos) + pos0;
 }
-void idx_pack::layer::fill()
+void TzxPyramidIndex::Layer::fill()
 {
     rows = erow - brow + 1;
     cols = ecol - bcol + 1;
@@ -309,10 +309,10 @@ void lonlat2tile(double lon, double lat, int zoom, long long* x, long long* y)
     *x = llx;
     *y = lly;
 }
-bool idx_pack::init()
+bool TzxPyramidIndex::Pack::init()
 {
     // 根据经纬度范围初始化索引
-    size_t pos0 = len::IDXFIXED;
+    size_t pos0 = SU_PYRAMID_IDX_FIXED;
     for (int i = blayer; i <= elayer; ++i)
     {
         long long brow, bcol, erow, ecol;
@@ -330,63 +330,63 @@ bool idx_pack::init()
         layers[i].pos0 = pos0;
         layers[i].fill();
         SLOG_DEBUG("Layer: {}, BR: {}, ER: {}, BC: {}, EC: {}", (int)i, (int)layers[i].brow, (int)layers[i].erow, (int)layers[i].bcol, (int)layers[i].ecol)
-        pos0 += layers[i].rows * layers[i].cols * sizeof(position);
+        pos0 += layers[i].rows * layers[i].cols * sizeof(BlockPos);
     }
 
     return true;
 }
 
-size_t index::brow(const uint8_t& layer) const
+size_t TzxPyramidIndex::brow(const uint8_t& layer) const
 {
     return m_pack.layers[layer].brow;
 }
-size_t index::bcol(const uint8_t& layer) const
+size_t TzxPyramidIndex::bcol(const uint8_t& layer) const
 {
     return m_pack.layers[layer].bcol;
 }
-size_t index::erow(const uint8_t& layer) const
+size_t TzxPyramidIndex::erow(const uint8_t& layer) const
 {
     return m_pack.layers[layer].erow;
 }
-size_t index::ecol(const uint8_t& layer) const
+size_t TzxPyramidIndex::ecol(const uint8_t& layer) const
 {
     return m_pack.layers[layer].ecol;
 }
-size_t index::rows(const uint8_t& layer) const
+size_t TzxPyramidIndex::rows(const uint8_t& layer) const
 {
     return m_pack.layers[layer].rows;
 }
-size_t index::cols(const uint8_t& layer) const
+size_t TzxPyramidIndex::cols(const uint8_t& layer) const
 {
     return m_pack.layers[layer].cols;
 }
 
-suRect index::bound() const
+suRect TzxPyramidIndex::bound() const
 {
     return m_pack.bound;
 }
 
-uint8_t index::beg_layer() const
+uint8_t TzxPyramidIndex::beg_layer() const
 {
     return m_pack.blayer;
 }
 
-uint8_t index::end_layer() const
+uint8_t TzxPyramidIndex::end_layer() const
 {
     return m_pack.elayer;
 }
 
-void index::beg_layer(const uint8_t& beg) noexcept
+void TzxPyramidIndex::beg_layer(const uint8_t& beg) noexcept
 {
     m_pack.blayer = beg;
 }
 
-void index::end_layer(const uint8_t& end) noexcept
+void TzxPyramidIndex::end_layer(const uint8_t& end) noexcept
 {
     m_pack.elayer = end;
 }
 
-void index::bound(const suRect& rect)
+void TzxPyramidIndex::bound(const suRect& rect)
 {
     m_pack.bound = rect;
 }

@@ -4,8 +4,7 @@
 
 #include "silly_pyramid_base.h"
 
-using namespace silly::pyramid;
-bool base::open(const std::filesystem::path& f, const eMMFMode& mode, const bool& usemmap)
+bool TzxPyramidBase::open(const std::filesystem::path& f, const eMMFMode& mode, const bool& usemmap)
 {
     m_mode = mode;
     m_normal = !usemmap;
@@ -36,7 +35,7 @@ bool base::open(const std::filesystem::path& f, const eMMFMode& mode, const bool
     return m_opened;
 }
 
-void base::close()
+void TzxPyramidBase::close()
 {
     if (m_normal)
     {
@@ -49,7 +48,7 @@ void base::close()
     m_opened = false;
 }
 
-bool base::read(const size_t& seek_offset, char* data, const size_t& read_size)
+bool TzxPyramidBase::read(const size_t& seek_offset, char* data, const size_t& read_size)
 {
     if (m_normal)
     {
@@ -61,7 +60,7 @@ bool base::read(const size_t& seek_offset, char* data, const size_t& read_size)
     }
 }
 
-bool base::write(const size_t& seek_offset, const char* data, const size_t& write_size)
+bool TzxPyramidBase::write(const size_t& seek_offset, const char* data, const size_t& write_size)
 {
     if (m_normal && m_stream.is_open())
     {
@@ -70,7 +69,7 @@ bool base::write(const size_t& seek_offset, const char* data, const size_t& writ
     }
     return false;
 }
-size_t base::append(const char* data, const size_t& write_size)
+size_t TzxPyramidBase::append(const char* data, const size_t& write_size)
 {
     if (m_normal && m_stream.is_open())
     {
@@ -81,7 +80,7 @@ size_t base::append(const char* data, const size_t& write_size)
     return 0;
 }
 
-void base::seek(const size_t& pos)
+void TzxPyramidBase::seek(const size_t& pos)
 {
     if (m_stream)
     {
@@ -96,7 +95,7 @@ void base::seek(const size_t& pos)
     }
 }
 
-bool base::stream_open(const std::filesystem::path& file, const std::ios_base::openmode& mode)
+bool TzxPyramidBase::stream_open(const std::filesystem::path& file, const std::ios_base::openmode& mode)
 {
     m_stream.open(file, mode);
     if (m_stream.is_open())
@@ -111,7 +110,7 @@ bool base::stream_open(const std::filesystem::path& file, const std::ios_base::o
     return m_opened;
 }
 
-bool base::mmap_open(const std::filesystem::path& file)
+bool TzxPyramidBase::mmap_open(const std::filesystem::path& file)
 {
     m_normal = false;
     m_opened = m_mmap.open(file, m_mode);
@@ -119,7 +118,7 @@ bool base::mmap_open(const std::filesystem::path& file)
     return m_opened;
 }
 
-bool base::stream_read(const size_t& seek_offset, char* data, const size_t& size)
+bool TzxPyramidBase::stream_read(const size_t& seek_offset, char* data, const size_t& size)
 {
     std::scoped_lock lock(m_mutex);
     if (m_stream && m_opened)
@@ -131,7 +130,7 @@ bool base::stream_read(const size_t& seek_offset, char* data, const size_t& size
     return false;
 }
 
-bool base::mmap_read(const size_t& seek_offset, char* data, const size_t& size)
+bool TzxPyramidBase::mmap_read(const size_t& seek_offset, char* data, const size_t& size)
 {
     if (m_opened)
     {
@@ -145,47 +144,47 @@ bool base::mmap_read(const size_t& seek_offset, char* data, const size_t& size)
     return false;
 }
 
-void base::stream_write(const size_t& seek_offset, const char* data, const size_t& size)
+void TzxPyramidBase::stream_write(const size_t& seek_offset, const char* data, const size_t& size)
 {
     seek(seek_offset);
     m_stream.write(data, size);
 }
 
-bool base::mmap_write(const size_t& seek_offset, const char* data, const size_t& size)
+bool TzxPyramidBase::mmap_write(const size_t& seek_offset, const char* data, const size_t& size)
 {
     return false;
 }
 
-void base::stream_close()
+void TzxPyramidBase::stream_close()
 {
     m_stream.close();
 }
 
-void base::mmap_close()
+void TzxPyramidBase::mmap_close()
 {
     m_mmap.close();
 }
 
-bool base::read_info()
+bool TzxPyramidBase::read_info()
 {
-    if (!read(0, m_head, len::HEAD))
+    if (!read(0, m_head, SU_PYRAMID_HEAD_LEN))
     {
         return false;
     }
 
-    if (!read(len::HEAD, (char*)(&m_version), len::VER))
+    if (!read(SU_PYRAMID_HEAD_LEN, (char*)(&m_version), SU_PYRAMID_VER_LEN))
     {
         return false;
     }
     return true;
 }
 
-void base::write_info()
+void TzxPyramidBase::write_info()
 {
-    write(0, m_head, len::HEAD);
-    write(len::HEAD, (char*)(&m_version), len::VER);
+    write(0, m_head, SU_PYRAMID_HEAD_LEN);
+    write(SU_PYRAMID_HEAD_LEN, (char*)(&m_version), SU_PYRAMID_VER_LEN);
 }
-size_t base::end()
+size_t TzxPyramidBase::end()
 {
     if (m_normal)
     {
@@ -201,9 +200,9 @@ size_t base::end()
     return 0;
 }
 
-void base::version(const char ver[4])
+void TzxPyramidBase::version(const char ver[4])
 {
     std::scoped_lock lock(m_mutex);
-    memcpy(m_version, ver, len::VER);
+    memcpy(m_version, ver, SU_PYRAMID_VER_LEN);
     write_info();
 }

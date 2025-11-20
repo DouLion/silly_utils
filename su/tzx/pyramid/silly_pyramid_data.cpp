@@ -3,8 +3,7 @@
 //
 
 #include "silly_pyramid_data.h"
-using namespace silly::pyramid;
-data::data()
+TzxPyramidData::TzxPyramidData()
 {
     m_head[0] = 'I';
     m_head[1] = 'D';
@@ -16,36 +15,36 @@ data::data()
     m_version[3] = 0x00;
 }
 
-bool data::open(const std::filesystem::path& file, const eMMFMode& mode, const bool& usemmap)
+bool TzxPyramidData::open(const std::filesystem::path& file, const eMMFMode& mode, const bool& usemmap)
 {
-    return base::open(file, mode, usemmap);
+    return TzxPyramidBase::open(file, mode, usemmap);
 }
 
-std::string data::read(const block& blk)
+std::string TzxPyramidData::read(const TzxPyramidBlock& blk)
 {
     std::string ret = "";
-    block nbkl = blk;
+    TzxPyramidBlock nbkl = blk;
     if (!m_index->read(nbkl))
     {
         return ret;
     }
     // std::cout << nbkl.zoom << " " << nbkl.row << " " << nbkl.col << " "<<  nbkl.pos << " " << nbkl.size << std::endl;
     ret.resize(nbkl.size);
-    base::read(nbkl.pos, ret.data(), nbkl.size);
+    TzxPyramidBase::read(nbkl.pos, ret.data(), nbkl.size);
     return ret;
 }
 
-bool data::read(block& blk)
+bool TzxPyramidData::read(TzxPyramidBlock& blk)
 {
     if (!m_index->read(blk))
     {
         return false;
     }
     blk.create();
-    return base::read(blk.pos, blk.data.data(), blk.size);
+    return TzxPyramidBase::read(blk.pos, blk.data.data(), blk.size);
 }
 
-bool data::write(block& blk)
+bool TzxPyramidData::write(TzxPyramidBlock& blk)
 {
     if (blk.size > 0)
     {
@@ -58,16 +57,16 @@ bool data::write(block& blk)
     return false;
 }
 
-void data::set(index* idx)
+void TzxPyramidData::set(TzxPyramidIndex* idx)
 {
     m_index = idx;
 }
 
-void data::close()
+void TzxPyramidData::close()
 {
     if (m_mode == eMMFMode::Write)
     {
-        base::write_info();
+        TzxPyramidBase::write_info();
     }
-    base::close();
+    TzxPyramidBase::close();
 }

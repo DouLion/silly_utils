@@ -8,46 +8,29 @@
  * @software: silly_utils
  * @description:
  */
-#pragma once
-
-#ifndef SILLY_UTILS_SILLY_PYRAMID_INDEX_H
-#define SILLY_UTILS_SILLY_PYRAMID_INDEX_H
+#ifndef SILLY_PYRAMID_INDEX_H
+#define SILLY_PYRAMID_INDEX_H
 
 #include <tzx/pyramid/silly_pyramid_base.h>
 #include <tzx/pyramid/silly_pyramid_block.h>
 #include <geo/silly_geo.h>
-namespace silly
-{
-namespace pyramid
-{
-const static std::string INDEX_NAME = "TzxImage.index";
-namespace len
-{
-constexpr size_t DATA_POS = 8;  // 记录data数据位置的数据大小
-constexpr size_t DATA_LEN = 4;  // 记录data数据大小的数据的大小
-constexpr size_t IDXFIXED = 1024;
-}  // namespace len
 
+class TzxPyramidIndex : public TzxPyramidBase
+{
 #pragma pack(1)
-struct position
-{
-    size_t offset = 0;
-    uint32_t size = 0;
-};
-#pragma pack()
-
-class idx_pack
-{
-    class layer
+    struct BlockPos
     {
-        friend class idx_pack;
-        friend class index;
-
+        size_t offset = 0;
+        uint32_t size = 0;
+    };
+#pragma pack()
+    class Layer
+    {
       public:
         /// 给定行列号是否在本层中
         bool in(size_t row, size_t col) const;
         /// 获取index中的数据
-        position seek(size_t row, size_t col) const;
+        BlockPos seek(size_t row, size_t col) const;
         /// 计算在文件中的偏移位置
         size_t offset(size_t row, size_t col) const;
         void fill();
@@ -65,28 +48,26 @@ class idx_pack
 
       private:
         // 这部分数据可能会很大,暂时不考虑使用其实现
-        std::vector<position> index = {};
+        std::vector<BlockPos> index = {};
     };
-
+    class Pack
+    {
+      public:
+        bool init();
+        /* bool write(const std::filesystem::path& file) = 0;
+        virtual bool read(const std::filesystem::path& file) = 0;*/
+        /*virtual position seek(size_t row, size_t col) const = 0;
+        virtual size_t offset(size_t row, size_t col) const = 0;*/
+      public:
+        // version 1
+        uint8_t blayer = 0;
+        uint8_t elayer = SU_PYRAMID_MAX_ZOOM;
+        size_t indexpos = SU_PYRAMID_IDX_FIXED;
+        suRect bound;
+        Layer layers[SU_PYRAMID_MAX_ZOOM];
+    };
   public:
-    bool init();
-    /* bool write(const std::filesystem::path& file) = 0;
-    virtual bool read(const std::filesystem::path& file) = 0;*/
-    /*virtual position seek(size_t row, size_t col) const = 0;
-    virtual size_t offset(size_t row, size_t col) const = 0;*/
-  public:
-    // version 1
-    uint8_t blayer = 0;
-    uint8_t elayer = len::MAX_ZOOM;
-    size_t indexpos = len::IDXFIXED;
-    suRect bound;
-    layer layers[len::MAX_ZOOM];
-};
-
-class index : public silly::pyramid::base
-{
-  public:
-    index();
+    TzxPyramidIndex();
 
     /// <summary>
     /// 打开文件,读取信息
@@ -102,7 +83,7 @@ class index : public silly::pyramid::base
     /// </summary>
     /// <param name="blk"></param>
     /// <returns></returns>
-    bool read(block& blk);
+    bool read(TzxPyramidBlock& blk);
 
     /// <summary>
     /// 返回起始层
@@ -147,8 +128,8 @@ class index : public silly::pyramid::base
 
     /// <summary>
     /// 设置版本号
-    /// PYRAMID_VERSION_1 或者 PYRAMID_VERSION_2
-    /// 不要使用 PYRAMID_VERSION_11
+    /// SU_PYRAMID_VERSION_1 或者 SU_PYRAMID_VERSION_2
+    /// 不要使用 SU_PYRAMID_VERSION_11
     /// </summary>
     /// <param name="ver"></param>
     void version(const char ver[4]);
@@ -173,7 +154,7 @@ class index : public silly::pyramid::base
     /// <param name="col"></param>
     /// <param name="idata"></param>
     /// <returns></returns>
-    bool write(const block& blk);
+    bool write(const TzxPyramidBlock& blk);
 
     /// <summary>
     /// 写入基本信息
@@ -191,9 +172,6 @@ class index : public silly::pyramid::base
     bool parse();
 
   private:
-    idx_pack m_pack;
+    Pack m_pack;
 };
-}  // namespace pyramid
-}  // namespace silly
-
-#endif  // SILLY_UTILS_SILLY_PYRAMID_INDEX_H
+#endif  // SILLY_PYRAMID_INDEX_H

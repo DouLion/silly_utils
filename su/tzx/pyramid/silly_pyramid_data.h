@@ -8,22 +8,13 @@
  * @software: silly_utils
  * @description:
  */
-#pragma once
-
-#ifndef SILLY_UTILS_SILLY_IMAGE_DATA_H
-#define SILLY_UTILS_SILLY_IMAGE_DATA_H
-
+#ifndef SILLY_PYRAMID_DATA_H
+#define SILLY_PYRAMID_DATA_H
 #include <tzx/pyramid/silly_pyramid_index.h>
-
-namespace silly
-{
-namespace pyramid
-{
-const static std::string DATA_NAME = "TzxImage.data";
-class data final : public silly::pyramid::base
+class TzxPyramidData : public TzxPyramidBase
 {
   public:
-    data();
+    TzxPyramidData();
     /// <summary>
     ///
     /// </summary>
@@ -39,30 +30,28 @@ class data final : public silly::pyramid::base
     /// <param name="row"></param>
     /// <param name="col"></param>
     /// <returns></returns>
-    std::string read(const block& blk);
+    std::string read(const TzxPyramidBlock& blk);
 
     /// <summary>
     ///
     /// </summary>
     /// <param name="blk"></param>
     /// <returns></returns>
-    bool read(block& blk);
+    bool read(TzxPyramidBlock& blk);
 
     /// <summary>
     /// 写入,需要将偏移位置等信息返回
     /// </summary>
     /// <param name="blk"></param>
     /// <returns></returns>
-    bool write(block& blk);
+    bool write(TzxPyramidBlock& blk);
 
-    void set(index* idx);
+    void set(TzxPyramidIndex* idx);
 
     void close();
 
   private:
-    index* m_index;
+    TzxPyramidIndex* m_index;
 };
-}  // namespace pyramid
-}  // namespace silly
 
-#endif  // SILLY_UTILS_SILLY_IMAGE_DATA_H
+#endif  // SILLY_PYRAMID_DATA_H
