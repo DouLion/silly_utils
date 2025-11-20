@@ -8,6 +8,7 @@
  * @description:
  */
 #include "silly_proj_convert.h"
+#include <log/silly_log.h>
 using namespace silly::geo::proj;
 
 bool gdal_convert::begin(const eCrsEpsgCode& from, const eCrsEpsgCode& to)

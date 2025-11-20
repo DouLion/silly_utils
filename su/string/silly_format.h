@@ -9,13 +9,12 @@
  */
 #ifndef SILLY_UTILS_SILLY_FORMAT_H
 #define SILLY_UTILS_SILLY_FORMAT_H
+#if SU_THIRD_SUPPORT_FMT
 #include <fmt/core.h>
 #include <fmt/chrono.h>
 #include <fmt/ranges.h>
 #include <fmt/os.h>
 #include <fmt/color.h>
-
-namespace silly_format = fmt;
 
 #define SUFMT fmt::format
 
@@ -53,6 +52,10 @@ namespace silly_format = fmt;
 
 #ifndef SFP_MARK
 #define SFP_MARK fmt::print(fg(fmt::color::pale_green), "\n[MARK] {}:{}\n", SU_FILE_NAME, __LINE__);
+
+#endif
+
+#else
 
 #endif
 

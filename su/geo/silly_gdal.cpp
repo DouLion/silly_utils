@@ -5,6 +5,7 @@
 #include "silly_gdal.h"
 #include <system/silly_system.h>
 #include <encode/silly_encode.h>
+#include <log/silly_log.h>
 #if SU_THIRD_SUPPORT_GDAL
 
 const static std::map<OGRFieldType, eGeoFieldType> GEO_FIELD_TYPE_OGR2SU = {

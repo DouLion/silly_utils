@@ -12,6 +12,7 @@
 
 #include <graphics/silly_png.h>
 #include <geo/silly_geo_convert.h>
+#include <log/silly_log.h>
 
 template <typename T>
 class silly_val2color

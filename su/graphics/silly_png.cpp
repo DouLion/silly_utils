@@ -9,6 +9,7 @@
  * @version: v1.0.1 2025-01-02 dou li yang
  */
 #include "silly_png.h"
+#if SU_THIRD_SUPPORT_PNG
 #include <png.h>
 #include <setjmp.h>
 
@@ -76,6 +77,8 @@ static void silly_png_read_callback(png_structp pngPtr, png_bytep outBytes, png_
     memcpy(outBytes, reader->data + reader->offset, byteCount);
     reader->offset += byteCount;
 }
+
+#endif
 
 suPNG &suPNG::operator=(const suPNG &rh)
 {
@@ -165,6 +168,7 @@ suColor suPNG::pixel(const size_t &r, const size_t &c) const
 }
 bool suPNG::create(const size_t &width, const size_t &height, const eColorType &type, const uint8_t &depth)
 {
+#if SU_THIRD_SUPPORT_PNG
     m_type = static_cast<eColorType>(type);
     m_channels = suColor::channels(m_type);
     if (!m_channels)
@@ -189,10 +193,15 @@ bool suPNG::create(const size_t &width, const size_t &height, const eColorType &
     }
 
     return true;
+#else
+    return false;
+#endif
 }
 bool suPNG::read(const std::filesystem::path &file)
 {
     bool status = false;
+#if SU_THIRD_SUPPORT_PNG
+
     png_structp png_ptr = nullptr;
     png_infop info_ptr = nullptr;
     int sig_read = 0;
@@ -241,10 +250,14 @@ bool suPNG::read(const std::filesystem::path &file)
     png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
 
     fclose(fp);
-    return true;
+    status = false;
+#endif
+    return status;
 }
 bool suPNG::write(const std::filesystem::path &file) const
 {
+#if SU_THIRD_SUPPORT_PNG
+
     if (!m_height || !m_width || m_bytes.empty())
     {
         // SLOG_DEBUG("invalid png m_bytes.");
@@ -280,10 +293,16 @@ bool suPNG::write(const std::filesystem::path &file) const
 
     png_destroy_write_struct(&png_write_ptr, &png_w_info);
     fclose(output_fp);
+
     return true;
+#else
+    return false;
+#endif
 }
 bool suPNG::decode(const std::string &bin)
 {
+#if SU_THIRD_SUPPORT_PNG
+
     // 检查字符串是否为空
     if (!valid(bin))
     {
@@ -328,36 +347,6 @@ bool suPNG::decode(const std::string &bin)
     m_type = png2sillyctype(png_get_color_type(png_ptr, info_ptr));
     m_depth = png_get_bit_depth(png_ptr, info_ptr);
 
-    // 转换为 8-bit 深度
-    /* if (bitDepth == 16)
-         png_set_strip_16(png_ptr);
-     if (bitDepth < 8)
-         png_set_packing(png_ptr);*/
-
-    //// 添加 Alpha 通道（如果存在）
-    // if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS))
-    //{
-    //     png_set_tRNS_to_alpha(png_ptr);
-    // }
-
-    //// 转换颜色类型为 RGBA
-    // if (colorType == PNG_COLOR_TYPE_PALETTE)
-    //{
-    //     png_set_palette_to_rgb(png_ptr);
-    // }
-    // if (colorType == PNG_COLOR_TYPE_GRAY && bitDepth < 8)
-    //{
-    //     png_set_expand_gray_1_2_4_to_8(png_ptr);
-    // }
-    // if (colorType == PNG_COLOR_TYPE_GRAY || colorType == PNG_COLOR_TYPE_GRAY_ALPHA)
-    //{
-    //     png_set_gray_to_rgb(png_ptr);
-    // }
-    // if (colorType == PNG_COLOR_TYPE_RGB || colorType == PNG_COLOR_TYPE_GRAY || colorType == PNG_COLOR_TYPE_PALETTE)
-    //{
-    //     png_set_add_alpha(png_ptr, 0xFF, PNG_FILLER_AFTER);
-    // }
-
     png_read_update_info(png_ptr, info_ptr);
     create(m_width, m_height, m_type, m_depth);
     std::vector<png_bytep> m_nbytes(m_height);
@@ -373,10 +362,15 @@ bool suPNG::decode(const std::string &bin)
     png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);
 
     return true;
+#else
+    return false;
+#endif
 }
 std::string suPNG::encode() const
 {
     std::string buff;
+#if SU_THIRD_SUPPORT_PNG
+
     png_structp png_ptr = nullptr;
     png_infop info_ptr = nullptr;
     png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
@@ -411,5 +405,6 @@ std::string suPNG::encode() const
     png_set_write_fn(png_ptr, &buff, silly_png_write_callback, NULL);
     png_write_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
     png_destroy_write_struct(&png_ptr, &info_ptr);
+#endif
     return buff;
 }

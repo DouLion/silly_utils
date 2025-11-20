@@ -14,11 +14,12 @@ int main() {
 ")
 
 check_cxx_source_compiles("${ENDIAN_TEST_CODE}" IS_LITTLE_ENDIAN)
-message(STATUS ">>>>>>>>>>>>>>>> ENDIAN <<<<<<<<<<<<<<<<")
 if(IS_LITTLE_ENDIAN)
     message(STATUS "系统是小端序(Little endian).")
+    set(SU_BIG_ENDIAN 0)
+    set(SU_LITTLE_ENDIAN 1)
 else()
     message(STATUS "系统是大端序(Big endian).")
+    et(SU_BIG_ENDIAN 1)
+    set(SU_LITTLE_ENDIAN 0)
 endif()
-
-message(STATUS ">>>>>>>>>>>>>>>> ENDIAN <<<<<<<<<<<<<<<<")

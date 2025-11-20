@@ -3,7 +3,7 @@
 //
 #pragma once
 #include "silly_otl.h"
-using namespace silly;
+
 const static std::string SILLY_OTL_MYSQL_ODBC_FORMAT = "Driver={%s};Server=%s;Port=%d;Database=%s;User=%s;Password=%s;Option=3;charset=UTF8;";
 const static std::string SILLY_OTL_MARIA_ODBC_FORMAT = "Driver={%s};Server=%s;Port=%d;Database=%s;User=%s;Password=%s;Option=3;charset=UTF8;";
 const static std::string SILLY_OTL_MSSQL_ODBC_FORMAT = "Driver={%s};Server=%s;Port=%d;UID=%s;PWD=%s;Database=%s;";
@@ -131,7 +131,7 @@ static std::map<std::string, std::string> parse_odbc(const std::string& odbc)
     return result;
 }
 
-bool otl::load(const std::string& cfg)
+bool suOTL::load(const std::string& cfg)
 {
     clean();
     bool status = false;
@@ -262,7 +262,7 @@ bool otl::load(const std::string& cfg)
 
     return check();
 }
-otl& otl::operator=(const otl& rh)
+suOTL& suOTL::operator=(const suOTL& rh)
 {
     this->m_ip = rh.m_ip;
     this->m_port = rh.m_port;
@@ -279,7 +279,7 @@ otl& otl::operator=(const otl& rh)
     return *this;
 }
 
-std::string otl::odbc(const bool& rebuild)
+std::string suOTL::odbc(const bool& rebuild)
 {
     if (m_conn.empty() || rebuild)
     {
@@ -320,7 +320,7 @@ std::string otl::odbc(const bool& rebuild)
     return m_conn;
 }
 
-bool otl::check(const bool& rebuild_odbc)
+bool suOTL::check(const bool& rebuild_odbc)
 {
     bool status = false;
     if (rebuild_odbc)
@@ -353,7 +353,7 @@ bool otl::check(const bool& rebuild_odbc)
     return status;
 }
 
-void otl::clean()
+void suOTL::clean()
 {
     m_ip.clear();
     m_port = 0;
@@ -367,7 +367,7 @@ void otl::clean()
     m_err.clear();
 }
 
-void otl::help()
+void suOTL::help()
 {
     printf(
         "\nOTL 连接串帮助信息:\n >>> 账号和密码中不要出现 [ ] { } ( ) , ; ? * = ! @ | 这些特殊字符 <<<\nSQL Server:\n\tDRIVER={驱动名称};SERVER=IP;PORT=端口;UID=账号;PWD=密码;DATABASE=数据库;\nMySQL:\n\tDriver={MySQL ODBC 8.0 ANSI "
@@ -386,7 +386,7 @@ void otl::help()
 static const char* sqlserver_code_sql = "SELECT COLLATIONPROPERTY('Chinese_PRC_Stroke_CI_AI_KS_WS', 'CodePage');";
 static std::map<std::string, std::string> sqlserver_code_map = {{"936", "GBK"}, {"950", "BIG5"}, {"437", "Eng"}, {"932", "JP"}, {"949", "KOREA"}, {"866", "RUSSIA"}, {"65001", "UFT-8"}, {"", "INVALID"}};
 
-std::string otl::encode()
+std::string suOTL::encode()
 {
     std::string result;
     std::string code;
@@ -427,7 +427,7 @@ std::string otl::encode()
 #pragma comment(lib, "odbccp32.lib")
 #pragma comment(lib, "legacy_stdio_definitions.lib")
 #endif
-std::vector<std::string> otl::drivers()
+std::vector<std::string> suOTL::drivers()
 {
     std::vector<std::string> ret;
 #ifdef IS_WIN32
@@ -460,7 +460,7 @@ std::vector<std::string> otl::drivers()
 #endif
     return ret;
 }
-bool otl::check_column_info(const std::string& sql)
+bool suOTL::check_column_info(const std::string& sql)
 {
     bool status = false;
     otl_connect db;
@@ -498,7 +498,7 @@ bool otl::check_column_info(const std::string& sql)
     return status;
 }
 
-std::string otl::otl_type_name(const otl_var_enum& vt)
+std::string suOTL::otl_type_name(const otl_var_enum& vt)
 {
     switch (vt)
     {
@@ -566,7 +566,7 @@ std::string otl::otl_type_name(const otl_var_enum& vt)
 
 #if USE_JSON_PARSE
 
-bool otl::from_json(const std::string& jstr)
+bool suOTL::from_json(const std::string& jstr)
 {
     Json::Value root = silly_jsonpp::loads(jstr);
     if (root.isNull())
@@ -577,7 +577,7 @@ bool otl::from_json(const std::string& jstr)
     return from_json(root);
 }
 
-bool otl::from_json(const Json::Value& root)
+bool suOTL::from_json(const Json::Value& root)
 {
     bool status = false;
     silly_jsonpp::check_str(root, OPT_STR_DSN, m_dsn);
@@ -593,7 +593,7 @@ bool otl::from_json(const Json::Value& root)
         m_type = str_to_db_type(type_str);
         if (eOtlDbType::dbINVALID == m_type)
         {
-            m_err = silly_format::format("不支持的数据库类型 (Unsupported database type): {}.", type_str);
+            m_err = SUFMT("不支持的数据库类型 (Unsupported database type): {}.", type_str);
             return status;
         }
         if (eOtlDbType::dbKingB8 == m_type)
@@ -673,91 +673,91 @@ bool otl::from_json(const Json::Value& root)
 }
 #endif
 
-void otl::verbose(const bool& vb)
+void suOTL::verbose(const bool& vb)
 {
     m_verbose = vb;
 }
 
-eOtlDbType otl::type() const
+eOtlDbType suOTL::type() const
 {
     return m_type;
 }
 
-std::string otl::driver() const
+std::string suOTL::driver() const
 {
     return m_driver;
 }
 
-std::string otl::ip() const
+std::string suOTL::ip() const
 {
     return m_ip;
 }
 
-int otl::port() const
+int suOTL::port() const
 {
     return m_port;
 }
 
-std::string otl::schema() const
+std::string suOTL::schema() const
 {
     return m_schema;
 }
 
-std::string otl::user() const
+std::string suOTL::user() const
 {
     return m_user;
 }
 
-std::string otl::pwd() const
+std::string suOTL::pwd() const
 {
     return m_password;
 }
 
-std::string otl::err() const
+std::string suOTL::err() const
 {
     return m_err;
 }
 
-void otl::type(const eOtlDbType& tp)
+void suOTL::type(const eOtlDbType& tp)
 {
     m_type = tp;
 }
 
-void otl::driver(const std::string& d)
+void suOTL::driver(const std::string& d)
 {
     m_driver = d;
 }
 
-void otl::ip(const std::string& i)
+void suOTL::ip(const std::string& i)
 {
     m_ip = i;
 }
 
-void otl::port(const int& p)
+void suOTL::port(const int& p)
 {
     m_port = p;
 }
 
-void otl::schema(const std::string& s)
+void suOTL::schema(const std::string& s)
 {
     m_schema = s;
 }
 
-void otl::user(const std::string& u)
+void suOTL::user(const std::string& u)
 {
     m_user = u;
 }
 
-void otl::pwd(const std::string& p)
+void suOTL::pwd(const std::string& p)
 {
     m_password = p;
 }
 
-void otl::timeout(const int& to)
+void suOTL::timeout(const int& to)
 {
     m_timeout = to;
 }
-eOtlDbType otl::str2type(const std::string& desc)
+eOtlDbType suOTL::str2type(const std::string& desc)
 {
     if (TYPE_MSSQL_STR == desc)
     {
@@ -790,7 +790,7 @@ eOtlDbType otl::str2type(const std::string& desc)
     return eOtlDbType::dbINVALID;
 }
 
-std::string otl::type2str(const eOtlDbType& type)
+std::string suOTL::type2str(const eOtlDbType& type)
 {
     std::string s_ret;
     switch (type)
@@ -823,7 +823,7 @@ std::string otl::type2str(const eOtlDbType& type)
     return s_ret;
 }
 
-std::string otl::last_insert_id_sql() const
+std::string suOTL::last_insert_id_sql() const
 {
     if (eOtlDbType::dbMYSQL == m_type)
     {

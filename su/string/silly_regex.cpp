@@ -3,6 +3,7 @@
 //
 
 #include "silly_regex.h"
+#include <system/silly_system.h>
 using namespace silly::str;
 /// 一些常用正则表达式
 

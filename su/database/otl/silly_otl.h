@@ -11,11 +11,9 @@
 #define SILLY_UTILS_SILLY_OTL_H
 
 #define OTL_ODBC
-// #define OTL_ODBC_MYSQL
 #define OTL_ODBC_LOGOFF_FREES_HANDLES
-#ifndef IS_WIN32
+#ifndef _WIN32
 #define OTL_ODBC_UNIX
-
 #else
 
 #endif
@@ -25,7 +23,7 @@
 
 #define OTL_ANSI_CPP                        // 中文支持
 #define OTL_ANSI_CPP_11_VARIADIC_TEMPLATES  // 支持 otl_value< >
-#define OTL_CPP_11_ON                       // 支持连接池的 c++ 版本
+#define OTL_CPP_17_ON                       // 支持连接池的 c++ 版本
 #define OTL_CONNECT_POOL_ON                 // 连接池支持
 
 #ifndef NOMINMAX  // std::max std::min  c++ 17 版本的一些问题
@@ -36,17 +34,15 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 
-// 支持json解析, 如果不希望使用json解析, 可以注释掉
-// #define USE_JSON_PARSE 0
-#define USE_JSON_PARSE 1
-
-#if USE_JSON_PARSE
+#if SU_THIRD_SUPPORT_JSONPP
 #include <json/silly_jsonpp.h>
 #endif
 
 #include <database/otl/otlv4.h>
 #include <database/silly_sql.h>
 #include <system/silly_system.h>
+
+#include <log/silly_log.h>
 
 #ifdef IS_WIN32
 #pragma comment(lib, "odbc32.lib")
@@ -70,9 +66,6 @@ enum class eOtlDbType
     dbKingB8 = 6,     // 人大金仓
     dbMariaDB = 7     // MYSQL的一个开源分支,基本能够兼容mysql
 };
-
-namespace silly
-{
 
 /// <summary>
 /// long_string 转换为字符串
@@ -158,7 +151,7 @@ static otl_datetime stamp2otltime(std::time_t stamp)
     return dt;
 }
 
-class otl
+class suOTL
 {
   public:
     /// <summary>
@@ -168,7 +161,7 @@ class otl
     /// <returns></returns>
     bool load(const std::string& cfg);
 
-    otl& operator=(const otl& rh);
+    suOTL& operator=(const suOTL& rh);
 
     /// <summary>
     /// 获取odbc连接串
@@ -619,11 +612,6 @@ class otl
     std::string m_err;
     bool m_verbose = false;
 };
-
-}  // namespace silly
-
-typedef silly::otl silly_otl;
-typedef silly::otl otl_conn_opt;
 
 /* ODBC 示例
   Driver={DM8 ODBC DRIVER};Server=127.0.0.1;TCP_PORT=5236;UID=SYSDBA;PWD=xxxxxxxx;

@@ -9,7 +9,7 @@
  * @version: v1.0.1 2024-11-22 dou li yang
  */
 #include "silly_socket.h"
-
+#include <log/silly_log.h>
 bool silly_socket::create(const std::string& hostname, const int& port, const bool& ssl)
 {
     std::scoped_lock<std::mutex> lock(m_mutex);

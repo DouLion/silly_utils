@@ -4,6 +4,7 @@
 
 #include "silly_memory_map.h"
 #include <files/silly_file.h>
+#include <log/silly_log.h>
 #ifdef IS_WIN32
 namespace win
 {

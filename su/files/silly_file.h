@@ -29,24 +29,18 @@ using stdfp = std::filesystem::path;
     2. 如果返回结果是std::filesystem, 那么跟随系统编码
 */
 
-namespace silly
-{
-namespace file
-{
 
-// using path = std::variant<std::string, std::filesystem::path, std::wstring, char*>;
-
-class node
+class suFileNode
 {
   public:
-    node() = default;
-    ~node() = default;
-    node(std::string path);
-    node(std::filesystem::path path);
+    suFileNode() = default;
+    ~suFileNode() = default;
+    suFileNode(std::string path);
+    suFileNode(std::filesystem::path path);
 
-    node(const node &other);
+    suFileNode(const suFileNode &other);
 
-    node &operator=(const node &other);
+    suFileNode &operator=(const suFileNode &other);
 
     std::string name() const;
 
@@ -59,9 +53,9 @@ class node
   public:
     std::string path;
     bool is_dir = false;
-    std::vector<std::unique_ptr<node>> children;
+    std::vector<std::unique_ptr<suFileNode>> children;
 };
-class utils
+class suFile
 {
   public:
     static std::filesystem::path realpath(const std::filesystem::path &fp);
@@ -186,8 +180,5 @@ class utils
   private:
     static std::string file_filter_regex(const std::string &filter);
 };
-}  // namespace file
-}  // namespace silly
-
-using sufile = silly::file::utils;
+using sufile = suFile;
 #endif  // SILLY_UTILS_SILLY_FILE_H

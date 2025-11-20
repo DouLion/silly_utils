@@ -10,6 +10,7 @@
  */
 #include "silly_dynamic_rule.h"
 #include "files/silly_file.h"
+#include <log/silly_log.h>
 bool dynamic_rule_code_index::load(const std::filesystem::path& file)
 {
     auto path = sufile::realpath(file);

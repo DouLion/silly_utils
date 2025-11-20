@@ -9,6 +9,7 @@
  * @version: v1.0.1 2024-11-05 dou li yang
  */
 #include "silly_huge_stitcher.h"
+#include <log/silly_log.h>
 #include <files/silly_file.h>
 #define VSI_ROOT "/vsimem/tzx_huge_stitcher"
 const int BAND_MAP[4] = {3, 2, 1, 0};

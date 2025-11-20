@@ -11,15 +11,12 @@
 #ifndef SILLY_UTILS_SILLY_FILE_LOCK_H
 #define SILLY_UTILS_SILLY_FILE_LOCK_H
 #include <su_marco.h>
-namespace silly
-{
-namespace file
-{
-class lock
+
+class suFileLock
 {
   public:
     /// 构造函数 锁定文件
-    lock(const std::string& u8file);
+    suFileLock(const std::string& u8file);
 
     void unlock();
 
@@ -34,7 +31,5 @@ class lock
     OVERLAPPED overlapped = {0};
 #endif
 };
-}  // namespace file
-}  // namespace silly
 
 #endif  // SILLY_UTILS_SILLY_FILE_LOCK_H

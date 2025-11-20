@@ -13,6 +13,7 @@
 #include <mqtt/client.h>
 #include <mqtt/ssl_options.h>
 #endif
+#include <log/silly_log.h>
 
 const auto PERIOD = std::chrono::seconds(20);
 

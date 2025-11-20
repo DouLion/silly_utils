@@ -10,7 +10,7 @@
  */
 #ifndef SILLY_UTILS_SILLY_PYRAMID_BLOCK_H
 #define SILLY_UTILS_SILLY_PYRAMID_BLOCK_H
-
+#include <su_marco.h>
 namespace silly
 {
 namespace pyramid

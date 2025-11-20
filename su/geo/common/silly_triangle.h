@@ -11,6 +11,7 @@
 #ifndef SILLY_TRIANGLE_H
 #define SILLY_TRIANGLE_H
 #include <geo/common/silly_point.h>
+#include <geo/common/silly_circle.h>
 
 class suTriangle
 {

@@ -10,7 +10,7 @@
  */
 #ifndef SILLY_UTILS_RAINRATES_H
 #define SILLY_UTILS_RAINRATES_H
-
+#include <su_marco.h>
 class RainRates
 {
   public:

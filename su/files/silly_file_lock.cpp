@@ -10,7 +10,7 @@
  */
 #include "silly_file_lock.h"
 #include <fcntl.h>
-silly::file::lock::lock(const std::string& u8file)
+suFileLock::suFileLock(const std::string& u8file)
 {
 #ifdef IS_WIN32
     m_file_hdl = CreateFile(std::filesystem::path(u8file).wstring().c_str(), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
@@ -71,7 +71,7 @@ silly::file::lock::lock(const std::string& u8file)
     }
 #endif
 }
-void silly::file::lock::unlock()
+void suFileLock::unlock()
 {
 #ifdef IS_WIN32
     if (m_file_hdl != INVALID_HANDLE_VALUE)

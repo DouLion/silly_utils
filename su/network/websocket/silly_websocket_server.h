@@ -10,6 +10,7 @@
  */
 #ifndef SILLY_UTILS_SILLY_WEBSOCKET_SERVER_H
 #define SILLY_UTILS_SILLY_WEBSOCKET_SERVER_H
+#include <su_marco.h>
 #if ENABLE_WEBSOCKET_PP
 #include <websocketpp/config/asio_no_tls.hpp>
 #include <websocketpp/server.hpp>

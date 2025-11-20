@@ -8,6 +8,7 @@
  * @description: silly_netcdf 类实现
  */
 #include "silly_netcdf.h"
+#if SU_THIRD_SUPPORT_NETCDF_CXX
 #include <netcdf.h>
 /*
  enum ncType
@@ -30,51 +31,7 @@
      nc_COMPOUND = NC_COMPOUND //!< "NcCompound type"
    };
  * */
-bool suNetCDF::open(const std::filesystem::path& file)
-{
-    bool status = false;
-    auto fp = sufile::realpath(file);
-    try
-    {
-        m_nc_file.open(fp.string(), NcFile::read);
-        status = true;
-    }
-    catch (NcException& e)
-    {
-        std::cout << e.what() << std::endl;
-        return status;
-    }
-
-    return status;
-}
-std::vector<std::string> suNetCDF::members()
-{
-    std::vector<std::string> result;
-    NcGroup m_nc_all_grps = m_nc_file.getGroup("/", NcGroup::GroupLocation::AllGrps);
-    auto nc_all_vars = m_nc_all_grps.getVars(netCDF::NcGroup::Current);
-    for (auto& [k, var] : nc_all_vars)
-    {
-        result.push_back(k);
-    }
-    for (auto& nm : result)
-    {
-        // m_nc_all_grps
-    }
-    return result;
-}
-bool suNetCDF::geometry(const std::string& lon, const std::string& lat)
-{
-    /*  NcVar lon_var = m_nc_all_grps.getVar(lon);
-      NcVar lat_var = m_nc_all_grps.getVar(lat);
-      lon_var.getDimCount();*/
-    return false;
-}
-void suNetCDF::close()
-{
-    m_nc_file.close();
-}
-
-std::vector<std::string> read_band_names(NcVar nv, std::string name, size_t len)
+std::vector<std::string> read_band_names(netCDF::NcVar nv, std::string name, size_t len)
 {
     std::vector<std::string> result;
     if (1 == len)
@@ -96,93 +53,93 @@ std::vector<std::string> read_band_names(NcVar nv, std::string name, size_t len)
 
     switch (nv.getType().getId())
     {
-        case NcType::nc_BYTE:
-        case NcType::nc_CHAR:
+        case netCDF::NcType::nc_BYTE:
+        case netCDF::NcType::nc_CHAR:
             v_c.resize(len);
             nv.getVar(&v_c[0]);
             for (auto& c : v_c)
             {
-                result.push_back(silly_format::format("{}:{}", name, c));
+                result.push_back(SUFMT("{}:{}", name, c));
             }
             break;
-        case NcType::nc_SHORT:
+        case netCDF::NcType::nc_SHORT:
             v_s.resize(len);
             nv.getVar(&v_s[0]);
             for (auto& s : v_s)
             {
-                result.push_back(silly_format::format("{}:{}", name, s));
+                result.push_back(SUFMT("{}:{}", name, s));
             }
             break;
-        case NcType::nc_INT:
+        case netCDF::NcType::nc_INT:
             v_i.resize(len);
             nv.getVar(&v_i[0]);
             for (auto& i : v_i)
             {
-                result.push_back(silly_format::format("{}:{}", name, i));
+                result.push_back(SUFMT("{}:{}", name, i));
             }
             break;
-        case NcType::nc_INT64:
+        case netCDF::NcType::nc_INT64:
             v_ll.resize(len);
             nv.getVar(&v_ll[0]);
             for (auto& ll : v_ll)
             {
-                result.push_back(silly_format::format("{}:{}", name, ll));
+                result.push_back(SUFMT("{}:{}", name, ll));
             }
             break;
-        case NcType::nc_UBYTE:
+        case netCDF::NcType::nc_UBYTE:
             v_uc.resize(len);
             nv.getVar(&v_uc[0]);
             for (auto& uc : v_uc)
             {
-                result.push_back(silly_format::format("{}:{}", name, uc));
+                result.push_back(SUFMT("{}:{}", name, uc));
             }
             break;
-        case NcType::nc_USHORT:
+        case netCDF::NcType::nc_USHORT:
             v_us.resize(len);
             nv.getVar(&v_us[0]);
             for (auto& us : v_us)
             {
-                result.push_back(silly_format::format("{}:{}", name, us));
+                result.push_back(SUFMT("{}:{}", name, us));
             }
             break;
-        case NcType::nc_UINT:
+        case netCDF::NcType::nc_UINT:
             v_ui.resize(len);
             nv.getVar(&v_ui[0]);
             for (auto& ui : v_ui)
             {
-                result.push_back(silly_format::format("{}:{}", name, ui));
+                result.push_back(SUFMT("{}:{}", name, ui));
             }
             break;
-        case NcType::nc_UINT64:
+        case netCDF::NcType::nc_UINT64:
             v_ull.resize(len);
             nv.getVar(&v_ull[0]);
             for (auto& ull : v_ull)
             {
-                result.push_back(silly_format::format("{}:{}", name, ull));
+                result.push_back(SUFMT("{}:{}", name, ull));
             }
             break;
-        case NcType::nc_FLOAT:
+        case netCDF::NcType::nc_FLOAT:
             v_f.resize(len);
             nv.getVar(&v_f[0]);
             for (auto& f : v_f)
             {
-                result.push_back(silly_format::format("{}:{}", name, f));
+                result.push_back(SUFMT("{}:{}", name, f));
             }
             break;
-        case NcType::nc_DOUBLE:
+        case netCDF::NcType::nc_DOUBLE:
             v_d.resize(len);
             nv.getVar(&v_d[0]);
             for (auto& d : v_d)
             {
-                result.push_back(silly_format::format("{}:{}", name, d));
+                result.push_back(SUFMT("{}:{}", name, d));
             }
             break;
-        case NcType::nc_STRING:
+        case netCDF::NcType::nc_STRING:
             v_str.resize(len);
             nv.getVar(&v_str[0]);
             for (auto& str : v_str)
             {
-                result.push_back(silly_format::format("{}:{}", name, str));
+                result.push_back(SUFMT("{}:{}", name, str));
             }
             break;
         default:
@@ -191,6 +148,57 @@ std::vector<std::string> read_band_names(NcVar nv, std::string name, size_t len)
 
     return result;
 }
+#endif
+
+bool suNetCDF::open(const std::filesystem::path& file)
+{
+    bool status = false;
+#if SU_THIRD_SUPPORT_NETCDF_CXX
+    auto fp = sufile::realpath(file);
+    try
+    {
+        m_nc_file.open(fp.string(), netCDF::NcFile::read);
+        status = true;
+    }
+    catch (netCDF::exceptions::NcException& e)
+    {
+        std::cout << e.what() << std::endl;
+        return status;
+    }
+#endif
+    return status;
+}
+std::vector<std::string> suNetCDF::members()
+{
+    std::vector<std::string> result;
+#if SU_THIRD_SUPPORT_NETCDF_CXX
+    netCDF::NcGroup m_nc_all_grps = m_nc_file.getGroup("/", netCDF::NcGroup::GroupLocation::AllGrps);
+    auto nc_all_vars = m_nc_all_grps.getVars(netCDF::NcGroup::Current);
+    for (auto& [k, var] : nc_all_vars)
+    {
+        result.push_back(k);
+    }
+    for (auto& nm : result)
+    {
+        // m_nc_all_grps
+    }
+#endif
+    return result;
+}
+bool suNetCDF::geometry(const std::string& lon, const std::string& lat)
+{
+    /*  netCDF::NcVar lon_var = m_nc_all_grps.getVar(lon);
+      netCDF::NcVar lat_var = m_nc_all_grps.getVar(lat);
+      lon_var.getDimCount();*/
+    return false;
+}
+void suNetCDF::close()
+{
+#if SU_THIRD_SUPPORT_NETCDF_CXX
+    m_nc_file.close();
+#endif
+}
+#
 bool suNetCDF::read(const std::string& group, const std::string& lon, const std::string& lat)
 {
     bool status = false;
@@ -198,8 +206,9 @@ bool suNetCDF::read(const std::string& group, const std::string& lon, const std:
     m_dem_names.clear();
     m_attr_names.clear();
     m_geo = Geo();
-    m_nc_all_grps = m_nc_file.getGroup("/", NcGroup::GroupLocation::AllGrps);
-    NcVar nv_dst = m_nc_all_grps.getVar(group);
+#if SU_THIRD_SUPPORT_NETCDF_CXX
+    m_nc_all_grps = m_nc_file.getGroup("/", netCDF::NcGroup::GroupLocation::AllGrps);
+    netCDF::NcVar nv_dst = m_nc_all_grps.getVar(group);
     if (nv_dst.isNull())
     {
         return status;
@@ -212,8 +221,8 @@ bool suNetCDF::read(const std::string& group, const std::string& lon, const std:
     或 Fortran 的行优先（行优先，即第一个维度最先变化），
     实际行为取决于你创建数据时使用的 API。
      */
-    std::vector<NcDim> ndims = nv_dst.getDims();
-    std::vector<std::tuple<std::string, size_t, NcVar>> name_nvdims;
+    std::vector<netCDF::NcDim> ndims = nv_dst.getDims();
+    std::vector<std::tuple<std::string, size_t, netCDF::NcVar>> name_nvdims;
     std::vector<float> lat_data, lon_data, val_data;
     size_t total_val_size = 1;
     for (const auto& ndim : ndims)
@@ -295,14 +304,14 @@ bool suNetCDF::read(const std::string& group, const std::string& lon, const std:
             {
                 for (auto& tmp_band : tmp_bands)
                 {
-                    std::string tmp_name = silly_format::format("{}/{}", band_name, tmp_band);
+                    std::string tmp_name = SUFMT("{}/{}", band_name, tmp_band);
                     new_band_names.push_back(tmp_name);
                 }
             }
             band_names = new_band_names;
         }
     }
-    std::map<std::string, NcVarAtt> attr_vars = nv_dst.getAtts();
+    std::map<std::string, netCDF::NcVarAtt> attr_vars = nv_dst.getAtts();
     for (const auto& [key, attr] : attr_vars)
     {
         m_attr_names.push_back(key);
@@ -360,7 +369,10 @@ bool suNetCDF::read(const std::string& group, const std::string& lon, const std:
         }
         m_bands.emplace_back(nbd);
     }
-    return true;
+
+    status = true;
+#endif
+    return status;
 }
 std::string suNetCDF::err()
 {
@@ -466,20 +478,21 @@ float suNetCDF::ydelta() const
 bool suNetCDF::write(const std::filesystem::path& file, const Data& snd)
 {
     bool status{false};
+#if SU_THIRD_SUPPORT_NETCDF_CXX
     auto fp = sufile::realpath(file);
     try
     {
-        NcFile sfc;
-        sfc.open(fp.string(), NcFile::replace, NcFile::nc4);
+        netCDF::NcFile sfc;
+        sfc.open(fp.string(), netCDF::NcFile::replace, netCDF::NcFile::nc4);
         // 创建dims
-        std::vector<NcDim> dims;
+        std::vector<netCDF::NcDim> dims;
         for (const auto& di : snd.dextra)
         {
             std::string name = std::get<0>(di);
             auto& vars = std::get<1>(di);
             std::string units = std::get<2>(di);
-            NcDim tmpDim = sfc.addDim(name, vars.size());
-            NcVar tmpVar = sfc.addVar(name, ncFloat, tmpDim);  //
+            netCDF::NcDim tmpDim = sfc.addDim(name, vars.size());
+            netCDF::NcVar tmpVar = sfc.addVar(name, netCDF::ncFloat, tmpDim);  //
             if (!units.empty())
             {
                 tmpVar.putAtt("units", units);
@@ -489,10 +502,10 @@ bool suNetCDF::write(const std::filesystem::path& file, const Data& snd)
         }
         // 坐标维度
         {
-            NcDim yDim = sfc.addDim(snd.dgeo.yname, snd.dgeo.ylen);
-            NcDim xDim = sfc.addDim(snd.dgeo.xname, snd.dgeo.xlen);
-            NcVar yVar = sfc.addVar(snd.dgeo.yname, ncFloat, yDim);  // creates variable
-            NcVar xVar = sfc.addVar(snd.dgeo.xname, ncFloat, xDim);
+            netCDF::NcDim yDim = sfc.addDim(snd.dgeo.yname, snd.dgeo.ylen);
+            netCDF::NcDim xDim = sfc.addDim(snd.dgeo.xname, snd.dgeo.xlen);
+            netCDF::NcVar yVar = sfc.addVar(snd.dgeo.yname, netCDF::ncFloat, yDim);  // creates variable
+            netCDF::NcVar xVar = sfc.addVar(snd.dgeo.xname, netCDF::ncFloat, xDim);
             std::vector<float> xs(snd.dgeo.xlen);
             std::vector<float> ys(snd.dgeo.ylen);
             for (int i = 0; i < snd.dgeo.xlen; i++)
@@ -513,10 +526,10 @@ bool suNetCDF::write(const std::filesystem::path& file, const Data& snd)
 
         for (const auto& [grp, bands] : snd.grp_bands)
         {
-            NcVar data = sfc.addVar(grp, ncFloat, dims);
-            data.putAtt("_FillValue", ncFloat, bands.front().fill);
-            data.putAtt("offset", ncFloat, bands.front().offset);
-            data.putAtt("scale", ncFloat, bands.front().scale);
+            netCDF::NcVar data = sfc.addVar(grp, netCDF::ncFloat, dims);
+            data.putAtt("_FillValue", netCDF::ncFloat, bands.front().fill);
+            data.putAtt("offset", netCDF::ncFloat, bands.front().offset);
+            data.putAtt("scale", netCDF::ncFloat, bands.front().scale);
             if (!bands.front().units.empty())
             {
                 data.putAtt("units", bands.front().units);
@@ -536,11 +549,12 @@ bool suNetCDF::write(const std::filesystem::path& file, const Data& snd)
         sfc.close();
         status = true;
     }
-    catch (NcException& e)
+    catch (netCDF::exceptions::NcException& e)
     {
         SLOG_ERROR("NC: {}", std::string(e.what()))
         return status;
     }
+#endif
     return status;
 }
 
@@ -550,17 +564,17 @@ bool suNetCDF::write(const std::filesystem::path& file) const
     // auto fp = sufile::realpath(file);
     // try
     //{
-    //     NcFile sfc;
-    //     sfc.open(fp.string(), NcFile::replace, NcFile::nc4);
+    //     netCDF::NcFile sfc;
+    //     sfc.open(fp.string(), netCDF::NcFile::replace, netCDF::NcFile::nc4);
     //     // 创建dims
-    //     std::vector<NcDim> dims;
+    //     std::vector<netCDF::NcDim> dims;
     //     for (auto tdinfo : nd.dextra)
     //     {
     //         std::string name = std::get<0>(tdinfo);
     //         auto vars = std::get<1>(tdinfo);
     //         std::string units = std::get<2>(tdinfo);
-    //         NcDim tmpDim = sfc.addDim(name, vars.size());
-    //         NcVar tmpVar = sfc.addVar(name, ncFloat, tmpDim);  //
+    //         netCDF::NcDim tmpDim = sfc.addDim(name, vars.size());
+    //         netCDF::NcVar tmpVar = sfc.addVar(name, netCDF::ncFloat, tmpDim);  //
 
     //        tmpVar.putVar(&vars[0]);
     //        dims.push_back(tmpDim);
@@ -568,10 +582,10 @@ bool suNetCDF::write(const std::filesystem::path& file) const
     //    }
     //    // 坐标维度
     //    {
-    //        NcDim yDim = sfc.addDim(nd.dgeo.yname, nd.dgeo.ylen);
-    //        NcDim xDim = sfc.addDim(nd.dgeo.xname, nd.dgeo.xlen);
-    //        NcVar yVar = sfc.addVar(nd.dgeo.yname, ncFloat, yDim);  // creates variable
-    //        NcVar xVar = sfc.addVar(nd.dgeo.xname, ncFloat, xDim);
+    //        netCDF::NcDim yDim = sfc.addDim(nd.dgeo.yname, nd.dgeo.ylen);
+    //        netCDF::NcDim xDim = sfc.addDim(nd.dgeo.xname, nd.dgeo.xlen);
+    //        netCDF::NcVar yVar = sfc.addVar(nd.dgeo.yname, netCDF::ncFloat, yDim);  // creates variable
+    //        netCDF::NcVar xVar = sfc.addVar(nd.dgeo.xname, netCDF::ncFloat, xDim);
     //        std::vector<float> xs(nd.dgeo.xlen);
     //        std::vector<float> ys(nd.dgeo.ylen);
     //        float xstep = (nd.dgeo.xmax - nd.dgeo.xmin) / (nd.dgeo.xlen - 1);
@@ -584,13 +598,13 @@ bool suNetCDF::write(const std::filesystem::path& file) const
     //        yVar.putVar(&ys[0]);
     //        xVar.putVar(&xs[0]);
     //        yVar.putAtt("units", nd.dgeo.yunits);
-    //        yVar.putAtt("valid_min", ncFloat, nd.dgeo.ymin);
-    //        yVar.putAtt("valid_max", ncFloat, nd.dgeo.ymax);
+    //        yVar.putAtt("valid_min", netCDF::ncFloat, nd.dgeo.ymin);
+    //        yVar.putAtt("valid_max", netCDF::ncFloat, nd.dgeo.ymax);
     //        // yVar.putAtt("positive ", "south");
 
     //        xVar.putAtt("units", nd.dgeo.xunits);
-    //        xVar.putAtt("valid_min", ncFloat, nd.dgeo.xmin);
-    //        xVar.putAtt("valid_max", ncFloat, nd.dgeo.xmax);
+    //        xVar.putAtt("valid_min", netCDF::ncFloat, nd.dgeo.xmin);
+    //        xVar.putAtt("valid_max", netCDF::ncFloat, nd.dgeo.xmax);
     //        // xVar.putAtt("positive ", std::string("east"));
 
     //        dims.push_back(yDim);
@@ -599,10 +613,10 @@ bool suNetCDF::write(const std::filesystem::path& file) const
 
     //    for (const auto& [grp, bands] : m_nm_data)
     //    {
-    //        NcVar data = sfc.addVar(grp, ncFloat, dims);
-    //        data.putAtt("_FillValue", ncFloat, m_fill);
-    //        data.putAtt("offset", ncFloat, m_offset);
-    //        data.putAtt("scale", ncFloat, m_scale);
+    //        netCDF::NcVar data = sfc.addVar(grp, netCDF::ncFloat, dims);
+    //        data.putAtt("_FillValue", netCDF::ncFloat, m_fill);
+    //        data.putAtt("offset", netCDF::ncFloat, m_offset);
+    //        data.putAtt("scale", netCDF::ncFloat, m_scale);
     //        data.putAtt("units", m_nm_unit.at(grp));
     //        std::vector<float> all(bands);
     //        data.setCompression(true, true, 5);

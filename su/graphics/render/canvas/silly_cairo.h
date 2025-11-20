@@ -9,14 +9,17 @@
  */
 #ifndef SILLY_UTILS_SILLY_CAIRO_H
 #define SILLY_UTILS_SILLY_CAIRO_H
-
-#include <cairo/cairo.h>
 #include <geo/silly_geo.h>
-#include <cairo/cairo-ft.h>
-#include <ft2build.h>
 #include <graphics/silly_color.h>
 #include <graphics/font/silly_font.h>
+#if SU_THIRD_SUPPORT_CAIRO
+#include <cairo/cairo.h>
+#include <cairo/cairo-ft.h>
+#endif
+#if SU_THIRD_SUPPORT_FREE_TYPE
 #include FT_FREETYPE_H
+#include <ft2build.h>
+#endif
 
 enum eCairoAlign
 {
@@ -191,12 +194,17 @@ class suCairo
     int m_format{0};
     size_t m_width{0};
     size_t m_height{0};
+
+#if SU_THIRD_SUPPORT_CAIRO
     cairo_t* m_cr{nullptr};
     cairo_surface_t* m_surface{nullptr};
+#endif
     std::mutex m_mtx;  // 同时只能做一件事情
     static bool m_enable_font;
+#if SU_THIRD_SUPPORT_FREE_TYPE
     static std::map<std::string, FT_Face> CAIRO_NAME_FONT;
     static FT_Library CAIRO_FONT_LIB;
+#endif
 };
 
 #endif  // SILLY_UTILS_SILLY_CAIRO_H

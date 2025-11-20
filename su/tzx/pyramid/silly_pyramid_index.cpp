@@ -5,7 +5,6 @@
 #include <geo/silly_pyramid.h>
 #include "silly_pyramid_index.h"
 using namespace silly::pyramid;
-using namespace silly::file;
 index::index()
 {
     m_head[0] = 'I';

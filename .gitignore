@@ -11,3 +11,4 @@
 /build
 *.log
 /bak
+/su/su_config.h

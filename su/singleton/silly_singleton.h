@@ -9,7 +9,7 @@
  * @description:
  */
 #pragma once
-
+#include <su_marco.h>
 template <typename T>
 class silly_singleton
 {

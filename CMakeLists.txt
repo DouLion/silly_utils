@@ -19,11 +19,16 @@ else ()
 	message(STATUS "作为嵌入库编译")
 endif()
 
+set(SU_ALL_REQUIRED_LIBRARIES "")
+
+# 检查工程环境
 include(${SU_FILE_ROOT}/cmake/CheckEnv.cmake)
+# 检查机器大小端序
 include(${SU_FILE_ROOT}/cmake/CheckOSEndian.cmake)
-include(${SU_FILE_ROOT}/cmake/CheckDM8.cmake)
-include(${SU_FILE_ROOT}/cmake/CheckEccodes.cmake)
-include(${SU_FILE_ROOT}/cmake/CheckCUDA.cmake)
+# 检查所有第三方库
+include(${SU_FILE_ROOT}/cmake/CheckThirdLib.cmake)
+# 配置一些宏定义
+include(${SU_FILE_ROOT}/cmake/ConfigSU.cmake)
 if(BUILD_AS_PROJ)
 	include_directories(${SU_PROJ_ROOT}/su)
 	add_definitions("-DDEFAULT_SU_ROOT_DIR=\"${SU_PROJ_ROOT}\"")

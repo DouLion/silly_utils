@@ -11,13 +11,7 @@
 #ifndef SILLY_UTILS_SLB_DATA_V1_H
 #define SILLY_UTILS_SLB_DATA_V1_H
 
-// #include "su_marco.h"
-// #include <radar/format/RadarDataHN43.h>
-#include <fstream>
-#include <vector>
-#include <cstring>
-#include <iostream>
-#include <stdint.h>
+#include <su_marco.h>
 using PolorGrid = std::vector<std::vector<float>>;
 namespace RadarData
 {

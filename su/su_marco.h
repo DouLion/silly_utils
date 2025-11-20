@@ -20,10 +20,13 @@
 #error "This header requires C++17 or later. Please enable C++17 support in MSVC."
 #endif
 
+#include <su_config.h>
+
 // =============================================================================
 // C++ 标准库
 // =============================================================================
-
+#define HAVE_STRLCAT  1
+#define HAVE_STRLCAT  1
 #include <iostream>
 #include <sstream>
 #include <string>

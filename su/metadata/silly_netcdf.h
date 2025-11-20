@@ -9,12 +9,14 @@
  */
 #ifndef SILLY_UTILS_SILLY_NETCDF_H
 #define SILLY_UTILS_SILLY_NETCDF_H
-#include <netcdf>
+
 #include <log/silly_log.h>
 #include <files/silly_file.h>
 #include <metadata/silly_tzx_grid.h>
-using namespace netCDF;
-using namespace netCDF::exceptions;
+
+#if SU_THIRD_SUPPORT_NETCDF_CXX
+#include <netcdf>
+#endif
 // lon维度必须在倒数第一个
 // lat维度必须在倒数第二个
 
@@ -169,8 +171,10 @@ class suNetCDF
      * 1 自东向西, 自北向南
      * */
     int m_sort{0};
-    NcFile m_nc_file;
-    NcGroup m_nc_all_grps;
+#if SU_THIRD_SUPPORT_NETCDF_CXX
+    netCDF::NcFile m_nc_file;
+    netCDF::NcGroup m_nc_all_grps;
+#endif
     std::string m_err;
     Geo m_geo;
     float m_fill = -9999.0;

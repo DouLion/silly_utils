@@ -3,14 +3,13 @@
 //
 #include "silly_file.h"
 
-using namespace silly::file;
 
 // TODO: 需要做些参照解决编码问题 https://blog.csdn.net/qq_36437446/article/details/105279221
 // https://blog.csdn.net/hybluck/article/details/112256543
 // 为什么用notepad++ 打开时 有些是中文编码(GBK23..)有些是ANSI
 //
 
-std::filesystem::path utils::realpath(const std::filesystem::path &fp)
+std::filesystem::path suFile::realpath(const std::filesystem::path &fp)
 {
 #ifdef IS_WIN32
     // 如果路径已经是宽字符串形式，直接返回
@@ -37,7 +36,7 @@ std::filesystem::path utils::realpath(const std::filesystem::path &fp)
 #endif
     return fp.lexically_normal();
 }
-std::filesystem::path utils::realpath(const std::string &ftpstr)
+std::filesystem::path suFile::realpath(const std::string &ftpstr)
 {
 #ifdef IS_WIN32
 
@@ -56,7 +55,7 @@ std::filesystem::path utils::realpath(const std::string &ftpstr)
     return std::filesystem::path(ftpstr);
 }
 
-size_t utils::read(const std::filesystem::path &fp, std::string &content, const size_t &offset, const size_t &len)
+size_t suFile::read(const std::filesystem::path &fp, std::string &content, const size_t &offset, const size_t &len)
 {
     size_t ret_read_size = 0;
     content.clear();
@@ -67,7 +66,7 @@ size_t utils::read(const std::filesystem::path &fp, std::string &content, const 
     {
         return ret_read_size;
     }
-    size_t file_size = utils::size(fp);
+    size_t file_size = suFile::size(fp);
     if (offset >= file_size)  // 保证读值不为空
     {
         input.close();
@@ -83,14 +82,14 @@ size_t utils::read(const std::filesystem::path &fp, std::string &content, const 
     return ret_read_size;
 }
 
-std::string utils::read(const std::filesystem::path &fp, const size_t &offset, const size_t &len)
+std::string suFile::read(const std::filesystem::path &fp, const size_t &offset, const size_t &len)
 {
     std::string ret;
-    sufile::read(fp, ret, offset, len);
+    suFile::read(fp, ret, offset, len);
     return ret;
 }
 
-bool utils::readlines(const std::filesystem::path &fp, std::vector<std::string> &lines)
+bool suFile::readlines(const std::filesystem::path &fp, std::vector<std::string> &lines)
 {
     std::fstream input(realpath(fp), std::ios::binary | std::ios::in);
     if (input.is_open())
@@ -109,14 +108,14 @@ bool utils::readlines(const std::filesystem::path &fp, std::vector<std::string> 
     return true;
 }
 
-std::vector<std::string> utils::readlines(const std::filesystem::path &fp)
+std::vector<std::string> suFile::readlines(const std::filesystem::path &fp)
 {
     std::vector<std::string> ret;
     readlines(fp, ret);
     return ret;
 }
 
-size_t utils::write(const std::filesystem::path &fp, const std::string &content)
+size_t suFile::write(const std::filesystem::path &fp, const std::string &content)
 {
     size_t write_len = 0;
     std::fstream output(realpath(fp), std::ios::binary | std::ios::out);
@@ -129,7 +128,7 @@ size_t utils::write(const std::filesystem::path &fp, const std::string &content)
     return content.size();
 }
 
-size_t utils::write(const std::filesystem::path &fp, const std::vector<std::string> &lines)
+size_t suFile::write(const std::filesystem::path &fp, const std::vector<std::string> &lines)
 {
     size_t write_len = 0;
     std::fstream output(realpath(fp), std::ios::binary | std::ios::out);
@@ -146,10 +145,10 @@ size_t utils::write(const std::filesystem::path &fp, const std::vector<std::stri
     return write_len;
 }
 
-std::vector<std::filesystem::path> utils::list(const std::filesystem::path &fp, const std::string &u8filter)
+std::vector<std::filesystem::path> suFile::list(const std::filesystem::path &fp, const std::string &u8filter)
 {
     std::vector<std::filesystem::path> ret;
-    std::filesystem::path _root = utils::realpath(fp);
+    std::filesystem::path _root = suFile::realpath(fp);
     if (!std::filesystem::exists(_root))
     {
         return ret;
@@ -185,7 +184,7 @@ std::vector<std::filesystem::path> utils::list(const std::filesystem::path &fp, 
     return ret;
 }
 
-std::vector<std::filesystem::path> utils::relist(const std::filesystem::path &fp, const std::string &u8filter)
+std::vector<std::filesystem::path> suFile::relist(const std::filesystem::path &fp, const std::string &u8filter)
 {
     std::vector<std::filesystem::path> ret;
     std::filesystem::path _root = realpath(fp);
@@ -223,7 +222,7 @@ std::vector<std::filesystem::path> utils::relist(const std::filesystem::path &fp
     return ret;
 }
 
-std::string utils::file_filter_regex(const std::string &filter)
+std::string suFile::file_filter_regex(const std::string &filter)
 {
     std::string s_result;
     for (const auto c : filter)
@@ -244,7 +243,7 @@ std::string utils::file_filter_regex(const std::string &filter)
     return s_result;
 }
 
-std::time_t utils::last_modify_sec(const std::filesystem::path &fp)
+std::time_t suFile::last_modify_sec(const std::filesystem::path &fp)
 {
     std::time_t stamp = 0;
     try
@@ -276,7 +275,7 @@ std::time_t utils::last_modify_sec(const std::filesystem::path &fp)
     return stamp;
 }
 
-std::time_t utils::last_modify_ms(const std::filesystem::path &fp)
+std::time_t suFile::last_modify_ms(const std::filesystem::path &fp)
 {
     std::time_t stamp = 0;
     try
@@ -310,7 +309,7 @@ std::time_t utils::last_modify_ms(const std::filesystem::path &fp)
     return stamp;
 }
 
-bool utils::exist(const std::filesystem::path &path)
+bool suFile::exist(const std::filesystem::path &path)
 {
     try
     {
@@ -323,7 +322,7 @@ bool utils::exist(const std::filesystem::path &path)
     return false;
 }
 
-bool utils::mkdir(const std::filesystem::path &path)
+bool suFile::mkdir(const std::filesystem::path &path)
 {
     try
     {
@@ -336,7 +335,7 @@ bool utils::mkdir(const std::filesystem::path &path)
     return false;
 }
 
-void utils::rmfile(const std::filesystem::path &path)
+void suFile::rmfile(const std::filesystem::path &path)
 {
     try
     {
@@ -346,7 +345,7 @@ void utils::rmfile(const std::filesystem::path &path)
     {
     }
 }
-void utils::rmdir(const std::filesystem::path &path)
+void suFile::rmdir(const std::filesystem::path &path)
 {
     try
     {
@@ -357,7 +356,7 @@ void utils::rmdir(const std::filesystem::path &path)
     }
 }
 
-size_t utils::size(const std::filesystem::path &path)
+size_t suFile::size(const std::filesystem::path &path)
 {
     size_t ret = 0;
     try
@@ -370,7 +369,7 @@ size_t utils::size(const std::filesystem::path &path)
     return ret;
 }
 
-void utils::copyfile(const std::filesystem::path &src, const std::filesystem::path &dst)
+void suFile::copyfile(const std::filesystem::path &src, const std::filesystem::path &dst)
 {
     try
     {
@@ -382,7 +381,7 @@ void utils::copyfile(const std::filesystem::path &src, const std::filesystem::pa
     }
 }
 
-void utils::copydir(const std::filesystem::path &src, const std::filesystem::path &dst)
+void suFile::copydir(const std::filesystem::path &src, const std::filesystem::path &dst)
 {
     try
     {
@@ -393,50 +392,50 @@ void utils::copydir(const std::filesystem::path &src, const std::filesystem::pat
     }
 }
 
-node::node(std::string path)
+suFileNode::suFileNode(std::string path)
 {
     this->path = path;
-    this->is_dir = std::filesystem::is_directory(sufile::realpath(path));
+    this->is_dir = std::filesystem::is_directory(suFile::realpath(path));
 }
 
-node::node(std::filesystem::path path)
+suFileNode::suFileNode(std::filesystem::path path)
 {
     this->path = path.u8string();
-    this->is_dir = std::filesystem::is_directory(sufile::realpath(path));
+    this->is_dir = std::filesystem::is_directory(suFile::realpath(path));
 }
 
-node::node(const node &other)
+suFileNode::suFileNode(const suFileNode &other)
 {
     this->path = other.path;
     this->is_dir = other.is_dir;
 }
-node &node::operator=(const node &other)
+suFileNode &suFileNode::operator=(const suFileNode &other)
 {
     this->path = other.path;
     this->is_dir = other.is_dir;
     return *this;
 }
-std::string node::name() const
+std::string suFileNode::name() const
 {
-    return std::filesystem::path(sufile::realpath(path)).filename().u8string();
+    return std::filesystem::path(suFile::realpath(path)).filename().u8string();
 }
-std::string node::stem() const
+std::string suFileNode::stem() const
 {
-    return std::filesystem::path(sufile::realpath(path)).stem().u8string();
+    return std::filesystem::path(suFile::realpath(path)).stem().u8string();
 }
-std::string node::ext() const
+std::string suFileNode::ext() const
 {
-    return std::filesystem::path(sufile::realpath(path)).extension().u8string();
+    return std::filesystem::path(suFile::realpath(path)).extension().u8string();
 }
 
-void node::trace()
+void suFileNode::trace()
 {
-    is_dir = std::filesystem::is_directory(sufile::realpath(this->path));
+    is_dir = std::filesystem::is_directory(suFile::realpath(this->path));
     if (is_dir)
     {
-        for (auto &p : std::filesystem::directory_iterator(sufile::realpath(this->path)))
+        for (auto &p : std::filesystem::directory_iterator(suFile::realpath(this->path)))
         {
-            children.emplace_back(std::make_unique<node>(p.path()));
+            children.emplace_back(std::make_unique<suFileNode>(p.path()));
             children.back()->trace();  // 递归构建子节点
         }
     }

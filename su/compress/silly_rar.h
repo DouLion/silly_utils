@@ -15,9 +15,7 @@
 #include <compress/silly_compress_common.h>
 #include <log/silly_log.h>
 
-namespace silly_compress
-{
-class silly_rar
+class suRAR
 {
   public:
     /// <summary>
@@ -58,7 +56,5 @@ class silly_rar
     /// <returns></returns>
     static eCompressErr decompress(const char* c_in_val, const size_t& i_in_len, char** c_out_val, size_t& i_out_len);
 };
-
-}  // namespace silly_compress
 
 #endif  // SILLY_UTILS_SILLY_RAR_H

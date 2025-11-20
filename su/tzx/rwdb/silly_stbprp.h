@@ -10,7 +10,7 @@
  */
 #ifndef SILLY_UTILS_SILLY_STBPRP_H
 #define SILLY_UTILS_SILLY_STBPRP_H
-
+#include <su_marco.h>
 class silly_stbprp
 {
   public:

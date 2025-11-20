@@ -10,7 +10,6 @@
 #include <log/silly_log.h>
 #include "encode/silly_encode.h"
 
-using namespace silly_compress;
 
 //  压缩使用的最大内存 500M
 #define SILLY_RAR_MAX_BUFF_SIZE (0x1F400000)
@@ -18,7 +17,7 @@ using namespace silly_compress;
 #define SILLY_RAR_FILE_EXTENSION ".rar"
 
 /// 将文件或目录压缩为ZIP文件
-eCompressErr silly_rar::compress(const std::string& s_src, const std::string& s_dst, const bool& append)
+eCompressErr suRAR::compress(const std::string& s_src, const std::string& s_dst, const bool& append)
 {
     auto status = eCompressErr::MiniZUnknowErr;
 #if SU_THIRD_SUPPORT_LIBARCHIVE
@@ -56,7 +55,7 @@ eCompressErr silly_rar::compress(const std::string& s_src, const std::string& s_
     return status;
 }
 
-eCompressErr silly_rar::decompress(const std::string& s_src, const std::string& s_dst)
+eCompressErr suRAR::decompress(const std::string& s_src, const std::string& s_dst)
 {
 #if SU_THIRD_SUPPORT_LIBARCHIVE
     if (!std::filesystem::exists(s_src))  // 解压文件不存在
@@ -205,7 +204,7 @@ eCompressErr silly_rar::decompress(const std::string& s_src, const std::string& 
     return eCompressErr::Ok;
 }
 
-eCompressErr silly_rar::compress(const char* c_in_val, const size_t& i_in_len, char** c_out_val, size_t& i_out_len)
+eCompressErr suRAR::compress(const char* c_in_val, const size_t& i_in_len, char** c_out_val, size_t& i_out_len)
 {
     if (c_in_val == nullptr || i_in_len == 0)
     {
@@ -216,7 +215,7 @@ eCompressErr silly_rar::compress(const char* c_in_val, const size_t& i_in_len, c
     return eCompressErr::Ok;
 }
 
-eCompressErr silly_rar::decompress(const char* c_in_val, const size_t& i_in_len, char** c_out_val, size_t& i_out_len)
+eCompressErr suRAR::decompress(const char* c_in_val, const size_t& i_in_len, char** c_out_val, size_t& i_out_len)
 {
     // 检查输入参数
     if (c_in_val == nullptr || i_in_len == 0)

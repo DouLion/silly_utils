@@ -10,6 +10,7 @@
  */
 #ifndef SILLY_UTILS_SILLY_BICUBIC_H
 #define SILLY_UTILS_SILLY_BICUBIC_H
+#include <su_marco.h>
 namespace silly
 {
 namespace interpolation

@@ -10,12 +10,12 @@
  */
 #ifndef SILLY_UTILS_SILLY_RENDER_PEN_H
 #define SILLY_UTILS_SILLY_RENDER_PEN_H
-
-class silly_render_pen
+#include <su_marco.h>
+class suRenderPen
 {
   public:
-    silly_render_pen();
-    ~silly_render_pen();
+    suRenderPen();
+    ~suRenderPen();
 
   private:
     uint8_t m_dash_type;

@@ -1,0 +1,2 @@
+message("\n检查库  WEBSOCETPP, 已废弃")
+set(SU_THIRD_SUPPORT_WEBSOCKET_PP 0)

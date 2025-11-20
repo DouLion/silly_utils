@@ -14,6 +14,7 @@
 #define SILLY_UTILS_PYRAMID_BASE_H
 
 #include <files/silly_memory_map.h>
+#include <log/silly_log.h>
 
 #define PYRAMID_MATCH_VERSION(a, b) ((a)[0] == (b)[0] && (a)[1] == (b)[1] && (a)[2] == (b)[2] && (a)[3] == (b)[3])
 

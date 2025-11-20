@@ -13,7 +13,8 @@
 #ifndef SILLY_UTILS_SILLY_PYRAMID_INFO_H
 #define SILLY_UTILS_SILLY_PYRAMID_INFO_H
 
-#include "tzx/pyramid/silly_pyramid_base.h"
+#include <tzx/pyramid/silly_pyramid_base.h>
+#include <geo/silly_geo.h>
 enum ePyramidTileFormat
 {
     jpeg = 1,
