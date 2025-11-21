@@ -44,7 +44,7 @@ class silly_smtp
   private:
     bool m_connected{false};
 
-    silly_socket m_socket;
+    suSocket m_socket;
 
     silly_mail_conn_opt m_conn_opt;
 };

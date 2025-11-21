@@ -99,7 +99,7 @@ class suWSClient
 };
 
 template <typename Func, typename... Args>
-void silly_websocket_client::on_connect(Func&& func, Args&&... args)
+void suWSClient::on_connect(Func&& func, Args&&... args)
 {
 #if ENABLE_WEBSOCKET_PP
     m_client.set_open_handler([&](websocketpp::connection_hdl hdl) {
@@ -113,7 +113,7 @@ void silly_websocket_client::on_connect(Func&& func, Args&&... args)
 }
 
 template <typename Func, typename... Args>
-void silly_websocket_client::on_receive(Func&& func, Args&&... args)
+void suWSClient::on_receive(Func&& func, Args&&... args)
 {
 #if ENABLE_WEBSOCKET_PP
     std::function<void(client * c, websocketpp::connection_hdl, message_ptr)> _on_message;
@@ -130,7 +130,7 @@ void silly_websocket_client::on_receive(Func&& func, Args&&... args)
 }
 
 template <typename Func, typename... Args>
-void silly_websocket_client::on_close(Func&& func, Args&&... args)
+void suWSClient::on_close(Func&& func, Args&&... args)
 {
 #if ENABLE_WEBSOCKET_PP
     m_client.set_close_handler([&](websocketpp::connection_hdl hdl) {

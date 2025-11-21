@@ -154,7 +154,6 @@
 #include <network/lora/silly_lora_client.h>            // 未实现
 #include <network/lora/silly_lora_gateway.h>           // 未实现
 #include <network/lora/silly_lora_server.h>            // 未实现
-#include <network/mail/CSendMail.h>                    // 实现邮件的发送功能，支持多个用户接收，支持附件
 #include <network/mail/silly_imap.h>                   // 未实现
 #include <network/mail/silly_mail.h>                   // 邮件发送与接收的工具,结构定义内容未实现
 #include <network/mail/silly_mail_receive.h>           // 未实现
