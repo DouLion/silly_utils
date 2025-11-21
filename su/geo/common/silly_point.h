@@ -163,6 +163,13 @@ class suPointZ : public suPoint
         z = zz;
     }
 
+    suPointZ(const suPoint& rh, const double& zz)
+    {
+        x = rh.x;
+        y = rh.y;
+        z = zz;
+    }
+
     suPointZ(const suPoint& rh)
     {
         x = rh.x;
