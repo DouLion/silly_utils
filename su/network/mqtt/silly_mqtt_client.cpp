@@ -131,7 +131,8 @@ class message_callback : public virtual mqtt::callback, public virtual mqtt::iac
     void message_arrived(mqtt::const_message_ptr msg) override
     {
         SLOG_DEBUG("新消息!!!\n主题:{}\n内容:\n{}", msg->get_topic(), msg->to_string())
-        m_func(msg->get_topic(), msg->to_string());
+        std::thread t(m_func, msg->get_topic(), msg->to_string());
+        t.detach();
     }
 
     void delivery_complete(mqtt::delivery_token_ptr token) override
