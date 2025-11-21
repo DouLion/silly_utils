@@ -1,5 +1,5 @@
 message("\n检查库 spdlog")
-if(DISABLE_spdlog)
+if(DISABLE_SPDLOG)
     message(STATUS "禁用spdlog")
 else()
     find_package(spdlog CONFIG REQUIRED)

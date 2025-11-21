@@ -27,6 +27,7 @@ include(${SU_FILE_ROOT}/cmake/CheckEnv.cmake)
 include(${SU_FILE_ROOT}/cmake/CheckOSEndian.cmake)
 # 检查所有第三方库
 include(${SU_FILE_ROOT}/cmake/CheckThirdLib.cmake)
+message(STATUS "\n库检查完成\n")
 # 配置一些宏定义
 include(${SU_FILE_ROOT}/cmake/ConfigSU.cmake)
 if(BUILD_AS_PROJ)

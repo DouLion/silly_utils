@@ -103,4 +103,10 @@
 // mqtt/ws通信
 #define SU_THIRD_SUPPORT_PAHO_MQTT @SU_THIRD_SUPPORT_PAHO_MQTT@
 
+// 高速 的 线性代数, 矩阵,向量计算库
+#define SU_THIRD_SUPPORT_EIGEN3 @SU_THIRD_SUPPORT_EIGEN3@
+
+// 功能很全面的几何库
+#define SU_THIRD_SUPPORT_CGAL @SU_THIRD_SUPPORT_CGAL@
+
 #endif

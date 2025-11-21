@@ -49,3 +49,7 @@ include(${SU_FILE_ROOT}/cmake/modules/FindLibSpatialite.cmake)
 include(${SU_FILE_ROOT}/cmake/modules/FindWebSocketPP.cmake)
 
 include(${SU_FILE_ROOT}/cmake/modules/FindPahoMQTT.cmake)
+
+include(${SU_FILE_ROOT}/cmake/modules/FindEigen3.cmake)
+
+include(${SU_FILE_ROOT}/cmake/modules/FindCGAL.cmake)

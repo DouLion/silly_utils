@@ -226,6 +226,7 @@ class suGeoProj
 
     /// <summary>
     ///  根据测量点集和参考点集 构建7参数
+    ///  没吊毛用,错的离谱
     /// </summary>
     /// <param name="measures">测量点</param>
     /// <param name="origins">参考点,控制点</param>

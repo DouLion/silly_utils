@@ -1,5 +1,5 @@
 message("\n检查库 CryptoPP")
-if(DISABLE_CryptoPP)
+if(DISABLE_CRYPTOPP)
     message(STATUS "禁用CryptoPP")
 else()
     find_package(cryptopp CONFIG)

@@ -1,5 +1,5 @@
 message("\n检查库 Iconv")
-if(DISABLE_Iconv)
+if(DISABLE_ICONV)
     message(STATUS "禁用Iconv")
 else()
     find_package(Iconv)
