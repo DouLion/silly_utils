@@ -9,14 +9,13 @@
  * @version: v1.0.1 2024-12-30 dou li yang
  */
 #include "silly_bilinear.h"
-using namespace silly::interpolation;
 
-double bilinear::calc(double q0, double q1, double q2, double q3, double dx, double dy)
+ double suBilinearInterp::calc(const double& q00, const double& q01, const double& q10, const double& q11, const double& dx, const double& dy)
 {
     // 计算权重
-    double alpha = dx;  // x 方向的权重
-    double beta = dy;   // y 方向的权重
+    const double& alpha = dx;  // x 方向的权重
+    const double& beta = dy;   // y 方向的权重
 
     // 双线性插值公式
-    return (1 - alpha) * (1 - beta) * q0 + alpha * (1 - beta) * q1 + (1 - alpha) * beta * q2 + alpha * beta * q3;
+    return (1 - alpha) * (1 - beta) * q00 + alpha * (1 - beta) * q01 + (1 - alpha) * beta * q10 + alpha * beta * q11;
 }

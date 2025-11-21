@@ -8,10 +8,8 @@
  * @software: silly_utils
  * @description: 内存文件映射
  */
-#pragma once
-
-#ifndef SILLY_UTILS_SILLY_MMAP_H
-#define SILLY_UTILS_SILLY_MMAP_H
+#ifndef SILLY_MEM_MAP_H
+#define SILLY_MEM_MAP_H
 #include <su_marco.h>
 #include <files/silly_file.h>
 
@@ -26,69 +24,68 @@
 /// boost/libs/iostreams/src/mapped_file.cpp
 /// </summary>
 
-static inline size_t page_size()
-{
-    static const size_t page_size = [] {
-#ifdef _WIN32
-        SYSTEM_INFO SystemInfo;
-        GetSystemInfo(&SystemInfo);
-        return SystemInfo.dwAllocationGranularity;
-#else
-        return sysconf(_SC_PAGE_SIZE);
-#endif
-    }();
-    return page_size;
-}
-size_t inline make_offset_page_aligned(size_t offset) noexcept
-{
-    const size_t page_size_ = page_size();
-    // Use integer division to round down to the nearest page alignment.
-    return offset / page_size_ * page_size_;
-}
 enum eMMFMode : int
 {
     Read = 1,
     Write = 2
 };
+/*
+#define CREATE_NEW          1
+#define CREATE_ALWAYS       2
+#define OPEN_EXISTING       3
+#define OPEN_ALWAYS         4
+#define TRUNCATE_EXISTING   5*/
+
+enum eMMFDisposition : int
+{
+    // 与 windows中 fileapi.h文件定义保持一致
+    CreateNew =1, // #define CREATE_NEW          1
+    CreateAlways = 2,
+    OpenExisting = 3,
+    OpenAlways = 4,
+    TruncateExisting = 5
+};
 
 class suMemMapFile
 {
-  public:
-  public:
-    using cur = char;
-    class param
+public:
+    using Ptr = unsigned char*;
+    struct Param
     {
-      public:
         std::filesystem::path path;
-        std::uintmax_t new_file_size = 0;
-        std::size_t length = std::numeric_limits<std::size_t>::max();
-        int64_t offset = 0;
-        eMMFMode flag;
-        unsigned long disposition = 2;  // CREATE_ALWAYS;
+        // 映射大小, 0表示映射从offset之后的文件
+        std::uintmax_t map_size = 0;
+        // 写模式时, 指定分配文件大小
+        // 如果 file_size 比现有文件大, 则会扩张文件
+        // 如果 file_size 比现有文件小, 则不处理
+        std::size_t file_size = 0;
+        int64_t offset = 0; // 映射偏移开始位置
+        eMMFMode mode = eMMFMode::Read; // 打开模式
+        unsigned long disposition = eMMFDisposition::OpenExisting;
     };
-
   public:
-    suMemMapFile(void);
-    ~suMemMapFile(void);
+    suMemMapFile() = default;
+    ~suMemMapFile() = default;
     // 禁用拷贝构造函数和赋值运算符
     suMemMapFile(const suMemMapFile& rh) = delete;
     suMemMapFile& operator=(const suMemMapFile& rh) = delete;
 
-    bool open(const param& p);
+    bool open(const Param& p);
     /// <summary>
     /// 打开内存文件映射, windows 写文件有问题,需要处理
     /// </summary>
     /// <param name="file"></param>
     /// <param name="mode"></param>
+    /// <param name="offset"></param>
     /// <returns></returns>
-    bool open(const std::filesystem::path& file, const int& mode = eMMFMode::Read, const int64_t& off = 0);
+    bool open(const std::filesystem::path& file, const eMMFMode& mode = eMMFMode::Read, const int64_t& offset = 0);
 
     /// <summary>
     /// 根据偏移量索引到内存位置
     /// </summary>
     /// <param name="offset"></param>
     /// <returns></returns>
-    cur* ptr(const size_t& offset = 0) const;
+    Ptr ptr(const size_t& offset = 0) const;
 
     /// <summary>
     /// 读取内容
@@ -97,7 +94,7 @@ class suMemMapFile
     /// <param name="size">读取大小</param>
     /// <param name="offset">偏移位置</param>
     /// <returns></returns>
-    bool read(cur* dst, const size_t& size, const size_t& offset = 0) const;
+    bool read(Ptr dst, const size_t& size, const size_t& offset = 0) const;
 
     /// <summary>
     /// TODO: 写入数据到内存文件映射,并且持久化到本地文件,这个还没有完全实现
@@ -106,7 +103,7 @@ class suMemMapFile
     /// <param name="size"></param>
     /// <param name="offset"></param>
     /// <returns></returns>
-    bool write(cur* src, const size_t& size, const size_t& offset = 0);
+    bool write(Ptr src, const size_t& size, const size_t& offset = 0);
 
     /// <summary>
     /// 同步内存文件映射到本地文件
@@ -128,9 +125,9 @@ class suMemMapFile
 
     bool resize(size_t size);
 
-  private:
-    bool is_open();
-    bool is_mapped();
+  protected:
+    bool is_open()  const;
+    bool is_mapped()  const;
     bool open();
     bool open_file();
     bool map_file();
@@ -143,15 +140,20 @@ class suMemMapFile
     size_t m_map_len = 0;     // 映射大小
     size_t m_file_len{0};     // 文件大小 只读时, 映射大小不超过文件大小
     size_t m_map_offset = 0;  // 映射偏移位置
-    cur* m_mmap{nullptr};     // 映射头位置
+    Ptr m_mmap{nullptr};     // 映射头位置
     std::mutex m_w_mutex;     // 写互斥
-    param m_param;
+    std::mutex m_oc;           // 开关互斥
+    // suMemMapFile::Param m_param;
+    std::filesystem::path m_file;
 
-    silly_handle m_hdl_file = INVALID_HANDLE_VALUE;
+    eMMFMode m_mode = eMMFMode::Read; // 打开模式
+    unsigned long m_disposition = eMMFDisposition::OpenExisting;
+
+    SU_HANDLE m_file_hdl = INVALID_HANDLE_VALUE;
 #ifdef IS_WIN32
-    silly_handle m_hdl_map = INVALID_HANDLE_VALUE;
+    SU_HANDLE m_map_hdl = INVALID_HANDLE_VALUE;
 #endif
     // bool m_is_hdl_internal = false;
 };
-using sumemf = suMemMapFile;
-#endif  // SILLY_UTILS_SILLY_MMAP_H
+
+#endif  // SILLY_MEM_MAP_H

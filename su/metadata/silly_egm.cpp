@@ -10,7 +10,13 @@
  */
 #include "silly_egm.h"
 #include <math/interpolate/silly_bilinear.h>
-bool silly_egm::open(const std::filesystem::path& file)
+
+suEarthGravityModel::~suEarthGravityModel()
+{
+    close();
+}
+
+bool suEarthGravityModel::open(const std::filesystem::path& file)
 {
     if (m_mmap.open(file))
     {
@@ -19,65 +25,75 @@ bool silly_egm::open(const std::filesystem::path& file)
     return false;
 }
 
-double silly_egm::geoid(const double& lgtd, const double& lttd)
-{
-    double result = 0;
-    double dr = (m_headers.origin_lat - lttd) / m_lat_ratio;
-    double dc = ((lgtd > 0. ? lgtd : lgtd + 360.) - m_headers.origin_lon) / m_lon_ratio;
-
-    // std::cout << dr << "," << dc << std::endl;
-
-    int r0 = std::floor(dr);
-    int c0 = std::floor(dc);
-    int r1 = SU_MIN(r0 + 1, m_headers.rows - 1);
-    int c1 = SU_MIN(c0 + 1, m_headers.cols - 1);
-
-    double ddr = dr - r0;
-    double ddc = dc - c0;
-
-    double g00 = 0, g01 = 0, g10 = 0, g11 = 0;
-    size_t idx00 = (r0 * m_headers.cols + c0) * m_headers.dlen + m_doffs;
-    size_t idx10 = (r1 * m_headers.cols + c0) * m_headers.dlen + m_doffs;
-    unsigned char buffer[4] = {0};
-    m_mmap.read((char*)buffer, 4, idx00);
-    if (m_headers.dlen == 1)
-    {
-        g00 = (buffer[0]);
-        g01 = (buffer[1]);
-    }
-    else
-    {
-        g00 = ((buffer[0] << 8) | (buffer[1]));
-        g01 = ((buffer[2] << 8) | (buffer[3]));
-    }
-    memset(buffer, 0, 4);
-    m_mmap.read((char*)buffer, 4, idx10);
-
-    if (m_headers.dlen == 1)
-    {
-        g10 = (buffer[0]);
-        g11 = (buffer[1]);
-    }
-    else
-    {
-        g10 = ((buffer[0]) << 8) | (buffer[1]);
-        g11 = ((buffer[2]) << 8) | (buffer[3]);
-    }
-
-    g00 = g00 * 0.003 - 108.0;
-    g01 = g01 * 0.003 - 108.0;
-    g10 = g10 * 0.003 - 108.0;
-    g11 = g11 * 0.003 - 108.0;
-
-    result = silly::interpolation::bilinear::calc(g00, g01, g10, g11, ddc, ddr);
-    return result;
-}
-bool silly_egm::close()
+bool suEarthGravityModel::close()
 {
     m_mmap.close();
     return true;
 }
-bool silly_egm::read_header()
+
+double suEarthGravityModel::geoid(const double& lon, const double& lat) const
+{
+    // 2. 计算浮点索引（相对于 origin）
+    // dr: 从 origin_lat=90 向下，lat 减小 → dr 增大
+    // dc: 从 origin_lon=0 向右，nlon 增大 → dc 增大
+    double dr = (m_header.origin_lat - lat) / m_lat_ratio;   // 纬度索引（从上到下）
+    double dc = (lon - m_header.origin_lon) / m_lon_ratio;  // 经度索引（从左到右）
+
+    // 3. 取整并计算四个角点索引
+    int r0 = static_cast<int>(std::floor(dr));
+    int c0 = static_cast<int>(std::floor(dc));
+    int r1 = SU_MIN(r0 + 1, m_header.rows - 1);
+    int c1 = SU_MIN(c0 + 1, m_header.cols - 1);
+
+    // 4. 计算小数部分（用于双线性插值）
+    double ddr = dr - r0;  // 纬度方向小数（0~1）
+    double ddc = dc - c0;  // 经度方向小数（0~1）
+
+    // 5. 计算四个点的文件偏移（字节索引）
+    auto calc_index = [&](int r, int c) -> size_t {
+        return (static_cast<size_t>(r) * m_header.cols + c) * m_header.dlen + m_header.doff;
+    };
+
+    size_t idx00 = calc_index(r0, c0);
+    size_t idx01 = calc_index(r0, c1);
+    size_t idx10 = calc_index(r1, c0);
+    size_t idx11 = calc_index(r1, c1);
+
+    // 6. 读取四个点的原始值（uint16，小端序）
+    auto read_val = [&](const size_t& idx) -> double {
+        unsigned char buf[2] = {0};
+        if (!m_mmap.read(buf, m_header.dlen, idx)) {
+            std::cerr << "Failed to read uint16 from mmap file" << std::endl;
+            return 0; // 或抛出异常
+        }
+        if (m_header.dlen == 1 )
+        {
+            return buf[0];;
+        }
+        if (m_header.dlen == 2)
+        {
+            return ((buf[0] << 8 | buf[1]));
+        }
+        return 0;
+    };
+
+    double v00 = read_val(idx00);
+    double v01 = read_val(idx01);
+    double v10 = read_val(idx10);
+    double v11 = read_val(idx11);
+
+    // 7. 解码 geoid 高度：value * scale - offset
+    double g00 = v00 * m_header.scale + m_header.offset;
+    double g01 = v01 * m_header.scale + m_header.offset;
+    double g10 = v10 * m_header.scale + m_header.offset;
+    double g11 = v11 * m_header.scale + m_header.offset;
+
+    double result = suBilinearInterp::calc(g00, g01, g10, g11, ddc, ddr);
+
+    return result;
+}
+
+bool suEarthGravityModel::read_header()
 {
     bool status = false;
     /*
@@ -98,53 +114,52 @@ P5
 21600  10801
 65535
      */
-    const size_t buffer_size = 2048;
+
+    constexpr size_t buffer_size = 2048;
     std::string buffer;
     buffer.resize(buffer_size);
-    size_t offset = 0;
     std::regex re1(R"(^(\d+)\s+(\d+)$)");
-    if (m_mmap.read(buffer.data(), buffer_size, offset))
+    if (m_mmap.read(reinterpret_cast<suMemMapFile::Ptr>(buffer.data()), buffer_size, 0))
     {
         std::string line;
-
+        std::vector<std::string> info_lines;
         std::istringstream stream(buffer);
         while (std::getline(stream, line))
         {
-            m_doffs += (line.size() + 1);
-            m_headers.infos.push_back(line);
+            m_header.doff += (line.size() + 1);
+            info_lines.push_back(line);
             std::smatch match;
             if (std::regex_match(line, match, re1))
             {
                 if (match.size() == 3)
                 {
-                    m_headers.cols = std::stoi(match[1].str());
-                    m_headers.rows = std::stoi(match[2].str());
+                    m_header.cols = std::stoi(match[1].str());
+                    m_header.rows = std::stoi(match[2].str());
                     status = true;
                     break;
                 }
             }
         }
         std::getline(stream, line);
-        m_doffs += (line.size() + 1);
-        m_headers.infos.push_back(line);
-        int maxv = std::stod(m_headers.infos.back());
-        m_headers.dlen = maxv > 255 ? 2 : 1;
+        m_header.doff += (line.size() + 1);
+        info_lines.push_back(line);
+        int maxv = std::stod(info_lines.back());
+        m_header.dlen = maxv > 255 ? 2 : 1;
 
-        m_lat_ratio = (m_headers.max_lat - m_headers.min_lat) / (m_headers.rows - 1);
-        m_lon_ratio = (m_headers.max_lon - m_headers.min_lon) / (m_headers.cols);
+        // 经度方向 0 和360是重合的, 而纬度方向 -90 和 90 不重合,
+        // 如果范围不是全球, 则m_lon_ratio 计算时 也是(m_header.cols - 1)
+        m_lat_ratio = (m_header.max_lat - m_header.min_lat) / (m_header.rows - 1);
+        m_lon_ratio = (m_header.max_lon - m_header.min_lon) / (m_header.cols);
     }
     return status;
 }
-silly_egm::~silly_egm()
+
+double suEarthGravityModel::orthometric(const double& lon, const double& lat, const double& ellipsoid) const
 {
-    close();
-}
-double silly_egm::orthometric(const double& lgtd, const double& lttd, const double& ellip)
-{
-    double geoid_ = geoid(lgtd, lttd);
+    double geoid_ = geoid(lon, lat);
     if (std::isnan(geoid_))
     {
         return std::numeric_limits<double>::quiet_NaN();  // 返回NaN表示无效
     }
-    return ellip - geoid_;
+    return ellipsoid - geoid_;
 }

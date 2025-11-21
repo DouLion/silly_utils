@@ -22,7 +22,7 @@ class suFileLock
 
   private:
     std::string m_err;
-    silly_handle m_file_hdl = INVALID_HANDLE_VALUE;
+    SU_HANDLE m_file_hdl = INVALID_HANDLE_VALUE;
 #ifdef IS_WIN32
 
     // 获取文件大小

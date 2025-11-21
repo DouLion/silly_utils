@@ -44,7 +44,7 @@ class suMatrix
     size_t m_col{0};
     // 总数据量(个数) m_row * m_col
     size_t m_total{0};
-    sumemf *m_mmf = nullptr;
+    suMemMapFile *m_mmf = nullptr;
 
   public:
     /// <summary>
@@ -90,10 +90,10 @@ class suMatrix
         }
         if (!m_mmf)
         {
-            m_mmf = new sumemf();
+            m_mmf = new suMemMapFile();
             m_col = col;
             m_row = row;
-            sumemf::param p;
+            suMemMapFile::param p;
             p.flag = eMMFMode::Write;
             p.path = mmap;
             p.length = row * col * sizeof(T) * 1.1;

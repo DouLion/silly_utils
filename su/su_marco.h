@@ -122,9 +122,9 @@
 #include <io.h>  // _open, _close 等
 
 // Windows 类型别名
-using silly_handle = HANDLE;
+using SU_HANDLE = HANDLE;
 #ifndef INVALID_HANDLE_VALUE
-#define INVALID_HANDLE_VALUE ((HANDLE)(-1))
+#define INVALID_HANDLE_VALUE ((SU_HANDLE)(-1))
 #endif
 
 #else
@@ -145,7 +145,7 @@ using silly_handle = HANDLE;
 #endif
 
 // 非 Windows 句柄类型
-using silly_handle = int;
+using SU_HANDLE = int;
 #ifndef INVALID_HANDLE_VALUE
 #define INVALID_HANDLE_VALUE (-1)
 #endif

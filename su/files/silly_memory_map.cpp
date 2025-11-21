@@ -5,6 +5,26 @@
 #include "silly_memory_map.h"
 #include <files/silly_file.h>
 #include <log/silly_log.h>
+
+inline size_t page_size()
+{
+    static const size_t ret = [] {
+#ifdef _WIN32
+        SYSTEM_INFO SystemInfo;
+        GetSystemInfo(&SystemInfo);
+        return SystemInfo.dwAllocationGranularity;
+#else
+        return sysconf(_SC_PAGE_SIZE);
+#endif
+    }();
+    return ret;
+}
+size_t inline make_offset_page_aligned(size_t offset) noexcept
+{
+    const size_t page_size_ = page_size();
+    // Use integer division to round down to the nearest page alignment.
+    return offset / page_size_ * page_size_;
+}
 #ifdef IS_WIN32
 namespace win
 {
@@ -24,7 +44,7 @@ inline DWORD int64_low(int64_t n) noexcept
 #endif
 
 #ifdef _WIN32
-   // Windows 定义
+// Windows 定义
 #define CREATE_NEW 1
 #define CREATE_ALWAYS 2
 #define OPEN_EXISTING 3
@@ -39,14 +59,8 @@ inline DWORD int64_low(int64_t n) noexcept
 #define TRUNCATE_EXISTING (O_TRUNC | O_RDWR)
 #endif
 
-suMemMapFile::suMemMapFile(void)
-{
-}
-suMemMapFile::~suMemMapFile(void)
-{
-}
 
-suMemMapFile::cur* suMemMapFile::ptr(const size_t& offset) const
+suMemMapFile::Ptr suMemMapFile::ptr(const size_t& offset) const
 {
     if (m_mmap && offset < m_map_len)
     {
@@ -54,7 +68,7 @@ suMemMapFile::cur* suMemMapFile::ptr(const size_t& offset) const
     }
     return nullptr;
 }
-bool suMemMapFile::read(suMemMapFile::cur* dst, const size_t& size, const size_t& offset) const
+bool suMemMapFile::read(suMemMapFile::Ptr dst, const size_t& size, const size_t& offset) const
 {
     if (m_mmap && dst && size + offset < m_map_len)
     {
@@ -63,7 +77,7 @@ bool suMemMapFile::read(suMemMapFile::cur* dst, const size_t& size, const size_t
     }
     return false;
 }
-bool suMemMapFile::write(suMemMapFile::cur* src, const size_t& size, const size_t& offset)
+bool suMemMapFile::write(suMemMapFile::Ptr src, const size_t& size, const size_t& offset)
 {
     bool status = false;
     if (m_mmap)
@@ -96,7 +110,7 @@ bool suMemMapFile::write(suMemMapFile::cur* src, const size_t& size, const size_
 //     if (m_mmap)
 //     {
 // #ifdef _WIN32
-//         if (::FlushViewOfFile(m_mmap, m_map_len) == 0 || ::FlushFileBuffers(m_hdl_file) == 0)
+//         if (::FlushViewOfFile(m_mmap, m_map_len) == 0 || ::FlushFileBuffers(m_file_hdl) == 0)
 // #else  // POSIX
 //         if (::msync(m_mmap, m_map_len, MS_SYNC) != 0)
 // #endif
@@ -114,12 +128,12 @@ void suMemMapFile::close(bool del)
     }
     if (del)
     {
-        if (std::filesystem::exists(m_param.path))
+        if (std::filesystem::exists(m_file))
         {
             try
             {
                 // 删除文件或目录
-                std::filesystem::remove_all(m_param.path);
+                std::filesystem::remove_all(m_file);
             }
             catch (const std::filesystem::filesystem_error& ex)
             {
@@ -132,15 +146,15 @@ void suMemMapFile::cleanup_and_throw(const char* msg)
 {
 #ifdef WIN32
     DWORD error = GetLastError();
-    if (m_hdl_map != INVALID_HANDLE_VALUE)
-        ::CloseHandle(m_hdl_map);
-    if (m_hdl_file != INVALID_HANDLE_VALUE)
-        ::CloseHandle(m_hdl_file);
+    if (m_map_hdl != INVALID_HANDLE_VALUE)
+        ::CloseHandle(m_map_hdl);
+    if (m_file_hdl != INVALID_HANDLE_VALUE)
+        ::CloseHandle(m_file_hdl);
     SetLastError(error);
 #else
     int error = errno;
-    if (m_hdl_file != INVALID_HANDLE_VALUE)
-        ::close(m_hdl_file);
+    if (m_file_hdl != INVALID_HANDLE_VALUE)
+        ::close(m_file_hdl);
     errno = error;
 #endif
     throw std::runtime_error(msg);
@@ -153,50 +167,46 @@ bool suMemMapFile::map_file()
     }
     catch (const std::exception& e)
     {
-        /*if (m_param.hint)
-        {
-            m_param.hint = 0;
-            try_map_file();
-        }
-        else
-        {
-            throw;
-        }*/
+        std::cerr << e.what() << std::endl;
         return false;
     }
     return true;
 }
 void suMemMapFile::try_map_file()
 {
-    int64_t length = filesize();  // TODO 这个是假的
-
 #ifdef _WIN32
 #ifndef NDEBUG
     std::stringstream ss;
     ss << "TryMapFile, 线程: " << std::this_thread::get_id();
     SLOG_DEBUG(ss.str())
 #endif
-    const int64_t aligned_offset = make_offset_page_aligned(m_param.offset);
-    const int64_t length_to_map = m_param.offset - aligned_offset + m_param.length;
-    const int64_t max_file_size = m_param.offset + m_param.length;
-    DWORD access = m_param.flag == eMMFMode::Read ? PAGE_READONLY : PAGE_READWRITE;
-    m_hdl_map = ::CreateFileMapping(m_hdl_file, 0, access, win::int64_high(max_file_size), win::int64_low(max_file_size), 0);
-    if (m_hdl_map == INVALID_HANDLE_VALUE)
+    DWORD access = PAGE_READONLY;
+    if (m_mode == Write)
+    {
+        access = PAGE_READWRITE;
+    }
+    m_map_hdl = ::CreateFileMapping(m_file_hdl, 0, access, 0, 0, 0);
+    if (m_map_hdl == INVALID_HANDLE_VALUE)
     {
         throw std::runtime_error("Failed to create file mapping");
     }
-    // void* mapping_start = ::MapViewOfFile(m_hdl_map, m_param.flag == eMMFMode::Read ? FILE_MAP_READ : FILE_MAP_WRITE, win::int64_high(aligned_offset), win::int64_low(aligned_offset), length_to_map);
-    void* mapping_start = ::MapViewOfFile(m_hdl_map, FILE_MAP_ALL_ACCESS, 0, 0, 0);
+    access = access == PAGE_READONLY ? FILE_MAP_READ : FILE_MAP_WRITE;
+
+    // 总是映射完整文件, Windows 的 MapViewOfFile要求：
+    // 映射偏移量（dwFileOffsetHigh/Low）必须是内存页大小的整数倍（通常是 4KB = 4096 字节）。
+    // 所以不能直接从 offset = 10开始映射，必须从最近的页边界开始。
+    void* mapping_start = ::MapViewOfFile(m_map_hdl, access,  0, 0, m_file_len);
     if (mapping_start == nullptr)
     {
         // Close file handle if mapping it failed.
-        ::CloseHandle(m_hdl_map);
+        ::CloseHandle(m_map_hdl);
         throw std::runtime_error("Failed to create file mapping");
     }
 #else  // POSIX
-    void* mapping_start = ::mmap(0, m_map_len, m_param.flag == eMMFMode::Read ? PROT_READ : PROT_WRITE, MAP_SHARED, m_hdl_file, m_map_offset);
+    void* mapping_start = ::mmap(0, m_map_len, m_mode == eMMFMode::Read ? PROT_READ : PROT_WRITE, MAP_SHARED, m_file_hdl, 0);
 #endif
-    m_mmap = static_cast<char*>(mapping_start);
+    m_mmap = static_cast<Ptr>(mapping_start);
+    m_mmap += m_map_offset;
 }
 bool suMemMapFile::resize(size_t size)
 {
@@ -208,8 +218,8 @@ void suMemMapFile::clear()
     m_mmap = 0;
     m_map_len = 0;
 #ifdef WIN32
-    m_hdl_file = INVALID_HANDLE_VALUE;
-    m_hdl_map = INVALID_HANDLE_VALUE;
+    m_file_hdl = INVALID_HANDLE_VALUE;
+    m_map_hdl = INVALID_HANDLE_VALUE;
 #endif
 }
 std::uintmax_t suMemMapFile::filesize()
@@ -220,14 +230,14 @@ std::uintmax_t suMemMapFile::filesize()
 #ifdef WIN32
     // 获取文件大小
     LARGE_INTEGER fileSize;
-    if (!GetFileSizeEx(m_hdl_file, &fileSize))
+    if (!GetFileSizeEx(m_file_hdl, &fileSize))
     {
         return fileSize.QuadPart;
     }
 #else
     // 获取文件大小
     struct stat sb;
-    if (fstat(m_hdl_file, &sb) == -1)
+    if (fstat(m_file_hdl, &sb) == -1)
     {
         return sb.st_size;
     }
@@ -247,16 +257,16 @@ bool suMemMapFile::open_file()
     DWORD share = FILE_SHARE_READ | FILE_SHARE_WRITE;
     // DWORD disposition = CREATE_ALWAYS;
     DWORD attr = FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN;
-    m_hdl_file = ::CreateFileW(m_param.path.wstring().c_str(), access, share, 0, m_param.disposition, attr, 0);
-    if (m_hdl_file == INVALID_HANDLE_VALUE)
+    m_file_hdl = ::CreateFileW(m_file.wstring().c_str(), access, share, 0, m_disposition, attr, 0);
+    if (m_file_hdl == INVALID_HANDLE_VALUE)
     {
         return false;
     }
 #else
     // Open file
-    int mode = (m_param.flag == eMMFMode::Read ? O_RDONLY : O_RDWR);
-    m_hdl_file = ::open(m_param.path.c_str(), mode, (mode_t)0600);
-    if (m_hdl_file == INVALID_HANDLE_VALUE)
+    int mode = (m_mode == eMMFMode::Read ? O_RDONLY : O_RDWR);
+    m_file_hdl = ::open(m_file.c_str(), mode, (mode_t)0600);
+    if (m_file_hdl == INVALID_HANDLE_VALUE)
     {
         return false;
     }
@@ -278,7 +288,7 @@ bool suMemMapFile::unmap()
     if (is_mapped())
     {
         ::UnmapViewOfFile(m_mmap);
-        ::CloseHandle(m_hdl_map);
+        ::CloseHandle(m_map_hdl);
     }
 #else  // POSIX
     if (is_mapped())
@@ -287,54 +297,91 @@ bool suMemMapFile::unmap()
     }
 #endif
 
-    // If `m_hdl_file` was obtained by our opening it (when map is called with
+    // If `m_file_hdl` was obtained by our opening it (when map is called with
     // a path, rather than an existing file handle), we need to close it,
     // otherwise it must not be closed as it may still be used outside this
     // instance.
 #ifdef _WIN32
-    ::CloseHandle(m_hdl_file);
+    ::CloseHandle(m_file_hdl);
 #else  // POSIX
-    ::close(m_hdl_file);
+    ::close(m_file_hdl);
 #endif
 
     clear();
     return true;
 }
 
-bool suMemMapFile::is_open()
+bool suMemMapFile::is_open() const
 {
-    return m_hdl_file != INVALID_HANDLE_VALUE;
+    return m_file_hdl != INVALID_HANDLE_VALUE;
 }
-bool suMemMapFile::is_mapped()
+bool suMemMapFile::is_mapped() const
 {
 #ifdef _WIN32
-    return m_hdl_map != INVALID_HANDLE_VALUE;
+    return m_map_hdl != INVALID_HANDLE_VALUE;
 #else  // POSIX
     return is_open();
 #endif
 }
 
-bool suMemMapFile::open(const std::filesystem::path& file, const int& mode, const int64_t& off)
+bool suMemMapFile::open(const std::filesystem::path& file, const eMMFMode& mode, const int64_t& offset)
 {
-    if (!std::filesystem::exists(file))
+    Param p;
+    p.path = file;
+    p.mode = mode;
+    p.offset = offset;
+    if (mode == eMMFMode::Write)
     {
-        std::cerr << "文件不存在" << std::endl;
+        if (std::filesystem::exists(file))
+        {
+            std::cerr << "使用open(const Param& p) 函数 明确写模式" << std::endl;
+            return false;
+        }
+        p.disposition = CreateAlways;
+    }
+    return open(p);
+}
+bool suMemMapFile::open(const suMemMapFile::Param& p)
+{
+    std::scoped_lock<std::mutex> lock(m_oc);
+    // 打开文件未完成时不允许写
+    std::scoped_lock<std::mutex> lock2(m_w_mutex);
+    m_file = p.path;
+    m_file_len = std::filesystem::file_size(m_file);
+    if (p.mode == Read)
+    {
+        if (m_file_len <= 0)
+        {
+            SLOG_ERROR("文件不存在或大小为0,无法读打开")
+            return false;
+        }
+        m_disposition = eMMFDisposition::OpenExisting;
+        m_map_offset = p.offset;
+        if (m_map_offset >= m_file_len)
+        {
+            SLOG_ERROR("偏移不应超过文件大小")
+            return false;
+        }
+        if (p.map_size == 0)
+        {
+            m_map_len = m_file_len - m_map_offset;
+        }
+        else
+        {
+            m_map_len = p.map_size;
+        }
+
+    }
+    else if (p.mode == Write)
+    {
+        // TODO: 后续再处理 dly
         return false;
     }
-    /* if (mode != eMMFMode::Read)
-     {
-         std::cerr << "目前仅完整支持读取功能" << std::endl;
-         return false;
-     }*/
-    m_param.path = std::filesystem::path(file);
-    m_param.flag = static_cast<eMMFMode>(m_param.flag);
-    m_param.offset = off;
-    m_map_len = sufile::size(m_param.path.string());
-    return open();
-}
-bool suMemMapFile::open(const suMemMapFile::param& p)
-{
-    m_param = p;
+    else
+    {
+        return false;
+    }
+
     return open();
 }
 

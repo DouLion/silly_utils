@@ -134,7 +134,7 @@ bool TzxPyramidBase::mmap_read(const size_t& seek_offset, char* data, const size
 {
     if (m_opened)
     {
-        suMemMapFile::cur* cur = m_mmap.ptr(seek_offset + size);  // 追踪到数据尾部,防止访问越界
+        suMemMapFile::Ptr cur = m_mmap.ptr(seek_offset + size);  // 追踪到数据尾部,防止访问越界
         if (cur)
         {
             memcpy(data, cur - size, size);

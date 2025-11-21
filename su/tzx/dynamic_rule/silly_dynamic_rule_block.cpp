@@ -79,7 +79,7 @@ bool tzx::dynamic_rule_block::read(const std::string& code, const silly_posix_ti
         size_t offset = index * CODE_SIZE_PER_YEAR;
 
         size_t pos = offset + index_in_year(time) * sizeof(cell);
-        m_year_mmap[year]->read((char*)&data, sizeof(cell), pos);
+        m_year_mmap[year]->read((suMemMapFile::Ptr)&data, sizeof(cell), pos);
         return true;
     }
     return false;
@@ -97,7 +97,7 @@ bool tzx::dynamic_rule_block::read(const silly_posix_time& time, std::map<std::s
         size_t offset = idx * CODE_SIZE_PER_YEAR;
         cell tmp;
         size_t pos = offset + index_in_year(time) * sizeof(cell);
-        m_year_mmap[year]->read((char*)&tmp, sizeof(cell), pos);
+        m_year_mmap[year]->read((suMemMapFile::Ptr)&tmp, sizeof(cell), pos);
 
         code_data[code] = tmp;
     }
@@ -167,7 +167,7 @@ bool tzx::dynamic_rule_block::write(const std::string& code, const silly_posix_t
         size_t offset = iter->second * CODE_SIZE_PER_YEAR;
 
         size_t pos = offset + index_in_year(time) * sizeof(cell);
-        m_year_mmap[year]->write((char*)&data, sizeof(cell), pos);
+        m_year_mmap[year]->write((suMemMapFile::Ptr)&data, sizeof(cell), pos);
         return true;
     }
     return false;
@@ -188,7 +188,7 @@ bool tzx::dynamic_rule_block::write(const silly_posix_time& time, const std::map
             size_t offset = iter->second * CODE_SIZE_PER_YEAR;
 
             size_t pos = offset + index_in_year(time) * sizeof(cell);
-            m_year_mmap[year]->write((char*)&data, sizeof(cell), pos);
+            m_year_mmap[year]->write((suMemMapFile::Ptr)&data, sizeof(cell), pos);
         }
     }
 
@@ -230,7 +230,7 @@ bool tzx::dynamic_rule_block::open_dat(const std::string& year_str)
             ofs.write("EOF", 3);
             ofs.close();
         }
-        std::shared_ptr<sumemf> tmp = std::make_shared<sumemf>();
+        std::shared_ptr<suMemMapFile> tmp = std::make_shared<suMemMapFile>();
         eMMFMode mode = m_read_mode ? eMMFMode::Read : eMMFMode::Write;
         if (!tmp->open(file, mode))
         {
@@ -249,7 +249,7 @@ void tzx::dynamic_rule_block::read(const size_t& offset, const size_t& bi, const
     {
         cell tmp;
         size_t pos = offset * CODE_SIZE_PER_YEAR + i * sizeof(cell);
-        m_year_mmap[year]->read((char*)&tmp, sizeof(cell), pos);
+        m_year_mmap[year]->read((suMemMapFile::Ptr)&tmp, sizeof(cell), pos);
         std::string tmstr = (time + silly_time_duration(i - bi, 0, 0)).to_string(DTFMT_YMDHM);
         time_data[tmstr] = tmp;
     }

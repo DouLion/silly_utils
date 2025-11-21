@@ -163,7 +163,7 @@ class TzxPyramidBase
     // 是否为普通文件流
     bool m_normal;
     // mmap文件
-    sumemf m_mmap;
+    suMemMapFile m_mmap;
     // 文件流
     std::fstream m_stream;
     // 多线程写时用的锁

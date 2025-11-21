@@ -110,7 +110,7 @@ class dynamic_rule_block
     size_t m_num = 0;
     size_t m_max_index = 0;  // 当前最大危险区索引, 不能超过m_num
     std::map<std::string, size_t> m_code_index;
-    std::map<std::string, std::shared_ptr<sumemf>> m_year_mmap;
+    std::map<std::string, std::shared_ptr<suMemMapFile>> m_year_mmap;
 };
 
 }  // namespace tzx

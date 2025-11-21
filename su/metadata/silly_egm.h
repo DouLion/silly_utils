@@ -14,7 +14,7 @@
 #include <files/silly_file.h>
 #include <files/silly_memory_map.h>
 
-class silly_egm
+class suEarthGravityModel
 {
   public:
     class header
@@ -38,38 +38,52 @@ class silly_egm
     };
 
   public:
-    silly_egm() = default;
-    ~silly_egm();
+    suEarthGravityModel() = default;
+    ~suEarthGravityModel();
     bool open(const std::filesystem::path& file);
 
     /// <summary>
     /// 获取大地水准面高差, 见文件下方说明
     /// 使用双线性差值
     /// </summary>
-    /// <param name="lgtd">经度, -180~180, 0~180为东经, -180~-0为西经</param>
-    /// <param name="lttd">纬度, -90~90, -90为南纬, 90为北纬</param>
+    /// <param name="lon">经度, -180~180, 0~180为东经, -180~-0为西经</param>
+    /// <param name="lat">纬度, -90~90, -90为南纬, 90为北纬</param>
     /// <returns></returns>
-    double geoid(const double& lgtd, const double& lttd);
+    double geoid(const double& lon, const double& lat) const;
 
     /// <summary>
-    /// 获取正高, 根据ellipsoid 计算  ellipsoid - geoid(lgtd, lttd)
+    /// 获取正高, 根据ellipsoid 计算  ellipsoid - geoid(lon, lat)
     /// </summary>
-    /// <param name="lgtd"></param>
-    /// <param name="lttd"></param>
+    /// <param name="lon"></param>
+    /// <param name="lat"></param>
     /// <param name="ellipsoid"></param>
     /// <returns></returns>
-    double orthometric(const double& lgtd, const double& lttd, const double& ellipsoid = 458.284);
+    double orthometric(const double& lon, const double& lat, const double& ellipsoid = 458.284) const;
 
     bool close();
 
-  private:
+  protected:
     // TODO: 头文件没有完全解析
     bool read_header();
-
-  private:
-    header m_headers;
-    size_t m_doffs = 0;  // 数据块起始位置在文件中的偏移
-    sumemf m_mmap;
+    // 成员属性
+    struct
+    {
+        double scale = 0.003;
+        // 参照 # Offset -108
+        double offset = -108.0;
+        double min_lat = -90.0;
+        double max_lat = 90.;
+        double min_lon = -180.;
+        double max_lon = 180.;
+        // 参照 # Origin 90N 0E
+        double origin_lat = 90.;
+        double origin_lon = 0.;
+        size_t rows = 0;
+        size_t cols = 0;
+        size_t dlen = 1;  // 格点数据长度
+        size_t doff = 0;  // 数据块起始位置在文件中的偏移
+    } m_header;
+    suMemMapFile m_mmap;
     double m_lat_ratio = 0;
     double m_lon_ratio = 0;
 };

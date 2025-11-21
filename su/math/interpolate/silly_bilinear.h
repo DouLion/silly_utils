@@ -8,13 +8,10 @@
  * @description: 双线性插值 类声明
  * @version: v1.0.1 2024-12-30 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_BILINEAR_H
-#define SILLY_UTILS_SILLY_BILINEAR_H
-namespace silly
-{
-namespace interpolation
-{
-class bilinear
+#ifndef SILLY_BILINEAR_INTERP_H
+#define SILLY_BILINEAR_INTERP_H
+
+class suBilinearInterp
 {
   public:
     /// <summary>
@@ -29,11 +26,42 @@ class bilinear
     /// <param name="dx">距离 q00q10 的距离权重</param>
     /// <param name="dy">距离 q00q01 的距离权重</param>
     /// <returns></returns>
-    static double calc(double q00, double q01, double q10, double q11, double dx, double dy);
+    static double calc(const double& q00, const double& q01, const double& q10, const double& q11, const double& dx, const double& dy);
+
+    /*
+     Q3(x0,y1) ------ Q4(x1,y1)
+        |               |
+        |               |
+        |     (x,y)     |
+        |               |
+     Q1(x0,y0) ------ Q2(x1,y0)
+
+    Q1 = (x0, y0) 高程为 z11
+    Q2 = (x1, y0) 高程为 z21
+    Q3 = (x0, y1) 高程为 z12
+    Q4 = (x1, y1) 高程为 z22
+
+    */
+    double interpolate(double x, double y) const
+    {
+        double z_bottom = Q1 * (x1 - x) / (x1 - x0) + Q2 * (x - x0) / (x1 - x0);
+        double z_top = Q3 * (x1 - x) / (x1 - x0) + Q4 * (x - x0) / (x1 - x0);
+        double z = z_bottom * (y1 - y) / (y1 - y0) + z_top * (y - y0) / (y1 - y0);
+        return z;
+    }
+
+public:
+    double x0;  // left
+    double x1;  // right
+    double y0;  // bottom
+    double y1;  // top
+
+    double Q1;  // left bottom
+    double Q2;  // top bottom
+    double Q3;  // left top
+    double Q4;  // right top
 
   private:
 };
-}  // namespace interpolation
-}  // namespace silly
 
-#endif  // SILLY_UTILS_SILLY_BILINEAR_H
+#endif  // SILLY_BILINEAR_INTERP_H
