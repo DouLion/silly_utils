@@ -1,3 +1,4 @@
+include(${SU_FILE_ROOT}/cmake/InitThirdSupport.cmake)
 
 include(${SU_FILE_ROOT}/cmake/modules/FindFMT.cmake)
 
