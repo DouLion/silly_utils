@@ -72,7 +72,7 @@ class message_callback : public virtual mqtt::callback, public virtual mqtt::iac
     int m_qos = 2;
     std::string m_topic;
 
-    silly_mqtt_client::subscribe_callback m_func;
+    suMqttClient::subscribe_callback m_func;
 
     // This deomonstrates manually reconnecting to the broker by calling
     // connect() again. This is a possibility for an application that keeps
@@ -140,13 +140,13 @@ class message_callback : public virtual mqtt::callback, public virtual mqtt::iac
     }
 
   public:
-    message_callback(mqtt::async_client& cli, mqtt::connect_options& connOpts, std::string topic, int& qos, silly_mqtt_client::subscribe_callback fc)
+    message_callback(mqtt::async_client& cli, mqtt::connect_options& connOpts, std::string topic, int& qos, suMqttClient::subscribe_callback fc)
         : m_nretry(0), m_client(cli), m_opts(connOpts), m_sub_listener("Subscription"), m_topic(topic), m_qos(qos), m_func(fc)
     {
     }
 };
 #endif
-bool silly_mqtt_client::publish(const std::string& topic, const std::string& payload)
+bool suMqttClient::publish(const std::string& topic, const std::string& payload)
 {
     bool status = false;
 
@@ -183,7 +183,7 @@ bool silly_mqtt_client::publish(const std::string& topic, const std::string& pay
     return status;
 }
 
-void silly_mqtt_client::subscribe(const std::string& topic, subscribe_callback scb)
+void suMqttClient::subscribe(const std::string& topic, subscribe_callback scb)
 {
     bool status = false;
 
@@ -225,47 +225,47 @@ void silly_mqtt_client::subscribe(const std::string& topic, subscribe_callback s
 #endif
 }
 
-bool silly_mqtt_client::check()
+bool suMqttClient::check()
 {
     return false;
 }
 
-void silly_mqtt_client::client_id(const std::string& ci)
+void suMqttClient::client_id(const std::string& ci)
 {
     m_client_id = ci;
 }
 
-void silly_mqtt_client::user(const std::string& u)
+void suMqttClient::user(const std::string& u)
 {
     m_user = u;
 }
 
-void silly_mqtt_client::password(const std::string& p)
+void suMqttClient::password(const std::string& p)
 {
     m_password = p;
 }
 
-void silly_mqtt_client::host(const std::string& h)
+void suMqttClient::host(const std::string& h)
 {
     m_host = h;
 }
 
-void silly_mqtt_client::port(const int& p)
+void suMqttClient::port(const int& p)
 {
     m_port = p;
 }
 
-void silly_mqtt_client::qos(const int& q)
+void suMqttClient::qos(const int& q)
 {
     m_qos = q;
 }
 
-void silly_mqtt_client::protocol(const std::string& p)
+void suMqttClient::protocol(const std::string& p)
 {
     m_protocol = p;
 }
 
-void silly_mqtt_client::make_uri()
+void suMqttClient::make_uri()
 {
     if ("mqtt" == m_protocol)
     {
@@ -277,7 +277,7 @@ void silly_mqtt_client::make_uri()
     }
 }
 
-void silly_mqtt_client::server(const std::string& s)
+void suMqttClient::server(const std::string& s)
 {
     auto pos = s.find("://");
     int nPos = 0;
@@ -296,7 +296,7 @@ void silly_mqtt_client::server(const std::string& s)
     host(ss);
 }
 
-void silly_mqtt_client::disconnect()
+void suMqttClient::disconnect()
 {
     m_disconnected = true;
 }

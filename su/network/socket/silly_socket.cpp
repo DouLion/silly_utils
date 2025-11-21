@@ -10,7 +10,16 @@
  */
 #include "silly_socket.h"
 #include <log/silly_log.h>
-bool silly_socket::create(const std::string& hostname, const int& port, const bool& ssl)
+
+suSocket::suSocket()
+{
+}
+
+suSocket::~suSocket()
+{
+}
+
+bool suSocket::create(const std::string& hostname, const int& port, const bool& ssl)
 {
     std::scoped_lock<std::mutex> lock(m_mutex);
     if (m_connected)
@@ -115,7 +124,7 @@ bool silly_socket::create(const std::string& hostname, const int& port, const bo
     m_connected = true;
     return m_connected;
 }
-bool silly_socket::read(std::string& msg)
+bool suSocket::read(std::string& msg)
 {
     bool status = false;
     if (!m_connected)
@@ -158,7 +167,7 @@ bool silly_socket::read(std::string& msg)
     }
     return status;
 }
-bool silly_socket::write(const std::string& msg)
+bool suSocket::write(const std::string& msg)
 {
     bool status = false;
     if (!m_connected)
@@ -184,11 +193,11 @@ bool silly_socket::write(const std::string& msg)
     }
     return status;
 }
-void silly_socket::verbose(const bool& v)
+void suSocket::verbose(const bool& v)
 {
     m_verbose = v;
 }
-void silly_socket::release()
+void suSocket::release()
 {
     std::scoped_lock<std::mutex> lock(m_mutex);
     if (m_connected)
@@ -219,17 +228,13 @@ void silly_socket::release()
 #endif
     }
 }
-silly_socket::~silly_socket()
-{
-}
-std::string silly_socket::err()
+
+std::string suSocket::err()
 {
     return m_err;
 }
-silly_socket::silly_socket()
-{
-}
-bool silly_socket::listen(const std::string& hostname, const int& port, const bool& reuse_port)
+
+bool suSocket::listen(const std::string& hostname, const int& port, const bool& reuse_port)
 {
     // TODO: 实现
     return false;

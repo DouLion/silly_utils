@@ -13,18 +13,13 @@
 #include <su_marco.h>
 #include <network/http/silly_http_headers.h>
 
-namespace silly
-{
-namespace http
-{
-
-class client
+class suHttpClient
 {
   public:
   public:
-    client();
-    ~client() = default;
-    client(const eHttpReqType& tp);
+    suHttpClient();
+    ~suHttpClient() = default;
+    suHttpClient(const eHttpReqType& tp);
 
     /// <summary>
     /// 执行Get请求
@@ -201,17 +196,12 @@ class client
     size_t m_max_recv_speed{0};  // kb/s   0为不做设置
     double m_resp_content_len = 0.0;
 };
-}  // namespace http
-}  // namespace silly
-
-typedef silly::http::client silly_http_client;
-
 #endif  // SILLY_UTILS_SILLY_HTTP_CLIENT_H
 
 /* 用例 Usecase
 
 1. 声明客户端
-silly::http::client cli;
+suHttpClient cli;
 cli.verbose(true); // 输出详细日志
 
 2. 设置请求头

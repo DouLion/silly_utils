@@ -5,7 +5,7 @@
  * @author: dou li yang
  * @date: 2024/8/9 10:46
  * @version: 1.0.1
- * @description: silly_mail_send 类声明
+ * @description: smtp发送邮箱, 已经在湖南项目中验证
  */
 #ifndef SILLY_UTILS_SILLY_MAIL_SEND_H
 #define SILLY_UTILS_SILLY_MAIL_SEND_H
@@ -116,11 +116,11 @@ class SmtpEmail : public SmtpBase
 
   private:
     // int SMTPSSLComunicate(SSL *connection, const EmailInfo &info);
-    int SMTPComunicate(const EmailInfo& info);
+    int SMTPCommunicate(const EmailInfo& info);
 
   protected:
-    addrinfo* m_addrinfo;
-    int m_socketfd;
+    addrinfo* m_addrInfo;
+    int m_socketFd;
 
     std::string m_host;
     std::string m_port;

@@ -11,7 +11,7 @@
 #include "silly_websocket_client.h"
 #include "encode/silly_encode.h"
 
-silly_websocket_client::silly_websocket_client()
+suWSClient::suWSClient()
 {
 #if ENABLE_WEBSOCKET_PP
     try
@@ -46,7 +46,7 @@ silly_websocket_client::silly_websocket_client()
     }
 #endif
 }
-silly_websocket_client::~silly_websocket_client()
+suWSClient::~suWSClient()
 {
 #if ENABLE_WEBSOCKET_PP
     m_hdl.reset();
@@ -54,7 +54,7 @@ silly_websocket_client::~silly_websocket_client()
 #endif
 }
 
-bool silly_websocket_client::connect(const std::string& url)
+bool suWSClient::connect(const std::string& url)
 {
 #if ENABLE_WEBSOCKET_PP
     try
@@ -88,7 +88,7 @@ bool silly_websocket_client::connect(const std::string& url)
     return !m_closed;
 }
 
-void silly_websocket_client::close(const std::string& bye)
+void suWSClient::close(const std::string& bye)
 {
 #if ENABLE_WEBSOCKET_PP
     try
@@ -110,7 +110,7 @@ void silly_websocket_client::close(const std::string& bye)
 #endif
 }
 
-bool silly_websocket_client::send(const std::string& msg)
+bool suWSClient::send(const std::string& msg)
 {
     bool status = false;
 #if ENABLE_WEBSOCKET_PP
@@ -130,7 +130,7 @@ bool silly_websocket_client::send(const std::string& msg)
 #endif
     return status;
 }
-std::string silly_websocket_client::err() const
+std::string suWSClient::err() const
 {
 #ifdef IS_WIN32
     return silly_encode::gbk_utf8(m_err);
@@ -138,7 +138,7 @@ std::string silly_websocket_client::err() const
     return m_err;
 }
 
-bool silly_websocket_client::connected()
+bool suWSClient::connected()
 {
     return !m_closed;
 }

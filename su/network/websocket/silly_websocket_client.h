@@ -25,11 +25,11 @@ using websocketpp::lib::bind;
 using websocketpp::lib::placeholders::_1;
 using websocketpp::lib::placeholders::_2;
 #endif
-class silly_websocket_client
+class suWSClient
 {
   public:
-    silly_websocket_client();
-    ~silly_websocket_client();
+    suWSClient();
+    ~suWSClient();
     /// <summary>
     ///
     /// </summary>

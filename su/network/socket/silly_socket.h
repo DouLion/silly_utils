@@ -18,11 +18,11 @@ typedef int socket_t;
 #endif
 #include <openssl/ssl.h>
 #include <openssl/err.h>
-class silly_socket
+class suSocket
 {
   public:
-    silly_socket();
-    ~silly_socket();
+    suSocket();
+    ~suSocket();
 
     bool create(const std::string& hostname, const int& port, const bool& ssl = false);
 

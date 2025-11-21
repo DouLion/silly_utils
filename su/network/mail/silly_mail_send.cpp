@@ -225,7 +225,7 @@ char* base64Encode(char const* origSigned, unsigned origLength)
     return result;
 }
 
-int SmtpEmail::SMTPComunicate(const EmailInfo& info)
+int SmtpEmail::SMTPCommunicate(const EmailInfo& info)
 {
     if (Connect() != 0)
     {
@@ -401,11 +401,11 @@ SmtpEmail::~SmtpEmail()
 
 int SmtpEmail::Read(void* buf, int num)
 {
-    return recv(m_socketfd, (char*)buf, num, 0);
+    return recv(m_socketFd, (char*)buf, num, 0);
 }
 int SmtpEmail::Write(const void* buf, int num)
 {
-    return send(m_socketfd, (char*)buf, num, 0);
+    return send(m_socketFd, (char*)buf, num, 0);
 }
 
 int SmtpEmail::Connect()
@@ -416,8 +416,8 @@ int SmtpEmail::Connect()
     WSAStartup(MAKEWORD(2, 2), &wsadata);
 #endif
 
-    m_socketfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (m_socketfd == INVALID_SOCKET)
+    m_socketFd = socket(AF_INET, SOCK_STREAM, 0);
+    if (m_socketFd == INVALID_SOCKET)
     {
         m_lastErrorMsg = "Error on creating socket fd.";
         return -1;
@@ -428,13 +428,13 @@ int SmtpEmail::Connect()
     inAddrInfo.ai_socktype = SOCK_STREAM;
 
     printf("host:%s port:%s \n", m_host.c_str(), m_port.c_str());
-    if (getaddrinfo(m_host.c_str(), m_port.c_str(), &inAddrInfo, &m_addrinfo) != 0)  // error occurs
+    if (getaddrinfo(m_host.c_str(), m_port.c_str(), &inAddrInfo, &m_addrInfo) != 0)  // error occurs
     {
         m_lastErrorMsg = "Error on calling getadrrinfo().";
         return -2;
     }
 
-    if (connect(m_socketfd, m_addrinfo->ai_addr, m_addrinfo->ai_addrlen))
+    if (connect(m_socketFd, m_addrInfo->ai_addr, m_addrInfo->ai_addrlen))
     {
         m_lastErrorMsg = "Error on calling connect().";
         return -3;
@@ -444,11 +444,11 @@ int SmtpEmail::Connect()
 
 int SmtpEmail::DisConnect()
 {
-    freeaddrinfo(m_addrinfo);
+    freeaddrinfo(m_addrInfo);
 #ifdef WIN32
-    closesocket(m_socketfd);
+    closesocket(m_socketFd);
 #else
-    close(m_socketfd);
+    close(m_socketFd);
 #endif
     return 0;
 }
@@ -539,7 +539,7 @@ int SslSmtpEmail::Connect()
         m_ctx = SSL_CTX_new(SSLv23_client_method());
 
         m_ssl = SSL_new(m_ctx);
-        SSL_set_fd(m_ssl, m_socketfd);
+        SSL_set_fd(m_ssl, m_socketFd);
         SSL_connect(m_ssl);
     }
     return 0;
@@ -569,7 +569,7 @@ int SmtpEmail::SendEmail(const std::string& from, const std::string& passs, cons
     info.subject = subject;
     info.message = strMessage;
 
-    return SMTPComunicate(info);
+    return SMTPCommunicate(info);
 }
 
 int SmtpEmail::SendEmail(const std::string& from,
@@ -608,7 +608,7 @@ int SmtpEmail::SendEmail(const std::string& from,
         }
 
         info.attachment = attachment;
-        if (SMTPComunicate(info) != 0)
+        if (SMTPCommunicate(info) != 0)
         {
             return -1;
         }

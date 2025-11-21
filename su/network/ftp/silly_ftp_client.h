@@ -11,11 +11,11 @@
 #ifndef SILLY_UTILS_SILLY_FTP_CLIENT_H
 #define SILLY_UTILS_SILLY_FTP_CLIENT_H
 
-class silly_ftp_client
+class suFtpClient
 {
   public:
-    silly_ftp_client();
-    ~silly_ftp_client();
+    suFtpClient();
+    ~suFtpClient();
 
   private:
 };

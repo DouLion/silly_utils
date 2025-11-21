@@ -11,7 +11,7 @@
 #include "silly_http_client.h"
 #include <curl/curl.h>
 #include <files/silly_file.h>
-using namespace silly::http;
+
 #define SILLY_CURL_ERR_BREAK(v)                         \
     if (CURLE_OK != v)                                  \
     {                                                   \
@@ -86,29 +86,29 @@ static size_t silly_curl_resp_header_callback(char* buffer, size_t size, size_t 
     return total_size;
 }
 
-client::client()
+suHttpClient::suHttpClient()
 {
     // 初始化 libcurl
     // curl_global_init(CURL_GLOBAL_DEFAULT);
 }
 
-client::client(const eHttpReqType& tp)
+suHttpClient::suHttpClient(const eHttpReqType& tp)
 {
-    client();
+    suHttpClient();
     m_type = tp;
 }
 
-bool client::get(const std::string& url, std::string& resp)
+bool suHttpClient::get(const std::string& url, std::string& resp)
 {
     m_type = eHttpReqType::Get;
     return request(url, resp);
 }
-bool client::post(const std::string& url, std::string& resp)
+bool suHttpClient::post(const std::string& url, std::string& resp)
 {
     m_type = eHttpReqType::Post;
     return request(url, resp);
 }
-bool client::request(const std::string& url, std::string& resp)
+bool suHttpClient::request(const std::string& url, std::string& resp)
 {
     bool status = false;
     m_err.clear();
@@ -240,7 +240,7 @@ bool client::request(const std::string& url, std::string& resp)
     return status;
 }
 
-bool client::download(const std::string& url, const std::filesystem::path& file, const std::string& filename)
+bool suHttpClient::download(const std::string& url, const std::filesystem::path& file, const std::string& filename)
 {
     bool status = false;
     m_err.clear();
@@ -366,7 +366,7 @@ bool client::download(const std::string& url, const std::filesystem::path& file,
     curl_easy_cleanup(hnd);
     return status;
 }
-bool client::upload(const std::string& url, const std::string& copyname, std::string& resp)
+bool suHttpClient::upload(const std::string& url, const std::string& copyname, std::string& resp)
 {
     bool status = false;
     m_type = eHttpReqType::Post;
@@ -375,7 +375,7 @@ bool client::upload(const std::string& url, const std::string& copyname, std::st
     return request(url, resp);
 }
 
-bool client::add_upload(const std::string& name, std::filesystem::path path)
+bool suHttpClient::add_upload(const std::string& name, std::filesystem::path path)
 {
     if (m_files.find(name) == m_files.end())
     {
@@ -396,7 +396,7 @@ bool client::add_upload(const std::string& name, std::filesystem::path path)
     return false;
 }
 
-bool client::remove_upload(const std::string& name)
+bool suHttpClient::remove_upload(const std::string& name)
 {
     if (m_files.find(name) != m_files.end())
     {
@@ -406,107 +406,107 @@ bool client::remove_upload(const std::string& name)
     return true;
 }
 
-void client::clear_upload()
+void suHttpClient::clear_upload()
 {
     m_files.clear();
 }
 
-void client::body(const std::string& body)
+void suHttpClient::body(const std::string& body)
 {
     m_body = body;
 }
-void client::from(const std::string& body)
+void suHttpClient::from(const std::string& body)
 {
     m_body = body;
     m_req_content_type = "application/x-www-form-urlencoded";
 }
-void client::json(const std::string& body)
+void suHttpClient::json(const std::string& body)
 {
     m_body = body;
     m_req_content_type = "application/json; charset=utf-8";
 }
-void client::xml(const std::string& body)
+void suHttpClient::xml(const std::string& body)
 {
     m_body = body;
     m_req_content_type = "application/xml; charset=utf-8";
 }
-void client::plain(const std::string& body)
+void suHttpClient::plain(const std::string& body)
 {
     m_body = body;
     m_req_content_type = "text/plain; charset=utf-8";
 }
-void client::javascript(const std::string& body)
+void suHttpClient::javascript(const std::string& body)
 {
     m_body = body;
     m_req_content_type = "application/x-javascript; charset=utf-8";
 }
-void client::html(const std::string& body)
+void suHttpClient::html(const std::string& body)
 {
     m_body = body;
     m_req_content_type = "text/html; charset=utf-8";
 }
-std::string client::err() const
+std::string suHttpClient::err() const
 {
     return m_err;
 }
 
-void client::user(const std::string& user)
+void suHttpClient::user(const std::string& user)
 {
     m_user = user;
 }
-void client::password(const std::string& pwd)
+void suHttpClient::password(const std::string& pwd)
 {
     m_password = pwd;
 }
 
-void client::type(const eHttpReqType& tp)
+void suHttpClient::type(const eHttpReqType& tp)
 {
     m_type = tp;
 }
-void client::header(const std::string& key, const std::string& val)
+void suHttpClient::header(const std::string& key, const std::string& val)
 {
     m_hrequest.insert({key, val});
 }
-void client::headers(const std::unordered_map<std::string, std::string>& headers)
+void suHttpClient::headers(const std::unordered_map<std::string, std::string>& headers)
 {
     m_hrequest = headers;
 }
-std::string client::header(const std::string& key) const
+std::string suHttpClient::header(const std::string& key) const
 {
     auto it = m_hresponse.find(key);
     if (it == m_hresponse.end())
         return "";
     return it->second;
 }
-std::unordered_map<std::string, std::string> client::headers() const
+std::unordered_map<std::string, std::string> suHttpClient::headers() const
 {
     return m_hresponse;
 }
-eHttpStatus client::code()
+eHttpStatus suHttpClient::code()
 {
     return m_code;
 }
-void client::agent(const std::string& agent)
+void suHttpClient::agent(const std::string& agent)
 {
     m_agent = agent;
 }
-void client::timeout(const int64_t& seconds)
+void suHttpClient::timeout(const int64_t& seconds)
 {
     m_timeout = seconds;
 }
-double client::speed_mps() const
+double suHttpClient::speed_mps() const
 {
     return m_speed_mps;
 }
-double client::total_seconds() const
+double suHttpClient::total_seconds() const
 {
     return m_total_seconds;
 }
-void client::verbose(const bool& vb)
+void suHttpClient::verbose(const bool& vb)
 {
     m_verbose = vb;
 }
-void client::max_recv_speed(const size_t& mrs)
+void suHttpClient::max_recv_speed(const size_t& mrs)
 {
     m_max_recv_speed = mrs;
 }

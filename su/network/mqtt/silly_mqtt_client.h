@@ -4,7 +4,7 @@
  * @website: http://www.tianzhixiang.com.cn/
  * @author: dou li yang
  * @date: 2024-09-11
- * @file: silly_mqtt_client.h
+ * @file: suMqttClient.h
  * @description: mqtt 客户端
  * @version: v1.0.1 2024-09-11 dou li yang
  */
@@ -22,7 +22,7 @@
 "wss://<host>:<port>"   - Secure websockets
  */
 
-class silly_mqtt_client
+class suMqttClient
 {
     /// <summary>
     /// mqtt客户端
@@ -95,7 +95,7 @@ class silly_mqtt_client
     bool m_disconnected = false;
 };
 
-typedef silly_mqtt_client sumqttcli;
+typedef suMqttClient sumqttcli;
 
 /* 订阅使用示例
 int main(int argc, char** argv)
@@ -103,13 +103,13 @@ int main(int argc, char** argv)
     // WINDOWS_UTF8_PAGE
     SLOG_INFO("SU测试模块")
 
-    silly_mqtt_client mqtt;
+    suMqttClient mqtt;
     mqtt.user("tzx");
     mqtt.password("3edc9ijn");
     mqtt.server("mqtt://192.168.0.60:11883");
     std::string content;
     std::string topic;
-    std::thread t(&silly_mqtt_client::subscribe, &mqtt, "warning/#",
+    std::thread t(&suMqttClient::subscribe, &mqtt, "warning/#",
     [&content, &topic](std::string rTopic, std::string rMsg) -> void {
 
         content = rMsg;
