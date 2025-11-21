@@ -4,7 +4,7 @@
 
 #include "silly_spatial_vector.h"
 
-suPoint silly_spatial_vector::left_distance(const suPoint& p1, const suPoint& p2, const suPoint& p3, const double& distance)
+suPoint suSpatialVec::LeftDistTo(const suPoint& p1, const suPoint& p2, const suPoint& p3, const double& distance)
 {
     // 方向向量(dx, dy)
     double dx = p2.x - p1.x;
@@ -23,7 +23,7 @@ suPoint silly_spatial_vector::left_distance(const suPoint& p1, const suPoint& p2
     return p4;
 }
 
-suPoint silly_spatial_vector::right_distance(const suPoint& p1, const suPoint& p2, const suPoint& p3, const double& distance)
+suPoint suSpatialVec::RightDistTo(const suPoint& p1, const suPoint& p2, const suPoint& p3, const double& distance)
 {
     // 方向向量(dx, dy)
     double dx = p2.x - p1.x;
@@ -41,7 +41,7 @@ suPoint silly_spatial_vector::right_distance(const suPoint& p1, const suPoint& p
 
     return p4;
 }
-eSpatialSide silly_spatial_vector::side_ot_vec(const suPoint& from, const suPoint& to, const suPoint& p)
+eSpatialSide suSpatialVec::OnSide(const suPoint& from, const suPoint& to, const suPoint& p)
 {
     double z = (to.y - from.y) * (p.x - from.x) - (to.x - from.x) * (p.y - from.y);
 
@@ -62,36 +62,36 @@ eSpatialSide silly_spatial_vector::side_ot_vec(const suPoint& from, const suPoin
 }
 
 // 计算两点之间的向量
-suPoint silly_spatial_vector::vectorSub(const suPoint& a, const suPoint& b)
+suPoint suSpatialVec::SubV(const suPoint& a, const suPoint& b)
 {
     return {a.x - b.x, a.y - b.y};
 }
 
 // 向量加法
-suPoint silly_spatial_vector::vectorAdd(const suPoint& a, const suPoint& b)
+suPoint suSpatialVec::AddV(const suPoint& a, const suPoint& b)
 {
     return {a.x + b.x, a.y + b.y};
 }
 
 // 向量数乘
-suPoint silly_spatial_vector::vectorScale(const suPoint& v, const double& s)
+suPoint suSpatialVec::ScaleV(const suPoint& v, const double& s)
 {
     return {v.x * s, v.y * s};
 }
 
 // 向量单位化
-suPoint silly_spatial_vector::normalize(const suPoint& v)
+suPoint suSpatialVec::NormalizeV(const suPoint& v)
 {
     double len = std::sqrt(v.x * v.x + v.y * v.y);
     return {v.x / len, v.y / len};
 }
 
-suPoint silly_spatial_vector::rotateRIGHT90(const suPoint& v)
+suPoint suSpatialVec::RotateRight90(const suPoint& v)
 {
     return {v.y, -v.x};  // 顺时针旋转90度
 }
 
-suPoint silly_spatial_vector::rotateLEFT90(const suPoint& v)
+suPoint suSpatialVec::RotateLeft90(const suPoint& v)
 {
     return {-v.y, v.x};  // 逆时针旋转90度
 }
@@ -104,47 +104,47 @@ suPoint silly_spatial_vector::rotateLEFT90(const suPoint& v)
 /// <param name="p3"></param>
 /// <param name="distance"></param>
 /// <returns></returns>
-suPoint silly_spatial_vector::angle_bisector_left(const suPoint& p1, const suPoint& p2, const suPoint& p3, const double& distance)
+suPoint suSpatialVec::LeftAngleBisector(const suPoint& p1, const suPoint& p2, const suPoint& p3, const double& distance)
 {
     // 计算方向向量
-    suPoint v1 = vectorSub(p2, p1);  // P1->P2
-    suPoint v2 = vectorSub(p3, p2);  // P2->P3
+    suPoint v1 = SubV(p2, p1);  // P1->P2
+    suPoint v2 = SubV(p3, p2);  // P2->P3
 
     // 单位化
-    v1 = normalize(v1);
-    v2 = normalize(v2);
+    v1 = NormalizeV(v1);
+    v2 = NormalizeV(v2);
 
     // 角平分线方向向量
-    suPoint bisectorDir = normalize(vectorAdd(v1, v2));
+    suPoint bisectorDir = NormalizeV(AddV(v1, v2));
 
     // 获取左侧法向量
-    suPoint leftNormal = rotateLEFT90(bisectorDir);
+    suPoint leftNormal = RotateLeft90(bisectorDir);
 
     // 根据距离计算P4位置
-    suPoint p4 = vectorAdd(p2, vectorScale(leftNormal, distance));
+    suPoint p4 = AddV(p2, ScaleV(leftNormal, distance));
 
     return p4;
 }
 
-suPoint silly_spatial_vector::angle_bisector_right(const suPoint& p1, const suPoint& p2, const suPoint& p3, const double& distance)
+suPoint suSpatialVec::RightAngleBisector(const suPoint& p1, const suPoint& p2, const suPoint& p3, const double& distance)
 
 {
     // 计算方向向量
-    suPoint v1 = vectorSub(p2, p1);  // P1->P2
-    suPoint v2 = vectorSub(p3, p2);  // P2->P3
+    suPoint v1 = SubV(p2, p1);  // P1->P2
+    suPoint v2 = SubV(p3, p2);  // P2->P3
 
     // 单位化
-    v1 = normalize(v1);
-    v2 = normalize(v2);
+    v1 = NormalizeV(v1);
+    v2 = NormalizeV(v2);
 
     // 角平分线方向向量
-    suPoint bisectorDir = normalize(vectorAdd(v1, v2));
+    suPoint bisectorDir = NormalizeV(AddV(v1, v2));
 
     // 获取右侧法向量
-    suPoint rightNormal = rotateRIGHT90(bisectorDir);
+    suPoint rightNormal = RotateRight90(bisectorDir);
 
     // 根据距离计算P4位置
-    suPoint p4 = vectorAdd(p2, vectorScale(rightNormal, distance));
+    suPoint p4 = AddV(p2, ScaleV(rightNormal, distance));
 
     return p4;
 }
