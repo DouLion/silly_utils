@@ -15,6 +15,11 @@
 #define SU_GEO_EPSILON (1e-8)
 class suPoint
 {
+public:
+    double x = 0.0;
+    double y = 0.0;
+    double z = 0.0;
+    double v = 0.0;
   public:
     suPoint() = default;
     ~suPoint() = default;
@@ -35,7 +40,7 @@ class suPoint
 
     double dot(const suPoint& rh) const
     {
-        return x * rh.x + y * rh.y;
+        return x * rh.x + y * rh.y + z * rh.z;
     }
 
     double cross(const suPoint& rh) const
@@ -144,56 +149,7 @@ class suPoint
         std::swap(x, y);
     }
 
-  public:
-    double x{0.};
-    double y{0.};
-};
-using silly_point = suPoint;
-class suPointZ : public suPoint
-{
-  public:
-    suPointZ() = default;
-    suPointZ(const double& xx, const double& yy)
-    {
-        x = xx;
-        y = yy;
-    }
-    suPointZ(const double& xx, const double& yy, const double& zz)
-    {
-        x = xx;
-        y = yy;
-        z = zz;
-    }
 
-    suPointZ(const suPoint& rh, const double& zz)
-    {
-        x = rh.x;
-        y = rh.y;
-        z = zz;
-    }
-
-    suPointZ(const suPoint& rh)
-    {
-        x = rh.x;
-        y = rh.y;
-    }
-
-    suPointZ(const suPointZ& rh) : suPoint(rh)
-    {
-        x = rh.x;
-        y = rh.y;
-        z = rh.z;
-    }
-
-    suPointZ& operator=(const suPointZ& rh)
-    {
-        x = rh.x;
-        y = rh.y;
-        z = rh.z;
-        return *this;
-    }
-
-    double z{0.0};
 };
 
 /****************************************/

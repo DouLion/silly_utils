@@ -117,9 +117,9 @@
 #include <mapbox/silly_mapbox.h>                    // mapbox工具
 
 // math (数学)
-#include <math/interpolate/silly_akima.h>          // akima插值
-#include <math/interpolate/silly_bicubic.h>        // 双三次插值
-#include <math/interpolate/silly_bilinear.h>       // 双线性插值
+#include <math/interp/silly_akima.h>          // akima插值
+#include <math/interp/silly_bicubic.h>        // 双三次插值
+#include <math/interp/silly_bilinear.h>       // 双线性插值
 #include <math/silly_bezier_curve.h>               // 贝塞尔曲线
 #include <math/silly_interpolate.h>                // 插值函数
 #include <math/silly_math_const.h>                 // 数学计算中的常量

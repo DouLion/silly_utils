@@ -495,50 +495,6 @@ std::optional<suPoint> suGeoUtils::intersection(const suSegment& s1, const suSeg
     return std::nullopt;
 }
 
-std::optional<suPointZ> suGeoUtils::intersection(const suSegmentZ& s1, const suSegmentZ& s2)
-{
-    double x1 = s1.p0.x;
-    double y1 = s1.p0.y;
-    double z1 = s1.p0.z;
-
-    double x2 = s1.p1.x;
-    double y2 = s1.p1.y;
-    double z2 = s1.p1.z;
-
-    double x3 = s2.p0.x;
-    double y3 = s2.p0.y;
-    double z3 = s2.p0.z;
-
-    double x4 = s2.p1.x;
-    double y4 = s2.p1.y;
-    double z4 = s2.p1.z;
-
-    // 计算分母
-    double denominator = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
-
-    // 平行或重合
-    if (std::fabs(denominator) < SU_TINY)
-    {
-        return std::nullopt;
-    }
-
-    // 计算交点的参数 t 和 u
-    double t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / denominator;
-    double u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / denominator;
-
-    // 检查交点是否在线段内
-    if (t >= 0 && t <= 1 && u >= 0 && u <= 1)
-    {
-        double intersectX = x1 + t * (x2 - x1);
-        double intersectY = y1 + t * (y2 - y1);
-        double intersectZ = ((z1 + t * (z2 - z1)) + (z3 + t * (z4 - z3))) / 2.0;
-        return suPointZ(intersectX, intersectY, intersectZ);
-    }
-
-    // 交点不在两条线段上
-    return std::nullopt;
-}
-
 bool suGeoUtils::intersect(const suPoly& multiPoly, const suPoint& point)
 {
     suPoint ray_end(point.x + 1000, point.y);  // 向右引一条射线 1000单位

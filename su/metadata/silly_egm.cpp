@@ -9,7 +9,7 @@
  * @version: v1.0.1 2024-12-13 dou li yang
  */
 #include "silly_egm.h"
-#include <math/interpolate/silly_bilinear.h>
+#include <math/interp/silly_bilinear.h>
 
 suEarthGravityModel::~suEarthGravityModel()
 {

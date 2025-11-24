@@ -123,7 +123,6 @@ class suGeoUtils
     /// <param name="s2"></param>
     /// <returns></returns>
     static std::optional<suPoint> intersection(const suSegment& s1, const suSegment& s2);
-    static std::optional<suPointZ> intersection(const suSegmentZ& s1, const suSegmentZ& s2);
 
     /// <summary>
     /// 两个相交面的 不相交部分, 必须是相交的
