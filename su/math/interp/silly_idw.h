@@ -12,7 +12,7 @@
 #define SILLY_IDW_INTERP_H
 #include <geo/silly_geo.h>
 
-class suIDW
+class suIDWInterp
 {
 public:
     ///
@@ -20,13 +20,12 @@ public:
     /// @param y
     /// @param ign 如果 ign . 0, 则忽略超过这个距离的点
     /// @return
-double get(const double& x, const double& y, const double& ign = 0) const;
+    double GetZ(const double& x, const double& y, const double& ign = 0) const;
 
+    void SetPoints(const std::vector<suPoint>&);
 
 private:
     std::vector<suPoint> m_points;
-
-
 };
 
 #endif  // SILLY_IDW_INTERP_H

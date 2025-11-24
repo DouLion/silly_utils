@@ -9,7 +9,7 @@
  * @version: v1.0.1 2025-11-24 dou li yang
  */
 #include "silly_idw.h"
-double suIDW::get(const double& x, const double& y, const double& ign) const
+double suIDWInterp::GetZ(const double& x, const double& y, const double& ign) const
 {
     if (m_points.empty()) {
         throw std::runtime_error("No points available for interpolation.");
@@ -51,4 +51,8 @@ double suIDW::get(const double& x, const double& y, const double& ign) const
     }
 
     return sum_weighted_value / sum_weights;
+}
+void suIDWInterp::SetPoints(const std::vector<suPoint>& points)
+{
+    m_points = points;
 }

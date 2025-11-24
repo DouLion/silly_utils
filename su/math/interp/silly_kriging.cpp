@@ -9,3 +9,12 @@
  * @version: v1.0.1 2025-03-13 dou li yang
  */
 #include "silly_kriging.h"
+double suKrigingInterp::GetZ(const double& x, const double& y) const
+{
+    throw std::runtime_error("suKrigingInterp::GetZ");
+    return 0;
+}
+void suKrigingInterp::SetPoints(const std::vector<suPoint>& points)
+{
+    m_points = points;
+}
