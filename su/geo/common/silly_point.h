@@ -134,7 +134,9 @@ class suPoint
 
     double distance(const suPoint& rh) const
     {
-        return SU_DIST(x - rh.x, y - rh.y);
+        const double dx = (x - rh.x);
+        const double dy = (y - rh.y);
+        return std::sqrt(dx * dx + dy * dy);
     }
 
     void swap()
