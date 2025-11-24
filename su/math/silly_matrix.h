@@ -93,10 +93,10 @@ class suMatrix
             m_mmf = new suMemMapFile();
             m_col = col;
             m_row = row;
-            suMemMapFile::param p;
-            p.flag = eMMFMode::Write;
+            suMemMapFile::Param p;
+            p.mode = eMMFMode::Write;
             p.path = mmap;
-            p.length = row * col * sizeof(T) * 1.1;
+            p.file_size = row * col * sizeof(T) * 1.1;
 
             if (std::filesystem::exists(mmap))
             {
