@@ -16,9 +16,9 @@ class suLine
 {
   public:
     // 类型别名（兼容STL迭代器）
-    using iterator = typename std::vector<suPoint>::iterator;
-    using const_iterator = typename std::vector<suPoint>::const_iterator;
-    using value_type = suPoint;  // 兼容STL容器类型定义
+    using it_ = typename std::vector<suPoint>::iterator;
+    using cit_ = typename std::vector<suPoint>::const_iterator;
+    using vt_ = suPoint;  // 兼容STL容器类型定义
     // 构造函数
     suLine() = default;
     explicit suLine(std::vector<suPoint> points) : m_points(std::move(points))
@@ -74,27 +74,27 @@ class suLine
     }
 
     // 迭代器支持（兼容范围for循环）
-    iterator begin()
+    it_ begin()
     {
         return m_points.begin();
     }
-    iterator end()
+    it_ end()
     {
         return m_points.end();
     }
-    const_iterator begin() const
+    cit_ begin() const
     {
         return m_points.begin();
     }
-    const_iterator end() const
+    cit_ end() const
     {
         return m_points.end();
     }
-    const_iterator cbegin() const
+    cit_ cbegin() const
     {
         return m_points.cbegin();
     }
-    const_iterator cend() const
+    cit_ cend() const
     {
         return m_points.cend();
     }
@@ -104,6 +104,12 @@ class suLine
     {
         m_points.clear();
     }
+
+    void resize(size_t size)
+    {
+        m_points.resize(size);
+    }
+
     void reserve(size_t n)
     {
         m_points.reserve(n);
@@ -133,9 +139,9 @@ class suMultiLine
 {
   public:
     // 类型别名（兼容STL迭代器）
-    using iterator = typename std::vector<suLine>::iterator;
-    using const_iterator = typename std::vector<suLine>::const_iterator;
-    using value_type = suLine;  // 兼容STL容器类型定义
+    using it_ = typename std::vector<suLine>::iterator;
+    using cit_ = typename std::vector<suLine>::const_iterator;
+    using vt_ = suLine;  // 兼容STL容器类型定义
     suMultiLine() = default;
     explicit suMultiLine(std::vector<suLine> lines) : m_lines(std::move(lines))
     {
@@ -190,27 +196,27 @@ class suMultiLine
     }
 
     // 迭代器支持（兼容范围for循环）
-    iterator begin()
+    it_ begin()
     {
         return m_lines.begin();
     }
-    iterator end()
+    it_ end()
     {
         return m_lines.end();
     }
-    const_iterator begin() const
+    cit_ begin() const
     {
         return m_lines.begin();
     }
-    const_iterator end() const
+    cit_ end() const
     {
         return m_lines.end();
     }
-    const_iterator cbegin() const
+    cit_ cbegin() const
     {
         return m_lines.cbegin();
     }
-    const_iterator cend() const
+    cit_ cend() const
     {
         return m_lines.cend();
     }
