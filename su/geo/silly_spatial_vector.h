@@ -55,7 +55,7 @@ class suSpatialVec
 
     // 向量加法
     static suPoint AddV(const suPoint& a, const suPoint& b);
-    
+
     // 向量数乘
     static suPoint ScaleV(const suPoint& v, const double& s);
 

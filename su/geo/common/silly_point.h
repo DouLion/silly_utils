@@ -5,21 +5,26 @@
  * @author: dou li yang
  * @date: 2025-08-08
  * @file: silly_other.cpp
- * @description: suPoint 头文件
+ * @description: 点定义,最多支持 三维坐标点(x, y, z) 及此点对应的值v
  * @version: v1.0.1 2025-08-08 dou li yang
  */
 #ifndef SILLY_POINT_H
 #define SILLY_POINT_H
 
 #include <su_marco.h>
+// 支持外面覆盖这个值
+#ifndef SU_GEO_EPSILON
 #define SU_GEO_EPSILON (1e-8)
+#endif
 class suPoint
 {
-public:
-    double x = 0.0;
-    double y = 0.0;
-    double z = 0.0;
-    double v = 0.0;
+    /*不要扩散概念, 避免出现意外的错误*/
+  public:
+    double x = 0.0;         // 横坐标
+    double y = 0.0;         // 纵坐标
+    double z = 0.0;         // 高
+    double v = 0.0;         // 值
+
   public:
     suPoint() = default;
     ~suPoint() = default;
@@ -30,14 +35,107 @@ public:
         y = yy;
     }
 
-    suPoint& operator=(const suPoint& rh) = default;
+    suPoint(const double& xx, const double& yy, const double& zz)
+    {
+        x = xx;
+        y = yy;
+        z = zz;
+    }
+
+    suPoint(const double& xx, const double& yy, const double& zz, const double& vv)
+    {
+        x = xx;
+        y = yy;
+        z = zz;
+        v = vv;
+    }
 
     suPoint operator+(const suPoint& rh) const
     {
-        suPoint ret(x + rh.x, y + rh.y);
+        suPoint ret(x + rh.x, y + rh.y, z + rh.z);
         return ret;
     }
 
+    suPoint& operator+=(const suPoint& rh)
+    {
+        x += rh.x;
+        y += rh.y;
+        z += rh.z;
+        return *this;
+    }
+
+    suPoint operator-(const suPoint& rh) const
+    {
+        suPoint ret(x - rh.x, y - rh.y, z - rh.z);
+        return ret;
+    }
+    suPoint& operator-=(const suPoint& rh)
+    {
+        x -= rh.x;
+        y -= rh.y;
+        z -= rh.z;
+        return *this;
+    }
+
+    suPoint operator*(const double& scale) const
+    {
+        suPoint ret(x * scale, y * scale, z * scale);
+        return ret;
+    }
+
+    suPoint& operator*=(const double& scale)
+    {
+        x *= scale;
+        y *= scale;
+        z *= scale;
+        return *this;
+    }
+
+    suPoint operator/(const double& scale) const
+    {
+        return suPoint(x / scale, y / scale, z / scale);
+    }
+
+    suPoint& operator/=(const double& scale)
+    {
+        x /= scale;
+        y /= scale;
+        z /= scale;
+        return *this;
+    }
+
+    // 重写比较函数
+    bool operator==(const suPoint& rh) const
+    {
+        return rh.x == this->x && rh.y == this->y && rh.z == this->z;
+    }
+
+    bool operator<=(const suPoint& rh) const
+    {
+        return std::tie(z, y, x) <= std::tie(rh.z, rh.y, rh.x);
+    }
+
+    bool operator<(const suPoint& rh) const
+    {
+        return std::tie(z, y, x) < std::tie(rh.z, rh.y, rh.x);
+    }
+
+    bool operator>=(const suPoint& rh) const
+    {
+        return std::tie(z, y, x) >= std::tie(rh.z, rh.y, rh.x);
+    }
+
+    bool operator>(const suPoint& rh) const
+    {
+        return std::tie(z, y, x) > std::tie(rh.z, rh.y, rh.x);
+    }
+
+    bool operator!=(const suPoint& rh) const
+    {
+        return !(*this == rh);
+    }
+
+    //
     double dot(const suPoint& rh) const
     {
         return x * rh.x + y * rh.y + z * rh.z;
@@ -48,108 +146,17 @@ public:
         return x * rh.y - y * rh.x;  // 2D 叉积（标量）
     }
 
-    suPoint operator+=(const suPoint& rh)
-    {
-        this->x += rh.x;
-        this->y += rh.y;
-        return *this;
-    }
-
-    suPoint operator-(const suPoint& rh) const
-    {
-        suPoint ret(x - rh.x, y - rh.y);
-        return ret;
-    }
-    suPoint operator-=(const suPoint& rh)
-    {
-        this->x -= rh.x;
-        this->y -= rh.y;
-        return *this;
-    }
-
-    suPoint operator*(double scale) const
-    {
-        suPoint ret(x * scale, y * scale);
-        return ret;
-    }
-
-    suPoint operator*(const suPoint& rh) const
-    {
-        suPoint ret(x * rh.x, y * rh.y);
-        return ret;
-    }
-
-    suPoint operator*=(double scale)
-    {
-        this->x *= scale;
-        this->y *= scale;
-        return *this;
-    }
-
-    suPoint operator*=(const suPoint& rh)
-    {
-        this->y *= rh.y;
-        this->x *= rh.x;
-        return *this;
-    }
-
-    suPoint operator/(double scale) const
-    {
-        return suPoint(x / scale, y / scale);
-    }
-
-    suPoint operator/(const suPoint& rh) const
-    {
-        return suPoint(x / rh.x, y / rh.y);
-    }
-
-    suPoint operator/=(double scale)
-    {
-        this->x /= scale;
-        this->y /= scale;
-        return *this;
-    }
-
-    suPoint operator/=(const suPoint& rh)
-    {
-        this->y /= rh.y;
-        this->x /= rh.x;
-        return *this;
-    }
-
-    bool operator==(const suPoint& rh) const
-    {
-        return std::abs(rh.x - this->x) <= SU_GEO_EPSILON && std::abs(rh.y - this->y) <= SU_GEO_EPSILON;
-    }
-
-    bool operator<(const suPoint& rh) const
-    {
-        return rh.y < y || (rh.y == y && rh.x < x);
-    }
-
-    bool operator>(const suPoint& rh) const
-    {
-        return rh.y > y || (rh.y == y && rh.x > x);
-    }
-
-    bool operator!=(const suPoint& rh) const
-    {
-        return std::abs(rh.x - this->x) > SU_GEO_EPSILON || std::abs(rh.y - this->y) > SU_GEO_EPSILON;
-    }
-
     double distance(const suPoint& rh) const
     {
         const double dx = (x - rh.x);
         const double dy = (y - rh.y);
-        return std::sqrt(dx * dx + dy * dy);
+        const double dz = (z - rh.z);
+        return std::sqrt(dx * dx + dy * dy + dz * dz);
     }
-
     void swap()
     {
         std::swap(x, y);
     }
-
-
 };
 
 /****************************************/
