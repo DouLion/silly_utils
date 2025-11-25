@@ -312,7 +312,7 @@ TEST_CASE("TestGEO")
         // xlr.left = 113.25921;
         // xlr.right = 113.44758;
         // xlr.cell_size = 0.025;
-        silly_geo_rect rect(113.25921, 29.54244, 113.44758, 29.40021);
+        suRect rect(113.25921, 29.54244, 113.44758, 29.40021);
         xlr.set(rect, 0.025);
         xlr.rasterization(multiPolygonData);
 

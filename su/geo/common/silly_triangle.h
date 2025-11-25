@@ -18,7 +18,7 @@ class suTriangle
   public:
     suTriangle() = default;
     ~suTriangle() = default;
-    suTriangle(suPoint a, suPoint b, suPoint c) : a(a), b(b), c(c)
+    suTriangle(const suPoint& a, const suPoint& b, const suPoint& c) : a(a), b(b), c(c)
     {
     }
 
@@ -58,22 +58,49 @@ class suTriangle
         return circle;
     }
 
+    /**
+     * ab 和 ac 形成的夹角
+     * @return
+     */
+    double radian_a() const
+    {
+        return std::acos((b.x - a.x) * (c.x - a.x) + (b.y - a.y) * (c.y - a.y));
+    }
+
+    /**
+    * ba 和 bc 形成的夹角
+    * @return
+    */
+    double radian_b() const
+    {
+        return std::acos((a.x - b.x) * (c.x - b.x) + (a.y - b.y) * (c.y - b.y));
+    }
+
+    /**
+    * ca 和 cb 形成的夹角
+    * @return
+    */
+    double radian_c() const
+    {
+        return std::acos((a.x - c.x) * (b.x - c.x) + (a.y - c.y) * (b.y - c.y));
+    }
+
     /// 顶点a的角度
     double angle_a() const
     {
-        return std::acos((b.x - a.x) * (c.x - a.x) + (b.y - a.y) * (c.y - a.y)) * 180 / silly::math::pi;
+        return radian_a() * 180 / silly::math::pi;
     }
 
     /// 顶点b的角度
     double angle_b() const
     {
-        return std::acos((a.x - b.x) * (c.x - b.x) + (a.y - b.y) * (c.y - b.y)) * 180 / silly::math::pi;
+        return  radian_b() * 180 / silly::math::pi;
     }
 
     /// 顶点c的角度
     double angle_c() const
     {
-        return std::acos((a.x - c.x) * (b.x - c.x) + (a.y - c.y) * (b.y - c.y)) * 180 / silly::math::pi;
+        return radian_c() * 180 / silly::math::pi;
     }
 
   public:

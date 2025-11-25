@@ -234,5 +234,4 @@ class suMultiLine
   protected:
     std::vector<suLine> m_lines;
 };
-using silly_multi_line = suLine;
 #endif  // SILLY_LINE_H

@@ -44,13 +44,13 @@ class silly_geo_convert
     /// <param name="rect"></param>
     /// <param name="dst"></param>
     template <typename T>
-    static bool matrix_geo_to_mercator(suMatrix<T> src, const silly_geo_rect& rect, suMatrix<T>& dst);
+    static bool matrix_geo_to_mercator(suMatrix<T> src, const suRect& rect, suMatrix<T>& dst);
 };
 
 /////////////////////////implement/////////////////////////
 
 template <typename T>
-bool silly_geo_convert::matrix_geo_to_mercator(suMatrix<T> src, const silly_geo_rect& rect, suMatrix<T>& dst)
+bool silly_geo_convert::matrix_geo_to_mercator(suMatrix<T> src, const suRect& rect, suMatrix<T>& dst)
 {
     // 防止传参数进来是src与dst是同一个对象
     suMatrix<T> tmp = src.copy();

@@ -50,7 +50,7 @@ typedef std::map<int, std::vector<row_pair>> scan_pairs;
 class x_scan_line
 {
   public:
-    void set(const silly_geo_rect& rect, const double& cell_size);
+    void set(const suRect& rect, const double& cell_size);
 
     /// <summary>
     /// 光栅化单点
@@ -153,7 +153,7 @@ class x_scan_line
     // 数据记录以经纬度左上角为原点, 向东为col的正方向,向下为row的正方向
     int m_width{0};
     int m_height{0};
-    silly_geo_rect m_rect;
+    suRect m_rect;
     // 经纬度小数点后6位能精确到1米,更加精确意义不大
     double m_cell_size{0.000001};
     // 记录每一行在矢量内的多对起始列号

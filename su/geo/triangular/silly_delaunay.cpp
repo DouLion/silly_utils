@@ -106,7 +106,7 @@ void silly_delaunay::draw(const std::filesystem::path& file)
 {
     suCairo sc;
     sc.create(2000, 2000);
-    silly_geo_rect rect{xmin, ymax, xmax, ymin};
+    suRect rect{xmin, ymax, xmax, ymin};
     rect.correct();
     sc.set({0, 180, 255, 230});
     for (const auto& tri : m_tris)

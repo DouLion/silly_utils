@@ -578,7 +578,7 @@ void suCairo::clean(suColor color)
 #endif
 }
 
-void suCairo::draw_poly(const suPoly &poly, const silly_geo_rect &rect)
+void suCairo::draw_poly(const suPoly &poly, const suRect &rect)
 {
 #if SU_THIRD_SUPPORT_CAIRO
 
@@ -597,7 +597,7 @@ void suCairo::draw_poly(const suPoly &poly, const silly_geo_rect &rect)
 #endif
 }
 
-void suCairo::draw_poly_web_mercator(const suPoly &poly, const silly_geo_rect &rect)
+void suCairo::draw_poly_web_mercator(const suPoly &poly, const suRect &rect)
 {
 #if SU_THIRD_SUPPORT_CAIRO
 
@@ -616,7 +616,7 @@ void suCairo::draw_poly_web_mercator(const suPoly &poly, const silly_geo_rect &r
 #endif
 }
 
-void suCairo::draw_ring(const suRing &ring, const silly_geo_rect &rect)
+void suCairo::draw_ring(const suRing &ring, const suRect &rect)
 {
 #if SU_THIRD_SUPPORT_CAIRO
 
@@ -635,7 +635,7 @@ void suCairo::draw_ring(const suRing &ring, const silly_geo_rect &rect)
 #endif
 }
 
-void suCairo::draw_ring_web_mercator(const suRing &ring, const silly_geo_rect &rect)
+void suCairo::draw_ring_web_mercator(const suRing &ring, const suRect &rect)
 {
 #if SU_THIRD_SUPPORT_CAIRO
 
@@ -767,7 +767,7 @@ void suCairo::set(const cairo_operator_t &opt)
 #endif
 }
 
-void suCairo::draw_line(const std::vector<suPoint> &line, const silly_geo_rect &rect)
+void suCairo::draw_line(const std::vector<suPoint> &line, const suRect &rect)
 {
 #if SU_THIRD_SUPPORT_CAIRO
 
@@ -783,7 +783,7 @@ void suCairo::draw_line(const std::vector<suPoint> &line, const silly_geo_rect &
 #endif
 }
 
-void suCairo::draw_line_web_mercator(const std::vector<suPoint> &line, const silly_geo_rect &rect)
+void suCairo::draw_line_web_mercator(const std::vector<suPoint> &line, const suRect &rect)
 {
 #if SU_THIRD_SUPPORT_CAIRO
 
@@ -806,7 +806,7 @@ void suCairo::draw_line_web_mercator(const std::vector<suPoint> &line, const sil
 #endif
 }
 
-void suCairo::draw_point(const suPoint &p, const double &size, const silly_geo_rect &rect)
+void suCairo::draw_point(const suPoint &p, const double &size, const suRect &rect)
 {
 #if SU_THIRD_SUPPORT_CAIRO
 

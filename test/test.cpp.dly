@@ -379,15 +379,15 @@ int main(int argc, char** argv)
         {
             for(auto s : vc.m_mat[r][c].segments)
             {
-                sc.draw_line({s.f, s.t}, silly_geo_rect(0, tgi.height, tgi.width, 0));
+                sc.draw_line({s.f, s.t}, suRect(0, tgi.height, tgi.width, 0));
             }
         }
     }
 
     for (auto poly : polys)
     {
-        sc.draw_poly(poly, silly_geo_rect(0, pd.height, pd.width, 0));
-        // sc.draw_line(poly.outer.points, silly_geo_rect(0, tgi.height, tgi.width, 0));
+        sc.draw_poly(poly, suRect(0, pd.height, pd.width, 0));
+        // sc.draw_line(poly.outer.points, suRect(0, tgi.height, tgi.width, 0));
         //  break;
     }
     sc.set_color({255, 255, 0, 255});
@@ -401,10 +401,10 @@ int main(int argc, char** argv)
             double y = (pd.height - p.lttd)/pd.height * sc.height();
             sc.draw_text({x+5, y+5, std::to_string(i), 10 });
             i++;
-            sc.draw_point(p, 5, silly_geo_rect(0, pd.height, pd.width, 0));
+            sc.draw_point(p, 5, suRect(0, pd.height, pd.width, 0));
         }
 
-        // sc.draw_line(poly.outer.points, silly_geo_rect(0, tgi.height, tgi.width, 0));
+        // sc.draw_line(poly.outer.points, suRect(0, tgi.height, tgi.width, 0));
         //  break;
     }
 
@@ -413,10 +413,10 @@ int main(int argc, char** argv)
     {
         for (auto p : poly.outer.points)
         {
-            sc.draw_point(p, 3, silly_geo_rect(0, pd.height, pd.width, 0));
+            sc.draw_point(p, 3, suRect(0, pd.height, pd.width, 0));
         }
 
-        // sc.draw_line(poly.outer.points, silly_geo_rect(0, tgi.height, tgi.width, 0));
+        // sc.draw_line(poly.outer.points, suRect(0, tgi.height, tgi.width, 0));
         //  break;
     }
     sc.write("Z://fff.png");

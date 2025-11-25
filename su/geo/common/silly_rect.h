@@ -104,7 +104,5 @@ class suRect  // 普通坐标点
      */
     suRect MBR(const suRect& rh) const;
 };
-using silly_geo_rect = suRect;
-using silly_rect = suRect;
 
 #endif  // SILLY_RECT_H

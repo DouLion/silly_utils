@@ -238,7 +238,7 @@ void x_scan_line::image(const std::filesystem::path& file)
     pd.release();
 #endif
 }
-void x_scan_line::set(const silly_geo_rect& rect, const double& cell_size)
+void x_scan_line::set(const suRect& rect, const double& cell_size)
 {
     clear();
     m_rect = rect;

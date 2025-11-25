@@ -37,7 +37,7 @@ class silly_render_param
     suMatrix<T> mtx;
     std::vector<silly_val2color<T>> v2cs;  // 需要排好序
     suPNG pd;
-    silly_geo_rect rect;
+    suRect rect;
 
     // 将 v2cs 按照 val 的值进行排序 默认升序排序
     void sort(bool desc = false)
