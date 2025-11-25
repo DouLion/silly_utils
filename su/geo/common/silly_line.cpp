@@ -24,7 +24,7 @@ suLine suLine::equidistant(const double& dist) const
     {
         const suPoint& p0 = m_points[i - 1];
         const suPoint& p1 = m_points[i];
-        double tmpDist = p1.distance(p0);
+        double tmpDist = p1.dist(p0);
         double ratio1 = dist / tmpDist;
         double ratio = remain / tmpDist;
         while (remain < tmpDist + 1e-8)
@@ -58,7 +58,7 @@ double suLine::distance() const
     }
     for (size_t i = 1; i < m_points.size(); ++i)
     {
-        ret += m_points[i].distance(m_points[i - 1]);
+        ret += m_points[i].dist(m_points[i - 1]);
     }
     return ret;
 }

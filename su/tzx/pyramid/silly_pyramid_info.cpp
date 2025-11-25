@@ -137,7 +137,7 @@ std::string TzxPyramidInfo::project()
 suRect TzxPyramidInfo::bound()
 {
     suRect rect;
-    rect.destringify(m_bound);
+    rect.parse(m_bound);
     return rect;
 }
 std::string TzxPyramidInfo::format()

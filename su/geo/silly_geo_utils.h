@@ -148,40 +148,33 @@ class suGeoUtils
     /// <returns></returns>
     static std::vector<suLine> trans_intersection(const suMultiPoly& multiPoly1, const suLine& line);
 
-    /// <summary>
-    /// 距离,直接数值计算
-    /// </summary>
-    /// <param name="p1"></param>
-    /// <param name="p2"></param>
-    /// <returns></returns>
-    static double distance(const suPoint& p1, const suPoint& p2);
+    /**
+     * 经纬度坐标矢量转高斯坐标矢量
+     * @param p 矢量
+     * @param l0 中央经线
+     * @return
+     */
+    static suPoint lonlat2gauss(const suPoint& p, const double& l0);
+    static suMultiPoint lonlat2gauss(const suMultiPoint& mp, const double& l0);
+    static suLine lonlat2gauss(const suLine& line, const double& l0);
+    static suMultiLine lonlat2gauss(const suMultiLine& mline, const double& l0);
+    static suRing lonlat2gauss(const suRing& ring, const double& l0);
+    static suPoly lonlat2gauss(const suPoly& poly, const double& l0);
+    static suMultiPoly lonlat2gauss(const suMultiPoly& mpoly, const double& l0);
 
-    /// <summary>
-    /// 距离的平方,直接数值计算
-    /// </summary>
-    /// <param name="p1"></param>
-    /// <param name="p2"></param>
-    /// <returns></returns>
-    static double distance_sq(const suPoint& p1, const suPoint& p2);
-
-    /// <summary>
-    /// 距离,经纬度转换为千米计算,Vincenty公式,
-    /// 相较于墨卡托投影方法, 跨带也能正常使用
-    /// https://github.com/atychang/geo-distance/blob/master/vincenty/cpp/CalcDistance.cc
-    /// http://www.movable-type.co.uk/scripts/latlong-vincenty.html
-    /// https://en.wikipedia.org/wiki/Vincenty's_formulae
-    /// </summary>
-    /// <param name="p1"></param>
-    /// <param name="p2"></param>
-    /// <returns></returns>
-    static double distance_km(const suPoint& p1, const suPoint& p2);
-
-    /// <summary>
-    /// 面积
-    /// </summary>
-    /// <param name="points"></param>
-    /// <returns></returns>
-    static double area(const std::vector<suPoint>& points);
+    /**
+     * 高斯坐标矢量转经纬度坐标矢量
+     * @param p 矢量
+     * @param l0 中央经线
+     * @return
+     */
+    static suPoint gauss2lonlat(const suPoint& p, const double& l0);
+    static suMultiPoint gauss2lonlat(const suMultiPoint& mp, const double& l0);
+    static suLine gauss2lonlat(const suLine& line, const double& l0);
+    static suMultiLine gauss2lonlat(const suMultiLine& mline, const double& l0);
+    static suRing gauss2lonlat(const suRing& ring, const double& l0);
+    static suPoly gauss2lonlat(const suPoly& poly, const double& l0);
+    static suMultiPoly gauss2lonlat(const suMultiPoly& mpoly, const double& l0);
 
     /// <summary>
     /// 面积
@@ -213,32 +206,11 @@ class suGeoUtils
     static double area(const int& pnum, const T* points);
 
     /// <summary>
-    /// 面积
-    /// </summary>
-    /// <param name="poly"></param>
-    /// <returns></returns>
-    static double area(const suPoly& poly);
-
-    /// <summary>
-    /// 计算面积平方公里
-    /// </summary>
-    /// <param name="points">经纬度点</param>
-    /// <returns></returns>
-    static double area_sqkm(const std::vector<suPoint>& points, const double& l0);
-
-    /// <summary>
     /// 计算面积平方公里
     /// </summary>
     /// <param name="poly">经纬度面</param>
     /// <returns></returns>
     static double area_sqkm(const suPoly& poly, const double& l0);
-
-    /// <summary>
-    /// 面积
-    /// </summary>
-    /// <param name="multiPoly">高斯或者墨卡托面</param>
-    /// <returns></returns>
-    static double area(const suMultiPoly& multiPoly);
 
     /// <summary>
     /// 计算面积平方公里

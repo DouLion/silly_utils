@@ -11,14 +11,19 @@
 #ifndef SILLY_POLYGON_H
 #define SILLY_POLYGON_H
 #include <geo/common/silly_point.h>
+#include <geo/common/silly_rect.h>
 class suRing
 {
   public:
     std::vector<suPoint> points;
     int is_outer{1};
-};
 
-using silly_ring = suRing;
+    double area() const;
+
+    suRect bound() const;
+
+
+};
 
 /****************************************/
 /// 面
@@ -28,8 +33,13 @@ class suPoly
   public:
     suRing outer;               // 外环
     std::vector<suRing> holes;  // 内环, 孔, 洞
+
+    double area() const;
+
+    suRect bound() const;
+
 };
-using silly_poly = suPoly;
+
 /****************************************/
 /// 多面
 /****************************************/
@@ -41,9 +51,13 @@ class suMultiPoly
     using iterator = typename std::vector<suPoly>::iterator;
     using const_iterator = typename std::vector<suPoly>::const_iterator;
     using value_type = suPoly;  // 兼容STL容器类型定义
-    explicit suMultiPoly(std::vector<suPoly> lines) : m_polys(std::move(lines))
+    explicit suMultiPoly(std::vector<suPoly> polys) : m_polys(std::move(polys))
     {
     }
+
+    double area() const;
+
+    suRect bound() const;
 
     // 代理vector的常用接口
     void push_back(const suPoly& p)
@@ -136,5 +150,4 @@ class suMultiPoly
   protected:
     std::vector<suPoly> m_polys;
 };
-using silly_multi_poly = suMultiPoly;
 #endif  // SILLY_POLYGON_H

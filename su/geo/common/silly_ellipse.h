@@ -5,7 +5,7 @@
  * @author: dou li yang
  * @date: 2025-08-08
  * @file: suEllipse.cpp
- * @description: suEllipse 头文件
+ * @description: 椭圆定义, 还有部分未实现
  * @version: v1.0.1 2025-08-08 dou li yang
  */
 #ifndef SILLY_ELLIPSE_H
@@ -17,32 +17,47 @@ class suEllipse
   public:
     suEllipse() = default;
     ~suEllipse() = default;
-    suEllipse(suPoint p, double x, double y) : center(p), rx(x), ry(y)
-    {
-    }
 
-    double area() const
-    {
-        return silly::math::pi * rx * ry;
-    }
+    suEllipse(const suPoint& p1, const suPoint& p2, const double& longAxis);
 
-    /// 周长
-    /// Srinivasa Ramanujan 提出的两个近似公式, 1会更准确
-    double circumference(const int& Ramanujan = 1) const
-    {
-        if (Ramanujan == 1)
-        {
-            return silly::math::pi * (3 * (rx + ry) - sqrt((3 * rx + ry) * (rx + 3 * ry)));
-        }
+    /**
+     * 有效性验证, 长轴和短轴的限制
+     * @return
+     */
+    bool valid() const;
 
-        return 2 * silly::math::pi * sqrt((rx * rx + ry * ry) / 2);
-    }
+    /**
+     * 计算面积
+     * @return
+     */
+    double area() const;
+
+    /**
+     * 计算周长 拉马努金近似公式
+     * @return
+     */
+    double circumference() const;
+
+    /**
+     * 短轴长 TODO:
+     * @return
+     */
+    double MinorAxis();
+
+    /**
+     * 焦距 TODO:
+     * @return
+     */
+    double FocalDist();
 
   public:
-    suPoint center;  // 中心点
-    // 长半轴 和 短半轴, 不分
-    double rx = 0.0;
-    double ry = 0.0;
+    suPoint f1;     // 焦点1
+    suPoint f2;     // 焦点2
+    double majorAxis = 0.0;   // 长轴长度（焦点间距离 + 椭圆上一点到两焦点距离之和）
+private:
+    double m_MinorAxis = 0.0;
+    double m_FocalDist = 0.0;
+    // mutable suPoint m_Center;
 };
 
 #endif  // SILLY_ELLIPSE_H

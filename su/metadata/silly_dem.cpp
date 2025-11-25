@@ -231,7 +231,7 @@ std::vector<std::pair<double, double>> suDem::ProfileElev(const suLine& line) co
     {
         double elev = BiLiner(p);
         ret.push_back({dist, elev});
-        dist += p.distance(p0);
+        dist += p.dist(p0);
         p0 = p;
     }
     return ret;

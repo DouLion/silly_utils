@@ -1,9 +1,7 @@
 
 
 #include "silly_geo_utils.h"
-#ifndef NDEBUG
 #include <log/silly_log.h>
-#endif
 #if SU_THIRD_SUPPORT_GDAL
 #include <ogr_spatialref.h>
 #include <ogrsf_frmts.h>
@@ -107,7 +105,7 @@ void suGeoUtils::centroid(const suPoly& poly, suPoint& polyCentroid, double& pol
     double sum_x = 0.0, sum_y = 0.0;
 
     // 处理外环
-    double outer_area = suGeoUtils::area(poly.outer.points);
+    double outer_area = poly.outer.area();
     suPoint outer_centroid;
     suGeoUtils::centroid(poly.outer, outer_area, outer_centroid.x, outer_centroid.y);
     total_area += outer_area;
@@ -117,7 +115,7 @@ void suGeoUtils::centroid(const suPoly& poly, suPoint& polyCentroid, double& pol
     // 处理内环（孔洞）
     for (const auto& hole : poly.holes)
     {
-        double hole_area = suGeoUtils::area(hole.points);
+        double hole_area = hole.area();
         suPoint hole_centroid;
         suGeoUtils::centroid(hole, hole_area, hole_centroid.x, hole_centroid.y);
         total_area -= hole_area;  // 孔洞面积为负
@@ -137,6 +135,7 @@ void suGeoUtils::centroid(const suPoly& poly, suPoint& polyCentroid, double& pol
         polyCentroid = poly.outer.points.empty() ? suPoint{0, 0} : poly.outer.points[0];
     }
 }
+
 suPoint suGeoUtils::centroid(const suMultiPoly& multiPoly)
 {
     suPoint total_centroid = {0, 0};
@@ -256,7 +255,12 @@ bool suGeoUtils::read(const std::filesystem::path& file, std::vector<suGeoColl>&
             GDALClose(dataset);
             return status;
         }
-        SLOG_DEBUG("图层名: {}", layer->GetName())
+        std::string layerName(layer->GetName());
+        if (!IS_UTF8(layerName))
+        {
+            layerName = GBKToUTF8(layerName);
+        }
+        SLOG_DEBUG("图层名: {}", layerName)
         layer->ResetReading();
         OGRFeature* feature;
         int64_t iEntities = layer->GetFeatureCount();  // 获取属性的个数,即矢量数据的个数
@@ -368,6 +372,19 @@ bool suGeoUtils::write(const std::filesystem::path& file, const std::vector<suGe
     {
         OGRFieldType ogrType = convertToOGRFieldType(p.type());
         OGRFieldDefn fieldDef(k.c_str(), ogrType);
+        if (k == "ADCD")
+        {
+            fieldDef.SetWidth(10);  //
+        }
+        if (k == "ADNM")
+        {
+            fieldDef.SetWidth(50);
+        }
+        if (k == "Height")
+        {
+            fieldDef.SetPrecision(3);
+        }
+
         if (outputLayer->CreateField(&fieldDef) != OGRERR_NONE)
         {
             SLOG_ERROR("创建属性段:{}失败", k);
@@ -544,69 +561,21 @@ std::vector<suLine> suGeoUtils::intersection(const suMultiPoly& multiPoly, const
     // TODO:
     return std::vector<suLine>();
 }
-double suGeoUtils::area(const std::vector<suPoint>& points)
-{
-    double result = 0.0;
-    size_t pnum = points.size();
-    // 确保至少有3个点才能构成一个多边形
-    if (pnum < 3)
-    {
-        return 0.0;
-    }
 
-    for (size_t i = 0; i < pnum; ++i)
-    {
-        size_t j = (i + 1) % pnum;
-        result += points[i].x * points[j].y;
-        result -= points[j].x * points[i].y;
-    }
-    return std::abs(result) / 2.0;
-}
-double suGeoUtils::area(const suPoly& poly)
-{
-    double total_area = area(poly.outer.points);
-    if (total_area < 1.E-15)
-    {
-        return total_area;
-    }
-
-    for (const auto& inner_ring : poly.holes)
-    {
-        total_area -= area(inner_ring.points);
-    }
-
-    return total_area;
-}
 double suGeoUtils::area_sqkm(const suPoly& poly, const double& l0)
 {
-    double total_area = area_sqkm(poly.outer.points, l0);
-    if (total_area < 1.E-15)
-    {
-        return total_area;
-    }
-    for (const auto& inner_ring : poly.holes)
-    {
-        total_area -= area_sqkm(inner_ring.points, l0);
-    }
-    return total_area;
+    suPoly gpoly = lonlat2gauss(poly, l0);
+    return gpoly.area() / 1e6;
 }
-double suGeoUtils::area(const suMultiPoly& multiPoly)
-{
-    double total_area = 0;
-    for (const auto& poly : multiPoly)
-    {
-        total_area += area(poly);
-    }
-    return total_area;
-}
+
 double suGeoUtils::area_sqkm(const suMultiPoly& multiPoly, const double& l0)
 {
-    double total_area = 0;
+    double ret = 0;
     for (const auto& poly : multiPoly)
     {
-        total_area += area_sqkm(poly, l0);
+        ret += area_sqkm(poly, l0);
     }
-    return total_area;
+    return ret;
 }
 std::vector<suPoly> suGeoUtils::trans_intersection(const suMultiPoly& multiPoly1, const suMultiPoly& multiPoly2)
 {
@@ -620,23 +589,132 @@ std::vector<suLine> suGeoUtils::trans_intersection(const suMultiPoly& multiPoly1
     // TODO:
     return result;
 }
-double suGeoUtils::area_sqkm(const std::vector<suPoint>& points, const double& l0)
+
+suPoint suGeoUtils::lonlat2gauss(const suPoint& p, const double& l0)
 {
-    double maxx = -1e10, minx = 1e10;
-    for (auto p : points)
-    {
-        maxx = std::max(maxx, p.x);
-        minx = std::min(minx, p.x);
-    }
-    std::vector<suPoint> gpoints;
-    for (auto p : points)
-    {
-        suPoint tmp;
-        suGeoProj::lonlat_to_gauss(l0, p.x, p.y, tmp.y, tmp.x);
-        gpoints.push_back(tmp);
-    }
-    return area(gpoints) / 1e6;
+    suPoint ret;
+    LONLAT2GAUSS(l0, p.x, p.y, ret.x, ret.y);
+    return ret;
 }
+suMultiPoint suGeoUtils::lonlat2gauss(const suMultiPoint& mp, const double& l0)
+{
+    suMultiPoint ret;
+    for (const auto& p : mp)
+    {
+        ret.push_back(suGeoUtils::lonlat2gauss(p, l0));
+    }
+    return ret;
+}
+suLine suGeoUtils::lonlat2gauss(const suLine& line, const double& l0)
+{
+    suLine ret;
+    for (const auto& p : line)
+    {
+        ret.push_back(suGeoUtils::lonlat2gauss(p, l0));
+    }
+    return ret;
+}
+suMultiLine suGeoUtils::lonlat2gauss(const suMultiLine& mline, const double& l0)
+{
+    suMultiLine ret;
+    for (const auto& line : mline)
+    {
+        ret.push_back(suGeoUtils::lonlat2gauss(line, l0));
+    }
+    return ret;
+}
+suRing suGeoUtils::lonlat2gauss(const suRing& ring, const double& l0)
+{
+    suRing ret;
+    for (const auto& p : ring.points)
+    {
+        ret.points.push_back(suGeoUtils::lonlat2gauss(p, l0));
+    }
+    return ret;
+}
+suPoly suGeoUtils::lonlat2gauss(const suPoly& poly, const double& l0)
+{
+    suPoly ret;
+    ret.outer = suGeoUtils::lonlat2gauss(poly.outer, l0);
+    for (const auto& ring : poly.holes)
+    {
+        ret.holes.push_back(suGeoUtils::lonlat2gauss(ring, l0));
+    }
+    return ret;
+}
+suMultiPoly suGeoUtils::lonlat2gauss(const suMultiPoly& mpoly, const double& l0)
+{
+    suMultiPoly ret;
+    for (const auto& poly : mpoly)
+    {
+        ret.push_back(suGeoUtils::lonlat2gauss(poly, l0));
+    }
+
+    return ret;
+}
+
+suPoint suGeoUtils::gauss2lonlat(const suPoint& p, const double& l0)
+{
+    suPoint ret;
+    GAUSS2LONLAT(l0, p.x, p.y, ret.x, ret.y);
+    return ret;
+}
+suMultiPoint suGeoUtils::gauss2lonlat(const suMultiPoint& mp, const double& l0)
+{
+    suMultiPoint ret;
+    for (const auto& p : mp)
+    {
+        ret.push_back(suGeoUtils::gauss2lonlat(p, l0));
+    }
+    return ret;
+}
+suLine suGeoUtils::gauss2lonlat(const suLine& line, const double& l0)
+{
+    suLine ret;
+    for (const auto& p : line)
+    {
+        ret.push_back(suGeoUtils::gauss2lonlat(p, l0));
+    }
+    return ret;
+}
+suMultiLine suGeoUtils::gauss2lonlat(const suMultiLine& mline, const double& l0)
+{
+    suMultiLine ret;
+    for (const auto& line : mline)
+    {
+        ret.push_back(suGeoUtils::gauss2lonlat(line, l0));
+    }
+    return ret;
+}
+suRing suGeoUtils::gauss2lonlat(const suRing& ring, const double& l0)
+{
+    suRing ret;
+    for (const auto& p : ring.points)
+    {
+        ret.points.push_back(suGeoUtils::gauss2lonlat(p, l0));
+    }
+    return ret;
+}
+suPoly suGeoUtils::gauss2lonlat(const suPoly& poly, const double& l0)
+{
+    suPoly ret;
+    ret.outer = suGeoUtils::gauss2lonlat(poly.outer, l0);
+    for (const auto& p : poly.holes)
+    {
+        ret.holes.push_back(suGeoUtils::gauss2lonlat(p, l0));
+    }
+    return ret;
+}
+suMultiPoly suGeoUtils::gauss2lonlat(const suMultiPoly& mpoly, const double& l0)
+{
+    suMultiPoly ret;
+    for (const auto& poly : mpoly)
+    {
+        ret.push_back(suGeoUtils::gauss2lonlat(poly, l0));
+    }
+    return ret;
+}
+
 std::vector<suPoint> suGeoUtils::smooth_line(const std::vector<suPoint>& line, const int& mod, const int& interp)
 {
     return std::vector<suPoint>();
@@ -686,82 +764,6 @@ bool suGeoUtils::intersect(const suPoint& point, const std::vector<suPoint>& poi
     }
     return is_inside;
 }
-double suGeoUtils::distance(const suPoint& p1, const suPoint& p2)
-{
-    return std::sqrt(distance_sq(p1, p2));
-}
-double suGeoUtils::distance_km(const suPoint& p1, const suPoint& p2)
-{
-    /// https://github.com/atychang/geo-distance/blob/master/vincenty/cpp/CalcDistance.cc
-    const double a = 6378137.0;            // WGS-84 Earth semi-major axis (m)
-    const double f = 1.0 / 298.257223563;  // WGS-84 flattening factor of the Earth
-    const double b = a * (1 - f);          // WGS-84 Earth semi-minor axis (m)
-
-    double lat1 = p1.y * SU_PI / 180;
-    double lon1 = p1.x * SU_PI / 180;
-    double lat2 = p2.y * SU_PI / 180;
-    double lon2 = p2.x * SU_PI / 180;
-    double U1 = atan((1 - f) * tan(lat1));
-    double U2 = atan((1 - f) * tan(lat2));
-    double sinU1 = sin(U1), cosU1 = cos(U1);
-    double sinU2 = sin(U2), cosU2 = cos(U2);
-    double L = (lon2 - lon1) * SU_PI / 180;
-
-    double sinLambda;
-    double cosLambda;
-    double sinSigma;
-    double cosSigma;
-    double sigma;
-    double cosSqAlpha;
-    double cos2SigmaM;
-
-    double lambda = L, prevLambda;
-    int iterationLimit = 100;
-
-    do
-    {
-        sinLambda = sin(lambda);
-        cosLambda = cos(lambda);
-        sinSigma = sqrt(pow(cosU2 * sinLambda, 2) + pow(cosU1 * sinU2 - sinU1 * cosU2 * cosLambda, 2));
-
-        if (sinSigma == 0)  // coincident points
-            return 0;
-
-        cosSigma = sinU1 * sinU2 + cosU1 * cosU2 * cosLambda;
-        sigma = atan(sinSigma / cosSigma);
-        double sinAlpha = cosU1 * cosU2 * sinLambda / sinSigma;
-        cosSqAlpha = 1 - pow(sinAlpha, 2);
-
-        if (cosSqAlpha == 0)  // equatorial line: cosSqAlpha = 0
-            cos2SigmaM = 0;
-        else
-            cos2SigmaM = cosSigma - 2 * sinU1 * sinU2 / cosSqAlpha;
-
-        double C = f / 16 * cosSqAlpha * (4 + f * (4 - 3 * cosSqAlpha));
-        prevLambda = lambda;
-        lambda = L + (1 - C) * f * sinAlpha * (sigma + C * sinSigma * (cos2SigmaM + C * cosSigma * (-1 + 2 * pow(cos2SigmaM, 2))));
-    } while (std::abs(lambda - prevLambda) > 1e-12 && --iterationLimit > 0);
-
-    if (iterationLimit == 0)  // formula failed to converge
-        return 0;
-
-    double uSq = cosSqAlpha * (pow(a, 2) - pow(b, 2)) / pow(b, 2);
-    double A = 1 + uSq / 16384 * (4096 + uSq * (-768 + uSq * (320 - 175 * uSq)));
-    double B = uSq / 1024 * (256 + uSq * (-128 + uSq * (74 - 47 * uSq)));
-    double deltaSigma = B * sinSigma * (cos2SigmaM + B / 4 * (cosSigma * (-1 + 2 * pow(cos2SigmaM, 2)) - B / 6 * cos2SigmaM * (-3 + 4 * pow(sinSigma, 2)) * (-3 + 4 * pow(cos2SigmaM, 2))));
-
-    double s = b * A * (sigma - deltaSigma);  // in the same units as a and b
-
-    // bearing (direction) in radius
-    // degree = radius * 180 / pi
-    double revAz = atan2(cosU1 * sinLambda, -sinU1 * cosU2 + cosU1 * sinU2 * cosLambda);
-
-    return s / 1000.0;
-}
-double suGeoUtils::distance_sq(const suPoint& p1, const suPoint& p2)
-{
-    return (p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y);
-}
 
 suGeoColl suGeoUtils::buffer(const suGeoColl& coll, const double& distance)
 {
@@ -805,13 +807,13 @@ std::vector<std::pair<suPoint, double>> suGeoUtils::adjust(const std::vector<std
     double totalDist = 0;
     for (int i = 1; i < linez.size(); i++)
     {
-        totalDist += distance(linez[i].first, linez[i - 1].first);
+        totalDist += linez[i].first.dist(linez[i - 1].first);
     }
     double dist = 0;
     ret.push_back(std::make_pair(linez.front().first, bz));
     for (int i = 1; i < linez.size(); i++)
     {
-        dist += distance(linez[i].first, linez[i - 1].first);
+        dist += linez[i].first.dist(linez[i - 1].first);
         double percent = dist / totalDist;
         double z = linez[i].second - ((1 - percent) * dzB + percent * dzE);
         ret.push_back(std::make_pair(linez[i].first, z));

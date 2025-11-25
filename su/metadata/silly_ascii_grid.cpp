@@ -13,10 +13,8 @@
 
 #include "silly_ascii_grid.h"
 
-#ifndef NDEBUG
 #include <log/silly_log.h>
 #include <datetime/silly_timer.h>
-#endif
 
 static const std::string ASC = ".asc";
 static const std::string BIN = ".bin";

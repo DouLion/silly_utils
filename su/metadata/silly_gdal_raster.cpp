@@ -173,7 +173,7 @@ double suGdalRaster::Get(const suPoint& p) const
     {
         return ret;
     }
-    if (!m_rect.contain(p))
+    if (!m_rect.intersect(p))
     {
         return ret;
     }
