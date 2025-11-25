@@ -15,8 +15,8 @@
 class suRect  // 普通坐标点
 {
   public:
-    suPoint min;
-    suPoint max;
+    suPoint min = {1e12, 1e12};
+    suPoint max = {-1e12, -1e12};
 
   public:
     suRect() = default;
