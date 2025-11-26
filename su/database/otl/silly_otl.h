@@ -194,7 +194,7 @@ class suOTL
             db.rlogon(m_conn.c_str(), false);
             db.auto_commit_off();
 
-            for (auto sql : sqls)
+            for (const auto& sql : sqls)
             {
                 if (m_verbose)
                 {
@@ -405,6 +405,7 @@ class suOTL
             }
             db.set_max_long_size(50 * SU_MB);
             otl_stream stream;
+            stream.set_commit(false);
             stream.open(1, sql.c_str(), db);
             func(&stream, std::forward<Args>(args)...);
             stream.flush();
