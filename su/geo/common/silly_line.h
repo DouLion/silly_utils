@@ -11,6 +11,7 @@
 #ifndef SILLY_LINE_H
 #define SILLY_LINE_H
 #include <geo/common/silly_point.h>
+#include <geo/common/silly_segment.h>
 
 class suLine
 {
@@ -126,7 +127,21 @@ class suLine
      * 总线长度
      * @return
      */
-    double distance() const;
+    double length() const;
+
+    /**
+     * 折线是否与另一条折线相交
+     * @param rh
+     * @return
+     */
+    bool intersect(const suLine& rh) const;
+
+    /**
+     * 与另一条折线的交点
+     * @param rh
+     * @return
+     */
+    std::vector<suPoint> intersection(const suLine& rh) const;
 
   protected:
     std::vector<suPoint> m_points;

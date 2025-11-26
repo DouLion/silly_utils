@@ -49,7 +49,7 @@ suLine suLine::equidistant(const double& dist) const
     return ret;
 }
 
-double suLine::distance() const
+double suLine::length() const
 {
     double ret = 0.0;
     if (m_points.size() < 2)
@@ -59,6 +59,42 @@ double suLine::distance() const
     for (size_t i = 1; i < m_points.size(); ++i)
     {
         ret += m_points[i].dist(m_points[i - 1]);
+    }
+    return ret;
+}
+
+bool suLine::intersect(const suLine& rh) const
+{
+    for (size_t i = 1; i < m_points.size(); ++i)
+    {
+        suSegment s1(m_points[i - 1], m_points[i]);
+        for (size_t j = 1; j < rh.m_points.size(); ++j)
+        {
+            suSegment s2(rh.m_points[j-1], rh.m_points[j]);
+            if (s1.intersect(s2))
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+std::vector<suPoint> suLine::intersection(const suLine& rh) const
+{
+    std::vector<suPoint> ret;
+    for (size_t i = 1; i < m_points.size(); ++i)
+    {
+        suSegment s1(m_points[i - 1], m_points[i]);
+        for (size_t j = 1; j < rh.m_points.size(); ++j)
+        {
+            suSegment s2(rh.m_points[j-1], rh.m_points[j]);
+            std::optional<suPoint> tmp = s1.intersection(s2);
+            if (tmp.has_value())
+            {
+                ret.push_back(tmp.value());
+            }
+        }
     }
     return ret;
 }

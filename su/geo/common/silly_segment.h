@@ -20,11 +20,16 @@ public:
   public:
     suSegment() = default;
     ~suSegment() = default;
-    suSegment(suPoint _p0, suPoint _p1)
+    suSegment(const suPoint& _p0, const suPoint& _p1)
     {
         p0 = _p0;
         p1 = _p1;
     }
+
+    bool intersect(const suSegment& rh) const;
+
+    std::optional<suPoint> intersection(const suSegment& rh) const;
+
 };
 
 #endif  // SILLY_SEGMENT_H
