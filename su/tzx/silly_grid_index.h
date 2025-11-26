@@ -11,13 +11,15 @@
 #ifndef SILLY_UTILS_SILLY_GRID_INDEX_H
 #define SILLY_UTILS_SILLY_GRID_INDEX_H
 #include <su_marco.h>
-struct llpoint
+
+class suCNGrid
 {
-    double lon = 0;
-    double lat = 0;
-};
-class silly_cn_grid
-{
+    struct LLPoint 
+    {
+        /*仅限于经纬度坐标*/
+        double lon = 0;
+        double lat = 0;
+    };
   public:
     /// <summary>
     ///  计算给定经纬度对应点的序号,从1开始 0或者小数表示无效
@@ -26,7 +28,7 @@ class silly_cn_grid
     /// <param name="lttd"></param>
     /// <param name="step">最小0.01</param>
     /// <returns></returns>
-    static int64_t index(const llpoint& point, const double& step);
+    static int64_t index(const LLPoint& point, const double& step);
 
     /// <summary>
     ///  计算给定序号对应点的经纬度
@@ -34,16 +36,16 @@ class silly_cn_grid
     /// <param name="index"></param>
     /// <param name="step"></param>
     /// <returns></returns>
-    static llpoint point(const int64_t& index, const double& step);
+    static LLPoint point(const int64_t& index, const double& step);
 
     /// <summary>
     ///  计算给定序号和经纬度, 推算步长
     /// </summary>
     /// <param name="index"></param>
     /// <param name="step"></param>
-    static double step(const llpoint& point, const int64_t& index);
+    static double step(const LLPoint& point, const int64_t& index);
 };
-class silly_grid_index
+class suGridIndx
 {
     /*
      * 以 北纬3度到北纬54度 东经74度到东经135度 , 先从西到东 然后从南向北构建全国的网格点索引
