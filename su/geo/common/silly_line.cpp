@@ -17,7 +17,7 @@ suLine suLine::equidistant(const double& dist) const
     {
         return ret;
     }
-    ret.m_points.reserve(distance() / dist * 2);
+    ret.m_points.reserve(length() / dist * 2);
     double remain = dist;
     ret.m_points.push_back(m_points.front());
     for (size_t i = 1; i < m_points.size(); ++i)
