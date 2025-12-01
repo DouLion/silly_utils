@@ -115,6 +115,37 @@ std::vector<std::string> suFile::readlines(const std::filesystem::path &fp)
     return ret;
 }
 
+bool suFile::readlines(const std::filesystem::path& fp, std::vector<std::string>& lines, suFile::filter_func func)
+{
+    std::fstream input(realpath(fp), std::ios::binary | std::ios::in);
+    if (input.is_open())
+    {
+        std::string line;
+        while (std::getline(input, line))
+        {
+            if (func(line))
+            {
+                lines.push_back(line);
+            }
+            
+        }
+    }
+    else
+    {
+        return false;
+    }
+    input.close();
+    return true;
+
+}
+
+std::vector<std::string> suFile::readlines(const std::filesystem::path &fp, suFile::filter_func func)
+{
+    std::vector<std::string> ret;
+    readlines(fp, ret, func);
+    return ret;
+}
+
 size_t suFile::write(const std::filesystem::path &fp, const std::string &content)
 {
     size_t write_len = 0;

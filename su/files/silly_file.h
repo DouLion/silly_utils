@@ -82,6 +82,10 @@ class suFile
     static bool readlines(const std::filesystem::path &fp, std::vector<std::string> &lines);
 
     static std::vector<std::string> readlines(const std::filesystem::path &fp);
+    typedef std::function<bool(std::string&)> filter_func;
+    static bool readlines(const std::filesystem::path &fp, std::vector<std::string> &lines, filter_func func);
+
+    static std::vector<std::string> readlines(const std::filesystem::path &fp, filter_func func);
 
     /// <summary>
     /// 将内容写入文件
