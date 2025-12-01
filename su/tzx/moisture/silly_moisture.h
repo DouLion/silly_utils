@@ -5,58 +5,73 @@
  * @author: dou li yang
  * @date: 2024-09-11
  * @file: silly_moisture.h
- * @description: silly_moisture 类声明
+ * @description: 土壤含水文件格式
  * @version: v1.0.1 2024-09-11 dou li yang
  */
 #ifndef SILLY_UTILS_SILLY_MOISTURE_H
 #define SILLY_UTILS_SILLY_MOISTURE_H
 #include <su_marco.h>
 
-struct moisture_index_info
-{
-    int pid;
-    uint32_t index;
-    float lgtd;
-    float lttd;
-};
-using moisture_index_cache = std::map<int, moisture_index_info>;
-
-class soil_moisture_record
+class MoistureIndex
 {
   public:
-    int pid;
-    int64_t time{0};  // 时间戳 秒, 暂时没用
-    float moisture{0.};
-    float moisture_percent{0.};
-    float precipitation;  // 过去一小时实测降雨
+    struct Info
+    {
+        int pid = 0;
+        uint32_t index = 0;
+        float lon = 0;
+        float lat = 0;
+    };
+    using Cache = std::map<int, Info>;
 
-    std::string serialize() const;
-    bool deserialize(const std::string& data);
-    static constexpr size_t serialized_size = 4 + 4 + 4 + 4 + 1;
-};
-class silly_moisture_index
-{
   public:
     bool read(const std::filesystem::path& file);
-    bool write(const std::filesystem::path& file, const moisture_index_cache& cache);
-    moisture_index_cache cache;
+    bool write(const std::filesystem::path& file, const MoistureIndex::Cache& cache);
+    Cache m_cache;
 };
 
-class silly_moisture
+class MoistureFile
 {
   public:
-    silly_moisture() = default;
-    ~silly_moisture() = default;
-    /// 将同一个时间段的数据,序列化到一个文件中
-    void serialize(const std::filesystem::path& file, const std::vector<soil_moisture_record>& records);
+    class Record
+    {
+      public:
+        int pid = 0;
+        int64_t time = 0;  // 时间戳 秒, 暂时没用
+        float moisture = 0.0;
+        float moisture_percent = 0.0;
+        float precipitation = 0.0;  // 过去一小时实测降雨
 
-    /// 从序列化文件读取一个时间段的数据
-    void deserialize(const std::filesystem::path& file, std::vector<soil_moisture_record>& records);
+        std::string serialize() const;
+        bool deserialize(const std::string& data);
+        static constexpr size_t serialized_size = 4 + 4 + 4 + 4 + 1;
+    };
+    /**
+     * 将同一个时间段的数据,序列化到一个文件中
+     * @param file
+     * @param records
+     */
+    void serialize(const std::filesystem::path& file, const std::vector<Record>& records);
 
-    /// 根据偏移位置读取一个
-    bool deserialize(const std::filesystem::path& file, const moisture_index_cache& cache, const int& pid, soil_moisture_record& record);
+    /**
+     * 从序列化文件读取一个时间段的数据
+     * @param file
+     * @param records
+     */
+    void deserialize(const std::filesystem::path& file, std::vector<Record>& records);
+
+    /**
+     * 读取指定格点序号的数据
+     * @param file 土壤含水文件
+     * @param cache 索引缓存
+     * @param pid 格点序号
+     * @param record 返回值
+     * @return 是否存在指定格点信息
+     */
+    bool deserialize(const std::filesystem::path& file, const MoistureIndex::Cache& cache, const int& pid, Record& record);
 
   private:
+    int m_num = 0;
 };
 
 #endif  // SILLY_UTILS_SILLY_MOISTURE_H
