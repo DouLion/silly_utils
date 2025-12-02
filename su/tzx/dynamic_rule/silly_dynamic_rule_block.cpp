@@ -14,28 +14,20 @@
 #define INDEX_FILENAME ".drule.index"
 #define DAT_SUFFIX ".dat"
 // 一个站,一年按366天计算, 一天24条记录,占用多少字节
-#define CODE_SIZE_PER_YEAR (366 * 24 * sizeof(cell))
+#define CODE_SIZE_PER_YEAR (366 * 24 * sizeof(Cell))
 
-static size_t index_in_year(const silly_posix_time time)
+static size_t index_in_year(const silly_posix_time& time)
 {
     silly_posix_time pt_0101 = time.time_from_string(time.to_string("%Y-01-01 00:00"));
     return (time.stamp_sec() - pt_0101.stamp_sec()) / SEC_IN_HOUR;
 }
 
-static size_t index_in_year(const std::string time_str)
-{
-    silly_posix_time pt_tm;
-    pt_tm.from_string(time_str);
-    silly_posix_time pt_0101 = pt_tm.time_from_string(time_str.substr(0, 4) + "-01-01 00:00");
-    return (pt_tm.stamp_sec() - pt_0101.stamp_sec()) / SEC_IN_HOUR;
-}
-
-tzx::dynamic_rule_block::~dynamic_rule_block()
+suDynamicRule::~suDynamicRule()
 {
     close();
 }
 
-bool tzx::dynamic_rule_block::init(const std::string root, const size_t& num, const bool& read_mode)
+bool suDynamicRule::init(const std::filesystem::path& root, const size_t& num, const bool& read_mode)
 {
     std::filesystem::path p(root);
     std::filesystem::create_directories(p);
@@ -66,7 +58,7 @@ bool tzx::dynamic_rule_block::init(const std::string root, const size_t& num, co
     return m_init;
 }
 
-bool tzx::dynamic_rule_block::read(const std::string& code, const silly_posix_time& time, cell& data)
+bool suDynamicRule::read(const std::string& code, const silly_posix_time& time, Cell& data)
 {
     std::string year = time.to_string(DTFMT_Y);
     if (!open_dat(year))
@@ -78,14 +70,14 @@ bool tzx::dynamic_rule_block::read(const std::string& code, const silly_posix_ti
         size_t index = m_code_index[code];
         size_t offset = index * CODE_SIZE_PER_YEAR;
 
-        size_t pos = offset + index_in_year(time) * sizeof(cell);
-        m_year_mmap[year]->read((suMemMapFile::Ptr)&data, sizeof(cell), pos);
+        size_t pos = offset + index_in_year(time) * sizeof(Cell);
+        m_year_mmap[year]->read((suMemMapFile::Ptr)&data, sizeof(Cell), pos);
         return true;
     }
     return false;
 }
 
-bool tzx::dynamic_rule_block::read(const silly_posix_time& time, std::map<std::string, cell>& code_data)
+bool suDynamicRule::read(const silly_posix_time& time, std::map<std::string, Cell>& code2data)
 {
     std::string year = time.to_string(DTFMT_Y);
     
@@ -93,19 +85,19 @@ bool tzx::dynamic_rule_block::read(const silly_posix_time& time, std::map<std::s
     {
         return false;
     }
-    for (auto [code, idx] : m_code_index)
+    for (auto& [code, idx] : m_code_index)
     {
         size_t offset = idx * CODE_SIZE_PER_YEAR;
-        cell tmp;
-        size_t pos = offset + index_in_year(time) * sizeof(cell);
-        m_year_mmap[year]->read((suMemMapFile::Ptr)&tmp, sizeof(cell), pos);
+        Cell tmp;
+        size_t pos = offset + index_in_year(time) * sizeof(Cell);
+        m_year_mmap[year]->read((suMemMapFile::Ptr)&tmp, sizeof(Cell), pos);
 
-        code_data[code] = tmp;
+        code2data[code] = tmp;
     }
-    return code_data.size() > 0;
+    return !code2data.empty();
 }
 
-bool tzx::dynamic_rule_block::read(const std::string& code, const silly_posix_time& btm, const silly_posix_time& etm, std::map<std::string, cell>& time_data)
+bool suDynamicRule::read(const std::string& code, const silly_posix_time& btm, const silly_posix_time& etm, std::map<std::string, Cell>& time2data)
 {
     if (m_code_index.find(code) == m_code_index.end())
     {
@@ -122,7 +114,7 @@ bool tzx::dynamic_rule_block::read(const std::string& code, const silly_posix_ti
 
         size_t bi = index_in_year(btm);
         size_t ei = index_in_year(etm);
-        read(offset, bi, ei, btm, time_data);
+        read(offset, bi, ei, btm, time2data);
         return true;
     }
     else if (etm.year() - btm.year() == 1)  // 结束时间一定比开始时间大
@@ -134,7 +126,7 @@ bool tzx::dynamic_rule_block::read(const std::string& code, const silly_posix_ti
             etm_1231.from_string(year + "-12-31 23:00");
             size_t bi = index_in_year(btm);
             size_t ei = index_in_year(etm_1231);
-            read(offset, bi, ei, btm, time_data);
+            read(offset, bi, ei, btm, time2data);
         }
         if (open_dat(etm))
         {
@@ -143,19 +135,15 @@ bool tzx::dynamic_rule_block::read(const std::string& code, const silly_posix_ti
             btm_0101.from_string(year + "-01-01 00:00");
             size_t bi = index_in_year(btm_0101);
             size_t ei = index_in_year(etm);
-            read(offset, bi, ei, btm_0101, time_data);
+            read(offset, bi, ei, btm_0101, time2data);
         }
-        return time_data.size() > 0;
+        return !time2data.empty();
     }
-    else
-    {
-        SLOG_ERROR("时间跨度不能超过一年")
-        return false;
-    }
+    SLOG_ERROR("时间跨度不能超过一年")
     return false;
 }
 
-bool tzx::dynamic_rule_block::write(const std::string& code, const silly_posix_time& time, const cell& data)
+bool suDynamicRule::write(const std::string& code, const silly_posix_time& time, const Cell& data)
 {
     std::string year = time.to_string(DTFMT_Y);
     if (!open_dat(year))
@@ -167,42 +155,42 @@ bool tzx::dynamic_rule_block::write(const std::string& code, const silly_posix_t
     {
         size_t offset = iter->second * CODE_SIZE_PER_YEAR;
 
-        size_t pos = offset + index_in_year(time) * sizeof(cell);
-        m_year_mmap[year]->write((suMemMapFile::Ptr)&data, sizeof(cell), pos);
+        size_t pos = offset + index_in_year(time) * sizeof(Cell);
+        m_year_mmap[year]->write((suMemMapFile::Ptr)&data, sizeof(Cell), pos);
         return true;
     }
     return false;
 }
 
-bool tzx::dynamic_rule_block::write(const silly_posix_time& time, const std::map<std::string, cell>& code_data)
+bool suDynamicRule::write(const silly_posix_time& time, const std::map<std::string, Cell>& code2data)
 {
     std::string year = time.to_string(DTFMT_Y);
     if (!open_dat(year))
     {
         return false;
     }
-    for (const auto& [code, data] : code_data)
+    for (const auto& [code, data] : code2data)
     {
         auto iter = m_code_index.find(code);
         if (iter != m_code_index.end())
         {
             size_t offset = iter->second * CODE_SIZE_PER_YEAR;
 
-            size_t pos = offset + index_in_year(time) * sizeof(cell);
-            m_year_mmap[year]->write((suMemMapFile::Ptr)&data, sizeof(cell), pos);
+            size_t pos = offset + index_in_year(time) * sizeof(Cell);
+            m_year_mmap[year]->write((suMemMapFile::Ptr)&data, sizeof(Cell), pos);
         }
     }
 
     return true;
 }
 
-bool tzx::dynamic_rule_block::open_dat(const silly_posix_time& time)
+bool suDynamicRule::open_dat(const silly_posix_time& time)
 {
     std::string year = time.to_string(DTFMT_Y);
     return open_dat(year);
 }
 
-bool tzx::dynamic_rule_block::open_dat(const std::string& year_str)
+bool suDynamicRule::open_dat(const std::string& year_str)
 {
     if (!m_init)
     {
@@ -259,25 +247,25 @@ bool tzx::dynamic_rule_block::open_dat(const std::string& year_str)
     return true;
 }
 
-void tzx::dynamic_rule_block::read(const size_t& offset, const size_t& bi, const size_t& ei, const silly_posix_time& time, std::map<std::string, cell>& time_data)
+void suDynamicRule::read(const size_t& offset, const size_t& bi, const size_t& ei, const silly_posix_time& time, std::map<std::string, Cell>& time2data)
 {
     std::string year = time.to_string(DTFMT_Y);
     for (size_t i = bi; i <= ei; i++)
     {
-        cell tmp;
-        size_t pos = offset * CODE_SIZE_PER_YEAR + i * sizeof(cell);
-        m_year_mmap[year]->read((suMemMapFile::Ptr)&tmp, sizeof(cell), pos);
+        Cell tmp;
+        size_t pos = offset * CODE_SIZE_PER_YEAR + i * sizeof(Cell);
+        m_year_mmap[year]->read((suMemMapFile::Ptr)&tmp, sizeof(Cell), pos);
         std::string tmstr = (time + silly_time_duration(i - bi, 0, 0)).to_string(DTFMT_YMDHM);
-        time_data[tmstr] = tmp;
+        time2data[tmstr] = tmp;
     }
 }
 
-bool tzx::dynamic_rule_block::write(const std::string& code, const std::map<std::string, cell>& time_data)
+bool suDynamicRule::write(const std::string& code, const std::map<std::string, Cell>& time2data)
 {
     return false;
 }
 
-void tzx::dynamic_rule_block::close()
+void suDynamicRule::close()
 {
     for (auto& [year, mmap] : m_year_mmap)
     {

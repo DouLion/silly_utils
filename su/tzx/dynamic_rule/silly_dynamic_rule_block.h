@@ -13,13 +13,11 @@
 #define SILLY_UTILS_SILLY_DYNAMIC_RULE_BLOCK_H
 #include <datetime/silly_posix_time.h>
 #include <files/silly_memory_map.h>
-namespace tzx
-{
-class dynamic_rule_block
+class suDynamicRule
 {
   public:
 #pragma pack(1)
-    struct cell
+    struct Cell
     {
         float h1P = 0.0;  // 1 小时准备转移
         float h1I = 0.0;  // 1 小时立即转移
@@ -31,15 +29,15 @@ class dynamic_rule_block
     };
 #pragma pack()
   public:
-    dynamic_rule_block() = default;
-    ~dynamic_rule_block();
+    suDynamicRule() = default;
+    ~suDynamicRule();
     /// <summary>
     ///
     /// </summary>
     /// <param name="root">文件根目录</param>
     /// <param name="num">最大危险区数量,</param>
     /// <returns></returns>
-    bool init(const std::string root, const size_t& num = 30000, const bool& read_mode = true);
+    bool init(const std::filesystem::path& root, const size_t& num = 30000, const bool& read_mode = true);
 
     /// <summary>
     /// 读取指定时间指定危险区的数据
@@ -49,7 +47,7 @@ class dynamic_rule_block
     ///
     /// <param name="data"></param>
     /// <returns></returns>
-    bool read(const std::string& code, const silly_posix_time& time, cell& data);
+    bool read(const std::string& code, const silly_posix_time& time, Cell& data);
 
     /// <summary>
     /// 读取指定时间一批危险区的数据
@@ -57,7 +55,7 @@ class dynamic_rule_block
     /// <param name="time"></param>
     /// <param name="code_data"></param>
     /// <returns></returns>
-    bool read(const silly_posix_time& time, std::map<std::string, cell>& code_data);
+    bool read(const silly_posix_time& time, std::map<std::string, Cell>& code_data);
 
     /// <summary>
     /// 读取指定危险区在一段时间内的数据, [btm, etm], 最多能跨一年
@@ -67,7 +65,7 @@ class dynamic_rule_block
     /// <param name=""></param>
     /// <param name="time_data"></param>
     /// <returns></returns>
-    bool read(const std::string& code, const silly_posix_time& btm, const silly_posix_time& etm, std::map<std::string, cell>& time_data);
+    bool read(const std::string& code, const silly_posix_time& btm, const silly_posix_time& etm, std::map<std::string, Cell>& time_data);
 
     /// <summary>
     /// 写入指定时间指定危险区的数据
@@ -76,7 +74,7 @@ class dynamic_rule_block
     /// <param name="time"></param>
     /// <param name="data"></param>
     /// <returns></returns>
-    bool write(const std::string& code, const silly_posix_time& time, const cell& data);
+    bool write(const std::string& code, const silly_posix_time& time, const Cell& data);
 
     /// <summary>
     /// 写入指定时间点一批危险区的数据
@@ -85,7 +83,7 @@ class dynamic_rule_block
     /// <param name="time"></param>
     /// <param name="code_data"></param>
     /// <returns></returns>
-    bool write(const silly_posix_time& time, const std::map<std::string, cell>& code_data);
+    bool write(const silly_posix_time& time, const std::map<std::string, Cell>& code_data);
 
     /// <summary>
     /// 写入指定时间一批危险区的数据
@@ -93,7 +91,7 @@ class dynamic_rule_block
     /// <param name="code"></param>
     /// <param name="code_data"></param>
     /// <returns></returns>
-    bool write(const std::string& code, const std::map<std::string, cell>& time_data);
+    bool write(const std::string& code, const std::map<std::string, Cell>& time_data);
 
     void close();
 
@@ -101,18 +99,17 @@ class dynamic_rule_block
     bool open_dat(const silly_posix_time& time);
     bool open_dat(const std::string& year_str);
 
-    void read(const size_t& offset, const size_t& bi, const size_t& ei, const silly_posix_time& time, std::map<std::string, cell>& time_data);
+    void read(const size_t& offset, const size_t& bi, const size_t& ei, const silly_posix_time& time, std::map<std::string, Cell>& time_data);
 
   private:
     bool m_read_mode = true;
     bool m_init = false;
-    std::string m_root;
+    std::filesystem::path m_root;
     size_t m_num = 0;
     size_t m_max_index = 0;  // 当前最大危险区索引, 不能超过m_num
     std::map<std::string, size_t> m_code_index;
     std::map<std::string, std::shared_ptr<suMemMapFile>> m_year_mmap;
 };
 
-}  // namespace tzx
 
 #endif  // SILLY_UTILS_SILLY_DYNAMIC_RULE_BLOCK_H

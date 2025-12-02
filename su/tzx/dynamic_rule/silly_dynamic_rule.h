@@ -12,7 +12,7 @@
 #define SILLY_UTILS_SILLY_DYNAMIC_RULE_H
 #include <su_marco.h>
 #include <datastruct/silly_safe_bimap.h>
-static uint8_t DRFMT_CODE_INDEX = 0b10001001;   // 前三个个bit表示类型, 后面为占位符
+/*static uint8_t DRFMT_CODE_INDEX = 0b10001001;   // 前三个个bit表示类型, 后面为占位符
 static uint8_t DRFMT_CODE_LENGTH = 0b11100000;  // 前三个bit表示类型, 5位组成字符串长度 字符串长度限制在 0-31 之间
 
 class dynamic_rule_record
@@ -74,6 +74,6 @@ class silly_dynamic_rule
 
   private:
     dynamic_rule_code_index m_index{};
-};
+};*/
 
 #endif  // SILLY_UTILS_SILLY_DYNAMIC_RULE_H

@@ -12,6 +12,7 @@
 #include "files/silly_file.h"
 #include <log/silly_log.h>
 #include <system/silly_system.h>
+/*
 bool dynamic_rule_code_index::load(const std::filesystem::path& file)
 {
     try
@@ -246,7 +247,7 @@ bool silly_dynamic_rule::read_with_code_index(const std::filesystem::path& file,
     uint8_t* p = (uint8_t*)content.data();
     /*p++;
     int total = int(*p);
-    p+=sizeof (total);*/
+    p+=sizeof (total);#1#
     while (*p == 0x5F)
     {
         p++;
@@ -321,7 +322,7 @@ bool silly_dynamic_rule::write_with_code_index(const std::filesystem::path& file
     for(int i =0; i < total; i++)
     {
         std::cout << std::hex << std::setfill('0') << std::setw(2) << static_cast<int>((unsigned char)(content.data()[i]))<< " ";
-    }*/
+    }#1#
     sufile::write(path, content);
     return true;
 }
@@ -356,7 +357,7 @@ bool silly_dynamic_rule::read_with_code_index(const std::filesystem::path& file,
     uint8_t* p = (uint8_t*)content.data();
     /*p++;
     int total = int(*p);
-    p+=sizeof (total);*/
+    p+=sizeof (total);#1#
     while (*p == 0x5F)
     {
         p++;
@@ -383,3 +384,4 @@ bool silly_dynamic_rule::read_with_code_index(const std::filesystem::path& file,
     }
     return false;
 }
+*/
