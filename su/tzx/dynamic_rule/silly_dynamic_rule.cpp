@@ -11,22 +11,27 @@
 #include "silly_dynamic_rule.h"
 #include "files/silly_file.h"
 #include <log/silly_log.h>
+#include <system/silly_system.h>
 bool dynamic_rule_code_index::load(const std::filesystem::path& file)
 {
-    auto path = sufile::realpath(file);
     try
     {
-        std::string content;
-        if (0 == sufile::read(path, content))
+        std::vector<std::string> lines = sufile::readlines(file);
+        if (lines.empty())
         {
             return false;
         }
-        std::istringstream iss(content);
-        while (!iss.eof())
+        for (const auto& line : lines)
         {
-            std::string code;
-            size_t index;
-            iss >> code >> index;
+
+            // 编码,序列号
+            std::vector<std::string> parts = SPLIT(line, ",");
+            if (parts.size() != 2)
+            {
+                continue;
+            }
+            std::string code = parts[0];
+            size_t index = std::stod(parts[1]);
 
             if (index > max_index)
             {
@@ -39,7 +44,7 @@ bool dynamic_rule_code_index::load(const std::filesystem::path& file)
     {
         return false;
     }
-    return true;
+    return size() > 0;
 }
 bool dynamic_rule_code_index::save(const std::filesystem::path& file)
 {

@@ -88,6 +88,7 @@ bool tzx::dynamic_rule_block::read(const std::string& code, const silly_posix_ti
 bool tzx::dynamic_rule_block::read(const silly_posix_time& time, std::map<std::string, cell>& code_data)
 {
     std::string year = time.to_string(DTFMT_Y);
+    
     if (!open_dat(year))
     {
         return false;
@@ -231,12 +232,28 @@ bool tzx::dynamic_rule_block::open_dat(const std::string& year_str)
             ofs.close();
         }
         std::shared_ptr<suMemMapFile> tmp = std::make_shared<suMemMapFile>();
-        eMMFMode mode = m_read_mode ? eMMFMode::Read : eMMFMode::Write;
-        if (!tmp->open(file, mode))
+        if (m_read_mode)
         {
-            tmp->close();
-            return false;
+            if (!tmp->open(file, eMMFMode::Read))
+            {
+                tmp->close();
+                return false;
+            }
         }
+        else
+        {
+            suMemMapFile::Param p;
+            p.mode = eMMFMode::Write;
+            p.path = file;
+            p.disposition = OpenExisting;
+            p.map_size = total_size;
+            if (!tmp->open(p))
+            {
+                tmp->close();
+                return false;
+            }
+        }       
+        std::cout << "打开: " << file << std::endl;
         m_year_mmap[year_str] = tmp;
     }
     return true;

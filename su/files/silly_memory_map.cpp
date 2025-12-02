@@ -190,7 +190,7 @@ void suMemMapFile::try_map_file()
     {
         throw std::runtime_error("Failed to create file mapping");
     }
-    access = access == PAGE_READONLY ? FILE_MAP_READ : FILE_MAP_WRITE;
+    access = access == PAGE_READONLY ? FILE_MAP_READ : FILE_MAP_ALL_ACCESS;
 
     // 总是映射完整文件, Windows 的 MapViewOfFile要求：
     // 映射偏移量（dwFileOffsetHigh/Low）必须是内存页大小的整数倍（通常是 4KB = 4096 字节）。
@@ -337,7 +337,11 @@ bool suMemMapFile::open(const std::filesystem::path& file, const eMMFMode& mode,
             std::cerr << "使用open(const Param& p) 函数 明确写模式" << std::endl;
             return false;
         }
-        p.disposition = CreateAlways;
+        //p.disposition = CreateAlways;
+    }
+    else
+    {
+        p.disposition = OpenExisting;
     }
     return open(p);
 }
@@ -347,15 +351,16 @@ bool suMemMapFile::open(const suMemMapFile::Param& p)
     // 打开文件未完成时不允许写
     std::scoped_lock<std::mutex> lock2(m_w_mutex);
     m_file = p.path;
+    m_mode = p.mode;
     m_file_len = std::filesystem::file_size(m_file);
-    if (p.mode == Read)
+    //if (p.mode == Read)
     {
         if (m_file_len <= 0)
         {
             SLOG_ERROR("文件不存在或大小为0,无法读打开")
             return false;
         }
-        m_disposition = eMMFDisposition::OpenExisting;
+        m_disposition = p.disposition;
         m_map_offset = p.offset;
         if (m_map_offset >= m_file_len)
         {
@@ -372,15 +377,15 @@ bool suMemMapFile::open(const suMemMapFile::Param& p)
         }
 
     }
-    else if (p.mode == Write)
+    /*else if (p.mode == Write)
     {
-        // TODO: 后续再处理 dly
+        
         return false;
     }
     else
     {
         return false;
-    }
+    }*/
 
     return open();
 }
