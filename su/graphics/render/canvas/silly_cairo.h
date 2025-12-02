@@ -175,6 +175,8 @@ class suCairo
     /// <param name="rect"></param>
     void draw_line_web_mercator(const std::vector<suPoint>& line, const suRect& rect);
 
+    void fill_rect(const suRect& rect);
+
     /// <summary>
     /// 释放cairo资源
     /// </summary>
