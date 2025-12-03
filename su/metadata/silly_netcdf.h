@@ -41,24 +41,16 @@ class suNetCDF
     class Geo
     {
       public:
-        /*float xfirst{0.0f};
-        float xlast{0.0f};*/
-        size_t xlen{0};
-        std::string xname{"lon"};
-        // 默认经度 东为正方向
-        std::string xunits{"degrees_east"};
-        float xmax{180.0f};
-        float xmin{-180.0f};
-        float xstep{0.0};
-        /*float yfirst{0.0f};
-        float ylast{0.0f};*/
-        size_t ylen{0};
-        std::string yname{"lat"};
-        // 默认纬度 北为正方向
-        std::string yunits{"degrees_north"};
-        float ymax{90.0f};
-        float ymin{-90.0f};
-        float ystep{0.0};
+        size_t xlen = 0;
+        std::string xname =  "lon";
+        float xmax= 180.0f;
+        float xmin= -180.0f;
+        float xstep= 0.0;
+        size_t ylen = 0;
+        std::string yname = "lat";
+        float ymax = 90.0f;
+        float ymin = -90.0f;
+        float ystep = 0.0;
     };
 
     // 单波段的数据
@@ -67,10 +59,10 @@ class suNetCDF
       public:
         std::string group{"acc"};
         std::string name;
-        float scale{1.};
-        float fill{-9999.};
-        float offset{0.};
-        std::string units{"mm"};
+        float scale = 1.0;;
+        float fill = -9999.;
+        float offset = 0.0;
+        std::string units = "mm";
         std::vector<float> grid;  // 西北角为原点,逐行存储
     };
 
