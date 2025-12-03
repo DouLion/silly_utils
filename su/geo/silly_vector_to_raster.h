@@ -11,51 +11,40 @@
                  使用fill()函数,填充成果,不会存在重复情况
  *
  */
-#ifndef SILLY_UTILS_SILLY_VECTOR_TO_RASTER_H
-#define SILLY_UTILS_SILLY_VECTOR_TO_RASTER_H
+#ifndef SILLY_VECTOR_TO_RASTER_H
+#define SILLY_VECTOR_TO_RASTER_H
 
 #include <geo/silly_geo_coll.h>
 #include <math/silly_matrix.h>
 
-namespace silly::geo::rasterization
-{
-
-class _point
-{
-  public:
-    _point() = default;
-    _point(int _x, int _y)
-    {
-        x = _x;
-        y = _y;
-    }
-
-  public:
-    int x{0};
-
-    int y{0};
-};
-
-class row_pair
-{
-  public:
-    int beg = 0;
-    int end = 0;
-};
-
-typedef std::map<int, std::vector<row_pair>> scan_pairs;
-
 /// X扫描线算法
-
-class x_scan_line
+class XScanLine
 {
+public:
+    struct Point
+    {
+        int x = 0;
+        int y = 0;
+        Point() {};
+        Point(const int& x, const int& y) : x(x), y(y) {};
+    };
+
+    struct RowPair
+    {
+        int beg = 0;
+        int end = 0;
+    };
+
+    // 每一行 都有多个起终点序号对
+    using ScanPairs =  std::map<int, std::vector<RowPair>>;
+
   public:
     void set(const suRect& rect, const double& cell_size);
 
     /// <summary>
     /// 光栅化单点
     /// </summary>
-    /// <param name="line"></param>
+    /// <param name="point"></param>
     /// <returns></returns>
     void rasterize(const suPoint& point);
 
@@ -104,7 +93,7 @@ class x_scan_line
     /// <summary>
     /// 将光栅化结果绘制到灰度图上
     /// </summary>
-    /// <param name="path"></param>
+    /// <param name="file"></param>
     void image(const std::filesystem::path& file);
 
     int width() const;
@@ -115,7 +104,7 @@ class x_scan_line
     /// </summary>
     void fill();
 
-    scan_pairs row_pairs() const;
+    ScanPairs row_pairs() const;
 
     /// <summary>
     /// 将光栅化结果转为网格面输出
@@ -139,9 +128,9 @@ class x_scan_line
     /// </summary>
     /// <param name="vertices_arr"></param>
     /// <returns></returns>
-    void rasterize(const std::vector<std::vector<_point>> vertices_arr);
+    void rasterize(const std::vector<std::vector<Point>>& vertices_arr);
 
-    void check_line_point(suPoint point, std::vector<_point>& vct, int& last_x, int& last_y);
+    void check_line_point(const suPoint& , std::vector<Point>& vct, int& last_x, int& last_y) const;
 
     /// <summary>
     /// 添加新的行记录,会在
@@ -151,17 +140,14 @@ class x_scan_line
 
   private:
     // 数据记录以经纬度左上角为原点, 向东为col的正方向,向下为row的正方向
-    int m_width{0};
-    int m_height{0};
+    int m_width = 0;
+    int m_height = 0;
     suRect m_rect;
     // 经纬度小数点后6位能精确到1米,更加精确意义不大
     double m_cell_size{0.000001};
     // 记录每一行在矢量内的多对起始列号
-    scan_pairs m_row_pairs;
+    ScanPairs m_row_pairs;
     std::vector<std::vector<uint8_t>> m_row_colors;
     int64_t m_num = 0;
 };
-
-}  // namespace silly::geo::rasterization
-
-#endif  // SILLY_UTILS_SILLY_VECTOR_TO_RASTER_H
+#endif  // SILLY_VECTOR_TO_RASTER_H

@@ -3,22 +3,21 @@
 //
 
 #include "silly_vector_to_raster.h"
-using namespace silly::geo::rasterization;
 
-void x_scan_line::check_line_point(suPoint point, std::vector<_point>& vct, int& last_x, int& last_y)
+void XScanLine::check_line_point(const suPoint&  point, std::vector<Point>& vct, int& last_x, int& last_y) const
 {
     // m_row_pairs.clear();
     int tmp_x = static_cast<int>(std::round((point.x - m_rect.min.x) / m_cell_size));
     int tmp_y = static_cast<int>(std::round((m_rect.max.y - point.y) / m_cell_size));
     if (last_x != tmp_x || last_y != tmp_y)
     {
-        vct.push_back(_point(tmp_x, tmp_y));
+        vct.push_back(Point(tmp_x, tmp_y));
         last_x = tmp_x;
         last_y = tmp_y;
     }
 }
 
-void x_scan_line::rasterize(const suPoint& point)
+void XScanLine::rasterize(const suPoint& point)
 {
     int x = static_cast<int>(std::round((point.x - m_rect.min.x) / m_cell_size));
     int y = static_cast<int>(std::round((m_rect.max.y - point.y) / m_cell_size));
@@ -28,7 +27,7 @@ void x_scan_line::rasterize(const suPoint& point)
     }
 }
 
-void x_scan_line::rasterize(const suMultiPoint& points)
+void XScanLine::rasterize(const suMultiPoint& points)
 {
     // m_row_pairs.clear();
     for (const auto& point : points)
@@ -37,7 +36,7 @@ void x_scan_line::rasterize(const suMultiPoint& points)
     }
 }
 
-void x_scan_line::rasterize(const suLine& line)
+void XScanLine::rasterize(const suLine& line)
 {
     if (line.empty())
     {
@@ -59,7 +58,7 @@ void x_scan_line::rasterize(const suLine& line)
     }
 }
 
-void x_scan_line::rasterize(const suMultiLine& lines)
+void XScanLine::rasterize(const suMultiLine& lines)
 {
     // m_row_pairs.clear();
     for (const auto& line : lines)
@@ -68,15 +67,15 @@ void x_scan_line::rasterize(const suMultiLine& lines)
     }
 }
 
-void x_scan_line::rasterize(const suPoly& poly)
+void XScanLine::rasterize(const suPoly& poly)
 {
     // m_row_pairs.clear();
-    std::vector<std::vector<_point>> vertices_arr;
+    std::vector<std::vector<Point>> vertices_arr;
 
     // 将点转换为光栅坐标并合并连续的相同点
     int last_x = 0 - m_width;
     int last_y = 0 - m_height;
-    std::vector<_point> tmp_vertices;
+    std::vector<Point> tmp_vertices;
 
     for (const auto& point : poly.outer.points)
     {
@@ -99,10 +98,10 @@ void x_scan_line::rasterize(const suPoly& poly)
     rasterize(vertices_arr);
 }
 
-void x_scan_line::rasterize(const suMultiPoly& m_polys)
+void XScanLine::rasterize(const suMultiPoly& m_polys)
 {
     // m_row_pairs.clear();
-    std::vector<std::vector<_point>> vertices_arr;
+    std::vector<std::vector<Point>> vertices_arr;
 
     for (const auto& poly : m_polys)
     {
@@ -111,14 +110,14 @@ void x_scan_line::rasterize(const suMultiPoly& m_polys)
         int last_y = 0 - m_height;
         for (const auto& ring : poly.holes)
         {
-            std::vector<_point> tmp_vertices;
+            std::vector<Point> tmp_vertices;
             for (const auto& point : ring.points)
             {
                 check_line_point(point, tmp_vertices, last_x, last_y);
             }
             vertices_arr.push_back(tmp_vertices);
         }
-        std::vector<_point> tmp_vertices;
+        std::vector<Point> tmp_vertices;
 
         for (const auto& point : poly.outer.points)
         {
@@ -130,7 +129,7 @@ void x_scan_line::rasterize(const suMultiPoly& m_polys)
     rasterize(vertices_arr);
 }
 
-void x_scan_line::rasterize(const std::vector<std::vector<_point>> vertices_arr)
+void XScanLine::rasterize(const std::vector<std::vector<Point>>& vertices_arr)
 {
     int minY = INT_MAX, maxY = 0;
     int minX = INT_MAX, maxX = 0;
@@ -161,8 +160,8 @@ void x_scan_line::rasterize(const std::vector<std::vector<_point>> vertices_arr)
             int numVertices = vertices.size();
             for (int i = 0; i < numVertices; ++i)
             {
-                _point v1 = vertices[i];
-                _point v2 = vertices[(i + 1) % numVertices];
+                Point v1 = vertices[i];
+                Point v2 = vertices[(i + 1) % numVertices];
                 if ((scanY >= v1.y && scanY < v2.y) || (scanY >= v2.y && scanY < v1.y))  // v1 v2 不在同一行
                 {
                     float slope = (v2.x - v1.x) / (v2.y - v1.y);
@@ -183,7 +182,7 @@ void x_scan_line::rasterize(const std::vector<std::vector<_point>> vertices_arr)
     }
 }
 
-void x_scan_line::rasterize(const suGeoColl& geo_coll)
+void XScanLine::rasterize(const suGeoColl& geo_coll)
 {
     eGeometryType feature_type = geo_coll.type();
     switch (feature_type)
@@ -216,7 +215,7 @@ void x_scan_line::rasterize(const suGeoColl& geo_coll)
 #include <graphics/silly_png.h>
 #endif
 
-void x_scan_line::image(const std::filesystem::path& file)
+void XScanLine::image(const std::filesystem::path& file)
 {
 #ifndef NDEBUG
     suPNG pd;
@@ -238,7 +237,7 @@ void x_scan_line::image(const std::filesystem::path& file)
     pd.release();
 #endif
 }
-void x_scan_line::set(const suRect& rect, const double& cell_size)
+void XScanLine::set(const suRect& rect, const double& cell_size)
 {
     clear();
     m_rect = rect;
@@ -248,30 +247,33 @@ void x_scan_line::set(const suRect& rect, const double& cell_size)
     m_height = static_cast<int>(std::round((m_rect.max.y - m_rect.min.y) / m_cell_size));
     m_row_colors.resize(m_height, std::vector<uint8_t>(m_width, 0x00));
 }
-int x_scan_line::width() const
+
+int XScanLine::width() const
 {
     return m_width;
 }
-int x_scan_line::height() const
+
+int XScanLine::height() const
 {
     return m_height;
 }
-scan_pairs x_scan_line::row_pairs() const
+
+XScanLine::ScanPairs XScanLine::row_pairs() const
 {
     return m_row_pairs;
 }
 
-void x_scan_line::clear()
+void XScanLine::clear()
 {
     m_row_pairs.clear();
     m_row_colors.clear();
 }
 
-int64_t x_scan_line::num() const
+int64_t XScanLine::num() const
 {
     return m_num;
 }
-suMatrix<uint8_t> x_scan_line::mask()
+suMatrix<uint8_t> XScanLine::mask()
 {
     suMatrix<uint8_t> ret;
     /*int row = std::round((m_rect.max.y - m_rect.min.y) / m_cell_size);
@@ -293,7 +295,7 @@ suMatrix<uint8_t> x_scan_line::mask()
     return ret;
 }
 
-std::vector<suPoly> x_scan_line::grids() const
+std::vector<suPoly> XScanLine::grids() const
 {
     std::vector<suPoly> ret;
     for (auto& [r, b_es] : m_row_pairs)
@@ -318,7 +320,7 @@ std::vector<suPoly> x_scan_line::grids() const
 
     return ret;
 }
-void x_scan_line::add(const int& row, const std::vector<int>& edges)
+void XScanLine::add(const int& row, const std::vector<int>& edges)
 {
     if (edges.size() % 2 == 1 || edges.empty() || row >= m_height)
     {
@@ -336,7 +338,7 @@ void x_scan_line::add(const int& row, const std::vector<int>& edges)
         }
     }
 }
-void x_scan_line::fill()
+void XScanLine::fill()
 {
     m_row_pairs.clear();
     m_num = 0;

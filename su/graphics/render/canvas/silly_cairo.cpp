@@ -808,12 +808,14 @@ void suCairo::draw_line_web_mercator(const std::vector<suPoint> &line, const suR
 
 void suCairo::fill_rect(const suRect& rect)
 {
+#if SU_THIRD_SUPPORT_CAIRO
     double w = rect.max.x - rect.min.x;
     double h = rect.max.y - rect.min.y;
     cairo_rectangle (m_cr, rect.min.x, rect.min.y, w, h);
     cairo_set_fill_rule (m_cr, CAIRO_FILL_RULE_EVEN_ODD);
     cairo_fill_preserve (m_cr);
     cairo_stroke(m_cr);
+#endif
 }
 
 void suCairo::draw_point(const suPoint &p, const double &size, const suRect &rect)
