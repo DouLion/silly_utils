@@ -183,6 +183,31 @@ class suGeoColl
         return m_properties;
     }
 
+    std::string asString(const std::string& key) const
+    {
+        return m_properties.at(key).as_string();
+    }
+
+    int32_t asInt32(const std::string& key) const
+    {
+        return m_properties.at(key).as_int32();
+    }
+
+    double asDouble(const std::string& key) const
+    {
+        return m_properties.at(key).as_double();
+    }
+
+    std::vector<unsigned char> asBinary(const std::string& key) const
+    {
+        return m_properties.at(key).as_binary();
+    }
+
+    long long asInt64(const std::string& key) const
+    {
+        return m_properties.at(key).as_int64();
+    }
+
   private:
     // 类型
     suGeoCollType m_geometry;
