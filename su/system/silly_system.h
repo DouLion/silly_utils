@@ -12,15 +12,18 @@
 #define SILLY_UTILS_SILLY_SYSTEM_H
 #include <su_marco.h>
 
-/// 1. Debug 模式时,切换到项目目录,能够以./config加载配置信息
-/// 2. Release 模式时, 如果 可执行程序与config在同级目录, 不做任何处理
-///     如果 可执行程序在bin目录中, 则切换到config的同级目录
-///     -- config
-///         --
-///     -- bin
-///         -- 模式2.exe
-///        模式1.exe
-/// @param binPath CMAKE中设置的项目目录,仅在debug模式下有效
+/**
+ * 1. Debug 模式时,切换到项目目录,能够以./config加载配置信息
+ * 2. Release 模式时, 如果 可执行程序与config在同级目录, 不做任何处理
+ *      如果 可执行程序在bin目录中, 则切换到config的同级目录
+ *      -- config
+ *          --
+ *      -- bin
+ *          -- 模式2.exe
+ *          模式1.exe-
+ * @param binPath  CMAKE中设置的项目目录,仅在debug模式下有效
+ * @return
+ */
 void BIN_CHDIR(const std::filesystem::path& binPath);
 
 #if _WIN32
@@ -66,9 +69,35 @@ std::string REGEX_REPLACE(const std::string& str, const std::string& pattern, co
 std::vector<std::string> SPLIT(const std::string& str, const char& delimiter);
 std::vector<std::string> SPLIT(const std::string& str, const std::string& delimiter);
 
+/**
+ * 通配符模式转换为正则表达式
+ * @param pattern
+ * @return
+ */
 std::string WILDCARD2REGEX(const std::string& pattern);
 
 bool IS_UTF8(const std::string& str);
 bool IS_GBK(const std::string& str);
+
+/**
+ * 是否仅包含ASCII编码
+ * @param str
+ * @return
+ */
+bool ONLY_ASCII(const std::string& str);
+
+/**
+ * 是否包含UTF8编码字符串
+ * @param str
+ * @return
+ */
+bool HAS_UTF8(const std::string& str);
+
+/**
+ * 是否包含GBK编码字符串
+ * @param str
+ * @return
+ */
+bool HAS_GBK(const std::string& str);
 
 #endif

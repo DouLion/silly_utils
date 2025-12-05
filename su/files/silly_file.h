@@ -8,53 +8,14 @@
  * @software: silly_utils
  * @description:
  */
-#pragma once
-
-#ifndef SILLY_UTILS_SILLY_FILE_H
-#define SILLY_UTILS_SILLY_FILE_H
+#ifndef SILLY_FILE_H
+#define SILLY_FILE_H
 #include <system/silly_system.h>
-
-#ifndef SILLY_FILE_MEM_FREE
-#define SILLY_FILE_MEM_FREE SU_MEM_FREE
-#endif
 
 #ifndef SILLY_FILE_MATCH_ALL_WILDCHAR
 #define SILLY_FILE_MATCH_ALL_WILDCHAR "*"
 #endif
 using stdfp = std::filesystem::path;
-
-/*
-对于返回结果:
-    1. 如果返回结果是std::string, 那么使用utf8编码
-    2. 如果返回结果是std::filesystem, 那么跟随系统编码
-*/
-
-
-class suFileNode
-{
-  public:
-    suFileNode() = default;
-    ~suFileNode() = default;
-    suFileNode(std::string path);
-    suFileNode(std::filesystem::path path);
-
-    suFileNode(const suFileNode &other);
-
-    suFileNode &operator=(const suFileNode &other);
-
-    std::string name() const;
-
-    std::string stem() const;
-
-    std::string ext() const;
-
-    void trace();
-
-  public:
-    std::string path;
-    bool is_dir = false;
-    std::vector<std::unique_ptr<suFileNode>> children;
-};
 class suFile
 {
   public:
@@ -185,4 +146,4 @@ class suFile
     static std::string file_filter_regex(const std::string &filter);
 };
 using sufile = suFile;
-#endif  // SILLY_UTILS_SILLY_FILE_H
+#endif  // SILLY_FILE_H
