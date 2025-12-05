@@ -64,9 +64,9 @@ class message_callback : public virtual mqtt::callback, public virtual mqtt::iac
     // Counter for the number of connection retries
     int m_nretry = 0;
     // The MQTT client
-    mqtt::async_client& m_client;
+    std::shared_ptr<mqtt::async_client> m_client;
     // Options to use if we need to reconnect
-    mqtt::connect_options& m_opts;
+    mqtt::connect_options m_opts;
     // An action listener to display the result of actions.
     action_listener m_sub_listener;
     int m_qos = 2;
@@ -85,7 +85,8 @@ class message_callback : public virtual mqtt::callback, public virtual mqtt::iac
         std::this_thread::sleep_for(std::chrono::milliseconds(2500));
         try
         {
-            m_client.connect(m_opts, nullptr, *this);
+            m_client->reconnect();
+            // m_client.connect(m_opts, nullptr, *this);
         }
         catch (const mqtt::exception& exc)
         {
@@ -115,16 +116,14 @@ class message_callback : public virtual mqtt::callback, public virtual mqtt::iac
     void connected(const std::string& cause) override
     {
         SLOG_INFO("连接成功, 订阅主题 : {}, 连接质量: {}", m_topic, m_qos)
-        m_client.subscribe(m_topic, m_qos, nullptr, m_sub_listener);
+        m_client->subscribe(m_topic, m_qos, nullptr, m_sub_listener);
     }
 
     // Callback for when the connection is lost.
     // This will initiate the attempt to manually reconnect.
     void connection_lost(const std::string& cause) override
     {
-        SLOG_WARN("连接断开:{},准备重连...", cause)
-        m_nretry = 0;
-        reconnect();
+      
     }
 
     // Callback for when a message arrives.
@@ -140,7 +139,7 @@ class message_callback : public virtual mqtt::callback, public virtual mqtt::iac
     }
 
   public:
-    message_callback(mqtt::async_client& cli, mqtt::connect_options& connOpts, std::string topic, int& qos, suMqttClient::subscribe_callback fc)
+    message_callback(std::shared_ptr<mqtt::async_client> cli, mqtt::connect_options& connOpts, std::string topic, int& qos, suMqttClient::subscribe_callback fc)
         : m_nretry(0), m_client(cli), m_opts(connOpts), m_sub_listener("Subscription"), m_topic(topic), m_qos(qos), m_func(fc)
     {
     }
@@ -203,15 +202,38 @@ void suMqttClient::subscribe(const std::string& topic, subscribe_callback scb)
     try
     {
         m_disconnected = false;
-        mqtt::async_client cli(m_uri, m_client_id);
+        std::shared_ptr<mqtt::async_client> cli = std::make_shared<mqtt::async_client>(m_uri, m_client_id);
         message_callback mcb(cli, conn_opts, topic, m_qos, scb);
-        cli.set_callback(mcb);
-        cli.connect(conn_opts, nullptr, mcb);
+        cli->set_callback(mcb);
+        cli->connect(conn_opts, nullptr, mcb);
+        bool hasConnected = false;
         while (!m_disconnected)
         {
+            if (!cli->is_connected())
+            {
+                if (hasConnected)
+                {
+                    SLOG_WARN("MQTT({}) 断线重连 {}...", m_client_id, m_uri);
+                    try
+                    {
+                        cli->reconnect();
+                    }
+                    catch (const mqtt::exception& exc)
+                    {
+                        std::cerr << "Error: " << exc.what() << std::endl;
+                        return;
+                    }
+                }
+            }
+            else
+            {
+                SLOG_DEBUG("{} 已经连接", m_client_id)
+                hasConnected = true;
+            }
             std::this_thread::sleep_for(std::chrono::seconds(2));
         }
-        cli.disconnect()->wait();
+        SLOG_WARN("{}主动断开", m_client_id)
+        cli->disconnect()->wait();
     }
     catch (const mqtt::exception& exc)
     {
