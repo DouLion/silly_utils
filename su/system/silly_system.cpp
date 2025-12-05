@@ -20,9 +20,9 @@ extern void BIN_CHDIR(const std::filesystem::path& wd)
     }
 #else
     auto curr = std::filesystem::current_path();
-    if (curr.name() == "bin")
+    if (curr.filename().string() == "bin")
     {
-        std::filesystem::current_path(curr.parent());
+        std::filesystem::current_path(curr.parent_path());
     }
 #endif
 }
@@ -273,8 +273,7 @@ extern std::string WILDCARD2REGEX(const std::string& pattern)
 
 extern bool ONLY_ASCII(const std::string& str)
 {
-    return !std::any_of(str.begin(), str.end(),
-        [](char c) { return static_cast<unsigned char>(c) > 0x7F; });
+    return !std::any_of(str.begin(), str.end(), [](char c) { return static_cast<unsigned char>(c) > 0x7F; });
 }
 
 extern bool IS_UTF8(const std::string& str)
@@ -360,42 +359,46 @@ extern bool IS_GBK(const std::string& str)
 
 extern bool HAS_UTF8(const std::string& str)
 {
-    if (str.empty()) return false;
+    if (str.empty())
+        return false;
 
-    for (size_t i = 0; i < str.length(); ) {
+    for (size_t i = 0; i < str.length();)
+    {
         unsigned char byte = static_cast<unsigned char>(str[i]);
 
         // 单字节字符 (ASCII)
-        if ((byte & 0x80) == 0) {
+        if ((byte & 0x80) == 0)
+        {
             i++;
         }
         // 多字节UTF-8字符
-        else if ((byte & 0xE0) == 0xC0) { // 2字节UTF-8
-            if (i + 1 < str.length() &&
-                (static_cast<unsigned char>(str[i+1]) & 0xC0) == 0x80) {
-                return true; // 发现UTF-8编码序列
-                }
+        else if ((byte & 0xE0) == 0xC0)
+        {  // 2字节UTF-8
+            if (i + 1 < str.length() && (static_cast<unsigned char>(str[i + 1]) & 0xC0) == 0x80)
+            {
+                return true;  // 发现UTF-8编码序列
+            }
             i++;
         }
-        else if ((byte & 0xF0) == 0xE0) { // 3字节UTF-8
-            if (i + 2 < str.length() &&
-                (static_cast<unsigned char>(str[i+1]) & 0xC0) == 0x80 &&
-                (static_cast<unsigned char>(str[i+2]) & 0xC0) == 0x80) {
-                return true; // 发现UTF-8编码序列
-                }
+        else if ((byte & 0xF0) == 0xE0)
+        {  // 3字节UTF-8
+            if (i + 2 < str.length() && (static_cast<unsigned char>(str[i + 1]) & 0xC0) == 0x80 && (static_cast<unsigned char>(str[i + 2]) & 0xC0) == 0x80)
+            {
+                return true;  // 发现UTF-8编码序列
+            }
             i++;
         }
-        else if ((byte & 0xF8) == 0xF0) { // 4字节UTF-8
-            if (i + 3 < str.length() &&
-                (static_cast<unsigned char>(str[i+1]) & 0xC0) == 0x80 &&
-                (static_cast<unsigned char>(str[i+2]) & 0xC0) == 0x80 &&
-                (static_cast<unsigned char>(str[i+3]) & 0xC0) == 0x80) {
-                return true; // 发现UTF-8编码序列
-                }
+        else if ((byte & 0xF8) == 0xF0)
+        {  // 4字节UTF-8
+            if (i + 3 < str.length() && (static_cast<unsigned char>(str[i + 1]) & 0xC0) == 0x80 && (static_cast<unsigned char>(str[i + 2]) & 0xC0) == 0x80 && (static_cast<unsigned char>(str[i + 3]) & 0xC0) == 0x80)
+            {
+                return true;  // 发现UTF-8编码序列
+            }
             i++;
         }
-        else {
-            i++; // 非UTF-8字节，继续检查下一个
+        else
+        {
+            i++;  // 非UTF-8字节，继续检查下一个
         }
     }
     return false;
@@ -403,28 +406,34 @@ extern bool HAS_UTF8(const std::string& str)
 
 extern bool HAS_GBK(const std::string& str)
 {
-    if (str.empty()) return false;
+    if (str.empty())
+        return false;
 
-    for (size_t i = 0; i < str.length(); ) {
+    for (size_t i = 0; i < str.length();)
+    {
         unsigned char byte = static_cast<unsigned char>(str[i]);
 
         // 单字节ASCII字符
-        if (byte < 0x80) {
+        if (byte < 0x80)
+        {
             i++;
         }
         // 双字节GBK字符
-        else if (byte >= 0x81 && byte <= 0xFE) {
-            if (i + 1 < str.length()) {
-                unsigned char secondByte = static_cast<unsigned char>(str[i+1]);
-                if ((secondByte >= 0x40 && secondByte <= 0x7E) ||
-                    (secondByte >= 0x80 && secondByte <= 0xFE)) {
-                    return true; // 发现GBK编码序列
-                    }
+        else if (byte >= 0x81 && byte <= 0xFE)
+        {
+            if (i + 1 < str.length())
+            {
+                unsigned char secondByte = static_cast<unsigned char>(str[i + 1]);
+                if ((secondByte >= 0x40 && secondByte <= 0x7E) || (secondByte >= 0x80 && secondByte <= 0xFE))
+                {
+                    return true;  // 发现GBK编码序列
+                }
             }
             i++;
         }
-        else {
-            i++; // 非GBK字节，继续检查下一个
+        else
+        {
+            i++;  // 非GBK字节，继续检查下一个
         }
     }
     return false;
