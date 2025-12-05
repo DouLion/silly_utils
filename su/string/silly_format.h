@@ -9,6 +9,7 @@
  */
 #ifndef SILLY_UTILS_SILLY_FORMAT_H
 #define SILLY_UTILS_SILLY_FORMAT_H
+#include <su_marco.h>
 #if SU_THIRD_SUPPORT_FMT
 #include <fmt/core.h>
 #include <fmt/chrono.h>
