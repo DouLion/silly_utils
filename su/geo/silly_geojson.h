@@ -22,7 +22,7 @@ class suGeoJson
     /// </summary>
     /// <param name="file"></param>
     /// <returns></returns>
-    static std::vector<suGeoColl> read(const std::filesystem::path& file);
+    static std::vector<suGeoColl> read(const suPath& file);
 
     /// <summary>
     /// 从字符串加载所有矢量

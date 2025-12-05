@@ -52,7 +52,7 @@ public:
     using Ptr = unsigned char*;
     struct Param
     {
-        std::filesystem::path path;
+        supath path;
         // 映射大小, 0表示映射从offset之后的文件
         std::uintmax_t map_size = 0;
         // 写模式时, 指定分配文件大小
@@ -78,7 +78,7 @@ public:
     /// <param name="mode"></param>
     /// <param name="offset"></param>
     /// <returns></returns>
-    bool open(const std::filesystem::path& file, const eMMFMode& mode = eMMFMode::Read, const int64_t& offset = 0);
+    bool open(const supath& file, const eMMFMode& mode = eMMFMode::Read, const int64_t& offset = 0);
 
     /// <summary>
     /// 根据偏移量索引到内存位置
@@ -116,7 +116,7 @@ public:
     /// <summary>
     /// 关闭,析构函数已经调用此函数,要注意
     /// </summary>
-    void close(bool del = false);
+    void close(const bool& del = false);
 
     /* size_t size()
      {
@@ -144,7 +144,7 @@ public:
     std::mutex m_w_mutex;     // 写互斥
     std::mutex m_oc;           // 开关互斥
     // suMemMapFile::Param m_param;
-    std::filesystem::path m_file;
+    supath m_file;
 
     eMMFMode m_mode = eMMFMode::Read; // 打开模式
     unsigned long m_disposition = eMMFDisposition::OpenExisting;

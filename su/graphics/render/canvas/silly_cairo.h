@@ -10,6 +10,7 @@
 #ifndef SILLY_UTILS_SILLY_CAIRO_H
 #define SILLY_UTILS_SILLY_CAIRO_H
 #include <geo/silly_geo.h>
+#include <files/silly_file.h>
 #include <graphics/silly_color.h>
 #include <graphics/font/silly_font.h>
 #if SU_THIRD_SUPPORT_CAIRO
@@ -69,7 +70,7 @@ class suCairo
     /// <param name="file"></param>
     /// <param name="png">true 以png读取, false 以 jpeg 格式读取</param>
     /// <returns></returns>
-    bool read(const std::filesystem::path& file, const bool& png = true);
+    bool read(const suPath& file, const bool& png = true);
 
     /// <summary>
     /// 将图片写入文件
@@ -77,7 +78,7 @@ class suCairo
     /// <param name="file"></param>
     /// <param name="png">true 写为 png, false 写为 jpeg格式</param>
     /// <returns></returns>
-    bool write(const std::filesystem::path& file, const bool& png = true);
+    bool write(const suPath& file, const bool& png = true);
 
     /// <summary>
     /// 从二进制数据创建图片
@@ -85,7 +86,7 @@ class suCairo
     /// <param name="bin"></param>
     /// <returns></returns>
     bool decode(const std::string& bin);
-    bool decode(const unsigned char* data, const size_t size);
+    bool decode(const unsigned char* data, const size_t& size);
 
     /// <summary>
     /// 将图片编码为二进制数据
@@ -108,7 +109,7 @@ class suCairo
     /// </summary>
     /// <param name="name">自定义字体名称</param>
     /// <param name="file">字体文件(.tff)的路径</param>
-    static bool add_font(const std::string& name, const std::filesystem::path& file);
+    static bool add_font(const std::string& name, const suPath& file);
 
     /// <summary>
     /// 设置颜色, 自动由 0-255转为 0-1.0
@@ -137,7 +138,11 @@ class suCairo
     /// <param name="sct"></param>
     void draw_text(const suCairoText& sct);
 
+    void draw_point(const suPoint& p, const double& size);
+
     void draw_point(const suPoint& p, const double& size, const suRect& rect);
+
+    void draw_point_web_mercator(const suPoint& p, const double& size, const suRect& rect);
 
     /// <summary>
     /// 计算字符串占用字符宽度, (约)中文2个宽度,数字字母一个宽度
@@ -192,7 +197,7 @@ class suCairo
     // void draw_line(const std::vector<suPoint>& line, const suRect& rect);
     // void draw_ring_web_mercator(const std::vector<suPoint>& line, const suRect& rect);
 
-  public:
+  protected:
     int m_format{0};
     size_t m_width{0};
     size_t m_height{0};

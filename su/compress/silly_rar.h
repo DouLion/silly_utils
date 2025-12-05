@@ -24,7 +24,7 @@ class suRAR
     /// <param name="s_src">被压缩文件或目录地址</param>
     /// <param name="s_dst">生成解压文件路径</param>
     /// <returns></returns>
-    static eCompressErr compress(const std::string& s_src, const std::string& s_dst = "", const bool& append = false);
+    static eCompressErr compress(const suPath& s_src, const suPath& s_dst = "", const bool& append = false);
 
     /// <summary>
     /// 解压RAR文件,解压单独文件和目录文件
@@ -33,7 +33,7 @@ class suRAR
     /// <param name="s_src">待解压文件路径</param>
     /// <param name="s_dst">解压输出路径</param>
     /// <returns></returns>
-    static eCompressErr decompress(const std::string& s_src, const std::string& s_dst = "");
+    static eCompressErr decompress(const suPath& s_src, const suPath& s_dst = "");
 
     /// <summary>
     /// 压缩内存数据

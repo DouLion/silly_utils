@@ -31,14 +31,14 @@ class suImgBase
     /// </summary>
     /// <param name="file"></param>
     /// <returns></returns>
-    virtual bool read(const std::filesystem::path& file) = 0;
+    virtual bool read(const suPath& file) = 0;
 
     /// <summary>
     /// 将图像写入文件
     /// </summary>
     /// <param name="file"></param>
     /// <returns></returns>
-    virtual bool write(const std::filesystem::path& file) const = 0;
+    virtual bool write(const suPath& file) const = 0;
 
     /// <summary>
     /// 设置颜色

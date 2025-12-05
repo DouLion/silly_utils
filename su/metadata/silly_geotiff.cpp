@@ -6,7 +6,7 @@
 #include <geotiffio.h>
 #include <xtiffio.h>
 #include <geo_tiffp.h>
-bool suGeoTiff::write(const std::filesystem::path& outfile)
+bool suGeoTiff::write(const suPath& outfile)
 {
     // 同步宽度/高度 (防护不一致)
     info.width = raster.col();
@@ -14,7 +14,7 @@ bool suGeoTiff::write(const std::filesystem::path& outfile)
     m_header.width = info.width;
     m_header.height = info.height;
 
-    TIFF* tif = XTIFFOpen(sufile::realpath(outfile).string().c_str(), "w");  // 假设sufile是自定义
+    TIFF* tif = XTIFFOpen(suPath(outfile).string().c_str(), "w");  // 假设sufile是自定义
     if (!tif)
     {
         m_err = "Failed to create output file";

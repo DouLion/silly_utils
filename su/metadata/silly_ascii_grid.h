@@ -20,20 +20,20 @@ class suAsciiGrid : public suDem
 
     bool create(const suDem::Info& _info);
 
-    bool read(const std::filesystem::path& file, const bool& onlyhead = false);
+    bool read(const suPath& file, const bool& onlyhead = false);
 
-    bool write(const std::filesystem::path& file) const;
+    bool write(const suPath& file) const;
 
     std::string stringify_ll(const int& precision = 3) const;
 
   private:
-    bool read_asc(const std::filesystem::path& file, const bool& onlyhead = false);
-    bool read_bin(const std::filesystem::path& file);
-    bool read_prj(const std::filesystem::path& file);
+    bool read_asc(const suPath& file, const bool& onlyhead = false);
+    bool read_bin(const suPath& file);
+    bool read_prj(const suPath& file);
 
-    bool write_asc(const std::filesystem::path& file) const;
-    bool write_bin(const std::filesystem::path& file) const;
-    bool write_prj(const std::filesystem::path& file) const;
+    bool write_asc(const suPath& file) const;
+    bool write_bin(const suPath& file) const;
+    bool write_prj(const suPath& file) const;
 
   private:
     std::string m_root;

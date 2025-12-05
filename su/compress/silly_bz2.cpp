@@ -16,13 +16,13 @@ using namespace silly_compress;
 
 // #define SILLY_BZ2_MALLOC(dst, size) dst =  (char*)malloc(size); if(!dst) { return MemAllocErr;}
 
-eCompressErr BZ2::compress(const std::string &s_src, const std::string &s_dst)
+eCompressErr BZ2::compress(const suPath &s_src, const suPath &s_dst)
 {
-    if (!std::filesystem::exists(s_src))
+    if (!s_src.exists())
     {
         return eCompressErr::FileNotExistErr;
     }
-    if (std::filesystem::is_directory(s_src))
+    if (suPath::is_dir(s_src))
     {
         return eCompressErr::Bz2NotSupportDirErr;
     }
@@ -31,7 +31,7 @@ eCompressErr BZ2::compress(const std::string &s_src, const std::string &s_dst)
     std::ifstream fstream_src(s_src, std::ios::binary | std::ios::ate);
     if (!fstream_src.is_open())
     {
-        SU_DEBUG_PRINT("Open file: %s", s_src.c_str());
+        SU_DEBUG_PRINT("Open file: %s", s_src.u8string().c_str());
         return eCompressErr::Bz2OpenFileErr;
     }
 
@@ -64,7 +64,7 @@ eCompressErr BZ2::compress(const std::string &s_src, const std::string &s_dst)
     std::ofstream fstream_dst(s_dst, std::ios::binary);
     if (!fstream_dst.is_open())
     {
-        SU_DEBUG_PRINT("Open file: %s", s_dst.c_str());
+        SU_DEBUG_PRINT("Open file: %s", s_src.u8string().c_str());
         return eCompressErr::Bz2OpenFileErr;
     }
 
@@ -92,13 +92,13 @@ eCompressErr BZ2::compress(const std::string &s_src, const std::string &s_dst)
     return eCompressErr::Ok;
 }
 
-eCompressErr BZ2::decompress(const std::string &s_src, const std::string &s_dst)
+eCompressErr BZ2::decompress(const suPath &s_src, const suPath &s_dst)
 {
-    if (!std::filesystem::exists(s_src))
+    if (!s_src.exists())
     {
         return eCompressErr::FileNotExistErr;
     }
-    if (std::filesystem::is_directory(s_src))
+    if (suPath::is_dir(s_src))
     {
         return eCompressErr::Bz2NotSupportDirErr;
     }
@@ -108,7 +108,7 @@ eCompressErr BZ2::decompress(const std::string &s_src, const std::string &s_dst)
     std::ifstream fstream_src(s_src, std::ios::binary | std::ios::ate);
     if (!fstream_src.is_open())
     {
-        SU_DEBUG_PRINT("Open file: %s", s_src.c_str());
+        SU_DEBUG_PRINT("Open file: %s", s_src.u8string().c_str());
 
         return eCompressErr::Bz2OpenFileErr;
     }
@@ -116,7 +116,7 @@ eCompressErr BZ2::decompress(const std::string &s_src, const std::string &s_dst)
     std::ofstream fstream_dst(s_dst, std::ios::binary);
     if (!fstream_dst.is_open())
     {
-        SU_DEBUG_PRINT("Open file: %s", s_dst.c_str());
+        SU_DEBUG_PRINT("Open file: %s", s_src.u8string().c_str());
         return eCompressErr::Bz2OpenFileErr;
     }
 

@@ -55,8 +55,8 @@ class suGeoUtils
     /// <param name="collections"></param>
     /// <returns></returns>
     /// 注:读取 shp , geojson 类型文件中可以实现
-    static bool read(const std::filesystem::path& file, std::vector<suGeoColl>& collections, const bool& ignore_prop = false);
-    static std::vector<suGeoColl> read(const std::filesystem::path& file, const bool& ignore_prop = false);
+    static bool read(const suPath& file, std::vector<suGeoColl>& collections, const bool& ignore_prop = false);
+    static std::vector<suGeoColl> read(const suPath& file, const bool& ignore_prop = false);
 
     /// <summary>
     /// 将silly_geo_coll数据结构写入矢量文件(如shp文件)
@@ -67,7 +67,7 @@ class suGeoUtils
     /// <param name="encode">指定输出的中文编码</param>
     /// <returns></returns>
     /// 注:写入 shp , geojson 类型文件中经测试可以实现
-    static bool write(const std::filesystem::path& file, const std::vector<suGeoColl>& collections, const eCrsEpsgCode& prj = GCS_WGS_1984, const std::string& encode = "UTF-8");
+    static bool write(const suPath& file, const std::vector<suGeoColl>& collections, const eCrsEpsgCode& prj = GCS_WGS_1984, const std::string& encode = "UTF-8");
 
     static bool intersect(const suGeoColl& gc1, const suGeoColl& gc2);
 

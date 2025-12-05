@@ -27,12 +27,12 @@ suDynamicRule::~suDynamicRule()
     close();
 }
 
-bool suDynamicRule::init(const std::filesystem::path& root, const size_t& num, const bool& read_mode)
+bool suDynamicRule::init(const suPath& root, const size_t& num, const bool& read_mode)
 {
-    std::filesystem::path p(root);
-    std::filesystem::create_directories(p);
+    suPath p(root);
+    suPath::mkdir(p);
     std::string index_file = p.append(INDEX_FILENAME).string();
-    if (!std::filesystem::exists(index_file))
+    if (!suPath::exists(index_file))
     {
         SLOG_ERROR("索引文件不存在:{}", index_file)
         return false;
@@ -198,10 +198,10 @@ bool suDynamicRule::open_dat(const std::string& year_str)
     }
     if (m_year_mmap.find(year_str) == m_year_mmap.end())
     {
-        std::string file = std::filesystem::path(m_root).append(year_str + DAT_SUFFIX).string();
+        std::string file = suPath(m_root).append(year_str + DAT_SUFFIX).string();
         bool reset_file = false;
         size_t total_size = m_num * CODE_SIZE_PER_YEAR;
-        if (!std::filesystem::exists(file))
+        if (!suPath::exists(file))
         {
             reset_file = true;
         }

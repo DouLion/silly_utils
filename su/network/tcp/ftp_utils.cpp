@@ -248,7 +248,7 @@ bool ftp_utils::ftp_upload(const std::string& localFileFath, const std::string& 
     FILE* hd_src;
     struct stat file_info;
     unsigned long fsize;
-    std::filesystem::path sp(localFileFath);
+    suPath sp(localFileFath);
 
     /* get the file size of the local file */
     if (stat(localFileFath.c_str(), &file_info))

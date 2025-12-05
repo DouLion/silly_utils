@@ -4,11 +4,11 @@
 
 #include "silly_pyramid_base.h"
 
-bool TzxPyramidBase::open(const std::filesystem::path& f, const eMMFMode& mode, const bool& usemmap)
+bool TzxPyramidBase::open(const suPath& f, const eMMFMode& mode, const bool& usemmap)
 {
     m_mode = mode;
     m_normal = !usemmap;
-    auto file = sufile::realpath(f);
+    auto file = suPath(f);
     if (eMMFMode::Read == mode)
     {
         if (usemmap)
@@ -95,7 +95,7 @@ void TzxPyramidBase::seek(const size_t& pos)
     }
 }
 
-bool TzxPyramidBase::stream_open(const std::filesystem::path& file, const std::ios_base::openmode& mode)
+bool TzxPyramidBase::stream_open(const suPath& file, const std::ios_base::openmode& mode)
 {
     m_stream.open(file, mode);
     if (m_stream.is_open())
@@ -110,7 +110,7 @@ bool TzxPyramidBase::stream_open(const std::filesystem::path& file, const std::i
     return m_opened;
 }
 
-bool TzxPyramidBase::mmap_open(const std::filesystem::path& file)
+bool TzxPyramidBase::mmap_open(const suPath& file)
 {
     m_normal = false;
     m_opened = m_mmap.open(file, m_mode);

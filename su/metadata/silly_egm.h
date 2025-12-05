@@ -40,7 +40,7 @@ class suEarthGravityModel
   public:
     suEarthGravityModel() = default;
     ~suEarthGravityModel();
-    bool open(const std::filesystem::path& file);
+    bool open(const suPath& file);
 
     /// <summary>
     /// 获取大地水准面高差, 见文件下方说明

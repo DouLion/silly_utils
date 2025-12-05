@@ -4,7 +4,7 @@
 
 #include "silly_tzx_ini_parser.h"
 
-bool silly_tzx_ini_parser::load(const std::filesystem::path& file)
+bool silly_tzx_ini_parser::load(const suPath& file)
 {
     return false;
 }

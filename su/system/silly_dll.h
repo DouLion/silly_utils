@@ -35,7 +35,7 @@ class silly_dll
     /// </summary>
     /// <param name="path"></param>
     /// <returns></returns>
-    static SU_HANDLER load(const std::filesystem::path& file);
+    static SU_HANDLER load(const suPath& file);
 
     /// <summary>
     /// 卸载动态库

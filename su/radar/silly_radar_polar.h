@@ -36,8 +36,8 @@ class silly_radar_polar
     /// <returns></returns>
     bool unserialize(const char* buff, const size_t& len);
 
-    bool read(const std::filesystem::path& file);
-    bool save(const std::filesystem::path& file);
+    bool read(const suPath& file);
+    bool save(const suPath& file);
 
     silly_radar_polar operator=(const silly_radar_polar& other)
     {

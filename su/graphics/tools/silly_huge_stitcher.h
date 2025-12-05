@@ -51,7 +51,7 @@ class silly_huge_stitcher
     /// <param name="nYSize">高</param>
     /// <param name="nBands">PNG通道数</param>
     /// <returns></returns>
-    bool create(const std::filesystem::path& file, const int& nXSize, const int& nYSize, const int& nBands);
+    bool create(const suPath& file, const int& nXSize, const int& nYSize, const int& nBands);
 
     /// <summary>
     /// 检查图像的宽高波段数

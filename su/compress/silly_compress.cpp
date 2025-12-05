@@ -18,11 +18,11 @@
 #include <compress/silly_rar.h>
 #include <compress/silly_zip.h>
 
-eCompressErr su::CompressFile(const std::filesystem::path& src, const std::filesystem::path& dst, const eCompressMethod& method)
+eCompressErr su::CompressFile(const suPath& src, const suPath& dst, const eCompressMethod& method)
 {
     return eCompressErr::NotImplement;
 }
-eCompressErr su::CompressDir(const std::filesystem::path& src, const std::filesystem::path& dst, const eCompressMethod& method)
+eCompressErr su::CompressDir(const suPath& src, const suPath& dst, const eCompressMethod& method)
 {
     return eCompressErr::NotImplement;
 }
@@ -84,11 +84,11 @@ std::string su::CompressBin(const std::string& src, const eCompressMethod& metho
     return ret;
 }
 
-eCompressErr su::DecompressFile(const std::filesystem::path& src, const std::filesystem::path& dst, const eCompressMethod& method)
+eCompressErr su::DecompressFile(const suPath& src, const suPath& dst, const eCompressMethod& method)
 {
     return eCompressErr::NotImplement;
 }
-eCompressErr su::DecompressDir(const std::filesystem::path& src, const std::filesystem::path& dst, const eCompressMethod& method)
+eCompressErr su::DecompressDir(const suPath& src, const suPath& dst, const eCompressMethod& method)
 {
     return eCompressErr::NotImplement;
 }
@@ -100,11 +100,11 @@ std::string su::DecompressBin(const std::string& src, const eCompressMethod& met
 {
     return "";
 }
-eCompressErr su::AutoDecompressFile(const std::filesystem::path& src, const std::filesystem::path& dst)
+eCompressErr su::AutoDecompressFile(const suPath& src, const suPath& dst)
 {
     return eCompressErr::NotImplement;
 }
-eCompressErr su::AutoDecompressDir(const std::filesystem::path& src, const std::filesystem::path& dst)
+eCompressErr su::AutoDecompressDir(const suPath& src, const suPath& dst)
 {
     return eCompressErr::NotImplement;
 }

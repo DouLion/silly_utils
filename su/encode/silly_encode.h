@@ -73,7 +73,7 @@
 
 #ifndef SILLY_UTILS_SILLY_ENCODE_H
 #define SILLY_UTILS_SILLY_ENCODE_H
-#include <su_marco.h>
+#include <files/silly_file.h>
 enum class eCharset : int
 {
     Unknown = 0,
@@ -96,7 +96,7 @@ class silly_encode
     /// </summary>
     /// <param name="path"></param>
     /// <returns></returns>
-    static eCharset check_file_encode(const std::filesystem::path &file);
+    static eCharset check_file_encode(const suPath &file);
 
     /// <summary>
     /// URL编码

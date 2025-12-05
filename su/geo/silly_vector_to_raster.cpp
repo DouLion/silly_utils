@@ -215,7 +215,7 @@ void XScanLine::rasterize(const suGeoColl& geo_coll)
 #include <graphics/silly_png.h>
 #endif
 
-void XScanLine::image(const std::filesystem::path& file)
+void XScanLine::image(const suPath& file)
 {
 #ifndef NDEBUG
     suPNG pd;

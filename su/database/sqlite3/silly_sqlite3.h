@@ -11,26 +11,26 @@
 #ifndef SILLY_UTILS_SILLY_SQLITE3_H
 #define SILLY_UTILS_SILLY_SQLITE3_H
 #include <sqlite3.h>
-#include <su_marco.h>
+#include <files/silly_file.h>
 class silly_sqlite3
 {
   public:
     silly_sqlite3() = default;
     ~silly_sqlite3();
     /// 默认只在内存中打开
-    bool open(const std::filesystem::path& file = "：memory：");
+    bool open(const suPath& file ="：memory：");
 
     sqlite3* db();
     std::string err();
     /// 备份到另一个数据库文件
-    bool backup(const std::filesystem::path& file);
+    bool backup(const suPath& file);
 
     void close();
 
   private:
     sqlite3* m_db;
     std::string m_err;
-    std::string m_file;
+    suPath m_file;
 };
 
 #endif  // SILLY_UTILS_SILLY_SQLITE3_H

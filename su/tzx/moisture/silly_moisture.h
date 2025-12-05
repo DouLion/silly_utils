@@ -10,7 +10,7 @@
  */
 #ifndef SILLY_UTILS_SILLY_MOISTURE_H
 #define SILLY_UTILS_SILLY_MOISTURE_H
-#include <su_marco.h>
+#include <files/silly_file.h>
 
 class MoistureIndex
 {
@@ -25,8 +25,8 @@ class MoistureIndex
     using Cache = std::map<int, Info>;
 
   public:
-    bool read(const std::filesystem::path& file);
-    bool write(const std::filesystem::path& file, const MoistureIndex::Cache& cache);
+    bool read(const suPath& file);
+    bool write(const suPath& file, const MoistureIndex::Cache& cache);
     Cache m_cache;
 };
 
@@ -51,14 +51,14 @@ class MoistureFile
      * @param file
      * @param records
      */
-    void serialize(const std::filesystem::path& file, const std::vector<Record>& records);
+    void serialize(const suPath& file, const std::vector<Record>& records);
 
     /**
      * 从序列化文件读取一个时间段的数据
      * @param file
      * @param records
      */
-    void deserialize(const std::filesystem::path& file, std::vector<Record>& records);
+    void deserialize(const suPath& file, std::vector<Record>& records);
 
     /**
      * 读取指定格点序号的数据
@@ -68,7 +68,7 @@ class MoistureFile
      * @param record 返回值
      * @return 是否存在指定格点信息
      */
-    bool deserialize(const std::filesystem::path& file, const MoistureIndex::Cache& cache, const int& pid, Record& record);
+    bool deserialize(const suPath& file, const MoistureIndex::Cache& cache, const int& pid, Record& record);
 
   private:
     int m_num = 0;

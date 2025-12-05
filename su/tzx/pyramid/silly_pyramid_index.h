@@ -54,8 +54,8 @@ class TzxPyramidIndex : public TzxPyramidBase
     {
       public:
         bool init();
-        /* bool write(const std::filesystem::path& file) = 0;
-        virtual bool read(const std::filesystem::path& file) = 0;*/
+        /* bool write(const suPath& file) = 0;
+        virtual bool read(const suPath& file) = 0;*/
         /*virtual position seek(size_t row, size_t col) const = 0;
         virtual size_t offset(size_t row, size_t col) const = 0;*/
       public:
@@ -76,7 +76,7 @@ class TzxPyramidIndex : public TzxPyramidBase
     /// <param name="mode"></param>
     /// <param name="usemmap"></param>
     /// <returns></returns>
-    bool open(const std::filesystem::path& file, const eMMFMode& mode, const bool& usemmap) override;
+    bool open(const suPath& file, const eMMFMode& mode, const bool& usemmap) override;
 
     /// <summary>
     /// 读取指定块在数据文件中的索引位置和数据大小

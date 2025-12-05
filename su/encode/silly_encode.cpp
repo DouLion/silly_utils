@@ -121,10 +121,10 @@ bool silly_encode::iconv_convert(const std::string &from, const std::string &to,
     return status;
 }
 
-eCharset silly_encode::check_file_encode(const std::filesystem::path &file)
+eCharset silly_encode::check_file_encode(const suPath &file)
 {
     eCharset code = eCharset::Unknown;
-    std::ifstream fin(sufile::realpath(file).string(), std::ios::binary);
+    std::ifstream fin(file.string(), std::ios::binary);
     if (fin.is_open())
     {
         return code;

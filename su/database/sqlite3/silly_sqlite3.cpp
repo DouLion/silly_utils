@@ -14,14 +14,14 @@ silly_sqlite3::~silly_sqlite3()
 {
     close();
 }
-bool silly_sqlite3::open(const std::filesystem::path& file)
+bool silly_sqlite3::open(const suPath& file)
 {
     if (m_db)
     {
         m_err = "数据库已经打开";
-        throw std::runtime_error("已经打开的数据库: [" + m_file + "]");
+        throw std::runtime_error("已经打开的数据库: [" + m_file.string() + "]");
     }
-    int ret = sqlite3_open(sufile::realpath(file).string().c_str(), &m_db);
+    int ret = sqlite3_open(suPath(file).string().c_str(), &m_db);
     if (ret == SQLITE_OK)
     {
         return true;
@@ -44,9 +44,9 @@ std::string silly_sqlite3::err()
 {
     return m_err;
 }
-bool silly_sqlite3::backup(const std::filesystem::path& file)
+bool silly_sqlite3::backup(const suPath& file)
 {
-    if (m_file == file)
+    //if (m_file == file)
     {
         m_err = "同一个数据库文件无法备份";
         return false;
@@ -54,7 +54,7 @@ bool silly_sqlite3::backup(const std::filesystem::path& file)
 
     // 将内存数据库备份到文件
     sqlite3* backup_db;
-    int rc = sqlite3_open(sufile::realpath(file).string().c_str(), &backup_db);
+    int rc = sqlite3_open(file.string().c_str(), &backup_db);
     if (rc)
     {
         std::cerr << "Can't open disk database: " << sqlite3_errmsg(backup_db) << std::endl;

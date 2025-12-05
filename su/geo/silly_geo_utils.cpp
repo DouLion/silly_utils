@@ -217,14 +217,14 @@ std::string suGeoUtils::angle_to_desc(const double& angle)
     return desc;
 }
 
-std::vector<suGeoColl> suGeoUtils::read(const std::filesystem::path& file, const bool& ignore_prop)
+std::vector<suGeoColl> suGeoUtils::read(const suPath& file, const bool& ignore_prop)
 {
     std::vector<suGeoColl> ret;
     read(file, ret, ignore_prop);
     return ret;
 }
 
-bool suGeoUtils::read(const std::filesystem::path& file, std::vector<suGeoColl>& collections, const bool& ignore_prop)
+bool suGeoUtils::read(const suPath& file, std::vector<suGeoColl>& collections, const bool& ignore_prop)
 {
     bool status = false;
 #if SU_THIRD_SUPPORT_GDAL
@@ -338,7 +338,7 @@ OGRFieldType convertToOGRFieldType(const eGeoFieldType& type)
 }
 
 #endif
-bool suGeoUtils::write(const std::filesystem::path& file, const std::vector<suGeoColl>& collection, const eCrsEpsgCode& prj, const std::string& encode)
+bool suGeoUtils::write(const suPath& file, const std::vector<suGeoColl>& collection, const eCrsEpsgCode& prj, const std::string& encode)
 {
     bool status = false;
 #if SU_THIRD_SUPPORT_GDAL
@@ -347,16 +347,15 @@ bool suGeoUtils::write(const std::filesystem::path& file, const std::vector<suGe
         SLOG_ERROR("矢量为空");
         return status;
     }
-    std::filesystem::path realPath = sufile::realpath(file);
 
-    GDALDataset* outputData = static_cast<GDALDataset*>(suGDAL::GdalOpenDataset(realPath, false));
+    GDALDataset* outputData = static_cast<GDALDataset*>(suGDAL::GdalOpenDataset(file, false));
     if (outputData == nullptr)
     {
         SLOG_ERROR("创建输出文件失败");
         return false;
     }
 
-    std::string LayerName = realPath.filename().stem().string();
+    std::string LayerName = file.stem_utf8();
     OGRSpatialReference ref = ORG_SP_REF(prj);
     OGRLayer* outputLayer = outputData->CreateLayer(LayerName.c_str(), &ref, wkbUnknown, nullptr);
     if (outputLayer == nullptr)
@@ -396,12 +395,12 @@ bool suGeoUtils::write(const std::filesystem::path& file, const std::vector<suGe
         suGDAL::AddGeometry(outputLayer, coll);
     }
     // 手动创建.cpg文件
-    std::filesystem::path cpgFile = realPath.parent_path();
-    cpgFile.append(realPath.stem().string().append(".cpg"));
+    suPath cpgFile = file.parent();
+    cpgFile.append(file.stem().append(".cpg"));
     sufile::write(cpgFile, encode);
     // 关闭数据集
     GDALClose(outputData);
-    SLOG_DEBUG("写入矢量至{}成功", realPath.u8string());
+    SLOG_DEBUG("写入矢量至{}成功", file.u8string());
 #endif
     return status;
 }

@@ -82,7 +82,7 @@ class suMatrix
         return true;
     }
 
-    bool create(const size_t &row, const size_t &col, const std::filesystem::path &mmap)
+    bool create(const size_t &row, const size_t &col, const suPath &mmap)
     {
         if (!row || !col)
         {
@@ -98,7 +98,7 @@ class suMatrix
             p.path = mmap;
             p.file_size = row * col * sizeof(T) * 1.1;
 
-            if (std::filesystem::exists(mmap))
+            if (suPath::exists(mmap))
             {
                 p.disposition = 3;
             }

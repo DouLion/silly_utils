@@ -17,21 +17,21 @@
 #define SILLY_RAR_FILE_EXTENSION ".rar"
 
 /// 将文件或目录压缩为ZIP文件
-eCompressErr suRAR::compress(const std::string& s_src, const std::string& s_dst, const bool& append)
+eCompressErr suRAR::compress(const suPath& s_src, const suPath& s_dst, const bool& append)
 {
     auto status = eCompressErr::MiniZUnknowErr;
 #if SU_THIRD_SUPPORT_LIBARCHIVE
     try
     {
-        if (!std::filesystem::exists(s_src))
+        if (!s_src.exists())
         {
             return eCompressErr::FileNotExistErr;
         }
         std::string out_dst = s_dst;
         if (out_dst.empty())  // 补充默认压缩路径
         {
-            auto sfp_src = std::filesystem::path(s_src);
-            out_dst = sfp_src.parent_path().append(sfp_src.stem().string().append(SILLY_RAR_FILE_EXTENSION)).string();
+            auto sfp_src = suPath(s_src);
+            out_dst = sfp_src.parent().append(sfp_src.stem().append(SILLY_RAR_FILE_EXTENSION)).string();
         }
         if (!append)  // 非追加,先删除原文件
         {
@@ -55,28 +55,29 @@ eCompressErr suRAR::compress(const std::string& s_src, const std::string& s_dst,
     return status;
 }
 
-eCompressErr suRAR::decompress(const std::string& s_src, const std::string& s_dst)
+eCompressErr suRAR::decompress(const suPath& s_src, const suPath& s_dst)
 {
 #if SU_THIRD_SUPPORT_LIBARCHIVE
-    if (!std::filesystem::exists(s_src))  // 解压文件不存在
+    if (!s_src.exists())  // 解压文件不存在
     {
-        SLOG_ERROR("not exist {}", s_src.c_str());
+        SLOG_ERROR("not exist {}", s_src.u8string());
         return eCompressErr::FileNotExistErr;
     }
 
-    std::filesystem::path outputDir;
-    if (s_dst.empty())  // 如果解压路径为空,创建一个和压缩包名称相同的目录,解压到该目录下
-    {
-        outputDir = std::filesystem::path(s_src).parent_path();
-    }
-    else
+    suPath outputDir;
+    if (s_dst.is_dir())  // 如果解压路径为空,创建一个和压缩包名称相同的目录,解压到该目录下
     {
         outputDir = s_dst;
     }
-
-    if (!std::filesystem::exists(outputDir))
+    else
     {
-        if (!std::filesystem::create_directories(outputDir))
+        outputDir = s_dst.parent();
+    }
+
+    if (!suPath::exists(outputDir))
+    {
+        suPath::mkdir(outputDir);
+        if (!suPath::exists(outputDir))
         {
             return eCompressErr::RARCreatDirErr;  // 创建目录失败
         }
@@ -90,7 +91,7 @@ eCompressErr suRAR::decompress(const std::string& s_src, const std::string& s_ds
         return eCompressErr::RARSuportFormatErr;
     }
 
-    if (archive_read_open_filename(archive_ptr, s_src.c_str(), 10240) != ARCHIVE_OK)
+    if (archive_read_open_filename(archive_ptr, s_src.string().c_str(), 10240) != ARCHIVE_OK)
     {
         SLOG_ERROR("无法打开压缩文件: {}", archive_error_string(archive_ptr));
         archive_read_free(archive_ptr);
@@ -117,14 +118,14 @@ eCompressErr suRAR::decompress(const std::string& s_src, const std::string& s_ds
         {
             gbk_entry_name = entry_name;
         }
-        std::filesystem::path temp_path(outputDir);
+        suPath temp_path(outputDir);
         temp_path.append(gbk_entry_name);
         std::string full_path = temp_path.string();
         // 处理文件或目录
-        std::filesystem::path f_full_path(full_path);
-        if (!std::filesystem::exists(f_full_path.parent_path()))  // 解压文件不存在
+        suPath f_full_path(full_path);
+        if (!f_full_path.parent().exists())  // 解压文件不存在
         {
-            std::filesystem::create_directories(f_full_path.parent_path());  // 创建目录
+            suPath::mkdir(f_full_path.parent());  // 创建目录
         }
 
         if (archive_entry_filetype(entry) == AE_IFDIR)

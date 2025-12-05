@@ -83,7 +83,7 @@ class suNetCDF
     /// </summary>
     /// <param name="path">文件路径</param>
     /// <returns></returns>
-    bool open(const std::filesystem::path& file);
+    bool open(const suPath& file);
 
     std::vector<std::string> members();
 
@@ -106,9 +106,9 @@ class suNetCDF
 
     silly_tzx_grid convert(const size_t& b, const size_t& e) const;
 
-    static bool write(const std::filesystem::path& file, const Data& snd);
+    static bool write(const suPath& file, const Data& snd);
 
-    bool write(const std::filesystem::path& file) const;
+    bool write(const suPath& file) const;
 
     /// <summary>
     /// 关闭netcdf文件

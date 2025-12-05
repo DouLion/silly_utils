@@ -32,21 +32,21 @@ class silly_disk
     /// </summary>
     /// <param name="path"></param>
     /// <returns></returns>
-    static double space_capacity(const std::filesystem::path& file, const storage_unit& unit = storage_unit::esuByte);
+    static double space_capacity(const suPath& file, const storage_unit& unit = storage_unit::esuByte);
 
     /// <summary>
     /// 磁盘可用空间
     /// </summary>
     /// <param name="path"></param>
     /// <returns></returns>
-    static double space_available(const std::filesystem::path& file, const storage_unit& unit = storage_unit::esuByte);
+    static double space_available(const suPath& file, const storage_unit& unit = storage_unit::esuByte);
 
     /// <summary>
     /// 磁盘已用空间
     /// </summary>
     /// <param name="path"></param>
     /// <returns></returns>
-    static double space_used(const std::filesystem::path& file, const storage_unit& unit = storage_unit::esuByte);
+    static double space_used(const suPath& file, const storage_unit& unit = storage_unit::esuByte);
 
     /// <summary>
     /// 磁盘可用空间百分比
@@ -54,7 +54,7 @@ class silly_disk
     /// <param name="path"></param>
     /// <param name="unit"></param>
     /// <returns></returns>
-    static double space_available_percent(const std::filesystem::path& file);
+    static double space_available_percent(const suPath& file);
 
     /// <summary>
     /// 磁盘已用空间百分比
@@ -62,7 +62,7 @@ class silly_disk
     /// <param name="path"></param>
     /// <param name="unit"></param>
     /// <returns></returns>
-    static double space_used_percent(const std::filesystem::path& file);
+    static double space_used_percent(const suPath& file);
 };
 
 #endif  // SILLY_UTILS_SILLY_DISK_H

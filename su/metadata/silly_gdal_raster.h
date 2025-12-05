@@ -29,7 +29,7 @@ class suGdalRaster
     {
         Close();
     }
-    bool Open(const std::filesystem::path& file);
+    bool Open(const suPath& file);
     void Close();
 
     suRect Bound() const;

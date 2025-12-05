@@ -17,7 +17,7 @@ using namespace silly;
 #define V_FEATURE "Feature"
 #define V_FEATURE_COLLECTION "FeatureCollection"
 
-std::vector<suGeoColl> suGeoJson::read(const std::filesystem::path& file)
+std::vector<suGeoColl> suGeoJson::read(const suPath& file)
 {
     Json::Value jv = jsonpp::loadf(file);
     return load(jv);

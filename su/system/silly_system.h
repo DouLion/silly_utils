@@ -21,10 +21,10 @@
  *      -- bin
  *          -- 模式2.exe
  *          模式1.exe-
- * @param binPath  CMAKE中设置的项目目录,仅在debug模式下有效
+ * @param wd  CMAKE中设置的项目目录,仅在debug模式下有效
  * @return
  */
-void BIN_CHDIR(const std::filesystem::path& binPath);
+void BIN_CHDIR(const std::filesystem::path& wd);
 
 #if _WIN32
 // 这部分在linux下只能使用iconv等第三方库实现

@@ -29,7 +29,7 @@ class suGeoTiff : public suDem
     };
 
   public:
-    bool write(const std::filesystem::path& outfile);
+    bool write(const suPath& outfile);
 
     std::string err() const;
 

@@ -33,7 +33,7 @@ class TzxPyramidInfo : public TzxPyramidBase
     /// <param name="mode"></param>
     /// <param name="usemmap"></param>
     /// <returns></returns>
-    bool open(const std::filesystem::path& file, const eMMFMode& mode, const bool& usemmap) override;
+    bool open(const suPath& file, const eMMFMode& mode, const bool& usemmap) override;
 
     bool read();
 

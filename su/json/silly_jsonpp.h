@@ -9,7 +9,7 @@
  */
 #ifndef SILLY_UTILS_SILLY_JSONPP_H
 #define SILLY_UTILS_SILLY_JSONPP_H
-#include <su_marco.h>
+#include <files/silly_file.h>
 #include <json/json.h>
 
 namespace silly
@@ -40,8 +40,8 @@ class jsonpp
     /// </summary>
     /// <param name="file"></param>
     /// <returns></returns>
-    static Json::Value loadf(const std::filesystem::path& file);
-    static Json::Value read(const std::filesystem::path& file);
+    static Json::Value loadf(const suPath& file);
+    static Json::Value read(const suPath& file);
 
     /// <summary>
     /// 从字符串加载json内容
@@ -66,9 +66,9 @@ class jsonpp
     /// </summary>
     /// <param name="root"></param>
     /// <param name="indentation">是否为紧凑型字符串,默认为紧凑型</param>
-    static bool dumpf(const std::filesystem::path& file, const Json::Value& root, const jsonpp::style& opt = jsonpp::style());
-    static bool savef(const std::filesystem::path& file, const Json::Value& root, const jsonpp::style& opt = jsonpp::style());
-    static bool write(const std::filesystem::path& file, const Json::Value& root, const jsonpp::style& opt = jsonpp::style());
+    static bool dumpf(const suPath& file, const Json::Value& root, const jsonpp::style& opt = jsonpp::style());
+    static bool savef(const suPath& file, const Json::Value& root, const jsonpp::style& opt = jsonpp::style());
+    static bool write(const suPath& file, const Json::Value& root, const jsonpp::style& opt = jsonpp::style());
 
     /// <summary>
     /// 检查json中指定key的数据类型,如果正确,则赋值,并且返回true,否则返回false

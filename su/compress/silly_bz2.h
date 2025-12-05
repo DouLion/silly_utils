@@ -8,11 +8,9 @@
  * @software: silly_utils
  * @description:
  */
-#pragma once
-
 #ifndef SILLY_UTILS_SILLY_BZ2_H
 #define SILLY_UTILS_SILLY_BZ2_H
-#include <iostream>
+#include <log/silly_log.h>
 #include <compress/silly_compress_common.h>
 
 /*
@@ -34,7 +32,7 @@ class BZ2
     /// <param name="s_src">待压缩文件路径</param>
     /// <param name="s_dst">压缩输出路径</param>
     /// <returns></returns>
-    static eCompressErr compress(const std::string &s_src, const std::string &s_dst);
+    static eCompressErr compress(const suPath &s_src, const suPath &s_dst);
 
     /// <summary>
     ///  解压文件,不支持文件夹,bz2不具有归档能力
@@ -42,7 +40,7 @@ class BZ2
     /// <param name="s_src">待解压文件路径</param>
     /// <param name="s_dst">解压输出路径</param>
     /// <returns></returns>
-    static eCompressErr decompress(const std::string &s_src, const std::string &s_dst);
+    static eCompressErr decompress(const suPath &s_src, const suPath &s_dst);
 
     /// <summary>
     /// 压缩内存数据

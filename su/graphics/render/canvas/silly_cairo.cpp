@@ -401,13 +401,13 @@ bool suCairo::create(const size_t &cols, const size_t &rows, const int &type)
 #endif
 }
 
-bool suCairo::read(const std::filesystem::path &file, const bool &png)
+bool suCairo::read(const suPath &file, const bool &png)
 {
 #if SU_THIRD_SUPPORT_CAIRO
 
     if (png)
     {
-        if (!(m_surface = cairo_png::surface_create_from_file(sufile::realpath(file).string().c_str())))
+        if (!(m_surface = cairo_png::surface_create_from_file(suPath(file).string().c_str())))
         {
             return false;
         }
@@ -416,7 +416,7 @@ bool suCairo::read(const std::filesystem::path &file, const bool &png)
     {
 #if SU_THIRD_SUPPORT_JPEG
 
-        if (!(m_surface = cairo_jpeg::surface_create_from_file(sufile::realpath(file).string().c_str())))
+        if (!(m_surface = cairo_jpeg::surface_create_from_file(suPath(file).string().c_str())))
         {
             return false;
         }
@@ -434,18 +434,18 @@ bool suCairo::read(const std::filesystem::path &file, const bool &png)
 #endif
 }
 
-bool suCairo::write(const std::filesystem::path &file, const bool &png)
+bool suCairo::write(const suPath &file, const bool &png)
 {
 #if SU_THIRD_SUPPORT_CAIRO
 
     if (png)
     {
-        return (CAIRO_STATUS_SUCCESS == cairo_png::surface_write(m_surface, sufile::realpath(file).string().c_str()));
+        return (CAIRO_STATUS_SUCCESS == cairo_png::surface_write(m_surface, suPath(file).string().c_str()));
     }
 #if SU_THIRD_SUPPORT_JPEG
     else
     {
-        return (CAIRO_STATUS_SUCCESS == cairo_jpeg::surface_write(m_surface, sufile::realpath(file).string().c_str()));
+        return (CAIRO_STATUS_SUCCESS == cairo_jpeg::surface_write(m_surface, suPath(file).string().c_str()));
     }
 #endif
 #endif
@@ -457,7 +457,7 @@ bool suCairo::decode(const std::string &bin)
     return decode((const unsigned char *)bin.c_str(), bin.size());
 }
 
-bool suCairo::decode(const unsigned char *data, const size_t size)
+bool suCairo::decode(const unsigned char *data, const size_t& size)
 {
 #if SU_THIRD_SUPPORT_CAIRO
 
@@ -547,6 +547,7 @@ void suCairo::draw_text(const suCairoText &sct)
     cairo_stroke(m_cr);
 #endif
 }
+
 
 void suCairo::set(const suColor &color)
 {
@@ -682,7 +683,7 @@ size_t suCairo::height() const
     return m_height;
 }
 
-bool suCairo::add_font(const std::string &name, const std::filesystem::path &file)
+bool suCairo::add_font(const std::string &name, const suPath &file)
 {
     bool status = false;
 #if SU_THIRD_SUPPORT_CAIRO
@@ -691,9 +692,9 @@ bool suCairo::add_font(const std::string &name, const std::filesystem::path &fil
 
     FT_Error ft_error;
 
-    if (sufile::exist(file))
+    if (suPath::exists(file))
     {
-        ft_error = FT_New_Face(CAIRO_FONT_LIB, sufile::realpath(file).string().c_str(), 0, &ft_face);
+        ft_error = FT_New_Face(CAIRO_FONT_LIB, suPath(file).string().c_str(), 0, &ft_face);
         if (!ft_error)
         {
             CAIRO_NAME_FONT[name] = ft_face;
@@ -822,13 +823,41 @@ void suCairo::draw_point(const suPoint &p, const double &size, const suRect &rec
 {
 #if SU_THIRD_SUPPORT_CAIRO
 
+    suPoint screenP;
+    screenP.x = (p.x - rect.min.x) / (rect.max.x - rect.min.x) * m_width;
+    screenP.y = (rect.max.y - p.y) / (rect.max.y - rect.min.y) * m_height;
+
+    draw_point(screenP, size);
+#endif
+}
+void suCairo::draw_point(const suPoint &p, const double &size)
+{
+#if SU_THIRD_SUPPORT_CAIRO
+
     cairo_set_line_width(m_cr, size);  // 圆点的直径
-
-    double x = (p.x - rect.min.x) / (rect.max.x - rect.min.x) * m_width;
-    double y = (rect.max.y - p.y) / (rect.max.y - rect.min.y) * m_height;
-
     // 绘制圆点
-    cairo_arc(m_cr, x, y, size / 2., 0, 2 * silly::math::pi);  // 圆心位置 (100, 100), 半径 5
+    cairo_arc(m_cr, p.x, p.y, size / 2., 0, 2 * silly::math::pi);  // 圆心位置 (100, 100), 半径 5
     cairo_stroke(m_cr);
+#endif
+}
+void suCairo::draw_point_web_mercator(const suPoint &p, const double &size, const suRect &rect)
+{
+
+#if SU_THIRD_SUPPORT_CAIRO
+
+    suRect mcr;
+    suGeoProj::lonlat_to_mercator(rect.min.x, rect.max.y, mcr.min.x, mcr.max.y);
+    suGeoProj::lonlat_to_mercator(rect.max.x, rect.min.y, mcr.max.x, mcr.min.y);
+
+
+
+    double x_pixel_per_degree = m_width / (mcr.max.x - mcr.min.x);
+    double y_pixel_per_degree = m_height / (mcr.max.y - mcr.min.y);
+    double mcx, mcy;
+    suGeoProj::lonlat_to_mercator(p.x, p.y, mcx, mcy);
+    suPoint screenP;
+    screenP.x = (mcx - mcr.min.x) * x_pixel_per_degree;
+    screenP.y = (mcr.max.y - mcy) * y_pixel_per_degree;
+    draw_point(screenP, size);
 #endif
 }

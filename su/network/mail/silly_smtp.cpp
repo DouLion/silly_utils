@@ -306,7 +306,7 @@ bool silly_smtp::attachments(const silly_mail_content& content)
     // 遍历发送附件文件
     for (const auto& file : content.attachments)
     {
-        std::string fileName = std::filesystem::path(file).filename().string();
+        std::string fileName = suPath(file).name();
         std::string szContent;
         if (!sufile::read(file, szContent))
         {

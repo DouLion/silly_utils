@@ -10,13 +10,13 @@
  */
 #ifndef SILLY_UTILS_SILLY_FILE_LOCK_H
 #define SILLY_UTILS_SILLY_FILE_LOCK_H
-#include <su_marco.h>
+#include <files/silly_file.h>
 
 class suFileLock
 {
   public:
     /// 构造函数 锁定文件
-    suFileLock(const std::string& u8file);
+    suFileLock(const supath& file);
 
     void unlock();
 

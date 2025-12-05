@@ -14,9 +14,7 @@
 #define SILLY_UTILS_FTP_UTILS_H
 
 #include <curl/curl.h>
-#include <iostream>
-#include <vector>
-#include <fstream>
+#include <files/silly_file.h>
 
 struct ftp_info
 {

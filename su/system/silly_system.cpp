@@ -9,20 +9,20 @@
  * @version: v1.0.1 2025-09-25 dou li yang
  */
 #include "silly_system.h"
-extern void BIN_CHDIR(const std::filesystem::path& binPath)
+extern void BIN_CHDIR(const std::filesystem::path& wd)
 {
 #ifndef NDEBUG
-    auto cfgPath = binPath;
+    auto cfgPath = wd;
     cfgPath.append("config");
     if (std::filesystem::exists(cfgPath))
     {
-        std::filesystem::current_path(binPath);
+        std::filesystem::current_path(wd);
     }
 #else
     auto curr = std::filesystem::current_path();
-    if (curr.stem().string() == "bin")
+    if (curr.name() == "bin")
     {
-        std::filesystem::current_path(curr.parent_path());
+        std::filesystem::current_path(curr.parent());
     }
 #endif
 }

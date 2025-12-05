@@ -94,7 +94,7 @@ public:
     /// 将光栅化结果绘制到灰度图上
     /// </summary>
     /// <param name="file"></param>
-    void image(const std::filesystem::path& file);
+    void image(const suPath& file);
 
     int width() const;
     int height() const;

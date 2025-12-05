@@ -24,25 +24,25 @@ TzxPyramidHandle::~TzxPyramidHandle()
 }
 bool TzxPyramidHandle::begin_read(const char* root)
 {
-    return begin_read(std::filesystem::path(root));
+    return begin_read(suPath(root));
 }
 bool TzxPyramidHandle::begin_write(const char* root)
 {
-    return begin_write(std::filesystem::path(root));
+    return begin_write(suPath(root));
 }
 
 bool TzxPyramidHandle::begin_read(const std::string& root)
 {
-    return begin_read(std::filesystem::path(root));
+    return begin_read(suPath(root));
 }
 bool TzxPyramidHandle::begin_write(const std::string& root)
 {
-    return begin_write(std::filesystem::path(root));
+    return begin_write(suPath(root));
 }
 
-bool TzxPyramidHandle::begin_read(const std::filesystem::path& root)
+bool TzxPyramidHandle::begin_read(const suPath& root)
 {
-    if (!std::filesystem::exists(root))
+    if (!root.exists())
     {
         return false;
     }
@@ -51,9 +51,9 @@ bool TzxPyramidHandle::begin_read(const std::filesystem::path& root)
     m_mode = eMMFMode::Read;
     return open();
 }
-bool TzxPyramidHandle::begin_write(const std::filesystem::path& root)
+bool TzxPyramidHandle::begin_write(const suPath& root)
 {
-    if (!std::filesystem::exists(root))
+    if (!root.exists())
     {
         return false;
     }
@@ -101,9 +101,9 @@ bool TzxPyramidHandle::open()
     std::scoped_lock lock(m_open_mutex);
     if (!m_opened)
     {
-        std::string pinfo = std::filesystem::path(m_root).append(SU_PYRAMID_INF_NAME).string();
-        std::string pindex = std::filesystem::path(m_root).append(SU_PYRAMID_IDX_NAME).string();
-        std::string pdata = std::filesystem::path(m_root).append(SU_PYRAMID_DAT_NAME).string();
+        std::string pinfo = suPath(m_root).append(SU_PYRAMID_INF_NAME).string();
+        std::string pindex = suPath(m_root).append(SU_PYRAMID_IDX_NAME).string();
+        std::string pdata = suPath(m_root).append(SU_PYRAMID_DAT_NAME).string();
         if (!m_info->open(pinfo, m_mode, m_use_mmap))
         {
             m_info->close();

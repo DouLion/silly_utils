@@ -11,7 +11,6 @@
 
 #ifndef SILLY_COMPRESS_COMMON_H
 #define SILLY_COMPRESS_COMMON_H
-
 enum class eCompressMethod
 {
     Unknown,

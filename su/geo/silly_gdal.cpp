@@ -273,10 +273,10 @@ suGeoColl suGDAL::GeoCollFromOGR(const OGRGeometry* geometry)
             return suGeoColl();
     }
 }
-std::string suGDAL::GradDriverName(const std::filesystem::path& file)
+std::string suGDAL::GradDriverName(const suPath& file)
 {
     static const std::unordered_map<std::string, std::string> DRIVER_NAMES = {{".shp", "ESRI Shapefile"}, {".tab", "Mapinfo File"}, {".geojson", "GeoJSON"}, {".sqlite", "SQLite"}, {".csv", "CSV"}, {".kml", "KML"}, {".gml", "GML"}, {".xlsx", "XLSX"}};
-    std::string ext = TO_LOWER(file.extension().string());
+    std::string ext = TO_LOWER(file.extension());
     for (const auto& [extension, driver] : DRIVER_NAMES)
     {
         if (std::strcmp(ext.c_str(), extension.c_str()) == 0)
@@ -286,7 +286,7 @@ std::string suGDAL::GradDriverName(const std::filesystem::path& file)
     }
     return "";
 }
-void* suGDAL::GdalOpenDataset(const std::filesystem::path& file, const bool& read)
+void* suGDAL::GdalOpenDataset(const suPath& file, const bool& read)
 {
     if (read)
     {
@@ -302,7 +302,7 @@ void* suGDAL::GdalOpenDataset(const std::filesystem::path& file, const bool& rea
     GDALDriver* outDriver = GetGDALDriverManager()->GetDriverByName(gdalDriverName.c_str());
     return outDriver->Create(file.string().c_str(), 0, 0, 0, GDT_Unknown, nullptr);
 }
-bool suGDAL::CheckFieldInfo(const std::filesystem::path& file, std::map<uint16_t, GeoFiledInfo>& idx2prop)
+bool suGDAL::CheckFieldInfo(const suPath& file, std::map<uint16_t, GeoFiledInfo>& idx2prop)
 {
     bool status = false;
     std::map<std::string, std::string> result;
@@ -467,7 +467,7 @@ bool suGDAL::ReadGeometry(const OGRGeometry* geometry, suGeoColl& geoColl)
     return status;
 }
 
-bool suGDAL::IsValidShp(const std::filesystem::path& file)
+bool suGDAL::IsValidShp(const suPath& file)
 {
     auto poDSr = static_cast<GDALDataset*>(GDALOpenEx(file.string().c_str(), GDAL_OF_ALL | GDAL_OF_READONLY, nullptr, nullptr, nullptr));
     if (nullptr == poDSr)
@@ -478,25 +478,25 @@ bool suGDAL::IsValidShp(const std::filesystem::path& file)
     return true;
 }
 
-std::vector<std::string> suGDAL::ShpMissingFile(const std::filesystem::path& file)
+std::vector<std::string> suGDAL::ShpMissingFile(const suPath& file)
 {
     std::vector<std::string> ret;
     static std::set<std::string> necessary_files{".shx", ".dbf"};
     // 默认情况下 GDAL 在加载 Shapefile 时，会 严格检查文件名大小写 ，并按照以下规则查找配套文件
-    std::string ext = file.extension().string();
+    std::string ext = file.extension();
     if (ext != ".shp")
     {
         return ret;
     }
-    std::string stem = file.stem().string();
-    std::filesystem::path parent = file.parent_path();
+    std::string stem = file.stem();
+    suPath parent = file.parent();
 
     for (const auto& nf : necessary_files)
     {
-        auto tmp = std::filesystem::path(parent).append(stem + nf);
-        if (!std::filesystem::exists(tmp))
+        auto tmp = suPath(parent).append(stem + nf);
+        if (!suPath::exists(tmp))
         {
-            ret.push_back(tmp.filename().string());
+            ret.push_back(tmp.name_utf8());
         }
     }
 

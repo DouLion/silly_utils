@@ -45,7 +45,7 @@ bool MoistureFile::Record::deserialize(const std::string& data)
     memcpy(&precipitation, &data[index], sizeof(precipitation));
     return true;
 }
-void MoistureFile::serialize(const std::filesystem::path& file, const std::vector<MoistureFile::Record>& records)
+void MoistureFile::serialize(const suPath& file, const std::vector<MoistureFile::Record>& records)
 {
     std::string result;
     // 前四个字节为
@@ -71,7 +71,7 @@ void MoistureFile::serialize(const std::filesystem::path& file, const std::vecto
         throw std::runtime_error("序列化错误");
     }
 }
-void MoistureFile::deserialize(const std::filesystem::path& file, std::vector<MoistureFile::Record>& records)
+void MoistureFile::deserialize(const suPath& file, std::vector<MoistureFile::Record>& records)
 {
     std::string data;
     if (0 == sufile::read(file, data))
@@ -91,7 +91,7 @@ void MoistureFile::deserialize(const std::filesystem::path& file, std::vector<Mo
         records.push_back(record);
     }
 }
-bool MoistureFile::deserialize(const std::filesystem::path& file, const MoistureIndex::Cache& cache, const int& pid, MoistureFile::Record& record)
+bool MoistureFile::deserialize(const suPath& file, const MoistureIndex::Cache& cache, const int& pid, MoistureFile::Record& record)
 {
     auto iter = cache.find(pid);
     if (iter != cache.end())
@@ -133,7 +133,7 @@ bool MoistureFile::deserialize(const std::filesystem::path& file, const Moisture
     return false;
 }
 
-bool MoistureIndex::read(const std::filesystem::path& file)
+bool MoistureIndex::read(const suPath& file)
 {
     std::string content;
     sufile::read(file, content);
@@ -153,7 +153,7 @@ bool MoistureIndex::read(const std::filesystem::path& file)
     return !m_cache.empty();
 }
 
-bool MoistureIndex::write(const std::filesystem::path& file, const MoistureIndex::Cache& cache)
+bool MoistureIndex::write(const suPath& file, const MoistureIndex::Cache& cache)
 {
     std::string out;
     for (auto [_, mi] : cache)
@@ -167,7 +167,7 @@ bool MoistureIndex::write(const std::filesystem::path& file, const MoistureIndex
     if (out.size() == cache.size() * sizeof(MoistureIndex::Info))
     {
         sufile::write(file, out);
-        return std::filesystem::exists(file);
+        return suPath::exists(file);
     }
 
     return false;

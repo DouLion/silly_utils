@@ -11,14 +11,14 @@
 #ifndef SILLY_UTILS_SILLY_ISO_POLY_H
 #define SILLY_UTILS_SILLY_ISO_POLY_H
 #include <geo/silly_geo.h>
-
+#include <files/silly_file.h>
 class suIsoPoly
 {
   public:
     suIsoPoly() = default;
     ~suIsoPoly() = default;
-    static bool read(const std::filesystem::path& file, suMultiPoly& mpoly);
-    static bool write(const std::filesystem::path& file, const suMultiPoly& mpoly, const int& precision = 8);
+    static bool read(const suPath& file, suMultiPoly& mpoly);
+    static bool write(const suPath& file, const suMultiPoly& mpoly, const int& precision = 8);
 
   private:
 };

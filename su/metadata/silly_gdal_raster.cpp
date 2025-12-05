@@ -9,7 +9,7 @@
  * @version: v1.0.1 2025-08-14 dou li yang
  */
 #include "silly_gdal_raster.h"
-bool suGdalRaster::Open(const std::filesystem::path& file)
+bool suGdalRaster::Open(const suPath& file)
 {
 #if SU_THIRD_SUPPORT_GDAL
     // CPLSetConfigOption("GDAL_CACHEMAX", "512");  // 设置 GDAL 缓存为 512MB

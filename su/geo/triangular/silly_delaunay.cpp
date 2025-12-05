@@ -61,7 +61,7 @@ double silly_delaunay_utils::get_double(const std::string& str, const size_t& li
     return std::stod(d);
 }
 
-std::vector<silly_dt_point> silly_delaunay_utils::read(const std::filesystem::path& file)
+std::vector<silly_dt_point> silly_delaunay_utils::read(const suPath& file)
 {
     std::vector<silly_dt_point> points;
     std::string content;
@@ -102,7 +102,7 @@ double silly_delaunay_utils::sq_dist(const silly_dt_point& p0, const silly_dt_po
 }
 #ifndef NDEBUG
 #include <graphics/render/canvas/silly_cairo.h>
-void silly_delaunay::draw(const std::filesystem::path& file)
+void silly_delaunay::draw(const suPath& file)
 {
     suCairo sc;
     sc.create(2000, 2000);
@@ -119,7 +119,7 @@ void silly_delaunay::draw(const std::filesystem::path& file)
     sc.release();
 }
 #else
-void silly_delaunay::draw(const std::filesystem::path& file)
+void silly_delaunay::draw(const suPath& file)
 {
 }
 #endif

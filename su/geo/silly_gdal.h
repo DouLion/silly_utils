@@ -5,6 +5,7 @@
 #ifndef SILLY_UTILS_SILLY_GDAL_H
 #define SILLY_UTILS_SILLY_GDAL_H
 #include <geo/silly_geo_coll.h>
+#include <files/silly_file.h>
 #if SU_THIRD_SUPPORT_GDAL
 #include <gdal_priv.h>
 #include <ogr_spatialref.h>
@@ -164,9 +165,9 @@ class suGDAL
 
     /// ----------------------------------- shp文件读写相关 -----------------------------------------------
 
-    static std::string GradDriverName(const std::filesystem::path& file);
-    static void* GdalOpenDataset(const std::filesystem::path& file, const bool& read = true);
-    static bool CheckFieldInfo(const std::filesystem::path& file, std::map<uint16_t, GeoFiledInfo>& idx2prop);
+    static std::string GradDriverName(const suPath& file);
+    static void* GdalOpenDataset(const suPath& file, const bool& read = true);
+    static bool CheckFieldInfo(const suPath& file, std::map<uint16_t, GeoFiledInfo>& idx2prop);
 
     static bool ReadProperties(const OGRFeature* feature, const std::map<uint16_t, GeoFiledInfo>& idx2prop, std::unordered_map<std::string, suGeoProp>& props);
     static bool ReadGeometry(const OGRGeometry* geometry, suGeoColl& geoColl);
@@ -176,7 +177,7 @@ class suGDAL
     /// </summary>
     /// <param name="file"></param>
     /// <returns></returns>
-    static bool IsValidShp(const std::filesystem::path& file);
+    static bool IsValidShp(const suPath& file);
 
     /// <summary>
     /// 检查shp文件组中缺失的文件
@@ -186,7 +187,7 @@ class suGDAL
     /// </summary>
     /// <param name="file"></param>
     /// <returns></returns>
-    static std::vector<std::string> ShpMissingFile(const std::filesystem::path& file);
+    static std::vector<std::string> ShpMissingFile(const suPath& file);
 
     // 写入所有类型的数据
     static bool AddGeometry(OGRLayer* layer, const suGeoColl& geometry, bool writeProp = true);

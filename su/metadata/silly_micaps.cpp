@@ -101,7 +101,7 @@ bool silly_micaps_diamond_4::reset()
     return false;
 }
 
-bool silly_micaps_utils::read(const std::filesystem::path &file, silly_micaps_diamond_4 &md4)
+bool silly_micaps_utils::read(const suPath &file, silly_micaps_diamond_4 &md4)
 {
     bool status = false;
     std::string content;
@@ -149,12 +149,12 @@ bool silly_micaps_utils::read(const std::filesystem::path &file, silly_micaps_di
     return status;
 }
 
-bool silly_micaps_utils::mmap_read(const std::filesystem::path &file, silly_micaps_diamond_4 &md4)
+bool silly_micaps_utils::mmap_read(const suPath &file, silly_micaps_diamond_4 &md4)
 {
     return false;
 }
 
-bool silly_micaps_utils::write(const std::filesystem::path &file, const silly_micaps_diamond_4 &md4)
+bool silly_micaps_utils::write(const suPath &file, const silly_micaps_diamond_4 &md4)
 {
     return false;
 }

@@ -243,7 +243,7 @@ bool BlockData::Read(std::fstream& input, const BlockInfo& info, SLB& slb)
     }
     return true;
 }
-bool SLB::Read(const std::filesystem::path& file)
+bool SLB::Read(const suPath& file)
 {
     std::fstream input(file, std::ios::binary | std::ios::in);
 
@@ -251,7 +251,7 @@ bool SLB::Read(const std::filesystem::path& file)
     {
         return false;
     }
-    size_t size = std::filesystem::file_size(file);
+    size_t size = file.size();
     Clear();
     do
     {

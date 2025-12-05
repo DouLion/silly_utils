@@ -20,7 +20,7 @@ nmea::~nmea()
 {
 }
 
-nmea::nmea(const std::filesystem::path& file)
+nmea::nmea(const suPath& file)
 {
     open(file);
 }
@@ -44,9 +44,9 @@ double nmea::degree(const std::string& degree)
     return d + (val - d * 100) / 60;
 }
 
-bool nmea::open(const std::filesystem::path& file)
+bool nmea::open(const suPath& file)
 {
-    m_path = sufile::realpath(file);
+    m_path = suPath(file);
     return true;
 }
 

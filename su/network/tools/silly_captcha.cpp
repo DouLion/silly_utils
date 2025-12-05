@@ -93,14 +93,14 @@ silly_captcha::~silly_captcha()
     FT_Done_FreeType(m_ft_library);
 }
 
-bool silly_captcha::add_font(const std::string& name, const std::filesystem::path& file)
+bool silly_captcha::add_font(const std::string& name, const suPath& file)
 {
     bool status = false;
     FT_Face ft_face;
 
     FT_Error ft_error;
-    auto fp = sufile::realpath(file);
-    if (sufile::exist(fp))
+    auto fp = suPath(file);
+    if (suPath::exists(fp))
     {
         if (!FT_New_Face(m_ft_library, fp.string().c_str(), 0, &ft_face))
         {

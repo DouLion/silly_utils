@@ -16,7 +16,7 @@ suEarthGravityModel::~suEarthGravityModel()
     close();
 }
 
-bool suEarthGravityModel::open(const std::filesystem::path& file)
+bool suEarthGravityModel::open(const suPath& file)
 {
     if (m_mmap.open(file))
     {

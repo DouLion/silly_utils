@@ -14,6 +14,7 @@
 #define SILLY_UTILS_SILLY_MINIZIP_H
 #include <compress/silly_compress_common.h>
 #include <log/silly_log.h>
+#include <files/silly_file.h>
 namespace silly_compress
 {
 class MiniZip
@@ -26,7 +27,7 @@ class MiniZip
     /// <param name="s_dst">生成解压文件路径</param>
     /// <returns></returns>
     /// 注: 测试压缩3G以上ios文件有问题
-    static eCompressErr compress(const std::string& s_src, const std::string& s_dst = "", const bool& append = false);
+    static eCompressErr compress(const suPath& s_src, const suPath& s_dst = "", const bool& append = false);
 
     /// <summary>
     /// 解压zip文件,解压单独文件和目录文件
@@ -34,7 +35,7 @@ class MiniZip
     /// <param name="s_src">待解压文件路径</param>
     /// <param name="s_dst">解压输出路径</param>
     /// <returns></returns>
-    static eCompressErr decompress(const std::string& s_src, const std::string& s_dst = "");
+    static eCompressErr decompress(const suPath& s_src, const suPath& s_dst = "");
 
     /// <summary>
     /// 压缩内存数据

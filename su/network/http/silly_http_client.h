@@ -10,7 +10,7 @@
  */
 #ifndef SILLY_UTILS_SILLY_HTTP_CLIENT_H
 #define SILLY_UTILS_SILLY_HTTP_CLIENT_H
-#include <su_marco.h>
+#include <files/silly_file.h>
 #include <network/http/silly_http_headers.h>
 
 class suHttpClient
@@ -52,7 +52,7 @@ class suHttpClient
     /// <param name="file"></param>
     /// <param name="filename"></param>
     /// <returns></returns>
-    bool download(const std::string& url, const std::filesystem::path& file, const std::string& filename = "");
+    bool download(const std::string& url, const suPath& file, const std::string& filename = "");
 
     /// <summary>
     /// 上传文件 Upload files
@@ -73,7 +73,7 @@ class suHttpClient
     /// <param name="name">一般为文件名, 不应该重复, 不能确定服务端如何实现</param>
     /// <param name="path"></param>
     /// <returns></returns>
-    bool add_upload(const std::string& name, std::filesystem::path path);
+    bool add_upload(const std::string& name, suPath path);
 
     /// <summary>
     /// 移除上传文件
@@ -181,7 +181,7 @@ class suHttpClient
     std::string m_err;
     std::unordered_map<std::string, std::string> m_hrequest;
     std::unordered_map<std::string, std::string> m_hresponse;
-    std::unordered_map<std::string, std::filesystem::path> m_files;
+    std::unordered_map<std::string, suPath> m_files;
     std::string m_req_content_type;
     std::string m_copyname;
     std::string m_user;

@@ -2,7 +2,7 @@
 #ifndef SILLY_UTILS_SILLY_LOG_H
 #define SILLY_UTILS_SILLY_LOG_H
 #include <singleton/silly_singleton.h>
-#include <system/silly_system.h>
+#include <files/silly_file.h>
 #include <string/silly_format.h>
 #include <spdlog/spdlog.h>
 
@@ -45,7 +45,7 @@ class silly_log : public silly_singleton<silly_log>
     /// </summary>
     /// <param name="path"></param>
     /// <returns></returns>
-    bool init(const std::filesystem::path& file);
+    bool init(const suPath& file);
 
     /// <summary>
     /// 由option对象初始化日志模块

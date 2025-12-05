@@ -26,11 +26,11 @@ class TzxPyramidHandle
     TzxPyramidHandle& operator=(const TzxPyramidHandle&) = delete;
     bool begin_read(const char* root);
     bool begin_read(const std::string& root);
-    bool begin_read(const std::filesystem::path& root);
+    bool begin_read(const suPath& root);
 
     bool begin_write(const char* root);
     bool begin_write(const std::string& root);
-    bool begin_write(const std::filesystem::path& root);
+    bool begin_write(const suPath& root);
 
     ////////////////////////////////////////////////////////////
     /// 读取功能

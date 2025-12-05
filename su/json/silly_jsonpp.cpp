@@ -7,15 +7,15 @@
 #include <log/silly_log.h>
 using namespace silly;
 
-Json::Value jsonpp::loadf(const std::filesystem::path& file)
+Json::Value jsonpp::loadf(const suPath& file)
 {
     return jsonpp::read(file);
 }
 
-Json::Value jsonpp::read(const std::filesystem::path& file)
+Json::Value jsonpp::read(const suPath& file)
 {
     std::fstream input;
-    input.open(sufile::realpath(file), std::ios::binary | std::ios::in);
+    input.open(suPath(file), std::ios::binary | std::ios::in);
     if (!input.is_open())
     {
         return Json::nullValue;
@@ -80,17 +80,17 @@ std::string jsonpp::dumps(const Json::Value& root, const jsonpp::style& opt)
     return jsonpp::to_string(root, opt);
 }
 
-bool jsonpp::dumpf(const std::filesystem::path& file, const Json::Value& root, const jsonpp::style& opt)
+bool jsonpp::dumpf(const suPath& file, const Json::Value& root, const jsonpp::style& opt)
 {
     return sufile::write(file, jsonpp::to_string(root, opt)) > 0;
 }
 
-bool jsonpp::savef(const std::filesystem::path& file, const Json::Value& root, const jsonpp::style& opt)
+bool jsonpp::savef(const suPath& file, const Json::Value& root, const jsonpp::style& opt)
 {
     return dumpf(file, jsonpp::to_string(root, opt));
 }
 
-bool jsonpp::write(const std::filesystem::path& file, const Json::Value& root, const jsonpp::style& opt)
+bool jsonpp::write(const suPath& file, const Json::Value& root, const jsonpp::style& opt)
 {
     try
     {
@@ -106,7 +106,7 @@ bool jsonpp::write(const std::filesystem::path& file, const Json::Value& root, c
 
         std::ostringstream stream;
 
-        std::ofstream wfile(sufile::realpath(file));
+        std::ofstream wfile(file.path());
         wfile << Json::writeString(stream_builder, root);
         wfile.close();
     }
@@ -116,7 +116,7 @@ bool jsonpp::write(const std::filesystem::path& file, const Json::Value& root, c
         return false;
     }
 
-    return sufile::size(file) > 0;
+    return suPath::size(file) > 0;
 }
 
 bool jsonpp::check_str(const Json::Value& root, const std::string& key, std::string& val)

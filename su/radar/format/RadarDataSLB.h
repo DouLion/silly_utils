@@ -8,10 +8,9 @@
  * @description: 水利部雷达格式1.0, 缺失字段使用默认值, 不做修改
  * @version: v1.0.1 2025-02-28 dou li yang
  */
-#ifndef SILLY_UTILS_SLB_DATA_V1_H
-#define SILLY_UTILS_SLB_DATA_V1_H
-
-#include <su_marco.h>
+#ifndef RADAR_DATA_SLB_V1_H
+#define RADAR_DATA_SLB_V1_H
+#include <files/silly_file.h>
 using PolorGrid = std::vector<std::vector<float>>;
 namespace RadarData
 {
@@ -282,7 +281,7 @@ class SLB
     SLB() = default;
     ~SLB() = default;
 
-    bool Read(const std::filesystem::path& file);
+    bool Read(const suPath& file);
 
     /// <summary>
     ///
@@ -327,4 +326,4 @@ class SLB
 
 }  // namespace RadarData
 
-#endif  // SILLY_UTILS_SLB_DATA_V1_H
+#endif  // RADAR_DATA_SLB_V1_H

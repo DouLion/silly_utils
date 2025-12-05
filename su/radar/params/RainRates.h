@@ -10,12 +10,12 @@
  */
 #ifndef SILLY_UTILS_RAINRATES_H
 #define SILLY_UTILS_RAINRATES_H
-#include <su_marco.h>
+#include <files/silly_file.h>
 class RainRates
 {
   public:
-    bool Read(const std::filesystem::path& file);
-    bool Write(const std::filesystem::path& file);
+    bool Read(const suPath& file);
+    bool Write(const suPath& file);
 
   private:
     double RATE_snr_threshold = 3;

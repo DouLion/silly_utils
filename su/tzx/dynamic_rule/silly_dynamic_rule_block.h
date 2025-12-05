@@ -37,7 +37,7 @@ class suDynamicRule
     /// <param name="root">文件根目录</param>
     /// <param name="num">最大危险区数量,</param>
     /// <returns></returns>
-    bool init(const std::filesystem::path& root, const size_t& num = 30000, const bool& read_mode = true);
+    bool init(const suPath& root, const size_t& num = 30000, const bool& read_mode = true);
 
     /// <summary>
     /// 读取指定时间指定危险区的数据
@@ -104,7 +104,7 @@ class suDynamicRule
   private:
     bool m_read_mode = true;
     bool m_init = false;
-    std::filesystem::path m_root;
+    suPath m_root;
     size_t m_num = 0;
     size_t m_max_index = 0;  // 当前最大危险区索引, 不能超过m_num
     std::map<std::string, size_t> m_code_index;

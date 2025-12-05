@@ -152,7 +152,7 @@ class silly_delaunay_utils
 {
   public:
     static double get_double(const std::string& str, const size_t& limit, size_t& i);
-    static std::vector<silly_dt_point> read(const std::filesystem::path& file);
+    static std::vector<silly_dt_point> read(const suPath& file);
     static std::vector<silly_dt_point> parse(const std::string& content);
     static double dist(const silly_dt_point& p0, const silly_dt_point& p1);
     static double sq_dist(const silly_dt_point& p0, const silly_dt_point& p1);
@@ -163,7 +163,7 @@ class silly_delaunay
   public:
     virtual void points(std::vector<silly_dt_point>& pts) = 0;
     virtual void triangulate() = 0;
-    void draw(const std::filesystem::path& file);
+    void draw(const suPath& file);
 
   protected:
     std::vector<silly_dt_point> m_points{};

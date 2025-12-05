@@ -197,7 +197,7 @@ bool suPNG::create(const size_t &width, const size_t &height, const eColorType &
     return false;
 #endif
 }
-bool suPNG::read(const std::filesystem::path &file)
+bool suPNG::read(const suPath &file)
 {
     bool status = false;
 #if SU_THIRD_SUPPORT_PNG
@@ -222,7 +222,7 @@ bool suPNG::read(const std::filesystem::path &file)
         png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
         return status;
     }
-    FILE *fp = fopen(sufile::realpath(file).string().c_str(), "rb");
+    FILE *fp = fopen(suPath(file).string().c_str(), "rb");
     if (!fp)
     {
         return status;
@@ -254,7 +254,7 @@ bool suPNG::read(const std::filesystem::path &file)
 #endif
     return status;
 }
-bool suPNG::write(const std::filesystem::path &file) const
+bool suPNG::write(const suPath &file) const
 {
 #if SU_THIRD_SUPPORT_PNG
 
@@ -265,7 +265,7 @@ bool suPNG::write(const std::filesystem::path &file) const
     }
 
     FILE *output_fp;
-    output_fp = fopen(sufile::realpath(file).string().c_str(), "wb");
+    output_fp = fopen(suPath(file).string().c_str(), "wb");
 
     png_structp png_write_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, 0, 0, 0);
     if (nullptr == png_write_ptr)

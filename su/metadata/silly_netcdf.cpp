@@ -150,11 +150,11 @@ std::vector<std::string> read_band_names(netCDF::NcVar nv, std::string name, siz
 }
 #endif
 
-bool suNetCDF::open(const std::filesystem::path& file)
+bool suNetCDF::open(const suPath& file)
 {
     bool status = false;
 #if SU_THIRD_SUPPORT_NETCDF_CXX
-    auto fp = sufile::realpath(file);
+    auto fp = suPath(file);
     try
     {
         m_nc_file.open(fp.string(), netCDF::NcFile::read);
@@ -475,11 +475,11 @@ float suNetCDF::ydelta() const
 {
     return m_geo.ystep;
 }
-bool suNetCDF::write(const std::filesystem::path& file, const Data& snd)
+bool suNetCDF::write(const suPath& file, const Data& snd)
 {
     bool status{false};
 #if SU_THIRD_SUPPORT_NETCDF_CXX
-    auto fp = sufile::realpath(file);
+    auto fp = suPath(file);
     try
     {
         netCDF::NcFile sfc;
@@ -558,10 +558,10 @@ bool suNetCDF::write(const std::filesystem::path& file, const Data& snd)
     return status;
 }
 
-bool suNetCDF::write(const std::filesystem::path& file) const
+bool suNetCDF::write(const suPath& file) const
 {
     bool status{false};
-    // auto fp = sufile::realpath(file);
+    // auto fp = suPath(file);
     // try
     //{
     //     netCDF::NcFile sfc;

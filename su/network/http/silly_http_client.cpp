@@ -240,12 +240,12 @@ bool suHttpClient::request(const std::string& url, std::string& resp)
     return status;
 }
 
-bool suHttpClient::download(const std::string& url, const std::filesystem::path& file, const std::string& filename)
+bool suHttpClient::download(const std::string& url, const suPath& file, const std::string& filename)
 {
     bool status = false;
     m_err.clear();
     m_err.resize(CURL_ERROR_SIZE);
-    auto fp = sufile::realpath(file);
+    auto fp = suPath(file);
     FILE* out = fopen(fp.string().c_str(), "wb");
     if (nullptr == out)
     {
@@ -350,7 +350,7 @@ bool suHttpClient::download(const std::string& url, const std::filesystem::path&
         fflush(out);
         fclose(out);
         out = nullptr;
-        /*  size_t c_file_len = sufile::size(file);
+        /*  size_t c_file_len = suPath::size(file);
           if (c_file_len != static_cast<size_t>(p_file_len))
           {
               m_err = "文件大小不一致: 响应长度: " + std::to_string(p_file_len) + " 实际长度: " + std::to_string(c_file_len);
@@ -375,11 +375,11 @@ bool suHttpClient::upload(const std::string& url, const std::string& copyname, s
     return request(url, resp);
 }
 
-bool suHttpClient::add_upload(const std::string& name, std::filesystem::path path)
+bool suHttpClient::add_upload(const std::string& name, suPath path)
 {
     if (m_files.find(name) == m_files.end())
     {
-        if (std::filesystem::exists(path))
+        if (suPath::exists(path))
         {
             m_files[name] = path;
             return true;

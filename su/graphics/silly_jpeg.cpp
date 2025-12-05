@@ -152,7 +152,7 @@ bool suJPEG::create(const size_t& width, const size_t& height, const eColorType&
     // memset(m_bytes.data(), 0, sizeof(uint8_t) * m_width * m_height * m_channels);
     return true;
 }
-bool suJPEG::read(const std::filesystem::path& file)
+bool suJPEG::read(const suPath& file)
 {
     bool status = false;
     std::string content;
@@ -163,7 +163,7 @@ bool suJPEG::read(const std::filesystem::path& file)
 
     return decode(content);
 }
-bool suJPEG::write(const std::filesystem::path& file) const
+bool suJPEG::write(const suPath& file) const
 {
     std::string content = encode();
     if (content.empty())

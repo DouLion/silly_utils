@@ -5,10 +5,10 @@
 #include "silly_dll.h"
 #include "encode/silly_encode.h"
 
-SU_HANDLER silly_dll::load(const std::filesystem::path& file)
+SU_HANDLER silly_dll::load(const suPath& file)
 {
     SU_HANDLER h_ret = nullptr;
-    auto path = sufile::realpath(file);
+    auto path = suPath(file);
 #if IS_WIN32
     h_ret = LoadLibraryExW(path.wstring().c_str(), nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
 #else

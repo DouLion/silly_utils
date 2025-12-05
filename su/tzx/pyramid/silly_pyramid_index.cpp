@@ -17,7 +17,7 @@ TzxPyramidIndex::TzxPyramidIndex()
     m_version[3] = 0x00;
 }
 
-bool TzxPyramidIndex::open(const std::filesystem::path& file, const eMMFMode& mode, const bool& usemmap)
+bool TzxPyramidIndex::open(const suPath& file, const eMMFMode& mode, const bool& usemmap)
 {
     if (!TzxPyramidBase::open(file, mode, usemmap))
     {

@@ -70,7 +70,7 @@ bool HN43::LoadData(const char* FilePath)
     if (bWriteFile)
     {
         snprintf(SaveFilePath, sizeof(SaveFilePath), "./%s", "data");
-        std::filesystem::create_directories(SaveFilePath);
+        suPath::mkdir(SaveFilePath);
     }
 
     // 2. 读取所有CUT层的扫描配置
@@ -90,12 +90,12 @@ bool HN43::LoadData(const char* FilePath)
         if (bWriteFile)
         {
             snprintf(SaveFilePath, sizeof(SaveFilePath), "./data/%.1f", m_ScanCut[l].Azimuth);
-            std::filesystem::create_directories(SaveFilePath);
+            suPath::mkdir(SaveFilePath);
 
             // 创建CSV文件
             snprintf(SaveFilePath, sizeof(SaveFilePath), "./data/%.1f/REF.csv", m_ScanCut[l].Azimuth);
-            std::filesystem::path csvPath(SaveFilePath);
-            std::filesystem::create_directories(csvPath.parent_path());
+            suPath csvPath(SaveFilePath);
+            suPath::mkdir(csvPath.parent());
             tmpFile = fopen(SaveFilePath, "w");
             if (tmpFile)
             {
@@ -104,8 +104,8 @@ bool HN43::LoadData(const char* FilePath)
 
             // 创建DAT文件
             snprintf(SaveFilePath, sizeof(SaveFilePath), "./data/%.1f/REF.dat", m_ScanCut[l].Azimuth);
-            std::filesystem::path datPath(SaveFilePath);
-            std::filesystem::create_directories(datPath.parent_path());
+            suPath datPath(SaveFilePath);
+            suPath::mkdir(datPath.parent());
             tmpFile = fopen(SaveFilePath, "wb");
             if (tmpFile)
             {

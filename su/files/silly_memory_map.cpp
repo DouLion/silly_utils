@@ -120,7 +120,7 @@ bool suMemMapFile::write(suMemMapFile::Ptr src, const size_t& size, const size_t
 //     }
 //     return true;
 // }
-void suMemMapFile::close(bool del)
+void suMemMapFile::close(const bool& del)
 {
     if (unmap())
     {
@@ -128,16 +128,9 @@ void suMemMapFile::close(bool del)
     }
     if (del)
     {
-        if (std::filesystem::exists(m_file))
+        if (m_file.exists())
         {
-            try
-            {
-                // 删除文件或目录
-                std::filesystem::remove_all(m_file);
-            }
-            catch (const std::filesystem::filesystem_error& ex)
-            {
-            }
+            supath::rmfile(m_file);
         }
     }
 }
@@ -324,7 +317,7 @@ bool suMemMapFile::is_mapped() const
 #endif
 }
 
-bool suMemMapFile::open(const std::filesystem::path& file, const eMMFMode& mode, const int64_t& offset)
+bool suMemMapFile::open(const supath& file, const eMMFMode& mode, const int64_t& offset)
 {
     Param p;
     p.path = file;
@@ -332,7 +325,7 @@ bool suMemMapFile::open(const std::filesystem::path& file, const eMMFMode& mode,
     p.offset = offset;
     if (mode == eMMFMode::Write)
     {
-        if (std::filesystem::exists(file))
+        if (file.exists())
         {
             std::cerr << "使用open(const Param& p) 函数 明确写模式" << std::endl;
             return false;
@@ -352,7 +345,7 @@ bool suMemMapFile::open(const suMemMapFile::Param& p)
     std::scoped_lock<std::mutex> lock2(m_w_mutex);
     m_file = p.path;
     m_mode = p.mode;
-    m_file_len = std::filesystem::file_size(m_file);
+    m_file_len = m_file.size();
     //if (p.mode == Read)
     {
         if (m_file_len <= 0)

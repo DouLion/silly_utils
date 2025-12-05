@@ -29,7 +29,7 @@ class TzxPyramidBase
     /// <param name="usemmap">读取时默认 使用mmap, 写总是使用文件流</param>
     /// <returns></returns>
     // TODO: 目前 读使用mmap, 写使用文件流, 第三个参数暂时没用,后续测试完成后需要支持
-    virtual bool open(const std::filesystem::path& file, const eMMFMode& mode, const bool& usemmap);
+    virtual bool open(const suPath& file, const eMMFMode& mode, const bool& usemmap);
 
     /// <summary>
     /// 关闭文件
@@ -82,14 +82,14 @@ class TzxPyramidBase
     /// <param name="file"></param>
     /// <param name="mode"></param>
     /// <returns></returns>
-    bool stream_open(const std::filesystem::path& file, const std::ios_base::openmode& mode);
+    bool stream_open(const suPath& file, const std::ios_base::openmode& mode);
 
     /// <summary>
     /// 内存文件映射打开
     /// </summary>
     /// <param name="file"></param>
     /// <returns></returns>
-    bool mmap_open(const std::filesystem::path& file);
+    bool mmap_open(const suPath& file);
 
     /// <summary>
     /// 文件流读取

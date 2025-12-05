@@ -34,11 +34,11 @@ bool suAsciiGrid::create(const suDem::Info& _info)
     raster.set(info.fill);
     return true;
 }
-bool suAsciiGrid::read(const std::filesystem::path& file, const bool& onlyhead)
+bool suAsciiGrid::read(const suPath& file, const bool& onlyhead)
 {
-    m_root = file.parent_path().string();
-    m_name = file.stem().string();
-    m_type = file.extension().string();
+    m_root = file.parent().string();
+    m_name = file.stem();
+    m_type = file.extension();
     if (ASC == TO_LOWER(m_type))
     {
         return read_asc(file, onlyhead);
@@ -52,10 +52,10 @@ bool suAsciiGrid::read(const std::filesystem::path& file, const bool& onlyhead)
     return false;
 }
 
-bool suAsciiGrid::read_asc(const std::filesystem::path& file, const bool& onlyhead)
+bool suAsciiGrid::read_asc(const suPath& file, const bool& onlyhead)
 {
     bool status = false;
-    std::string prj_path = std::filesystem::path(m_root).append(m_name + PRJ).string();
+    std::string prj_path = suPath(m_root).append(m_name + PRJ).string();
     read_prj(prj_path);
     std::string content;
     std::fstream input(file, std::ios::binary | std::ios::in);
@@ -139,10 +139,10 @@ bool suAsciiGrid::read_asc(const std::filesystem::path& file, const bool& onlyhe
     return status;
 }
 
-bool suAsciiGrid::write(const std::filesystem::path& file) const
+bool suAsciiGrid::write(const suPath& file) const
 {
     bool status = false;
-    std::string ext = file.extension().string();
+    std::string ext = file.extension();
     if (ASC == TO_LOWER(ext))
     {
         return write_asc(file);
@@ -185,7 +185,7 @@ std::string suAsciiGrid::stringify_ll(const int& precision) const
     return ret;
 }
 
-bool suAsciiGrid::read_bin(const std::filesystem::path& file)
+bool suAsciiGrid::read_bin(const suPath& file)
 {
     std::string content;
     if (!sufile::read(file, content))
@@ -210,7 +210,7 @@ bool suAsciiGrid::read_bin(const std::filesystem::path& file)
     return true;
 }
 
-bool suAsciiGrid::write_asc(const std::filesystem::path& file) const
+bool suAsciiGrid::write_asc(const suPath& file) const
 {
 #ifndef NDEBUG
     silly_timer timer;
@@ -220,8 +220,8 @@ bool suAsciiGrid::write_asc(const std::filesystem::path& file) const
     {
         return false;
     }
-    std::string _root = file.parent_path().string();
-    std::string _name = file.stem().string();
+    std::string _root = file.parent().string();
+    std::string _name = file.stem();
     {
         std::stringstream ssHead;
         ssHead << std::fixed << std::setprecision(15);
@@ -258,7 +258,7 @@ bool suAsciiGrid::write_asc(const std::filesystem::path& file) const
     ofs.close();
     if (IsGauss())
     {
-        const auto prjFile = std::filesystem::path(_root).append(_name + PRJ);
+        const auto prjFile = suPath(_root).append(_name + PRJ);
         if (!write_prj(prjFile))
         {
             std::cerr << "写回投影信息失败: " << prjFile.u8string() << std::endl;
@@ -272,7 +272,7 @@ bool suAsciiGrid::write_asc(const std::filesystem::path& file) const
     return true;
 }
 
-bool suAsciiGrid::write_bin(const std::filesystem::path& file) const
+bool suAsciiGrid::write_bin(const suPath& file) const
 {
     std::ofstream ofs(file);
     if (!ofs.is_open())
@@ -294,7 +294,7 @@ bool suAsciiGrid::write_bin(const std::filesystem::path& file) const
     return true;
 }
 
-bool suAsciiGrid::write_prj(const std::filesystem::path& file) const
+bool suAsciiGrid::write_prj(const suPath& file) const
 {
     // Projection    TRANSVERSE
     // Units         METERS
@@ -307,7 +307,7 @@ bool suAsciiGrid::write_prj(const std::filesystem::path& file) const
     // 0  0  0.0 /* latitude of origin
     // 500000.0 /* false easting (meters)
     // 0.0 /* false northing (meters)
-    std::string filepath = file.parent_path().append(file.stem().string() + PRJ).string();
+    std::string filepath = file.parent().append(file.stem() + PRJ).string();
     std::stringstream ss;
     ss << "Projection    TRANSVERSE\n";
     ss << "Units         METERS\n";
@@ -327,7 +327,7 @@ bool suAsciiGrid::write_prj(const std::filesystem::path& file) const
     return false;
 }
 
-bool suAsciiGrid::read_prj(const std::filesystem::path& file)
+bool suAsciiGrid::read_prj(const suPath& file)
 {
     // 提取高斯分带中心线经度
     std::vector<std::string> lines;

@@ -15,8 +15,8 @@ class RadxRate
 {
     /*public:
 
-      bool Read(const std::filesystem::path& file);
-      bool Write(const std::filesystem::path& file);
+      bool Read(const suPath& file);
+      bool Write(const suPath& file);
     private:
       std::string debug = "DEBUG_OFF";
       int n_compute_threads = 4;

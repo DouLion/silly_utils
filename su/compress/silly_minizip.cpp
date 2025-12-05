@@ -20,11 +20,11 @@ using namespace silly_compress;
 /// <param name="zipHDL"></param>
 /// <param name="file">需要读取的文件</param>
 /// <returns></returns>
-static int write_into_zipHDL(const zipFile& zipHDL, const std::filesystem::path& file)
+static int write_into_zipHDL(const zipFile& zipHDL, const suPath& file)
 {
     int ret = -1;
 
-    std::ifstream input(file.c_str(), std::ios::binary | std::ios::in);
+    std::ifstream input(file.string().c_str(), std::ios::binary | std::ios::in);
     if (!input.is_open())
     {
         SLOG_ERROR("打开文件错误:{}", file.u8string());
@@ -62,52 +62,35 @@ static int write_into_zipHDL(const zipFile& zipHDL, const std::filesystem::path&
     return ret;
 }
 
-void recursive_list_paths(const std::string& recurse_root, std::vector<std::string>& paths)
-{
-    try
-    {
-        for (auto fiter : std::filesystem::recursive_directory_iterator(recurse_root))
-        {
-            paths.push_back(fiter.path().string());
-        }
-    }
-    catch (const std::filesystem::filesystem_error& e)
-    {
-        SLOG_ERROR("遍历目录失败: {}", e.what());
-    }
-}
-
 // 压缩文件
-int minizip_compress_file(const zipFile& zipHDL, const std::string& src)
+int minizip_compress_file(const zipFile& zipHDL, const suPath& src)
 {
-    std::string srcFileName = std::filesystem::path(src).filename().string();
+    std::string srcFileName = src.name();
     zip_fileinfo zFileInfo = {0};
     int ret = zipOpenNewFileInZip3_64(zipHDL, srcFileName.c_str(), &zFileInfo, nullptr, 0, nullptr, 0, nullptr, Z_DEFLATED, Z_DEFAULT_COMPRESSION, 0, -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY, nullptr, 0, 1);
     if (ret != ZIP_OK)
     {
-        SLOG_ERROR("Failed to open file in zip: {}", src);
+        SLOG_ERROR("Failed to open file in zip: {}", src.u8string());
         return ret;
     }
     ret = write_into_zipHDL(zipHDL, src);
     if (ret != ZIP_OK)
     {
-        SLOG_ERROR("ailed to write file to zip: {}", src);
+        SLOG_ERROR("ailed to write file to zip: {}", src.u8string());
     }
     return ret;
 }
 
 // 压缩文件夹
-int minizip_compress_dir(const zipFile& zipHDL, const std::string& root)
+int minizip_compress_dir(const zipFile& zipHDL, const suPath& root)
 {
-    std::vector<std::string> paths;
-    auto sfp_relate_root = std::filesystem::path(root).parent_path();
+    std::vector<suPath> paths = root.relist();
+    auto sfp_relate_root =root.parent();
     std::string relate_root = sfp_relate_root.string();
-    recursive_list_paths(root, paths);
-
     for (const auto& path : paths)
     {
-        bool is_dir = std::filesystem::is_directory(path);
-        std::string tmp_relate = std::filesystem::relative(path, sfp_relate_root).string();
+        bool is_dir = path.is_dir();
+        std::string tmp_relate = path.relative(sfp_relate_root).string();
 
         // 首先处理目录
         if (is_dir)
@@ -117,7 +100,7 @@ int minizip_compress_dir(const zipFile& zipHDL, const std::string& root)
             int ret = zipOpenNewFileInZip3_64(zipHDL, tmp_relate.c_str(), &tmp_zinfo, nullptr, 0, nullptr, 0, nullptr, Z_DEFLATED, Z_DEFAULT_COMPRESSION, 0, -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY, nullptr, 0, 1);
             if (ret != ZIP_OK)
             {
-                SLOG_ERROR("创建ZIP目录条目失败: {}", path);
+                SLOG_ERROR("创建ZIP目录条目失败: {}", path.u8string());
                 return ret;
             }
             continue;
@@ -128,14 +111,14 @@ int minizip_compress_dir(const zipFile& zipHDL, const std::string& root)
         int ret = zipOpenNewFileInZip3_64(zipHDL, tmp_relate.c_str(), &tmp_zinfo, nullptr, 0, nullptr, 0, nullptr, Z_DEFLATED, Z_DEFAULT_COMPRESSION, 0, -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY, nullptr, 0, 1);
         if (ret != ZIP_OK)
         {
-            SLOG_ERROR("打开ZIP文件条目失败: {}", path);
+            SLOG_ERROR("打开ZIP文件条目失败: {}", path.u8string());
             return ret;
         }
 
         ret = write_into_zipHDL(zipHDL, path);
         if (ret != ZIP_OK)
         {
-            SLOG_ERROR("写入ZIP文件内容失败: {}", path);
+            SLOG_ERROR("写入ZIP文件内容失败: {}", path.u8string());
             return ret;
         }
     }
@@ -144,20 +127,20 @@ int minizip_compress_dir(const zipFile& zipHDL, const std::string& root)
 }
 
 /// 将文件或目录压缩为ZIP文件
-eCompressErr MiniZip::compress(const std::string& s_src, const std::string& s_dst, const bool& append)
+eCompressErr MiniZip::compress(const suPath& s_src, const suPath& s_dst, const bool& append)
 {
     auto status = eCompressErr::MiniZUnknowErr;
     try
     {
-        if (!std::filesystem::exists(s_src))
+        if (!s_src.exists())
         {
             return eCompressErr::FileNotExistErr;
         }
         std::string out_dst = s_dst;
         if (out_dst.empty())  // 补充默认压缩路径
         {
-            auto sfp_src = std::filesystem::path(s_src);
-            out_dst = sfp_src.parent_path().append(sfp_src.stem().string().append(SILLY_MINIZ_FILE_EXTENSION)).string();
+            auto sfp_src = suPath(s_src);
+            out_dst = sfp_src.parent().append(sfp_src.stem().append(SILLY_MINIZ_FILE_EXTENSION)).string();
         }
         if (!append)  // 非追加,先删除原文件
         {
@@ -171,7 +154,7 @@ eCompressErr MiniZip::compress(const std::string& s_src, const std::string& s_ds
 
         do
         {
-            if (std::filesystem::is_directory(s_src))  // 压缩文件夹
+            if (suPath::is_dir(s_src))  // 压缩文件夹
             {
                 if (ZIP_OK != minizip_compress_dir(zipHDL, s_src))
                 {
@@ -204,30 +187,29 @@ eCompressErr MiniZip::compress(const std::string& s_src, const std::string& s_ds
 }
 
 /// 解压zip文件,解压单独文件和目录文件
-eCompressErr MiniZip::decompress(const std::string& s_src, const std::string& s_dst)
+eCompressErr MiniZip::decompress(const suPath& s_src, const suPath& s_dst)
 {
-    if (!std::filesystem::exists(s_src))  // 解压文件不存在
+    if (!s_src.exists())  // 解压文件不存在
     {
-        SU_ERROR_PRINT("not exist {}", s_src.c_str());
         return eCompressErr::FileNotExistErr;
     }
-    std::filesystem::path outputDir;
-    if (s_dst.empty())  // 如果解压路径为空,创建一个和压缩包名称相同的目录,解压到该目录下
+    suPath outputDir;
+    if (s_dst.is_file())  // 如果解压路径为空,创建一个和压缩包名称相同的目录,解压到该目录下
     {
-        outputDir = std::filesystem::path(s_src).parent_path();
+        outputDir = suPath(s_src).parent();
     }
     else
     {
         outputDir = s_dst;
     }
-    if (!std::filesystem::exists(outputDir))
+    if (!suPath::exists(outputDir))
     {
-        if (!std::filesystem::create_directories(outputDir))
+        if (!suPath::mkdir(outputDir))
         {
             return eCompressErr::MiniZCreatDirErr;  // 创建目录失败
         }
     }
-    unzFile zipFile = unzOpen64(s_src.c_str());  // 打开ZIP文件
+    unzFile zipFile = unzOpen64(s_src.string().c_str());  // 打开ZIP文件
     if (zipFile == nullptr)
     {
         return eCompressErr::MiniZOpenFileErr;  // 打开ZIP文件失败
@@ -256,7 +238,7 @@ eCompressErr MiniZip::decompress(const std::string& s_src, const std::string& s_
             SU_MEM_FREE(filename);
             return eCompressErr::MiniZGetInforErr;  // 获取文件信息失败
         }
-        std::filesystem::path one_file = outputDir;
+        suPath one_file = outputDir;
         if (filename == nullptr)
         {
             SU_MEM_FREE(filename);
@@ -265,10 +247,10 @@ eCompressErr MiniZip::decompress(const std::string& s_src, const std::string& s_
         one_file.append(filename);
         if (filename[nameLen - 1] == '/' || filename[nameLen - 1] == '\\')  // 压缩分支为目录
         {
-            if (!std::filesystem::exists(one_file))
+            if (!suPath::exists(one_file))
             {
-                std::filesystem::create_directories(one_file.string());
-                if (!std::filesystem::exists(one_file))
+                suPath::mkdir(one_file.string());
+                if (!suPath::exists(one_file))
                 {
                     SU_MEM_FREE(filename);
                     return eCompressErr::MiniZCreatDirErr;  // 创建目录失败
@@ -278,12 +260,12 @@ eCompressErr MiniZip::decompress(const std::string& s_src, const std::string& s_
         else  // 压缩分支为文件
         {
             // 创建父目录
-            if (std::filesystem::is_directory(one_file))
+            if (suPath::is_dir(one_file))
             {
                 SU_MEM_FREE(filename);
                 continue;
             }
-            std::filesystem::create_directories(std::filesystem::path(one_file).parent_path());
+            suPath::mkdir(suPath(one_file).parent());
             // 写入文件
             std::ofstream outFile(one_file, std::ios::binary);
             if (!outFile.is_open())

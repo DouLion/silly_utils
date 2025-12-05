@@ -17,9 +17,9 @@ namespace su
 
 /// ---------------- 压缩 ----------------
 
-static eCompressErr CompressFile(const std::filesystem::path& src, const std::filesystem::path& dst, const eCompressMethod& method = eCompressMethod::ZIP);
+static eCompressErr CompressFile(const suPath& src, const suPath& dst, const eCompressMethod& method = eCompressMethod::ZIP);
 
-static eCompressErr CompressDir(const std::filesystem::path& src, const std::filesystem::path& dst, const eCompressMethod& method = eCompressMethod::ZIP);
+static eCompressErr CompressDir(const suPath& src, const suPath& dst, const eCompressMethod& method = eCompressMethod::ZIP);
 
 static eCompressErr CompressBin(const std::string& src, std::string& dst, const eCompressMethod& method = eCompressMethod::ZIP);
 
@@ -28,18 +28,18 @@ static std::string CompressBin(const std::string& src, const eCompressMethod& me
 /// ---------------- 解压 ----------------
 
 /// 指定解压格式
-static eCompressErr DecompressFile(const std::filesystem::path& src, const std::filesystem::path& dst, const eCompressMethod& method);
+static eCompressErr DecompressFile(const suPath& src, const suPath& dst, const eCompressMethod& method);
 
-static eCompressErr DecompressDir(const std::filesystem::path& src, const std::filesystem::path& dst, const eCompressMethod& method);
+static eCompressErr DecompressDir(const suPath& src, const suPath& dst, const eCompressMethod& method);
 
 static eCompressErr DecompressBin(const std::string& src, std::string& dst, const eCompressMethod& method);
 
 static std::string DecompressBin(const std::string& src, const eCompressMethod& method);
 
 /// 自动判断解压格式
-static eCompressErr AutoDecompressFile(const std::filesystem::path& src, const std::filesystem::path& dst);
+static eCompressErr AutoDecompressFile(const suPath& src, const suPath& dst);
 
-static eCompressErr AutoDecompressDir(const std::filesystem::path& src, const std::filesystem::path& dst);
+static eCompressErr AutoDecompressDir(const suPath& src, const suPath& dst);
 
 static eCompressErr AutoDecompressBin(const std::string& src, std::string& dst);
 

@@ -20,7 +20,7 @@ class silly_ini_parser
     /// </summary>
     /// <param name="path"></param>
     /// <returns></returns>
-    virtual bool load(const std::filesystem::path& file) = 0;
+    virtual bool load(const suPath& file) = 0;
 
     /// <summary>
     /// 修改后手动进行保存

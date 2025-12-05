@@ -8,14 +8,11 @@
  * @description: HunanData 类声明
  * @version: v1.0.1 2025-03-05 dou li yang
  */
-#ifndef SILLY_UTILS_HUNANDATA_H
-#define SILLY_UTILS_HUNANDATA_H
-
-#include "su_marco.h"
-
+#ifndef RADAR_DATA_HN43_H
+#define RADAR_DATA_HN43_H
+#include <files/silly_file.h>
 namespace RadarData
 {
-
 #define ELEMENTNUM 10
 #define MINSHORT -32768
 
@@ -274,4 +271,4 @@ class HN43
 };
 
 }  // namespace RadarData
-#endif  // SILLY_UTILS_HUNANDATA_H
+#endif  // RADAR_DATA_HN43_H

@@ -10,7 +10,7 @@
  */
 #ifndef SILLY_UTILS_SILLY_NMEA_H
 #define SILLY_UTILS_SILLY_NMEA_H
-#include <su_marco.h>
+#include <files/silly_file.h>
 #define GNGGA "GNGGA"
 // $GNGGA,030634.00,3415.26032290,N,11125.48176926,E,4,41,0.5,496.7253,M,-24.9553,M,1.0,3482*74
 #define GNGSA "GNGSA"
@@ -31,7 +31,7 @@ class nmea
 {
   public:
     nmea();
-    nmea(const std::filesystem::path& file);
+    nmea(const suPath& file);
     ~nmea();
 
     /// <summary>
@@ -53,7 +53,7 @@ class nmea
     /// </summary>
     /// <param name="file"></param>
     /// <returns></returns>
-    bool open(const std::filesystem::path& file);
+    bool open(const suPath& file);
 
     /// <summary>
     /// 读取指定类型的NMEA数据
@@ -70,7 +70,7 @@ class nmea
     bool match(const std::string& str, const std::string& base);
 
   private:
-    std::filesystem::path m_path;
+    suPath m_path;
 };
 }  // namespace meta
 }  // namespace silly

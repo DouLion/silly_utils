@@ -8,7 +8,7 @@
 #include "su_marco.h"
 #include <boost/algorithm/string.hpp>
 
-bool silly_boost_ini_parser::load(const std::filesystem::path& file)
+bool silly_boost_ini_parser::load(const suPath& file)
 {
     bool status = false;
     try

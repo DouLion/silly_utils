@@ -47,7 +47,7 @@ class silly_tzx_grid
     silly_tzx_grid();
 
     // 从文件读写
-    bool read(const std::filesystem::path& file);
+    bool read(const suPath& file);
     /// <summary>
     /// 加载指定帧
     /// 前两个版本,只会加载唯一一个,index始终为0
@@ -56,10 +56,10 @@ class silly_tzx_grid
     /// <param name="file"></param>
     /// <param name="index">负数表示全部, 其他表示读指定帧</param>
     /// <returns></returns>
-    bool read(const std::filesystem::path& file, const int& index);
-    bool save_v1(const std::filesystem::path& file);
-    bool save_v2(const std::filesystem::path& file);
-    bool save(const std::filesystem::path& file);
+    bool read(const suPath& file, const int& index);
+    bool save_v1(const suPath& file);
+    bool save_v2(const suPath& file);
+    bool save(const suPath& file);
 
     /**
      * @brief   将多个网格数据拼接为一个,重叠部分采用最大值

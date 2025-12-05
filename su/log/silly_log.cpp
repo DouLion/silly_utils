@@ -85,10 +85,10 @@ bool silly_log::init(int argc, char** argv)
         return false;
     }
     option opt;
-    opt.name = std::filesystem::path(argv[0]).stem().string();
+    opt.name = suPath(argv[0]).stem();
     return init(opt);
 }
-bool silly_log::init(const std::filesystem::path& file)
+bool silly_log::init(const suPath& file)
 {
     option opt;
 
@@ -124,18 +124,18 @@ void silly_log::register_spdlog(const option& opt)
             }
         }
 
-        const std::filesystem::path sfp_log_root(opt.path);
-        std::filesystem::create_directories(sfp_log_root);
+        const suPath sfp_log_root(opt.path);
+        suPath::mkdir(sfp_log_root);
         size_t rotate_mb = opt.rotate_size * 1024 * 1024;
         size_t max_files = 4096;  // 最大80G的日志文件
 
         auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
 
         console_sink->set_pattern(CONSOLE_PATTERN);
-        // auto debug_file_sink = std::make_shared<su_rotate_log>(std::filesystem::path(sfp_log_root).append(opt.name + ".debug.log").string(), rotate_mb, max_files);
-        auto warn_file_sink = std::make_shared<su_rotate_log>(std::filesystem::path(sfp_log_root).append(opt.name + ".warn.log").string(), rotate_mb, max_files);
-        auto info_file_sink = std::make_shared<su_rotate_log>(std::filesystem::path(sfp_log_root).append(opt.name + ".info.log").string(), rotate_mb, max_files);
-        auto error_file_sink = std::make_shared<su_rotate_log>(std::filesystem::path(sfp_log_root).append(opt.name + ".error.log").string(), rotate_mb, max_files);
+        // auto debug_file_sink = std::make_shared<su_rotate_log>(suPath(sfp_log_root).append(opt.name + ".debug.log").string(), rotate_mb, max_files);
+        auto warn_file_sink = std::make_shared<su_rotate_log>(suPath(sfp_log_root).append(opt.name + ".warn.log").string(), rotate_mb, max_files);
+        auto info_file_sink = std::make_shared<su_rotate_log>(suPath(sfp_log_root).append(opt.name + ".info.log").string(), rotate_mb, max_files);
+        auto error_file_sink = std::make_shared<su_rotate_log>(suPath(sfp_log_root).append(opt.name + ".error.log").string(), rotate_mb, max_files);
         warn_file_sink->set_pattern(FILE_PATTERN);
         info_file_sink->set_pattern(FILE_PATTERN);
         error_file_sink->set_pattern(FILE_PATTERN);

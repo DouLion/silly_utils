@@ -224,17 +224,17 @@ float silly_tzx_grid::ydelta() const
     return m_ydelta;
 }
 
-bool silly_tzx_grid::read(const std::filesystem::path& file)
+bool silly_tzx_grid::read(const suPath& file)
 {
     return read(file, -1);
 }
 
-bool silly_tzx_grid::read(const std::filesystem::path& file, const int& index)
+bool silly_tzx_grid::read(const suPath& file, const int& index)
 {
     bool status = false;
     release();
 
-    if (const size_t fileSize = sufile::size(file); fileSize > 0)
+    if (const size_t fileSize = suPath::size(file); fileSize > 0)
     {
         const std::string buff = sufile::read(file);
         char* p = read_head(buff);
@@ -258,7 +258,7 @@ bool silly_tzx_grid::read(const std::filesystem::path& file, const int& index)
     return status;
 }
 
-bool silly_tzx_grid::save_v1(const std::filesystem::path& file)
+bool silly_tzx_grid::save_v1(const suPath& file)
 {
     std::string buff;
     m_prefix[0] = TZX_GRID_V1;
@@ -268,7 +268,7 @@ bool silly_tzx_grid::save_v1(const std::filesystem::path& file)
     }
     return false;
 }
-bool silly_tzx_grid::save_v2(const std::filesystem::path& file)
+bool silly_tzx_grid::save_v2(const suPath& file)
 {
     std::string buff;
     m_prefix[0] = TZX_GRID_V2;
@@ -278,7 +278,7 @@ bool silly_tzx_grid::save_v2(const std::filesystem::path& file)
     }
     return false;
 }
-bool silly_tzx_grid::save(const std::filesystem::path& file)
+bool silly_tzx_grid::save(const suPath& file)
 {
     return save_v2(file);
 }

@@ -28,7 +28,7 @@ class silly_simple_ini_parser : public silly_ini_parser
     /// </summary>
     /// <param name="path">文件路径</param>
     /// <returns></returns>
-    bool load(const std::filesystem::path& file) override;
+    bool load(const suPath& file) override;
 
     /// <summary>
     /// 修改后手动进行保存
