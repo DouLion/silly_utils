@@ -15,46 +15,44 @@
 class suFile
 {
   public:
-    /// <summary>
-    /// 读取文件内容
-    /// </summary>
-    /// <param name="fp">文件路径</param>
-    /// <param name="content">内容接受对象</param>
-    /// <param name="offset">偏移位置</param>
-    /// <param name="len">预定读取大小,SIZE_MAX 为默认全读取</param>
-    /// <returns>实际读取大小</returns>
+    /**
+     * 读取文件内容
+     * @param fp 文件路径
+     * @param content 读取内容
+     * @param offset 偏移offset的位置开始读
+     * @param len 指定读取长度
+     * @return 实际读取的长度
+     */
     static size_t read(const suPath &fp, std::string &content, const size_t &offset = 0, const size_t &len = SIZE_MAX);
-
     static std::string read(const suPath &fp, const size_t &offset = 0, const size_t &len = SIZE_MAX);
 
-    /// <summary>
-    /// 按行读取
-    /// </summary>
-    /// <param name="fp"></param>
-    /// <param name="lines"></param>
-    /// <returns></returns>
-    static bool readlines(const suPath &fp, std::vector<std::string> &lines);
-
-    static std::vector<std::string> readlines(const suPath &fp);
     typedef std::function<bool(std::string&)> filter_func;
-    static bool readlines(const suPath &fp, std::vector<std::string> &lines, filter_func func);
+    /**
+     * 根据过滤条件按行读取,
+     * 只有当改行满足过滤条件时,才会添加到返回值中
+     * @param fp
+     * @param lines 返回值
+     * @param func 过滤条件
+     * @return
+     */
+    static bool readlines(const suPath &fp, std::vector<std::string> &lines, const filter_func& func = nullptr);
+    static std::vector<std::string> readlines(const suPath &fp, const filter_func& func = nullptr);
 
-    static std::vector<std::string> readlines(const suPath &fp, filter_func func);
-
-    /// <summary>
-    /// 将内容写入文件
-    /// </summary>
-    /// <param name="fp"></param>
-    /// <param name="content"></param>
-    /// <returns></returns>
+    /**
+     * 将内容写入文件
+     * @param fp
+     * @param content
+     * @return
+     */
     static size_t write(const suPath &fp, const std::string &content);
 
-    /// <summary>
-    /// 将内容写入文件
-    /// </summary>
-    /// <param name="fp"></param>
-    /// <param name="lines">line中需要自行加入换行符,此功能不添加</param>
-    /// <returns></returns>
+    /**
+     * 逐行写入文件
+     * 如果行末没有换行符,会自行添加
+     * @param fp
+     * @param lines
+     * @return
+     */
     static size_t write(const suPath &fp, const std::vector<std::string> &lines);
 };
 using sufile = suFile;

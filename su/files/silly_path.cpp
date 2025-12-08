@@ -37,7 +37,14 @@ suPath::suPath(const char* path)
         m_path = std::filesystem::path(s);
     }
 }
-
+suPath::suPath(const suPath& path)
+{
+    m_path = path.m_path;
+}
+suPath::suPath(const std::filesystem::path& path)
+{
+    m_path = path;
+}
 #if _WIN32
 suPath::suPath(const std::wstring& path)
 {
@@ -64,20 +71,18 @@ std::wstring suPath::extension_ws() const
 {
     return m_path.extension().wstring();
 }
-
 std::wstring suPath::wstring() const
 {
     return m_path.wstring();
 }
 #endif
-
 suPath suPath::absolute() const
 {
     return std::filesystem::absolute(m_path);
 }
 suPath suPath::absolute(const suPath& path)
 {
-    return  std::filesystem::absolute(path.m_path);
+    return std::filesystem::absolute(path.m_path);
 }
 suPath suPath::relative(const suPath& root) const
 {
@@ -85,23 +90,39 @@ suPath suPath::relative(const suPath& root) const
 }
 suPath suPath::relative(const suPath& src, const suPath& root)
 {
-    return suPath(std::filesystem::relative(src.path(), root.m_path));
+    return {std::filesystem::relative(src.path(), root.m_path)};
 }
 suPath suPath::parent() const
 {
-    return suPath(m_path.parent_path());
+    return {m_path.parent_path()};
+}
+suPath suPath::parent(const suPath& path)
+{
+    return path.parent();
 }
 suPath suPath::root() const
 {
-    return suPath(m_path.root_path());
+    return {m_path.root_path()};
 }
 suPath suPath::root(const suPath& path)
 {
-    return suPath(path.m_path.root_path());
+    return path.root();
 }
 bool suPath::is_absolute() const
 {
     return m_path.is_absolute();
+}
+bool suPath::is_absolute(const suPath& path)
+{
+    return path.is_absolute();
+}
+bool suPath::is_relative() const
+{
+    return !m_path.is_relative();
+}
+bool suPath::is_relative(const suPath& path)
+{
+    return !path.is_relative();
 }
 bool suPath::exists() const
 {
@@ -143,27 +164,24 @@ bool suPath::is_link() const
     }
     return false;
 }
-
-suPath::suPath(const suPath& path)
-{
-    m_path = path.m_path;
-}
-
-suPath::suPath(const std::filesystem::path& path)
-{
-    m_path = path;
-}
-
 suPath suPath::cwd()
 {
     suPath ret;
     ret.m_path = std::filesystem::current_path();
     return ret;
 }
-
-void suPath::chdir(const suPath& path)
+bool suPath::chdir(const suPath& path)
 {
-    std::filesystem::current_path(path.m_path);
+    try
+    {
+        std::filesystem::current_path(path.m_path);
+    }
+    catch (std::exception& e)
+    {
+        path.m_err = e.what();
+        return false;
+    }
+    return true;
 }
 
 bool suPath::mkdir(const suPath& path)
@@ -174,14 +192,20 @@ bool suPath::mkdir(const suPath& path)
     }
     return path.is_dir();
 }
-void suPath::rmfile(const suPath& fp)
+bool suPath::rmfile(const suPath& fp)
 {
     if (fp.is_file())
     {
-
+        std::filesystem::remove(fp.m_path);
     }
+    else
+    {
+        fp.m_err = fp.u8string() + " 不是普通文件";
+        return false;
+    }
+    return true;
 }
-void suPath::rmdir(const suPath& fp, const bool& r)
+bool suPath::rmdir(const suPath& fp, const bool& r)
 {
     if (fp.is_dir())
     {
@@ -194,67 +218,139 @@ void suPath::rmdir(const suPath& fp, const bool& r)
             std::filesystem::remove(fp.m_path);
         }
     }
+    else
+    {
+        fp.m_err = fp.u8string() + " 不是普通目录";
+        return false;
+    }
+    return true;
 }
-void suPath::mklnk(const suPath& lnk) const
+bool suPath::mklnk(const suPath& lnk) const
 {
-    if (is_dir())
+    try
     {
-        mkdir(lnk.parent());
-        std::filesystem::create_directory_symlink(m_path, absolute(lnk. m_path).path());
+        if (lnk.exists())
+        {
+            m_err = lnk.u8string() + " 链接已存在";
+            return false;
+        }
+        if (is_dir())
+        {
+            mkdir(lnk.parent());
+            std::filesystem::create_directory_symlink(m_path, absolute(lnk.m_path).path());
+        }
+        else if (is_file())
+        {
+            std::filesystem::create_symlink(m_path, absolute(lnk.m_path).path());
+        }
     }
-    else if (is_file())
+    catch (std::exception& e)
     {
-        std::filesystem::create_symlink(m_path, absolute(lnk. m_path).path());
+        m_err = e.what();
+        return false;
     }
+    
+    return lnk.exists();
 }
 
-void suPath::mklnk(const suPath& src, const suPath& lnk)
+bool suPath::mklnk(const suPath& src, const suPath& lnk)
 {
     return src.mklnk(lnk);
 }
-void suPath::rmlnk(const suPath& fp)
+bool suPath::rmlnk(const suPath& fp)
 {
-    if (fp.is_link())
+    try
     {
-        std::filesystem::remove(fp.m_path);
+        if (fp.is_link())
+        {
+            std::filesystem::remove(fp.m_path);
+        }
+        else
+        {
+            fp.m_err = "链接不存在";
+            return false;
+        }
     }
+    catch (std::exception& e)
+    {
+        fp.m_err = e.what();
+        return false;
+    }
+    return true;
+    
 }
-void suPath::copyfile(const suPath& src, const suPath& dst, const bool& cover)
+bool suPath::copyfile(const suPath& dst, const bool& cover) const
 {
+    try
+    {
+        if (is_file())
+        {
+            if (dst.exists())
+            {
+                if (cover)
+                {
+                    std::filesystem::copy_file(m_path, dst.m_path, std::filesystem::copy_options::overwrite_existing);
+                }
+            }
+            else
+            {
+                mkdir(dst.parent());
+                std::filesystem::copy_file(m_path, dst.m_path, std::filesystem::copy_options::skip_existing);
+            }
+        }
+        else
+        {
+            m_err = "复制源是文件夹, 使用copydir函数";
+            return false;
+        }
+    }
+    catch (std::exception& e)
+    {
+        m_err = e.what();
+        return false;
+    }
+    return true;
+}
+bool suPath::copyfile(const suPath& src, const suPath& dst, const bool& cover)
+{
+    return src.copyfile(dst, cover);
+    
+}
 
-    if (src.is_file())
-    {
-        if (dst.exists())
-        {
-            if (cover)
-            {
-                std::filesystem::copy_file(src.m_path, dst.m_path, std::filesystem::copy_options::overwrite_existing);
-            }
-        }
-        else
-        {
-            mkdir(dst.parent());
-            std::filesystem::copy_file(src.m_path, dst.m_path, std::filesystem::copy_options::skip_existing);
-        }
-    }
-}
-void suPath::copydir(const suPath& src, const suPath& dst, const bool& cover)
+bool suPath::copydir(const suPath& dst, const bool& cover) const
 {
-    if (src.is_dir())
+    try
     {
-        if (dst.exists())
+        if (is_dir())
         {
-            if (cover)
+            if (dst.exists())
             {
-                std::filesystem::copy(src.m_path, dst.m_path, std::filesystem::copy_options::overwrite_existing);
+                if (cover)
+                {
+                    std::filesystem::copy(m_path, dst.m_path, std::filesystem::copy_options::overwrite_existing);
+                }
+            }
+            else
+            {
+                mkdir(dst.parent());
+                std::filesystem::copy(m_path, dst.m_path, std::filesystem::copy_options::skip_existing);
             }
         }
-        else
         {
-            mkdir(dst.parent());
-            std::filesystem::copy(src.m_path, dst.m_path, std::filesystem::copy_options::skip_existing );
+            m_err = "复制源是普通文件, 使用copyfile函数";
+            return false;
         }
     }
+    catch (std::exception& e)
+    {
+        m_err = e.what();
+        return false;
+    }
+    return true;
+}
+bool suPath::copydir(const suPath& src, const suPath& dst, const bool& cover)
+{
+    return src.copydir(dst, cover);
 }
 std::vector<suPath> suPath::list(const std::string& u8filter) const
 {
@@ -270,7 +366,7 @@ std::vector<suPath> suPath::list(const std::string& u8filter) const
         bool match_all = (u8filter == SU_MATCH_ALL_WILD_CHAR);
         try
         {
-            for (const auto &itp : std::filesystem::directory_iterator(m_path, std::filesystem::directory_options::skip_permission_denied))
+            for (const auto& itp : std::filesystem::directory_iterator(m_path, std::filesystem::directory_options::skip_permission_denied))
             {
                 if (!match_all)
                 {
@@ -282,14 +378,14 @@ std::vector<suPath> suPath::list(const std::string& u8filter) const
                 ret.push_back(itp.path());
             }
         }
-        catch (std::exception &e)
+        catch (std::exception& e)
         {
             std::cout << e.what() << std::endl;
         }
     }
     return ret;
 }
-std::vector<suPath> suPath::relist(const std::string& u8filter)  const
+std::vector<suPath> suPath::relist(const std::string& u8filter) const
 {
     std::vector<suPath> ret;
     if (!exists())
@@ -303,7 +399,7 @@ std::vector<suPath> suPath::relist(const std::string& u8filter)  const
         bool match_all = (u8filter == SU_MATCH_ALL_WILD_CHAR);
         try
         {
-            for (const auto &itp : std::filesystem::recursive_directory_iterator(m_path, std::filesystem::directory_options::skip_permission_denied))
+            for (const auto& itp : std::filesystem::recursive_directory_iterator(m_path, std::filesystem::directory_options::skip_permission_denied))
             {
                 if (!match_all)
                 {
@@ -315,7 +411,7 @@ std::vector<suPath> suPath::relist(const std::string& u8filter)  const
                 ret.push_back(itp.path());
             }
         }
-        catch (std::exception &e)
+        catch (std::exception& e)
         {
             std::cout << e.what() << std::endl;
         }
@@ -377,10 +473,18 @@ std::string suPath::extension_utf8() const
 }
 size_t suPath::size() const
 {
-    if (is_file())
+    try
     {
-        return std::filesystem::file_size(m_path);
+        if (is_file())
+        {
+            return std::filesystem::file_size(m_path);
+        }
     }
+    catch (std::exception& e)
+    {
+        m_err = e.what();
+    }
+    
     return 0;
 }
 size_t suPath::size(const suPath& fp)
@@ -389,16 +493,23 @@ size_t suPath::size(const suPath& fp)
 }
 std::time_t suPath::mstamp() const
 {
-
-    if (exists())
+    try
     {
-        // 获取文件的最后修改时间
-        auto ftime = std::filesystem::last_write_time(m_path);
-        // 转换为系统时间点
-        auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(ftime - std::filesystem::file_time_type::clock::now() + std::chrono::system_clock::now());
-        // 转换为time_t类型
-        return std::chrono::system_clock::to_time_t(sctp);
+        if (exists())
+        {
+            // 获取文件的最后修改时间
+            auto ftime = std::filesystem::last_write_time(m_path);
+            // 转换为系统时间点
+            auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(ftime - std::filesystem::file_time_type::clock::now() + std::chrono::system_clock::now());
+            // 转换为time_t类型
+            return std::chrono::system_clock::to_time_t(sctp);
+        }
     }
+    catch (std::exception& e)
+    {
+        m_err = e.what();
+    }
+    
 
     return 0;
 }
@@ -416,7 +527,6 @@ std::time_t suPath::crstamp() const
     if (exists())
     {
         auto statu = std::filesystem::status(m_path);
-
     }
     return 0;
 }

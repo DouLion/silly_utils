@@ -6,7 +6,8 @@
  * @date: 2025-12-04
  * @file: silly_path.cpp
  * @description: 文件路径处理
- *                  主要是为了处理windows平台下的中文路径
+ *                  1. 对std::filesystem::path 扩展
+ *                  2. 兼容windows平台下的中文路径,尽可能自动避免编码问题
  * @version: v1.0.1 2025-12-04 dou li yang
  */
 #ifndef SILLY_PATH_H
@@ -30,6 +31,10 @@ class suPath
      */
     suPath& append(const std::string& node);
 #if _WIN32
+    /*
+     * Linux 平台上其实也应该可以支持宽字符的路径,
+     * 但是与实际应用情况大相径庭,所以仅在Windows平台上支持
+     */
     suPath(const std::wstring& path);
     suPath(const wchar_t* path);
     suPath& append(const std::wstring& node);
@@ -44,31 +49,38 @@ class suPath
 ////////////////////////////////////////////////////////////////
     // 转换为 string
     operator std::string() const { return m_path.string(); }
+
+    /**
+     * 当前工作目录
+     * @return
+     */
     static suPath cwd();
 
     /**
-     *
+     * 绝对路径
      * @return
      */
     bool is_absolute() const;
+    static bool is_absolute(const suPath& path);
     suPath absolute() const;
     static suPath absolute(const suPath& path);
 
-
+    bool is_relative() const;
+    static bool is_relative(const suPath& path);
     suPath relative(const suPath& root) const;
     static suPath relative(const suPath& src, const suPath& root);
 
     /**
-     * 腹肌目录
+     * 父级目录
      * @return
      */
     suPath parent() const;
-
+    static suPath parent(const suPath& path);
     suPath root() const;
     static suPath root(const suPath& path);
 
-    static bool exists(const suPath& path);
     bool exists() const;
+    static bool exists(const suPath& path);
 
     /**
      *  是否问文件夹
@@ -83,6 +95,7 @@ class suPath
      * is_character_file: 检查是否为字符设备文件（如键盘、串口等设备）
      * 在Windows系统上，块设备和字符设备的概念不适用，这些函数通常会返回false。
      * 这些函数主要用于Unix/Linux系统中区分不同类型的特殊文件。
+     * !!! 此函数会将 block_file 和 character_file 返回为false
      * @return
      */
     bool is_file() const;
@@ -169,7 +182,7 @@ class suPath
 ////////////////////////////////////////////////////////////////
 /// 基本操作
 ////////////////////////////////////////////////////////////////
-    static void chdir(const suPath& path);
+    static bool chdir(const suPath& path);
     static bool mkdir(const suPath& path);
 
     /**
@@ -177,47 +190,46 @@ class suPath
      * 设备,串口,链接 文件. 不支持创建链接
      * @param lnk 链接地址, 如果lnk目录不存在,会自动创建
      */
-    void mklnk(const suPath& lnk) const;
-    static void mklnk(const suPath& src, const suPath& lnk);
+    bool mklnk(const suPath& lnk) const;
+    static bool mklnk(const suPath& src, const suPath& lnk);
 
     /**
      * 删除普通文件
      * @param fp
      */
-    static void rmfile(const suPath &fp);
+    static bool rmfile(const suPath &fp);
 
     /**
      * 删除目录, 慎用递归
      * @param fp
      * @param r 是否递归删除
      */
-    static void rmdir(const suPath &fp, const bool& r = false);
+    static bool rmdir(const suPath &fp, const bool& r = false);
 
     /**
      * 删除软链接
      * @param fp
      */
-    static void rmlnk(const suPath &fp);
+    static bool rmlnk(const suPath &fp);
 
     /**
      * 拷贝文件
-     * @param src
-     * @param dst
+     * @param dst 目标文件
      * @param cover 如果原文件存在,是否覆盖
      */
-    static void copyfile(const suPath &src, const suPath &dst, const bool& cover=false);
+    bool copyfile(const suPath& dst, const bool& cover = false) const;
+    static bool copyfile(const suPath &src, const suPath &dst, const bool& cover=false);
 
     /**
      * 递归拷贝目录
-     * @param src
-     * @param dst
+     * @param dst 目标目录
      * @param cover 如果有文件存在,是否覆盖
      */
-    static void copydir(const suPath &src, const suPath &dst, const bool& cover=false);
+    bool copydir(const suPath& dst, const bool& cover = false) const;
+    static bool copydir(const suPath &src, const suPath &dst, const bool& cover=false);
 
     /**
      * 根据通配符 列出(仅)文件夹下所有匹配的文件
-     * @param fp
      * @param u8filter 如果有中文, 必须是utf8编码
      * @return
      */
@@ -226,7 +238,6 @@ class suPath
 
     /**
      * 根据通配符 递归列出文件夹下所有匹配的文件
-     * @param fp
      * @param u8filter
      * @return
      */
@@ -241,6 +252,7 @@ class suPath
 
   protected:
     std::filesystem::path m_path = std::filesystem::current_path();
+    mutable std::string m_err;
 };
 
 using supath = suPath;
