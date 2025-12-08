@@ -8,6 +8,7 @@ size_t suFile::read(const suPath &fp, std::string &content, const size_t &offset
     size_t ret_read_size = 0;
     if (fp.exists() && fp.is_dir())
     {
+        std::cerr << fp.u8string() << " 是目录,无法读取" << std::endl;
         return false;
     }
     content.clear();
@@ -43,6 +44,7 @@ bool suFile::readlines(const suPath& fp, std::vector<std::string>& lines, const 
 {
     if (fp.exists() && fp.is_dir())
     {
+        std::cerr << fp.u8string() << " 是目录,无法读取" << std::endl;
         return false;
     }
     std::fstream input(fp.path(), std::ios::binary | std::ios::in);
@@ -77,8 +79,10 @@ size_t suFile::write(const suPath &fp, const std::string &content)
     size_t ret = 0;
     if (fp.exists() && fp.is_dir())
     {
+        std::cerr << fp.u8string() << " 是已存在的目录,无法写入" << std::endl;
         return 0;
     }
+    suPath::mkdir(fp.parent());
     std::fstream output(fp.path(), std::ios::binary | std::ios::out);
 
     if (!output.is_open())
@@ -95,6 +99,7 @@ size_t suFile::write(const suPath &fp, const std::vector<std::string> &lines)
     {
         return ret;
     }
+    suPath::mkdir(fp.parent());
     std::fstream output(fp.path(), std::ios::binary | std::ios::out);
 
     if (!output.is_open())

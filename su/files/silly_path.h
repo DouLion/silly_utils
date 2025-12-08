@@ -183,6 +183,7 @@ class suPath
 /// 基本操作
 ////////////////////////////////////////////////////////////////
     static bool chdir(const suPath& path);
+    bool mkdir() const;
     static bool mkdir(const suPath& path);
 
     /**

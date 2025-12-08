@@ -183,7 +183,18 @@ bool suPath::chdir(const suPath& path)
     }
     return true;
 }
-
+bool suPath::mkdir() const
+{
+    if (is_file())
+    {
+        return mkdir(parent());
+    }
+    else if (is_dir())
+    {
+        return mkdir(*this);
+    }
+    return false;
+}
 bool suPath::mkdir(const suPath& path)
 {
     if (!path.exists())
