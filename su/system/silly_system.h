@@ -100,4 +100,6 @@ bool HAS_UTF8(const std::string& str);
  */
 bool HAS_GBK(const std::string& str);
 
+size_t MEM_PAGE_SIZE();
+
 #endif

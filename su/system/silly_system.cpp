@@ -438,3 +438,16 @@ extern bool HAS_GBK(const std::string& str)
     }
     return false;
 }
+extern size_t MEM_PAGE_SIZE()
+{
+#if _WIN32
+    SYSTEM_INFO si;
+    GetSystemInfo(&si);
+
+    DWORD page_size = si.dwPageSize;
+    return page_size;
+#else
+    long page_size = sysconf(_SC_PAGESIZE);
+    return page_size;
+#endif
+}
