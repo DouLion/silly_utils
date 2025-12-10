@@ -7,89 +7,98 @@
  * @version: 1.0.1
  * @description: ini文件解析 基类
  */
-#ifndef SILLY_UTILS_SILLY_INI_PARSER_BASE_H
-#define SILLY_UTILS_SILLY_INI_PARSER_BASE_H
+#ifndef SILLY_INI_PARSER_BASE_H
+#define SILLY_INI_PARSER_BASE_H
 
 #include <files/silly_file.h>
 
-class silly_ini_parser
+class suIniBase
 {
   public:
-    /// <summary>
-    /// 从文件加载解析对象,所有内容都区分大小写
-    /// </summary>
-    /// <param name="path"></param>
-    /// <returns></returns>
-    virtual bool load(const suPath& file) = 0;
+    virtual ~suIniBase() = default;
 
-    /// <summary>
-    /// 修改后手动进行保存
-    /// </summary>
-    /// <returns></returns>
-    virtual bool save() = 0;
+    /**
+     * 指定文件路径,可以完全创建一个新的
+     * @param file
+     */
+    void open(const suPath& file)
+    {
+        m_file = file;
+    };
+    /**
+     * 从文件加载解析对象,所有内容都区分大小写
+     * @return
+     */
+    virtual bool read() = 0;
 
-    /// <summary>
-    /// 写入一个配置内容,可以新增加,也可以覆盖写
-    /// </summary>
-    /// <param name="section"></param>
-    /// <param name="property"></param>
-    /// <param name="value"></param>
-    /// <param name="comment">注释内容</param>
-    /// <returns></returns>
-    virtual bool write(const std::string& section, const std::string& property, const std::string& value, const std::string& comment = "") = 0;
+    /**
+     * 修改后手动进行保存
+     * @return
+     */
+    virtual bool write() const = 0;
 
-    /// <summary>
-    /// 读取int
-    /// </summary>
-    /// <param name="section"></param>
-    /// <param name="property"></param>
-    /// <returns></returns>
-    virtual int read_int(const std::string& section, const std::string& property) = 0;
+    /**
+     * 写入一个配置内容,可以新增加,也可以覆盖写
+     * @param section
+     * @param property
+     * @param value
+     * @param comment
+     * @return
+     */
+    virtual bool set(const std::string& section, const std::string& property, const std::string& value, const std::string& comment = "") = 0;
 
-    /// <summary>
-    /// 读取bool 值类型, 任何true , 1 等  不区分大小写 都认为是true
-    /// </summary>
-    /// <param name="section"></param>
-    /// <param name="property"></param>
-    /// <returns></returns>
-    virtual bool read_bool(const std::string& section, const std::string& property) = 0;
+    /**
+     * 读取为int
+     * @param section
+     * @param property
+     * @return
+     */
+    virtual int get_int(const std::string& section, const std::string& property) const = 0;
 
-    /// <summary>
-    /// 读取float类型
-    /// </summary>
-    /// <param name="section"></param>
-    /// <param name="property"></param>
-    /// <returns></returns>
-    virtual float read_float(const std::string& section, const std::string& property) = 0;
+    /**
+     * 读取bool 值类型, 0, 1, true false的大小写
+     * @param section
+     * @param property
+     * @return
+     */
+    virtual bool get_bool(const std::string& section, const std::string& property) const = 0;
 
-    /// <summary>
-    /// 读取double类型
-    /// </summary>
-    /// <param name="section"></param>
-    /// <param name="property"></param>
-    /// <returns></returns>
-    virtual double read_double(const std::string& section, const std::string& property) = 0;
+    /**
+     * 读取为float类型
+     * @param section
+     * @param property
+     * @return
+     */
+    virtual float get_float(const std::string& section, const std::string& property) const = 0;
 
-    /// <summary>
-    /// 读取一个长整型
-    /// </summary>
-    /// <param name="section"></param>
-    /// <param name="property"></param>
-    /// <returns></returns>
-    virtual long read_long(const std::string& section, const std::string& property) = 0;
+    /**
+     * 读取为double类型
+     * @param section
+     * @param property
+     * @return
+     */
+    virtual double get_double(const std::string& section, const std::string& property) const = 0;
 
-    /// <summary>
-    /// 默认读取一个字符串
-    /// </summary>
-    /// <param name="section"></param>
-    /// <param name="property"></param>
-    /// <returns></returns>
-    virtual std::string read(const std::string& section, const std::string& property) = 0;
+    /**
+     * 读取一个长整型
+     * @param section
+     * @param property
+     * @return
+     */
+    virtual long get_long(const std::string& section, const std::string& property) const = 0;
+
+    /**
+     * 默认读取一个字符串
+     * @param section
+     * @param property
+     * @return
+     */
+    virtual std::string get(const std::string& section, const std::string& property) const = 0;
 
   protected:
-    std::string m_path;
+    supath m_file;
     // 写入锁
-    std::mutex m_write_mtx;
+    mutable std::mutex m_write_mtx;
 };
 
-#endif  // SILLY_UTILS_SILLY_INI_PARSER_BASE_H
+#endif  // SILLY_INI_PARSER_BASE_H

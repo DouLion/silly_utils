@@ -7,31 +7,31 @@
  * @version: 1.0.1
  * @description:
  */
-#ifndef SILLY_UTILS_SILLY_TZX_INI_PARSER_H
-#define SILLY_UTILS_SILLY_TZX_INI_PARSER_H
+#ifndef SILLY_TZX_INI_PARSER_H
+#define SILLY_TZX_INI_PARSER_H
 
-#include <parser/ini/silly_ini_parser_base.h>
+#include <files/silly_file.h>
 
-class silly_tzx_ini_parser : public silly_ini_parser
+class TzxIni
 {
   public:
-    bool load(const suPath& file) override;
+    TzxIni() = default;
+    ~TzxIni() = default;
+    bool read();
+    bool write(const bool& gbk=false) const;
+    bool set(const std::string& section, const std::string& property, const std::string& value, const std::string& comment = "");
+    bool remove(const std::string& section, const std::string& property);
+    double numeric(const std::string& section, const std::string& property) const;
+    std::string string(const std::string& section, const std::string& property) const;
 
-    bool save() override;
-
-    bool write(const std::string& section, const std::string& property, const std::string& value, const std::string& comment = "") override;
-
-    int read_int(const std::string& section, const std::string& property) override;
-
-    bool read_bool(const std::string& section, const std::string& property) override;
-
-    float read_float(const std::string& section, const std::string& property) override;
-
-    double read_double(const std::string& section, const std::string& property) override;
-
-    long read_long(const std::string& section, const std::string& property) override;
-
-    std::string read(const std::string& section, const std::string& property) override;
+  private:
+    supath m_file;
+    // 写入锁
+    mutable std::mutex m_write_mtx;
+    std::map<int, std::string> m_ln2section;
+    std::map<int, std::string> m_ln2property;
+    std::unordered_map<std::string, std::unordered_map<std::string, std::string>> m_sect2prop2value;
+    std::map<size_t, std::string> m_ln2comment; // 行数对应的注释
 };
 
-#endif  // SILLY_UTILS_SILLY_TZX_INI_PARSER_H
+#endif  // SILLY_TZX_INI_PARSER_H

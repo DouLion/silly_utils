@@ -160,4 +160,28 @@ std::string CLASS_PURE_NAME(const T& )
     return CLASS_PURE_NAME<T>();
 }
 
+template <typename CxxMAP, typename K>
+bool MAP_HAS(const CxxMAP& map, const K& key)
+{
+    return map.find(key) != map.end();
+}
+
+template <typename CxxSET, typename K>
+bool SET_HAS(const CxxSET& set, const K& key)
+{
+    return set.find(key) != set.end();
+}
+template <typename CxxVECTOR, typename K>
+bool VEC_HAS(const CxxVECTOR& vec, const K& key)
+{
+    for (const auto& item : vec)
+    {
+        if (key == item)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 #endif

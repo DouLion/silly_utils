@@ -42,7 +42,7 @@ void XScanLine::rasterize(const suLine& line)
     {
         return;
     }
-    int i = 0;
+    size_t i = 0;
 
     int bx = static_cast<int>(std::round((line[i].x - m_rect.min.x) / m_cell_size));
     int by = static_cast<int>(std::round((m_rect.max.y - line[i].y) / m_cell_size));
@@ -154,10 +154,10 @@ void XScanLine::rasterize(const std::vector<std::vector<Point>>& vertices_arr)
     {
         // 构建边缘列表
         std::vector<int> edges;
-        for (int part = 0; part < vertices_arr.size(); ++part)
+        for (size_t part = 0; part < vertices_arr.size(); ++part)
         {
             auto vertices = vertices_arr[part];
-            int numVertices = vertices.size();
+            size_t numVertices = vertices.size();
             for (int i = 0; i < numVertices; ++i)
             {
                 Point v1 = vertices[i];

@@ -22,19 +22,19 @@ enum eColorType : uint8_t
 class suColor
 {
   public:
-    suColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a) : red(r), green(g), blue(b), alpha(a)
+    suColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a) : red(r), green(g), blue(b), alpha(a), gray(0)
     {
     }
 
-    suColor(uint8_t r, uint8_t g, uint8_t b) : red(r), green(g), blue(b)
+    suColor(uint8_t r, uint8_t g, uint8_t b) : red(r), green(g), blue(b), alpha(0), gray(0)
     {
     }
 
-    suColor(uint8_t g, uint8_t a) : alpha(a), gray(g)
+    suColor(uint8_t g, uint8_t a) : red(0), green(g), blue(0), alpha(a), gray(g)
     {
     }
 
-    suColor(uint8_t g) : gray(g)
+    suColor(uint8_t g) : red(0), green(0), blue(0), alpha(0), gray(g)
     {
     }
     suColor()
@@ -99,11 +99,11 @@ class suColor
     double vdecode() const;
 
   public:
-    uint8_t gray{0};
     uint8_t red{0};
     uint8_t green{0};
     uint8_t blue{0};
     uint8_t alpha{0};
+    uint8_t gray{0};
 };
 #endif  // SILLY_UTILS_SILLY_COLOR_H
 

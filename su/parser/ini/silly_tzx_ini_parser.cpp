@@ -3,48 +3,76 @@
 //
 
 #include "silly_tzx_ini_parser.h"
-
-bool silly_tzx_ini_parser::load(const suPath& file)
+#include <system/silly_system.h>
+bool TzxIni::read()
 {
     return false;
 }
-
-bool silly_tzx_ini_parser::save()
+bool TzxIni::write(const bool& gbk) const
 {
     return false;
 }
-
-bool silly_tzx_ini_parser::write(const std::string& section, const std::string& property, const std::string& value, const std::string& comment)
+bool TzxIni::set(const std::string& section, const std::string& property, const std::string& value, const std::string& comment)
 {
+    m_sect2prop2value[section][property] = value;
+
+    /*if (!comment.empty())
+    {
+        m_sect2prop2comment[section][property] = comment;
+    }
+    if (MAP_HAS(m_sect2prop2value, section))
+    {
+        if (MAP_HAS(m_sect2prop2value.at(section), property))
+        {
+            return true;
+        }
+    }*/
     return false;
 }
 
-int silly_tzx_ini_parser::read_int(const std::string& section, const std::string& property)
+bool TzxIni::remove(const std::string& section, const std::string& property)
 {
-    return 0;
+    if (!MAP_HAS(m_sect2prop2value, section))
+    {
+        return true;
+    }
+    if (!MAP_HAS(m_sect2prop2value.at(section), property))
+    {
+        return true;
+    }
+
+    return true;
+}
+double TzxIni::numeric(const std::string& section, const std::string& property) const
+{
+    double ret = std::numeric_limits<double>::quiet_NaN();
+    try
+    {
+        if (MAP_HAS(m_sect2prop2value, section))
+        {
+            if (MAP_HAS(m_sect2prop2value.at(section), property))
+            {
+               ret =  std::stod(m_sect2prop2value.at(section).at(property));
+            }
+        }
+    }
+    catch (std::exception& e)
+    {
+        std::cerr << e.what() << std::endl;
+    }
+    return ret;
+
 }
 
-bool silly_tzx_ini_parser::read_bool(const std::string& section, const std::string& property)
+std::string TzxIni::string(const std::string& section, const std::string& property) const
 {
-    return false;
-}
 
-float silly_tzx_ini_parser::read_float(const std::string& section, const std::string& property)
-{
-    return 0.0f;
-}
-
-double silly_tzx_ini_parser::read_double(const std::string& section, const std::string& property)
-{
-    return 0.0;
-}
-
-long silly_tzx_ini_parser::read_long(const std::string& section, const std::string& property)
-{
-    return 0;
-}
-
-std::string silly_tzx_ini_parser::read(const std::string& section, const std::string& property)
-{
-    return std::string();
+    if (MAP_HAS(m_sect2prop2value, section))
+    {
+        if (MAP_HAS(m_sect2prop2value.at(section), property))
+        {
+            return m_sect2prop2value.at(section).at(property);
+        }
+    }
+    return "";
 }
