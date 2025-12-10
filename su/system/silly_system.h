@@ -100,6 +100,64 @@ bool HAS_UTF8(const std::string& str);
  */
 bool HAS_GBK(const std::string& str);
 
+/**
+ * 获取内存页大小
+ * @return
+ */
 size_t MEM_PAGE_SIZE();
+
+/**
+ * 获取类名
+ * @return
+ */
+template <typename T>
+std::string CLASS_SPACE_NAME()
+{
+    std::string ret = typeid(T).name();
+#if _WIN32
+    if (ret.find("class ") != std::string::npos) {
+        ret = ret.substr(6);
+    } else if (ret.find("struct ") != std::string::npos) {
+        ret = ret.substr(7);
+    } else if (ret.find("union ") != std::string::npos) {
+        ret = ret.substr(6);
+    } else if (ret.find("enum ") != std::string::npos) {
+        ret = ret.substr(5);
+    }
+#else
+    int status = -4;
+    std::unique_ptr<char, decltype(&std::free)> demangled(abi::__cxa_demangle(ret.c_str(), nullptr, nullptr, &status), &std::free);
+
+    if (status == 0 && demangled)
+    {
+        return std::string(demangled.get());
+    }
+    return ret;
+#endif
+
+    return ret;
+}
+template <typename T>
+std::string CLASS_PURE_NAME()
+{
+    std::string ret;
+    ret = CLASS_SPACE_NAME<T>();
+    auto pos = ret.find_last_of(':');
+    if (pos == std::string::npos)
+    {
+        return ret;
+    }
+    return ret.substr(pos+1);
+}
+template <typename T>
+std::string CLASS_SPACE_NAME(const T& )
+{
+    return CLASS_SPACE_NAME<T>();
+}
+template <typename T>
+std::string CLASS_PURE_NAME(const T& )
+{
+    return CLASS_PURE_NAME<T>();
+}
 
 #endif
