@@ -5,11 +5,13 @@
  * @author: dou li yang
  * @date: 2023/12/6 16:15
  * @version: 1.0.1
- * @description: 矢量光栅化, 支持在不修改范围和格点大小的情况下,
- *              光栅化任意多个矢量,使用与列数等长的数组,记录被覆盖的格点
- *              , 默认为0, 表示没有被覆盖, 1表示至少被覆盖一次.
-                 使用fill()函数,填充成果,不会存在重复情况
- *
+ * @description: https://www.cnblogs.com/cnblog-wuran/p/9700334.html
+ *              矢量光栅化,核心是计算 y行 计算穿边次数, 对于闭合面,穿边次数一定是偶数次;
+ *              记录下穿边的x1,x2,x3..x2n, 对其进行排序,每2个一组;
+ *              x0, x1 之间是面内, x2, x3之间也是面内,一次类推
+ *              特殊情况:
+ *                  1. 面范围超过网格范围, 需要主动闭合超过范围的点,并且范围之外的不在考虑(已处理)
+ *                  2. 当有多个面, 并且面有部分重合时,需要先合并重复部分,然后再进行排序,分组操作(已处理)
  */
 #ifndef SILLY_VECTOR_TO_RASTER_H
 #define SILLY_VECTOR_TO_RASTER_H
@@ -25,7 +27,7 @@ public:
     {
         int x = 0;
         int y = 0;
-        Point() {};
+        Point() = default;
         Point(const int& x, const int& y) : x(x), y(y) {};
     };
 
