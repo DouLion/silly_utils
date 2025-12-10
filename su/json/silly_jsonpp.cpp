@@ -110,13 +110,13 @@ bool jsonpp::write(const suPath& file, const Json::Value& root, const jsonpp::st
         wfile << Json::writeString(stream_builder, root);
         wfile.close();
     }
-    catch (std::exception e)
+    catch (std::exception& e)
     {
         std::cerr << e.what() << std::endl;
         return false;
     }
 
-    return suPath::size(file) > 0;
+    return suPath::file_size(file) > 0;
 }
 
 bool jsonpp::check_str(const Json::Value& root, const std::string& key, std::string& val)

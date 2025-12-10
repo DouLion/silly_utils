@@ -234,7 +234,7 @@ bool silly_tzx_grid::read(const suPath& file, const int& index)
     bool status = false;
     release();
 
-    if (const size_t fileSize = suPath::size(file); fileSize > 0)
+    if (const size_t fileSize = suPath::file_size(file); fileSize > 0)
     {
         const std::string buff = sufile::read(file);
         char* p = read_head(buff);

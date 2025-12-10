@@ -251,7 +251,7 @@ bool SLB::Read(const suPath& file)
     {
         return false;
     }
-    size_t size = file.size();
+    size_t size = file.file_size();
     Clear();
     do
     {

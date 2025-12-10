@@ -258,7 +258,7 @@ bool suMemMapFile::open_file()
 #else
     // Open file
     int mode = (m_mode == eMMFMode::Read ? O_RDONLY : O_RDWR);
-    m_file_hdl = ::open(m_file.c_str(), mode, (mode_t)0600);
+    m_file_hdl = ::open(m_file.string().c_str(), mode, (mode_t)0600);
     if (m_file_hdl == INVALID_HANDLE_VALUE)
     {
         return false;
@@ -345,7 +345,7 @@ bool suMemMapFile::open(const suMemMapFile::Param& p)
     std::scoped_lock<std::mutex> lock2(m_w_mutex);
     m_file = p.path;
     m_mode = p.mode;
-    m_file_len = m_file.size();
+    m_file_len = m_file.file_size();
     //if (p.mode == Read)
     {
         if (m_file_len <= 0)

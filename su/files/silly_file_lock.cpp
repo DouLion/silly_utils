@@ -41,7 +41,7 @@ suFileLock::suFileLock(const supath& file)
     }
 #else
 
-    m_file_hdl = open(u8file.c_str(), O_RDWR);
+    m_file_hdl = open(file.string().c_str(), O_RDWR);
     if (m_file_hdl == INVALID_HANDLE_VALUE)
     {
         m_err = strerror(errno);

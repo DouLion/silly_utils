@@ -256,10 +256,12 @@ bool suGeoUtils::read(const suPath& file, std::vector<suGeoColl>& collections, c
             return status;
         }
         std::string layerName(layer->GetName());
+        #if _WIN32
         if (!IS_UTF8(layerName))
         {
             layerName = GBKToUTF8(layerName);
         }
+        #endif
         SLOG_DEBUG("图层名: {}", layerName)
         layer->ResetReading();
         OGRFeature* feature;
