@@ -495,6 +495,100 @@ size_t suPath::file_size(const suPath& fp)
 {
     return fp.file_size();
 }
+#if _WIN32
+bool extend_and_preallocate_file(const wchar_t* path, uint64_t target_size) {
+    // 打开或创建文件，不覆盖已有内容
+    HANDLE hFile = CreateFileW(
+        path,
+        GENERIC_READ | GENERIC_WRITE,  // 需要读权限以获取大小，写权限以扩展
+        FILE_SHARE_READ | FILE_SHARE_WRITE,
+        NULL,
+        OPEN_ALWAYS,                   // ← 关键：不覆盖已有文件
+        FILE_ATTRIBUTE_NORMAL,
+        NULL
+    );
+
+    if (hFile == INVALID_HANDLE_VALUE) {
+        std::cerr << "CreateFile failed: " << GetLastError() << "\n";
+        return false;
+    }
+
+    // 获取当前文件大小
+    LARGE_INTEGER current_size_li;
+    if (!GetFileSizeEx(hFile, &current_size_li)) {
+        std::cerr << "GetFileSizeEx failed\n";
+        CloseHandle(hFile);
+        return false;
+    }
+    uint64_t current_size = static_cast<uint64_t>(current_size_li.QuadPart);
+
+    if (target_size <= current_size) {
+        // 已经足够大，无需操作
+        CloseHandle(hFile);
+        return true;
+    }
+
+    // 定位到目标大小 - 1 的位置
+    LARGE_INTEGER li;
+    li.QuadPart = static_cast<LONGLONG>(target_size - 1);
+    if (!SetFilePointerEx(hFile, li, nullptr, FILE_BEGIN)) {
+        std::cerr << "SetFilePointerEx failed\n";
+        CloseHandle(hFile);
+        return false;
+    }
+
+    // 写入一个字节，强制 NTFS 分配从 current_size 到 target_size 的所有簇
+    char dummy = 0;
+    DWORD bytesWritten;
+    if (!WriteFile(hFile, &dummy, 1, &bytesWritten, nullptr)) {
+        std::cerr << "WriteFile failed: " << GetLastError() << "\n";
+        CloseHandle(hFile);
+        return false;
+    }
+
+    // 可选：刷新元数据（确保大小和分配持久化）
+    FlushFileBuffers(hFile);
+
+    CloseHandle(hFile);
+    return true;
+}
+#else
+bool extend_and_preallocate_file(const char* path, size_t target_size) {
+    // 打开文件：O_RDWR | O_CREAT（不存在则创建），权限 0644
+    int fd = open(path, O_RDWR | O_CREAT, 0644);
+    if (fd == -1) {
+        throw std::system_error(errno, std::generic_category(), "open failed");
+    }
+
+    // 获取当前文件大小
+    struct stat st;
+    if (fstat(fd, &st) != 0) {
+        close(fd);
+        throw std::system_error(errno, std::generic_category(), "fstat failed");
+    }
+    off_t current_size = st.st_size;
+
+    if (static_cast<size_t>(current_size) >= target_size) {
+        // 已经足够大，无需操作
+        close(fd);
+        return true;
+    }
+
+    // 关键：预分配从 0 到 target_size 的整个范围
+    // posix_fallocate 会：
+    //   - 如果文件小于 target_size → 扩展它；
+    //   - 保证 [0, target_size) 的磁盘空间被真正分配（非稀疏）；
+    //   - 保留原有数据不变；
+    int ret = posix_fallocate(fd, 0, static_cast<off_t>(target_size));
+    if (ret != 0) {
+        close(fd);
+        throw std::system_error(ret, std::generic_category(), "posix_fallocate failed");
+    }
+
+    close(fd);
+    return true;
+}
+#endif
 bool suPath::resize_file(const size_t& len) const
 {
     if (!exists())
@@ -516,6 +610,9 @@ bool suPath::resize_file(const size_t& len) const
 #endif
     }
     size_t size = file_size();
+#ifndef NDEBUG
+     std::cout << "现有大小:" << size << std::endl;
+#endif
     if (len > size)
     {
         try
@@ -523,7 +620,11 @@ bool suPath::resize_file(const size_t& len) const
 #ifndef NDEBUG
             std::cout << "文件resize:" << u8string() << " "<< size <<  "=> " << len  << std::endl;
 #endif
-            std::filesystem::resize_file(m_path, len);
+            #if _WIN32
+            extend_and_preallocate_file(m_path.wstring().c_str(), len);
+#else
+            extend_and_preallocate_file(m_path.string().c_str(), len);
+#endif
         }
         catch (std::exception& e)
         {
