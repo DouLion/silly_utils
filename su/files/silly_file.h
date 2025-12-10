@@ -54,6 +54,15 @@ class suFile
      * @return
      */
     static size_t write(const suPath &fp, const std::vector<std::string> &lines);
+
+    /**
+     * 保留原文件内容,追加写
+     * @param fp
+     * @param content
+     * @return
+     */
+    static size_t append(const suPath &fp, const std::string &content);
+    static size_t append(const suPath &fp, const std::vector<std::string> &lines);
 };
 using sufile = suFile;
 #endif  // SILLY_FILE_H

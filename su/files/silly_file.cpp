@@ -19,7 +19,7 @@ size_t suFile::read(const suPath &fp, std::string &content, const size_t &offset
     {
         return ret_read_size;
     }
-    size_t file_size = fp.size();
+    size_t file_size = fp.file_size();
     if (offset >= file_size)  // 保证读值不为空
     {
         input.close();
@@ -77,7 +77,7 @@ std::vector<std::string> suFile::readlines(const suPath &fp, const suFile::filte
 size_t suFile::write(const suPath &fp, const std::string &content)
 {
     size_t ret = 0;
-    if (fp.exists() && fp.is_dir())
+    if (fp.exists() && !fp.is_file())
     {
         std::cerr << fp.u8string() << " 是已存在的目录,无法写入" << std::endl;
         return 0;
@@ -95,7 +95,7 @@ size_t suFile::write(const suPath &fp, const std::string &content)
 size_t suFile::write(const suPath &fp, const std::vector<std::string> &lines)
 {
     size_t ret = 0;
-    if (fp.exists() && fp.is_dir())
+    if (fp.exists() && !fp.is_file())
     {
         return ret;
     }
@@ -118,4 +118,69 @@ size_t suFile::write(const suPath &fp, const std::vector<std::string> &lines)
         }
     }
     return ret;
+}
+size_t suFile::append(const suPath &fp, const std::string &content)
+{
+    if (fp.exists())
+    {
+        if (!fp.is_file())
+        {
+            return 0;
+        }
+    }
+    else
+    {
+        if (!fp.parent().mkdir())
+        {
+            return 0;
+        }
+    }
+    // std::ios::app 会自动定位到文件末尾
+    std::fstream output(fp.path(), std::ios::binary | std::ios::out | std::ios::app/*| std::ios::ate*/);
+    if (!output.is_open())
+    {
+        return 0;
+    }
+    output.write(content.c_str(), content.size());
+    if (output.fail())
+    {
+        return 0;
+    }
+    return content.size();
+
+}
+size_t suFile::append(const suPath &fp, const std::vector<std::string> &lines)
+{
+    if (fp.exists())
+    {
+        if (!fp.is_file())
+        {
+            return 0;
+        }
+    }
+    else
+    {
+        if (!fp.parent().mkdir())
+        {
+            return 0;
+        }
+    }
+
+    std::fstream output(fp.path(), std::ios::binary | std::ios::out | std::ios::app/*| std::ios::ate*/);
+    if (!output.is_open())
+    {
+        return 0;
+    }
+    size_t ret = 0;
+    for (const auto& l : lines)
+    {
+        output.write(l.c_str(), l.size());
+        ret+= l.size();
+    }
+    if (output.fail())
+    {
+        return 0;
+    }
+    return ret;
+
 }
