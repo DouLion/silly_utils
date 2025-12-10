@@ -89,6 +89,7 @@
 #include <locale>
 #include <cassert>
 #include <cstddef>
+#include <typeinfo>  // 类型信息
 
 // =============================================================================
 // C 标准库 (C++ 风格头文件)
@@ -138,6 +139,7 @@ using SU_HANDLE = HANDLE;
 #include <dirent.h>  // 替代 Windows 的 _findfirst 等
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <cxxabi.h>
 
 // 为非 Windows 系统定义二进制模式标志和句柄类型
 #ifndef O_BINARY
@@ -205,9 +207,9 @@ using SU_HANDLE = int;
 #endif
 
 #ifndef SU_KB
-#define SU_KB (1024)
-#define SU_MB (1024 * 1024)
-#define SU_GB (1024 * 1024 * 1024)
+#define SU_KB (static_cast<size_t>(1024))
+#define SU_MB (static_cast<size_t>(1024) * 1024)
+#define SU_GB (static_cast<size_t>(1024) * 1024 * 1024)
 #endif
 
 #define CN_RECT_LEFT 73.0
@@ -255,6 +257,8 @@ using SU_HANDLE = int;
 #define SU_FILE_NAME (strrchr(__FILE__, '/') ? (strrchr(__FILE__, '/') + 1) : __FILE__)
 #endif
 #endif
+
+
 
 #ifndef SU_SPRINTF
 #if _WIN32
