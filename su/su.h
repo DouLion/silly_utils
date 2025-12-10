@@ -62,7 +62,6 @@
 #include <files/silly_xlsx.h>           // xlsx文件操作 未实现
 
 // 几何(平面几何,地理空间空间)
-#include <geo/silly_geo_const.h>                    // 地球基本信息常量定义
 #include <geo/gpc/gpc.h>                            // gpc源码
 #include <geo/proj/gdal/silly_projection_define.h>  // 投影坐标系的 wtk
 #include <geo/proj/gdal/silly_proj_convert.h>       // 地理坐标系的转换
@@ -122,7 +121,6 @@
 #include <math/interp/silly_bilinear.h>       // 双线性插值
 #include <math/silly_bezier_curve.h>               // 贝塞尔曲线
 #include <math/silly_interpolate.h>                // 插值函数
-#include <math/silly_math_const.h>                 // 数学计算中的常量
 #include <math/silly_matrix.h>                     // 矩阵类
 #include <math/spline/siily_least_squares_fit.h>   // 未实现
 #include <math/spline/silly_bezier_spline.h>       // 未实现
@@ -171,9 +169,7 @@
 #include <network/websocket/silly_websocket_server.h>  // websocket 服务端 未实现
 
 // INI配置文件
-#include <parser/ini/INIReader.h>                // ini解析源码
 #include <parser/ini/silly_ini_parser_base.h>    // ini文件解析 基类
-#include <parser/ini/silly_boost_ini_parser.h>   // 基于boost的ini工具
 #include <parser/ini/silly_simple_ini_parser.h>  // 基于SimpleIni的ini文件解析
 #include <parser/ini/silly_tzx_ini_parser.h>     // tzx ini文件解析工具
 

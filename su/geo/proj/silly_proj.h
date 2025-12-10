@@ -22,7 +22,6 @@
 #ifndef SILLY_UTILS_SILLY_PROJ_H
 #define SILLY_UTILS_SILLY_PROJ_H
 #include <su_marco.h>
-#include <geo/silly_geo_const.h>
 
 #define SU_GAUSS3_NO(_lon_) (static_cast<int>(std::floor((_lon_ + 1.5) / 3)))
 #define SU_GAUSS6_NO(_lon_) (static_cast<int>(std::floor(_lon_ / 6)) + 1)
@@ -54,9 +53,9 @@ class suGeoProj
         double scale{0.9996};
         double easting{500000.0};  // 东偏移
         // 长半轴
-        double major_axis{suWGS84::A};
+        double major_axis{WGS84::A};
         // 扁率
-        double flatten{suWGS84::F};
+        double flatten{WGS84::F};
     };
     struct point2d
     {

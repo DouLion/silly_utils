@@ -171,7 +171,7 @@ suPoint suGeoUtils::centroid(const suMultiPoly& multiPoly)
 double suGeoUtils::azimuth(const suPoint& from, const suPoint& to)
 {
     double theta = atan2(to.x - from.x, to.y - from.y);
-    theta = theta * 180.0 / SU_PI;
+    theta = theta * 180.0 / MATH::PI_;
     return theta;
 }
 

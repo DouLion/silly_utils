@@ -49,7 +49,7 @@ void suGeoProj::gauss_to_lonlat(const double& gx, const double& gy, double& lon,
 
     // 转换为经纬度
     lat = RAD2DEG(phi);
-    lon = RAD2DEG((centralMeridian + lambdaPrime * 180.0 / (SU_PI * p.major_axis * cos(phi))));
+    lon = RAD2DEG((centralMeridian + lambdaPrime * 180.0 / (MATH::PI_ * p.major_axis * cos(phi))));
 }
 
 void suGeoProj::gauss_to_lonlat(const double& central, const double& gx, const double& gy, double& lon, double& lat)
@@ -57,15 +57,15 @@ void suGeoProj::gauss_to_lonlat(const double& central, const double& gx, const d
     double Y = gx, X = gy;
 
     Y -= 500000;
-    double e1 = (1 - sqrt(1 - suWGS84::E2)) / (1 + sqrt(1 - suWGS84::E2));
+    double e1 = (1 - sqrt(1 - WGS84::E2)) / (1 + sqrt(1 - WGS84::E2));
     double M = X;
-    double mu = M / (suWGS84::A * (1 - suWGS84::E2 / 4.0 - 3 * suWGS84::E2 * suWGS84::E2 / 64.0 - 5 * suWGS84::E2 * suWGS84::E2 * suWGS84::E2 / 256.0));
+    double mu = M / (WGS84::A * (1 - WGS84::E2 / 4.0 - 3 * WGS84::E2 * WGS84::E2 / 64.0 - 5 * WGS84::E2 * WGS84::E2 * WGS84::E2 / 256.0));
     double phi1 = mu + (3 * e1 / 2 - 27 * e1 * e1 * e1 / 32) * sin(2 * mu) + (21 * e1 * e1 / 16 - 55 * e1 * e1 * e1 * e1 / 32) * sin(4 * mu) + (151 * e1 * e1 * e1 / 96) * sin(6 * mu) + (1097 * e1 * e1 * e1 * e1 / 512) * sin(8 * mu);
 
-    double C1 = suWGS84::E2 * cos(phi1) * cos(phi1) / (1 - suWGS84::E2);
+    double C1 = WGS84::E2 * cos(phi1) * cos(phi1) / (1 - WGS84::E2);
     double T1 = tan(phi1) * tan(phi1);
-    double N1 = suWGS84::A / sqrt(1 - suWGS84::E2 * sin(phi1) * sin(phi1));
-    double R1 = suWGS84::A * (1 - suWGS84::E2) / pow(1 - suWGS84::E2 * sin(phi1) * sin(phi1), 1.5);
+    double N1 = WGS84::A / sqrt(1 - WGS84::E2 * sin(phi1) * sin(phi1));
+    double R1 = WGS84::A * (1 - WGS84::E2) / pow(1 - WGS84::E2 * sin(phi1) * sin(phi1), 1.5);
     double D = Y / N1;
 
     // 经纬度计算
@@ -125,24 +125,24 @@ void suGeoProj::lonlat_to_gauss(const double& central, const double& lon, const 
     double centralMeridianRad = DEG2RAD(central);
 
     // 计算高斯-克吕格投影公式中的参数
-    double N = suWGS84::A / sqrt(1 - suWGS84::E2 * sin(lamb) * sin(lamb));
+    double N = WGS84::A / sqrt(1 - WGS84::E2 * sin(lamb) * sin(lamb));
     double T = tan(lamb) * tan(lamb);
-    double C = suWGS84::E2 * cos(lamb) * cos(lamb) / (1 - suWGS84::E2);
+    double C = WGS84::E2 * cos(lamb) * cos(lamb) / (1 - WGS84::E2);
     double A = (phi - centralMeridianRad) * cos(lamb);
 
-    double M = suWGS84::A * ((1 - suWGS84::E2 / 4.0 - 3.0 * suWGS84::E2 * suWGS84::E2 / 64.0 - 5.0 * suWGS84::E2 * suWGS84::E2 * suWGS84::E2 / 256.0) * lamb -
-                           (3.0 * suWGS84::E2 / 8.0 + 3.0 * suWGS84::E2 * suWGS84::E2 / 32.0 + 45.0 * suWGS84::E2 * suWGS84::E2 * suWGS84::E2 / 1024.0) * sin(2.0 * lamb) +
-                           (15.0 * suWGS84::E2 * suWGS84::E2 / 256.0 + 45.0 * suWGS84::E2 * suWGS84::E2 * suWGS84::E2 / 1024.0) * sin(4.0 * lamb) - (35.0 * suWGS84::E2 * suWGS84::E2 * suWGS84::E2 / 3072.0) * sin(6.0 * lamb));
+    double M = WGS84::A * ((1 - WGS84::E2 / 4.0 - 3.0 * WGS84::E2 * WGS84::E2 / 64.0 - 5.0 * WGS84::E2 * WGS84::E2 * WGS84::E2 / 256.0) * lamb -
+                           (3.0 * WGS84::E2 / 8.0 + 3.0 * WGS84::E2 * WGS84::E2 / 32.0 + 45.0 * WGS84::E2 * WGS84::E2 * WGS84::E2 / 1024.0) * sin(2.0 * lamb) +
+                           (15.0 * WGS84::E2 * WGS84::E2 / 256.0 + 45.0 * WGS84::E2 * WGS84::E2 * WGS84::E2 / 1024.0) * sin(4.0 * lamb) - (35.0 * WGS84::E2 * WGS84::E2 * WGS84::E2 / 3072.0) * sin(6.0 * lamb));
 
     // 计算 X, Y 坐标
-    gy = M + N * tan(lamb) * (A * A / 2.0 + (5.0 - T + 9.0 * C + 4.0 * C * C) * A * A * A * A / 24.0 + (61.0 - 58.0 * T + T * T + 600.0 * C - 330.0 * suWGS84::E2) * A * A * A * A * A * A / 720.0);
-    gx = N * (A + (1.0 - T + C) * A * A * A / 6.0 + (5.0 - 18.0 * T + T * T + 72.0 * C - 58.0 * suWGS84::E2) * A * A * A * A * A / 120.0) + 500000.0;  // 中央子午线偏移+500000.0
+    gy = M + N * tan(lamb) * (A * A / 2.0 + (5.0 - T + 9.0 * C + 4.0 * C * C) * A * A * A * A / 24.0 + (61.0 - 58.0 * T + T * T + 600.0 * C - 330.0 * WGS84::E2) * A * A * A * A * A * A / 720.0);
+    gx = N * (A + (1.0 - T + C) * A * A * A / 6.0 + (5.0 - 18.0 * T + T * T + 72.0 * C - 58.0 * WGS84::E2) * A * A * A * A * A / 120.0) + 500000.0;  // 中央子午线偏移+500000.0
 }
 
 void suGeoProj::mercator_to_lonlat(const double& mctx, const double& mcty, double& lon, double& lat)
 {
-    lon = RAD2DEG(mctx / suWGS84::A);
-    lat = RAD2DEG(2 * atan(exp(mcty / suWGS84::A)) - SU_PI / 2);
+    lon = RAD2DEG(mctx / WGS84::A);
+    lat = RAD2DEG(2 * atan(exp(mcty / WGS84::A)) - MATH::PI_ / 2);
 }
 
 void suGeoProj::lonlat_to_mercator(const double& lon, const double& lat, double& mctx, double& mcty)
@@ -151,8 +151,8 @@ void suGeoProj::lonlat_to_mercator(const double& lon, const double& lat, double&
     double phi = DEG2RAD(lon);
 
     // 墨卡托投影公式
-    mctx = suWGS84::A * phi;
-    mcty = suWGS84::A * log(tan(SU_PI / 4 + lamb / 2));
+    mctx = WGS84::A * phi;
+    mcty = WGS84::A * log(tan(MATH::PI_ / 4 + lamb / 2));
 }
 
 void suGeoProj::mercator_to_gauss(const double& mctx, const double& mcty, double& gx, double& gy, const suGeoProj::param& p)
@@ -190,17 +190,17 @@ void suGeoProj::ecef_to_lonlat(const double& x, const double& y, const double& z
 
     // 计算初始纬度估计
     double p = std::sqrt(x * x + y * y);
-    double theta = std::atan2(z, p * (1 - suWGS84::F));
-    lat = std::atan2(z + suWGS84::E2 * suWGS84::B * std::pow(std::sin(theta), 3), p - suWGS84::E2 * suWGS84::B * std::pow(std::cos(theta), 3));
+    double theta = std::atan2(z, p * (1 - WGS84::F));
+    lat = std::atan2(z + WGS84::E2 * WGS84::B * std::pow(std::sin(theta), 3), p - WGS84::E2 * WGS84::B * std::pow(std::cos(theta), 3));
 
     // 迭代计算纬度，直到收敛
     double previousLatitude;
     do
     {
         previousLatitude = lat;
-        double N = suWGS84::A / std::sqrt(1 - suWGS84::E2 * std::sin(lat) * std::sin(lat));
+        double N = WGS84::A / std::sqrt(1 - WGS84::E2 * std::sin(lat) * std::sin(lat));
         height = p / std::cos(lat) - N;
-        lat = std::atan2(z + suWGS84::E2 * N * sin(lat), p);
+        lat = std::atan2(z + WGS84::E2 * N * sin(lat), p);
     } while (std::fabs(lat - previousLatitude) > 1e-12);  // 收敛条件
 
     // 将纬度和经度转换为度
@@ -214,12 +214,12 @@ void suGeoProj::lonlat_to_ecef(const double& lon, const double& lat, const doubl
     double phi = DEG2RAD(lon);
 
     // 计算N（曲率半径）
-    double N = suWGS84::A / std::sqrt(1 - suWGS84::E2 * std::sin(lamb) * std::sin(lamb));
+    double N = WGS84::A / std::sqrt(1 - WGS84::E2 * std::sin(lamb) * std::sin(lamb));
 
     // 计算XYZ坐标
     x = (N + height) * std::cos(lamb) * std::cos(phi);
     y = (N + height) * std::cos(lamb) * std::sin(phi);
-    z = (suWGS84::B * suWGS84::B / (suWGS84::A * suWGS84::A) * N + height) * std::sin(lamb);
+    z = (WGS84::B * WGS84::B / (WGS84::A * WGS84::A) * N + height) * std::sin(lamb);
 }
 
 suGeoProj::pfour suGeoProj::build(const std::vector<suGeoProj::point2d>& measures, const std::vector<suGeoProj::point2d>& origins)

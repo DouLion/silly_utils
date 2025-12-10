@@ -836,7 +836,7 @@ void suCairo::draw_point(const suPoint &p, const double &size)
 
     cairo_set_line_width(m_cr, size);  // 圆点的直径
     // 绘制圆点
-    cairo_arc(m_cr, p.x, p.y, size / 2., 0, 2 * silly::math::pi);  // 圆心位置 (100, 100), 半径 5
+    cairo_arc(m_cr, p.x, p.y, size / 2., 0, 2 * MATH::PI_);  // 圆心位置 (100, 100), 半径 5
     cairo_stroke(m_cr);
 #endif
 }

@@ -22,7 +22,7 @@ class suCircle
 
     double area() const
     {
-        return SU_PI * radius * radius;
+        return MATH::PI_ * radius * radius;
     }
 
   public:

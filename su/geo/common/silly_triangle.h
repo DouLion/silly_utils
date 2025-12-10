@@ -88,19 +88,19 @@ class suTriangle
     /// 顶点a的角度
     double angle_a() const
     {
-        return radian_a() * 180 / silly::math::pi;
+        return radian_a() * 180 / MATH::PI_;
     }
 
     /// 顶点b的角度
     double angle_b() const
     {
-        return  radian_b() * 180 / silly::math::pi;
+        return  radian_b() * 180 / MATH::PI_;
     }
 
     /// 顶点c的角度
     double angle_c() const
     {
-        return radian_c() * 180 / silly::math::pi;
+        return radian_c() * 180 / MATH::PI_;
     }
 
   public:

@@ -25,8 +25,6 @@
 // =============================================================================
 // C++ 标准库
 // =============================================================================
-#define HAVE_STRLCAT  1
-#define HAVE_STRLCAT  1
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -98,7 +96,6 @@
 #include <cstdio>   // stdio.h
 #include <cstdlib>  // stdlib.h
 #include <cstring>  // string.h (优先于 string.h)
-#include <cmath>    // math.h (优先于 math.h)
 #include <cctype>   // ctype.h
 #include <climits>  // limits.h
 #include <ctime>    // time.h
@@ -164,27 +161,24 @@ using SU_HANDLE = int;
 // =============================================================================
 // 本项目中的一些常量
 // =============================================================================
-#include <math/silly_math_const.h>
-#include <geo/silly_geo_const.h>
+#include <silly_constant.h>
 
 // 数学常用常量 math/silly_math_const.h
 #ifndef PI
-#define PI silly::math::pi
+#define PI MATH::PI_
 #endif
-
-#define SU_PI silly::math::pi
 
 // 自然指数e
 #ifndef BASE_E
-#define BASE_E silly::math::e
+#define BASE_E MATH::E_
 #endif
-#define SU_BASE_E silly::math::e
+#define SU_BASE_E MATH::E_
 
 /// 2的平方根
-#define SQRT_2 silly::math::sqrt_2
+#define SQRT_2 MATH::SQRT_2_
 
-#define DEG2RAD(deg) ((deg) * silly::math::pi / 180.0)
-#define RAD2DEG(rad) ((rad) * 180.0 / silly::math::pi)
+#define DEG2RAD(deg) ((deg) * MATH::PI_ / 180.0)
+#define RAD2DEG(rad) ((rad) * 180.0 / MATH::PI_)
 
 #ifndef TINY
 #define TINY (1e-18)

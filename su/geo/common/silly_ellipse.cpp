@@ -50,7 +50,7 @@ double suEllipse::area() const
     double b = std::sqrt(std::pow(a, 2) - std::pow(c, 2));
 
     // 计算面积
-    return SU_PI * a * b;
+    return MATH::PI_ * a * b;
 }
 double suEllipse::circumference() const
 {
@@ -70,7 +70,7 @@ double suEllipse::circumference() const
 
     // 方法1：拉马努金近似公式2（高精度）
     double h = std::pow((a - b) / (a + b), 2);
-    double C = SU_PI * (a + b) * (1 + (3 * h) / (10 + std::sqrt(4 - 3 * h)));
+    double C = MATH::PI_ * (a + b) * (1 + (3 * h) / (10 + std::sqrt(4 - 3 * h)));
     return C;
 }
 
