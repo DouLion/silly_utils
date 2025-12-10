@@ -151,8 +151,16 @@ class suPath
      * 文件大小, 仅争对普通文件
      * @return
      */
-    size_t size() const;
-    static size_t size(const suPath &fp);
+    size_t file_size() const;
+    static size_t file_size(const suPath &fp);
+
+    /**
+     * 文件扩展到指定大小
+     * @param len
+     * @return
+     */
+    bool resize_file(const size_t& len) const;
+    static bool resize_file(const suPath& fp, const size_t& len);
 
     /**
      * 文件(夹)修改时间戳
@@ -250,6 +258,8 @@ class suPath
      * @return
      */
     std::filesystem::path path() const;
+
+    std::string err() const {return m_err;}
 
   protected:
     std::filesystem::path m_path = std::filesystem::current_path();

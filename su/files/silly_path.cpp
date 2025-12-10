@@ -185,23 +185,16 @@ bool suPath::chdir(const suPath& path)
 }
 bool suPath::mkdir() const
 {
-    if (is_file())
+    if (!exists())
     {
-        return mkdir(parent());
+        std::filesystem::create_directories(m_path);
     }
-    else if (is_dir())
-    {
-        return mkdir(*this);
-    }
-    return false;
+    return is_dir();
+
 }
 bool suPath::mkdir(const suPath& path)
 {
-    if (!path.exists())
-    {
-        std::filesystem::create_directories(path.m_path);
-    }
-    return path.is_dir();
+    return path.mkdir();
 }
 bool suPath::rmfile(const suPath& fp)
 {
@@ -482,7 +475,7 @@ std::string suPath::extension_utf8() const
 {
     return m_path.extension().u8string();
 }
-size_t suPath::size() const
+size_t suPath::file_size() const
 {
     try
     {
@@ -498,9 +491,52 @@ size_t suPath::size() const
     
     return 0;
 }
-size_t suPath::size(const suPath& fp)
+size_t suPath::file_size(const suPath& fp)
 {
-    return fp.size();
+    return fp.file_size();
+}
+bool suPath::resize_file(const size_t& len) const
+{
+    if (!exists())
+    {
+        auto pp = parent();
+        if (!pp.mkdir())
+        {
+            m_err = pp.m_err;
+            return false;
+        }
+        // 创建一个空文件
+        std::ofstream f(m_path, std::ios::binary);
+        if (!f) {
+            m_err = "Failed to create file: " + m_path.string();
+            return false;
+        }
+#ifndef NDEBUG
+        std::cout << "创建新文件" << std::endl;
+#endif
+    }
+    size_t size = file_size();
+    if (len > size)
+    {
+        try
+        {
+#ifndef NDEBUG
+            std::cout << "文件resize:" << u8string() << " "<< size <<  "=> " << len  << std::endl;
+#endif
+            std::filesystem::resize_file(m_path, len);
+        }
+        catch (std::exception& e)
+        {
+            m_err = e.what();
+            return false;
+        }
+        return true;
+    }
+    return true;
+}
+bool suPath::resize_file(const suPath& fp, const size_t& len)
+{
+    return fp.resize_file(len);
 }
 std::time_t suPath::mstamp() const
 {
@@ -520,7 +556,6 @@ std::time_t suPath::mstamp() const
     {
         m_err = e.what();
     }
-    
 
     return 0;
 }
