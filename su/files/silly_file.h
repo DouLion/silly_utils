@@ -11,10 +11,31 @@
 #ifndef SILLY_FILE_H
 #define SILLY_FILE_H
 #include <files/silly_path.h>
-
 class suFile
 {
   public:
+    /**
+     * POSIX 系统调用，用于打开文件并返回文件描述符
+     * 本函数始终将文件以二进制流打开
+     * MSVC已经定义过转换
+     * @param file
+     * @param flags 读写模式
+     *              O_RDONLY 只读 O_WRONLY 只写 O_RDWR 读写
+     *              O_RDWR | O_CREAT;   // 读写，不存在则创建
+     *              O_RDWR | O_APPEND;  // 读写，追加模式
+     *              O_RDWR | O_TRUNC;   // 读写，截断文件（清空内容）
+     *              O_RDWR | O_EXCL;    // 读写，配合 O_CREAT，文件存在则失败
+     * @param mode 访问模式, 改文件, 0644 采用的是八进制
+     *              mode = 0      // 不更改权限
+     *              mode = 0644;  // -rw-r--r--  用户读写，组读，其他读
+     *              mode = 0600;  // -rw-------  只有用户读写
+     *              mode = 0666;  // -rw-rw-rw-  所有用户读写（受 umask 影响）
+     *              mode = 0755;  // -rwxr-xr-x  用户读写执行，组和其他读执行
+     * @return  文件描述符
+     */
+    static int open(const suPath &file, const int &flags, const int &mode = 0);
+    static int close(const int& fd);
+
     /**
      * 读取文件内容
      * @param fp 文件路径

@@ -235,11 +235,7 @@ static cairo_status_t surface_write(cairo_surface_t *sfc, const char *filename)
     int outfile;
 
     // Open/create new file
-#ifdef IS_WIN32
-    outfile = open(filename, O_BINARY | O_WRONLY | O_CREAT, _S_IREAD | _S_IWRITE);
-#else
-    outfile = open(filename, O_BINARY | O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-#endif
+    outfile = sufile::open(filename, O_WRONLY | O_CREAT, 0644);
     if (outfile == -1)
         return CAIRO_STATUS_DEVICE_ERROR;
 
@@ -325,9 +321,8 @@ cairo_surface_t *surface_create_from_file(const char *filename)
     void *data;
     int infile;
     struct stat stat;
-
     // open input file
-    if ((infile = ::open(filename, O_BINARY | O_RDONLY)) == -1)
+    if ((infile = sufile::open(filename, O_RDONLY)) == -1)
         return nullptr;
 
     // get stat structure for file size

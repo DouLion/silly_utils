@@ -3,6 +3,94 @@
 //
 #include "silly_file.h"
 
+int suFile::open(const suPath &file, const int &flags, const int &mode)
+{
+    int fd = -1;
+#if _WIN32
+    const errno_t err = ::_sopen_s(&fd, file.string().c_str(), flags | _O_BINARY, _SH_DENYNO, _S_IREAD | _S_IWRITE);
+
+    if (err != 0) {
+        // 详细错误处理
+        switch (err) {
+            case EINVAL:
+                std::cerr << "错误: 无效参数 - 文件: " << file.string()
+                         << ", 标志: 0x" << std::hex << flags
+                         << ", 模式: 0x" << mode << std::dec << std::endl;
+                break;
+            case EACCES:
+                std::cerr << "错误: 访问被拒绝 - 文件: " << file.string()
+                         << " (权限不足或文件被锁定)" << std::endl;
+                break;
+            case ENOENT:
+                std::cerr << "错误: 文件不存在 - " << file.string() << std::endl;
+                break;
+            case EEXIST:
+                std::cerr << "错误: 文件已存在 - " << file.string() << std::endl;
+                break;
+            case EMFILE:
+                std::cerr << "错误: 打开文件太多 - " << file.string() << std::endl;
+                break;
+            case ENODEV:
+                std::cerr << "错误: 设备不存在 - " << file.string() << std::endl;
+                break;
+            case ENOMEM:
+                std::cerr << "错误: 内存不足 - " << file.string() << std::endl;
+                break;
+            default:
+                std::cerr << "错误: _sopen_s 失败，错误码: " << err
+                         << " - 文件: " << file.string() << std::endl;
+                break;
+        }
+        return -1;
+    }
+
+    // 验证文件句柄有效性
+    if (fd == -1) {
+        std::cerr << "错误: _sopen_s 返回无效文件句柄 - " << file.string() << std::endl;
+        return -1;
+    }
+#else
+    if (mode == 0)
+    {
+        fd = ::open(file.string().c_str(), flags);
+    }
+    else
+    {
+        fd = ::open(file.string().c_str(), flags, mode);
+    }
+    if (fd == -1) {
+        // 使用 errno 获取具体错误原因
+        switch (errno) {
+            case ENOENT:
+                std::cerr << "文件不存在: " << file.string() << std::endl;
+                break;
+            case EACCES:
+                std::cerr << "权限不足: " << file.string() << std::endl;
+                break;
+            case EEXIST:
+                std::cerr << "文件已存在: " << file.string() << std::endl;
+                break;
+            default:
+                perror("open failed");
+                break;
+        }
+    }
+
+#endif
+    return fd;
+}
+int suFile::close(const int &fd)
+{
+    if (-1 == fd)
+    {
+#if _WIN32
+        return ::_close(fd);
+#else
+        return ::close(fd);
+#endif
+    }
+    return -1;
+}
 size_t suFile::read(const suPath &fp, std::string &content, const size_t &offset, const size_t &len)
 {
     size_t ret_read_size = 0;
