@@ -27,10 +27,10 @@
 #include <compress/silly_zip.h>              // 未实现
 
 // database (数据库)
-#include <database/dm8/dm8_dpi.h>               // 达梦数据库dpi接口
-#include <database/dm8/dm8_pro_c.h>             // 未实现
-#include <database/kb/kb_odbc.h>                // 未实现
-//#include <database/otl/otlv4.h>                 // otl库源码
+#include <database/dm8/dm8_dpi.h>    // 达梦数据库dpi接口
+#include <database/dm8/dm8_pro_c.h>  // 未实现
+#include <database/kb/kb_odbc.h>     // 未实现
+// #include <database/otl/otlv4.h>                 // otl库源码
 #include <database/otl/silly_otl.h>             // 基于otl的数据库操作
 #include <database/redis/silly_redis_client.h>  // 未实现
 #include <database/redis/silly_redis_cpool.h>   // 未实现
@@ -58,7 +58,7 @@
 #include <files/silly_file.h>           // 文件/目录 工具类(读写,复制,删除)
 #include <files/silly_file_lock.h>      // 文件锁
 #include <files/silly_memory_map.h>     // 内存映射文件 (读取,写入)
-#include <files/silly_schedule_file.h>  // 定时生成文件, 结构确定内容未实现
+#include <files/schedule/silly_schedule_file.h>
 #include <files/silly_xlsx.h>           // xlsx文件操作 未实现
 
 // 几何(平面几何,地理空间空间)
@@ -67,17 +67,13 @@
 #include <geo/proj/gdal/silly_proj_convert.h>       // 地理坐标系的转换
 #include <geo/proj/silly_proj.h>                    // (高斯投影, 墨卡托投影)转经纬度坐标
 #include <geo/silly_geo.h>                          // 自定义点线面多线多面矢量类型
-#include <geo/silly_geojson.h>                      // geojson处理类, 未实现
-#include <geo/silly_geo_coll.h>                     // 复合矢量类型定义
-#include <geo/silly_geo_convert.h>                  // 矢量数据转换: shp与geojson互转, 地理坐标系与墨卡托坐标系互转
-#include <geo/silly_geo_prop.h>                     // 矢量数据的属性定义
+#include <geo/geometry/silly_geojson.h>             // geojson处理类, 未实现
+#include <geo/geometry/silly_geo_coll.h>            // 复合矢量类型定义
+#include <geo/geometry/silly_geo_prop.h>            // 矢量数据的属性定义
 #include <geo/silly_geo_utils.h>                    // 基于gdal的矢量读写和算法
-#include <geo/silly_iso_poly.h>                     // 一种txt文件格式的矢量面
-#include <geo/silly_map_layer.h>                    // 地图图层类
-#include <geo/silly_polar.h>                        // 极坐标与经纬度坐标互转
-#include <geo/silly_pyramid.h>                      // 矢量金字塔:经纬度转金字塔层块号,瓦片经纬度范围, 屏幕坐标与经纬度坐标互转, 瓦片转屏幕范围
+#include <geo/geometry/silly_iso_poly.h>            // 一种txt文件格式的矢量面
 #include <geo/silly_raster_to_vector.h>             // Marching squares 算法
-#include <geo/silly_spatialite.h>                   // spatialite数据库操作: 创建, 删除,  矢量数据的读取写入, 查询, 修改
+#include <geo/geometry/silly_spatialite.h>          // spatialite数据库操作: 创建, 删除,  矢量数据的读取写入, 查询, 修改
 #include <geo/silly_vector_to_raster.h>             // 矢量转栅格,扫描线算法
 #include <geo/triangular/silly_delaunay.h>          // 德劳内三角剖分的基础数据结构和工具类
 #include <geo/vacuate/psimpl.h>                     // psimpl源码
@@ -116,9 +112,9 @@
 #include <mapbox/silly_mapbox.h>                    // mapbox工具
 
 // math (数学)
-#include <math/interp/silly_akima.h>          // akima插值
-#include <math/interp/silly_bicubic.h>        // 双三次插值
-#include <math/interp/silly_bilinear.h>       // 双线性插值
+#include <math/interp/silly_akima.h>               // akima插值
+#include <math/interp/silly_bicubic.h>             // 双三次插值
+#include <math/interp/silly_bilinear.h>            // 双线性插值
 #include <math/silly_bezier_curve.h>               // 贝塞尔曲线
 #include <math/silly_interpolate.h>                // 插值函数
 #include <math/silly_matrix.h>                     // 矩阵类

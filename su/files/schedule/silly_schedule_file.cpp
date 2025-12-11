@@ -3,14 +3,14 @@
  * reserved. 北京天智祥信息科技有限公司版权所有
  * @website: http://www.tianzhixiang.com.cn/
  * @author: dou li yang
- * @date: 2025-12-03
- * @file: silly_radar_db.c
- * @description: silly_radar_db实现
- * @version: v1.0.1 2025-12-03 dou li yang
+ * @date: 2024-10-18
+ * @file: silly_schedule_file.cpp
+ * @description: silly_schedule_file实现
+ * @version: v1.0.1 2024-10-18 dou li yang
  */
-#include "silly_radar_db.h"
+#include "silly_schedule_file.h"
 
-bool suRadarDB::SetDesc(const suRadarDBData::Desc& desc)
+bool suScheduleFile::SetDesc(const suScheduleData::Desc& desc)
 {
     m_desc = desc;
     m_rawNum = 366 * 24 * (SEC_IN_HOUR /m_desc.each);
@@ -28,7 +28,7 @@ bool suRadarDB::SetDesc(const suRadarDBData::Desc& desc)
     return true;
 }
 
-suPath suRadarDB::IndexFile() const
+suPath suScheduleFile::IndexFile() const
 {
     suPath ret(m_desc.root);
     ret.append(m_desc.name);
@@ -39,7 +39,7 @@ suPath suRadarDB::IndexFile() const
 
     return ret;
 }
-suPath suRadarDB::DataFile(const sutime& tm) const
+suPath suScheduleFile::DataFile(const sutime& tm) const
 {
     suPath ret(m_desc.root);
     ret.append(m_desc.name);
@@ -49,7 +49,7 @@ suPath suRadarDB::DataFile(const sutime& tm) const
     }
     return ret;
 }
-size_t suRadarDB::RawOffset(const std::string& code, const size_t& blockSize) const
+size_t suScheduleFile::RawOffset(const std::string& code, const size_t& blockSize) const
 {
     const size_t rawSize = CODE_MAX_LEN + m_rawNum * blockSize;
     size_t sort = m_index.sort(code);
@@ -59,7 +59,7 @@ size_t suRadarDB::RawOffset(const std::string& code, const size_t& blockSize) co
     }
     return sort * rawSize + RESERVE_LEN;
 }
-size_t suRadarDB::TimeOff(const sutime& tm, const size_t& blockSize)
+size_t suScheduleFile::TimeOff(const sutime& tm, const size_t& blockSize)
 {
     sutime ntm(std::to_string(tm.year()) + "-01-01 00:00");
     std::time_t stampOff = tm.stamp_sec() - ntm.stamp_sec();
@@ -67,12 +67,12 @@ size_t suRadarDB::TimeOff(const sutime& tm, const size_t& blockSize)
     return ret + CODE_MAX_LEN;
 
 }
-size_t suRadarDB::BlockOff(const std::string& code, const sutime& tm, const size_t& blockSize) const
+size_t suScheduleFile::BlockOff(const std::string& code, const sutime& tm, const size_t& blockSize) const
 {
     // TODO: 是否需要修改
     return 0;
 }
-size_t suRadarDB::AssumeFileSize(const size_t& codeNum, const size_t& blockSize) const
+size_t suScheduleFile::AssumeFileSize(const size_t& codeNum, const size_t& blockSize) const
 {
     size_t ret = 0;
     if (codeNum > 0xFFFFFF)
@@ -101,7 +101,7 @@ size_t suRadarDB::AssumeFileSize(const size_t& codeNum, const size_t& blockSize)
     ret = ret * pageSize;
     return ret;
 }
-bool suRadarDB::CheckCode(const char* readCode, const std::string& givenCode)
+bool suScheduleFile::CheckCode(const char* readCode, const std::string& givenCode)
 {
     for (int i = 0 ; i < CODE_MAX_LEN && i< givenCode.size(); i++)
     {
@@ -112,7 +112,7 @@ bool suRadarDB::CheckCode(const char* readCode, const std::string& givenCode)
     }
     return true;
 }
-std::shared_ptr<suMemMapFile> suRadarDB::OpenMMap(const int& year, const size_t& size)
+std::shared_ptr<suMemMapFile> suScheduleFile::OpenMMap(const int& year, const size_t& size)
 {
     if (MAP_HAS(m_year2mmap, year))
     {

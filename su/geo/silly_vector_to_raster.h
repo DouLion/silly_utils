@@ -16,7 +16,7 @@
 #ifndef SILLY_VECTOR_TO_RASTER_H
 #define SILLY_VECTOR_TO_RASTER_H
 
-#include <geo/silly_geo_coll.h>
+#include <geo/geometry/silly_geo_coll.h>
 #include <math/silly_matrix.h>
 
 /// X扫描线算法

@@ -11,8 +11,8 @@
 #ifndef SILLY_UTILS_SILLY_GEOMETRY_H
 #define SILLY_UTILS_SILLY_GEOMETRY_H
 #include <geo/silly_geo.h>
-#include <geo/silly_geo_filed.h>
-#include <geo/silly_geo_prop.h>
+#include <geo/geometry/silly_geo_filed.h>
+#include <geo/geometry/silly_geo_prop.h>
 
 namespace su
 {

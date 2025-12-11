@@ -1,38 +1,32 @@
+
 /*
  * @copyright: Beijing TianZhiXiang Information Technology Co., Ltd. All rights
  * reserved. 北京天智祥信息科技有限公司版权所有
  * @website: http://www.tianzhixiang.com.cn/
  * @author: dou li yang
- * @date: 2025-12-03
- * @file: silly_radar_db.cpp
- * @description: 固定时段的数据存储, 主要用于雷达数据
- *              1. 4字节固定头  4字节版本号
- *              2. 数据描述信息
- *                前面所有的信息共占4096个字节,
- *              3. 64位 code1 用于验证 从当年 1月1日开始 逐5分钟的数据块存储
- *              4. 64位 code2, 从当年 1月1日开始 逐5分钟的数据块存储
- *              ...
- * @version: v1.0.1 2025-12-03 dou li yang
+ * @date: 2024-10-18
+ * @file: silly_schedule_file.h
+ * @description: 定时生成的文件
+ * @version: v1.0.1 2024-10-18 dou li yang
  */
-#ifndef SILLY_RADAR_DB_H
-#define SILLY_RADAR_DB_H
-
-#include <log/silly_log.h>
+#ifndef SILLY_UTILS_SILLY_SCHEDULE_FILE_H
+#define SILLY_UTILS_SILLY_SCHEDULE_FILE_H
 #include <files/silly_memory_map.h>
+#include <files/schedule/silly_schedule_index.h>
+#include <files/schedule/silly_schedule_data.h>
 #include <datetime/silly_posix_time.h>
-#include <radar/db/silly_radar_db_index.h>
-#include <radar/db/silly_radar_db_data.h>
+#include <log/silly_log.h>
 
-class suRadarDB
+class suScheduleFile
 {
-    static constexpr int CODE_MAX_LEN = 64;   // 编码的最大长度
+   static constexpr int CODE_MAX_LEN = 64;   // 编码的最大长度
     static constexpr int RESERVE_LEN = 4096;  // 预留块, 数据始终在此之后开始计算
   public:
     /**
      * 指定一个名称用于构建目录
      * @param desc 名称
      */
-    bool SetDesc(const suRadarDBData::Desc& desc);
+    bool SetDesc(const suScheduleData::Desc& desc);
     /**
      * 指定编码,指定时间的数据
      * @tparam T
@@ -90,16 +84,16 @@ class suRadarDB
 
   protected:
     std::map<int, std::shared_ptr<suMemMapFile>> m_year2mmap;
-    suRadarDBIndex m_index;
-    char m_header[4] = {'T', 'Z', 'X', 'R'};       // 固定头
+    suScheduleIndex m_index;
+    char m_header[4] = {'T', 'Z', 'X', 'S'};       // 固定头
     char m_version[4] = {0x00, 0x01, 0x00, 0x01};  // 版本号
-    suRadarDBData::Desc m_desc;
+    suScheduleData::Desc m_desc;
     bool m_isDescSet = false;
     size_t m_rawNum = 0;
     std::mutex m_WriteMutex;
 };
 template <typename T, typename Func, typename... Args>
-bool suRadarDB::ReadUnionFile(Func&& func, Args&&... args)
+bool suScheduleFile::ReadUnionFile(Func&& func, Args&&... args)
 {
     if (m_desc.name != CLASS_PURE_NAME<T>())
     {
@@ -110,7 +104,7 @@ bool suRadarDB::ReadUnionFile(Func&& func, Args&&... args)
     return func(std::forward<Args>(args)...);
 }
 template <typename T>
-bool suRadarDB::Read(const std::string& code, const sutime& tm, T& data)
+bool suScheduleFile::Read(const std::string& code, const sutime& tm, T& data)
 {
     return ReadUnionFile<T>([this, code, tm, &data]() -> bool {
         const size_t rawOff = RawOffset(code, sizeof(T));
@@ -130,7 +124,7 @@ bool suRadarDB::Read(const std::string& code, const sutime& tm, T& data)
     });
 }
 template <typename T>
-bool suRadarDB::Read(const sutime& tm, std::map<std::string, T>& code2data)
+bool suScheduleFile::Read(const sutime& tm, std::map<std::string, T>& code2data)
 {
     return ReadUnionFile<T>([this, tm, &code2data]() -> bool {
         const int year = tm.year();
@@ -158,7 +152,7 @@ bool suRadarDB::Read(const sutime& tm, std::map<std::string, T>& code2data)
     });
 }
 template <typename T>
-bool suRadarDB::Read(const std::string& code, const sutime& btm, const sutime& etm, std::map<sutime, T>& time2data)
+bool suScheduleFile::Read(const std::string& code, const sutime& btm, const sutime& etm, std::map<sutime, T>& time2data)
 {
     return ReadUnionFile<T>([this, &time2data]() -> bool {
         // TODO: 补充实现
@@ -166,7 +160,7 @@ bool suRadarDB::Read(const std::string& code, const sutime& btm, const sutime& e
     });
 }
 template <typename T>
-bool suRadarDB::Write(sutime& tm, const std::map<std::string, T>& code2data)
+bool suScheduleFile::Write(sutime& tm, const std::map<std::string, T>& code2data)
 {
     if (m_desc.name != CLASS_PURE_NAME<T>())
     {
@@ -216,4 +210,4 @@ bool suRadarDB::Write(sutime& tm, const std::map<std::string, T>& code2data)
     return true;
 }
 
-#endif  // SILLY_RADAR_DB_H
+#endif  // SILLY_UTILS_SILLY_SCHEDULE_FILE_H

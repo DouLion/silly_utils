@@ -8,8 +8,8 @@
  * @description: Marching squares 算法 扩展到3维 Marching Cubes
  * 参照 https://blog.csdn.net/whuawell/article/details/74998280
  */
-#ifndef SILLY_UTILS_SILLY_RASTER_TO_VECTOR_H
-#define SILLY_UTILS_SILLY_RASTER_TO_VECTOR_H
+#ifndef SILLY_RASTER_TO_VECTOR_H
+#define SILLY_RASTER_TO_VECTOR_H
 
 #include <geo/silly_geo.h>
 
@@ -54,13 +54,13 @@ struct trace_algo_info
     int ignore_count{5};
 };
 
-class silly_vectorizer
+class MatchingSquares
 {
   public:
-    silly_vectorizer() = default;
+    MatchingSquares() = default;
 
-    silly_vectorizer(const silly_vectorizer& right);
-    silly_vectorizer& operator=(const silly_vectorizer& right);
+    MatchingSquares(const MatchingSquares& right);
+    MatchingSquares& operator=(const MatchingSquares& right);
 
     /// <summary>
     /// 矢量化所有面
@@ -186,4 +186,4 @@ class silly_vectorizer
     std::vector<std::vector<silly_trace_node>> m_mat;
 };
 
-#endif  // SILLY_UTILS_SILLY_RASTER_TO_VECTOR_H
+#endif  // SILLY_RASTER_TO_VECTOR_H

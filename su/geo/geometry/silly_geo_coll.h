@@ -10,7 +10,7 @@
 #ifndef SILLY_UTILS_SILLY_GEO_COLL_H
 #define SILLY_UTILS_SILLY_GEO_COLL_H
 #include <geo/silly_geo.h>
-#include <geo/silly_geo_prop.h>
+#include <geo/geometry/silly_geo_prop.h>
 
 class suGeoColl
 {

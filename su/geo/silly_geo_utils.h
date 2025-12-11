@@ -3,7 +3,7 @@
 #ifndef SILLY_UTILS_SILLY_GEO_OPERATION_H
 #define SILLY_UTILS_SILLY_GEO_OPERATION_H
 
-#include <geo/silly_geo_coll.h>
+#include <geo/geometry/silly_geo_coll.h>
 #include <geo/proj/gdal/silly_projection_define.h>
 #include <geo/silly_gdal.h>
 

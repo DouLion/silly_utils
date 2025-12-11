@@ -2,7 +2,6 @@
 // Created by dell on 2023/8/14.
 //
 
-#include <geo/silly_pyramid.h>
 #include "silly_pyramid_index.h"
 
 TzxPyramidIndex::TzxPyramidIndex()

@@ -41,7 +41,7 @@
 #include <weather/silly_tzx_grid.h>
 #include <geo/silly_raster_to_vector.h>
 #include "gr/render/canvas/silly_cairo.h"
-#include <geo/silly_geojson.h>
+#include <geo/geometry/silly_geojson.h>
 #include <geo/silly_geo_utils.h>
 #include <files/silly_file.h>
 #include <geo/silly_vector_to_raster.h>

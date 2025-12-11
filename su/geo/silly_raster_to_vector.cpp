@@ -36,7 +36,7 @@
 #define CALC_LINE_2_INTER(m, r, c, p) interpolation(m[r + 1][c], m[r + 1][c + 1], p)
 #define CALC_LINE_3_INTER(m, r, c, p) interpolation(m[r][c], m[r + 1][c], p)
 
-void silly_vectorizer::interpolation(const silly_trace_node &n1, const silly_trace_node &n2, suPoint &point)
+void MatchingSquares::interpolation(const silly_trace_node &n1, const silly_trace_node &n2, suPoint &point)
 {
     switch (m_interpolation_mode)
     {
@@ -82,7 +82,7 @@ void silly_vectorizer::interpolation(const silly_trace_node &n1, const silly_tra
     }
 }
 
-bool silly_vectorizer::recurse_trace_line(int r, int c, suRing &ring)
+bool MatchingSquares::recurse_trace_line(int r, int c, suRing &ring)
 {
     if (r > -1 && c > -1 && r < m_height + 2 && c < m_width + 2)
     {
@@ -108,7 +108,7 @@ bool silly_vectorizer::recurse_trace_line(int r, int c, suRing &ring)
     return false;
 }
 
-void silly_vectorizer::trace_one_line(int r0l, int c0l, suRing &ring)
+void MatchingSquares::trace_one_line(int r0l, int c0l, suRing &ring)
 {
     bool has_next = true;
 
@@ -157,7 +157,7 @@ void silly_vectorizer::trace_one_line(int r0l, int c0l, suRing &ring)
     return;
 }
 
-bool silly_vectorizer::point_in_ring(const suPoint &p, const suRing &ring, const double &maxx)
+bool MatchingSquares::point_in_ring(const suPoint &p, const suRing &ring, const double &maxx)
 {
     /* OGRPoint* po = geo_utils::SillyPointToOGRPoint(p);
 
@@ -183,7 +183,7 @@ bool silly_vectorizer::point_in_ring(const suPoint &p, const suRing &ring, const
     return inside;
 }
 
-std::vector<suPoly> silly_vectorizer::trace_all_polys()
+std::vector<suPoly> MatchingSquares::trace_all_polys()
 {
     std::vector<suPoly> result;
     bool has_not_traced = true;
@@ -352,7 +352,7 @@ std::vector<suPoly> silly_vectorizer::trace_all_polys()
     // m_mat.clear();
     return result;
 }
-void silly_vectorizer::set(const std::vector<trace_square_point> &points)
+void MatchingSquares::set(const std::vector<trace_square_point> &points)
 {
     // 初始化矩阵, 并在周围添加框
     m_mat.clear();
@@ -385,7 +385,7 @@ void silly_vectorizer::set(const std::vector<trace_square_point> &points)
     return;
 }
 
-void silly_vectorizer::mark()
+void MatchingSquares::mark()
 {
     for (size_t r = 0; r < m_height + 1; ++r)
     {
@@ -396,11 +396,11 @@ void silly_vectorizer::mark()
         }
     }
 }
-void silly_vectorizer::mark_edge(int r, int c, int tp)
+void MatchingSquares::mark_edge(int r, int c, int tp)
 {
 }
 
-void silly_vectorizer::find_edge()
+void MatchingSquares::find_edge()
 {
     double avg = 0.;
 #if defined(_OPENMP)
@@ -576,14 +576,14 @@ void silly_vectorizer::find_edge()
         }
     }
 }
-void silly_vectorizer::set(const std::vector<trace_square_point> &points, const double &t)
+void MatchingSquares::set(const std::vector<trace_square_point> &points, const double &t)
 {
     // 初始化矩阵, 并在周围添加框
     m_threshold_l = t;
     set(points);
     fill_mat();
 }
-void silly_vectorizer::set(const std::vector<trace_square_point> &points, const double &low, const double &high)
+void MatchingSquares::set(const std::vector<trace_square_point> &points, const double &low, const double &high)
 {
     m_threshold_l = low;
     m_threshold_h = high;
@@ -622,11 +622,11 @@ void silly_vectorizer::set(const std::vector<trace_square_point> &points, const 
     }
     fill_mat();
 }
-std::vector<std::vector<suPoint>> silly_vectorizer::trace_all_lines()
+std::vector<std::vector<suPoint>> MatchingSquares::trace_all_lines()
 {
     return std::vector<std::vector<suPoint>>();
 }
-void silly_vectorizer::fill_mat()
+void MatchingSquares::fill_mat()
 {
     // 填充边
     for (int i = 0; i < m_height + 2; ++i)
@@ -645,14 +645,14 @@ void silly_vectorizer::fill_mat()
         m_mat[m_height + 1][i].p.x = m_left + i * m_xdelta - m_xdelta;
     }
 }
-std::vector<suPoly> silly_vectorizer::vectorize(const std::vector<trace_square_point> &points, const double &t)
+std::vector<suPoly> MatchingSquares::vectorize(const std::vector<trace_square_point> &points, const double &t)
 {
     set(points, t);
     mark();
     find_edge();
     return trace_all_polys();
 }
-void silly_vectorizer::set(const trace_grid_info &info)
+void MatchingSquares::set(const trace_grid_info &info)
 {
     m_left = info.rect.min.x;
     m_right = info.rect.max.x;
@@ -663,7 +663,7 @@ void silly_vectorizer::set(const trace_grid_info &info)
     m_width = std::round((m_right - m_left) / m_xdelta);
     m_height = std::round((m_top - m_bottom) / m_ydelta);
 }
-void silly_vectorizer::set(const trace_algo_info &info)
+void MatchingSquares::set(const trace_algo_info &info)
 {
     m_fill = info.fill;
     m_ignore_count = info.ignore_count;
@@ -671,7 +671,7 @@ void silly_vectorizer::set(const trace_algo_info &info)
     m_smooth = info.smooth;
     m_threshold_l = info.threshold;
 }
-silly_vectorizer::silly_vectorizer(const silly_vectorizer &right)
+MatchingSquares::MatchingSquares(const MatchingSquares &right)
 {
     m_height = right.m_height;
     m_width = right.m_width;
@@ -688,7 +688,7 @@ silly_vectorizer::silly_vectorizer(const silly_vectorizer &right)
     m_threshold_l = right.m_threshold_l;
     m_threshold_h = right.m_threshold_h;
 }
-silly_vectorizer &silly_vectorizer::operator=(const silly_vectorizer &right)
+MatchingSquares &MatchingSquares::operator=(const MatchingSquares &right)
 {
     m_height = right.m_height;
     m_width = right.m_width;
@@ -723,7 +723,7 @@ static double bezier_In(const double &t, double x1, double x2, double x3)
 }
 #include <math/spline/silly_b_spline.h>
 #include <math/silly_bezier_curve.h>
-std::vector<suPoly> silly_vectorizer::smooth_poly(const std::vector<suPoly> &polys)
+std::vector<suPoly> MatchingSquares::smooth_poly(const std::vector<suPoly> &polys)
 
 {
     std::vector<suPoly> smooth_polys;
@@ -769,7 +769,7 @@ bool is_less_than_slope(const suPoint &p1, const suPoint &p2, const suPoint &p3,
     return false;
 }
 
-std::vector<suPoly> silly_vectorizer::simplify_poly_less_angle(const std::vector<suPoly> &polys, const double &angle)
+std::vector<suPoly> MatchingSquares::simplify_poly_less_angle(const std::vector<suPoly> &polys, const double &angle)
 {
     std::vector<suPoly> simple_polys;
     for (auto poly : polys)
@@ -789,7 +789,7 @@ std::vector<suPoly> silly_vectorizer::simplify_poly_less_angle(const std::vector
 
     return simple_polys;
 }
-std::vector<suPoly> silly_vectorizer::simplify_poly_mid_point(const std::vector<suPoly> &polys)
+std::vector<suPoly> MatchingSquares::simplify_poly_mid_point(const std::vector<suPoly> &polys)
 {
     std::vector<suPoly> simple_polys;
     for (auto poly : polys)
@@ -838,7 +838,7 @@ std::vector<suPoly> silly_vectorizer::simplify_poly_mid_point(const std::vector<
 
     return simple_polys;
 }
-std::vector<suPoly> silly_vectorizer::simplify_poly_same_slope(const std::vector<suPoly> &polys)
+std::vector<suPoly> MatchingSquares::simplify_poly_same_slope(const std::vector<suPoly> &polys)
 {
     std::vector<suPoly> result;
     for (auto poly : polys)
@@ -855,15 +855,15 @@ std::vector<suPoly> silly_vectorizer::simplify_poly_same_slope(const std::vector
 
     return result;
 }
-size_t silly_vectorizer::width() const
+size_t MatchingSquares::width() const
 {
     return m_width;
 }
-size_t silly_vectorizer::height() const
+size_t MatchingSquares::height() const
 {
     return m_height;
 }
-suRing silly_vectorizer::simplify_ring_same_slope(const suRing &ring)
+suRing MatchingSquares::simplify_ring_same_slope(const suRing &ring)
 {
     suRing result;
     if (ring.points.size() < 3)
@@ -900,7 +900,7 @@ suRing silly_vectorizer::simplify_ring_same_slope(const suRing &ring)
 
     return result;
 }
-suRing silly_vectorizer::simplify_ring_less_angle(const suRing &ring, double angle)
+suRing MatchingSquares::simplify_ring_less_angle(const suRing &ring, double angle)
 {
     suRing result;
     if (ring.points.size() < 3)
@@ -929,7 +929,7 @@ suRing silly_vectorizer::simplify_ring_less_angle(const suRing &ring, double ang
     }
     return result;
 }
-suRing silly_vectorizer::smooth_ring(const suRing &ring)
+suRing MatchingSquares::smooth_ring(const suRing &ring)
 {
     suRing result;
 
@@ -962,7 +962,7 @@ suRing silly_vectorizer::smooth_ring(const suRing &ring)
     result.points.push_back(ring.points[0]);
     return result;
 }
-suRing silly_vectorizer::simplify_ring_less_angle_1(const suRing &ring, double angle)
+suRing MatchingSquares::simplify_ring_less_angle_1(const suRing &ring, double angle)
 {
     suRing result;
     if (ring.points.size() < 3)
@@ -993,7 +993,7 @@ suRing silly_vectorizer::simplify_ring_less_angle_1(const suRing &ring, double a
     }
     return result;
 }
-suRing silly_vectorizer::simplify_ring_douglas(const suRing &ring, double dist)
+suRing MatchingSquares::simplify_ring_douglas(const suRing &ring, double dist)
 {
     suRing result;
     if (ring.points.size() < 3)

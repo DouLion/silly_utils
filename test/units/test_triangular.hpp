@@ -20,7 +20,7 @@
 #include "files/silly_file.h"
 #include "geo/silly_geo.h"
 #include "geo/silly_geo_utils.h"
-#include "geo/silly_geojson.h"
+#include "geo/geometry/silly_geojson.h"
 std::vector<silly_dt_point>  points;
 TEST_CASE("TestTriangular")
 {

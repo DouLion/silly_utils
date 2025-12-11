@@ -3,16 +3,14 @@
  * reserved. 北京天智祥信息科技有限公司版权所有
  * @website: http://www.tianzhixiang.com.cn/
  * @author: dou li yang
- * @date: 2025-12-03
- * @file: silly_radar_db_index.c
- * @description: silly_radar_db_index实现
- * @version: v1.0.1 2025-12-03 dou li yang
+ * @date: 2025-12-11
+ * @file: silly_schedule_index.c
+ * @description: silly_schedule_index实现
+ * @version: v1.0.1 2025-12-11 dou li yang
  */
-#include "silly_radar_db_index.h"
+#include "silly_schedule_index.h"
 
-#include "files/silly_file.h"
-
-void suRadarDBIndex::add(const std::string& code)
+void suScheduleIndex::add(const std::string& code)
 {
     std::string ncode = TRIM(code);
     if (m_code2sort.find(ncode) == m_code2sort.end())
@@ -21,11 +19,11 @@ void suRadarDBIndex::add(const std::string& code)
         m_added = true;
     }
 }
-bool suRadarDBIndex::contains(const std::string& code) const
+bool suScheduleIndex::contains(const std::string& code) const
 {
     return m_code2sort.find(code) != m_code2sort.end();
 }
-size_t suRadarDBIndex::sort(const std::string& code) const
+size_t suScheduleIndex::sort(const std::string& code) const
 {
     if (m_code2sort.find(code) == m_code2sort.end())
     {
@@ -33,11 +31,11 @@ size_t suRadarDBIndex::sort(const std::string& code) const
     }
     return m_code2sort.at(code);
 }
-size_t suRadarDBIndex::size() const
+size_t suScheduleIndex::size() const
 {
     return m_code2sort.size();
 }
-bool suRadarDBIndex::write(const suPath& file) const
+bool suScheduleIndex::write(const suPath& file) const
 {
     if (m_added)
     {
@@ -53,7 +51,7 @@ bool suRadarDBIndex::write(const suPath& file) const
     return true;
 }
 
-bool suRadarDBIndex::open(const suPath& file)
+bool suScheduleIndex::open(const suPath& file)
 {
     m_file = file;
     if (!file.exists())

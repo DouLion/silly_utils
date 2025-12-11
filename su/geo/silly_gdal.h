@@ -4,7 +4,7 @@
 
 #ifndef SILLY_UTILS_SILLY_GDAL_H
 #define SILLY_UTILS_SILLY_GDAL_H
-#include <geo/silly_geo_coll.h>
+#include <geo/geometry/silly_geo_coll.h>
 #include <files/silly_file.h>
 #if SU_THIRD_SUPPORT_GDAL
 #include <gdal_priv.h>

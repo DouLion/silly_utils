@@ -9,7 +9,7 @@
  */
 #ifndef SILLY_UTILS_SILLY_GEOJSON_H
 #define SILLY_UTILS_SILLY_GEOJSON_H
-#include <geo/silly_geo_coll.h>
+#include <geo/geometry/silly_geo_coll.h>
 #include <json/silly_jsonpp.h>
 
 class suGeoJson

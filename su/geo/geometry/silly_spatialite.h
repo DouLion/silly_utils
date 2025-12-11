@@ -5,7 +5,7 @@
 #ifndef SILLY_UTILS_SILLY_SPATIALITE_H
 #define SILLY_UTILS_SILLY_SPATIALITE_H
 
-#include <geo/silly_geo_coll.h>
+#include <geo/geometry/silly_geo_coll.h>
 #include <sqlite3.h>
 
 class silly_spatialite
