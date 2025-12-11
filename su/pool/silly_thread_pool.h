@@ -85,3 +85,5 @@ auto suThreadPool::enqueue(F&& f, Args&&... args) -> std::future<typename std::r
     m_condition.notify_one();
     return res;
 }
+
+using silly_thread_pool = suThreadPool;
