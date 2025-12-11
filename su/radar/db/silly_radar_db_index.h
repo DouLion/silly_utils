@@ -12,7 +12,7 @@
 #define SILLY_RADAR_DB_INDEX_H
 #include <files/silly_file.h>
 #include <log/silly_log.h>
-#define RD_DB_CODE_LEN 64
+
 class suRadarDB;
 class suRadarDBIndex
 {
@@ -35,7 +35,7 @@ class suRadarDBIndex
     size_t sort(const std::string& code) const;
     size_t size() const;
 
-  private:
+  // private:
     std::unordered_map<std::string, size_t> m_code2sort;
     bool m_added = false;
     suPath m_file;

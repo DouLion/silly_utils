@@ -11,6 +11,7 @@
 #pragma once
 
 #include <radar/db/silly_radar_db.h>
+#include <radar/db/silly_radar_db_struct.h>
 #include <radar/format/RadarDataHN43.h>
 #include <radar/format/RadarDataSLB.h>
 
