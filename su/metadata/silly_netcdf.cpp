@@ -172,15 +172,15 @@ std::vector<std::string> suNetCDF::members()
 {
     std::vector<std::string> result;
 #if SU_THIRD_SUPPORT_NETCDF_CXX
-    netCDF::NcGroup m_nc_all_grps = m_nc_file.getGroup("/", netCDF::NcGroup::GroupLocation::AllGrps);
+    m_nc_all_grps = m_nc_file.getGroup("/", netCDF::NcGroup::GroupLocation::AllGrps);
     auto nc_all_vars = m_nc_all_grps.getVars(netCDF::NcGroup::Current);
     for (auto& [k, var] : nc_all_vars)
     {
-        result.push_back(k);
-    }
-    for (auto& nm : result)
-    {
-        // m_nc_all_grps
+        std::cout <<  k << ": " << var.getDimCount() << std::endl;
+        if (var.getDimCount() > 1)
+        {
+            result.push_back(k);
+        }
     }
 #endif
     return result;
@@ -310,6 +310,10 @@ bool suNetCDF::read(const std::string& group, const std::string& lon, const std:
             }
             band_names = new_band_names;
         }
+    }
+    if (band_names.empty())
+    {
+        band_names.push_back(group);
     }
     std::map<std::string, netCDF::NcVarAtt> attr_vars = nv_dst.getAtts();
     for (const auto& [key, attr] : attr_vars)

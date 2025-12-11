@@ -134,7 +134,7 @@ suPoly silly_radar_occluder::occluder_poly(const double& pitch, const double& el
     suPoint G0;
     suGeoProj::lonlat_to_gauss(m_l0, m_center.x, m_center.y, G0.x, G0.y);
     {
-        silly_thread_pool pool(std::thread::hardware_concurrency() * 2);
+        suThreadPool pool(std::thread::hardware_concurrency() * 2);
         for (int i = 0; i < m_polar_dem.size(); ++i)
         {
             // 这一段可以使用多线程加速

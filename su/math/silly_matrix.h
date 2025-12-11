@@ -45,6 +45,7 @@ class suMatrix
     // 总数据量(个数) m_row * m_col
     size_t m_total{0};
     suMemMapFile *m_mmf = nullptr;
+    static constexpr  size_t MAX_RC = 100000000;
 
   public:
     /// <summary>
@@ -56,7 +57,7 @@ class suMatrix
     /// <returns></returns>
     bool create(const size_t &row, const size_t &col, bool reset = false)
     {
-        if (!row || !col)
+        if (!(row > 0 && row < MAX_RC &&  col > 0 && col < MAX_RC))
         {
             return false;
         }
@@ -81,10 +82,31 @@ class suMatrix
 
         return true;
     }
+    bool create(const size_t &row, const size_t &col, const std::vector<T>& data)
+    {
+        if (!(row > 0 && row < MAX_RC &&  col > 0 && col < MAX_RC))
+        {
+            return false;
+        }
+        if (data.size() != row * col)
+        {
+            return false;
+        }
+        m_row = row;
+        m_col = col;
+        m_total = m_row * m_col;
 
+        m_data = (T *)malloc(m_total * sizeof(T));
+        if (!m_data)
+        {
+            return false;
+        }
+        std::memcpy(m_data, data.data(), m_total * sizeof(T));
+        return true;
+    }
     bool create(const size_t &row, const size_t &col, const suPath &mmap)
     {
-        if (!row || !col)
+        if (!(row > 0 && row < MAX_RC &&  col > 0 && col < MAX_RC))
         {
             return false;
         }

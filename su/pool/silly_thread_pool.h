@@ -34,53 +34,37 @@ freely, subject to the following restrictions:
 #pragma once
 #include <su_marco.h>
 
-// silly_task interface (function or callable object)
-class silly_thread_pool
+class suThreadPool
 {
   public:
-    silly_thread_pool(size_t threads = std::thread::hardware_concurrency());
+    suThreadPool(const size_t& threads = std::thread::hardware_concurrency());
+    ~suThreadPool();
+
+    /**
+     * 添加计算任务
+     * @param f  函数
+     * @param args  参数
+     * @return
+     */
     template <class F, class... Args>
     auto enqueue(F&& f, Args&&... args) -> std::future<typename std::result_of<F(Args...)>::type>;
-    ~silly_thread_pool();
 
   private:
     // need to keep track of threads so we can join them
-    std::vector<std::thread> workers;
-    // the task queue
-    std::queue<std::function<void()> > tasks;
+    std::vector<std::thread> m_workers;
+    // 任务队列
+    std::queue<std::function<void()> > m_tasks;
 
-    // synchronization
-    std::mutex queue_mutex;
-    std::condition_variable condition;
-    bool stop;
+    // 同步
+    std::mutex m_queue_mutex;
+    std::condition_variable m_condition;
+    bool m_stop;
 };
 
-// the constructor just launches some amount of workers
-inline silly_thread_pool::silly_thread_pool(size_t threads) : stop(false)
-{
-    for (size_t i = 0; i < threads; ++i)
-        workers.emplace_back([this] {
-            for (;;)
-            {
-                std::function<void()> task;
-
-                {
-                    std::unique_lock<std::mutex> lock(this->queue_mutex);
-                    this->condition.wait(lock, [this] { return this->stop || !this->tasks.empty(); });
-                    if (this->stop && this->tasks.empty())
-                        return;
-                    task = std::move(this->tasks.front());
-                    this->tasks.pop();
-                }
-
-                task();
-            }
-        });
-}
 
 // add new work item to the pool
 template <class F, class... Args>
-auto silly_thread_pool::enqueue(F&& f, Args&&... args) -> std::future<typename std::result_of<F(Args...)>::type>
+auto suThreadPool::enqueue(F&& f, Args&&... args) -> std::future<typename std::result_of<F(Args...)>::type>
 {
     using return_type = typename std::result_of<F(Args...)>::type;
 
@@ -88,30 +72,16 @@ auto silly_thread_pool::enqueue(F&& f, Args&&... args) -> std::future<typename s
 
     std::future<return_type> res = task->get_future();
     {
-        std::unique_lock<std::mutex> lock(queue_mutex);
+        std::unique_lock<std::mutex> lock(m_queue_mutex);
 
         // don't allow enqueueing after stopping the pool
-        if (stop)
+        if (m_stop)
         {
-            throw std::runtime_error("enqueue on stopped silly_thread_pool");
+            throw std::runtime_error("停止的线程池不应该添加计算队列");
         }
 
-        tasks.emplace([task]() { (*task)(); });
+        m_tasks.emplace([task]() { (*task)(); });
     }
-    condition.notify_one();
+    m_condition.notify_one();
     return res;
-}
-
-// the destructor joins all threads
-inline silly_thread_pool::~silly_thread_pool()
-{
-    {
-        std::unique_lock<std::mutex> lock(queue_mutex);
-        stop = true;
-    }
-    condition.notify_all();
-    for (std::thread& worker : workers)
-    {
-        worker.join();
-    }
 }

@@ -12,178 +12,62 @@
 #define SILLY_RASTER_TO_VECTOR_H
 
 #include <geo/silly_geo.h>
+#include <math/silly_matrix.h>
 
-/// 线段
-struct trace_line_segment
+enum class eMathingMode
 {
-    suPoint f;  // from point
-    suPoint t;  // to point
-    int traced{0};
+    Ratio = 1,   // 计算比例
+    Middle = 2,  // 取格点中间
 };
-
-struct silly_trace_node
-{
-    double val{0};
-    suPoint p;
-    int traced{0};  // 是否被跟踪过
-    int cv{0};      // 类型
-    int tc{1};      // trace count 被追踪次数, 最多2次
-    int great{0};   // 是否超过阈值
-    std::vector<trace_line_segment> segments;
-};
-
-struct trace_square_point
-{
-    suPoint p;
-    double v;
-};
-
-struct trace_grid_info
-{
-    double xdelta{0.05};
-    double ydelta{0.05};
-    suRect rect{74.0, 54., 135., 18.};
-};
-
-struct trace_algo_info
-{
-    double threshold;
-    double fill{0};
-    int interpolation_mode{2};
-    int smooth{5};
-    int ignore_count{5};
-};
-
 class MatchingSquares
 {
+
+  public:
+    struct ReadParam
+    {
+        suRect bound;
+        double dx = 0;
+        double dy = 0;
+        // level相关,这两个其实是用于验证
+        double level = -1e12;
+        int index = -1;
+        // 忽略过小的面
+        int ignore_count = 0;
+    };
+
   public:
     MatchingSquares() = default;
+    ~MatchingSquares();
 
-    MatchingSquares(const MatchingSquares& right);
-    MatchingSquares& operator=(const MatchingSquares& right);
+    void SetLevels(const std::map<int, float>& levels);
 
-    /// <summary>
-    /// 矢量化所有面
-    /// </summary>
-    /// <param name="points"></param>
-    /// <param name="t">过滤阈值</param>
-    /// <returns></returns>
-    std::vector<suPoly> vectorize(const std::vector<trace_square_point>& points, const double& t);
+    void SetMat(const suMatrix<float>& mat);
 
-    /// <summary>
-    /// 设置网格点信息
-    /// </summary>
-    /// <param name="points"></param>
-    /// <returns></returns>
-    void set(const trace_grid_info& info);
+    bool TracePoly();
 
-    /// <summary>
-    /// 设置矢量化参数信息
-    /// </summary>
-    /// <param name="points"></param>
-    /// <returns></returns>
-    void set(const trace_algo_info& info);
+    bool TraceLine();
 
-    /// <summary>
-    /// 设置网格点数据
-    /// </summary>
-    /// <param name="points"></param>
-    /// <returns></returns>
-    void set(const std::vector<trace_square_point>& points);
-
-    void set(const std::vector<trace_square_point>& points, const double& t);
-
-    // useless
-    void set(const std::vector<trace_square_point>& points, const double& low, const double& high);
-
-    std::vector<suPoly> smooth_poly(const std::vector<suPoly>& polys);
-    std::vector<suPoly> simplify_poly_less_angle(const std::vector<suPoly>& polys, const double& angle);
-    std::vector<suPoly> simplify_poly_same_slope(const std::vector<suPoly>& polys);
-    std::vector<suPoly> simplify_poly_mid_point(const std::vector<suPoly>& polys);
-
-    /// <summary>
-    /// 消除斜率相同的连续点, 以简化环
-    /// </summary>
-    /// <param name="ring"></param>
-    /// <returns></returns>
-    suRing simplify_ring_same_slope(const suRing& ring);
-
-    /// <summary>
-    /// 跟具连续两个线段的夹角差小于一定一定角度,简化环
-    /// </summary>
-    /// <param name="ring"></param>
-    /// <param name="angle"></param>
-    /// <returns></returns>
-    suRing simplify_ring_less_angle(const suRing& ring, double angle);
-
-    /// <summary>
-    /// 根据具两个连续点与参照点的夹角差小于一定一定角度,简化环
-    /// </summary>
-    /// <param name="ring"></param>
-    /// <param name="angle"></param>
-    /// <returns></returns>
-    suRing simplify_ring_less_angle_1(const suRing& ring, double angle);
-    suRing smooth_ring(const suRing& ring);
-
-    /// <summary>
-    /// 道格拉斯曲线抽稀
-    /// </summary>
-    /// <param name="ring"></param>
-    /// <param name="dist">距离容差, 不确定具体含义,但是调整可以获得更好的效果</param>
-    /// <returns></returns>
-    suRing simplify_ring_douglas(const suRing& ring, double dist);
-
-    /// <summary>
-    /// 标记所有大于threshold的点,为提取边界做准备
-    /// </summary>
-    /// <returns></returns>
-    void mark();
-
-    void mark_edge(int r, int c, int tp);
-
-    /// <summary>
-    /// 标记出所有边界
-    /// </summary>
-    void find_edge();
-
-    // 坐标插值
-
-    void interpolation(const silly_trace_node& pv1, const silly_trace_node& pv2, suPoint& point);
-
-    void trace_one_line(int r0l, int c0l, suRing& ring);
-
-    bool recurse_trace_line(int r, int c, suRing& ring);
-
-    static bool point_in_ring(const suPoint& point, const suRing& ring, const double& maxx = 1.e8);
-
-    std::vector<std::vector<suPoint>> trace_all_lines();
-    std::vector<suPoly> trace_all_polys();
-
-    size_t width() const;
-    size_t height() const;
+    std::vector<suLine> GetLines(const ReadParam& param);
+    std::vector<suPoly> GetPolys(const ReadParam& param);
+    std::map<int, std::vector<suSegment>> m_l2seg;
+  protected:
+    /**
+     * 构建各个层及对应的01矩阵
+     * 当m_levels的值递增时 1, 表示大于阈值的的格点
+     *  例如降雨  指定阈值时100.0, 会标记所有大于100的值表示强降雨
+     * 当m_levels的值递减时 1, 表示小于阈值的的格点
+     *  例如降雨  指定阈值时20.0, 会标记所有小于20.0的值表示严重干旱
+     */
+    void MakeWhiteBlack();
+    void MakeWhiteBlack(const int& level);
+    void TraceWhiteBlack(const int& level);
 
   private:
-    void fill_mat();
-
-  private:
-    int m_width{0};
-    int m_height{0};
-    double m_xdelta{0.05};
-    double m_ydelta{0.05};
-    double m_left{74.};
-    double m_top{54.};
-    double m_right{135};
-    double m_bottom{18.};
-
-    int m_interpolation_mode{2};  // 1 精确插值, 2 取中心点 3 双阈值
-
-    double m_threshold_l{0.};  // 低阈值
-    double m_threshold_h{0.};  // 高阈值
-    double m_fill{0.};         // 填充值
-    int m_smooth{5};           // 3个点之间贝塞尔插值 n 个点
-    int m_ignore_count{5};     // 忽略点数小于一定值的面, 需要在抽稀或者其他简化面的手段之前使用
-
-    std::vector<std::vector<silly_trace_node>> m_mat;
+    std::map<int, float> m_levels;
+    std::map<int, suMatrix<int8_t>> m_l2wb;  // 各个层及对应的01矩阵,
+    suMatrix<float> m_mat0;
+    int m_width = 0;
+    int m_height = 0;
 };
 
 #endif  // SILLY_RASTER_TO_VECTOR_H
