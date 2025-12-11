@@ -138,11 +138,6 @@ using SU_HANDLE = HANDLE;
 #include <fcntl.h>
 #include <cxxabi.h>
 
-// 为非 Windows 系统定义二进制模式标志和句柄类型
-#ifndef O_BINARY
-#define O_BINARY 0  // 在 Unix-like 系统上通常不需要或为0
-#endif
-
 // 非 Windows 句柄类型
 using SU_HANDLE = int;
 #ifndef INVALID_HANDLE_VALUE
