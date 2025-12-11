@@ -32,10 +32,7 @@ class suRadarDB
      * 指定一个名称用于构建目录
      * @param desc 名称
      */
-    void Desc(const suRadarDBData::Desc& desc);
-
-    bool Open();
-
+    bool SetDesc(const suRadarDBData::Desc& desc);
     /**
      * 指定编码,指定时间的数据
      * @tparam T

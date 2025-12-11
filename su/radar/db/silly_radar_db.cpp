@@ -10,24 +10,24 @@
  */
 #include "silly_radar_db.h"
 
-void suRadarDB::Desc(const suRadarDBData::Desc& desc)
+bool suRadarDB::SetDesc(const suRadarDBData::Desc& desc)
 {
     m_desc = desc;
     m_rawNum = 366 * 24 * (SEC_IN_HOUR /m_desc.each);
-    m_isDescSet = true;
-}
-bool suRadarDB::Open()
-{
-    if (m_isDescSet)
+
+    if (!m_index.open(IndexFile()))
     {
-        if (!m_index.open(IndexFile()))
-        {
-            return false;
-        }
-        return true;
+        SLOG_ERROR("打开索引文件失败")
+        return false;
     }
-    return false;
+    m_isDescSet = true;
+    if (m_index.size() == 0)
+    {
+        SLOG_WARN("索引为空")
+    }
+    return true;
 }
+
 suPath suRadarDB::IndexFile() const
 {
     suPath ret(m_desc.root);
