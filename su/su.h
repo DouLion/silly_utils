@@ -190,6 +190,7 @@
 #include <radar/silly_radar_proj_ez.h>   // 雷达坐标系简化用法 未实现
 #include <radar/format/RadarDataSLB.h>
 #include <radar/format/RadarDataHN43.h>
+#include <radar/silly_radar.h>
 
 // singleton (单例)
 #include <singleton/silly_singleton.h>  // 单例类
