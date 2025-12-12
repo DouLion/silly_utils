@@ -47,6 +47,10 @@ class MatchingSquares
 
     bool TraceLine();
 
+    void TraceRing();
+
+    std::vector<suLine> TraceLine(const int& level);
+
     std::vector<suLine> GetLines(const ReadParam& param);
     std::vector<suPoly> GetPolys(const ReadParam& param);
     std::map<int, std::vector<suSegment>> m_l2seg;
@@ -61,6 +65,11 @@ class MatchingSquares
     void MakeWhiteBlack();
     void MakeWhiteBlack(const int& level);
     void TraceWhiteBlack(const int& level);
+    [[nodiscard]] suPoint CALC_LINE_0_INTER(const int& r, const int& c, const float& t, const bool& useHalf);
+    [[nodiscard]] suPoint CALC_LINE_1_INTER(const int& r, const int& c, const float& t, const bool& useHalf);
+    [[nodiscard]] suPoint CALC_LINE_2_INTER(const int& r, const int& c, const float& t, const bool& useHalf);
+    [[nodiscard]] suPoint CALC_LINE_3_INTER(const int& r, const int& c, const float& t, const bool& useHalf);
+
 
   private:
     std::map<int, float> m_levels;
