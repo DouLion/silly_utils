@@ -199,7 +199,7 @@ size_t suFile::write(const suPath &fp, const std::vector<std::string> &lines)
 
         output.write(l.c_str(), l.size());
         ret += l.size();
-        if (l.back() == '\n')
+        if (l.back() != '\n')
         {
             output.write("\n", 1);
             ret++;
