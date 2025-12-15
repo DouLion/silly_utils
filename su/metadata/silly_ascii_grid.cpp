@@ -213,7 +213,7 @@ bool suAsciiGrid::read_bin(const suPath& file)
 bool suAsciiGrid::write_asc(const suPath& file) const
 {
 #ifndef NDEBUG
-    silly_timer timer;
+    suTimer timer;
 #endif
     std::ofstream ofs(file);
     if (!ofs.is_open())

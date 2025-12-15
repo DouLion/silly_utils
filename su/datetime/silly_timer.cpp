@@ -4,17 +4,17 @@
 
 #include "silly_timer.h"
 
-silly_timer::silly_timer()
+suTimer::suTimer()
 {
     m_start = std::chrono::system_clock::now();
 }
 
-void silly_timer::restart()
+void suTimer::restart()
 {
     m_start = std::chrono::system_clock::now();
 }
 
-double silly_timer::elapsed_ms()
+double suTimer::elapsed_ms()
 {
     auto tmp = std::chrono::system_clock::now();
     return static_cast<double>(std::chrono::duration_cast<std::chrono::milliseconds>(tmp - m_start).count());
