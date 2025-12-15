@@ -127,7 +127,7 @@ void MatchingSquares::TraceWhiteBlack(const int& level)
     auto& wb = m_l2wb[level];
     float t = m_levels[level];
     // 先分类
-    bool useHalf = true;
+    bool useHalf = false;
     int markNum = 0;
     for (size_t r = 0; r < m_height - 1; r++)
     {
@@ -484,7 +484,7 @@ suPoint MatchingSquares::CALC_LINE_2_INTER(const int& r, const int& c, const flo
     }
     else
     {
-        p.x = c + (t - l) / (h - t);
+        p.x = c + (t - l) / (h - l);
     }
 
     return p;
@@ -502,7 +502,7 @@ suPoint MatchingSquares::CALC_LINE_3_INTER(const int& r, const int& c, const flo
     }
     else
     {
-        p.y = r + (t - l) / (h - t);
+        p.y = r + (t - l) / (h - l);
     }
     p.x = c;
     return p;
