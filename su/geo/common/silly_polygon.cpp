@@ -17,10 +17,6 @@ double suRing::area() const
 suRect suRing::bound() const
 {
     suRect ret;
-    ret.min.x = 1e12;
-    ret.min.y = 1e12;
-    ret.max.x = -1e12;
-    ret.max.y = -1e12;
     for (const suPoint& point : points)
     {
         ret.min.x = std::min(ret.min.x, point.x);
@@ -29,6 +25,10 @@ suRect suRing::bound() const
         ret.max.y = std::max(ret.max.y, point.y);
     }
     return ret;
+}
+bool suRing::intersect(const suPoint& p) const
+{
+    return SU_POINT_IN_CLOSED_RING(p, points);
 }
 
 double suPoly::area() const
@@ -45,6 +45,22 @@ double suPoly::area() const
 suRect suPoly::bound() const
 {
     return outer.bound();
+}
+
+bool suPoly::intersect(const suPoint& p) const
+{
+    if (!outer.intersect(p))
+    {
+        return false;
+    }
+    for (const auto& ring : holes)
+    {
+        if (ring.intersect(p))
+        {
+            return false;
+        }
+    }
+    return true;
 }
 
 double suMultiPoly::area() const
@@ -66,4 +82,16 @@ suRect suMultiPoly::bound() const
         ret = ret.MBR(tmp);
     }
     return ret;
+}
+
+bool suMultiPoly::intersect(const suPoint& p) const
+{
+    for (const auto poly : m_polys)
+    {
+        if (poly.intersect(p))
+        {
+            return true;
+        }
+    }
+    return false;
 }

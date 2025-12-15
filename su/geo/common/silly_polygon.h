@@ -18,11 +18,24 @@ class suRing
     std::vector<suPoint> points;
     int is_outer{1};
 
+    /**
+     * 计算面积
+     * @return
+     */
     double area() const;
 
+    /**
+     * 获取最小包围框
+     * @return
+     */
     suRect bound() const;
 
-
+    /**
+     * 是否包含点
+     * @param p
+     * @return
+     */
+    bool intersect(const suPoint& p) const;
 };
 
 /****************************************/
@@ -34,9 +47,24 @@ class suPoly
     suRing outer;               // 外环
     std::vector<suRing> holes;  // 内环, 孔, 洞
 
+    /**
+     * 计算面积
+     * @return
+     */
     double area() const;
 
+    /**
+     * 获取最小包围框
+     * @return
+     */
     suRect bound() const;
+
+    /**
+     * 是否包含点
+     * @param p
+     * @return
+     */
+    bool intersect(const suPoint& p) const;
 
 };
 
@@ -55,9 +83,24 @@ class suMultiPoly
     {
     }
 
+    /**
+     * 计算面积
+     * @return
+     */
     double area() const;
 
+    /**
+     * 获取最小包围框
+     * @return
+     */
     suRect bound() const;
+
+    /**
+     * 是否包含点
+     * @param p
+     * @return
+     */
+    bool intersect(const suPoint& p) const;
 
     // 代理vector的常用接口
     void push_back(const suPoly& p)

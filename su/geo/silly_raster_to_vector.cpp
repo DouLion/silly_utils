@@ -161,7 +161,9 @@ std::vector<suPoly> MatchingSquares::GetPolys(const ReadParam& param) const
             suPoint ckp;
             ckp.x = param.bound.min.x + c * param.dx - param.dx;
             ckp.y = param.bound.max.y - r * param.dy + param.dy;
-            if (greater == SU_POINT_IN_CLOSED_RING(ckp, nr.points))
+            // 点对应的值大于0 且 点再面内
+            // 或 点对应的值小于0 且 点再面外
+            if (greater == nr.intersect(ckp))
             {
                 nr.is_outer = 1;
                 suPoly tp;
