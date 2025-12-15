@@ -407,18 +407,12 @@ bool suGeoUtils::write(const suPath& file, const std::vector<suGeoColl>& collect
     return status;
 }
 
-bool suGeoUtils::intersect(const suGeoColl& gc1, const suGeoColl& gc2)
+bool suGeoUtils::intersect(const suMultiPoly& geo1, const suMultiPoly& geo2)
 {
-    return false;
-}
-
-bool suGeoUtils::intersect(const suMultiPoly& multiPoly1, const suMultiPoly& multiPoly2)
-{
-    // TODO:
 #if SU_THIRD_SUPPORT_GDAL
     // 创建 OGRPolygon 对象
-    OGRMultiPolygon p1 = suGDAL::MultiPolyToOGR(multiPoly1);
-    OGRMultiPolygon p2 = suGDAL::MultiPolyToOGR(multiPoly2);
+    OGRMultiPolygon p1 = suGDAL::MultiPolyToOGR(geo1);
+    OGRMultiPolygon p2 = suGDAL::MultiPolyToOGR(geo2);
 
     // 判断两个 OGRPolygon 是否相交
     if (p1.Intersects(&p2))
@@ -428,6 +422,73 @@ bool suGeoUtils::intersect(const suMultiPoly& multiPoly1, const suMultiPoly& mul
 #endif
     return false;
 }
+
+bool suGeoUtils::intersect(const suMultiPoly& geo1, const suPoly& geo2)
+{
+#if SU_THIRD_SUPPORT_GDAL
+    // 创建 OGRPolygon 对象
+    OGRMultiPolygon p1 = suGDAL::MultiPolyToOGR(geo1);
+    OGRPolygon p2 = suGDAL::PolyToOGR(geo2);
+
+    // 判断两个 OGRPolygon 是否相交
+    if (p1.Intersects(&p2))
+    {
+        return true;
+    }
+#endif
+    return false;
+}
+
+bool suGeoUtils::intersect(const suMultiPoly& geo1, const suLine& geo2)
+{
+    for (const auto& p : geo2)
+    {
+        if (geo1.intersect(p))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool suGeoUtils::intersect(const suMultiPoly& geo1, const suPoint& geo2)
+{
+    return geo1.intersect(geo2);
+}
+
+bool suGeoUtils::intersect(const suPoly& geo1, const suPoly& geo2)
+{
+#if SU_THIRD_SUPPORT_GDAL
+    // 创建 OGRPolygon 对象
+    OGRPolygon p1 = suGDAL::PolyToOGR(geo1);
+    OGRPolygon p2 = suGDAL::PolyToOGR(geo2);
+
+    // 判断两个 OGRPolygon 是否相交
+    if (p1.Intersects(&p2))
+    {
+        return true;
+    }
+#endif
+    return false;
+}
+
+bool suGeoUtils::intersect(const suPoly& geo1, const suLine& geo2)
+{
+    for (const auto& p : geo2)
+    {
+        if (geo1.intersect(p))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool suGeoUtils::intersect(const suPoly& geo1, const suPoint& geo2)
+{
+    return geo1.intersect(geo2);
+}
+
 std::vector<suPoly> suGeoUtils::intersection(const suMultiPoly& multiPoly1, const suMultiPoly& multiPoly2)
 {
     std::vector<suPoly> result;
@@ -513,48 +574,25 @@ std::optional<suPoint> suGeoUtils::intersection(const suSegment& s1, const suSeg
     return std::nullopt;
 }
 
-bool suGeoUtils::intersect(const suPoly& multiPoly, const suPoint& point)
-{
-    suPoint ray_end(point.x + 1000, point.y);  // 向右引一条射线 1000单位
-
-    // 外环
-    bool is_in_outer = intersect(point, multiPoly.outer.points);
-    if (is_in_outer)
-    {
-        // 内环
-        for (const auto& inner : multiPoly.holes)
-        {
-            if (intersect(point, inner.points))  // 在内环内
-            {
-                return false;  // 如果这个点在一个内环内就属于在面外
-            }
-        }
-        return true;  // 点在外环内,且不在任何一个内环内
-    }
-    return false;
-}
-
-bool suGeoUtils::intersect(const suMultiPoly& multiPoly, const suPoint& point)
-{
-    bool is_in = false;
-    for (const auto& poly : multiPoly)
-    {
-        if (intersect(poly, point))
-        {
-            is_in = true;  // 如果点在任何一个多边形内,则认为在面内,即相交
-            break;
-        }
-    }
-    return is_in;
-}
-bool suGeoUtils::intersect(const suMultiPoly& multiPoly, const suLine& line)
-{
-    // TODO:
-    return false;
-}
 bool suGeoUtils::nearby(const suPoint& point, const suLine& line, const double& dist)
 {
-    // TODO:
+    if (line.size() < 2)
+    {
+        if (line.size() == 0)
+        {
+            return false;
+        }
+        return point.dist(line.front()) < dist;
+    }
+    for (size_t i = 1; i < line.size(); i++)
+    {
+        const auto& p0 = line[i-1];
+        const auto& p1 = line[i];
+        if (suSegment(p0, p1).distance(point) < dist)
+        {
+            return true;
+        }
+    }
     return false;
 }
 std::vector<suLine> suGeoUtils::intersection(const suMultiPoly& multiPoly, const suLine& line)
@@ -731,39 +769,6 @@ std::vector<suPoint> suGeoUtils::simplify_line(const std::vector<suPoint>& line,
 std::vector<suPoint> suGeoUtils::simplify_ring(const std::vector<suPoint>& ring, const double& dist)
 {
     return std::vector<suPoint>();
-}
-
-bool suGeoUtils::intersect(const suPoint& point, const std::vector<suPoint>& points)
-{
-    bool is_inside = false;
-    const size_t count = points.size();
-    if (count < 2)
-        return false;  // 至少需要两个点构成线段
-
-    for (size_t i = 0, j = count - 1; i < count; j = i++)
-    {
-        const auto& v1 = points[j];
-        const auto& v2 = points[i];
-
-        // 检查点是否在线段上（避免浮点精度问题）
-        const double dx = v2.x - v1.x;
-        const double dy = v2.y - v1.y;
-        if (std::abs(dy) > std::numeric_limits<double>::epsilon())
-        {
-            const double intersection_x = (dx * (point.y - v1.y) / dy) + v1.x;
-            if (std::abs(point.x - intersection_x) < std::numeric_limits<double>::epsilon())
-            {
-                return false;  // 点在边界上
-            }
-        }
-
-        // 射线法判断内外
-        if (((v1.y <= point.y && point.y < v2.y) || (v2.y <= point.y && point.y < v1.y)) && (point.x < (dx * (point.y - v1.y) / dy + v1.x)))
-        {
-            is_inside = !is_inside;
-        }
-    }
-    return is_inside;
 }
 
 suGeoColl suGeoUtils::buffer(const suGeoColl& coll, const double& distance)

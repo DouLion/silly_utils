@@ -147,7 +147,7 @@ void suDem::Extra(const suRing& ring)
             suPoint p;
             p.x = info.bound.min.x + c * info.dx;
             p.y = info.bound.max.y - r * info.dy;
-            if (!sugeoutils::intersect(p, ring.points))  // 点在环外
+            if (!ring.intersect(p))  // 点在环外
             {
                 raster[r][c] = info.fill;
             }

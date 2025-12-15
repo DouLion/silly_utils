@@ -26,9 +26,27 @@ public:
         p1 = _p1;
     }
 
+    /**
+     * 两个线段是否相交
+     * @param rh
+     * @return
+     */
     bool intersect(const suSegment& rh) const;
 
+    /**
+     * 两个线段的交点
+     * @param rh
+     * @return
+     */
     std::optional<suPoint> intersection(const suSegment& rh) const;
+
+    /**
+     * 获取点到线段的最短距离
+     * @param p
+     * @param in_seg true, 限制在线段范围内, false 考虑延迟线
+     * @return
+     */
+    double distance(const suPoint& p, const bool& in_seg = false) const;
 
 };
 

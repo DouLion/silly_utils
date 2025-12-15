@@ -70,7 +70,7 @@ bool suIsoPoly::read(const suPath& file, suMultiPoly& mpoly)
             bool is_outer = true;
             for (auto& poly : tmp)
             {
-                if (suGeoUtils::intersect(rings[i].points.front(), poly.outer.points))
+                if (poly.intersect(rings[i].points.front()))
                 {
                     poly.holes.push_back(rings[i]);
                     is_outer = false;

@@ -69,35 +69,20 @@ class suGeoUtils
     /// 注:写入 shp , geojson 类型文件中经测试可以实现
     static bool write(const suPath& file, const std::vector<suGeoColl>& collections, const eCrsEpsgCode& prj = GCS_WGS_1984, const std::string& encode = "UTF-8");
 
-    static bool intersect(const suGeoColl& gc1, const suGeoColl& gc2);
+    /**
+     * geo1 是否(部分)包含 geo2
+     * @param geo1
+     * @param geo2
+     * @return
+     */
+    static bool intersect(const suMultiPoly& geo1, const suMultiPoly& geo2);
+    static bool intersect(const suMultiPoly& geo1, const suPoly& geo2);
+    static bool intersect(const suMultiPoly& geo1, const suLine& geo2);
+    static bool intersect(const suMultiPoly& geo1, const suPoint& geo2);
 
-    /// <summary>
-    /// 矢量与面是否相交
-    /// </summary>
-    /// <param name="multiPoly1"></param>
-    /// <param name="multiPoly2"></param>
-    /// <returns></returns>
-    static bool intersect(const suMultiPoly& multiPoly1, const suMultiPoly& multiPoly2);
-
-    /// <summary>
-    /// 点是否与矢量面相交(射线算法),点的相交在面内或者在边界上都算是相交
-    /// </summary>
-    /// <param name="multiPoly"></param>
-    /// <param name="point"></param>
-    /// <returns></returns>
-    static bool intersect(const suPoly& multiPoly, const suPoint& point);
-
-    /// <summary>
-    /// 点是否与矢量多面是否相交(射线算法),点的相交在面内或者在边界上都算是相交
-    /// </summary>
-    /// <param name="multiPoly"></param>
-    /// <param name="point"></param>
-    /// <returns></returns>
-    static bool intersect(const suMultiPoly& multiPoly, const suPoint& point);
-
-    static bool intersect(const suMultiPoly& multiPoly, const suLine& line);
-
-    static bool intersect(const suPoint& point, const std::vector<suPoint>& points);
+    static bool intersect(const suPoly& geo1, const suPoly& geo2);
+    static bool intersect(const suPoly& geo1, const suLine& geo2);
+    static bool intersect(const suPoly& geo1, const suPoint& geo2);
 
     /// <summary>
     /// 点距离线在一定范围内

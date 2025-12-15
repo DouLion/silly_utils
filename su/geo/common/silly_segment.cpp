@@ -67,3 +67,28 @@ std::optional<suPoint> suSegment::intersection(const suSegment& rh) const
     // 交点不在两条线段上
     return std::nullopt;
 }
+double suSegment::distance(const suPoint& p, const bool& in_seg) const
+{
+    // 如果线段退化为点
+    if (p0.x == p1.x && p0.y == p1.y) {
+        return p.dist(p0);
+    }
+    // 向量表示
+    double dx = p1.x - p0.x;
+    double dy = p1.y - p0.y;
+    // 计算投影参数 t
+    double t = ((p.x - p0.x) * dx + (p.y - p0.y) * dy) / (dx * dx + dy * dy);
+    // 限制 t 在线段范围内
+    if (in_seg)
+    {
+        t = std::max(0.0, std::min(1.0, t));
+    }
+
+    // 计算投影点坐标
+    suPoint projection;
+    projection.x = p0.x + t * dx;
+    projection.y = p0.y + t * dy;
+
+    // 返回点到投影点的距离
+    return p.dist(projection);
+}
