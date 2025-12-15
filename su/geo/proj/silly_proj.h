@@ -31,13 +31,13 @@
 #define GAUSS2LONLAT suGeoProj::gauss_to_lonlat
 #define LONLAT2GAUSS suGeoProj::lonlat_to_gauss
 
-#define MERCATOR2LONLAT suGeoProj::mercator_lonlat
-#define LONLAT2MERCATOR suGeoProj::lonlat_to_mec
+#define MERCATOR2LONLAT suGeoProj::mercator_to_lonlat
+#define LONLAT2MERCATOR suGeoProj::lonlat_to_mercator
 
-#define MERCATOR2GAUSS suGeoProj::mercator_gauss
-#define GAUSS2MERCATOR suGeoProj::gauss_to_mec
+#define MERCATOR2GAUSS suGeoProj::mercator_to_gauss
+#define GAUSS2MERCATOR suGeoProj::gauss_to_mercator
 
-#define ECEF2LONLAT suGeoProj::ecef_lonlat
+#define ECEF2LONLAT suGeoProj::ecef_to_lonlat
 #define LONLAT2ECEF suGeoProj::lonlat_to_ecef
 
 #define BUILD_HELMERT suGeoProj::build
