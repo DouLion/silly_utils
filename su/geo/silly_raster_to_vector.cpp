@@ -149,7 +149,7 @@ std::vector<suPoly> MatchingSquares::GetPolys(const ReadParam& param) const
         }
         if (param.ignore > 0)
         {
-            if (nr.area()/param.dx/ param.dy > param.ignore)
+            if (nr.area()/param.dx/ param.dy < param.ignore)
             {
                 continue;
             }
