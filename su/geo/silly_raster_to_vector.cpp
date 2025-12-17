@@ -402,7 +402,7 @@ void MatchingSquares::TraceWhiteBlackSegment(const int& level)
     {
         SLOG_WARN("未追踪到")
     }
-    SLOG_INFO("线段数量: {}", lines.size())
+    SLOG_DEBUG("线段数量: {}", lines.size())
     m_l2seg[level] = lines;
 }
 
