@@ -141,10 +141,12 @@ bool suFile::readlines(const suPath& fp, std::vector<std::string>& lines, const 
         std::string line;
         while (std::getline(input, line))
         {
-            if (func && func(line))
+            if (func)
             {
-                lines.push_back(line);
+                if (!func(line))
+                    continue;
             }
+            lines.push_back(line);
             
         }
     }
