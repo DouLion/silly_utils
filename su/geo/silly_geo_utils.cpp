@@ -229,7 +229,7 @@ bool suGeoUtils::read(const suPath& file, std::vector<suGeoColl>& collections, c
     bool status = false;
 #if SU_THIRD_SUPPORT_GDAL
     std::map<uint16_t, GeoFiledInfo> properties;
-    if (!suGDAL::CheckFieldInfo(file.string(), properties))
+    if (!suGDAL::CheckFieldInfo(file, properties))
     {
         SLOG_ERROR("检查矢量[{}]信息失败\n", file.u8string());
         return status;

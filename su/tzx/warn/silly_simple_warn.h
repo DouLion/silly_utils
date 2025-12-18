@@ -26,6 +26,7 @@ class silly_simple_warn
     float intv() const;
     float rule() const;
     float value() const;
+    float moisture() const;
     /// setter
     void code(const std::string& code);
     void btm(const silly_posix_time& btm);
@@ -35,6 +36,7 @@ class silly_simple_warn
     void intv(const float& intv);
     void rule(const float& rule);
     void value(const float& value);
+    void moisture(const float& moisture);
 
   protected:
     std::string m_code;
@@ -45,6 +47,7 @@ class silly_simple_warn
     float m_intv{0};   // 仅对累计值有用 如降雨
     float m_rule{0};   // 指标值
     float m_value{0};  // 告警值
+    float m_moisture{0}; // 土壤湿度
 };
 
 #endif  // SILLY_UTILS_SILLY_SIMPLE_WARN_H

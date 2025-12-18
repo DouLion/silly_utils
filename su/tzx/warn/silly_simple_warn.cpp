@@ -41,6 +41,12 @@ float silly_simple_warn::value() const
 {
     return m_value;
 }
+
+float silly_simple_warn::moisture() const
+{
+    return m_moisture;
+}
+
 void silly_simple_warn::code(const std::string& code)
 {
     m_code = code;
@@ -72,4 +78,9 @@ void silly_simple_warn::rule(const float& rule)
 void silly_simple_warn::value(const float& value)
 {
     m_value = value;
+}
+
+void silly_simple_warn::moisture(const float& value)
+{
+    m_moisture = value;
 }
