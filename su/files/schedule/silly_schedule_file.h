@@ -19,7 +19,7 @@
 
 class suScheduleFile
 {
-   static constexpr int CODE_MAX_LEN = 64;   // 编码的最大长度
+    static constexpr int CODE_MAX_LEN = 64;   // 编码的最大长度
     static constexpr int RESERVE_LEN = 4096;  // 预留块, 数据始终在此之后开始计算
   public:
     /**
@@ -59,6 +59,9 @@ class suScheduleFile
      */
     template <typename T>
     bool Read(const std::string& code, const sutime& btm, const sutime& etm, std::map<sutime, T>& time2data);
+
+    template <typename T>
+    void ReadSingleYear(const sutime& btm, const sutime& etm, std::map<sutime, T>& time2data, const size_t rawOff);
 
     /**
      *  每个轮次的数据计算完成后, 写入数据
@@ -115,7 +118,7 @@ bool suScheduleFile::Read(const std::string& code, const sutime& tm, T& data)
         const int year = tm.year();
         const size_t timeOff = TimeOff(tm, sizeof(T));
         SLOG_DEBUG("读 rawOff: {}, timeOff: {}", rawOff, timeOff);
-        auto tmp = OpenMMap(year, AssumeFileSize(m_index.size(), sizeof(T)));;
+        auto tmp = OpenMMap(year, AssumeFileSize(m_index.size(), sizeof(T)));
         if (!tmp)
         {
             return false;
@@ -128,7 +131,7 @@ bool suScheduleFile::Read(const sutime& tm, std::map<std::string, T>& code2data)
 {
     return ReadUnionFile<T>([this, tm, &code2data]() -> bool {
         const int year = tm.year();
-        auto tmp =OpenMMap(year, AssumeFileSize(m_index.size(), sizeof(T)));;
+        auto tmp = OpenMMap(year, AssumeFileSize(m_index.size(), sizeof(T)));
         if (!tmp)
         {
             return false;
@@ -154,11 +157,56 @@ bool suScheduleFile::Read(const sutime& tm, std::map<std::string, T>& code2data)
 template <typename T>
 bool suScheduleFile::Read(const std::string& code, const sutime& btm, const sutime& etm, std::map<sutime, T>& time2data)
 {
-    return ReadUnionFile<T>([this, &time2data]() -> bool {
-        // TODO: 补充实现
-        return false;
+    return ReadUnionFile<T>([this, code, btm, etm, &time2data]() -> bool {
+        if (btm > etm)
+        {
+            return false;
+        }
+        const size_t rawOff = RawOffset(code, sizeof(T));
+        if (0 == rawOff)
+        {
+            return false;
+        }
+        if (btm.year() == etm.year())
+        {
+            ReadSingleYear(btm, etm, time2data, rawOff);
+        }
+        else if (etm.year() - btm.year() == 1)
+        {
+            sutime btm_0101, etm_1231;
+            etm_1231.from_string(btm.to_string(DTFMT_Y) + "-12-31 23:55");
+            btm_0101.from_string(etm.to_string(DTFMT_Y) + "-01-01 00:00");
+
+            ReadSingleYear(btm, etm_1231, time2data, rawOff);
+            ReadSingleYear(btm_0101, etm, time2data, rawOff);
+        }
+        else
+        {
+            SLOG_ERROR("时间跨度不能超过一年")
+            return false;
+        }
+        return !time2data.empty();
     });
 }
+template <typename T>
+void suScheduleFile::ReadSingleYear(const sutime& btm, const sutime& etm, std::map<sutime, T>& time2data, const size_t rawOff)
+{
+    auto tmp = OpenMMap(btm.year(), AssumeFileSize(m_index.size(), sizeof(T)));
+    int num = (etm.stamp_sec() - btm.stamp_sec()) / m_desc.each + 1;
+
+    const size_t timeOff = TimeOff(btm, sizeof(T));
+    std::vector<T> records(num);
+    if (tmp->read((unsigned char*)records.data(), sizeof(T) * num, rawOff + timeOff))
+    {
+        sutime tm = btm;
+        for (int i = 0; i < num; ++i)
+        {
+            time2data[tm] = records[i];
+            tm += m_desc.each;
+        }
+    }
+}
+
 template <typename T>
 bool suScheduleFile::Write(sutime& tm, const std::map<std::string, T>& code2data)
 {
@@ -190,7 +238,6 @@ bool suScheduleFile::Write(sutime& tm, const std::map<std::string, T>& code2data
     auto mmap = OpenMMap(year, AssumeFileSize(m_index.size(), sizeof(T)));
     if (!mmap)
     {
-
         return false;
     }
     size_t timeOff = TimeOff(tm, sizeof(T));
@@ -205,7 +252,7 @@ bool suScheduleFile::Write(sutime& tm, const std::map<std::string, T>& code2data
             continue;
         }*/
         mmap->write((unsigned char*)(code.data()), code.size(), rawOff);
-        mmap->write((unsigned char*)(&data), sizeof(T), rawOff + timeOff );
+        mmap->write((unsigned char*)(&data), sizeof(T), rawOff + timeOff);
     }
     return true;
 }
