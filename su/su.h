@@ -137,6 +137,7 @@
 #include <metadata/silly_netcdf.h>            // netcdf读取工具
 #include <metadata/silly_nmea.h>              // GPGSA GPS数据传输标准
 #include <metadata/silly_tzx_grid.h>          // tzx网格文件
+#include <metadata/silly_grid_algo.h>         // 网格数据常用的统计算法
 
 // network (网络)
 #include <network/ftp/silly_ftp_client.h>              // 未实现
