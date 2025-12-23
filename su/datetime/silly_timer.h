@@ -28,7 +28,7 @@ class suTimer
     /// 获取经过从开始计时经过的毫秒数
     /// </summary>
     /// <returns></returns>
-    double elapsed_ms();
+    double elapsed_ms() const;
 
   private:
     std::chrono::time_point<std::chrono::system_clock> m_start;

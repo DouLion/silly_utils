@@ -14,8 +14,8 @@ void suTimer::restart()
     m_start = std::chrono::system_clock::now();
 }
 
-double suTimer::elapsed_ms()
+double suTimer::elapsed_ms() const
 {
-    auto tmp = std::chrono::system_clock::now();
+    const auto& tmp = std::chrono::system_clock::now();
     return static_cast<double>(std::chrono::duration_cast<std::chrono::milliseconds>(tmp - m_start).count());
 }

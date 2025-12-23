@@ -129,7 +129,6 @@
 #include <math/spline/silly_pqs_interp_spline.h>   // 未实现
 
 // 常用气象地理信息元数据读写
-#include <metadata/narui_radar_grid_utils.h>  // 纳睿达网格文件
 #include <metadata/silly_ascii_grid.h>        // ascii网格文件
 #include <metadata/silly_egm.h>               // 地球重力场文件数据
 #include <metadata/silly_geotiff.h>           // 未实现
@@ -186,6 +185,7 @@
 #include <radar/silly_radar_proj_ez.h>   // 雷达坐标系简化用法 未实现
 #include <radar/format/RadarDataSLB.h>
 #include <radar/format/RadarDataHN43.h>
+#include <radar/format/RadarDataNaRui.h>  // 纳睿达网格文件
 #include <radar/silly_radar.h>
 
 // singleton (单例)
