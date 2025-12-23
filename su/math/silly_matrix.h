@@ -39,10 +39,10 @@ class suMatrix
   protected:
     T *m_data{nullptr};
     // 行数
-    size_t m_row{0};
+    size_t m_rows{0};
     // 列数
-    size_t m_col{0};
-    // 总数据量(个数) m_row * m_col
+    size_t m_cols{0};
+    // 总数据量(个数) m_rows * m_cols
     size_t m_total{0};
     suMemMapFile *m_mmf = nullptr;
     static constexpr  size_t MAX_RC = 100000000;
@@ -51,13 +51,13 @@ class suMatrix
     /// <summary>
     /// 创建一个指定大小的二维数据
     /// </summary>
-    /// <param name="row">行数</param>
-    /// <param name="col">列数</param>
+    /// <param name="rows">行数</param>
+    /// <param name="cols">列数</param>
     /// <param name="reset">true: 重新初始化为0 false: 不做任何操作,并且返回false</param>
     /// <returns></returns>
-    bool create(const size_t &row, const size_t &col, bool reset = false)
+    bool create(const size_t &rows, const size_t &cols, bool reset = false)
     {
-        if (!(row > 0 && row < MAX_RC &&  col > 0 && col < MAX_RC))
+        if (!(rows > 0 && rows < MAX_RC &&  cols > 0 && cols < MAX_RC))
         {
             return false;
         }
@@ -69,9 +69,9 @@ class suMatrix
         {
             release();
         }
-        m_row = row;
-        m_col = col;
-        m_total = m_row * m_col;
+        m_rows = rows;
+        m_cols = cols;
+        m_total = m_rows * m_cols;
 
         m_data = (T *)malloc(m_total * sizeof(T));
         if (!m_data)
@@ -82,19 +82,19 @@ class suMatrix
 
         return true;
     }
-    bool create(const size_t &row, const size_t &col, const std::vector<T>& data)
+    bool create(const size_t &rows, const size_t &cols, const std::vector<T>& data)
     {
-        if (!(row > 0 && row < MAX_RC &&  col > 0 && col < MAX_RC))
+        if (!(rows > 0 && rows < MAX_RC &&  cols > 0 && cols < MAX_RC))
         {
             return false;
         }
-        if (data.size() != row * col)
+        if (data.size() != rows * cols)
         {
             return false;
         }
-        m_row = row;
-        m_col = col;
-        m_total = m_row * m_col;
+        m_rows = rows;
+        m_cols = cols;
+        m_total = m_rows * m_cols;
 
         m_data = (T *)malloc(m_total * sizeof(T));
         if (!m_data)
@@ -104,21 +104,21 @@ class suMatrix
         std::memcpy(m_data, data.data(), m_total * sizeof(T));
         return true;
     }
-    bool create(const size_t &row, const size_t &col, const suPath &mmap)
+    bool create(const size_t &rows, const size_t &cols, const suPath &mmap)
     {
-        if (!(row > 0 && row < MAX_RC &&  col > 0 && col < MAX_RC))
+        if (!(rows > 0 && rows < MAX_RC &&  cols > 0 && cols < MAX_RC))
         {
             return false;
         }
         if (!m_mmf)
         {
             m_mmf = new suMemMapFile();
-            m_col = col;
-            m_row = row;
+            m_cols = cols;
+            m_rows = rows;
             suMemMapFile::Param p;
             p.mode = eMMFMode::Write;
             p.path = mmap;
-            p.file_size = row * col * sizeof(T) * 1.1;
+            p.file_size = rows * cols * sizeof(T) * 1.1;
 
             if (suPath::exists(mmap))
             {
@@ -151,8 +151,8 @@ class suMatrix
         {  // 需添加此检查
             release();
             m_total = rh.m_total;
-            m_row = rh.m_row;
-            m_col = rh.m_col;
+            m_rows = rh.m_rows;
+            m_cols = rh.m_cols;
             m_data = rh.m_data;  // 仍存在浅拷贝问题
         }
         return *this;
@@ -164,7 +164,7 @@ class suMatrix
     /// <param name="rh"></param>
     suMatrix<T> operator+=(const suMatrix<T> &rh)
     {
-        if (rh.m_row != m_row || rh.m_col != m_col)
+        if (rh.m_rows != m_rows || rh.m_cols != m_cols)
         {
             throw std::runtime_error("矩阵大小不匹配");
         }
@@ -181,11 +181,11 @@ class suMatrix
     suMatrix<T> operator+(const suMatrix<T> &rh) const
     {
         suMatrix<T> ret;
-        if (rh.m_row != m_row || rh.m_col != m_col)
+        if (rh.m_rows != m_rows || rh.m_cols != m_cols)
         {
             throw std::runtime_error("矩阵大小不匹配");
         }
-        ret.create(m_row, m_col);
+        ret.create(m_rows, m_cols);
         size_t i = 0;
         while (i < m_total)
         {
@@ -212,7 +212,7 @@ class suMatrix
     suMatrix<T> operator+(const T &rh) const
     {
         suMatrix<T> ret;
-        ret.create(m_row, m_col);
+        ret.create(m_rows, m_cols);
         size_t i = 0;
         while (i < m_total)
         {
@@ -228,7 +228,7 @@ class suMatrix
     /// <param name="rh"></param>
     suMatrix<T> operator-=(const suMatrix<T> &rh)
     {
-        if (rh.m_row != m_row || rh.m_col != m_col)
+        if (rh.m_rows != m_rows || rh.m_cols != m_cols)
         {
             throw std::runtime_error("矩阵大小不匹配");
         }
@@ -245,11 +245,11 @@ class suMatrix
     suMatrix<T> operator-(const suMatrix<T> &rh)
     {
         suMatrix<T> ret;
-        if (rh.m_row != m_row || rh.m_col != m_col)
+        if (rh.m_rows != m_rows || rh.m_cols != m_cols)
         {
             throw std::runtime_error("矩阵大小不匹配");
         }
-        ret.create(m_row, m_col);
+        ret.create(m_rows, m_cols);
         size_t i = 0;
         while (i < m_total)
         {
@@ -276,7 +276,7 @@ class suMatrix
     suMatrix<T> operator-(const T &rh) const
     {
         suMatrix<T> ret;
-        ret.create(m_row, m_col);
+        ret.create(m_rows, m_cols);
         size_t i = 0;
         while (i < m_total)
         {
@@ -294,28 +294,28 @@ class suMatrix
     suMatrix<T> operator*(const suMatrix<T> &rh) const
     {
         // 维度检查
-        if (m_col != rh.m_row)
+        if (m_cols != rh.m_rows)
         {
-            throw std::invalid_argument("矩阵维度不匹配：" + std::to_string(m_row) + "x" + std::to_string(m_col) + " * " + std::to_string(rh.m_row) + "x" + std::to_string(rh.m_col));
+            throw std::invalid_argument("矩阵维度不匹配：" + std::to_string(m_rows) + "x" + std::to_string(m_cols) + " * " + std::to_string(rh.m_rows) + "x" + std::to_string(rh.m_cols));
         }
 
         suMatrix<T> ret;
-        if (!ret.create(m_row, rh.m_col))
+        if (!ret.create(m_rows, rh.m_cols))
         {
             throw std::runtime_error("结果矩阵创建失败");
         }
 
         // 三重循环计算
-        for (size_t i = 0; i < m_row; ++i)
+        for (size_t i = 0; i < m_rows; ++i)
         {
-            for (size_t j = 0; j < rh.m_col; ++j)
+            for (size_t j = 0; j < rh.m_cols; ++j)
             {
                 T sum = static_cast<T>(0);
-                for (size_t k = 0; k < m_col; ++k)
+                for (size_t k = 0; k < m_cols; ++k)
                 {
-                    sum += m_data[i * m_col + k] * rh.m_data[k * rh.m_col + j];
+                    sum += m_data[i * m_cols + k] * rh.m_data[k * rh.m_cols + j];
                 }
-                ret.m_data[i * rh.m_col + j] = sum;
+                ret.m_data[i * rh.m_cols + j] = sum;
             }
         }
 
@@ -346,7 +346,7 @@ class suMatrix
     suMatrix<T> operator*(const T &rh) const
     {
         suMatrix<T> ret;
-        ret.create(m_row, m_col);
+        ret.create(m_rows, m_cols);
         if (m_data)
         {
             size_t i = 0;
@@ -380,7 +380,7 @@ class suMatrix
     suMatrix<T> operator/(const T &rh) const
     {
         suMatrix<T> ret;
-        ret.create(m_row, m_col);
+        ret.create(m_rows, m_cols);
         if (m_data)
         {
             size_t i = 0;
@@ -402,7 +402,7 @@ class suMatrix
     {
         if (m_data)
         {
-            return m_data + (r * m_col);
+            return m_data + (r * m_cols);
         }
         return nullptr;
     }
@@ -411,7 +411,7 @@ class suMatrix
     {
         if (m_data)
         {
-            return m_data + (r * m_col);
+            return m_data + (r * m_cols);
         }
         return nullptr;
     }
@@ -423,7 +423,7 @@ class suMatrix
     /// <returns></returns>
     T &at(size_t r, size_t c) const
     {
-        return m_data[r * m_col + c];
+        return m_data[r * m_cols + c];
     }
 
     /// <summary>
@@ -435,23 +435,23 @@ class suMatrix
     T bilinear(const double &frow, const double &fcol) const
     {
         // 边界检查，如果超出范围，可以 clamp 或 return 0.0，这里我们做简单的 clamp
-        double px = std::clamp(fcol, 0.0, static_cast<double>(m_col - 1));
-        double py = std::clamp(frow, 0.0, static_cast<double>(m_row - 1));
+        double px = std::clamp(fcol, 0.0, static_cast<double>(m_cols - 1));
+        double py = std::clamp(frow, 0.0, static_cast<double>(m_rows - 1));
 
         const auto x1 = static_cast<size_t>(px);
         const auto y1 = static_cast<size_t>(py);
 
-        const size_t x2 = std::min(x1 + 1, m_col - 1);
-        const size_t y2 = std::min(y1 + 1, m_row - 1);
+        const size_t x2 = std::min(x1 + 1, m_cols - 1);
+        const size_t y2 = std::min(y1 + 1, m_rows - 1);
 
         const double fx = px - x1;
         const double fy = py - y1;
 
         // 获取四个点的值
-        const double Q11 = m_data[y1 * m_col + x1];
-        const double Q21 = m_data[y1 * m_col + x2];
-        const double Q12 = m_data[y2 * m_col + x1];
-        const double Q22 = m_data[y2 * m_col + x2];
+        const double Q11 = m_data[y1 * m_cols + x1];
+        const double Q21 = m_data[y1 * m_cols + x2];
+        const double Q12 = m_data[y2 * m_cols + x1];
+        const double Q22 = m_data[y2 * m_cols + x2];
 
         // 双线性插值公式
         const double R1 = Q11 * (1 - fx) + Q21 * fx;  // 在 y1 行，x 方向插值
@@ -470,8 +470,8 @@ class suMatrix
     T bicubic(const double &x, const double &y) const
     {
         // clamp 到合法范围
-        double px = std::clamp(x, 0.0, static_cast<double>(m_col - 1));
-        double py = std::clamp(y, 0.0, static_cast<double>(m_row - 1));
+        double px = std::clamp(x, 0.0, static_cast<double>(m_cols - 1));
+        double py = std::clamp(y, 0.0, static_cast<double>(m_rows - 1));
 
         size_t x0 = static_cast<size_t>(std::floor(px));
         size_t y0 = static_cast<size_t>(std::floor(py));
@@ -491,10 +491,10 @@ class suMatrix
                 size_t yi = y0 + m;
 
                 // 边界处理：clamp 到有效范围
-                xi = std::clamp(xi, static_cast<size_t>(0), m_col - 1);
-                yi = std::clamp(yi, static_cast<size_t>(0), m_row - 1);
+                xi = std::clamp(xi, static_cast<size_t>(0), m_cols - 1);
+                yi = std::clamp(yi, static_cast<size_t>(0), m_rows - 1);
 
-                double value = m_data[yi * m_col + xi];
+                double value = m_data[yi * m_cols + xi];
 
                 double wx = cubic_weight(n - dx);  // n - dx 是距离
                 double wy = cubic_weight(m - dy);
@@ -519,7 +519,7 @@ class suMatrix
     suMatrix<T> copy() const
     {
         suMatrix<T> ret;
-        ret.create(m_row, m_col);
+        ret.create(m_rows, m_cols);
         if (m_data)
         {
             memcpy(ret.m_data, m_data, m_total * sizeof(T));
@@ -535,7 +535,7 @@ class suMatrix
     /// <param name="invalid_value">设置无效数据值</param>
     bool mask(const suMatrix<uint8_t> &mask, T invalid_value)
     {
-        if (mask.row() != m_row || mask.col() != m_col || !mask.data() || !m_data)
+        if (mask.rows() != m_rows || mask.cols() != m_cols || !mask.data() || !m_data)
         {
             return false;
         }
@@ -600,8 +600,8 @@ class suMatrix
                 }
                 i++;
             }
-            tr = markI / m_col;
-            tc = markI % m_col;
+            tr = markI / m_cols;
+            tc = markI % m_cols;
             return ret;
         }
         return ret;
@@ -628,7 +628,7 @@ class suMatrix
     /// <param name="rh"></param>
     void max(const suMatrix<T> &rh)
     {
-        if (m_data && rh.data() && rh.m_row == m_row && rh.m_col == m_col)
+        if (m_data && rh.data() && rh.m_rows == m_rows && rh.m_cols == m_cols)
         {
             for (size_t i = 0; i < m_total; ++i)
             {
@@ -670,8 +670,8 @@ class suMatrix
                 }
                 i++;
             }
-            tr = markI / m_col;
-            tc = markI % m_col;
+            tr = markI / m_cols;
+            tc = markI % m_cols;
             return ret;
         }
         return ret;
@@ -698,7 +698,7 @@ class suMatrix
     /// <param name="rh"></param>
     void min(const suMatrix<T> &rh)
     {
-        if (m_data && rh.data() && rh.m_row == m_row && rh.m_col == m_col)
+        if (m_data && rh.data() && rh.m_rows == m_rows && rh.m_cols == m_cols)
         {
             for (size_t i = 0; i < m_total; ++i)
             {
@@ -723,18 +723,18 @@ class suMatrix
             free(m_data);
             m_data = nullptr;
             m_total = 0;
-            m_row = 0;
-            m_col = 0;
+            m_rows = 0;
+            m_cols = 0;
         }
     }
-    const size_t row() const
+    const size_t rows() const
     {
-        return m_row;
+        return m_rows;
     }
 
-    const size_t col() const
+    const size_t cols() const
     {
-        return m_col;
+        return m_cols;
     }
 
     /// <summary>
@@ -743,12 +743,12 @@ class suMatrix
     /// <returns></returns>
     bool empty() const
     {
-        return m_data == nullptr || m_row == 0 || m_col == 0;
+        return m_data == nullptr || m_rows == 0 || m_cols == 0;
     }
 
     bool valid() const
     {
-        return m_data != nullptr && m_row > 0 && m_col > 0;
+        return m_data != nullptr && m_rows > 0 && m_cols > 0;
     }
 
     /// <summary>
@@ -760,7 +760,7 @@ class suMatrix
     template <typename U, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
     void cast(const suMatrix<U> &rh)
     {
-        create(rh.row(), rh.col(), true);
+        create(rh.rows(), rh.cols(), true);
         if (!m_data)
         {
             throw std::bad_alloc();  // or handle allocation failure
@@ -790,14 +790,14 @@ class suMatrix
     /// <param name="dst_col"></param>
     /// <param name="flag"></param>
     /// <returns></returns>
-    suMatrix<T> resize(const size_t &row, const size_t &col, const eIpolMethod &flag = eIpolMethod::INTER_NEAREST) const
+    suMatrix<T> resize(const size_t &rows, const size_t &cols, const eIpolMethod &flag = eIpolMethod::INTER_NEAREST) const
     {
         if (flag == INTER_LINEAR)
         {
-            return inter_bilinear_resize(row, col);
+            return inter_bilinear_resize(rows, cols);
         }
 
-        return inter_nearest_resize(row, col);
+        return inter_nearest_resize(rows, cols);
     }
     // 高斯滤波
     suMatrix<T> gaussian_blur(double sigma = 1.0, int kernel_size = -1) const
@@ -817,20 +817,20 @@ class suMatrix
         // 创建高斯核
         std::vector<double> kernel = create_gaussian_kernel(kernel_size, sigma);
 
-        if (!result.create(m_row, m_col))
+        if (!result.create(m_rows, m_cols))
         {
             return result;
         }
 
         // 应用高斯滤波（可分离的二维卷积）
         suMatrix<T> temp;
-        temp.create(m_row, m_col);
+        temp.create(m_rows, m_cols);
 
         // 水平方向卷积
         const int radius = kernel_size / 2;
-        for (size_t r = 0; r < m_row; ++r)
+        for (size_t r = 0; r < m_rows; ++r)
         {
-            for (size_t c = 0; c < m_col; ++c)
+            for (size_t c = 0; c < m_cols; ++c)
             {
                 double sum = 0.0;
                 double weight_sum = 0.0;
@@ -838,7 +838,7 @@ class suMatrix
                 for (int k = -radius; k <= radius; ++k)
                 {
                     int col_idx = static_cast<int>(c) + k;
-                    if (col_idx >= 0 && col_idx < static_cast<int>(m_col))
+                    if (col_idx >= 0 && col_idx < static_cast<int>(m_cols))
                     {
                         double weight = kernel[k + radius];
                         sum += weight * static_cast<double>(at(r, col_idx));
@@ -851,9 +851,9 @@ class suMatrix
         }
 
         // 垂直方向卷积
-        for (size_t r = 0; r < m_row; ++r)
+        for (size_t r = 0; r < m_rows; ++r)
         {
-            for (size_t c = 0; c < m_col; ++c)
+            for (size_t c = 0; c < m_cols; ++c)
             {
                 double sum = 0.0;
                 double weight_sum = 0.0;
@@ -861,7 +861,7 @@ class suMatrix
                 for (int k = -radius; k <= radius; ++k)
                 {
                     int row_idx = static_cast<int>(r) + k;
-                    if (row_idx >= 0 && row_idx < static_cast<int>(m_row))
+                    if (row_idx >= 0 && row_idx < static_cast<int>(m_rows))
                     {
                         double weight = kernel[k + radius];
                         sum += weight * static_cast<double>(temp[row_idx][c]);
@@ -889,16 +889,16 @@ class suMatrix
         if (kernel_size < 3)
             kernel_size = 3;
 
-        if (!result.create(m_row, m_col))
+        if (!result.create(m_rows, m_cols))
         {
             return result;
         }
 
         const int radius = kernel_size / 2;
 
-        for (size_t r = 0; r < m_row; ++r)
+        for (size_t r = 0; r < m_rows; ++r)
         {
-            for (size_t c = 0; c < m_col; ++c)
+            for (size_t c = 0; c < m_cols; ++c)
             {
                 // 收集邻域内的值
                 std::vector<T> neighbors;
@@ -911,7 +911,7 @@ class suMatrix
                         int row_idx = static_cast<int>(r) + i;
                         int col_idx = static_cast<int>(c) + j;
 
-                        if (row_idx >= 0 && row_idx < static_cast<int>(m_row) && col_idx >= 0 && col_idx < static_cast<int>(m_col))
+                        if (row_idx >= 0 && row_idx < static_cast<int>(m_rows) && col_idx >= 0 && col_idx < static_cast<int>(m_cols))
                         {
                             neighbors.push_back(at(row_idx, col_idx));
                         }
@@ -935,71 +935,71 @@ class suMatrix
     }
 
   private:
-    suMatrix<T> inter_nearest_resize(const size_t &row, const size_t &col) const
+    suMatrix<T> inter_nearest_resize(const size_t &rows, const size_t &cols) const
     {
         suMatrix<T> ret;
-        if (!ret.create(row, col))
+        if (!ret.create(rows, cols))
         {
             return ret;
         }
 
-        const double x_ratio = static_cast<double>(m_col - 1) / col;
-        const double y_ratio = static_cast<double>(m_row - 1) / row;
+        const double x_ratio = static_cast<double>(m_cols - 1) / cols;
+        const double y_ratio = static_cast<double>(m_rows - 1) / rows;
 
-        for (size_t r = 0; r < row; ++r)
+        for (size_t r = 0; r < rows; ++r)
         {
-            for (size_t c = 0; c < col; ++c)
+            for (size_t c = 0; c < cols; ++c)
             {
                 // 计算源矩阵坐标（四舍五入取整）
                 const size_t src_x = static_cast<size_t>(std::round(c * x_ratio));
                 const size_t src_y = static_cast<size_t>(std::round(r * y_ratio));
 
                 // 边界保护（防止越界）
-                const size_t x = std::min(src_x, m_col - 1);
-                const size_t y = std::min(src_y, m_row - 1);
+                const size_t x = std::min(src_x, m_cols - 1);
+                const size_t y = std::min(src_y, m_rows - 1);
 
-                ret[r][c] = m_data[y * m_col + x];
+                ret[r][c] = m_data[y * m_cols + x];
             }
         }
         return ret;
     }
 
-    suMatrix<T> inter_bilinear_resize(const size_t &row, const size_t &col) const
+    suMatrix<T> inter_bilinear_resize(const size_t &rows, const size_t &cols) const
     {
         suMatrix<T> ret;
 
         // 处理空矩阵情况
-        if (empty() || row == 0 || col == 0)
+        if (empty() || rows == 0 || cols == 0)
         {
             return ret;
         }
 
-        if (!ret.create(row, col))
+        if (!ret.create(rows, cols))
         {
             return ret;
         }
 
         // 处理单行/单列的特殊情况
-        const double x_ratio = (m_col > 1) ? static_cast<double>(m_col - 1) / (col > 1 ? col - 1 : 1) : 0;
-        const double y_ratio = (m_row > 1) ? static_cast<double>(m_row - 1) / (row > 1 ? row - 1 : 1) : 0;
+        const double x_ratio = (m_cols > 1) ? static_cast<double>(m_cols - 1) / (cols > 1 ? cols - 1 : 1) : 0;
+        const double y_ratio = (m_rows > 1) ? static_cast<double>(m_rows - 1) / (rows > 1 ? rows - 1 : 1) : 0;
 
-        for (size_t r = 0; r < row; ++r)
+        for (size_t r = 0; r < rows; ++r)
         {
-            for (size_t c = 0; c < col; ++c)
+            for (size_t c = 0; c < cols; ++c)
             {
                 // 计算源矩阵坐标
-                double src_x = (m_col > 1) ? c * x_ratio : 0;
-                double src_y = (m_row > 1) ? r * y_ratio : 0;
+                double src_x = (m_cols > 1) ? c * x_ratio : 0;
+                double src_y = (m_rows > 1) ? r * y_ratio : 0;
 
                 // 确保坐标在有效范围内
-                src_x = std::clamp(src_x, 0.0, static_cast<double>(m_col - 1));
-                src_y = std::clamp(src_y, 0.0, static_cast<double>(m_row - 1));
+                src_x = std::clamp(src_x, 0.0, static_cast<double>(m_cols - 1));
+                src_y = std::clamp(src_y, 0.0, static_cast<double>(m_rows - 1));
 
                 // 获取四个邻近点坐标
                 const size_t x0 = static_cast<size_t>(src_x);
-                const size_t x1 = std::min(x0 + 1, m_col - 1);
+                const size_t x1 = std::min(x0 + 1, m_cols - 1);
                 const size_t y0 = static_cast<size_t>(src_y);
-                const size_t y1 = std::min(y0 + 1, m_row - 1);
+                const size_t y1 = std::min(y0 + 1, m_rows - 1);
 
                 // 计算插值权重
                 const double dx = src_x - x0;

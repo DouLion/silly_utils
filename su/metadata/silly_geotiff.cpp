@@ -9,8 +9,8 @@
 bool suGeoTiff::write(const suPath& outfile)
 {
     // 同步宽度/高度 (防护不一致)
-    info.width = raster.col();
-    info.height = raster.row();
+    info.width = raster.cols();
+    info.height = raster.rows();
     m_header.width = info.width;
     m_header.height = info.height;
 

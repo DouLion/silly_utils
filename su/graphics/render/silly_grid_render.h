@@ -72,10 +72,10 @@ class silly_grid_render
             SLOG_ERROR("获取矩阵数据块失败")
             return;
         }
-        srp.pd.create(srp.mtx.col(), srp.mtx.row(), eColorType::RGBA);
-        for (size_t r = 0; r < srp.mtx.row(); ++r)
+        srp.pd.create(srp.mtx.cols(), srp.mtx.rows(), eColorType::RGBA);
+        for (size_t r = 0; r < srp.mtx.rows(); ++r)
         {
-            for (size_t c = 0; c < srp.mtx.col(); ++c)
+            for (size_t c = 0; c < srp.mtx.cols(); ++c)
             {
                 T v = ptr[0];
                 ptr++;
@@ -124,10 +124,10 @@ class silly_grid_render
             SLOG_ERROR("获取矩阵数据块失败")
             return;
         }
-        srp.pd.create(srp.mtx.col(), srp.mtx.row(), eColorType::RGBA);
-        for (size_t r = 0; r < srp.mtx.row(); ++r)
+        srp.pd.create(srp.mtx.cols(), srp.mtx.rows(), eColorType::RGBA);
+        for (size_t r = 0; r < srp.mtx.rows(); ++r)
         {
-            for (size_t c = 0; c < srp.mtx.col(); ++c)
+            for (size_t c = 0; c < srp.mtx.cols(); ++c)
             {
                 T v = ptr[0];
                 ptr++;
@@ -158,32 +158,32 @@ bool matrix_geo_to_mercator(suMatrix<T> src, const suRect& rect, suMatrix<T>& ds
     {
         // 防止传参数进来是src与dst是同一个对象
         suMatrix<T> tmp = src.copy();
-        if (!(tmp.row() && tmp.col() && tmp.data()))
+        if (!(tmp.rows() && tmp.cols() && tmp.data()))
         {
             return false;
         }
 
-        if (!dst.create(tmp.row(), tmp.col(), true))
+        if (!dst.create(tmp.rows(), tmp.cols(), true))
         {
             return false;
         }
         double m_left{0}, m_top{0}, m_right{0}, m_bottom{0};
         suGeoProj::Tlonlat_to_mercator(rect.max.x, rect.min.y, m_right, m_bottom);
         suGeoProj::Tlonlat_to_mercator(rect.min.x, rect.max.y, m_left, m_top);
-        double mc_xdelta = (m_right - m_left) / tmp.col();
-        double mc_ydelta = (m_top - m_bottom) / tmp.row();
+        double mc_xdelta = (m_right - m_left) / tmp.cols();
+        double mc_ydelta = (m_top - m_bottom) / tmp.rows();
 
-        double geo_xdelta = (rect.max.x - rect.min.x) / tmp.col();
-        double geo_ydelta = (rect.max.y - rect.min.y) / tmp.row();
+        double geo_xdelta = (rect.max.x - rect.min.x) / tmp.cols();
+        double geo_ydelta = (rect.max.y - rect.min.y) / tmp.rows();
 
         /*   T g_width = rect.max.x - rect.min.x;
            T g_height = rect.max.y - rect.min.y;*/
-        int max_r = tmp.row() - 1;
-        int max_c = tmp.col() - 1;
+        int max_r = tmp.rows() - 1;
+        int max_c = tmp.cols() - 1;
         // 为dst即墨卡托上每个位置找到geo上对应的位置, 然后取值, 防止图片有撕裂的情况
-        for (int r = 0; r < tmp.row(); ++r)
+        for (int r = 0; r < tmp.rows(); ++r)
         {
-            for (int c = 0; c < tmp.col(); ++c)
+            for (int c = 0; c < tmp.cols(); ++c)
             {
                 double m_x = c * mc_xdelta + m_left;  // 每个matrix网格点对应的mecator坐标
                 double m_y = m_top - r * mc_ydelta;

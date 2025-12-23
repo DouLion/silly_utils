@@ -22,8 +22,8 @@
 
 //png_data generatePNGFromMatrix(matrix<double>& elevation, std::map<int, silly_color, std::greater<int>> colorMap)
 //{
-//    int height = elevation.row();
-//    int width = elevation.col();
+//    int height = elevation.rows();
+//    int width = elevation.cols();
 //    if (height == 0 || width == 0 )
 //    {
 //        std::cout << "The size of the elevation matrix and shadow matrix is not equal." << std::endl;
@@ -64,8 +64,8 @@ bool compareThreshold(const std::pair<int, silly_color>& entry, double value)
 
 png_data generatePNGFromMatrix(matrix<double>& elevation, std::map<int, silly_color, std::greater<int>> colorMap)
 {
-    int height = elevation.row();
-    int width = elevation.col();
+    int height = elevation.rows();
+    int width = elevation.cols();
     if (height == 0 || width == 0)
     {
         std::cout << "The size of the elevation matrix and shadow matrix is not equal." << std::endl;
@@ -200,8 +200,8 @@ SECTION("GRID_TO_RGRID")
     for (auto& l : lists)
     {
         stg.grid.cast_from(l);
-        stg.row = l.row();
-        stg.col = l.col();
+        stg.row = l.rows();
+        stg.col = l.cols();
 
         stg.left = gu.m_geo_info.left;
         stg.right = gu.m_geo_info.right;
@@ -291,8 +291,8 @@ SECTION("GRID_TO_RGRID")
 //     for (auto& l : lists)
 //    {
 //         stg.grid = l;
-//         stg.row = l.row();
-//         stg.col = l.col();
+//         stg.row = l.rows();
+//         stg.col = l.cols();
 //
 //        stg.left = gu.m_geo_info.left;
 //        stg.right = gu.m_geo_info.right;

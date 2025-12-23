@@ -655,8 +655,8 @@ silly_tzx_grid suNetCDF::convert(const size_t& b, const size_t& e) const
     bound.max.x = m_geo.xmax;
     bound.max.y = m_geo.ymax;
     ret.rect(bound);
-    ret.row(m_geo.ylen);
-    ret.col(m_geo.xlen);
+    ret.rows(m_geo.ylen);
+    ret.cols(m_geo.xlen);
 
     for (size_t i = b; i < e && i < m_bands.size(); ++i)
     {

@@ -34,8 +34,8 @@ class silly_hill_shade
     static bool hill_shading(const suMatrix<T1>& dem, suMatrix<T2>& shade, const double& delta_lng, const double& delta_lat, const double& azimuth_deg = 315.0, const double& height_deg = 45.0, double z_factor = 1.0)
     {
         suMatrix<T1> tmp_dem = dem;
-        size_t height = tmp_dem.row();
-        size_t width = tmp_dem.col();
+        size_t height = tmp_dem.rows();
+        size_t width = tmp_dem.cols();
         if (!height || !width)
         {
             return false;

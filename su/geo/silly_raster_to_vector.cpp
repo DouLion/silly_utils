@@ -28,17 +28,17 @@ void MatchingSquares::SetLevels(const std::map<int, float>& levels)
 }
 void MatchingSquares::SetMat(const suMatrix<float>& mat)
 {
-    if (mat.row() < 4 || mat.col() < 4)
+    if (mat.rows() < 4 || mat.cols() < 4)
     {
         SLOG_ERROR("????这么小的矩阵,自己掰指头去????")
         return;
     }
-    m_height = mat.row() + 2;
-    m_width = mat.col() + 2;
+    m_height = mat.rows() + 2;
+    m_width = mat.cols() + 2;
     m_mat0.create(m_height, m_width, true);
     for (int r = 1; r < m_height - 1; ++r)
     {
-        std::memcpy((m_mat0[r] + 1), mat[r - 1], sizeof(float) * mat.col());
+        std::memcpy((m_mat0[r] + 1), mat[r - 1], sizeof(float) * mat.cols());
     }
 }
 

@@ -64,9 +64,9 @@ void suDem::Gauss2Lonlat(const suDem& rh, const double& cell_size, const double&
             LONLAT2GAUSS(l0, lon, lat, gx, gy);
             int64_t gC = std::round((gx - rh.info.bound.min.x) / rh.info.dx);
             int64_t gR = std::round((gy - rh.info.bound.min.y) / rh.info.dy);
-            if (gR >= 0 && gR < rh.raster.row() && gC >= 0 && gC < rh.raster.col())
+            if (gR >= 0 && gR < rh.raster.rows() && gC >= 0 && gC < rh.raster.cols())
             {
-                const int64_t gI = gR * rh.raster.col() + gC;
+                const int64_t gI = gR * rh.raster.cols() + gC;
                 *dp = rh.raster.data()[gI];
             }
             dp++;
@@ -111,9 +111,9 @@ void suDem::Lonlat2Gauss(const suDem& rh, const double& cell_size, const double&
             GAUSS2LONLAT(info.central, gx, gy, lon, lat);
             int64_t llC = std::round((lon - rh.info.bound.min.x) / rh.info.dx);
             int64_t llR = std::round((rh.info.bound.max.y - lat) / rh.info.dy);
-            if (llR >= 0 && llR < rh.raster.row() && llC >= 0 && llC < rh.raster.col())
+            if (llR >= 0 && llR < rh.raster.rows() && llC >= 0 && llC < rh.raster.cols())
             {
-                const int64_t llI = llR * rh.raster.col() + llC;
+                const int64_t llI = llR * rh.raster.cols() + llC;
                 *dp = rh.raster.data()[llI];
             }
             dp++;
@@ -125,13 +125,13 @@ void suDem::Cover(const suDem& rh)
 {
     int xOff = 0, yOff = 0;
 
-    for (int r = 0; r < rh.raster.row(); r++)
+    for (int r = 0; r < rh.raster.rows(); r++)
     {
-        for (int c = 0; c < rh.raster.col(); c++)
+        for (int c = 0; c < rh.raster.cols(); c++)
         {
             int ty = r + yOff;
             int tx = c + xOff;
-            if (ty >= 0 && ty < raster.row() && tx >= 0 && tx < raster.col())
+            if (ty >= 0 && ty < raster.rows() && tx >= 0 && tx < raster.cols())
             {
                 raster[ty][tx] = rh.raster[r][c];
             }

@@ -82,7 +82,7 @@ bool silly_micaps_diamond_4::is_valid()
 {
     bool status = false;
     //
-    if (!(data.row() == lat_size && data.col() == lng_size))
+    if (!(data.rows() == lat_size && data.cols() == lng_size))
     {
         return status;
     }

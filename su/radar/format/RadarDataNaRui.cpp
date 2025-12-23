@@ -274,8 +274,8 @@ bool NaRuiRadar::read_grid(const suPath& file, const double& dst_scale)
     }
     else
     {
-        size_t drows = tmp_grid.row() * m_header.dlat / dst_scale;
-        size_t dcols = tmp_grid.col() * m_header.dlon / dst_scale;
+        size_t drows = tmp_grid.rows() * m_header.dlat / dst_scale;
+        size_t dcols = tmp_grid.cols() * m_header.dlon / dst_scale;
         // TODO : DLY
         //  matrix_tools::resize(tmp_grid, grid, drows, dcols);
         tmp_grid.release();

@@ -19,32 +19,12 @@
 /// 此函数中使用的float是从存储空间大小考虑
 /// 大多数情况下, float的数据范围和精度都已经足够,
 /// 所以, 这里使用float, 减少内存和序列化之后的空间占用
-class silly_tzx_grid
+class TzxGrid
 {
     // TODO: 后续修改, 预计预留256个字节
     // 在更新完成之后,如果遇到非新格式的数据,会自动转换
-    struct header
-    {
-        char m_ver[4] = {0};
-        size_t m_total = 0;  // 整个数据总长度
-        char m_name[16] = {0};
-        double m_left = 0;
-        double m_right = 0;
-        double m_top = 0;
-        double m_bottom = 0;
-        double m_xdelta = 0;
-        double m_ydelta = 0;
-        size_t m_row = 0;
-        size_t m_col = 0;
-        short m_num = 0;
-        std::time_t m_ptm = 0;      // 发布时间
-        std::time_t m_btm = 0;      // 开始时间
-        std::time_t m_etm = 0;      // 结束时间
-        char m_reserve[138] = {0};  // 预留断
-    };
-
   public:
-    silly_tzx_grid();
+    TzxGrid();
 
     // 从文件读写
     bool read(const suPath& file);
@@ -69,22 +49,22 @@ class silly_tzx_grid
      * @param boundary 目标的范围
      * @param d 每个格点的大小
      */
-    void puzzle(const std::vector<silly_tzx_grid>& grids, const suRect& boundary, const float& d = 0.0025);
+    void puzzle(const std::vector<TzxGrid>& grids, const suRect& boundary, const float& d = 0.0025);
 
-    silly_tzx_grid& operator=(const silly_tzx_grid& rh);
+    TzxGrid& operator=(const TzxGrid& rh);
 
     /// 网格范围和宽高是否一致
-    bool same(const silly_tzx_grid& rh) const;
+    bool same(const TzxGrid& rh) const;
 
     bool valid() const;
 
     /// 拷贝整个对象
-    silly_tzx_grid copy() const;
+    TzxGrid copy() const;
 
     /// 拷贝第i个网格数据
-    silly_tzx_grid copy(const size_t& i) const;
+    TzxGrid copy(const size_t& i) const;
 
-    void copy_info(const silly_tzx_grid& rh);
+    void copy_info(const TzxGrid& rh);
 
     /// <summary>
     ///
@@ -92,6 +72,7 @@ class silly_tzx_grid
     /// <param name="i"></param>
     /// <returns></returns>
     suFMatrix& frame(const size_t& i);
+    suFMatrix frame(const size_t& i) const;
 
     /// <summary>
     ///
@@ -103,17 +84,17 @@ class silly_tzx_grid
     /// @param i
     /// @param rh
     /// @return
-    bool set(const size_t& i, const silly_tzx_grid& rh);
+    bool set(const size_t& i, const TzxGrid& rh);
     /// 添加一个网格数据
-    bool add(const silly_tzx_grid& rh);
+    bool add(const TzxGrid& rh);
     bool add(const suFMatrix& grid);
     bool set(const std::vector<suFMatrix>& grids);
 
-    size_t row() const;
-    void row(const size_t& r);
+    size_t rows() const;
+    void rows(const size_t& r);
 
-    size_t col() const;
-    void col(const size_t& c);
+    size_t cols() const;
+    void cols(const size_t& c);
 
     float xdelta() const;
     float ydelta() const;
@@ -173,16 +154,38 @@ class silly_tzx_grid
     float m_bottom = 0;
     float m_xdelta = 0;
     float m_ydelta = 0;
-    size_t m_row = 0;
-    size_t m_col = 0;
+    size_t m_rows = 0;
+    size_t m_cols = 0;
     char m_name[32]{0};
     char m_units[32]{0};
     size_t m_header_len;
     std::vector<suFMatrix> m_frames;
     std::vector<std::string> m_buff;
 
+    struct
+    {
+        char m_ver[4] = {0};
+        size_t m_total = 0;  // 整个数据总长度
+        char m_name[16] = {0};
+        double m_left = 0;
+        double m_right = 0;
+        double m_top = 0;
+        double m_bottom = 0;
+        double m_xdelta = 0;
+        double m_ydelta = 0;
+        size_t m_rows = 0;
+        size_t m_cols = 0;
+        short m_num = 0;
+        std::time_t m_ptm = 0;      // 发布时间
+        std::time_t m_btm = 0;      // 开始时间
+        std::time_t m_etm = 0;      // 结束时间
+        char m_reserve[138] = {0};  // 预留断
+    } m_header;
+
   private:
     char m_prefix[4] = {0};
 };
+
+using silly_tzx_grid = TzxGrid;
 
 #endif  // SILLY_UTILS_SILLY_TZX_GRID_H

@@ -33,8 +33,8 @@ SECTION("convert_matrix")
 //    data_root += "/jpeg/color_1.jpeg";
 //
 //    //matrix<short> ma_2d_short = convertToMatrix(data_root.string());
-//    //int dst_row = ma_2d_short.row()*2;
-//    //int dst_col = ma_2d_short.col()*2;
+//    //int dst_row = ma_2d_short.rows()*2;
+//    //int dst_col = ma_2d_short.cols()*2;
 //    //matrix<short> res;
 //
 //    matrix<short> ma_2d_short;
@@ -47,9 +47,9 @@ SECTION("convert_matrix")
 //    //matrix<short> ma_2d_short;
 //    //ma_2d_short.create(2, 2, true);
 //    //float value = 10.0;
-//    //for (int i = 0; i < ma_2d_short.row(); i++)
+//    //for (int i = 0; i < ma_2d_short.rows(); i++)
 //    //{
-//    //    for (int j = 0; j < ma_2d_short.col(); j++)
+//    //    for (int j = 0; j < ma_2d_short.cols(); j++)
 //    //    {
 //    //        if (j == 0) {
 //    //            ma_2d_short.at(i, j) = value;
@@ -59,8 +59,8 @@ SECTION("convert_matrix")
 //    //        }
 //    //    }
 //    //}
-//    int dst_row = ma_2d_short.row() * 100;
-//    int dst_col = ma_2d_short.col() * 100;
+//    int dst_row = ma_2d_short.rows() * 100;
+//    int dst_col = ma_2d_short.cols() * 100;
 //    matrix<short> res;
 //
 //    matrix_tools mt;
@@ -85,8 +85,8 @@ SECTION("convert_matrix")
 //    data_root += "/jpeg/color_1.jpeg";
 //
 //    //matrix<short> ma_2d_short = convertToMatrix(data_root.string());
-//    //int dst_row = ma_2d_short.row() * 3;
-//    //int dst_col = ma_2d_short.col() * 3;
+//    //int dst_row = ma_2d_short.rows() * 3;
+//    //int dst_col = ma_2d_short.cols() * 3;
 //    //matrix<short> res;
 //
 //    matrix<float> ma_2d_short;
@@ -100,9 +100,9 @@ SECTION("convert_matrix")
 //
 //    //ma_2d_short.create(2, 2, true);
 //    //float value = 10.0;
-//    //for (int i = 0; i < ma_2d_short.row(); i++)
+//    //for (int i = 0; i < ma_2d_short.rows(); i++)
 //    //{
-//    //    for (int j = 0; j < ma_2d_short.col(); j++)
+//    //    for (int j = 0; j < ma_2d_short.cols(); j++)
 //    //    {
 //    //        if (j == 0) {
 //    //            ma_2d_short.at(i, j) = value;
@@ -112,8 +112,8 @@ SECTION("convert_matrix")
 //    //        }
 //    //    }
 //    //}
-//    int dst_row = ma_2d_short.row() * 100;
-//    int dst_col = ma_2d_short.col() * 100;
+//    int dst_row = ma_2d_short.rows() * 100;
+//    int dst_col = ma_2d_short.cols() * 100;
 //    matrix<float> res;
 //
 //    matrix_tools mt;
