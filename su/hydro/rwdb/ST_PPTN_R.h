@@ -25,7 +25,7 @@ enum eWeather
     Cloudy = 8,// 阴
     Sunny = 9, // 晴
 };
-struct ST_PPTN_R
+struct ST_PPTN
 {
     std::string STCD;
     std::time_t TM = 0;
@@ -34,6 +34,15 @@ struct ST_PPTN_R
     double PDR = 0.0; // DRP 降雨历时
     double DPY = 0.0; // N(5, 1) 前一天(24h)降雨量(mm)
     eWeather WTH = eWeather::Invalid; // TM 时候的天气状况
+
+    /**
+     * @brief 时段长转秒/毫秒
+     * @param intv 时段长, 习惯上1.05 表示 1小时5分钟
+     * @return
+     */
+    static double INTV2S(const double& intv);
+    static double INTV2MS(const double& intv);
+
 };
 }
 

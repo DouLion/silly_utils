@@ -16,7 +16,7 @@ namespace RWDB
 // 测站类型
 enum eStationType : uint16_t
 {
-    INVALID = 0,  // 类型不明确  (Invalid or undefined type)
+    INVALID = 0,            // 类型不明确  (Invalid or undefined type)
     MM = ('M' << 8) | 'M',  // 气象站  (Meteorological Station)
     ZZ = ('Z' << 8) | 'Z',  // 河道水位水文站  (River Stage (Stream Gauging) Station)
     RR = ('R' << 8) | 'R',  // 水库水文站  (Reservoir Hydrological Station)
@@ -32,32 +32,32 @@ enum eStationType : uint16_t
 // 报讯等级
 enum eFloodReportGrade : uint8_t
 {
-    CentralCommittee = 1,     // 中央报讯站
-    ProvinceOrWatershed = 2,  // 省水文或者流域机构报讯
-    Others = 3,                // 其他
-    // 以上是标准定义, 所以是基本类型
-    Meteo = 4, // 报送气象局
-    FlashFlood = 5 // 报送山洪
+    Invalid = 0,
+    CentralCommittee = 1,  // 中央报讯站
+    ProvinceKey = 2,       // 省级重点报汛站
+    ProvinceNormal = 3,    // 省级一般报汛
+    Others = 4,             // 其它报汛站报(气象)
+    FlashFlood = 5         // 山洪报汛站
 };
 
-struct ST_STBPRP_B
+struct ST_STBPRP
 {
-    std::string STCD; // char[8] 测站编码
-    std::string STNM; // char[30] 测站名称
-    std::string RVNM; // char[30] 河川名称
-    std::string HNNM; // char[30] 水系名称
-    std::string BANM; // char[30] 流域名称
-    double LGTD = 0.0; // double 经度, 原本是 char[7] 度分秒的格式
-    double LTTD = 0.0; // double 纬度
-    std::string STLC; // char[30] 站址
-    std::string ADDVCD;// char[6] 行政区划代码
-    double MDBZ = 0.0; // N(6, 2) 修正基值  米
-    double MDPR = 0.0; // N(4, 2) 修正参数
-    std::string DTMNM; // char[16] 基面名称
-    std::string STMEL; // N(7, 3) 基面高程 米
-    eStationType STTP = eStationType::INVALID; // char[2] 测站类型
-    eFloodReportGrade FRGRD = eFloodReportGrade::Others;// char[1] 报讯等级
-    double DRNA = 0.0; // N(7) 集水面积
+    std::string STCD;                                     // char[8] 测站编码
+    std::string STNM;                                     // char[30] 测站名称
+    std::string RVNM;                                     // char[30] 河川名称
+    std::string HNNM;                                     // char[30] 水系名称
+    std::string BANM;                                     // char[30] 流域名称
+    double LGTD = 0.0;                                    // double 经度, 原本是 char[7] 度分秒的格式
+    double LTTD = 0.0;                                    // double 纬度
+    std::string STLC;                                     // char[30] 站址
+    std::string ADDVCD;                                   // char[6] 行政区划代码
+    double MDBZ = 0.0;                                    // N(6, 2) 修正基值  米
+    double MDPR = 0.0;                                    // N(4, 2) 修正参数
+    std::string DTMNM;                                    // char[16] 基面名称
+    std::string STMEL;                                    // N(7, 3) 基面高程 米
+    eStationType STTP = eStationType::INVALID;            // char[2] 测站类型
+    eFloodReportGrade FRGRD = eFloodReportGrade::Invalid;  // char[1] 报讯等级
+    double DRNA = 0.0;                                    // N(7) 集水面积
 };
 }  // namespace RWDB
 #endif  // ST_STBPRP_B_H

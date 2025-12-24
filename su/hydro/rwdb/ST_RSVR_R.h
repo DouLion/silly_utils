@@ -13,7 +13,7 @@
 #include <su_marco.h>
 namespace RWDB
 {
-struct ST_RSVR_R
+struct ST_RSVR
 {
     std::string STCD; // char[8] 测站编码
 };

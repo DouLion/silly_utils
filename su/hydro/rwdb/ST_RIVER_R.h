@@ -19,24 +19,24 @@ namespace RWDB
 enum eWaterTrend : char
 {
     Invalid = 0,
-    Falling = 4,  // 落
-    Rising = 5,  // 涨
-    Stagnant = 6,  //平
+    Falling = 4,   // 落
+    Rising = 5,    // 涨
+    Stagnant = 6,  // 平
 };
 
-struct ST_RIVER_R
+struct ST_RIVER
 {
-std::string STCD;
+    std::string STCD;
     std::time_t TM;
-    double Z = 0.0; // N(7,3) 水位 米(m)
-    double Q = 0.0; // N(9,3)  流量 立方米每秒(m3/s)
-    double XSA = 0.0; // N(9,3) 断面过水面积 平方米(m2)
-    double XSAVV = 0.0; // N(5,3) 断面平均流速 米每秒(m/s)
-    double XSMXV = 0.0; // N(5,3) 断面最大流速 米每秒(m/s)
-    eWaterTrend WPTN = eWaterTrend::Invalid; // 水势
-    char MSQMT = 0; // 测流方法
-    char MSAMT = 0; // 测积方法
-    char MSVMT = 0; // 测速方法
+    double Z = 0.0;                           // N(7,3) 水位 米(m)
+    double Q = 0.0;                           // N(9,3)  流量 立方米每秒(m3/s)
+    double XSA = 0.0;                         // N(9,3) 断面过水面积 平方米(m2)
+    double XSAVV = 0.0;                       // N(5,3) 断面平均流速 米每秒(m/s)
+    double XSMXV = 0.0;                       // N(5,3) 断面最大流速 米每秒(m/s)
+    eWaterTrend WPTN = eWaterTrend::Invalid;  // 水势
+    char MSQMT = 0;                           // 测流方法
+    char MSAMT = 0;                           // 测积方法
+    char MSVMT = 0;                           // 测速方法
 };
-}
+}  // namespace RWDB
 #endif  // ST_RIVER_R_H
