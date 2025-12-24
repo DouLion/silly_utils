@@ -9,3 +9,40 @@
  * @version: v1.0.1 2025-12-24 dou li yang
  */
 #include "RZ2F_L.h"
+double RZ2F_L::GetF(const double& e, const double& z) const
+{
+    return GetYFromX(e, z);
+}
+double RZ2F_L::GetZ(const double& e, const double& f) const
+{
+    return GetXFromY(e, f);;
+}
+double RZ2F_L::GetE(const double& z, const double& f) const
+{
+    return GetValFromXY(z, f);;
+}
+double RZ2F_L::GetMaxE() const
+{
+    if (m_key2Pairs.empty()) return 0;
+    return m_key2Pairs.rbegin()->first;
+}
+double RZ2F_L::GetMaxZ() const
+{
+    if (m_key2Pairs.empty()) return 0;
+    double ret = -1e12;
+    for (const auto& [_, l] : m_key2Pairs)
+    {
+        ret = std::max(ret, l.GetMaxX());
+    }
+    return ret;
+}
+double RZ2F_L::GetMaxF() const
+{
+    if (m_key2Pairs.empty()) return 0;
+    double ret = -1e12;
+    for (const auto& [_, l] : m_key2Pairs)
+    {
+        ret = std::max(ret, l.GetMaxY());
+    }
+    return ret;
+}

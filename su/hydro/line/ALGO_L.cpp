@@ -33,7 +33,7 @@ double AlgoL::Calc(const double& x, const std::vector<double>& Xs, const std::ve
             const double x1 = Xs[1];
             const double y0 = Ys[0];
             const double y1 = Ys[1];
-            return y0 + (y1 - y0) * (x - x0) / (x1 - x0);
+            return LineInterp(x, x0, x1, y0, y1);
         }
         return Ys[0];
     }
@@ -51,7 +51,7 @@ double AlgoL::Calc(const double& x, const std::vector<double>& Xs, const std::ve
                 const double x1 = Xs[num - 1];
                 const double y0 = Ys[num - 2];
                 const double y1 = Ys[num - 1];
-                return y0 + (y1 - y0) * (x - x0) / (x1 - x0);
+                return LineInterp(x, x0, x1, y0, y1);
             }
         }
         if (type == 2)
@@ -73,8 +73,12 @@ double AlgoL::Calc(const double& x, const std::vector<double>& Xs, const std::ve
             }
             const double y0 = Ys[i];
             const double y1 = Ys[i + 1];
-            return (y1 * (x - x0) + y0 * (x1 - x)) / (x1 - x0);
+            return LineInterp(x, x0, x1, y0, y1);
         }
     }
     return 0;
+}
+double AlgoL::LineInterp(const double& x, const double& x0, const double& x1, const double& y0, const double& y1)
+{
+    return y0 + (y1 - y0) * (x - x0) / (x1 - x0);
 }

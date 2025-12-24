@@ -11,6 +11,7 @@
 #ifndef ALGO_L_H
 #define ALGO_L_H
 #include <vector>
+#include <map>
 #include <cmath>
 #include <stdexcept>
 #include <algorithm>
@@ -19,6 +20,17 @@ class AlgoL
 {
 public:
     static double Calc(const double& x, const std::vector<double>& Xs, const std::vector<double>& Ys, const int& type = 0);
+
+  /**
+   * @brief 线性插值,获取x对应的y值
+   * @param x
+   * @param x0
+   * @param x1
+   * @param y0
+   * @param y1
+   * @return
+   */
+    static double LineInterp(const double& x, const double& x0, const double& x1, const double& y0, const double& y1);
 };
 
 #endif  // ALGO_L_H

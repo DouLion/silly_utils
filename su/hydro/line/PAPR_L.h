@@ -10,5 +10,17 @@
  */
 #ifndef PAPR_L_H
 #define PAPR_L_H
-#include <hydro/line/ALGO_L.h>
+#include <hydro/line/M_PAIRS_L.h>
+class PAPR_L : public MultiPairsL
+{
+public:
+    // 获取最大降雨量 Pa
+    double GetMaxPa() const;
+    // 根据降雨量 pa 和总雨量 p 获取径流量 r
+    double GetR(const double& pa, const double& p) const;
+    // 根据总雨量 p 和径流量 r 获取降雨量 pa
+    double GetPA(const double& p, const double& r) const;
+    // 根据降雨量 pa 和径流量 r 获取总雨量 p
+    double GetP(const double& pa, const double& r, const double& Wm = -1) const;
+};
 #endif  // PAPR_L_H
