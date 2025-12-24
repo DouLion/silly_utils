@@ -15,11 +15,11 @@ RZ2W_L::RZ2W_L(const double& unit)
     m_unit = unit;
 }
 
-double RZ2W_L::GetW(const double& z, const int& type) const
+double RZ2W_L::GetWFromZ(const double& z, const int& type) const
 {
     return GetYFromX(z, type);
 }
-double RZ2W_L::GetZ(const double& w, const int& type) const
+double RZ2W_L::GetZFromW(const double& w, const int& type) const
 {
     return GetXFromY(w, type);
 }

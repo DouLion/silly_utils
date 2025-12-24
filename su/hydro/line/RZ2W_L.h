@@ -27,7 +27,7 @@ public:
      * @param type 插值方式
      * @return
      */
-    double GetW( const double& z, const int& type = 4) const;
+    double GetWFromZ( const double& z, const int& type = 4) const;
 
     /**
      * 根据库容, 插值计算水位
@@ -35,7 +35,12 @@ public:
      * @param type 插值方式
      * @return
      */
-    double GetZ( const double& w, const int& type = 4) const ;
+    double GetZFromW( const double& w, const int& type = 4) const ;
+
+    double Unit() const
+    {
+        return m_unit;
+    }
 protected:
     double m_unit = 1e6; // 单位 这个现在似乎没有吊用
 };
