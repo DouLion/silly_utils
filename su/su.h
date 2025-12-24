@@ -211,9 +211,7 @@
 #include <system/silly_dll.h>      // 动态链接库工具
 #include <system/silly_process.h>  // 进程工具
 #include <system/silly_uuid.h>     // guid(唯一标识码)
-
-// test (测试)
-#include <test/silly_unit_test.h>  // 单元测试模块 未实现
+#include <system/silly_system.h>   // 系统通用的函数
 
 // 公司自定义的格式
 #include <tzx/dynamic_rule/silly_dynamic_rule.h>        // 使用本地文件实现的动态指标快速读写
