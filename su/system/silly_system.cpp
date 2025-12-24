@@ -438,6 +438,31 @@ extern bool HAS_GBK(const std::string& str)
     }
     return false;
 }
+extern double RANDOM(const double& min, const double& max)
+{
+    // 1. 创建随机设备（用于种子）
+    std::random_device rd;
+
+    // 2. 创建生成器（常用 mt19937）
+    std::mt19937 gen(rd());
+
+    // 3. 创建分布（例如 1~100 的整数）
+    std::uniform_real_distribution<double> dis(min, max);
+    return dis(gen);
+}
+extern std::vector<double> RANDOM(const double& min, const double& max, const size_t& n)
+{
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<double> dis(min, max);
+    std::vector<double> ret;
+    ret.resize(n);
+    for (size_t i = 0; i < n; ++i)
+    {
+        ret[i] = dis(gen);
+    }
+    return ret;
+}
 extern size_t MEM_PAGE_SIZE()
 {
 #if _WIN32

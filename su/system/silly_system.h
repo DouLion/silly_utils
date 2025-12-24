@@ -100,6 +100,9 @@ bool HAS_UTF8(const std::string& str);
  */
 bool HAS_GBK(const std::string& str);
 
+double RANDOM(const double& min, const double& max);
+std::vector<double> RANDOM(const double& min, const double& max, const size_t& n);
+
 /**
  * 获取内存页大小
  * @return
