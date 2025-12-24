@@ -171,6 +171,7 @@ class suCairo
     /// </summary>
     /// <param name="poly"></param>
     /// <param name="rect"></param>
+    void draw_line(const std::vector<suPoint>& line);
     void draw_line(const std::vector<suPoint>& line, const suRect& rect);
 
     /// <summary>

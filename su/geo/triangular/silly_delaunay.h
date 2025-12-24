@@ -12,166 +12,87 @@
  * https://github.com/JCash/voronoi/blob/dev/src/jc_voronoi.h
  * 扫描线算法
  */
-#ifndef SILLY_UTILS_SILLY_DELAUNAY_H
-#define SILLY_UTILS_SILLY_DELAUNAY_H
+#ifndef SILLY_DELAUNAY_H
+#define SILLY_DELAUNAY_H
 
 #include <geo/silly_geo.h>
-#include <files/silly_file.h>
+#include <graphics/render/canvas/silly_cairo.h>
 
-class silly_dt_point : public suPoint
+/// Bowyer–Watson 算法实现的德劳内三角
+class DelaunayBW
 {
-  public:
-    silly_dt_point() = default;
-
-    silly_dt_point(double xx, double yy, uint32_t i)
+public:
+    class Tri
     {
-        x = xx;
-        y = yy;
-        index = i;
-    }
-    silly_dt_point(double xx, double yy, double v, uint32_t i)
-    {
-        x = xx;
-        y = yy;
-        val = v;
-        index = i;
-    }
+    public:
+        Tri() = default;
+        Tri(const suPoint& a1, const suPoint& b1, const suPoint& c1);
+        /// 计算外接圆
+        void CalcCircum();
 
-    /*    silly_dt_point(double x, double y)
-        {
-            lgtd = x;
-            lttd = y;
+        /// 点是否在外接圆内
+        bool InCircum(const suPoint& p) const;
+        suPoint CP;
+        double R = 0;
+        double R2 = 0;
+        // 三个顶点
+        suPoint a;
+        suPoint b;
+        suPoint c;
+    };
+    struct Edge {
+        suPoint p1, p2;
+
+        Edge(const suPoint& a, const suPoint& b) {
+            if (a < b) { p1 = a; p2 = b; }
+            else       { p1 = b; p2 = a; }
         }
-        silly_dt_point(double x, double y, double v)
-        {
-            lgtd = x;
-            lttd = y;
-            val = v;
-        }*/
 
-  public:
-    double val{0.};
-    uint32_t index;
-};
-
-/*namespace std
-{
-template <>
-struct hash<silly_dt_point>
-{
-    size_t operator()(const silly_dt_point& point) const
-    {
-        return hash<double>()(point.x) ^ hash<double>()(point.y);
-    }
-};
-}  // namespace std
-*/
-
-class silly_dt_edge
-{
-  public:
-    silly_dt_edge() = default;
-    silly_dt_edge(silly_dt_point _p0, silly_dt_point _p1) : p0(_p0), p1(_p1)
-    {
-        if (p0.index > p1.index)
-        {
-            hash |= p0.index;
-            hash = hash << 32;
-            hash |= p1.index;
+        bool operator==(const Edge& other) const {
+            return p1 == other.p1 && p2 == other.p2;
         }
-        else
-        {
-            hash |= p1.index;
-            hash = hash << 32;
-            hash |= p0.index;
-        }
-    }
-    silly_dt_edge operator=(const silly_dt_edge& e)
-    {
-        p0 = e.p0;
-        p1 = e.p1;
-        return *this;
-    }
-    bool operator==(const silly_dt_edge& e) const
-    {
-        return hash == e.hash;  //(p0 == e.p0 && p1 == e.p1) || (p0 == e.p1 && p1 == e.p0);
-    }
-    bool operator>(const silly_dt_edge& e) const
-    {
-        return hash > e.hash;
-    }
 
-    bool operator<(const silly_dt_edge& e) const
-    {
-        return hash < e.hash;
-    }
-
-    silly_dt_point p0, p1;
-    uint64_t hash{0};
-};
-
-// 自定义哈希函数
-/*
-namespace std
-{
-template <>
-struct hash<silly_dt_edge>
-{
-    size_t operator()(const silly_dt_edge& edge) const
-    {
-        // 使用点的哈希值组合
-        return hash<silly_dt_point>()(edge.p0) ^ hash<silly_dt_point>()(edge.p1);
-    }
-};
-}  // namespace std
-*/
-
-class silly_dt_tri
-{
+        struct Hash {
+            size_t operator()(const Edge& e) const {
+                return std::hash<double>()(e.p1.x) ^ std::hash<double>()(e.p1.y)
+                     ^ std::hash<double>()(e.p2.x) ^ std::hash<double>()(e.p2.y);
+                // 更健壮的哈希可使用 boost::hash 或组合策略
+            }
+        };
+    };
   public:
-    silly_dt_tri(silly_dt_point _p0, silly_dt_point _p1, silly_dt_point _p2)
-    {
-        p0 = _p0;
-        p1 = _p1;
-        p2 = _p2;
-        /*        e0 = silly_dt_edge{_p0, _p1};
-                e1 = silly_dt_edge{_p1, _p2};
-                e2 = silly_dt_edge{_p2, _p0};*/
-    }
-    void calc_circle();
-    bool in_circle(const silly_dt_point& p) const;
-
-  public:
-    silly_dt_point p0, p1, p2;
-    // silly_dt_edge e0, e1, e2;
-    double sq_radius{0};    // 半径平方
-    silly_dt_point center;  // 外接圆心
-};
-
-class silly_delaunay_utils
-{
-  public:
-    static double get_double(const std::string& str, const size_t& limit, size_t& i);
-    static std::vector<silly_dt_point> read(const suPath& file);
-    static std::vector<silly_dt_point> parse(const std::string& content);
-    static double dist(const silly_dt_point& p0, const silly_dt_point& p1);
-    static double sq_dist(const silly_dt_point& p0, const silly_dt_point& p1);
-};
-
-class silly_delaunay
-{
-  public:
-    virtual void points(std::vector<silly_dt_point>& pts) = 0;
-    virtual void triangulate() = 0;
+    void points(std::set<suPoint>& pts);
+    void triangulate();
     void draw(const suPath& file);
 
+    std::vector<Tri> triangles()
+    {
+        return m_tris;
+    }
+
+    void test();
+protected:
+    bool isSuperVertex(const suPoint& p) const {
+        return m_superVertices.find(p) != m_superVertices.end();
+    }
+
+    void removeSuperTriangles() {
+        std::vector<Tri> filtered;
+        for (auto& tri : m_tris) {
+            if (!isSuperVertex(tri.a) &&
+                !isSuperVertex(tri.b) &&
+                !isSuperVertex(tri.c)) {
+                filtered.push_back(std::move(tri));
+                }
+        }
+        m_tris = std::move(filtered);
+    }
+
   protected:
-    std::vector<silly_dt_point> m_points{};
-    std::vector<silly_dt_tri> m_tris{};
-    double xmin = std::numeric_limits<double>::max();
-    double ymin = std::numeric_limits<double>::max();
-    double xmax = std::numeric_limits<double>::min();
-    double ymax = std::numeric_limits<double>::min();
+    std::set<suPoint> m_points;
+    std::vector<Tri> m_tris;
+    suRect m_rect;
+    std::set<suPoint> m_superVertices;
 };
 
-#endif  // SILLY_UTILS_SILLY_DELAUNAY_H
+#endif  // SILLY_DELAUNAY_H

@@ -15,8 +15,8 @@
 class suRect  // 普通坐标点
 {
   public:
-    suPoint min = {1e12, 1e12};
-    suPoint max = {-1e12, -1e12};
+    suPoint min = {std::numeric_limits<double>::max(), std::numeric_limits<double>::max()};
+    suPoint max = {-std::numeric_limits<double>::max(), -std::numeric_limits<double>::max()};
 
   public:
     suRect() = default;

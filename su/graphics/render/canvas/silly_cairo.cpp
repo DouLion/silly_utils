@@ -762,7 +762,20 @@ void suCairo::set(const cairo_operator_t &opt)
     cairo_set_operator(m_cr, opt);
 #endif
 }
+void suCairo::draw_line(const std::vector<suPoint> &line)
+{
+#if SU_THIRD_SUPPORT_CAIRO
 
+
+    cairo_move_to(m_cr, line[0].x, line[0].y);
+    for (int i = 1; i < line.size(); ++i)
+    {
+        cairo_line_to(m_cr, line[i].x, line[i].y);
+    }
+    // 实际绘制线条
+    cairo_stroke(m_cr);
+#endif
+}
 void suCairo::draw_line(const std::vector<suPoint> &line, const suRect &rect)
 {
 #if SU_THIRD_SUPPORT_CAIRO
