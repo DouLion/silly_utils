@@ -55,11 +55,11 @@
 #include <encode/silly_pinyin.h>   // 汉字转拼音
 
 // files (文件)
-#include <files/silly_file.h>           // 文件/目录 工具类(读写,复制,删除)
-#include <files/silly_file_lock.h>      // 文件锁
-#include <files/silly_memory_map.h>     // 内存映射文件 (读取,写入)
+#include <files/silly_file.h>        // 文件/目录 工具类(读写,复制,删除)
+#include <files/silly_file_lock.h>   // 文件锁
+#include <files/silly_memory_map.h>  // 内存映射文件 (读取,写入)
 #include <files/schedule/silly_schedule_file.h>
-#include <files/silly_xlsx.h>           // xlsx文件操作 未实现
+#include <files/silly_xlsx.h>  // xlsx文件操作 未实现
 
 // 几何(平面几何,地理空间空间)
 #include <geo/gpc/gpc.h>                            // gpc源码
@@ -101,6 +101,16 @@
 #include <graphics/silly_tif.h>                                 // 为实现
 #include <graphics/tools/silly_huge_stitcher.h>                 // 基于GDAL GTiff驱动的超大图像拼接
 
+// 水文
+#include <hydro/line/RZ2F_L.h>                  // 水位-流量关系曲线
+#include <hydro/line/PAPR_L.h>                  // 降雨-径流关曲线
+#include <hydro/line/RZ2W_L.h>                  // 水位-库容关曲线
+#include <hydro/rwdb/ST_STBPRP_B.h>             // 测站基本信息
+#include <hydro/rwdb/ST_PPTN_R.h>               // 降雨记录
+#include <hydro/rwdb/ST_RSVR_R.h>               // 水库记录
+#include <hydro/rwdb/ST_RIVER_R.h>              // 河道水位记录
+#include <hydro/model/RainRetentionCapacity.h>  // 纳雨能力计算
+
 // mapbox
 #include <mapbox/mbtiles/dtoa_milo.h>               // 高效且精确的 double 到 ASCII 字符串（以及反向）的转换
 #include <mapbox/mbtiles/silly_mbtiles_metadata.h>  // mapbox中metadata数据
@@ -129,15 +139,15 @@
 #include <math/spline/silly_pqs_interp_spline.h>   // 未实现
 
 // 常用气象地理信息元数据读写
-#include <metadata/silly_ascii_grid.h>        // ascii网格文件
-#include <metadata/silly_egm.h>               // 地球重力场文件数据
-#include <metadata/silly_geotiff.h>           // 未实现
-#include <metadata/silly_grib2.h>             // grib2读取工具
-#include <metadata/silly_micaps.h>            // 中国气象局Micaps系统的数据
-#include <metadata/silly_netcdf.h>            // netcdf读取工具
-#include <metadata/silly_nmea.h>              // GPGSA GPS数据传输标准
-#include <metadata/silly_tzx_grid.h>          // tzx网格文件
-#include <metadata/silly_grid_algo.h>         // 网格数据常用的统计算法
+#include <metadata/silly_ascii_grid.h>  // ascii网格文件
+#include <metadata/silly_egm.h>         // 地球重力场文件数据
+#include <metadata/silly_geotiff.h>     // 未实现
+#include <metadata/silly_grib2.h>       // grib2读取工具
+#include <metadata/silly_micaps.h>      // 中国气象局Micaps系统的数据
+#include <metadata/silly_netcdf.h>      // netcdf读取工具
+#include <metadata/silly_nmea.h>        // GPGSA GPS数据传输标准
+#include <metadata/silly_tzx_grid.h>    // tzx网格文件
+#include <metadata/silly_grid_algo.h>   // 网格数据常用的统计算法
 
 // network (网络)
 #include <network/ftp/silly_ftp_client.h>              // 未实现
