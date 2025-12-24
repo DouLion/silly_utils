@@ -16,7 +16,7 @@ namespace RWDB
 /**
  * @brief 水势
  */
-enum eWaterTrend : char
+enum class eWaterTrend : char
 {
     Invalid = 0,
     Falling = 4,   // 落

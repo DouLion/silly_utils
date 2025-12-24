@@ -16,7 +16,7 @@ namespace RWDB
 /**
  * @brief 天气状况
  */
-enum eWeather
+enum class eWeather
 {
     Invalid = 0,
     Snowy = 5, // 雪

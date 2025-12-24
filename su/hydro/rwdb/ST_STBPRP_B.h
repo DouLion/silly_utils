@@ -30,7 +30,7 @@ enum eStationType : uint16_t
     ZB = ('Z' << 8) | 'B'   // 分洪水位站  (Flood Diversion Stage Station)
 };
 // 报讯等级
-enum eFloodReportGrade : uint8_t
+enum class eFloodReportGrade : uint8_t
 {
     Invalid = 0,
     CentralCommittee = 1,  // 中央报讯站
