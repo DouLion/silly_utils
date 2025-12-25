@@ -93,20 +93,8 @@ struct CalcResult
     double PE = 0;
     double dW = 0;
     double OTW = 0;
-    double OTQ = 0;
 
-    void Print() const
-    {
-        std::cout << "{\n  BeginRZ:" << BeginRZ;
-        std::cout << "\n  BeginW:" << BeginW;
-        std::cout << "\n  EndRZ:" << EndRZ;
-        std::cout << "\n  EndW:" << EndW;
-        std::cout << "\n  PP:" << PP;
-        std::cout << "\n  PE:" << PE;
-        std::cout << "\n  dW:" << dW;
-        std::cout << "\n  OTW:" << OTW;
-        std::cout << "\n  OTQ:" << OTQ << "\n}," << std::endl;
-    }
+    void Print() const;
 };
 
 class RainRetentionCapacity
@@ -124,6 +112,8 @@ class RainRetentionCapacity
     CalcResult CalcPPZ(CalcParam& p) const;
     CalcResult CalcPPF(CalcParam& p);
 
-    void Test();
+    void TestPAPRLine();  // 已确认
+    void TestRZWLine();
+    void TestModel(); // 已确认
 };
 #endif  // RAIN_RETENTION_CAPACITY_H
