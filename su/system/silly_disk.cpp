@@ -4,10 +4,8 @@
 
 #include "silly_disk.h"
 #include <files/silly_file.h>
-#include <filesystem>
-#include <cmath>
 
-double silly_disk::space_capacity(const suPath& file, const storage_unit& unit)
+double suDisk::space_capacity(const suPath& file, const eStorageUint& unit)
 {
     double ret = 0;
     auto path = suPath(file);
@@ -28,7 +26,7 @@ double silly_disk::space_capacity(const suPath& file, const storage_unit& unit)
     return ret;
 }
 
-double silly_disk::space_available(const suPath& file, const storage_unit& unit)
+double suDisk::space_available(const suPath& file, const eStorageUint& unit)
 {
     double ret = 0;
     auto path = suPath(file);
@@ -47,13 +45,13 @@ double silly_disk::space_available(const suPath& file, const storage_unit& unit)
     return ret;
 }
 
-double silly_disk::space_used(const suPath& file, const storage_unit& unit)
+double suDisk::space_used(const suPath& file, const eStorageUint& unit)
 {
     auto path = suPath(file);
     return space_capacity(path, unit) - space_available(path, unit);
 }
 
-double silly_disk::space_available_percent(const suPath& file)
+double suDisk::space_available_percent(const suPath& file)
 {
     double ret = 0;
     auto path = suPath(file);
@@ -71,7 +69,7 @@ double silly_disk::space_available_percent(const suPath& file)
     return ret;
 }
 
-double silly_disk::space_used_percent(const suPath& file)
+double suDisk::space_used_percent(const suPath& file)
 {
     double ret = 0;
     auto path = suPath(file);
