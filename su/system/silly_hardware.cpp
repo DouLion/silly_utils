@@ -12,7 +12,15 @@
 #ifdef _WIN32
 #include <iphlpapi.h>
 #include <iomanip>
+#include <comdef.h>
+#include <Wbemidl.h>
+#include <winioctl.h>
 #pragma comment(lib, "iphlpapi.lib")
+#pragma comment(lib, "wbemuuid.lib")
+#pragma comment(lib, "ole32.lib")
+#pragma comment(lib, "oleaut32.lib")
+
+#include <system/silly_system.h>
 std::map<std::string, std::string> GetAllMacAddresses()
 {
     std::map<std::string, std::string> macs;
@@ -42,7 +50,6 @@ std::map<std::string, std::string> GetAllMacAddresses()
             // 跳过回环和明显是虚拟的设备（可扩展）
             std::string desc(pAdapter->Description);
             std::transform(desc.begin(), desc.end(), desc.begin(), ::tolower);
-            std::cout << desc << std::endl;
             bool isVirtual = desc.find("virtual") != std::string::npos;
             isVirtual = isVirtual || desc.find("vmware") != std::string::npos;
             isVirtual = isVirtual || desc.find("vbox") != std::string::npos;
@@ -74,6 +81,65 @@ std::map<std::string, std::string> GetAllMacAddresses()
     free(pAdapterInfo);
 
     return macs;
+}
+#pragma comment(lib, "user32.lib")
+#pragma comment(lib, "ntdll.lib")
+
+std::string GetPhysicalDriveSerial(int driveIndex) {
+    std::string path = "\\\\.\\PhysicalDrive" + std::to_string(driveIndex);
+    HANDLE hDevice = CreateFileA(
+        path.c_str(),
+        GENERIC_READ,
+        FILE_SHARE_READ | FILE_SHARE_WRITE,
+        NULL,
+        OPEN_EXISTING,
+        0,
+        NULL
+    );
+
+    if (hDevice == INVALID_HANDLE_VALUE) {
+        return "";
+    }
+
+    // 查询 STORAGE_DEVICE_DESCRIPTOR
+    STORAGE_PROPERTY_QUERY query = {};
+    query.PropertyId = StorageDeviceProperty;
+    query.QueryType = PropertyStandardQuery;
+
+    DWORD size = 0;
+    // 先获取所需缓冲区大小
+    if (!DeviceIoControl(hDevice, IOCTL_STORAGE_QUERY_PROPERTY,
+                         &query, sizeof(query),
+                         NULL, 0, &size, NULL) &&
+        GetLastError() != ERROR_INSUFFICIENT_BUFFER) {
+        CloseHandle(hDevice);
+        return "";
+        }
+
+    std::vector<BYTE> buffer(size, 0);
+    if (!DeviceIoControl(hDevice, IOCTL_STORAGE_QUERY_PROPERTY,
+                         &query, sizeof(query),
+                         buffer.data(), size,
+                         &size, NULL)) {
+        CloseHandle(hDevice);
+        return "";
+                         }
+
+    PSTORAGE_DEVICE_DESCRIPTOR desc = (PSTORAGE_DEVICE_DESCRIPTOR)buffer.data();
+
+    std::string serial;
+    if (desc->SerialNumberOffset != 0) {
+        char* raw = (char*)buffer.data() + desc->SerialNumberOffset;
+        serial = std::string(raw);
+
+        // 移除尾部空格和 null
+        while (!serial.empty() && (serial.back() == ' ' || serial.back() == '\0')) {
+            serial.pop_back();
+        }
+    }
+
+    CloseHandle(hDevice);
+    return serial;
 }
 #else
 std::string GetMacAddress()
@@ -123,4 +189,29 @@ std::string GetMacAddress()
 std::map<std::string, std::string> suHardWare::MacInfo()
 {
     return GetAllMacAddresses();
+}
+std::map<std::string, std::string> suHardWare::DiskSerial()
+{
+    std::map<std::string, std::string> ret;
+#if _WIN32
+    try
+    {
+        for (int i = 0; i < 256; ++i)
+        {
+            std::string serial = GetPhysicalDriveSerial(i);
+
+            if (!serial.empty())
+            {
+                std::cout << "PhysicalDrive" << i << " (Storage API): " << serial << "\n";
+            }
+
+        }
+    }
+    catch (const std::exception& ex)
+    {
+        std::cerr << "Error: " << ex.what() << "\n";
+    }
+#else
+#endif
+    return ret;
 }

@@ -20,6 +20,12 @@ class suHardWare
      */
     static std::map<std::string, std::string> MacInfo();
 
+      /**
+       * @brief 获取硬盘序列号
+       * @return
+       */
+    static std::map<std::string, std::string> DiskSerial();
+
 };
 
 #endif  // SILLY_HARDWARE_H
