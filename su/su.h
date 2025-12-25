@@ -30,7 +30,7 @@
 #include <database/dm8/dm8_dpi.h>    // 达梦数据库dpi接口
 #include <database/dm8/dm8_pro_c.h>  // 未实现
 #include <database/kb/kb_odbc.h>     // 未实现
-// #include <database/otl/otlv4.h>                 // otl库源码
+// #include <database/otl/otlv4.h>              // otl库源码
 #include <database/otl/silly_otl.h>             // 基于otl的数据库操作
 #include <database/redis/silly_redis_client.h>  // 未实现
 #include <database/redis/silly_redis_cpool.h>   // 未实现
@@ -110,6 +110,7 @@
 #include <hydro/rwdb/ST_RSVR_R.h>               // 水库记录
 #include <hydro/rwdb/ST_RIVER_R.h>              // 河道水位记录
 #include <hydro/model/RainRetentionCapacity.h>  // 纳雨能力计算
+#include <hydro/model/XinAnJiang.h>             // 新安江模型
 
 // mapbox
 #include <mapbox/mbtiles/dtoa_milo.h>               // 高效且精确的 double 到 ASCII 字符串（以及反向）的转换
@@ -207,12 +208,12 @@
 #include <string/silly_regex.h>   // 正则表达式
 
 // system (系统)
-#include <system/silly_disk.h>     // 获取磁盘信息工具
-#include <system/silly_dll.h>      // 动态链接库工具
-#include <system/silly_process.h>  // 进程工具
-#include <system/silly_uuid.h>     // guid(唯一标识码)
-#include <system/silly_hardware.h> // 硬件信息
-#include <system/silly_system.h>   // 系统通用的函数
+#include <system/silly_disk.h>      // 获取磁盘信息工具
+#include <system/silly_dll.h>       // 动态链接库工具
+#include <system/silly_process.h>   // 进程工具
+#include <system/silly_uuid.h>      // guid(唯一标识码)
+#include <system/silly_hardware.h>  // 硬件信息
+#include <system/silly_system.h>    // 系统通用的函数
 
 // 公司自定义的格式
 #include <tzx/dynamic_rule/silly_dynamic_rule.h>        // 使用本地文件实现的动态指标快速读写

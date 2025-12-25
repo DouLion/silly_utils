@@ -1,0 +1,79 @@
+开始
+│
+├─▶ 初始化：
+│    • ddt = CalcSteps / 60.0        // 时段长（小时）
+│    • U = weight * Area / (3.6 * ddt)  // mm → m³/s 转换系数
+│    • 计算汇流参数：cs, ci, cg, c0/c1/c2（Muskingum）
+│    • 初始化状态：WU=Wu0, WL=Wl0, WD=Wd0, s=S0, qs=QS0*weight 等
+│
+├─▶ 预填充河道演进数组 vtmpQ[0..ln-1] = 初始总流量 * weight
+│
+└─▶ FOR i = 0 TO QNum - 2 （逐时段模拟）
+     │
+     ├─▶ 获取输入：
+     │    • pp = (i < RainNum) ? pRain[i] : 0
+     │    • em = K * pEM[i]                // 调整后潜在蒸散发
+     │    • pe = pp - em                   // 净雨（可能 ≤0）
+     │
+     ├─▶ IF pe > 0 （有净雨）
+     │    │
+     │    ├─▶ 蒸散发：E = em（全部消耗）
+     │    │
+     │    ├─▶ 产流计算（蓄满机制）：
+     │    │    • rb = Imp * pe             // 不透水面积直接产流（地表）
+     │    │    • 计算可透水产流 r（基于 B 参数和当前蓄水量 w）
+     │    │    • t = r - rb                // 可透水产流部分
+     │    │
+     │    ├─▶ 更新土壤含水量 WU, WL, WD（入渗）
+     │    │
+     │    └─▶ 水源划分（自由水水库）：
+     │         • 计算产流面积比例 fr
+     │         • 分 g 段模拟自由水出流：
+     │              – 地表流 rs（非线性，Ex 控制）
+     │              – 壤中流 ri = s * ki
+     │              – 地下流 rg = s * kg
+     │         • rs += rb                  // 合并不透水地表流
+     │
+     ├─▶ ELSE （pe ≤ 0，无净雨）
+     │    │
+     │    ├─▶ 蒸散发从土壤取水：
+     │    │    • e1 = pp + WU（上层蒸发）
+     │    │    • e2 = min(|pe|, WL) * 折减（受 C 控制）
+     │    │    • 更新 WU=0, WL-=e2, WD（若 WL<0）
+     │    │
+     │    └─▶ 自由水缓慢释放：
+     │         • rg = s * kg * fr
+     │         • ri = rg * ki / kg
+     │         • s -= (rg + ri) / fr
+     │         • rs = 0
+     │
+     ├─▶ 汇流演算（线性水库）：
+     │    • qs = qs * cs + rs * (1 - cs) * U   // 地表流
+     │    • qi = qi * ci + ri * (1 - ci) * U   // 壤中流
+     │    • qg = qg * cg + rg * (1 - cg) * U   // 地下流
+     │
+     ├─▶ 总流量：tq2 = qs + qi + qg
+     │
+     ├─▶ 河道演进（Muskingum 多段）：
+     │    • FOR j = 1 TO ln-1
+     │          tq2 = c0*tq2 + c1*vtmpQ[j-1] + c2*vtmpQ[j]
+     │    • 更新 vtmpQ 数组
+     │
+     ├─▶ 输出累加（加权）：
+     │    • pE[i]    += weight * (e1 + e2)
+     │    • pRS[i]   += weight * rs
+     │    • pRI[i]   += weight * ri
+     │    • pRG[i]   += weight * rg
+     │    • pR[i]    = pRS[i] + pRI[i] + pRG[i]
+     │    • pQS[i]   += qs
+     │    • pQI[i]   += qi
+     │    • pQG[i]   += qg
+     │    • pQ[i+1]  += tq2
+     │
+     └─▶ 若 i == RainNum - 2：
+          • 保存下一时刻状态：
+            Wu1 += weight*WU, Wl1 += weight*WL, Wd1 += weight*WD
+            S1  += weight*s,  Fr1 += weight*fr
+            Q1  += tq2,       QS1 += qs, QI1 += qi, QG1 += qg
+
+结束
