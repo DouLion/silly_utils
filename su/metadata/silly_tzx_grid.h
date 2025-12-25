@@ -13,6 +13,7 @@
 #include <su_marco.h>
 #include <math/silly_matrix.h>
 #include <geo/silly_geo.h>
+#include <files/silly_path.h>
 
 #define SILLY_TZX_GRID_FILE_SUFFIX ".rgrid"
 

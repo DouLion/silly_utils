@@ -14,7 +14,6 @@
 #ifndef SILLY_UTILS_SILLY_MATRIX_H
 #define SILLY_UTILS_SILLY_MATRIX_H
 #include <su_marco.h>
-#include <files/silly_memory_map.h>
 template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
 class suMatrix
 {
@@ -44,7 +43,6 @@ class suMatrix
     size_t m_cols{0};
     // 总数据量(个数) m_rows * m_cols
     size_t m_total{0};
-    suMemMapFile *m_mmf = nullptr;
     static constexpr  size_t MAX_RC = 100000000;
 
   public:
@@ -102,41 +100,6 @@ class suMatrix
             return false;
         }
         std::memcpy(m_data, data.data(), m_total * sizeof(T));
-        return true;
-    }
-    bool create(const size_t &rows, const size_t &cols, const suPath &mmap)
-    {
-        if (!(rows > 0 && rows < MAX_RC &&  cols > 0 && cols < MAX_RC))
-        {
-            return false;
-        }
-        if (!m_mmf)
-        {
-            m_mmf = new suMemMapFile();
-            m_cols = cols;
-            m_rows = rows;
-            suMemMapFile::Param p;
-            p.mode = eMMFMode::Write;
-            p.path = mmap;
-            p.file_size = rows * cols * sizeof(T) * 1.1;
-
-            if (suPath::exists(mmap))
-            {
-                p.disposition = 3;
-            }
-            else
-            {
-                p.disposition = 2;
-            }
-
-            // 2.创建内存映射
-            if (!m_mmf->open(p))
-            {
-                return false;
-            }
-            m_data = (T *)m_mmf->ptr();
-        }
-
         return true;
     }
 
@@ -712,12 +675,6 @@ class suMatrix
     /// </summary>
     void release()
     {
-        if (m_mmf)
-        {
-            m_mmf->close(true);
-            m_mmf = nullptr;
-        }
-
         if (m_data)
         {
             free(m_data);

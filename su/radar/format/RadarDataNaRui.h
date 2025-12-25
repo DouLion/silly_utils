@@ -11,6 +11,7 @@
 #ifndef SILLY_NARUI_RADAR_H
 #define SILLY_NARUI_RADAR_H
 #include <math/silly_matrix.h>
+#include <files/silly_path.h>
 class NaRuiRadar
 {
   public:

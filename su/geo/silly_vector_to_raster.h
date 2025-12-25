@@ -18,6 +18,7 @@
 
 #include <geo/geometry/silly_geo_coll.h>
 #include <math/silly_matrix.h>
+#include <files/silly_path.h>
 
 /// X扫描线算法
 class XScanLine

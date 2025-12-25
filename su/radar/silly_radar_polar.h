@@ -10,7 +10,7 @@
 #ifndef SILLY_UTILS_SILLY_RADAR_POLAR_H
 #define SILLY_UTILS_SILLY_RADAR_POLAR_H
 
-#include <iostream>
+#include <files/silly_path.h>
 #include <math/silly_matrix.h>
 
 #define TZX_RADAR_POLAR_FILE_SUFFIX ".rpolar"

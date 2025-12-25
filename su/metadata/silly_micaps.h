@@ -10,7 +10,7 @@
 #ifndef SILLY_UTILS_SILLY_MICAPS_H
 #define SILLY_UTILS_SILLY_MICAPS_H
 #include <math/silly_matrix.h>
-
+#include <files/silly_path.h>
 /// <summary>
 /// 第四类数据格式：格点数据（文本文件）
 /// 文件头：
