@@ -21,7 +21,7 @@
 struct CalcParam
 {
     double BeginRZ = 0;  // 起始水位(m)
-    double EndRZ = 0;
+    double EndRZ = 0;    // // 结束水位
     // 四个目标水位数组
     double Yhdgc = -9999;   // 溢洪道高程(m)
     double Xxsw = -9999;    // 校核洪水位(m)
@@ -32,67 +32,24 @@ struct CalcParam
     double Pa = 0;          // 前期影响雨量(mm)
     double Yhdk = 10;       // 溢洪道宽度(m)
     double KCH = 1;         // 流量系数
-    double TCH;             // 出流时间 分钟
-    double WCH;             // 出流量 百万方
-    double pmin;            // 最小降雨(mm)
-    double pmax;            // 最大降雨(mm)
+    double TCH = 0;         // 出流时间 分钟
+    double WCH = -1;        // 出流量 百万方
+    double pmin = -1;       // 最小降雨(mm)
+    double pmax = -1;       // 最大降雨(mm)
     double CalcSteps = 15;  // 计算步长 分钟
-    int CalcType = 0;       // 0 反算 1 正算
-};
-
-struct ForwardParam
-{
-    double BeginRZ = 0;  // 起始水位(m)
-    double EndRZ = 0;
-    // 四个目标水位数组
-    double Yhdgc = -9999;   // 溢洪道高程(m)
-    double Xxsw = -9999;    // 校核洪水位(m)
-    double Sjsw = -9999;    // 设计洪水位(m)
-    double Bdgc = -9999;    // 坝顶高程(m)
-    double Area = 0;        // 流域面积(km2)
-    double Wm = 0;          // 最大蓄水量(mm)
-    double Pa = 0;          // 前期影响雨量(mm)
-    double Yhdk = 10;       // 溢洪道宽度(m)
-    double KCH = 1;         // 流量系数
-    double TCH;             // 出流时间 分钟
-    double WCH;             // 出流量 百万方
-    double pmin;            // 最小降雨(mm)
-    double pmax;            // 最大降雨(mm)
-    double CalcSteps = 15;  // 计算步长 分钟
-    int CalcType = 0;       // 0 反算 1 正算
-};
-struct InverseParam
-{
-    double BeginRZ = 0;  // 起始水位(m)
-    double EndRZ = 0;
-    // 四个目标水位数组
-    double Yhdgc = -9999;   // 溢洪道高程(m)
-    double Xxsw = -9999;    // 校核洪水位(m)
-    double Sjsw = -9999;    // 设计洪水位(m)
-    double Bdgc = -9999;    // 坝顶高程(m)
-    double Area = 0;        // 流域面积(km2)
-    double Wm = 0;          // 最大蓄水量(mm)
-    double Pa = 0;          // 前期影响雨量(mm)
-    double Yhdk = 10;       // 溢洪道宽度(m)
-    double KCH = 1;         // 流量系数
-    double TCH;             // 出流时间 分钟
-    double WCH;             // 出流量 百万方
-    double pmin;            // 最小降雨(mm)
-    double pmax;            // 最大降雨(mm)
-    double CalcSteps = 15;  // 计算步长 分钟
-    int CalcType = 0;       // 0 反算 1 正算
+    int CalcType = 1;       // 0 反算 1 正算
 };
 
 struct CalcResult
 {
-    double BeginRZ = 0;
-    double BeginW = 0;
-    double EndRZ = 0;
-    double EndW = 0;
-    double PP = 0;
-    double PE = 0;
-    double dW = 0;
-    double OTW = 0;
+    double BeginRZ = 0;  // 起始水位
+    double BeginW = 0;   // 起始库容
+    double EndRZ = 0;    // 结束水位
+    double EndW = 0;     // 结束库容
+    double PP = 0;       // 降雨量
+    double PE = 0;       // 净雨量
+    double dW = 0;       // 库容差
+    double OTW = 0;      // 出库水量
 
     void Print() const;
 };
@@ -105,15 +62,12 @@ class RainRetentionCapacity
     RZ2W_L pRZ2WLine;  // 水位库容关系
     PAPR_L pPaPrLine;  // 雨量径流关系
 
-    std::vector<CalcResult> Forward(ForwardParam& p);
-    std::vector<CalcResult> Inverse(InverseParam& p);
-
     std::vector<CalcResult> CalcNYNL(CalcParam& p);
     CalcResult CalcPPZ(CalcParam& p) const;
     CalcResult CalcPPF(CalcParam& p);
 
     void TestPAPRLine();  // 已确认
     void TestRZWLine();
-    void TestModel(); // 已确认
+    void TestModel();  // 已确认
 };
 #endif  // RAIN_RETENTION_CAPACITY_H

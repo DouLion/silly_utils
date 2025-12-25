@@ -11,14 +11,6 @@
 #include "RainRetentionCapacity.h"
 #include <log/silly_log.h>
 
-std::vector<CalcResult> RainRetentionCapacity::Forward(ForwardParam& p)
-{
-    return {};
-}
-std::vector<CalcResult> RainRetentionCapacity::Inverse(InverseParam& p)
-{
-    return {};
-}
 std::vector<CalcResult> RainRetentionCapacity::CalcNYNL(CalcParam& p)
 {
     // 目标水位数组
