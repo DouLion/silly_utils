@@ -29,7 +29,7 @@ struct CalcParam
     double Bdgc = -9999;    // 坝顶高程(m)
     double Area = 0;        // 流域面积(km2)
     double Wm = 0;          // 最大蓄水量(mm)
-    double Pa = 0;          // 前期影响雨量(mm)
+    double Pa = 0;          // 土壤湿度 * Wm
     double Yhdk = 10;       // 溢洪道宽度(m)
     double KCH = 1;         // 流量系数
     double TCH = 0;         // 出流时间 分钟
