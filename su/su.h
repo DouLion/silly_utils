@@ -212,6 +212,7 @@
 #include <system/silly_dll.h>       // 动态链接库工具
 #include <system/silly_process.h>   // 进程工具
 #include <system/silly_uuid.h>      // guid(唯一标识码)
+#include <system/silly_argument.h>  // 参数处理
 #include <system/silly_hardware.h>  // 硬件信息
 #include <system/silly_system.h>    // 系统通用的函数
 
