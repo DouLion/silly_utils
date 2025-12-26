@@ -21,7 +21,9 @@
 */
 
 #include <vector>
-
+// 每个水库有一套参数
+// Q0取时段初站点流量，没有的话就给0
+// Qs0、QI0、QG0外部给定用外部的，外部没有给定程序会根据Q0按比例分一个出来
 class XAJ_HN43
 {
   public:
@@ -74,7 +76,7 @@ class XAJ_HN43
             return;
         }
 
-        CalcCore(vRain.data(), RainNum, weight, vEM.data(), vE.data(), vR.data(), vRS.data(), vRI.data(), vRG.data(), vQS.data(), vQI.data(), vQG.data(), vQ.data(), PointNum);
+        Calc(vRain.data(), RainNum, weight, vEM.data(), vE.data(), vR.data(), vRS.data(), vRI.data(), vRG.data(), vQS.data(), vQI.data(), vQG.data(), vQ.data(), PointNum);
 
         if (MskK > 0)
         {
@@ -103,7 +105,7 @@ class XAJ_HN43
      * @param[out] pQ 总流量(m³/s)
      * @param[ in] QNum 要计算的总时段数(预报长度)
      */
-    void CalcCore(double* pRain, int RainNum, double weight, double* pEM, double* pE, double* pR, double* pRS, double* pRI, double* pRG, double* pQS, double* pQI, double* pQG, double* pQ, int QNum)
+    void Calc(double* pRain, int RainNum, double weight, double* pEM, double* pE, double* pR, double* pRS, double* pRI, double* pRG, double* pQS, double* pQI, double* pQG, double* pQ, int QNum)
     {
         if (RainNum <= 0 || QNum <= 0)
         {
@@ -426,7 +428,7 @@ class XAJ_HN43
      * @brief 新安江模型中用于地表径流(或总流量)汇流演算的一个简化模块
      *        其作用是对输入流量过程 Inq 进行滞后与调蓄处理,以模拟水流在坡面或河道中的传播延迟和坦化效应
      * @param[ in] qnum 流量序列长度(时段数)
-     * @param[ in] Inq 输入流量过程(m³/s),通常是 CalcCore 输出的 vQ(三水源叠加后)
+     * @param[ in] Inq 输入流量过程(m³/s),通常是 Calc 输出的 vQ(三水源叠加后)
      * @param[out] Otq 输出流量过程(经汇流演算后)
      * @param[ in] nLL 滞后时间(Lag Time),单位：时段数(非小时！)
      * @param[ in] nCS 调蓄系数(0~1),控制当前流量与滞后流量的权重 典型值 0.3~0.7
