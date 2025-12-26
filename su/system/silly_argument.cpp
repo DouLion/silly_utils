@@ -164,34 +164,3 @@ void suArgs::Usage()
         std::cout << opt.Help();
     }
 }
-
-/*
-bool suArgs::Bind(const std::string& key, bool& var, const bool& must)
-{
-    if (key.size() < 3 || key.substr(0, 2) != "--")
-    {
-        std::cerr << "参数: " << key << " 必须以 -- 开头且长度 >= 3\n";
-        return false;
-    }
-    if (m_options.count(key))
-    {
-        std::cerr << "参数: " << key << " 已经绑定\n";
-        return false;
-    }
-    m_options[key] = Option(
-        [&var](const std::string& str) -> bool {
-            if (str.empty() || str == "true" || str == "1")
-            {
-                var = true;
-                return true;
-            }
-            if (str == "false" || str == "0")
-            {
-                var = false;
-                return true;
-            }
-            return false;
-        },
-        must);
-    return true;
-}*/

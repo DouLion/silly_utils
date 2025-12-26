@@ -133,34 +133,37 @@ public:
      */
     void Usage();
 
+
+
   private:
     std::map<std::string, Option> m_options;
 };
 
-/*template <typename T>
-bool suArgs::Bind(const std::string& key, T& var, const bool& must)
+#ifndef NDEBUG
+void suArgsExampel(int argc, char** argv)
 {
-    if (key.size() < 3 || key.substr(0, 2) != "--")
+    int a = 0;
+    double b = 0.0;
+    bool c = false;
+    std::string name = "";
+
+    suArgs uarg;
+    uarg.Add(suArgs::Option("--a").Bind(a).Desc("参数a"));
+    uarg.Add(suArgs::Option("--b").Bind(b).Desc("参数b"));
+    uarg.Add(suArgs::Option("--c").Bind(c).Desc("参数c").Must(false));
+    uarg.Add(suArgs::Option("--n").Bind(name).Desc("参数n"));
+    //uarg.Parse(argc, argv);
+    if (!uarg.Parse(argc, argv))
     {
-        std::cerr << "参数: " << key << " 必须以 -- 开头且长度 >= 3\n";
-        return false;
+        /*uarg.Usage();
+        return -1;*/
     }
-    if (m_options.count(key))
-    {
-        std::cerr << "参数: " << key << " 已经绑定\n";
-        return false;
-    }
-    // 注册一个 lambda，用于将字符串转换为 T 并赋值给 var
-    m_options[key] = Option(
-        [&var](const std::string& str) -> bool {
-            std::istringstream iss(str);
-            T temp;
-            if (!(iss >> temp))
-                return false;  // 转换失败
-            var = std::move(temp);
-            return true;
-        },
-        must);
-    return true;
-}*/
+    std::cout << a << std::endl;
+    std::cout << b << std::endl;
+    std::cout << c << std::endl;
+    std::cout << name << std::endl;
+    uarg.Usage();
+}
+#endif
+
 #endif  // SILLY_ARGUMENT_H
