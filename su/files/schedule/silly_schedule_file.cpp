@@ -116,7 +116,7 @@ std::shared_ptr<suMemMapFile> suScheduleFile::OpenMMap(const int& year, const si
 {
     if (MAP_HAS(m_year2mmap, year))
     {
-        SLOG_DEBUG("已存在[{}.dat]文件映射", year)
+        //SLOG_DEBUG("已存在[{}.dat]文件映射", year)
         return m_year2mmap.at(year);
     }
     suPath datafile(m_desc.root);

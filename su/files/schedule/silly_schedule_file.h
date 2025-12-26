@@ -117,7 +117,7 @@ bool suScheduleFile::Read(const std::string& code, const sutime& tm, T& data)
         }
         const int year = tm.year();
         const size_t timeOff = TimeOff(tm, sizeof(T));
-        SLOG_DEBUG("读 rawOff: {}, timeOff: {}", rawOff, timeOff);
+        //SLOG_DEBUG("读 rawOff: {}, timeOff: {}", rawOff, timeOff);
         auto tmp = OpenMMap(year, AssumeFileSize(m_index.size(), sizeof(T)));
         if (!tmp)
         {
