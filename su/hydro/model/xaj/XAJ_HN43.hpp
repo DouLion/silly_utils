@@ -25,73 +25,12 @@
 class XAJ_HN43
 {
   public:
-    XAJ_HN43()
-    {
-        Area = 100;  // 流域面积(km²)
-        Imp = 0.01;  // 不透水面积比例(0~1)
-
-        Wm = 70;  // 总张力水容量(mm),Wm = Wum + Wlm + Wdm
-
-        Wu0 = 0;   // 上层初始土壤含水量(mm)
-        Wl0 = 40;  // 下层初始土壤含水量(mm)
-        Wd0 = 10;  // 深层初始土壤含水量(mm)
-
-        Wum = 20;  // 上层最大蓄水容量(mm)
-        Wlm = 40;  // 下层最大蓄水容量(mm)
-        Wdm = 10;  // 深层最大蓄水容量(mm)
-
-        K = 0.9;  // 自由水总出流系数(部分实现使用,常被 Kg/Ki/Ks 替代)
-
-        B = 0.14;  // 蓄水容量空间分布不均匀性指数(b 参数,0~1)
-
-        C = 0.15;  // 深层蒸散发折减系数(0~1)
-
-        Kg = 0.3;  // 地下径流出流系数(自由水→地下流)
-        Ki = 0.4;  // 壤中流出流系数(自由水→壤中流)
-
-        Ci = 0.9;    // 壤中流线性水库消退系数(汇流用)
-        Cg = 0.998;  // 地下径流消退系数(接近1,退水极慢)
-
-        Sm = 15;  // 自由水蓄水库最大容量(mm)
-
-        Ex = 1.1;  // 自由水出流非线性指数(标准模型通常为1.0)
-
-        ForePeriod = 24;  // 预报时长(小时)
-        CalcSteps = 60;   // 计算时间步长(分钟)
-
-        Fr0 = 0.3;  // 自由水初始蓄满度(或比例)
-        S0 = 0;     // 自由水初始蓄量(mm)
-
-        Q0 = 0;   // 初始总流量(m³/s)
-        QS0 = 0;  // 初始地表流(m³/s)
-        QI0 = 0;  // 初始壤中流(m³/s)
-        QG0 = 0;  // 初始地下流(m³/s)
-
-        LagTM = 0;    // 地表汇流滞后时间(小时,此处未启用)
-        LagCS = 0.4;  // 地表汇流调蓄系数
-
-        MskX = 0.4;  // 马斯京根法流量权重系数(0~0.5)
-        MskK = 1;    // 马斯京根法蓄量常数(小时)
-
-        rlen = 0;  // 河道长度或单位线长度(未使用)
-
-        // 下一时刻状态变量(用于迭代计算)
-        Wu1 = 0;  // 上层含水量(t+1)
-        Wl1 = 0;  // 下层含水量(t+1)
-        Wd1 = 0;  // 深层含水量(t+1)
-
-        Fr1 = 0;  // 自由水蓄满度(t+1)
-        S1 = 0;   // 自由水蓄量(t+1)
-
-        Q1 = 0;   // 总流量(t+1)
-        QS1 = 0;  // 地表流(t+1)
-        QI1 = 0;  // 壤中流(t+1)
-        QG1 = 0;  // 地下流(t+1)
-    };
-    double Area, Wm, Wu0, Wl0, Wd0, Wum, Wlm, Wdm, Imp, K, B, C, Kg, Ki, Ci, Cg, Sm, Ex, ForePeriod, CalcSteps, Fr0, S0, Q0, QS0, QI0, QG0, LagTM, LagCS, MskX, MskK, rlen;
-    double Wu1, Wl1, Wd1, Fr1, S1, Q1, QS1, QI1, QG1;
-
-    // 无雨延续洪水预报
+    /**
+     *  当 PointNum 大于 RainNum 时, 超过RainNum的部分属于无水预报
+     *  适用预报值填充 vRain 使 RainNum >= PointNum, 那么就是预报流量
+     * @param vRain 输入雨量值序列
+     * @param vResultQ 输出流量序列
+     */
     void Calc(std::vector<double>& vRain, std::vector<double>& vResultQ)
     {
         if (Ki + Kg > 0.9)
@@ -101,7 +40,7 @@ class XAJ_HN43
             Kg = Kg / sum;
         }
 
-        int RainNum = vRain.size();
+        const int RainNum = vRain.size();
         double weight = 1;
         std::vector<double> vEM;
         std::vector<double> vE;
@@ -114,8 +53,9 @@ class XAJ_HN43
         std::vector<double> vQG;
         std::vector<double> vQ;
 
-        int PointNum = RainNum + (ForePeriod) * 60 / CalcSteps;
-        double EM = 4.8 * CalcSteps / 60.0 / 24;  // 常数日蒸散发 4.8 mm/day(典型湿润地区经验值
+        const int PointNum = RainNum + static_cast<int>(ForePeriod * 60.0 / CalcSteps);
+        // 常数日蒸散发 4.8 mm/day(典型湿润地区经验值)
+        const double EM = 4.8 * CalcSteps / 60.0 / 24;  // 每个时段的蒸散量
         vEM.resize(PointNum, EM);
         vE.resize(PointNum, 0);
         vR.resize(PointNum, 0);
@@ -134,7 +74,7 @@ class XAJ_HN43
             return;
         }
 
-        CalcCore(vRain.data(), RainNum, 1, vEM.data(), vE.data(), vR.data(), vRS.data(), vRI.data(), vRG.data(), vQS.data(), vQI.data(), vQG.data(), vQ.data(), PointNum);
+        CalcCore(vRain.data(), RainNum, weight, vEM.data(), vE.data(), vR.data(), vRS.data(), vRI.data(), vRG.data(), vQS.data(), vQI.data(), vQG.data(), vQ.data(), PointNum);
 
         if (MskK > 0)
         {
@@ -146,21 +86,24 @@ class XAJ_HN43
         }
     }
 
-    void CalcCore(double* pRain,  // 降雨序列
-               int RainNum,    // 降雨时段数
-               double weight,  // 雨量站权重
-               double* pEM,    // 潜在蒸散发序列
-               double* pE,     // 输出：实际蒸散发(累计)
-               double* pR,     // 输出：总产流量(mm)
-               double* pRS,    // 输出：地表产流(mm)
-               double* pRI,    // 输出：壤中流产流(mm)
-               double* pRG,    // 输出：地下产流(mm)
-               double* pQS,    // 输出：地表流量(m³/s)
-               double* pQI,    // 输出：壤中流流量(m³/s)
-               double* pQG,    // 输出：地下流流量(m³/s)
-               double* pQ,     // 输出：总流量(m³/s)
-               int QNum        // 要计算的总时段数(预报长度)
-    )
+    /**
+     * 核心计算函数, 计算流量
+     * @param[ in] pRain 降雨序列
+     * @param[ in] RainNum 降雨时段数
+     * @param[ in] weight 雨量站权重
+     * @param[ in] pEM 潜在蒸散发序列
+     * @param[out] pE 实际蒸散发(累计)
+     * @param[out] pR 总产流量(mm)
+     * @param[out] pRS 地表产流(mm)
+     * @param[out] pRI 壤中流产流(mm)
+     * @param[out] pRG 地下产流(mm)
+     * @param[out] pQS 地表流量(m³/s)
+     * @param[out] pQI 壤中流流量(m³/s)
+     * @param[out] pQG 地下流流量(m³/s)
+     * @param[out] pQ 总流量(m³/s)
+     * @param[ in] QNum 要计算的总时段数(预报长度)
+     */
+    void CalcCore(double* pRain, int RainNum, double weight, double* pEM, double* pE, double* pR, double* pRS, double* pRI, double* pRG, double* pQS, double* pQI, double* pQG, double* pQ, int QNum)
     {
         if (RainNum <= 0 || QNum <= 0)
         {
@@ -172,10 +115,9 @@ class XAJ_HN43
         double t, X, ss, q, id;
         double gd;
         double au;
-        double d, e1;
-        double e2 = 0, e, tq2;
-        double tq1;
-        double w;
+        double d;
+        double e2 = 0;
+        double tq1, tq2;
         double qg, qi, qs;
         double s;
         double q11;
@@ -186,18 +128,17 @@ class XAJ_HN43
         double ln, g;
         // VBto upgrade warning: WU As CComVariant	OnWrite(float, short)	OnRead(float)
         double WD, WU, WL;
-
         ddt = CalcSteps / 60.0;
 
         std::vector<double> vtmpQ;
         vtmpQ.resize(rlen + 1);
 
-        mm = (1 + B) * Wm / (1 - Imp);
+        mm = (1 + B) * Wm / (1 - Imp);  //   Wm / (1 - Imp) => 透水区的水容量, Wm 指全区内的平均水容量
         ms = (1 + Ex) * Sm;
         dd = ddt / 24;
-        cs = (double)(pow(LagCS, dd));
-        ci = (double)(pow(Ci, dd));
-        cg = (double)(pow(Cg, dd));
+        cs = (double)(std::pow(LagCS, dd));
+        ci = (double)(std::pow(Ci, dd));
+        cg = (double)(std::pow(Cg, dd));
         c9 = MskK * MskX;
         c8 = (double)(0.5 * ddt);
         c7 = MskK - c9 + c8;
@@ -208,7 +149,7 @@ class XAJ_HN43
         c1 = (c8 + c9) / c7;
         c2 = (MskK - c9 - c8) / c7;
 
-        ki = (double)((1 - pow((1 - (Kg + Ki)), dd)) / (1 + Kg / Ki));
+        ki = (double)((1 - std::pow((1 - (Kg + Ki)), dd)) / (1 + Kg / Ki));
         kg = ki * Kg / Ki;
 
         q1 = QS0 + QI0 + QG0;
@@ -219,7 +160,7 @@ class XAJ_HN43
             QI0 = 0.5;
             QG0 = 0.4;
         }
-        w = Wu0 + Wl0 + Wd0;
+        double w = Wu0 + Wl0 + Wd0;
         WU = Wu0;
         WL = Wl0;
         WD = Wd0;
@@ -241,11 +182,12 @@ class XAJ_HN43
 
         if (w >= Wm)
         {
+            // 初始的土壤总蓄水量已经超过蓄水能力
             w = Wm - 0.01;
         }
 
-        a = mm * (1 - pow((1 - w / Wm), (1 / (1 + B))));
-        fr = 1 - (1 - Imp) * pow((1 - a / mm), B) - Imp;
+        a = mm * (1 - std::pow((1 - w / Wm), (1 / (1 + B))));
+        fr = 1 - (1 - Imp) * std::pow((1 - a / mm), B) - Imp;
 
         ln = rlen / ddt + 1;
         if (ln > 0)
@@ -268,7 +210,7 @@ class XAJ_HN43
             {
                 pp = 0;
             }
-            pe = pp - em;  // p arrary // 净雨(可能为负)
+            pe = pp - em;  //  净雨(可能为负)
             // Step 2: 蒸散发计算(三层)
             if (pe > 0)
             {
@@ -283,14 +225,14 @@ class XAJ_HN43
                 else
                 {
                     // 使用 B 参数计算蓄水容量曲线,求 r
-                    a = mm * (1 - pow((1 - w / Wm), (1 / (1 + B))));
+                    a = mm * (1 - std::pow((1 - w / Wm), (1 / (1 + B))));
                     if (a + pe >= mm)
                     {
                         r = pe + w - Wm;
                     }
                     else
                     {
-                        r = pe - Wm + w + Wm * (pow((1 - (pe + a) / mm), (1 + B)));
+                        r = pe - Wm + w + Wm * (std::pow((1 - (pe + a) / mm), (1 + B)));
                     }
                 }
                 // Step 4: 水源划分(自由水水库 + 非线性出流)
@@ -302,25 +244,32 @@ class XAJ_HN43
                 q = t / fr;
                 g = floor(q / 5.) + 1;
                 q /= g;
-                id = (1. - pow((1. - (kg + ki)), (1. / g))) / (1 + kg / ki);
+                id = (1. - std::pow((1. - (kg + ki)), (1. / g))) / (1 + kg / ki);
                 gd = (double)(id * kg / ki);
                 rs = 0.;  // 计算地表径流
                 rg = 0.;  // 计算地下流
                 ri = 0.;  // 计算壤中流
                 for (jj = 0; jj < g; jj++)
                 {
+                    // r1：本时段自由水水库产生的总出流量 r1=RI+RG
+                    // rs：累计的壤中流（Interflow）
                     if (s >= Sm)
                     {
+                        // 自由水水库已满（s >= Sm）
+                        // 超过容量的部分（包括原有超量 s - Sm + 新增 q）全部作为出流
                         r1 = q + s - Sm;
                         rs = r1 * fr + rs;
                     }
                     else
                     {
-                        au = ms * (1 - pow((1 - s / Sm), (1 / (1 + Ex))));
+                        // 计算等效蓄量 au
+                        // Ex = 0（线性）时，au = s
+                        // Ex > 0，au 对高含水量更敏感
+                        au = ms * (1 - std::pow((1 - s / Sm), (1 / (1 + Ex))));
                         if (au + q < ms)
-                        {
-                            r1 = q - Sm + s + Sm * pow((1 - (q + au) / ms), (1 + Ex));
-                            rs = r1 * fr + rs;
+                        {  // 加入q 后还未充满
+                            r1 = q - Sm + s + Sm * std::pow((1 - (q + au) / ms), (1 + Ex));
+                            rs = r1 * fr + rs;  // 下渗的吗??
                         }
                         else
                         {
@@ -356,7 +305,6 @@ class XAJ_HN43
             // Step 2: 蒸散发计算(三层)
             if (d >= 0)
             {
-                e1 = em;
                 e2 = 0.;
                 if (d <= Wum)
                 {
@@ -379,7 +327,6 @@ class XAJ_HN43
             }
             else
             {
-                e1 = pp + WU;
                 WU = 0;
                 if (WL / Wlm <= C)
                 {
@@ -397,7 +344,7 @@ class XAJ_HN43
                 }
             }
             w = WU + WL + WD;
-            e = e1 + e2;
+            // e = e1 + e2;
 
             if (rg < 0)
             {
@@ -474,13 +421,17 @@ class XAJ_HN43
             }
         }  // i
     }
-    /// 新安江模型中用于地表径流(或总流量)汇流演算的一个简化模块,其作用是对输入流量过程 Inq 进行滞后与调蓄处理,以模拟水流在坡面或河道中的传播延迟和坦化效应
-    void Xaj3_LL(int qnum,     // 流量序列长度(时段数)
-                 double* Inq,  // 输入流量过程(m³/s),通常是 CalcCore 输出的 vQ(三水源叠加后)
-                 double* Otq,  // 输出流量过程(经汇流演算后)
-                 double nLL,   // 滞后时间(Lag Time),单位：时段数(非小时！)
-                 double nCS    // 调蓄系数(0~1),控制当前流量与滞后流量的权重 典型值 0.3~0.7。
-    )
+
+    /**
+     * @brief 新安江模型中用于地表径流(或总流量)汇流演算的一个简化模块
+     *        其作用是对输入流量过程 Inq 进行滞后与调蓄处理,以模拟水流在坡面或河道中的传播延迟和坦化效应
+     * @param[ in] qnum 流量序列长度(时段数)
+     * @param[ in] Inq 输入流量过程(m³/s),通常是 CalcCore 输出的 vQ(三水源叠加后)
+     * @param[out] Otq 输出流量过程(经汇流演算后)
+     * @param[ in] nLL 滞后时间(Lag Time),单位：时段数(非小时！)
+     * @param[ in] nCS 调蓄系数(0~1),控制当前流量与滞后流量的权重 典型值 0.3~0.7
+     */
+    void Xaj3_LL(int qnum, double* Inq, double* Otq, double nLL, double nCS)
     {
         int index, i;
         // float* nQQ;
@@ -493,7 +444,7 @@ class XAJ_HN43
             }
             return;
         }
-        // nCS  越大 → 越依赖近期流量(响应快,洪峰高)
+        // nCS 越大 → 越依赖近期流量(响应快,洪峰高)
         // nCS 越小 → 越依赖滞后流量(响应慢,洪峰平缓)
         for (i = 1; i < qnum; i++)
         {
@@ -529,5 +480,63 @@ class XAJ_HN43
 
         return (vFlows[lastIndex] * (NextIndex - index)) + vFlows[NextIndex] * (index - lastIndex);
     }
+
+    double Area = 100;  // 流域面积(km²)
+    double Imp = 0.01;  // 不透水面积比例(0~1)
+
+    double Wm = 70;   // 总张力水容量(mm),Wm = Wum + Wlm + Wdm
+    double Wu0 = 0;   // 上层初始土壤含水量(mm)
+    double Wl0 = 40;  // 下层初始土壤含水量(mm)
+    double Wd0 = 10;  // 深层初始土壤含水量(mm)
+    double Wum = 20;  // 上层最大蓄水容量(mm)
+    double Wlm = 40;  // 下层最大蓄水容量(mm)
+    double Wdm = 10;  // 深层最大蓄水容量(mm)
+
+    double K = 0.9;   // 自由水总出流系数(部分实现使用,常被 Kg/Ki/Ks 替代)
+    double B = 0.14;  // 蓄水容量空间分布不均匀性指数(b 参数,0~1)
+    double C = 0.15;  // 深层蒸散发折减系数(0~1)
+
+    double Kg = 0.3;  // 地下径流出流系数(自由水→地下流)
+    double Ki = 0.4;  // 壤中流出流系数(自由水→壤中流)
+
+    double Ci = 0.9;    // 壤中流线性水库消退系数(汇流用)
+    double Cg = 0.998;  // 地下径流消退系数(接近1,退水极慢)
+
+    double Sm = 15;   // 自由水蓄水库最大容量(mm)
+    double Ex = 1.1;  // 自由水出流非线性指数(标准模型通常为1.0)
+
+    double ForePeriod = 24;  // 预报时长(小时)
+    double CalcSteps = 60;   // 计算时间步长(分钟)
+
+    double Fr0 = 0.3;  // 自由水初始蓄满度(或比例)
+    double S0 = 0;     // 自由水初始蓄量(mm)
+
+    double Q0 = 0;   // 初始总流量(m³/s)
+    double QS0 = 0;  // 初始地表流(m³/s)
+    double QI0 = 0;  // 初始壤中流(m³/s)
+    double QG0 = 0;  // 初始地下流(m³/s)
+
+    // 下一时刻状态变量(用于迭代计算)
+    double Wu1 = 0;  // 上层含水量(t+1)
+    double Wl1 = 0;  // 下层含水量(t+1)
+    double Wd1 = 0;  // 深层含水量(t+1)
+
+    double Fr1 = 0;  // 自由水蓄满度(t+1)
+    double S1 = 0;   // 自由水蓄量(t+1)
+
+    double Q1 = 0;   // 总流量(t+1)
+    double QS1 = 0;  // 地表流(t+1)
+    double QI1 = 0;  // 壤中流(t+1)
+    double QG1 = 0;  // 地下流(t+1)
+
+    double LagTM = 0;    // 地表汇流滞后时间(小时,此处未启用)
+    double LagCS = 0.4;  // 地表汇流调蓄系数
+
+    double MskX = 0.4;  // 马斯京根法流量权重系数(0~0.5)
+    double MskK = 1;    // 马斯京根法蓄量常数(小时)
+    // 把一段真实、可能弯曲、变宽、分叉的天然河道，简化为一段理想化的、均质的直河道，其长度即为“特征河长”
+    // 如果整条河使用一个糙率, 那么该河段应该可以适用统一的特征河长
+    // 如果细分河段的糙率, 那么应是多段的
+    double rlen = 0;  // 特征河长
 };
 #endif
