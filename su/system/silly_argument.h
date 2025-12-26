@@ -140,12 +140,12 @@ public:
 };
 
 #ifndef NDEBUG
-void suArgsExampel(int argc, char** argv)
+static void ArgsParseExample(int argc, char** argv)
 {
     int a = 0;
     double b = 0.0;
     bool c = false;
-    std::string name = "";
+    std::string name;
 
     suArgs uarg;
     uarg.Add(suArgs::Option("--a").Bind(a).Desc("参数a"));
