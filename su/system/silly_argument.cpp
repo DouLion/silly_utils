@@ -155,7 +155,7 @@ void suArgs::Usage()
     std::cout << " <program>";
     for (const auto& [key, opt] : m_options)
     {
-        std::cout <<opt.DescNormal();
+        std::cout <<opt.DescEqual();
     }
 
     std::cout << "\n参数:\n";
