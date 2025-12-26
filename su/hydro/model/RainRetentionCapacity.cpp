@@ -11,28 +11,28 @@
 #include "RainRetentionCapacity.h"
 #include <log/silly_log.h>
 
-std::vector<CalcResult> RainRetentionCapacity::CalcNYNL(CalcParam& p)
+std::vector<CalcResult> RainRetentionCapacity::CalcNYNL(const CalcParam& p) const
 {
     // 目标水位数组
-    std::vector pTargetRZ = {p.Yhdgc, p.Xxsw, p.Sjsw, p.Bdgc};
+    std::vector pTargetRZ = {p.DstRZ.YhdE, p.DstRZ.JhRZ, p.DstRZ.SjRZ, p.DstRZ.BadE};
     std::vector<CalcResult> nynlRet(pTargetRZ.size());
 
     // 计算起始库容
-    double BeginW = pRZ2WLine.GetWFromZ(p.BeginRZ, 1);
+    double BW = pRZ2WLine.GetWFromZ(p.BRZ, 1);
 
     // 循环计算4个目标水�?
     for (int i = 0; i < pTargetRZ.size(); i++)
     {
         nynlRet[i] = {};
-        nynlRet[i].BeginRZ = p.BeginRZ;
-        nynlRet[i].BeginW = BeginW;
+        nynlRet[i].BRZ = p.BRZ;
+        nynlRet[i].BW = BW;
 
-        p.EndRZ = pTargetRZ[i];
-        double EndW = pRZ2WLine.GetWFromZ(p.EndRZ, 1);
-        nynlRet[i].EndRZ = p.EndRZ;
-        nynlRet[i].EndW = EndW;
+        double dstRZ = pTargetRZ[i];
+        double EW = pRZ2WLine.GetWFromZ(dstRZ, 1);
+        nynlRet[i].ERZ = dstRZ;
+        nynlRet[i].EW = EW;
 
-        if (p.BeginRZ >= p.EndRZ || p.EndRZ <= 0)
+        if (p.BRZ >= dstRZ || dstRZ <= 0)
         {
             // 无效情况，PP设为0
             nynlRet[i].PE = 0;
@@ -42,8 +42,8 @@ std::vector<CalcResult> RainRetentionCapacity::CalcNYNL(CalcParam& p)
         else
         {
             // 反算
-            // const {PP : rPPF.PP, PE : PE1, dW : dW1, OTQ : OTQ1, OTW : OTW1} = CalcPPF(BeginRZ, KCH, TCH, WCH, pRZ2WLine, pPaPrLine, Pa, Wm, Area, Bdgc, Yhdk, Yhdgc, EndRZ);
-            auto rPPF = CalcPPF(p);
+            // const {PP : rPPF.PP, PE : PE1, dW : dW1, OTQ : OTQ1, OTW : OTW1} = CalcPPF(BRZ, KCH, TCH, WCH, pRZ2WLine, pPaPrLine, Pa, Wm, Area, BadE, YhdW, YhdE, ERZ);
+            auto rPPF = CalcPPF(p, dstRZ);
             nynlRet[i].PE = rPPF.PE;
             nynlRet[i].dW = rPPF.dW;
             nynlRet[i].OTW = rPPF.OTW;
@@ -56,8 +56,8 @@ std::vector<CalcResult> RainRetentionCapacity::CalcNYNL(CalcParam& p)
             }
 
             // 第二次计算PP（使用相同的参数�?
-            // const {PP : rPPZ.PP, PE : rPPZ.PE, dW : dW2, OTW : OTW2} = CalcPPZ(BeginRZ, KCH, pRZ2WLine, pPaPrLine, Pa, Wm, pmin, pmax, CalcSteps, Area, Bdgc, Yhdk, Yhdgc, EndRZ);
-            auto rPPZ = CalcPPZ(p);
+            // const {PP : rPPZ.PP, PE : rPPZ.PE, dW : dW2, OTW : OTW2} = CalcPPZ(BRZ, KCH, pRZ2WLine, pPaPrLine, Pa, Wm, pmin, pmax, CalcSteps, Area, BadE, YhdW, YhdE, ERZ);
+            auto rPPZ = CalcPPZ(p, dstRZ);
 
             // 应用范围限制
             double finalPP = rPPZ.PP;
@@ -79,27 +79,27 @@ std::vector<CalcResult> RainRetentionCapacity::CalcNYNL(CalcParam& p)
 
     return nynlRet;
 }
-CalcResult RainRetentionCapacity::CalcPPZ(CalcParam& p) const
+CalcResult RainRetentionCapacity::CalcPPZ(const CalcParam& p, const double& dstRZ) const
 {
     CalcResult ret;
     // 获取起始和结束库�?
-    double BeginW = pRZ2WLine.GetWFromZ(p.BeginRZ, 1);
-    double EndW = pRZ2WLine.GetWFromZ(p.EndRZ, 1);
+    double BW = pRZ2WLine.GetWFromZ(p.BRZ, 1);
+    double EW = pRZ2WLine.GetWFromZ(dstRZ, 1);
 
     // 初始化溢洪道流量和净雨量范围
     double MinOTQ = 0;
     double MaxOTQ = 0;
 
     // 计算最大溢洪道流量（如果目标水位高于溢洪道高程�?
-    if (p.EndRZ > p.Yhdgc)
+    if (dstRZ > p.DstRZ.YhdE)
     {
-        MaxOTQ = 0.385 * p.KCH * std::sqrt(2 * 9.8) * p.Yhdk * std::pow(p.EndRZ - p.Yhdgc, 1.5);
+        MaxOTQ = 0.385 * p.KCH * std::sqrt(2 * 9.8) * p.YhdW * std::pow(dstRZ - p.DstRZ.YhdE, 1.5);
         MaxOTQ = MaxOTQ * 3600 * 24;  // 转换为立方米/小时
     }
 
     // 计算净雨量(PE)的最小值和最大�?
-    double MinPE = ((EndW - BeginW) * pRZ2WLine.Unit() + MinOTQ) / (p.Area * 1000.0);
-    double MaxPE = ((EndW - BeginW) * pRZ2WLine.Unit() + MaxOTQ) / (p.Area * 1000.0);
+    double MinPE = ((EW - BW) * pRZ2WLine.Unit() + MinOTQ) / (p.Area * 1000.0);
+    double MaxPE = ((EW - BW) * pRZ2WLine.Unit() + MaxOTQ) / (p.Area * 1000.0);
 
     if (p.pmin > 0)
     {
@@ -187,7 +187,7 @@ CalcResult RainRetentionCapacity::CalcPPZ(CalcParam& p) const
         }
 
         // 模拟洪水演进过程
-        double RZ = p.BeginRZ;
+        double RZ = p.BRZ;
         double W = pRZ2WLine.GetWFromZ(RZ, 1);
         double bExceed = false;
 
@@ -196,9 +196,9 @@ CalcResult RainRetentionCapacity::CalcPPZ(CalcParam& p) const
         {
             // 计算溢洪道流量
             OutQ = 0;
-            if (RZ > p.Yhdgc)
+            if (RZ > p.DstRZ.YhdE)
             {
-                OutQ = 0.385 * p.KCH * std::sqrt(2 * 9.8) * p.Yhdk * std::pow(RZ - p.Yhdgc, 1.5);
+                OutQ = 0.385 * p.KCH * std::sqrt(2 * 9.8) * p.YhdW * std::pow(RZ - p.DstRZ.YhdE, 1.5);
             }
             ret.OTW += OutQ * p.CalcSteps * 60.0 / pRZ2WLine.Unit();
 
@@ -209,13 +209,13 @@ CalcResult RainRetentionCapacity::CalcPPZ(CalcParam& p) const
             RZ = pRZ2WLine.GetZFromW(W, 1);
 
             // 检查是否超过目标水位
-            if (RZ >= p.EndRZ)
+            if (RZ >= dstRZ)
             {
                 bExceed = true;
                 // break;
             }
         }
-        ret.dW = EndW - BeginW + ret.OTW;
+        ret.dW = EW - BW + ret.OTW;
 
         // 调整净雨量范围
         if (bExceed)
@@ -238,11 +238,11 @@ CalcResult RainRetentionCapacity::CalcPPZ(CalcParam& p) const
     ret.OTW = std::round(ret.OTW * 10000) / 10000;
     return ret;
 }
-CalcResult RainRetentionCapacity::CalcPPF(CalcParam& p)
+CalcResult RainRetentionCapacity::CalcPPF(const CalcParam& p, const double& dstRZ) const
 {
     CalcResult ret;
-    double BeginW = pRZ2WLine.GetWFromZ(p.BeginRZ, 1);
-    double EndW = pRZ2WLine.GetWFromZ(p.EndRZ, 1);
+    double BW = pRZ2WLine.GetWFromZ(p.BRZ, 1);
+    double EW = pRZ2WLine.GetWFromZ(dstRZ, 1);
 
     double OTQ = 0;
     // 计算溢洪道流量
@@ -250,14 +250,14 @@ CalcResult RainRetentionCapacity::CalcPPF(CalcParam& p)
     {
         ret.OTW = p.WCH;
     }
-    else if (p.EndRZ > p.Yhdgc && p.TCH && p.KCH)
+    else if (dstRZ > p.DstRZ.YhdE && p.TCH && p.KCH)
     {
-        OTQ = 0.385 * p.KCH * std::sqrt(2 * 9.8) * p.Yhdk * std::pow((p.EndRZ - p.Yhdgc), 1.5);
+        OTQ = 0.385 * p.KCH * std::sqrt(2 * 9.8) * p.YhdW * std::pow((dstRZ - p.DstRZ.YhdE), 1.5);
         ret.OTW = OTQ * p.TCH * 60 / pRZ2WLine.Unit();  // 转换为立方米/小时
     }
 
     // 计算净雨量PE
-    ret.dW = EndW - BeginW + ret.OTW;
+    ret.dW = EW - BW + ret.OTW;
     double PE = ret.dW * pRZ2WLine.Unit() / (p.Area * 1000.0);
 
     // 计算降雨量PP
@@ -265,17 +265,17 @@ CalcResult RainRetentionCapacity::CalcPPF(CalcParam& p)
     
     ret.PE = std::round(PE * 100) / 100;
     ret.PP = std::round(PP * 100) / 100;
-    OTQ = std::round(OTQ * 100) / 100;
+    // OTQ = std::round(OTQ * 100) / 100;
     ret.OTW = std::round(ret.OTW * 10000) / 10000;
     return ret;
 }
 
 void CalcResult::Print() const
 {
-    std::cout << "{\n  BeginRZ:" << BeginRZ;
-    std::cout << "\n  BeginW:" << BeginW;
-    std::cout << "\n  EndRZ:" << EndRZ;
-    std::cout << "\n  EndW:" << EndW;
+    std::cout << "{\n  BRZ:" << BRZ;
+    std::cout << "\n  BW:" << BW;
+    std::cout << "\n  ERZ:" << ERZ;
+    std::cout << "\n  EW:" << EW;
     std::cout << "\n  PP:" << PP;
     std::cout << "\n  PE:" << PE;
     std::cout << "\n  dW:" << dW;
@@ -434,15 +434,15 @@ void RainRetentionCapacity::TestModel()
         pPaPrLine.AddLine(paPR.extVal, tmp);
     }
     CalcParam p;
-    p.BeginRZ = 447;   // 起始水位(m)
+    p.BRZ = 447;   // 起始水位(m)
     p.Area = 5;        // 流域面积(km2)
     p.Wm = 120;        // 最大蓄水量(mm)
     p.Pa = 20;         // 前期影响雨量(mm)
-    p.Bdgc = 460;      // 坝顶高程(m)
-    p.Yhdk = 2;        // 溢洪道宽度(m)
-    p.Yhdgc = 454;     // 溢洪道高程(m)
-    p.Sjsw = 456;      // 设计洪水位(m)
-    p.Xxsw = 452;      // 校核洪水位(m)
+    p.DstRZ.BadE = 460;      // 坝顶高程(m)
+    p.YhdW = 2;        // 溢洪道宽度(m)
+    p.DstRZ.YhdE = 454;     // 溢洪道高程(m)
+    p.DstRZ.SjRZ = 456;      // 设计洪水位(m)
+    p.DstRZ.JhRZ = 452;      // 校核洪水位(m)
     p.KCH = 0.6;       // 流量系数
     p.TCH = 60;        // 出流时间 分钟
     p.WCH = -1;        // 出流量 百万方
