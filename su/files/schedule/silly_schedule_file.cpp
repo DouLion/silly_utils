@@ -13,7 +13,7 @@
 bool suScheduleFile::SetDesc(const suScheduleData::Desc& desc)
 {
     m_desc = desc;
-    m_rawNum = 366 * 24 * (SEC_IN_HOUR /m_desc.each);
+    m_rawNum = 366 * 24 * (SEC_IN_HOUR / m_desc.each);
 
     if (!m_index.open(IndexFile()))
     {
@@ -63,9 +63,8 @@ size_t suScheduleFile::TimeOff(const sutime& tm, const size_t& blockSize)
 {
     sutime ntm(std::to_string(tm.year()) + "-01-01 00:00");
     std::time_t stampOff = tm.stamp_sec() - ntm.stamp_sec();
-    size_t ret = stampOff/ m_desc.each * blockSize;
+    size_t ret = stampOff / m_desc.each * blockSize;
     return ret + CODE_MAX_LEN;
-
 }
 size_t suScheduleFile::BlockOff(const std::string& code, const sutime& tm, const size_t& blockSize) const
 {
@@ -90,20 +89,21 @@ size_t suScheduleFile::AssumeFileSize(const size_t& codeNum, const size_t& block
     {
         nCodeNum = static_cast<size_t>(static_cast<double>(nCodeNum) * 1.1);
     }
-    size_t rawSize = CODE_MAX_LEN + m_rawNum * blockSize; // 一个站一年占用记录大小
+    size_t rawSize = CODE_MAX_LEN + m_rawNum * blockSize;  // 一个站一年占用记录大小
     ret = rawSize * nCodeNum;
 
     // TODO: 加上固定头和一些其他信息
 
     // 获取内存分页大小
     size_t pageSize = MEM_PAGE_SIZE();
-    ret  = ret / pageSize + 1;;
+    ret = ret / pageSize + 1;
+    ;
     ret = ret * pageSize;
     return ret;
 }
 bool suScheduleFile::CheckCode(const char* readCode, const std::string& givenCode)
 {
-    for (int i = 0 ; i < CODE_MAX_LEN && i< givenCode.size(); i++)
+    for (int i = 0; i < CODE_MAX_LEN && i < givenCode.size(); i++)
     {
         if (readCode[i] != givenCode[i])
         {
@@ -112,11 +112,11 @@ bool suScheduleFile::CheckCode(const char* readCode, const std::string& givenCod
     }
     return true;
 }
-std::shared_ptr<suMemMapFile> suScheduleFile::OpenMMap(const int& year, const size_t& size)
+std::shared_ptr<suMemMapFile> suScheduleFile::OpenMMap(const int& year, const size_t& size, eMMFMode mode)
 {
     if (MAP_HAS(m_year2mmap, year))
     {
-        //SLOG_DEBUG("已存在[{}.dat]文件映射", year)
+        // SLOG_DEBUG("已存在[{}.dat]文件映射", year)
         return m_year2mmap.at(year);
     }
     suPath datafile(m_desc.root);
@@ -125,27 +125,36 @@ std::shared_ptr<suMemMapFile> suScheduleFile::OpenMMap(const int& year, const si
     {
         datafile.append(std::to_string(year) + ".dat");
     }
+
     if (!datafile.exists())
     {
-        std::string buff(1024, '\0');
-        char* p = buff.data();
-        memcpy(p , m_header, sizeof(m_header));
-        p+=sizeof(m_header);
-        memcpy(p, m_version, sizeof(m_version));
-        p+=sizeof(m_version);
-
-        std::string llsize = std::to_string(sizeof(long long) * 8);
-        memcpy(p, llsize.data(), llsize.size());
-        p+=llsize.size();
-        if (SU_LITTLE_ENDIAN)
+        if (mode == eMMFMode::Write)
         {
-            memcpy(p, "LEND", 4);
+            std::string buff(1024, '\0');
+            char* p = buff.data();
+            memcpy(p, m_header, sizeof(m_header));
+            p += sizeof(m_header);
+            memcpy(p, m_version, sizeof(m_version));
+            p += sizeof(m_version);
+
+            std::string llsize = std::to_string(sizeof(long long) * 8);
+            memcpy(p, llsize.data(), llsize.size());
+            p += llsize.size();
+            if (SU_LITTLE_ENDIAN)
+            {
+                memcpy(p, "LEND", 4);
+            }
+            else
+            {
+                memcpy(p, "BEND", 4);
+            }
+            sufile::write(datafile, buff);
         }
         else
         {
-            memcpy(p, "BEND", 4);
+            SLOG_ERROR("文件不存在:{}", datafile.u8string())
+            return nullptr;
         }
-        sufile::write(datafile, buff);
     }
     if (!datafile.resize_file(size))
     {
@@ -156,7 +165,7 @@ std::shared_ptr<suMemMapFile> suScheduleFile::OpenMMap(const int& year, const si
     suMemMapFile::Param p;
     p.file_size = size;
     p.map_size = size;
-    p.mode = eMMFMode::Write;
+    p.mode = mode;
     p.path = datafile;
     if (ret->open(p))
     {
