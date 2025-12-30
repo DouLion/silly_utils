@@ -23,3 +23,18 @@ double RZ2W_L::GetZFromW(const double& w, const int& type) const
 {
     return GetXFromY(w, type);
 }
+double RZ2W_L::GetIncreaseZ(const double& bz, const double& iw) const
+{
+    const double bw = GetWFromZ(bz);
+    const double eRZ = GetZFromW(bw + iw / m_unit);
+    return eRZ - bz;
+}
+double RZ2W_L::GetZWhenInW(const double& bz, const double& iw) const
+{
+    const double BegW = GetWFromZ(bz);
+    return GetZFromW(BegW + iw / m_unit);
+}
+double RZ2W_L::Unit() const
+{
+    return m_unit;
+}

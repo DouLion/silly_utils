@@ -6,8 +6,8 @@
  * @date: 2025-12-24
  * @file: PAIRS_L.h
  * @description: PAIRS_L 头文件
- *                 可以根据 x * 1000 转为 正数,
- *                 使用 std::map<long long, double> 存储数据
+ *                 可以根据 x * 1000 转为 整数,
+ *                 然后 用 std::map<long long, double> 存储数据
  * @version: v1.0.1 2025-12-24 dou li yang
  */
 #ifndef PAIRS_L_H
@@ -24,7 +24,7 @@ class PairsL
 
   public:
     PairsL() = default;
-    PairsL(const double& xScale);
+    explicit PairsL(const double& xScale);
     /**
      * @brief: 添加一组xy关系,
      *  这里应该根据x的值动态插入,而不是直接放到最后
