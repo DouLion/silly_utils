@@ -83,7 +83,7 @@ class suScheduleFile
     static bool CheckCode(const char* readCode, const std::string& givenCode);
     template <typename T, typename Func, typename... Args>
     bool ReadUnionFile(Func&& func, Args&&... args);
-    std::shared_ptr<suMemMapFile> OpenMMap(const int& year, const size_t& size);
+    std::shared_ptr<suMemMapFile> OpenMMap(const int& year, const size_t& size, eMMFMode mode);
 
   protected:
     std::map<int, std::shared_ptr<suMemMapFile>> m_year2mmap;
@@ -117,8 +117,8 @@ bool suScheduleFile::Read(const std::string& code, const sutime& tm, T& data)
         }
         const int year = tm.year();
         const size_t timeOff = TimeOff(tm, sizeof(T));
-        SLOG_DEBUG("读 rawOff: {}, timeOff: {}", rawOff, timeOff);
-        auto tmp = OpenMMap(year, AssumeFileSize(m_index.size(), sizeof(T)));
+        // SLOG_DEBUG("读 rawOff: {}, timeOff: {}", rawOff, timeOff);
+        auto tmp = OpenMMap(year, AssumeFileSize(m_index.size(), sizeof(T)), eMMFMode::Read);
         if (!tmp)
         {
             return false;
@@ -235,7 +235,7 @@ bool suScheduleFile::Write(sutime& tm, const std::map<std::string, T>& code2data
     }
     const int year = tm.year();
 
-    auto mmap = OpenMMap(year, AssumeFileSize(m_index.size(), sizeof(T)));
+    auto mmap = OpenMMap(year, AssumeFileSize(m_index.size(), sizeof(T)), eMMFMode::Write);
     if (!mmap)
     {
         return false;
