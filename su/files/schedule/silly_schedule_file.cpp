@@ -216,7 +216,7 @@ bool suScheduleFile::Read(const sutime& tm, std::map<std::string, std::vector<ch
             std::vector<char> data(size);
             if (tmp->read((unsigned char*)data.data(), size, rawOff + timeOff))
             {
-                code2data[code] = data;
+                code2data[code] = std::move(data);
             }
         }
 
@@ -264,13 +264,14 @@ void suScheduleFile::ReadSingleYear(const sutime& btm, const sutime& etm, std::m
     int num = (etm.stamp_sec() - btm.stamp_sec()) / m_desc.each + 1;
 
     const size_t timeOff = TimeOff(btm, size);
-    std::vector<std::vector<char>> records(num);
+    std::vector<char> records(num * size);
     if (tmp->read((unsigned char*)records.data(), size * num, rawOff + timeOff))
     {
         sutime tm = btm;
         for (int i = 0; i < num; ++i)
         {
-            time2data[tm] = records[i];
+            std::vector<char> record(records.begin() + i * size, records.begin() + (i + 1) * size);
+            time2data[tm] = std::move(record);
             tm += m_desc.each;
         }
     }
