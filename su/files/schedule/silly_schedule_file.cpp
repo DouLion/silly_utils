@@ -175,3 +175,147 @@ std::shared_ptr<suMemMapFile> suScheduleFile::OpenMMap(const int& year, const si
     SLOG_ERROR("文件映射失败:{}", datafile.u8string())
     return nullptr;
 }
+
+bool suScheduleFile::Read(const std::string& code, const sutime& tm, std::vector<char>& data, const size_t size)
+{
+    return ReadUnionFile([this, code, tm, &data, size]() -> bool {
+        const size_t rawOff = RawOffset(code, size);
+        if (0 == rawOff)
+        {
+            return false;
+        }
+        const int year = tm.year();
+        const size_t timeOff = TimeOff(tm, size);
+        SLOG_DEBUG("读 rawOff: {}, timeOff: {}", rawOff, timeOff);
+        auto tmp = OpenMMap(year, AssumeFileSize(m_index.size(), size), eMMFMode::Read);
+        if (!tmp)
+        {
+            return false;
+        }
+        return tmp->read((unsigned char*)data.data(), size, rawOff + timeOff);
+    });
+}
+
+bool suScheduleFile::Read(const sutime& tm, std::map<std::string, std::vector<char>>& code2data, const size_t size)
+{
+    return ReadUnionFile([this, tm, &code2data, size]() -> bool {
+        const int year = tm.year();
+        auto tmp = OpenMMap(year, AssumeFileSize(m_index.size(), size), eMMFMode::Read);
+        if (!tmp)
+        {
+            return false;
+        }
+        const size_t timeOff = TimeOff(tm, size);
+        for (const auto& [code, sort] : m_index.m_code2sort)
+        {
+            const size_t rawOff = RawOffset(code, size);
+            if (0 == rawOff)
+            {
+                continue;
+            }
+            std::vector<char> data(size);
+            if (tmp->read((unsigned char*)data.data(), size, rawOff + timeOff))
+            {
+                code2data[code] = data;
+            }
+        }
+
+        return !code2data.empty();
+    });
+}
+
+bool suScheduleFile::Read(const std::string& code, const sutime& btm, const sutime& etm, std::map<sutime, std::vector<char>>& time2data, const size_t size)
+{
+    return ReadUnionFile([this, code, btm, etm, &time2data, size]() -> bool {
+        if (btm > etm)
+        {
+            return false;
+        }
+        const size_t rawOff = RawOffset(code, size);
+        if (0 == rawOff)
+        {
+            return false;
+        }
+        if (btm.year() == etm.year())
+        {
+            ReadSingleYear(btm, etm, time2data, rawOff, size);
+        }
+        else if (etm.year() - btm.year() == 1)
+        {
+            sutime btm_0101, etm_1231;
+            etm_1231.from_string(btm.to_string(DTFMT_Y) + "-12-31 23:55");
+            btm_0101.from_string(etm.to_string(DTFMT_Y) + "-01-01 00:00");
+
+            ReadSingleYear(btm, etm_1231, time2data, rawOff, size);
+            ReadSingleYear(btm_0101, etm, time2data, rawOff, size);
+        }
+        else
+        {
+            SLOG_ERROR("时间跨度不能超过一年")
+            return false;
+        }
+        return !time2data.empty();
+    });
+}
+
+void suScheduleFile::ReadSingleYear(const sutime& btm, const sutime& etm, std::map<sutime, std::vector<char>>& time2data, const size_t rawOff, const size_t size)
+{
+    auto tmp = OpenMMap(btm.year(), AssumeFileSize(m_index.size(), size), eMMFMode::Read);
+    int num = (etm.stamp_sec() - btm.stamp_sec()) / m_desc.each + 1;
+
+    const size_t timeOff = TimeOff(btm, size);
+    std::vector<std::vector<char>> records(num);
+    if (tmp->read((unsigned char*)records.data(), size * num, rawOff + timeOff))
+    {
+        sutime tm = btm;
+        for (int i = 0; i < num; ++i)
+        {
+            time2data[tm] = records[i];
+            tm += m_desc.each;
+        }
+    }
+}
+
+bool suScheduleFile::Write(sutime& tm, const std::map<std::string, std::vector<char>>& code2data, const size_t size)
+{
+    std::scoped_lock lock(m_WriteMutex);
+    std::set<std::string> newCodes;
+    for (const auto& [code, _] : code2data)
+    {
+        if (code.size() > CODE_MAX_LEN)
+        {
+            continue;
+        }
+        if (!m_index.contains(code))
+        {
+            m_index.add(code);
+        }
+    }
+    if (!m_index.write(IndexFile()))
+    {
+        SLOG_ERROR("写入索引文件失败")
+        return false;
+    }
+    const int year = tm.year();
+
+    auto mmap = OpenMMap(year, AssumeFileSize(m_index.size(), size), eMMFMode::Write);
+    if (!mmap)
+    {
+        return false;
+    }
+    size_t timeOff = TimeOff(tm, size);
+    for (const auto& [code, data] : code2data)
+    {
+        size_t rawOff = RawOffset(code, size);
+        SLOG_DEBUG("写 rawOff: {}, timeOff: {}", rawOff, timeOff);
+        char name[CODE_MAX_LEN] = {};
+        /*mmap->read((unsigned char*)name, CODE_MAX_LEN, rawOff);
+        if (!CheckCode(name, code))
+        {
+            continue;
+        }*/
+        mmap->write((unsigned char*)(code.data()), code.size(), rawOff);
+        mmap->write((unsigned char*)(data.data()), size, rawOff + timeOff);
+    }
+    return true;
+}
