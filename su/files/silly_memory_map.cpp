@@ -168,11 +168,6 @@ bool suMemMapFile::map_file()
 void suMemMapFile::try_map_file()
 {
 #ifdef _WIN32
-#ifndef NDEBUG
-    std::stringstream ss;
-    ss << "TryMapFile, 线程: " << std::this_thread::get_id();
-    SLOG_DEBUG(ss.str())
-#endif
     DWORD access = PAGE_READONLY;
     if (m_mode == Write)
     {
@@ -241,11 +236,7 @@ std::uintmax_t suMemMapFile::filesize()
 bool suMemMapFile::open_file()
 {
 #ifdef IS_WIN32
-#ifndef NDEBUG
-    std::stringstream ss;
-    ss << "OpenFile, 线程: " << std::this_thread::get_id();
-    SLOG_DEBUG(ss.str())
-#endif
+
     DWORD access = GENERIC_READ | GENERIC_WRITE;
     DWORD share = FILE_SHARE_READ | FILE_SHARE_WRITE;
     // DWORD disposition = CREATE_ALWAYS;

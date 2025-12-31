@@ -87,7 +87,7 @@ bool TzxPyramidIndex::parse()
                     break;
                 }
             }
-            SLOG_DEBUG("Layer: {}, BR: {}, ER: {}, BC: {}, EC: {}", (int)l, (int)m_pack.layers[l].brow, (int)m_pack.layers[l].erow, (int)m_pack.layers[l].bcol, (int)m_pack.layers[l].ecol)
+            // SLOG_DEBUG("Layer: {}, BR: {}, ER: {}, BC: {}, EC: {}", (int)l, (int)m_pack.layers[l].brow, (int)m_pack.layers[l].erow, (int)m_pack.layers[l].bcol, (int)m_pack.layers[l].ecol)
             p += 5 * sizeof(size_t);
         }
         SLOG_DEBUG("\n起始层级: {}\n结束层级:{}", (int)m_pack.blayer, (int)m_pack.elayer)
@@ -109,7 +109,7 @@ bool TzxPyramidIndex::parse()
             m_pack.layers[l].ecol = buff[3];
 
             m_pack.layers[l].fill();
-            SLOG_DEBUG("Layer: {}, BR: {}, ER: {}, BC: {}, EC: {}", (int)l, (int)m_pack.layers[l].brow, (int)m_pack.layers[l].erow, (int)m_pack.layers[l].bcol, (int)m_pack.layers[l].ecol)
+            // SLOG_DEBUG("Layer: {}, BR: {}, ER: {}, BC: {}, EC: {}", (int)l, (int)m_pack.layers[l].brow, (int)m_pack.layers[l].erow, (int)m_pack.layers[l].bcol, (int)m_pack.layers[l].ecol)
 
             p += sizeof(uint32_t) * 4;
         }
