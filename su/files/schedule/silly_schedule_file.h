@@ -37,6 +37,7 @@ class suScheduleFile
      */
     template <typename T>
     bool Read(const std::string& code, const sutime& tm, T& data);
+    bool Read(const std::string& code, const sutime& tm, std::vector<unsigned char>& data, const size_t size);
 
     /**
      * 指定时间段的所有数据
@@ -71,6 +72,7 @@ class suScheduleFile
      */
     template <typename T>
     bool Write(sutime& tm, const std::map<std::string, T>& code2data);
+    bool Write(sutime& tm, const std::map<std::string, std::vector<unsigned char>>& code2data, const size_t size);
 
   private:
     suPath IndexFile() const;
@@ -82,6 +84,8 @@ class suScheduleFile
     size_t AssumeFileSize(const size_t& codeNum, const size_t& blockSize) const;
     static bool CheckCode(const char* readCode, const std::string& givenCode);
     template <typename T, typename Func, typename... Args>
+    bool ReadUnionFile(Func&& func, Args&&... args);
+    template <typename Func, typename... Args>
     bool ReadUnionFile(Func&& func, Args&&... args);
     std::shared_ptr<suMemMapFile> OpenMMap(const int& year, const size_t& size, eMMFMode mode);
 
@@ -103,6 +107,17 @@ bool suScheduleFile::ReadUnionFile(Func&& func, Args&&... args)
         SLOG_WARN("描述名称[{}]应该与类名[{}]一致", m_desc.name, CLASS_PURE_NAME<T>())
         return false;
     }
+    std::scoped_lock lock(m_WriteMutex);
+    return func(std::forward<Args>(args)...);
+}
+template <typename Func, typename... Args>
+bool suScheduleFile::ReadUnionFile(Func&& func, Args&&... args)
+{
+    // if (m_desc.name != CLASS_PURE_NAME<T>())
+    //{
+    // SLOG_WARN("描述名称[{}]应该与类名[{}]一致", m_desc.name, CLASS_PURE_NAME<T>())
+    //  return false;
+    //}
     std::scoped_lock lock(m_WriteMutex);
     return func(std::forward<Args>(args)...);
 }
@@ -139,7 +154,7 @@ bool suScheduleFile::Read(const sutime& tm, std::map<std::string, T>& code2data)
         const size_t timeOff = TimeOff(tm, sizeof(T));
         for (const auto& [code, sort] : m_index.m_code2sort)
         {
-            const size_t rawOff = RawOffset(code, sizeof(T));
+            const size_t rawOff = RawOffset(code, sizeof(T), eMMFMode::Read);
             if (0 == rawOff)
             {
                 continue;
@@ -191,7 +206,7 @@ bool suScheduleFile::Read(const std::string& code, const sutime& btm, const suti
 template <typename T>
 void suScheduleFile::ReadSingleYear(const sutime& btm, const sutime& etm, std::map<sutime, T>& time2data, const size_t rawOff)
 {
-    auto tmp = OpenMMap(btm.year(), AssumeFileSize(m_index.size(), sizeof(T)));
+    auto tmp = OpenMMap(btm.year(), AssumeFileSize(m_index.size(), sizeof(T)), eMMFMode::Read);
     int num = (etm.stamp_sec() - btm.stamp_sec()) / m_desc.each + 1;
 
     const size_t timeOff = TimeOff(btm, sizeof(T));

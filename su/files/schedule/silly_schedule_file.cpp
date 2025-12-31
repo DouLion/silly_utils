@@ -175,3 +175,67 @@ std::shared_ptr<suMemMapFile> suScheduleFile::OpenMMap(const int& year, const si
     SLOG_ERROR("文件映射失败:{}", datafile.u8string())
     return nullptr;
 }
+
+bool suScheduleFile::Read(const std::string& code, const sutime& tm, std::vector<unsigned char>& data, const size_t size)
+{
+    return ReadUnionFile([this, code, tm, &data, size]() -> bool {
+        const size_t rawOff = RawOffset(code, size);
+        if (0 == rawOff)
+        {
+            return false;
+        }
+        const int year = tm.year();
+        const size_t timeOff = TimeOff(tm, size);
+        SLOG_DEBUG("读 rawOff: {}, timeOff: {}", rawOff, timeOff);
+        auto tmp = OpenMMap(year, AssumeFileSize(m_index.size(), size), eMMFMode::Read);
+        if (!tmp)
+        {
+            return false;
+        }
+        return tmp->read(data.data(), size, rawOff + timeOff);
+    });
+}
+
+bool suScheduleFile::Write(sutime& tm, const std::map<std::string, std::vector<unsigned char>>& code2data, const size_t size)
+{
+    std::scoped_lock lock(m_WriteMutex);
+    std::set<std::string> newCodes;
+    for (const auto& [code, _] : code2data)
+    {
+        if (code.size() > CODE_MAX_LEN)
+        {
+            continue;
+        }
+        if (!m_index.contains(code))
+        {
+            m_index.add(code);
+        }
+    }
+    if (!m_index.write(IndexFile()))
+    {
+        SLOG_ERROR("写入索引文件失败")
+        return false;
+    }
+    const int year = tm.year();
+
+    auto mmap = OpenMMap(year, AssumeFileSize(m_index.size(), size), eMMFMode::Write);
+    if (!mmap)
+    {
+        return false;
+    }
+    size_t timeOff = TimeOff(tm, size);
+    for (const auto& [code, data] : code2data)
+    {
+        size_t rawOff = RawOffset(code, size);
+        SLOG_DEBUG("写 rawOff: {}, timeOff: {}", rawOff, timeOff);
+        char name[CODE_MAX_LEN] = {};
+        /*mmap->read((unsigned char*)name, CODE_MAX_LEN, rawOff);
+        if (!CheckCode(name, code))
+        {
+            continue;
+        }*/
+        mmap->write((unsigned char*)(code.data()), code.size(), rawOff);
+        mmap->write((unsigned char*)(&data), size, rawOff + timeOff);
+    }
+    return true;
+}
