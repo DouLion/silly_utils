@@ -93,14 +93,19 @@ class suPoint
 
     suPoint operator/(const double& scale) const
     {
-        return suPoint(x / scale, y / scale, z / scale);
+        suPoint ret(*this);
+        ret/=scale;
+        return ret;
     }
 
     suPoint& operator/=(const double& scale)
     {
-        x /= scale;
-        y /= scale;
-        z /= scale;
+        if (scale != 0.0)
+        {
+            x /= scale;
+            y /= scale;
+            z /= scale;
+        }
         return *this;
     }
 

@@ -10,61 +10,39 @@
  */
 #include "silly_pyramid_tile.h"
 
-suPoint suPyramidTile::LonLatToTilePos(const suPoint& llp, const int& zoom)
+void suPyramidTile::Verify(const suPoint& llp, const int& zoom, const int& vw, const int& vh, const int& tile_size)
 {
-    suPoint ret;
-    double lon = llp.x;
-    double lat = llp.y;
+    {
 
-    {// 确保经纬度在范围内
-        const int TLat = std::fpclassify(lat);
-        const int TLon = std::fpclassify(lon);
-        bool bad_lon = false;
+        printf("\n验证经纬度 xyz互转: (%.12f, %.12f)", llp.x, llp.y);
+        suPoint xy  = suPyramidTile::LonLatToFXYZ(llp, zoom);
+        printf("\n  xyz: (%.12f, %.12f, %d)", xy.x, xy.y,  zoom);
+        suPoint nll = suPyramidTile::FXYZToLonLat(xy, zoom);
+        printf("\n  误差 经度 : %f 纬度 : %f", nll.x - llp.x, nll.y - llp.y);
 
-        if (TLat == FP_INFINITE || TLat == FP_NAN) {
-            lat = 89.9;
-        }
 
-        if (TLon == FP_INFINITE || TLon == FP_NAN) {
-            lon = 720.0;
-            bad_lon = true;
-        }
-        // 限制纬度
-        lat = std::clamp(lat, -89.9, 89.9);
-
-        // 限制经度 (仅在不是坏的经度时)
-        if (!bad_lon) {
-            // 使用 std::clamp 使逻辑更清晰、更不易出错
-            lon = std::clamp(lon, -360.0, 360.0);
-        }
     }
-    const auto n = static_cast<double>(1LL << zoom);
 
-    const double mercator_lat = std::log(std::tan(MATH::PI_ / 4.0 + DEG2RAD(lat) / 2.0));
-    const double mercator_y_term = 1.0 - (mercator_lat / MATH::PI_);
+    {
+        printf("\n验证经纬度 场景坐标互转: (%.12f, %.12f)", llp.x, llp.y);
+        suPoint xy  =suPyramidTile::LonLatToScenePos(llp, zoom);
+        printf("\n  场景坐标: (%.12f, %.12f)", xy.x, xy.y);
+        suPoint nll = suPyramidTile::ScenePosToLonLat(xy, zoom);
+        printf("\n  误差 经度 : %f 纬度 : %f", nll.x - llp.x, nll.y - llp.y);
+    }
 
-    // Y 坐标计算
-    double tile_y = n * mercator_y_term / 2.0;
-    // 使用 std::clamp，它比 if/else 更简洁、意图更明确
-    tile_y = std::clamp(tile_y, 0.0, n - 1.0);
+    {
+        printf("\n验证经纬度 视口范围互转: (%.12f, %.12f)", llp.x, llp.y);
+        suRect svp = suPyramidTile::CenterLL2ViewPort(llp, zoom, vw, vh);
+        printf("\n  场景边界: (%.12f, %.12f, %.12f, %.12f)", svp.min.x, svp.min.y, svp.max.x, svp.max.y);
+        suPoint nll = suPyramidTile::ViewPort2CenterLL(svp, zoom);
+        /*std::string fmt = R"(误差
+左边界 : %f
+上边界 : %f
+右边界 : %f
+下边界 : %f
+)";*/
+        printf("\n  误差 经度 : %f 纬度 : %f", nll.x - llp.x, nll.y - llp.y);
 
-    // X 坐标计算
-    const double scale_factor = 360.0 + std::pow(2.0, -24.0);
-    double tile_x = n * ((lon + 180.0) / scale_factor);
-
-    // 最终赋值
-    ret.x = tile_x;
-    ret.y = tile_y;
-    return ret;
-}
-
-suRect suPyramidTile::CalcSceneBound(const suPoint& llp, const int& zoom, const int& sw, const int& sh, const int& tile_size)
-{
-    suRect ret;
-    suPoint scp = LonLatToScenePos(llp, zoom, tile_size);
-    ret.min.x = scp.x - sw / 2.0;
-    ret.min.y = scp.y - sh / 2.0;
-    ret.max.x = scp.x + sw / 2.0;
-    ret.max.y = scp.y + sh / 2.0;
-    return ret;
+    }
 }

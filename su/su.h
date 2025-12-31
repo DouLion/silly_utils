@@ -78,6 +78,7 @@
 #include <geo/triangular/silly_delaunay.h>          // 德劳内三角剖分的基础数据结构和工具类
 #include <geo/vacuate/psimpl.h>                     // psimpl源码
 #include <geo/vacuate/silly_vacuate.h>              // 抽稀算法
+#include <geo/silly_pyramid_tile.h>                 // 金字塔瓦片相关处理
 
 // 图像处理
 #include <graphics/font/silly_font.h>                           // 处理字体
