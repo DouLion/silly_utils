@@ -26,7 +26,7 @@ class suScheduleFile
      * 指定一个名称用于构建目录
      * @param desc 名称
      */
-    bool SetDesc(const suScheduleData::Desc& desc);
+    bool SetDesc(const suScheduleData::fileDesc& desc);
     /**
      * 指定编码,指定时间的数据
      * @tparam T
@@ -97,7 +97,7 @@ class suScheduleFile
     suScheduleIndex m_index;
     char m_header[4] = {'T', 'Z', 'X', 'S'};       // 固定头
     char m_version[4] = {0x00, 0x01, 0x00, 0x01};  // 版本号
-    suScheduleData::Desc m_desc;
+    suScheduleData::fileDesc m_desc;
     bool m_isDescSet = false;
     size_t m_rawNum = 0;
     std::mutex m_WriteMutex;

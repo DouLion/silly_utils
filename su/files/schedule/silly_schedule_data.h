@@ -11,15 +11,78 @@
 #ifndef SILLY_UTILS_SILLY_SCHEDULE_DATA_H
 #define SILLY_UTILS_SILLY_SCHEDULE_DATA_H
 #include <files/silly_file.h>
+#include <log/silly_log.h>
+#include <json/silly_jsonpp.h>
+
+// 类型大小映射表
+static std::unordered_map<std::string, size_t> TYPE_SIZE =
+    {{"int16_t", sizeof(int16_t)}, {"int32_t", sizeof(int32_t)}, {"float", sizeof(float)}, {"double", sizeof(double)}};
+
 class suScheduleData
 {
-public:
-    struct Desc
+  public:
+    /// <summary>
+    /// 文件描述
+    /// </summary>
+    struct fileDesc
     {
-        std::time_t each = 300;// 每300秒(5分钟) 一批数据
+        std::time_t each = 300;  // 每300秒(5分钟) 一批数据
         std::string name;
-        suPath root= suPath("./tmp");
-        bool single = false; // 是否作单个文件存储, 单个文件有利于读写分离
+        suPath root = suPath("./tmp");
+        bool single = false;  // 是否作单个文件存储, 单个文件有利于读写分离
     };
+
+    /// <summary>
+    /// 数据描述
+    /// </summary>
+    struct cellDesc
+    {
+        std::string key;
+        std::string type;
+        double scale;
+    };
+
+  public:
+    suScheduleData(std::string& filepath);
+    /// <summary>
+    /// 获取数据
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="key"></param>
+    /// <param name="data"></param>
+    /// <returns></returns>
+    double get(const std::string& name, const std::string& key, std::vector<char>& data);
+
+    /// <summary>
+    /// 批量获取数据
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="keys"></param>
+    /// <param name="data"></param>
+    /// <returns></returns>
+    std::map<std::string, double> get(const std::string& name, const std::vector<std::string>& keys, std::vector<char>& data);
+
+  private:
+    std::map<std::string, std::vector<cellDesc>> name2desc;
+
+    template <typename T>
+    static double extractValue(const std::vector<char>& data, size_t offset, int scale)
+    {
+        double ret = 0.0;
+        if (offset + sizeof(T) > data.size())
+        {
+            SLOG_ERROR("数据长度:{},计算长度:{}", data.size(), offset + sizeof(T));
+            return ret;
+        }
+
+        T value;
+        memcpy(&value, data.data() + offset, sizeof(T));
+
+        if (scale > 0)
+        {
+            ret = value / static_cast<double>(scale);
+        }
+        return ret;
+    }
 };
 #endif  // SILLY_UTILS_SILLY_SCHEDULE_DATA_H

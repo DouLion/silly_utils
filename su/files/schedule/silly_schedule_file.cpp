@@ -10,7 +10,7 @@
  */
 #include "silly_schedule_file.h"
 
-bool suScheduleFile::SetDesc(const suScheduleData::Desc& desc)
+bool suScheduleFile::SetDesc(const suScheduleData::fileDesc& desc)
 {
     m_desc = desc;
     m_rawNum = 366 * 24 * (SEC_IN_HOUR / m_desc.each);
