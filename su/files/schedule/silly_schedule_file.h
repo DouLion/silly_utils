@@ -74,8 +74,8 @@ class suScheduleFile
      * @return
      */
     template <typename T>
-    bool Write(sutime& tm, const std::map<std::string, T>& code2data);
-    bool Write(sutime& tm, const std::map<std::string, std::vector<char>>& code2data, const size_t size);
+    bool Write(const sutime& tm, const std::map<std::string, T>& code2data);
+    bool Write(const sutime& tm, const std::map<std::string, std::vector<char>>& code2data, const size_t size);
 
   private:
     suPath IndexFile() const;
@@ -226,7 +226,7 @@ void suScheduleFile::ReadSingleYear(const sutime& btm, const sutime& etm, std::m
 }
 
 template <typename T>
-bool suScheduleFile::Write(sutime& tm, const std::map<std::string, T>& code2data)
+bool suScheduleFile::Write(const sutime& tm, const std::map<std::string, T>& code2data)
 {
     if (m_desc.name != CLASS_PURE_NAME<T>())
     {

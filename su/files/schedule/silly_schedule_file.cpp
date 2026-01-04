@@ -277,7 +277,7 @@ void suScheduleFile::ReadSingleYear(const sutime& btm, const sutime& etm, std::m
     }
 }
 
-bool suScheduleFile::Write(sutime& tm, const std::map<std::string, std::vector<char>>& code2data, const size_t size)
+bool suScheduleFile::Write(const sutime& tm, const std::map<std::string, std::vector<char>>& code2data, const size_t size)
 {
     std::scoped_lock lock(m_WriteMutex);
     std::set<std::string> newCodes;

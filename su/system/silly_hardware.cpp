@@ -142,6 +142,11 @@ std::string GetPhysicalDriveSerial(int driveIndex) {
     return serial;
 }
 #else
+#include <net/if.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
+#include <string.h>
+std::map<std::string, std::string> GetAllMacAddresses();
 std::string GetMacAddress()
 {
     DIR* dir = opendir("/sys/class/net/");

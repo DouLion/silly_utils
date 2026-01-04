@@ -62,7 +62,7 @@ class suScheduleData
     /// <returns></returns>
     std::map<std::string, double> get(const std::string& name, const std::vector<std::string>& keys, std::vector<char>& data);
 
-  private:
+  public:
     std::map<std::string, std::vector<cellDesc>> name2desc;
 
     template <typename T>
