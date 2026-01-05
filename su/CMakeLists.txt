@@ -26,37 +26,3 @@ add_library(${PROJECT_NAME} STATIC ${SU_SRC_FILES})
 target_link_libraries(${PROJECT_NAME} PUBLIC ${SU_ALL_REQUIRED_LIBRARIES})
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

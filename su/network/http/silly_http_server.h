@@ -37,23 +37,21 @@ using suHttpKV = std::unordered_map<std::string, std::string>;
     respJson[SU_HTTP_JSON_RESPONSE_STATUS] = 0;                              \
     respJson[SU_HTTP_JSON_RESPONSE_MESSAGE] = "未实现.";
 
-
-#define SU_HTTP_CONVERT_KV(_dragon_req_)  \
-    [_dragon_req_]() -> suHttpKV {         \
-        suHttpKV ret;                     \
+#define SU_HTTP_CONVERT_KV(_dragon_req_)                         \
+    [_dragon_req_]() -> suHttpKV {                               \
+        suHttpKV ret;                                            \
         for (const auto& [k, v] : _dragon_req_->getParameters()) \
-        {                                 \
-            std::string nk = k;           \
-            ret[TO_LOWER(nk)] = v;        \
-        }                                 \
-        return ret;                       \
+        {                                                        \
+            std::string nk = k;                                  \
+            ret[TO_LOWER(nk)] = v;                               \
+        }                                                        \
+        return ret;                                              \
     }()
 
 #define SU_REQUEST_CALLBACK(data) \
     resp->setBody(data);          \
     callback(resp);               \
     return;
-
 
 /// 以下宏定义只会在旧的服务中使用
 #define SU_OLD_HTTP_JSON_RESPONSE_HEADER "header"
@@ -74,7 +72,6 @@ using suHttpKV = std::unordered_map<std::string, std::string>;
     respJson[SU_OLD_HTTP_JSON_RESPONSE_HEADER][SU_OLD_HTTP_JSON_RESPONSE_RET_CODE] = 1; \
     respJson[SU_OLD_HTTP_JSON_RESPONSE_HEADER][SU_OLD_HTTP_JSON_RESPONSE_RET_MESSAGE] = "not implement.";
 
-
 #define SU_HTTP_CHECK_STR suHttpUtils::CheckStr
 #define SU_HTTP_TRY_STR suHttpUtils::TryStr
 #define SU_HTTP_CHECK_NUM suHttpUtils::CheckNum
@@ -82,11 +79,11 @@ using suHttpKV = std::unordered_map<std::string, std::string>;
 
 class suHttpUtils
 {
-public:
+  public:
     /**
-    * 查找指定key,获取其对应的值,如果找不到以按照默认值返回
-    * 
-    */
+     * 查找指定key,获取其对应的值,如果找不到以按照默认值返回
+     *
+     */
     static std::string CheckStr(const std::unordered_map<std::string, std::string>& k2v, const std::string& key, const std::string& dv = "");
 
     /**
@@ -101,3 +98,48 @@ public:
 };
 
 #endif  // SILLY_UTILS_SILLY_HTTP_SERVER_H
+
+
+#ifdef DROGON_EXPORT_H
+#ifndef RUN_DROGON_HTTP_SERVER
+#define RUN_DROGON_HTTP_SERVER
+#include <drogon/drogon.h>
+
+inline void RunDrogonHttpServer(const std::string& cfg, const int& port, const int& thread_num = std::thread::hardware_concurrency())
+{
+    supath p(cfg);
+    if (p.is_file())
+    {
+        // 使用 配置文件
+        drogon::app().loadConfigFile(p.string());
+    }
+    else
+    {
+        drogon::app().addListener("0.0.0.0", port);
+        drogon::app().setThreadNum(thread_num);
+        std::string drLogCfg = R"({
+      "log_path": "./logs",
+      "log_format": "",
+      "log_file": "access.log",
+      "log_size_limit": 0,
+      "use_local_time": true,
+      "log_index": 0
+    })";
+        Json::Value jvDrLogCfg;
+        if (Json::Reader().parse(drLogCfg, jvDrLogCfg))
+        {
+            drogon::app().addPlugin("drogon::plugin::AccessLogger", {}, jvDrLogCfg);
+        }
+    }
+#ifndef _WIN32
+    supath dlock("/tmp/drogon.lock");
+    if (dlock.exists())
+    {
+        std::this_thread::sleep_for(std::chrono::seconds(2));
+        supath::rmfile(dlock);
+    }
+#endif
+    drogon::app().run();
+}
+#endif
+#endif
