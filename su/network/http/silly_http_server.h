@@ -131,6 +131,15 @@ inline void RunDrogonHttpServer(const std::string& cfg, const int& port, const i
             drogon::app().addPlugin("drogon::plugin::AccessLogger", {}, jvDrLogCfg);
         }
     }
+    auto infos = drogon::app().getHandlersInfo();
+    // 打印路由信息
+    for (const auto& info : infos)
+    {
+        if (std::get<1>(info) == 1)
+        {
+            SLOG_INFO("请求路径: {}", std::get<0>(info));
+        }
+    }
 #ifndef _WIN32
     supath dlock("/tmp/drogon.lock");
     if (dlock.exists())
