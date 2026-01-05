@@ -104,6 +104,7 @@ class suHttpUtils
 #ifndef RUN_DROGON_HTTP_SERVER
 #define RUN_DROGON_HTTP_SERVER
 #include <drogon/drogon.h>
+#include <log/silly_log.h>
 
 inline void RunDrogonHttpServer(const std::string& cfg, const int& port, const int& thread_num = std::thread::hardware_concurrency())
 {
