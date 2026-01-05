@@ -105,6 +105,14 @@ class suHttpUtils
 #define RUN_DROGON_HTTP_SERVER
 #include <drogon/drogon.h>
 
+/**
+ * 运行drogon http服务,
+ * 如果配置文件存在, 则按照配置文件运行
+ * 如果配置文件不在, 则指定端口和线程,其他按照默认配置运行
+ * @param cfg 配置文件路径
+ * @param port 默认端口
+ * @param thread_num 默认线程数
+ */
 inline void RunDrogonHttpServer(const std::string& cfg, const int& port, const int& thread_num = std::thread::hardware_concurrency())
 {
     supath p(cfg);
