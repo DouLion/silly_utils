@@ -186,7 +186,7 @@ bool suScheduleFile::Read(const std::string& code, const sutime& tm, std::vector
         }
         const int year = tm.year();
         const size_t timeOff = TimeOff(tm, size);
-        SLOG_DEBUG("读 rawOff: {}, timeOff: {}", rawOff, timeOff);
+        //SLOG_DEBUG("读 rawOff: {}, timeOff: {}", rawOff, timeOff);
         auto tmp = OpenMMap(year, AssumeFileSize(m_index.size(), size), eMMFMode::Read);
         if (!tmp)
         {
@@ -308,7 +308,7 @@ bool suScheduleFile::Write(const sutime& tm, const std::map<std::string, std::ve
     for (const auto& [code, data] : code2data)
     {
         size_t rawOff = RawOffset(code, size);
-        SLOG_DEBUG("写 rawOff: {}, timeOff: {}", rawOff, timeOff);
+        //SLOG_DEBUG("写 rawOff: {}, timeOff: {}", rawOff, timeOff);
         char name[CODE_MAX_LEN] = {};
         /*mmap->read((unsigned char*)name, CODE_MAX_LEN, rawOff);
         if (!CheckCode(name, code))

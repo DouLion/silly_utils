@@ -14,7 +14,7 @@
 #include <su_marco.h>
 class suArgs
 {
-public:
+  public:
     struct Option
     {
         Option() = default;
@@ -31,7 +31,14 @@ public:
         template <typename T>
         Option& Bind(T& var)
         {
-           pParser =  [&var](const std::string& str) -> bool {
+            pParser = [&var](const std::string& str) -> bool {
+                if constexpr (std::is_same_v<T, std::string>)
+                {
+                    // 对于 string 类型，直接赋值
+                    var = str;
+                    return true;
+                }
+
                 std::istringstream iss(str);
                 T temp;
                 if (!(iss >> temp))
@@ -104,7 +111,8 @@ public:
         {
             return pKey;
         }
-    private:
+
+      private:
         std::string pKey;
         std::string pDesc;
         bool pMust = true;
@@ -133,8 +141,6 @@ public:
      */
     void Usage();
 
-
-
   private:
     std::map<std::string, Option> m_options;
 };
@@ -152,7 +158,7 @@ static void ArgsParseExample(int argc, char** argv)
     uarg.Add(suArgs::Option("--b").Bind(b).Desc("参数b"));
     uarg.Add(suArgs::Option("--c").Bind(c).Desc("参数c").Must(false));
     uarg.Add(suArgs::Option("--n").Bind(name).Desc("参数n"));
-    //uarg.Parse(argc, argv);
+    // uarg.Parse(argc, argv);
     if (!uarg.Parse(argc, argv))
     {
         /*uarg.Usage();

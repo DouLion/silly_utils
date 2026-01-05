@@ -104,6 +104,7 @@ class suHttpUtils
 #ifndef RUN_DROGON_HTTP_SERVER
 #define RUN_DROGON_HTTP_SERVER
 #include <drogon/drogon.h>
+#include <log/silly_log.h>
 
 /**
  * 运行drogon http服务,
