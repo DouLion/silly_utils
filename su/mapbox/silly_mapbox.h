@@ -10,11 +10,11 @@
  */
 #pragma once
 
-#ifndef SILLY_UTILS_SILLY_MAPBOX_H
-#define SILLY_UTILS_SILLY_MAPBOX_H
+#ifndef SILLY_MAPBOX_H
+#define SILLY_MAPBOX_H
 #include <mapbox/mbtiles/silly_mvt.h>
 
-class silly_mapbox
+class suMapBox
 {
   public:
     /// <summary>
@@ -26,15 +26,17 @@ class silly_mapbox
     /// </summary>
     /// <param name="tiles"></param>
     /// <returns></returns>
-    static mvt_tile merge(const std::vector<mvt_tile>& tiles);
+    static MVTTile Merge(const std::vector<MVTTile>& tiles);
 
-    /// <summary>
-    /// 将other合并到out中
-    /// </summary>
-    /// <param name="other"></param>
-    /// <param name="out"></param>
-    /// <returns></returns>
-    static bool merge(const mvt_tile& other, mvt_tile& out);
+    /**
+     * 将src瓦片 合并到dst瓦片中
+     * merge `src` tile into `dst` tile.
+     * @param src 待合并的瓦片 tile to merge
+     * @param dst 合并的结果, 本身可以是空的, 也可以有一些瓦片
+     *            merge result, it could be empty, as well as contains some tiles
+     * @return
+     */
+    static bool Merge(const MVTTile& src, MVTTile& dst);
 };
 
-#endif  // SILLY_UTILS_SILLY_MAPBOX_H
+#endif  // SILLY_MAPBOX_H

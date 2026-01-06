@@ -4,7 +4,7 @@
  * @website: http://www.tianzhixiang.com.cn/
  * @author: dou li yang
  * @date: 2024-10-31
- * @file: silly_mbtiles_sqlite3.cpp
+ * @file: suMBTileDB.cpp
  * @description: silly_mbtiles_sqlite3实现
  * @version: v1.0.1 2024-10-31 dou li yang
  */
@@ -13,7 +13,7 @@
 #include "json/silly_jsonpp.h"
 #include "silly_mbtiles_text.h"
 
-bool silly_mbtiles_sqlite3::open(char *dbname, const option &opt)
+bool suMBTileDB::open(char *dbname, const Option &opt)
 {
     bool status = false;
     if (m_db)
@@ -39,7 +39,7 @@ bool silly_mbtiles_sqlite3::open(char *dbname, const option &opt)
     return status;
 }
 
-bool silly_mbtiles_sqlite3::write_tile(int z, int tx, int ty, const char *data, int size)
+bool suMBTileDB::write_tile(int z, int tx, int ty, const char *data, int size)
 {
     sqlite3_stmt *stmt;
     const char *query = "insert into tiles (zoom_level, tile_column, tile_row, tile_data) values (?, ?, ?, ?)";
@@ -65,12 +65,12 @@ bool silly_mbtiles_sqlite3::write_tile(int z, int tx, int ty, const char *data, 
     return true;
 }
 
-void tilestats(std::map<std::string, layermap_entry> const &layermap1, size_t elements, Json::Value &state)
+void tilestats(std::map<std::string, LayerMapEntry> const &layermap1, size_t elements, Json::Value &state)
 {
     // Consolidate layers/attributes whose names are truncated
-    std::vector<std::map<std::string, layermap_entry>> lmv;
+    std::vector<std::map<std::string, LayerMapEntry>> lmv;
     lmv.push_back(layermap1);
-    std::map<std::string, layermap_entry> layermap = silly_mbtiles_metadata::merge_layermaps(lmv, true);
+    std::map<std::string, LayerMapEntry> layermap = suMBTileMetadata::MergeLayerMaps(lmv, true);
 
     /*  state.json_write_hash();
 
@@ -85,7 +85,7 @@ void tilestats(std::map<std::string, layermap_entry> const &layermap1, size_t el
 
     Json::Value jv_layers = Json::arrayValue;
 
-    for (auto layer : layermap)
+    for (auto& layer : layermap)
     {
         Json::Value jv_layer = Json::objectValue;
         /*state.nospace = true;
@@ -118,9 +118,9 @@ void tilestats(std::map<std::string, layermap_entry> const &layermap1, size_t el
         jv_layer["geometry"] = geomtype;
 
         size_t attrib_count = layer.second.file_keys.size();
-        if (attrib_count > max_tilestats_attributes)
+        if (attrib_count > SUMB_MAX_TILE_STATS_ATTRIBUTES)
         {
-            attrib_count = max_tilestats_attributes;
+            attrib_count = SUMB_MAX_TILE_STATS_ATTRIBUTES;
         }
 
         /*state.nospace = true;
@@ -151,9 +151,9 @@ void tilestats(std::map<std::string, layermap_entry> const &layermap1, size_t el
             jv_attr["attribute"] = attribute.first;
 
             size_t val_count = attribute.second.sample_values.size();
-            if (val_count > max_tilestats_sample_values)
+            if (val_count > SUMB_MAX_TILE_STATS_SAMPLE_VALUES)
             {
-                val_count = max_tilestats_sample_values;
+                val_count = SUMB_MAX_TILE_STATS_SAMPLE_VALUES;
             }
 
             /*state.nospace = true;
@@ -169,15 +169,15 @@ void tilestats(std::map<std::string, layermap_entry> const &layermap1, size_t el
 
             std::string type_str;
             // No "null" because null attributes are dropped
-            if (type == (1 << mvt_double))
+            if (type == (1 << (int)eMVTValueType::mvt_double))
             {
                 type_str = "number";
             }
-            else if (type == (1 << mvt_bool))
+            else if (type == (1 << (int)eMVTValueType::mvt_bool))
             {
                 type_str = "boolean";
             }
-            else if (type == (1 << mvt_string))
+            else if (type == (1 << (int)eMVTValueType::mvt_string))
             {
                 type_str = "string";
             }
@@ -205,7 +205,7 @@ void tilestats(std::map<std::string, layermap_entry> const &layermap1, size_t el
                     break;
                 }
 
-                if (value.type == mvt_double || value.type == mvt_bool)
+                if (value.type == eMVTValueType::mvt_double || value.type == eMVTValueType::mvt_bool)
                 {
                     vals++;
 
@@ -214,7 +214,7 @@ void tilestats(std::map<std::string, layermap_entry> const &layermap1, size_t el
                 }
                 else
                 {
-                    std::string trunc = silly_mbtiles_text::truncate16(value.string, 256);
+                    std::string trunc = suMBTileText::Truncate16(value.string, 256);
 
                     if (trunc.size() == value.string.size())
                     {
@@ -227,7 +227,7 @@ void tilestats(std::map<std::string, layermap_entry> const &layermap1, size_t el
             }
             jv_attr["values"] = jv_vals;
 
-            if ((type & (1 << mvt_double)) != 0)
+            if ((type & (1 << (int)eMVTValueType::mvt_double)) != 0)
             {
                 /*state.nospace = true;
                 state.json_write_string("min");
@@ -246,7 +246,7 @@ void tilestats(std::map<std::string, layermap_entry> const &layermap1, size_t el
     state["layers"] = jv_layers;
 }
 
-bool silly_mbtiles_sqlite3::write_metadata(const char *outdir, const char *fname, const silly_mbtiles_metadata &data)
+bool suMBTileDB::write_metadata(const char *outdir, const char *fname, const suMBTileMetadata &data)
 {
     char *sql, *err;
 
@@ -402,7 +402,7 @@ bool silly_mbtiles_sqlite3::write_metadata(const char *outdir, const char *fname
 
     if (data.vector)
     {
-        size_t elements = max_tilestats_values;
+        size_t elements = SUMB_MAX_TILE_STATS_VALUES;
         std::string buf;
 
         {
@@ -461,16 +461,16 @@ bool silly_mbtiles_sqlite3::write_metadata(const char *outdir, const char *fname
                             type |= (1 << s.type);
                         }
 
-                        if (type == (1 << mvt_double))
+                        if (type == (1 << (int)eMVTValueType::mvt_double))
                         {
                             strType = "Number";
                         }
-                        else if (type == (1 << mvt_bool))
+                        else if (type == (1 << (int)eMVTValueType::mvt_bool))
                         {
                             // state.json_write_string("Boolean");
                             strType = "Boolean";
                         }
-                        else if (type == (1 << mvt_string))
+                        else if (type == (1 << (int)eMVTValueType::mvt_string))
                         {
                             // state.json_write_string("String");
                             strType = "String";
@@ -581,7 +581,7 @@ bool silly_mbtiles_sqlite3::write_metadata(const char *outdir, const char *fname
     return true;
 }
 
-bool silly_mbtiles_sqlite3::close()
+bool suMBTileDB::close()
 {
     char *err;
 
@@ -600,14 +600,14 @@ bool silly_mbtiles_sqlite3::close()
     return true;
 }
 
-std::map<std::string, layermap_entry> silly_mbtiles_sqlite3::merge_layermaps(std::vector<std::map<std::string, layermap_entry>> const &maps)
+std::map<std::string, LayerMapEntry> suMBTileDB::MergeLayerMaps(std::vector<std::map<std::string, LayerMapEntry>> const &maps)
 {
-    return merge_layermaps(maps, false);
+    return MergeLayerMaps(maps, false);
 }
 
-std::map<std::string, layermap_entry> silly_mbtiles_sqlite3::merge_layermaps(std::vector<std::map<std::string, layermap_entry>> const &maps, bool trunc)
+std::map<std::string, LayerMapEntry> suMBTileDB::MergeLayerMaps(std::vector<std::map<std::string, LayerMapEntry>> const &maps, bool trunc)
 {
-    std::map<std::string, layermap_entry> out;
+    std::map<std::string, LayerMapEntry> out;
 
     for (size_t i = 0; i < maps.size(); i++)
     {
@@ -621,12 +621,12 @@ std::map<std::string, layermap_entry> silly_mbtiles_sqlite3::merge_layermaps(std
             std::string layername = map->first;
             if (trunc)
             {
-                layername = silly_mbtiles_text::truncate16(layername, 256);
+                layername = suMBTileText::Truncate16(layername, 256);
             }
 
             if (out.count(layername) == 0)
             {
-                out.insert(std::pair<std::string, layermap_entry>(layername, layermap_entry(out.size())));
+                out.insert(std::pair<std::string, LayerMapEntry>(layername, LayerMapEntry(out.size())));
                 auto out_entry = out.find(layername);
                 out_entry->second.minzoom = map->second.minzoom;
                 out_entry->second.maxzoom = map->second.maxzoom;
@@ -645,14 +645,14 @@ std::map<std::string, layermap_entry> silly_mbtiles_sqlite3::merge_layermaps(std
                 std::string attribname = fk->first;
                 if (trunc)
                 {
-                    attribname = silly_mbtiles_text::truncate16(attribname, 256);
+                    attribname = suMBTileText::Truncate16(attribname, 256);
                 }
 
                 auto fk2 = out_entry->second.file_keys.find(attribname);
 
                 if (fk2 == out_entry->second.file_keys.end())
                 {
-                    out_entry->second.file_keys.insert(std::pair<std::string, type_and_string_stats>(attribname, fk->second));
+                    out_entry->second.file_keys.insert(std::pair<std::string, TypeAndStringStats>(attribname, fk->second));
                 }
                 else
                 {
@@ -663,7 +663,7 @@ std::map<std::string, layermap_entry> silly_mbtiles_sqlite3::merge_layermaps(std
                         {  // not found
                             fk2->second.sample_values.insert(pt, val);
 
-                            if (fk2->second.sample_values.size() > max_tilestats_sample_values)
+                            if (fk2->second.sample_values.size() > SUMB_MAX_TILE_STATS_SAMPLE_VALUES)
                             {
                                 fk2->second.sample_values.pop_back();
                             }
@@ -700,7 +700,7 @@ std::map<std::string, layermap_entry> silly_mbtiles_sqlite3::merge_layermaps(std
 
     return out;
 }
-bool silly_mbtiles_sqlite3::read_tile(int z, int x, int y, char **data, int &size)
+bool suMBTileDB::read_tile(int z, int x, int y, char **data, int &size)
 {
     size = 0;
     if (!m_db)
@@ -739,11 +739,11 @@ bool silly_mbtiles_sqlite3::read_tile(int z, int x, int y, char **data, int &siz
     sqlite3_finalize(stmt);
     return size > 0;
 }
-std::string silly_mbtiles_sqlite3::err()
+std::string suMBTileDB::err()
 {
     return m_err;
 }
-bool silly_mbtiles_sqlite3::create_tables(int forcetable)
+bool suMBTileDB::create_tables(int forcetable)
 {
     char *err = nullptr;
     if (sqlite3_exec(m_db, "PRAGMA synchronous=0", nullptr, nullptr, &err) != SQLITE_OK)
@@ -796,9 +796,9 @@ bool silly_mbtiles_sqlite3::create_tables(int forcetable)
     return true;
 }
 
-void silly_mbtiles_sqlite3::add_to_file_keys(std::map<std::string, type_and_string_stats> &file_keys, std::string const &attrib, type_and_string const &val)
+void suMBTileDB::add_to_file_keys(std::map<std::string, TypeAndStringStats> &file_keys, std::string const &attrib, TypeAndString const &val)
 {
-    if (val.type == mvt_null)
+    if (val.type == (int)eMVTValueType::mvt_null)
     {
         return;
     }
@@ -806,7 +806,7 @@ void silly_mbtiles_sqlite3::add_to_file_keys(std::map<std::string, type_and_stri
     auto fka = file_keys.find(attrib);
     if (fka == file_keys.end())
     {
-        file_keys.insert(std::pair<std::string, type_and_string_stats>(attrib, type_and_string_stats()));
+        file_keys.insert(std::pair<std::string, TypeAndStringStats>(attrib, TypeAndStringStats()));
         fka = file_keys.find(attrib);
     }
 
@@ -816,7 +816,7 @@ void silly_mbtiles_sqlite3::add_to_file_keys(std::map<std::string, type_and_stri
         return;
     }
 
-    if (val.type == mvt_double)
+    if (val.type == (int)eMVTValueType::mvt_double)
     {
         double d = atof(val.string.c_str());
 
@@ -835,7 +835,7 @@ void silly_mbtiles_sqlite3::add_to_file_keys(std::map<std::string, type_and_stri
     {  // not found
         fka->second.sample_values.insert(pt, val);
 
-        if (fka->second.sample_values.size() > max_tilestats_sample_values)
+        if (fka->second.sample_values.size() > SUMB_MAX_TILE_STATS_SAMPLE_VALUES)
         {
             fka->second.sample_values.pop_back();
         }
@@ -843,7 +843,7 @@ void silly_mbtiles_sqlite3::add_to_file_keys(std::map<std::string, type_and_stri
 
     fka->second.type |= (1 << val.type);
 }
-bool silly_mbtiles_sqlite3::read_tile(int z, int x, int y, mvt_tile &layer)
+bool suMBTileDB::read_tile(int z, int x, int y, MVTTile &layer)
 {
     bool status = false;
     if (!m_db)
@@ -882,11 +882,11 @@ bool silly_mbtiles_sqlite3::read_tile(int z, int x, int y, mvt_tile &layer)
     sqlite3_finalize(stmt);
     return status;
 }
-bool silly_mbtiles_sqlite3::read_tile(int z, std::map<int, std::map<int, mvt_tile>> &x_y_layer)
+bool suMBTileDB::read_tile(int z, std::map<int, std::map<int, MVTTile>> &x_y_layer)
 {
     return false;
 }
-bool silly_mbtiles_sqlite3::read_tile(std::map<int, std::map<int, std::map<int, mvt_tile>>> &z_x_y_layer)
+bool suMBTileDB::read_tile(std::map<int, std::map<int, std::map<int, MVTTile>>> &z_x_y_layer)
 {
     return false;
 }

@@ -112,7 +112,7 @@ std::string truncate16(std::string const &s, size_t runes)
     return std::string(s, 0, lastgood - start);
 }
 
-bool type_and_string::operator<(const type_and_string &o) const
+bool TypeAndString::operator<(const TypeAndString &o) const
 {
     if (string < o.string)
     {
@@ -125,7 +125,7 @@ bool type_and_string::operator<(const type_and_string &o) const
     return false;
 }
 
-bool type_and_string::operator!=(const type_and_string &o) const
+bool TypeAndString::operator!=(const TypeAndString &o) const
 {
     if (type != o.type)
     {
@@ -138,14 +138,14 @@ bool type_and_string::operator!=(const type_and_string &o) const
     return false;
 }
 
-std::map<std::string, layermap_entry> silly_mbtiles_metadata::merge_layermaps(std::vector<std::map<std::string, layermap_entry>> const &maps)
+std::map<std::string, LayerMapEntry> suMBTileMetadata::MergeLayerMaps(std::vector<std::map<std::string, LayerMapEntry>> const &maps)
 {
-    return merge_layermaps(maps, false);
+    return MergeLayerMaps(maps, false);
 }
 
-std::map<std::string, layermap_entry> silly_mbtiles_metadata::merge_layermaps(std::vector<std::map<std::string, layermap_entry>> const &maps, bool trunc)
+std::map<std::string, LayerMapEntry> suMBTileMetadata::MergeLayerMaps(std::vector<std::map<std::string, LayerMapEntry>> const &maps, bool trunc)
 {
-    std::map<std::string, layermap_entry> out;
+    std::map<std::string, LayerMapEntry> out;
 
     for (size_t i = 0; i < maps.size(); i++)
     {
@@ -164,7 +164,7 @@ std::map<std::string, layermap_entry> silly_mbtiles_metadata::merge_layermaps(st
 
             if (out.count(layername) == 0)
             {
-                out.insert(std::pair<std::string, layermap_entry>(layername, layermap_entry(out.size())));
+                out.insert(std::pair<std::string, LayerMapEntry>(layername, LayerMapEntry(out.size())));
                 auto out_entry = out.find(layername);
                 out_entry->second.minzoom = map->second.minzoom;
                 out_entry->second.maxzoom = map->second.maxzoom;
@@ -190,7 +190,7 @@ std::map<std::string, layermap_entry> silly_mbtiles_metadata::merge_layermaps(st
 
                 if (fk2 == out_entry->second.file_keys.end())
                 {
-                    out_entry->second.file_keys.insert(std::pair<std::string, type_and_string_stats>(attribname, fk->second));
+                    out_entry->second.file_keys.insert(std::pair<std::string, TypeAndStringStats>(attribname, fk->second));
                 }
                 else
                 {
@@ -201,7 +201,7 @@ std::map<std::string, layermap_entry> silly_mbtiles_metadata::merge_layermaps(st
                         {  // not found
                             fk2->second.sample_values.insert(pt, val);
 
-                            if (fk2->second.sample_values.size() > max_tilestats_sample_values)
+                            if (fk2->second.sample_values.size() > SUMB_MAX_TILE_STATS_SAMPLE_VALUES)
                             {
                                 fk2->second.sample_values.pop_back();
                             }

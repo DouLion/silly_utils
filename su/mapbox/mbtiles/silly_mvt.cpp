@@ -19,7 +19,13 @@
 #include "protozero/pbf_writer.hpp"
 #include "dtoa_milo.h"
 
-mvt_geometry::mvt_geometry(int nop, long long nx, long long ny)
+MVTGeometry::MVTGeometry(int nop, long long nx, long long ny)
+{
+    this->op = static_cast<eMVTOperation>(nop);
+    this->x = nx;
+    this->y = ny;
+}
+MVTGeometry::MVTGeometry(eMVTOperation nop, long long nx, long long ny)
 {
     this->op = nop;
     this->x = nx;
@@ -127,7 +133,7 @@ static bool compress(std::string const &input, std::string &output)
     return true;
 }
 
-bool mvt_tile::decode(const std::string &message, bool &was_compressed)
+bool MVTTile::decode(const std::string &message, bool &was_compressed)
 {
     layers.clear();
     std::string src;
@@ -157,7 +163,7 @@ bool mvt_tile::decode(const std::string &message, bool &was_compressed)
             case 3: /* layer */
             {
                 protozero::pbf_reader layer_reader(reader.get_message());
-                mvt_layer layer;
+                MVTLayer layer;
 
                 while (layer_reader.next())
                 {
@@ -174,9 +180,9 @@ bool mvt_tile::decode(const std::string &message, bool &was_compressed)
                         case 4: /* value */
                         {
                             protozero::pbf_reader value_reader(layer_reader.get_message());
-                            mvt_value value;
+                            MVTValue value;
 
-                            value.type = mvt_null;
+                            value.type = eMVTValueType::mvt_null;
                             value.numeric_value.null_value = 0;
 
                             while (value_reader.next())
@@ -184,37 +190,37 @@ bool mvt_tile::decode(const std::string &message, bool &was_compressed)
                                 switch (value_reader.tag())
                                 {
                                     case 1: /* string */
-                                        value.type = mvt_string;
+                                        value.type = eMVTValueType::mvt_string;
                                         value.string_value = value_reader.get_string();
                                         break;
 
                                     case 2: /* float */
-                                        value.type = mvt_float;
+                                        value.type = eMVTValueType::mvt_float;
                                         value.numeric_value.float_value = value_reader.get_float();
                                         break;
 
                                     case 3: /* double */
-                                        value.type = mvt_double;
+                                        value.type = eMVTValueType::mvt_double;
                                         value.numeric_value.double_value = value_reader.get_double();
                                         break;
 
                                     case 4: /* int */
-                                        value.type = mvt_int;
+                                        value.type = eMVTValueType::mvt_int;
                                         value.numeric_value.int_value = value_reader.get_int64();
                                         break;
 
                                     case 5: /* uint */
-                                        value.type = mvt_uint;
+                                        value.type = eMVTValueType::mvt_uint;
                                         value.numeric_value.uint_value = value_reader.get_uint64();
                                         break;
 
                                     case 6: /* sint */
-                                        value.type = mvt_sint;
+                                        value.type = eMVTValueType::mvt_sint;
                                         value.numeric_value.sint_value = value_reader.get_sint64();
                                         break;
 
                                     case 7: /* bool */
-                                        value.type = mvt_bool;
+                                        value.type = eMVTValueType::mvt_bool;
                                         value.numeric_value.bool_value = value_reader.get_bool();
                                         break;
 
@@ -239,7 +245,7 @@ bool mvt_tile::decode(const std::string &message, bool &was_compressed)
                         case 2: /* feature */
                         {
                             protozero::pbf_reader feature_reader(layer_reader.get_message());
-                            mvt_feature feature;
+                            MVTFeature feature;
                             std::vector<uint32_t> geoms;
 
                             while (feature_reader.next())
@@ -285,10 +291,10 @@ bool mvt_tile::decode(const std::string &message, bool &was_compressed)
                             for (size_t g = 0; g < geoms.size(); g++)
                             {
                                 uint32_t geom = geoms[g];
-                                uint32_t op = geom & 7;
+                                uint32_t op =  geom & 7;
                                 uint32_t count = geom >> 3;
 
-                                if (op == mvt_moveto || op == mvt_lineto)
+                                if (op == eMVTOperation::MoveTo || op == eMVTOperation::LineTo)
                                 {
                                     for (size_t k = 0; k < count && g + 2 < geoms.size(); k++)
                                     {
@@ -296,12 +302,12 @@ bool mvt_tile::decode(const std::string &message, bool &was_compressed)
                                         py += protozero::decode_zigzag32(geoms[g + 2]);
                                         g += 2;
 
-                                        feature.geometry.push_back(mvt_geometry(op, px, py));
+                                        feature.geometry.push_back(MVTGeometry(op, px, py));
                                     }
                                 }
                                 else
                                 {
-                                    feature.geometry.push_back(mvt_geometry(op, 0, 0));
+                                    feature.geometry.push_back(MVTGeometry(op, 0, 0));
                                 }
                             }
 
@@ -321,7 +327,7 @@ bool mvt_tile::decode(const std::string &message, bool &was_compressed)
                 }
                 for (size_t i = 0; i < layer.values.size(); i++)
                 {
-                    layer.value_map.insert(std::pair<mvt_value, size_t>(layer.values[i], i));
+                    layer.value_map.insert(std::pair<MVTValue, size_t>(layer.values[i], i));
                 }
 
                 layers.push_back(layer);
@@ -337,7 +343,7 @@ bool mvt_tile::decode(const std::string &message, bool &was_compressed)
     return true;
 }
 
-std::string mvt_tile::encode(const bool &compressed)
+std::string MVTTile::encode(const bool &compressed)
 {
     std::string data;
 
@@ -361,37 +367,37 @@ std::string mvt_tile::encode(const bool &compressed)
         {
             std::string value_string;
             protozero::pbf_writer value_writer(value_string);
-            mvt_value &pbv = layers[i].values[v];
+            MVTValue &pbv = layers[i].values[v];
 
-            if (pbv.type == mvt_string)
+            if (pbv.type == eMVTValueType::mvt_string)
             {
                 value_writer.add_string(1, pbv.string_value);
             }
-            else if (pbv.type == mvt_float)
+            else if (pbv.type == eMVTValueType::mvt_float)
             {
                 value_writer.add_float(2, pbv.numeric_value.float_value);
             }
-            else if (pbv.type == mvt_double)
+            else if (pbv.type == eMVTValueType::mvt_double)
             {
                 value_writer.add_double(3, pbv.numeric_value.double_value);
             }
-            else if (pbv.type == mvt_int)
+            else if (pbv.type == eMVTValueType::mvt_int)
             {
                 value_writer.add_int64(4, pbv.numeric_value.int_value);
             }
-            else if (pbv.type == mvt_uint)
+            else if (pbv.type == eMVTValueType::mvt_uint)
             {
                 value_writer.add_uint64(5, pbv.numeric_value.uint_value);
             }
-            else if (pbv.type == mvt_sint)
+            else if (pbv.type == eMVTValueType::mvt_sint)
             {
                 value_writer.add_sint64(6, pbv.numeric_value.sint_value);
             }
-            else if (pbv.type == mvt_bool)
+            else if (pbv.type == eMVTValueType::mvt_bool)
             {
                 value_writer.add_bool(7, pbv.numeric_value.bool_value);
             }
-            else if (pbv.type == mvt_null)
+            else if (pbv.type == eMVTValueType::mvt_null)
             {
                 fprintf(stderr, "Internal error: trying to write null attribute to tile\n");
                 return data;
@@ -425,11 +431,11 @@ std::string mvt_tile::encode(const bool &compressed)
             int cmd = -1;
             int length = 0;
 
-            std::vector<mvt_geometry> &geom = layers[i].features[f].geometry;
+            std::vector<MVTGeometry> &geom = layers[i].features[f].geometry;
 
             for (size_t g = 0; g < geom.size(); g++)
             {
-                int op = geom[g].op;
+                int op = static_cast<int>(geom[g].op);
 
                 if (op != cmd)
                 {
@@ -444,7 +450,7 @@ std::string mvt_tile::encode(const bool &compressed)
                     geometry.push_back(0);
                 }
 
-                if (op == mvt_moveto || op == mvt_lineto)
+                if (op == eMVTOperation::MoveTo || op == eMVTOperation::LineTo)
                 {
                     long long wwx = geom[g].x;
                     long long wwy = geom[g].y;
@@ -465,7 +471,7 @@ std::string mvt_tile::encode(const bool &compressed)
                     py = wwy;
                     length++;
                 }
-                else if (op == mvt_closepath)
+                else if (op == eMVTOperation::ClosePath)
                 {
                     length++;
                 }
@@ -499,7 +505,7 @@ std::string mvt_tile::encode(const bool &compressed)
     return data;
 }
 
-bool mvt_value::operator<(const mvt_value &o) const
+bool MVTValue::operator<(const MVTValue &o) const
 {
     if (type < o.type)
     {
@@ -507,9 +513,9 @@ bool mvt_value::operator<(const mvt_value &o) const
     }
     if (type == o.type)
     {
-        if ((type == mvt_string && string_value < o.string_value) || (type == mvt_float && numeric_value.float_value < o.numeric_value.float_value) || (type == mvt_double && numeric_value.double_value < o.numeric_value.double_value) ||
-            (type == mvt_int && numeric_value.int_value < o.numeric_value.int_value) || (type == mvt_uint && numeric_value.uint_value < o.numeric_value.uint_value) || (type == mvt_sint && numeric_value.sint_value < o.numeric_value.sint_value) ||
-            (type == mvt_bool && numeric_value.bool_value < o.numeric_value.bool_value) || (type == mvt_null && numeric_value.null_value < o.numeric_value.null_value))
+        if ((type == eMVTValueType::mvt_string && string_value < o.string_value) || (type == eMVTValueType::mvt_float && numeric_value.float_value < o.numeric_value.float_value) || (type == eMVTValueType::mvt_double && numeric_value.double_value < o.numeric_value.double_value) ||
+            (type == eMVTValueType::mvt_int && numeric_value.int_value < o.numeric_value.int_value) || (type == eMVTValueType::mvt_uint && numeric_value.uint_value < o.numeric_value.uint_value) || (type == eMVTValueType::mvt_sint && numeric_value.sint_value < o.numeric_value.sint_value) ||
+            (type == eMVTValueType::mvt_bool && numeric_value.bool_value < o.numeric_value.bool_value) || (type == eMVTValueType::mvt_null && numeric_value.null_value < o.numeric_value.null_value))
         {
             return true;
         }
@@ -546,17 +552,17 @@ static std::string quote(std::string const &s)
     return buf;
 }
 
-std::string mvt_value::toString()
+std::string MVTValue::toString()
 {
-    if (type == mvt_string)
+    if (type == eMVTValueType::mvt_string)
     {
         return quote(string_value);
     }
-    else if (type == mvt_int)
+    else if (type == eMVTValueType::mvt_int)
     {
         return std::to_string(numeric_value.int_value);
     }
-    else if (type == mvt_double)
+    else if (type == eMVTValueType::mvt_double)
     {
         double v = numeric_value.double_value;
         if (v == (long long)v)
@@ -568,7 +574,7 @@ std::string mvt_value::toString()
             return milo::dtoa_milo(v);
         }
     }
-    else if (type == mvt_float)
+    else if (type == eMVTValueType::mvt_float)
     {
         double v = numeric_value.float_value;
         if (v == (long long)v)
@@ -580,19 +586,19 @@ std::string mvt_value::toString()
             return milo::dtoa_milo(v);
         }
     }
-    else if (type == mvt_sint)
+    else if (type == eMVTValueType::mvt_sint)
     {
         return std::to_string(numeric_value.sint_value);
     }
-    else if (type == mvt_uint)
+    else if (type == eMVTValueType::mvt_uint)
     {
         return std::to_string(numeric_value.uint_value);
     }
-    else if (type == mvt_bool)
+    else if (type == eMVTValueType::mvt_bool)
     {
         return numeric_value.bool_value ? "true" : "false";
     }
-    else if (type == mvt_null)
+    else if (type == eMVTValueType::mvt_null)
     {
         return "null";
     }
@@ -602,12 +608,12 @@ std::string mvt_value::toString()
     }
 }
 
-void mvt_layer::tag(mvt_feature &feature, std::string key, mvt_value value)
+void MVTLayer::tag(MVTFeature &feature, std::string key, MVTValue value)
 {
     size_t ko, vo;
 
     std::map<std::string, size_t>::iterator ki = key_map.find(key);
-    std::map<mvt_value, size_t>::iterator vi = value_map.find(value);
+    std::map<MVTValue, size_t>::iterator vi = value_map.find(value);
 
     if (ki == key_map.end())
     {
@@ -624,7 +630,7 @@ void mvt_layer::tag(mvt_feature &feature, std::string key, mvt_value value)
     {
         vo = values.size();
         values.push_back(value);
-        value_map.insert(std::pair<mvt_value, size_t>(value, vo));
+        value_map.insert(std::pair<MVTValue, size_t>(value, vo));
     }
     else
     {
@@ -722,11 +728,11 @@ bool is_unsigned_integer(const char *s, unsigned long long *v)
     return 1;
 }
 
-mvt_value stringified_to_mvt_value(int type, const char *s)
+MVTValue stringified_to_MVTValue(int type, const char *s)
 {
-    mvt_value tv;
+    MVTValue tv;
 
-    if (type == mvt_double)
+    if (type == eMVTValueType::mvt_double)
     {
         long long v;
         unsigned long long uv;
@@ -734,18 +740,18 @@ mvt_value stringified_to_mvt_value(int type, const char *s)
         {
             if (uv <= LLONG_MAX)
             {
-                tv.type = mvt_int;
+                tv.type = eMVTValueType::mvt_int;
                 tv.numeric_value.int_value = uv;
             }
             else
             {
-                tv.type = mvt_uint;
+                tv.type = eMVTValueType::mvt_uint;
                 tv.numeric_value.uint_value = uv;
             }
         }
         else if (is_integer(s, &v))
         {
-            tv.type = mvt_sint;
+            tv.type = eMVTValueType::mvt_sint;
             tv.numeric_value.sint_value = v;
         }
         else
@@ -762,7 +768,7 @@ mvt_value stringified_to_mvt_value(int type, const char *s)
                 {
                     fprintf(stderr, "Warning: numeric value %s could not be represented\n", s);
                 }
-                tv.type = mvt_double;
+                tv.type = eMVTValueType::mvt_double;
                 tv.numeric_value.double_value = d;
             }
             else
@@ -770,31 +776,31 @@ mvt_value stringified_to_mvt_value(int type, const char *s)
                 double d = atof(s);
                 if (f == d)
                 {
-                    tv.type = mvt_float;
+                    tv.type = eMVTValueType::mvt_float;
                     tv.numeric_value.float_value = f;
                 }
                 else
                 {
                     // Conversion succeeded, but lost precision, so use double
-                    tv.type = mvt_double;
+                    tv.type = eMVTValueType::mvt_double;
                     tv.numeric_value.double_value = d;
                 }
             }
         }
     }
-    else if (type == mvt_bool)
+    else if (type == eMVTValueType::mvt_bool)
     {
-        tv.type = mvt_bool;
+        tv.type = eMVTValueType::mvt_bool;
         tv.numeric_value.bool_value = (s[0] == 't');
     }
-    else if (type == mvt_null)
+    else if (type == eMVTValueType::mvt_null)
     {
-        tv.type = mvt_null;
+        tv.type = eMVTValueType::mvt_null;
         tv.numeric_value.null_value = 0;
     }
     else
     {
-        tv.type = mvt_string;
+        tv.type = eMVTValueType::mvt_string;
         tv.string_value = s;
     }
 

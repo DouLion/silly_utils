@@ -14,7 +14,7 @@
  * Returns an empty string if `s` is valid utf8;
  * otherwise returns an error message.
  */
-std::string silly_mbtiles_text::check_utf8(std::string s)
+std::string suMBTileText::CheckUTF8(std::string s)
 {
     //	return "";
     for (size_t i = 0; i < s.size(); i++)
@@ -83,7 +83,7 @@ std::string silly_mbtiles_text::check_utf8(std::string s)
     return "";
 }
 
-const char *silly_mbtiles_text::utf8_next(const char *s, long *c)
+const char *suMBTileText::UTF8Next(const char *s, long *c)
 {
     if (s == NULL)
     {
@@ -153,7 +153,7 @@ const char *silly_mbtiles_text::utf8_next(const char *s, long *c)
     return s;
 }
 
-std::string silly_mbtiles_text::truncate16(std::string const &s, size_t runes)
+std::string suMBTileText::Truncate16(std::string const &s, size_t runes)
 {
     const char *cp = s.c_str();
     const char *start = cp;
@@ -161,7 +161,7 @@ std::string silly_mbtiles_text::truncate16(std::string const &s, size_t runes)
     size_t len = 0;
     long c;
 
-    while ((cp = utf8_next(cp, &c)) != NULL)
+    while ((cp = UTF8Next(cp, &c)) != NULL)
     {
         if (c <= 0xFFFF)
         {
@@ -185,7 +185,7 @@ std::string silly_mbtiles_text::truncate16(std::string const &s, size_t runes)
     return std::string(s, 0, lastgood - start);
 }
 
-int silly_mbtiles_text::integer_zoom(std::string where, std::string text)
+int suMBTileText::IntegerZoom(std::string where, std::string text)
 {
     double d = atof(text.c_str());
     if (!std::isfinite(d) || d != std::floor(d) || d < 0 || d > 32)
@@ -196,7 +196,7 @@ int silly_mbtiles_text::integer_zoom(std::string where, std::string text)
     return d;
 }
 
-std::string silly_mbtiles_text::format_commandline(int argc, char **argv)
+std::string suMBTileText::FormatCommandLine(int argc, char **argv)
 {
     std::string out;
 

@@ -10,8 +10,8 @@
 // */
 // #pragma once
 //
-// #ifndef SILLY_UTILS_SILLY_VECTOR_TILE_H
-// #define SILLY_UTILS_SILLY_VECTOR_TILE_H
+// #ifndef SILLY_VECTOR_TILE_H
+// #define SILLY_VECTOR_TILE_H
 //
 // #include <sqlite3.h>
 // #include <string>
@@ -44,4 +44,4 @@
 //	static int ListTilesCallbackStatic(void *obj, int argc, char **argv, char **azColName);
 //};
 //
-// #endif //SILLY_UTILS_SILLY_VECTOR_TILE_H
+// #endif //SILLY_VECTOR_TILE_H

@@ -6,79 +6,83 @@
  * @date: 2023/8/22 13:49
  * @version: 1.0.1
  * @software: silly_utils
- * @description:
+ * @description: 从 https://github.com/mapbox/tippecanoe 项目中摘录过来
  */
-#pragma once
+#ifndef SILLY_MAPBOX_VECTOR_TILE_H
+#define SILLY_MAPBOX_VECTOR_TILE_H
 
-#ifndef SILLY_UTILS_SILLY_MVT_H
-#define SILLY_UTILS_SILLY_MVT_H
-
-#include <sqlite3.h>
 #include <string>
 #include <map>
 #include <set>
 #include <vector>
 
-struct mvt_value;
-struct mvt_layer;
+struct MVTValue;
+struct MVTLayer;
 
-enum mvt_operation
+enum class eMVTOperation: int
 {
-    mvt_moveto = 1,
-    mvt_lineto = 2,
-    mvt_closepath = 7
+    Invalid = 0,
+    MoveTo = 1,
+    LineTo = 2,
+    ClosePath = 7
 };
 
-struct mvt_geometry
+inline bool operator==(const int& lhs, const eMVTOperation& rhs)
+{
+    return static_cast<int>(lhs) == static_cast<int>(rhs);
+}
+inline bool operator==(const eMVTOperation& lhs, const int& rhs)
+{
+    return static_cast<int>(lhs) == static_cast<int>(rhs);
+}
+
+struct MVTGeometry
 {
     long long x = 0;
     long long y = 0;
-    int /* mvt_operation */ op = 0;
+    eMVTOperation /* mvt_operation */ op = eMVTOperation::Invalid;
+    MVTGeometry(int op, long long x, long long y);
+    MVTGeometry(eMVTOperation op, long long x, long long y);
 
-    mvt_geometry(int op, long long x, long long y);
-
-    bool operator<(mvt_geometry const &s) const
+    bool operator<(MVTGeometry const &s) const
     {
         if (y < s.y || (y == s.y && x < s.x))
         {
             return true;
         }
-        else
-        {
-            return false;
-        }
+        return false;
     }
 
-    bool operator==(mvt_geometry const &s) const
+    bool operator==(MVTGeometry const &s) const
     {
         return y == s.y && x == s.x;
     }
 };
 
-enum mvt_geometry_type
+enum class eMVTGeometryType: int
 {
-    mvt_point = 1,
-    mvt_linestring = 2,
-    mvt_polygon = 3
+    Point = 1,
+    LineString = 2,
+    Polygon = 3
 };
 
-struct mvt_feature
+struct MVTFeature
 {
     std::vector<unsigned> tags{};
-    std::vector<mvt_geometry> geometry{};
-    int /* mvt_geometry_type */ type = 0;
+    std::vector<MVTGeometry> geometry{};
+    int /* eMVTGeometryType */ type = 0;
     unsigned long long id = 0;
     bool has_id = false;
     bool dropped = false;
 
-    mvt_feature()
+    MVTFeature()
     {
         has_id = false;
         id = 0;
     }
 };
 
-enum mvt_value_type
+enum class eMVTValueType : int
 {
     mvt_string,
     mvt_float,
@@ -90,9 +94,18 @@ enum mvt_value_type
     mvt_null,
 };
 
-struct mvt_value
+inline bool operator==(const int& lhs, const eMVTValueType& rhs)
 {
-    mvt_value_type type;
+    return static_cast<int>(lhs) == static_cast<int>(rhs);
+}
+inline bool operator==(const eMVTValueType& lhs, const int& rhs)
+{
+    return static_cast<int>(lhs) == static_cast<int>(rhs);
+}
+
+struct MVTValue
+{
+    eMVTValueType type;
     std::string string_value;
     union
     {
@@ -105,50 +118,39 @@ struct mvt_value
         int null_value;
     } numeric_value;
 
-    bool operator<(const mvt_value &o) const;
+    bool operator<(const MVTValue &o) const;
     std::string toString();
 
-    mvt_value()
+    MVTValue()
     {
-        this->type = mvt_double;
+        this->type = eMVTValueType::mvt_double;
         this->string_value = "";
         this->numeric_value.double_value = 0;
     }
 };
 
-struct mvt_layer
+struct MVTLayer
 {
     int version = 0;
     std::string name = "";
-    std::vector<mvt_feature> features{};
+    std::vector<MVTFeature> features{};
     std::vector<std::string> keys{};
-    std::vector<mvt_value> values{};
+    std::vector<MVTValue> values{};
     long long extent = 0;
 
     // Add a key-value pair to a feature, using this layer's constant pool
-    void tag(mvt_feature &feature, std::string key, mvt_value value);
+    void tag(MVTFeature &feature, std::string key, MVTValue value);
 
     // For tracking the key-value constants already used in this layer
     std::map<std::string, size_t> key_map{};
-    std::map<mvt_value, size_t> value_map{};
+    std::map<MVTValue, size_t> value_map{};
 };
-struct mvt_tile
+struct MVTTile
 {
-    std::vector<mvt_layer> layers{};
+    std::vector<MVTLayer> layers{};
 
     std::string encode(const bool &compressed = true);
     bool decode(const std::string &message, bool &was_compressed);
 };
 
-// 计划转移到其他地方
-/*bool is_compressed(std::string const &data);
-int decompress(std::string const &input, std::string &output);
-int compress(std::string const &input, std::string &output);
-int dezig(unsigned n);
-
-mvt_value stringified_to_mvt_value(int type, const char *s);
-
-bool is_integer(const char *s, long long *v);
-bool is_unsigned_integer(const char *s, unsigned long long *v);*/
-
-#endif  // SILLY_UTILS_SILLY_MVT_H
+#endif  // SILLY_MAPBOX_VECTOR_TILE_H
