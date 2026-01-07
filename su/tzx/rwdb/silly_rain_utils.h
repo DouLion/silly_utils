@@ -10,7 +10,7 @@
  */
 #ifndef SILLY_UTILS_SILLY_RAIN_UTILS_H
 #define SILLY_UTILS_SILLY_RAIN_UTILS_H
-#include <su_marco.h>
+#include <su_macro.h>
 namespace su
 {
 class RainUtils

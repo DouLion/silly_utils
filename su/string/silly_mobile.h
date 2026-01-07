@@ -10,7 +10,7 @@
  */
 #ifndef SILLY_MOBILE_H
 #define SILLY_MOBILE_H
-#include <su_marco.h>
+#include <su_macro.h>
 
 /// <summary>
 /// 移动网络运营商

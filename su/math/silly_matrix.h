@@ -13,7 +13,7 @@
 
 #ifndef SILLY_UTILS_SILLY_MATRIX_H
 #define SILLY_UTILS_SILLY_MATRIX_H
-#include <su_marco.h>
+#include <su_macro.h>
 template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
 class suMatrix
 {

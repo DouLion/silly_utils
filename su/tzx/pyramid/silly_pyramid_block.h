@@ -10,7 +10,7 @@
  */
 #ifndef SILLY_PYRAMID_BLOCK_H
 #define SILLY_PYRAMID_BLOCK_H
-#include <su_marco.h>
+#include <su_macro.h>
 class TzxPyramidBlock
 {
   public:

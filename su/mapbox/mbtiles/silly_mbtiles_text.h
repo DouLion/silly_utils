@@ -10,7 +10,7 @@
  */
 #ifndef SILLY_MBTILES_TEXT_H
 #define SILLY_MBTILES_TEXT_H
-#include <su_marco.h>
+#include <su_macro.h>
 class suMBTileText
 {
   public:

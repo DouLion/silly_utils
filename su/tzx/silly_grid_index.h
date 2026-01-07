@@ -10,7 +10,7 @@
  */
 #ifndef SILLY_UTILS_SILLY_GRID_INDEX_H
 #define SILLY_UTILS_SILLY_GRID_INDEX_H
-#include <su_marco.h>
+#include <su_macro.h>
 
 class suCNGrid
 {

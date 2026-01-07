@@ -9,7 +9,7 @@
  */
 #ifndef SILLY_OTL_H
 #define SILLY_OTL_H
-#include <su_marco.h>
+#include <su_macro.h>
 #define OTL_ODBC
 #define OTL_ODBC_LOGOFF_FREES_HANDLES
 #ifndef _WIN32

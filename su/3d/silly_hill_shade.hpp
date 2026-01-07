@@ -12,7 +12,7 @@
 
 #ifndef SILLY_UTILS_SILLY_HILL_SHADE_HPP
 #define SILLY_UTILS_SILLY_HILL_SHADE_HPP
-#include <su_marco.h>
+#include <su_macro.h>
 #include <math/silly_matrix.h>
 
 class silly_hill_shade

@@ -11,7 +11,7 @@
 #ifndef SILLY_ARGUMENT_H
 #define SILLY_ARGUMENT_H
 #include <system/silly_system.h>
-#include <su_marco.h>
+#include <su_macro.h>
 class suArgs
 {
   public:

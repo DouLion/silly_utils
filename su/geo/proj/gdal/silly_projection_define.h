@@ -9,7 +9,7 @@
  */
 #ifndef SILLY_UTILS_SILLY_PROJECTION_DEFINE_H
 #define SILLY_UTILS_SILLY_PROJECTION_DEFINE_H
-#include <su_marco.h>
+#include <su_macro.h>
 #if SU_THIRD_SUPPORT_GDAL
 #include <ogr_spatialref.h>
 #endif

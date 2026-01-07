@@ -9,7 +9,7 @@
  */
 #ifndef SILLY_UTILS_SILLY_REDIS_CLIENT_H
 #define SILLY_UTILS_SILLY_REDIS_CLIENT_H
-#include <su_marco.h>
+#include <su_macro.h>
 
 class silly_redis_client
 {

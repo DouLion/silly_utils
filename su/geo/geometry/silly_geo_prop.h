@@ -9,7 +9,7 @@
  */
 #ifndef SILLY_UTILS_SILLY_GEO_PROP_H
 #define SILLY_UTILS_SILLY_GEO_PROP_H
-#include <su_marco.h>
+#include <su_macro.h>
 
 // 属性段类型,与org_core.h中定义的OGRFieldType一致
 enum class eGeoFieldType : int8_t

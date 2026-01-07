@@ -10,7 +10,7 @@
  */
 #ifndef SILLY_HARDWARE_H
 #define SILLY_HARDWARE_H
-#include <su_marco.h>
+#include <su_macro.h>
 class suHardWare
 {
     public:

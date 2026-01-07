@@ -10,7 +10,7 @@
  */
 #ifndef SILLY_UTILS_SILLY_MAIL_H
 #define SILLY_UTILS_SILLY_MAIL_H
-#include <su_marco.h>
+#include <su_macro.h>
 
 using silly_mail_user = std::pair<std::string, std::string>;  // 邮箱 用户名
 

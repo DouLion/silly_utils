@@ -10,7 +10,7 @@
  */
 #ifndef SILLY_UTILS_SILLY_SAFE_MAP_H
 #define SILLY_UTILS_SILLY_SAFE_MAP_H
-#include <su_marco.h>
+#include <su_macro.h>
 template <typename K, typename V>
 class silly_safe_map
 {

@@ -16,7 +16,7 @@
 
 #ifndef SILLY_UTILS_SILLY_ENCRYPT_H
 #define SILLY_UTILS_SILLY_ENCRYPT_H
-#include <su_marco.h>
+#include <su_macro.h>
 
 #define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
 

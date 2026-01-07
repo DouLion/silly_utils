@@ -2,7 +2,7 @@
 #ifndef SILLY_TURN_TOOL_H
 #define SILLY_TURN_TOOL_H
 
-#include <su_marco.h>
+#include <su_macro.h>
 
 #define P2INT8(x) ((int8_t*)((x)))[0]
 #define P2INT16(x) ((int16_t*)((x)))[0]

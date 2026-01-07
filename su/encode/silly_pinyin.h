@@ -9,7 +9,7 @@
  */
 #ifndef SILLY_UTILS_SILLY_PINYIN_H
 #define SILLY_UTILS_SILLY_PINYIN_H
-#include <su_marco.h>
+#include <su_macro.h>
 
 class silly_pinyin
 {

@@ -10,7 +10,7 @@
  */
 #ifndef SILLY_UTILS_SILLY_RENDER_PEN_H
 #define SILLY_UTILS_SILLY_RENDER_PEN_H
-#include <su_marco.h>
+#include <su_macro.h>
 class suRenderPen
 {
   public:

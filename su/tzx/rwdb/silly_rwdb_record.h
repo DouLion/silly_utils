@@ -10,7 +10,7 @@
  */
 #ifndef SILLY_UTILS_RWDB_RECORD_H
 #define SILLY_UTILS_RWDB_RECORD_H
-#include <su_marco.h>
+#include <su_macro.h>
 
 class silly_rwdb_record
 {

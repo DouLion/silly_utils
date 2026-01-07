@@ -4,7 +4,7 @@
 
 #ifndef SILLY_UTILS_SILLY_POOL_MANAGER_H
 #define SILLY_UTILS_SILLY_POOL_MANAGER_H
-#include <su_marco.h>
+#include <su_macro.h>
 
 // 连接池管理
 template <typename T>

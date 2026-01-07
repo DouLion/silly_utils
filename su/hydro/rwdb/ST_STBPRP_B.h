@@ -10,7 +10,7 @@
  */
 #ifndef ST_STBPRP_B_H
 #define ST_STBPRP_B_H
-#include <su_marco.h>
+#include <su_macro.h>
 namespace RWDB
 {
 // 测站类型

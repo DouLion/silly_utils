@@ -10,6 +10,6 @@
  */
 #ifndef SILLY_UTILS_SILLY_WEBSOCKET_DATA_H
 #define SILLY_UTILS_SILLY_WEBSOCKET_DATA_H
-#include <su_marco.h>
+#include <su_macro.h>
 
 #endif  // SILLY_UTILS_SILLY_WEBSOCKET_DATA_H

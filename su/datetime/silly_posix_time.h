@@ -11,7 +11,7 @@
  */
 #ifndef SILLY_UTILS_SILLY_POSIX_TIME_H
 #define SILLY_UTILS_SILLY_POSIX_TIME_H
-#include <su_marco.h>
+#include <su_macro.h>
 
 #define DATE_FORMAT_1 "%Y-%m-%d %H:%M:%S"
 #define DATE_FORMAT_2 "%Y%m%d%H"

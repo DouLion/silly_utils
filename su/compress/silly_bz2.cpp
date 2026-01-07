@@ -4,7 +4,6 @@
 
 #include "silly_bz2.h"
 #include <bzlib.h>
-#include "su_marco.h"
 
 using namespace silly_compress;
 

@@ -10,7 +10,7 @@
  */
 #ifndef SILLY_UTILS_SILLY_ADCD_H
 #define SILLY_UTILS_SILLY_ADCD_H
-#include <su_marco.h>
+#include <su_macro.h>
 
 #define AD_DA 0x00000001
 #define AD_ZRC 0b00000010

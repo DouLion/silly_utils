@@ -10,7 +10,7 @@
 #ifndef SILLY_UTILS_SILLY_TZX_GRID_H
 #define SILLY_UTILS_SILLY_TZX_GRID_H
 
-#include <su_marco.h>
+#include <su_macro.h>
 #include <math/silly_matrix.h>
 #include <geo/silly_geo.h>
 #include <files/silly_path.h>

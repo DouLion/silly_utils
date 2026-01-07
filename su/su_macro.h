@@ -10,9 +10,8 @@
  */
 // 标准c++头文件
 // 输入输出库
-#pragma once
-#ifndef SU_MARCO_H
-#define SU_MARCO_H
+#ifndef SU_MACRO_H
+#define SU_MACRO_H
 // 确认C++ 标准版本不小于C++17
 #if !defined(__cplusplus) || (__cplusplus < 201703L && !defined(_MSVC_LANG))
 #error "This header requires C++17 or later. Please enable C++17 support."
@@ -358,4 +357,4 @@ using SU_HANDLE = int;
     }
 #endif
 
-#endif  // SU_MARCO_H
+#endif  // SU_MACRO_H

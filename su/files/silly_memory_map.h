@@ -10,7 +10,7 @@
  */
 #ifndef SILLY_MEM_MAP_H
 #define SILLY_MEM_MAP_H
-#include <su_marco.h>
+#include <su_macro.h>
 #include <files/silly_file.h>
 
 /// <summary>

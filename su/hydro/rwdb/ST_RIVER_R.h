@@ -10,7 +10,7 @@
  */
 #ifndef ST_RIVER_R_H
 #define ST_RIVER_R_H
-#include <su_marco.h>
+#include <su_macro.h>
 namespace RWDB
 {
 /**

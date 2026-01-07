@@ -10,7 +10,7 @@
  */
 #ifndef SILLY_MBTILES_SQLITE3_H
 #define SILLY_MBTILES_SQLITE3_H
-#include <su_marco.h>
+#include <su_macro.h>
 #include <sqlite3.h>
 #include <mapbox/mbtiles/silly_mbtiles_metadata.h>
 #include <mapbox/mbtiles/silly_mvt.h>

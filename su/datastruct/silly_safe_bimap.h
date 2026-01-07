@@ -11,7 +11,7 @@
  */
 #ifndef SILLY_UTILS_SILLY_SAFE_BIMAP_H
 #define SILLY_UTILS_SILLY_SAFE_BIMAP_H
-#include <su_marco.h>
+#include <su_macro.h>
 
 template <typename KT, typename VT>
 class silly_safe_bimap

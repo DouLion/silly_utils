@@ -4,7 +4,7 @@
 
 #ifndef SILLY_UTILS_SILLY_OBJ_POOL_H
 #define SILLY_UTILS_SILLY_OBJ_POOL_H
-#include <su_marco.h>
+#include <su_macro.h>
 template <typename T>
 class silly_obj_pool
 {

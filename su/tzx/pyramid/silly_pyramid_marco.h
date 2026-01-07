@@ -10,7 +10,7 @@
  */
 #ifndef SILLY_PYRAMID_MARCO_H
 #define SILLY_PYRAMID_MARCO_H
-#include <su_marco.h>
+#include <su_macro.h>
 
 // base
 constexpr size_t SU_PYRAMID_HEAD_LEN = 4;       // 头长度

@@ -10,7 +10,7 @@
  */
 #ifndef SILLY_MBTILES_METADATA_H
 #define SILLY_MBTILES_METADATA_H
-#include <su_marco.h>
+#include <su_macro.h>
 #define SUMB_MAX_TILE_STATS_ATTRIBUTES 1000
 #define SUMB_MAX_TILE_STATS_SAMPLE_VALUES 1000
 #define SUMB_MAX_TILE_STATS_VALUES 100

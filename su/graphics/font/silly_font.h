@@ -11,7 +11,7 @@
 #ifndef SILLY_UTILS_SILLY_FONT_H
 #define SILLY_UTILS_SILLY_FONT_H
 
-#include <su_marco.h>
+#include <su_macro.h>
 #include <cairo/cairo.h>
 #include <cairo/cairo-ft.h>
 #include <ft2build.h>

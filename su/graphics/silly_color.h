@@ -10,7 +10,7 @@
 #ifndef SILLY_UTILS_SILLY_COLOR_H
 #define SILLY_UTILS_SILLY_COLOR_H
 
-#include <su_marco.h>
+#include <su_macro.h>
 #define COLOR_MAX_D 255.0
 enum eColorType : uint8_t
 {

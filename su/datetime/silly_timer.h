@@ -9,7 +9,7 @@
  */
 #ifndef SILLY_TIMER_H
 #define SILLY_TIMER_H
-#include <su_marco.h>
+#include <su_macro.h>
 
 class suTimer
 {

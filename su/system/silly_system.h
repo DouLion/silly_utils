@@ -10,7 +10,7 @@
  */
 #ifndef SILLY_UTILS_SILLY_SYSTEM_H
 #define SILLY_UTILS_SILLY_SYSTEM_H
-#include <su_marco.h>
+#include <su_macro.h>
 
 /**
  * 1. Debug 模式时,切换到项目目录,能够以./config加载配置信息

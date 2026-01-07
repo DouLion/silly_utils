@@ -10,7 +10,7 @@
  */
 #ifndef SILLY_UTILS_SILLY_EGM_H
 #define SILLY_UTILS_SILLY_EGM_H
-#include <su_marco.h>
+#include <su_macro.h>
 #include <files/silly_file.h>
 #include <files/silly_memory_map.h>
 

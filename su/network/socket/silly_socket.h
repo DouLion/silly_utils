@@ -10,7 +10,7 @@
  */
 #ifndef SILLY_UTILS_SILLY_SOCKET_H
 #define SILLY_UTILS_SILLY_SOCKET_H
-#include <su_marco.h>
+#include <su_macro.h>
 #ifdef WIN32
 typedef SOCKET socket_t;
 #else

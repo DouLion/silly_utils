@@ -10,7 +10,7 @@
  */
 #ifndef SILLY_UTILS_SILLY_AKIMA_H
 #define SILLY_UTILS_SILLY_AKIMA_H
-#include <su_marco.h>
+#include <su_macro.h>
 namespace silly
 {
 namespace interpolation

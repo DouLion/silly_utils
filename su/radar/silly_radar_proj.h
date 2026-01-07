@@ -10,7 +10,7 @@
 #ifndef SILLY_UTILS_SILLY_RADAR_PROJ_H
 #define SILLY_UTILS_SILLY_RADAR_PROJ_H
 
-#include <su_marco.h>
+#include <su_macro.h>
 
 class silly_radar_earth
 {

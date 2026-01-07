@@ -11,7 +11,7 @@
 #ifndef SILLY_POINT_H
 #define SILLY_POINT_H
 
-#include <su_marco.h>
+#include <su_macro.h>
 // 支持外面覆盖这个值
 #ifndef SU_GEO_EPSILON
 #define SU_GEO_EPSILON (1e-8)

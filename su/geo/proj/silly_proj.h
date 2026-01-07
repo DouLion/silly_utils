@@ -21,7 +21,7 @@
  */
 #ifndef SILLY_UTILS_SILLY_PROJ_H
 #define SILLY_UTILS_SILLY_PROJ_H
-#include <su_marco.h>
+#include <su_macro.h>
 
 #define SU_GAUSS3_NO(_lon_) (static_cast<int>(std::floor((_lon_ + 1.5) / 3)))
 #define SU_GAUSS6_NO(_lon_) (static_cast<int>(std::floor(_lon_ / 6)) + 1)

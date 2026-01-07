@@ -32,7 +32,7 @@ freely, subject to the following restrictions:
    distribution.
 */
 #pragma once
-#include <su_marco.h>
+#include <su_macro.h>
 
 class suThreadPool
 {
