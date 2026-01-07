@@ -139,7 +139,7 @@ suDem suGdalRaster::ROI(const suRect& bound) const
         CPLFree(pData);
     }
     ret.raster.create(ret.info.height, ret.info.width);
-    double* pRet = ret.raster.data();
+    float* pRet = ret.raster.data();
     if (GDT_Float32 == m_DataType)
     {
         float* ptr = static_cast<float*>(pData);

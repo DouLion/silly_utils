@@ -31,7 +31,7 @@ bool suDem::IsGauss() const
     return valid.find(static_cast<int>(info.central)) != std::end(valid);
 }
 
-void suDem::Gauss2Lonlat(const suDem& rh, const double& cell_size, const double& l0)
+void suDem::Gauss2LonLat(const suDem& rh, const double& cell_size, const double& l0)
 {
     if (this == &rh)
     {
@@ -53,7 +53,7 @@ void suDem::Gauss2Lonlat(const suDem& rh, const double& cell_size, const double&
     info.dy = cell_size;
     raster.create(info.height, info.width, true);
     raster.set(rh.info.fill);
-    double* dp = raster.data();
+    float* dp = raster.data();
     for (int64_t r = 0; r < info.height; r++)
     {
         for (int64_t c = 0; c < info.width; c++)
@@ -73,7 +73,7 @@ void suDem::Gauss2Lonlat(const suDem& rh, const double& cell_size, const double&
         }
     }
 }
-void suDem::Lonlat2Gauss(const suDem& rh, const double& cell_size, const double& l0)
+void suDem::LonLat2Gauss(const suDem& rh, const double& cell_size, const double& l0)
 {
     if (this == &rh)
     {
@@ -100,7 +100,7 @@ void suDem::Lonlat2Gauss(const suDem& rh, const double& cell_size, const double&
     info.central = l0;
     raster.create(info.height, info.width, true);
     raster.set(rh.info.fill);
-    double* dp = raster.data();
+    float* dp = raster.data();
     for (int64_t r = 0; r < info.height; r++)
     {
         for (int64_t c = 0; c < info.width; c++)
@@ -258,15 +258,15 @@ std::vector<std::pair<double, double>> suDem::ProfileElev(const suLine& line, co
     }
     return ret;
 }
-suDMatrix suDem::SlopeGradient(const int& method) const
+suFMatrix suDem::SlopeGradient(const int& method) const
 {
-    suDMatrix ret;
+    suFMatrix ret;
     if (!raster.data())
     {
         return ret;
     }
     // 创建一个与 DEM 尺寸相同的矩阵，用于存储坡度梯度值
-    ret.create(info.height, info.width);  // 假设构造函数是 suDMatrix(rows, cols)
+    ret.create(info.height, info.width);  // 假设构造函数是 suFMatrix(rows, cols)
 
     auto func9 = [this](const int& r, const int& c) -> double {
         // 加权差分法（Horn 方法）
@@ -326,10 +326,10 @@ suDMatrix suDem::SlopeGradient(const int& method) const
 
     return ret;
 }
-suDMatrix suDem::SlopeDegree(const int& method) const
+suFMatrix suDem::SlopeDegree(const int& method) const
 {
-    suDMatrix ret = SlopeGradient(method);
-    double* ptr = ret.data();
+    suFMatrix ret = SlopeGradient(method);
+    float* ptr = ret.data();
     if (ptr)
     {
         for (int r = 1; r < info.height - 1 && ptr; r++)
@@ -344,10 +344,10 @@ suDMatrix suDem::SlopeDegree(const int& method) const
 
     return ret;
 }
-suDMatrix suDem::SlopeRadian(const int& method) const
+suFMatrix suDem::SlopeRadian(const int& method) const
 {
-    suDMatrix ret = SlopeGradient(method);
-    double* ptr = ret.data();
+    suFMatrix ret = SlopeGradient(method);
+    float* ptr = ret.data();
     if (ptr)
     {
         for (int r = 1; r < info.height - 1 && ptr; r++)
@@ -362,10 +362,10 @@ suDMatrix suDem::SlopeRadian(const int& method) const
 
     return ret;
 }
-suDMatrix suDem::SlopePercent(const int& method) const
+suFMatrix suDem::SlopePercent(const int& method) const
 {
-    suDMatrix ret = SlopeGradient(method);
-    double* ptr = ret.data();
+    suFMatrix ret = SlopeGradient(method);
+    float* ptr = ret.data();
     if (ptr)
     {
         for (int r = 1; r < info.height - 1 && ptr; r++)
@@ -379,6 +379,53 @@ suDMatrix suDem::SlopePercent(const int& method) const
     }
 
     return ret;
+}
+suUCMatrix suDem::HillShade(const double& azimuth_deg, const double& height_deg, const double& z_factor)const
+{
+    suUCMatrix shade;
+    shade.create(info.height, info.width, true);
+
+    const double zenith_deg = 90.0 - height_deg;
+    const double zenithRad = DEG2RAD(zenith_deg);  // 转为弧度
+    double tmpAzDeg = 360.0 - azimuth_deg + 90.0;
+    if (tmpAzDeg >= 360.0)
+    {
+        tmpAzDeg = tmpAzDeg - 360.0;
+    }
+    double azimuth_rad = DEG2RAD(tmpAzDeg);
+
+    double zenithRad_cos = cos(zenithRad);
+    double zenithRad_sin = sin(zenithRad);
+    for (int i = 1; i < info.height - 1; i++)
+    {
+        for (int j = 1; j < info.width - 1; j++)
+        {
+            double a = raster.at(i - 1, j - 1);  // e = 中心像素, other letters = neighbours
+            double b = raster.at(i, j - 1);
+            double c = raster.at(i + 1, j - 1);
+            double d = raster.at(i - 1, j);
+            double e = raster.at(i, j);  // It was too ugly not to put a letter e, even if it is unused
+            double f = raster.at(i + 1, j);
+            double g = raster.at(i - 1, j + 1);
+            double h = raster.at(i, j + 1);
+            double k = raster.at(i + 1, j + 1);  // Not i because of the for (int i = ...)
+
+            double dz_dx = ((c + k + (2 * f)) - (a + g + (2 * d))) / (8 * info.dy);  // Derivatives
+            double dz_dy = ((g + k + (2 * h)) - (a + c + (2 * b))) / (8 * info.dx);
+            double slope_rad = atan(z_factor * sqrt((dz_dx * dz_dx) + (dz_dy * dz_dy)));
+            double aspect_rad = atan2(dz_dy, -dz_dx);
+            if (aspect_rad < 0)
+            {
+                aspect_rad += 2 * M_PI;
+            }
+
+            double tmp_shade = 255.0 * (zenithRad_cos * cos(slope_rad)) + (zenithRad_sin * sin(slope_rad) * cos(azimuth_rad - aspect_rad));
+            tmp_shade = std::min(255., std::max(0., tmp_shade));
+
+            shade.at(i, j) = static_cast<unsigned char>(tmp_shade);
+        }
+    }
+    return shade;
 }
 
 void suDem::Release()

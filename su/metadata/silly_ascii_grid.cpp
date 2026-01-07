@@ -237,7 +237,7 @@ bool suAsciiGrid::write_asc(const suPath& file) const
     std::stringstream ssGrid;
     std::string fillV = SUFMT("{:.3f}", info.fill);
     ssGrid << std::fixed << std::setprecision(3);
-    double* p = raster.data();
+    float* p = raster.data();
     for (int r = 0; r < info.height; ++r)
     {
         for (int c = 0; c < info.width; ++c)

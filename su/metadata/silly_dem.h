@@ -38,7 +38,7 @@ class suDem
      * @param cell_size
      * @param l0
      */
-    void Gauss2Lonlat(const suDem& rh, const double& cell_size, const double& l0);
+    void Gauss2LonLat(const suDem& rh, const double& cell_size, const double& l0);
 
     /**
      *
@@ -46,7 +46,7 @@ class suDem
      * @param cell_size
      * @param l0
      */
-    void Lonlat2Gauss(const suDem& rh, const double& cell_size, const double& l0);
+    void LonLat2Gauss(const suDem& rh, const double& cell_size, const double& l0);
     void Cover(const suDem& rh);
 
     /**
@@ -88,30 +88,48 @@ class suDem
      * 梯度幅值
      * @return 梯度幅值矩阵
      */
-    suDMatrix SlopeGradient(const int& method = 5) const;
+    suFMatrix SlopeGradient(const int& method = 5) const;
 
     /**
      * 计算梯度角度值
      * @return 梯度角度值矩阵
      */
-    suDMatrix SlopeDegree(const int& method = 5) const;
+    suFMatrix SlopeDegree(const int& method = 5) const;
 
     /**
      * 计算梯度弧度值
      * @return 梯度弧度值矩阵
      */
-    suDMatrix SlopeRadian(const int& method = 5) const;
+    suFMatrix SlopeRadian(const int& method = 5) const;
 
     /**
      * 梯度百分比值
      * @return 梯度百分比矩阵
      */
-    suDMatrix SlopePercent(const int& method = 5) const;
+    suFMatrix SlopePercent(const int& method = 5) const;
+
+    /**
+     * 计算山体阴影
+     * 对源RRB图像 叠加 Hillshade（用 Multiply 混合）
+     * @code{.cpp}
+         // 伪代码
+         for each pixel (i, j):
+           float hill = shade.at(i, j) / 255.0f;        // 归一化到 [0,1]
+           baseMap.r(i,j) *= hill;
+           baseMap.g(i,j) *= hill;
+           baseMap.b(i,j) *= hill;
+       @endcode
+     * @param azimuth_deg 光源方位角
+     * @param height_deg 光源高度角
+     * @param z_factor 渐变因子
+     * @return 透明度
+     */
+    suUCMatrix HillShade(const double& azimuth_deg = 315.0, const double& height_deg = 45.0, const double& z_factor = 1.0)const;
 
     void Release();
 
   public:
     Info info;
-    suDMatrix raster;
+    suFMatrix raster;
 };
 #endif  // SILLY_DEM_H
