@@ -5,22 +5,20 @@
  * @author: dou li yang
  * @date: 2024-08-30
  * @file: silly_safe_deque.h
- * @description: silly_safe_deque 类声明
+ * @description: suSafeDeque 类声明
  * @version: v1.0.1 2024-08-30 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_SAFE_DEQUE_H
-#define SILLY_UTILS_SILLY_SAFE_DEQUE_H
+#ifndef SILLY_SAFE_DEQUE_H
+#define SILLY_SAFE_DEQUE_H
 #include <su_macro.h>
 template <typename T>
-class silly_safe_deque
+class suSafeDeque
 {
-    typedef std::deque<T> type;
-
   public:
     /// Default Constructor.
-    silly_safe_deque(void){};
+    suSafeDeque() = default;
     /// Destructor.
-    virtual ~silly_safe_deque(void){};
+    virtual ~suSafeDeque() = default;
 
     /// Push item to deque tail.
     void push_back(const T& value)
@@ -66,10 +64,8 @@ class silly_safe_deque
     }
 
   protected:
-    /// Boost recursive mutex.
     std::mutex m_mutex;
-    /// Deque structure.
-    type m_deque;
+    std::deque<T> m_deque;
 };
 
-#endif  // SILLY_UTILS_SILLY_SAFE_DEQUE_H
+#endif  // SILLY_SAFE_DEQUE_H

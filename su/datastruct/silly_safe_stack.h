@@ -5,23 +5,21 @@
  * @author: dou li yang
  * @date: 2024-08-30
  * @file: silly_safe_stack.h
- * @description: silly_safe_stack 类声明
+ * @description: 线程安全的栈类
  * @version: v1.0.1 2024-08-30 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_SAFE_STACK_H
-#define SILLY_UTILS_SILLY_SAFE_STACK_H
+#ifndef SILLY_SAFE_STACK_H
+#define SILLY_SAFE_STACK_H
 
 #include <su_macro.h>
 template <typename T>
-class silly_safe_stack
+class suSafeStack
 {
-    typedef std::stack<T> type;
-
   public:
     /// Default Constructor.
-    silly_safe_stack(void){};
+    suSafeStack() = default;
     /// Destructor.
-    virtual ~silly_safe_stack(void){};
+    virtual ~suSafeStack() = default;
 
     /// Push stack.
     void push(const T& value)
@@ -59,16 +57,13 @@ class silly_safe_stack
         std::scoped_lock lock(m_mutex);
         while (!m_stack.empty())
         {
-            T& value = m_stack.top();
             m_stack.pop();
         }
     }
 
   protected:
-    /// Boost recursive mutex.
     std::mutex m_mutex;
-    /// Stack structure.
-    type m_stack;
+    std::stack<T> m_stack;
 };
 
-#endif  // SILLY_UTILS_SILLY_SAFE_STACK_H
+#endif  // SILLY_SAFE_STACK_H

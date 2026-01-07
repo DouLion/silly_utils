@@ -8,8 +8,8 @@
  * @description: 包含silly_utils库中所有的头文件
  * @version: v1.0.1 2025-01-15 dou li yang
  */
-#ifndef SILLY_UTILS_SU_H
-#define SILLY_UTILS_SU_H
+#ifndef SU_H
+#define SU_H
 
 // json
 #include <json/silly_jsonpp.h>  // json文件,json字符串,json对象处理
@@ -182,10 +182,7 @@
 #include <parser/ini/silly_tzx_ini_parser.h>     // tzx ini文件解析工具
 
 // pool (线程池)
-#include <pool/silly_bst_pool.h>        // 线程池源码
-#include <pool/silly_bst_pool_utils.h>  // 线程池源码
-#include <pool/silly_obj_pool.h>        // 对象池
-#include <pool/silly_pool_manager.h>    // 连接池
+#include <pool/silly_object_pool.h>     // 对象池
 #include <pool/silly_thread_pool.h>     // 线程池
 
 // pretty
@@ -241,4 +238,4 @@
 #include <tzx/warn/silly_simple_warn.h>    // 一个告警必要的属性内容
 #include <tzx/warn/silly_ultimate_warn.h>  // 告警内容的终极信息, 尽量包含目前已知的信息
 
-#endif  // SILLY_UTILS_SU_H
+#endif  // SU_H

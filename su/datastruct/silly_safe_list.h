@@ -5,22 +5,20 @@
  * @author: dou li yang
  * @date: 2024-08-30
  * @file: silly_safe_list.h
- * @description: silly_safe_list 类声明
+ * @description: 线程安全的链表
  * @version: v1.0.1 2024-08-30 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_SAFE_LIST_H
-#define SILLY_UTILS_SILLY_SAFE_LIST_H
+#ifndef SILLY_SAFE_LIST_H
+#define SILLY_SAFE_LIST_H
 #include <su_macro.h>
 template <typename T>
-class silly_safe_list
+class suSafeList
 {
-    typedef std::list<T> type;
-
   public:
     /// Default constructor.
-    silly_safe_list(void){};
+    suSafeList() = default;
     /// Destructor.
-    virtual ~silly_safe_list(void){};
+    virtual ~suSafeList() = default;
 
     /// Add item.
     void push_back(const T& value)
@@ -58,10 +56,8 @@ class silly_safe_list
     }
 
   protected:
-    /// Boost recursive mutex.
     std::mutex m_mutex;
-    /// List structure.
-    type m_list;
+     std::list<T> m_list;
 };
 
-#endif  // SILLY_UTILS_SILLY_SAFE_LIST_H
+#endif  // SILLY_SAFE_LIST_H

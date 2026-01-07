@@ -5,22 +5,20 @@
  * @author: dou li yang
  * @date: 2024-08-30
  * @file: silly_safe_map.h
- * @description: silly_safe_map 类声明
+ * @description: suSafeMap 类声明
  * @version: v1.0.1 2024-08-30 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_SAFE_MAP_H
-#define SILLY_UTILS_SILLY_SAFE_MAP_H
+#ifndef SILLY_SAFE_MAP_H
+#define SILLY_SAFE_MAP_H
 #include <su_macro.h>
 template <typename K, typename V>
-class silly_safe_map
+class suSafeMap
 {
-    typedef std::map<K, V> type;
-
   public:
     /// Default constructor.
-    silly_safe_map(void){};
+    suSafeMap(void){};
     /// Destructor.
-    virtual ~silly_safe_map(void){};
+    virtual ~suSafeMap(void){};
 
     /// Add item.
     void add(const K& key, const V& value)
@@ -34,7 +32,7 @@ class silly_safe_map
     {
         bool bFind = false;
         std::scoped_lock lock(m_mutex);
-        typename type::iterator iter = m_map.find(key);
+        typename  std::map<K, V>::iterator iter = m_map.find(key);
         if (iter != m_map.end())
         {
             value = iter->second;
@@ -91,10 +89,8 @@ class silly_safe_map
     }
 
   protected:
-    /// Boost recursive mutex.
     std::mutex m_mutex;
-    /// Map structure.
-    type m_map;
+     std::map<K, V>  m_map;
 };
 
-#endif  // SILLY_UTILS_SILLY_SAFE_MAP_H
+#endif  // SILLY_SAFE_MAP_H

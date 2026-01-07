@@ -34,7 +34,7 @@ class dynamic_rule_record
 class silly_dynamic_rule;
 
 /// 这个索引文件对外应该只支持读, 不支持写, 是一个相对固定的文件
-class dynamic_rule_code_index : public silly_safe_bimap<std::string, size_t>
+class dynamic_rule_code_index : public suSafeBiMap<std::string, size_t>
 {
     friend class silly_dynamic_rule;
 

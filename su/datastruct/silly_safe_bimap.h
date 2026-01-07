@@ -6,15 +6,15 @@
  * @author: dou li yang
  * @date: 2024-09-11
  * @file: silly_safe_bimap.h
- * @description: silly_safe_bimap  双向映射的简单实现
+ * @description: 双向映射的简单实现
  * @version: v1.0.2 2024-09-11 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_SAFE_BIMAP_H
-#define SILLY_UTILS_SILLY_SAFE_BIMAP_H
+#ifndef SILLY_SAFE_BIMAP_H
+#define SILLY_SAFE_BIMAP_H
 #include <su_macro.h>
 
 template <typename KT, typename VT>
-class silly_safe_bimap
+class suSafeBiMap
 {
     /// 默认以key为主
   public:
@@ -24,8 +24,8 @@ class silly_safe_bimap
     using const_value_iterator = typename std::unordered_map<VT, KT>::const_iterator;
 
   public:
-    silly_safe_bimap() = default;
-    ~silly_safe_bimap() = default;
+    suSafeBiMap() = default;
+    ~suSafeBiMap() = default;
 
     /// <summary>
     /// 插入一对数据, 如果key或者value已经存在, 则返回false
@@ -271,4 +271,4 @@ class silly_safe_bimap
     std::mutex m_mutex;
 };
 
-#endif  // SILLY_UTILS_SILLY_SAFE_BIMAP_H
+#endif  // SILLY_SAFE_BIMAP_H
