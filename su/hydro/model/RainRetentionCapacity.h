@@ -18,7 +18,7 @@
 #include <hydro/rwdb/ST_RSVR_R.h>
 #include <hydro/rwdb/ST_RIVER_R.h>
 
-struct CalcParam
+struct NynlParam
 {
     double BRZ = 0;  // 起始水位(m)
     // double ERZ = 0;  // 结束水位
@@ -36,15 +36,19 @@ struct CalcParam
     double Pa = 0;          // 土壤湿度 * Wm
     double YhdW = 10;       // 溢洪道宽度(m)
     double KCH = 1;         // 流量系数
-    double TCH = 0;         // 出流时间 分钟
-    double WCH = -1;        // 出流量 百万方
-    double pmin = -1;       // 最小降雨(mm)
-    double pmax = -1;       // 最大降雨(mm)
     double CalcSteps = 15;  // 计算步长 分钟
     int CalcType = 1;       // 0 反算 1 正算
+    struct
+    {
+        double TCH = 0;         // 出流时间 分钟
+        double WCH = -1;        // 出流量 百万方
+
+        double pmin = -1;       // 最小降雨(mm)
+        double pmax = -1;       // 最大降雨(mm)
+    } optional; // 可选参数
 };
 
-struct CalcResult
+struct NynlResult
 {
     double BRZ = 0;  // 起始水位
     double BW = 0;   // 起始库容
@@ -66,9 +70,9 @@ class RainRetentionCapacity
     RZ2W_L pRZ2WLine;  // 水位库容关系
     PAPR_L pPaPrLine;  // 雨量径流关系
 
-    std::vector<CalcResult> CalcNYNL(const CalcParam& p) const;
-    CalcResult CalcPPZ(const CalcParam& p, const double& dstRZ) const;
-    CalcResult CalcPPF(const CalcParam& p, const double& dstRZ) const;
+    std::vector<NynlResult> CalcNYNL(const NynlParam& p) const;
+    NynlResult CalcPPZ(const NynlParam& p, const double& dstRZ) const;
+    NynlResult CalcPPF(const NynlParam& p, const double& dstRZ) const;
 
     void TestPAPRLine();  // 已确认
     void TestRZWLine();
