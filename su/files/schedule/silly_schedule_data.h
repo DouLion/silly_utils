@@ -15,8 +15,7 @@
 #include <json/silly_jsonpp.h>
 
 // 类型大小映射表
-static std::unordered_map<std::string, size_t> TYPE_SIZE =
-    {{"int16_t", sizeof(int16_t)}, {"int32_t", sizeof(int32_t)}, {"float", sizeof(float)}, {"double", sizeof(double)}};
+static std::unordered_map<std::string, size_t> TYPE_SIZE = {{"int16_t", sizeof(int16_t)}, {"int32_t", sizeof(int32_t)}, {"float", sizeof(float)}, {"double", sizeof(double)}};
 
 class suScheduleData
 {
@@ -43,6 +42,7 @@ class suScheduleData
     };
 
   public:
+    suScheduleData() = default;
     suScheduleData(std::string& filepath);
     /// <summary>
     /// 获取数据
@@ -64,6 +64,7 @@ class suScheduleData
 
   public:
     std::map<std::string, std::vector<cellDesc>> name2desc;
+    std::map<std::string, size_t> name2size;
 
     template <typename T>
     static double extractValue(const std::vector<char>& data, size_t offset, int scale)

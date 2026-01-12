@@ -43,6 +43,7 @@ suScheduleData::suScheduleData(std::string& jsonfile)
                 return;
             }
             name2desc[member].push_back(cellDesc{key, type, scale});
+            name2size[member] += TYPE_SIZE[type];
         }
     }
 }
