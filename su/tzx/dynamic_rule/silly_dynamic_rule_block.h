@@ -47,7 +47,7 @@ class suDynamicRule
     ///
     /// <param name="data"></param>
     /// <returns></returns>
-    bool read(const std::string& code, const silly_posix_time& time, Cell& data);
+    bool read(const std::string& code, const sutime& time, Cell& data);
 
     /// <summary>
     /// 读取指定时间一批危险区的数据
@@ -55,17 +55,17 @@ class suDynamicRule
     /// <param name="time"></param>
     /// <param name="code_data"></param>
     /// <returns></returns>
-    bool read(const silly_posix_time& time, std::map<std::string, Cell>& code_data);
+    bool read(const sutime& time, std::map<std::string, Cell>& code_data);
 
     /// <summary>
     /// 读取指定危险区在一段时间内的数据, [btm, etm], 最多能跨一年
     /// </summary>
     /// <param name="code"></param>
     /// <param name="btm"></param>
-    /// <param name=""></param>
-    /// <param name="time_data"></param>
+    /// <param name="etm"></param>
+    /// <param name="time2data"></param>
     /// <returns></returns>
-    bool read(const std::string& code, const silly_posix_time& btm, const silly_posix_time& etm, std::map<std::string, Cell>& time_data);
+    bool read(const std::string& code, const sutime& btm, const sutime& etm, std::map<std::time_t, Cell>& time2data);
 
     /// <summary>
     /// 写入指定时间指定危险区的数据
@@ -74,32 +74,32 @@ class suDynamicRule
     /// <param name="time"></param>
     /// <param name="data"></param>
     /// <returns></returns>
-    bool write(const std::string& code, const silly_posix_time& time, const Cell& data);
+    bool write(const std::string& code, const sutime& time, const Cell& data);
 
     /// <summary>
     /// 写入指定时间点一批危险区的数据
     /// 一般都是这个操作
     /// </summary>
     /// <param name="time"></param>
-    /// <param name="code_data"></param>
+    /// <param name="code2data"></param>
     /// <returns></returns>
-    bool write(const silly_posix_time& time, const std::map<std::string, Cell>& code_data);
+    bool write(const sutime& time, const std::map<std::string, Cell>& code2data);
 
     /// <summary>
     /// 写入指定时间一批危险区的数据
     /// </summary>
     /// <param name="code"></param>
-    /// <param name="code_data"></param>
+    /// <param name="time2data"></param>
     /// <returns></returns>
-    bool write(const std::string& code, const std::map<std::string, Cell>& time_data);
+    bool write(const std::string& code, const std::map<std::time_t, Cell>& time2data);
 
     void close();
 
   private:
-    bool open_dat(const silly_posix_time& time);
+    bool open_dat(const sutime& time);
     bool open_dat(const std::string& year_str);
 
-    void read(const size_t& offset, const size_t& bi, const size_t& ei, const silly_posix_time& time, std::map<std::string, Cell>& time_data);
+    void read(const size_t& offset, const size_t& bi, const size_t& ei, const sutime& time, std::map<std::time_t, Cell>& time2data);
 
   private:
     bool m_read_mode = true;

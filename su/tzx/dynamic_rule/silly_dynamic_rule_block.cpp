@@ -16,9 +16,9 @@
 // 一个站,一年按366天计算, 一天24条记录,占用多少字节
 #define CODE_SIZE_PER_YEAR (366 * 24 * sizeof(Cell))
 
-static size_t index_in_year(const silly_posix_time& time)
+static size_t index_in_year(const sutime& time)
 {
-    silly_posix_time pt_0101 = time.time_from_string(time.to_string("%Y-01-01 00:00"));
+    sutime pt_0101 = time.time_from_string(time.to_string("%Y-01-01 00:00"));
     return (time.stamp_sec() - pt_0101.stamp_sec()) / SEC_IN_HOUR;
 }
 
@@ -58,7 +58,7 @@ bool suDynamicRule::init(const suPath& root, const size_t& num, const bool& read
     return m_init;
 }
 
-bool suDynamicRule::read(const std::string& code, const silly_posix_time& time, Cell& data)
+bool suDynamicRule::read(const std::string& code, const sutime& time, Cell& data)
 {
     std::string year = time.to_string(DTFMT_Y);
     if (!open_dat(year))
@@ -77,10 +77,10 @@ bool suDynamicRule::read(const std::string& code, const silly_posix_time& time, 
     return false;
 }
 
-bool suDynamicRule::read(const silly_posix_time& time, std::map<std::string, Cell>& code2data)
+bool suDynamicRule::read(const sutime& time, std::map<std::string, Cell>& code2data)
 {
     std::string year = time.to_string(DTFMT_Y);
-    
+
     if (!open_dat(year))
     {
         return false;
@@ -97,7 +97,7 @@ bool suDynamicRule::read(const silly_posix_time& time, std::map<std::string, Cel
     return !code2data.empty();
 }
 
-bool suDynamicRule::read(const std::string& code, const silly_posix_time& btm, const silly_posix_time& etm, std::map<std::string, Cell>& time2data)
+bool suDynamicRule::read(const std::string& code, const sutime& btm, const sutime& etm, std::map<time_t, Cell>& time2data)
 {
     if (m_code_index.find(code) == m_code_index.end())
     {
@@ -117,12 +117,12 @@ bool suDynamicRule::read(const std::string& code, const silly_posix_time& btm, c
         read(offset, bi, ei, btm, time2data);
         return true;
     }
-    else if (etm.year() - btm.year() == 1)  // 结束时间一定比开始时间大
+    else if (etm.year() - btm.year() == 1) // 结束时间一定比开始时间大
     {
         if (open_dat(btm))
         {
             std::string year = btm.to_string(DTFMT_Y);
-            silly_posix_time etm_1231;
+            sutime etm_1231;
             etm_1231.from_string(year + "-12-31 23:00");
             size_t bi = index_in_year(btm);
             size_t ei = index_in_year(etm_1231);
@@ -131,7 +131,7 @@ bool suDynamicRule::read(const std::string& code, const silly_posix_time& btm, c
         if (open_dat(etm))
         {
             std::string year = etm.to_string(DTFMT_Y);
-            silly_posix_time btm_0101;
+            sutime btm_0101;
             btm_0101.from_string(year + "-01-01 00:00");
             size_t bi = index_in_year(btm_0101);
             size_t ei = index_in_year(etm);
@@ -143,7 +143,7 @@ bool suDynamicRule::read(const std::string& code, const silly_posix_time& btm, c
     return false;
 }
 
-bool suDynamicRule::write(const std::string& code, const silly_posix_time& time, const Cell& data)
+bool suDynamicRule::write(const std::string& code, const sutime& time, const Cell& data)
 {
     std::string year = time.to_string(DTFMT_Y);
     if (!open_dat(year))
@@ -162,7 +162,7 @@ bool suDynamicRule::write(const std::string& code, const silly_posix_time& time,
     return false;
 }
 
-bool suDynamicRule::write(const silly_posix_time& time, const std::map<std::string, Cell>& code2data)
+bool suDynamicRule::write(const sutime& time, const std::map<std::string, Cell>& code2data)
 {
     std::string year = time.to_string(DTFMT_Y);
     if (!open_dat(year))
@@ -184,7 +184,7 @@ bool suDynamicRule::write(const silly_posix_time& time, const std::map<std::stri
     return true;
 }
 
-bool suDynamicRule::open_dat(const silly_posix_time& time)
+bool suDynamicRule::open_dat(const sutime& time)
 {
     std::string year = time.to_string(DTFMT_Y);
     return open_dat(year);
@@ -240,27 +240,27 @@ bool suDynamicRule::open_dat(const std::string& year_str)
                 tmp->close();
                 return false;
             }
-        }       
+        }
         std::cout << "打开: " << file << std::endl;
         m_year_mmap[year_str] = tmp;
     }
     return true;
 }
 
-void suDynamicRule::read(const size_t& offset, const size_t& bi, const size_t& ei, const silly_posix_time& time, std::map<std::string, Cell>& time2data)
+void suDynamicRule::read(const size_t& offset, const size_t& bi, const size_t& ei, const sutime& time, std::map<std::time_t, Cell>& time2data)
 {
     std::string year = time.to_string(DTFMT_Y);
+    std::time_t pt_0101 = time.time_from_string(time.to_string("%Y-01-01 00:00")).stamp_sec();
     for (size_t i = bi; i <= ei; i++)
     {
         Cell tmp;
         size_t pos = offset * CODE_SIZE_PER_YEAR + i * sizeof(Cell);
         m_year_mmap[year]->read((suMemMapFile::Ptr)&tmp, sizeof(Cell), pos);
-        std::string tmstr = (time + silly_time_duration(i - bi, 0, 0)).to_string(DTFMT_YMDHM);
-        time2data[tmstr] = tmp;
+        time2data[pt_0101 + i * SEC_IN_HOUR] = tmp;
     }
 }
 
-bool suDynamicRule::write(const std::string& code, const std::map<std::string, Cell>& time2data)
+bool suDynamicRule::write(const std::string& code, const std::map<std::time_t, Cell>& time2data)
 {
     return false;
 }
