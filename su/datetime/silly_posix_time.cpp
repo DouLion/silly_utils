@@ -5,10 +5,21 @@
  * @author: dou li yang
  * @date: 2024-08-30
  * @file: silly_posix_time.cpp
- * @description: silly_posix_time实现
+ * @description: sutime实现
  * @version: v1.0.1 2024-08-30 dou li yang
  */
 #include "silly_posix_time.h"
+#include <iomanip>
+#include <sstream>
+#ifndef SU_TIME
+#define SU_TIME
+#define SEC_IN_MIN 60
+#define MIN_IN_HOUR 60
+#define HOUR_IN_DAY 24
+#define SEC_IN_HOUR (SEC_IN_MIN * MIN_IN_HOUR)
+#define MIN_IN_DAY (MIN_IN_HOUR * HOUR_IN_DAY)
+#define SEC_IN_DAY (SEC_IN_MIN * MIN_IN_HOUR * HOUR_IN_DAY)
+#endif
 
 static void check_std_tm(std::tm stm)
 {
@@ -26,52 +37,52 @@ static void check_std_tm(std::tm stm)
         throw std::runtime_error(std::string("年(year) ").append(std::to_string(stm.tm_year)).append(" + 1900"));
 }
 
-silly_time_duration::silly_time_duration(int hours, int minutes, int seconds)
+suduration::suduration(int hours, int minutes, int seconds)
 {
     m_total_seconds = hours * 3600 + minutes * 60 + seconds;
 }
 
-silly_time_duration::silly_time_duration(silly_time_stamp secs)
+suduration::suduration(sustamp secs)
 {
     m_total_seconds = secs;
 }
 
-int silly_time_duration::total_days() const
+int suduration::total_days() const
 {
     return m_total_seconds / SEC_IN_DAY;
 }
 
-int silly_time_duration::hours() const
+int suduration::hours() const
 {
     return m_total_seconds % SEC_IN_DAY / SEC_IN_HOUR;
 }
 
-int silly_time_duration::minutes() const
+int suduration::minutes() const
 {
     return m_total_seconds % SEC_IN_HOUR / SEC_IN_MIN;
 }
 
-int silly_time_duration::seconds() const
+int suduration::seconds() const
 {
     return m_total_seconds % SEC_IN_MIN;
 }
 
-silly_time_stamp silly_time_duration::total_seconds() const
+sustamp suduration::total_seconds() const
 {
     return m_total_seconds;
 }
 
-int silly_time_duration::total_minutes() const
+int suduration::total_minutes() const
 {
     return m_total_seconds / SEC_IN_MIN;
 }
 
-int silly_time_duration::total_hours() const
+int suduration::total_hours() const
 {
     return m_total_seconds / SEC_IN_HOUR;
 }
 
-silly_posix_time::silly_posix_time()
+sutime::sutime()
 {
     std::scoped_lock lock(m_mutex);
     std::time_t stt = 8 * SEC_IN_HOUR;
@@ -79,18 +90,18 @@ silly_posix_time::silly_posix_time()
     m_time_point = std::chrono::system_clock::from_time_t(0);
 }
 
-silly_posix_time::silly_posix_time(const silly_posix_time& time)
+sutime::sutime(const sutime& time)
 {
     m_tm = time.m_tm;
     m_time_point = time.m_time_point;
 }
 
-silly_posix_time::silly_posix_time(const std::string& time)
+sutime::sutime(const std::string& time)
 {
     from_string(time);
 }
 
-silly_posix_time::silly_posix_time(const std::tm& stm)
+sutime::sutime(const std::tm& stm)
 {
     std::scoped_lock lock(m_mutex);
     m_tm = stm;
@@ -98,18 +109,18 @@ silly_posix_time::silly_posix_time(const std::tm& stm)
     m_time_point = std::chrono::system_clock::from_time_t(stamp);
 }
 
-silly_posix_time::silly_posix_time(const silly_time_stamp& stamp)
+sutime::sutime(const sustamp& stamp)
 {
     std::scoped_lock lock(m_mutex);
     m_time_point = std::chrono::system_clock::from_time_t(stamp);
     fix_tm();
 }
-bool silly_posix_time::parse(const std::string& str, const std::string& fmt)
+bool sutime::parse(const std::string& str, const std::string& fmt)
 {
     return from_string(str, fmt);
 }
 
-bool silly_posix_time::from_string(const std::string& str, const std::string& fmt)
+bool sutime::from_string(const std::string& str, const std::string& fmt)
 {
     std::scoped_lock lock(m_mutex);
     bool status = false;
@@ -139,12 +150,12 @@ bool silly_posix_time::from_string(const std::string& str, const std::string& fm
     return status;
 }
 
-std::string silly_posix_time::stringify(const std::string& fmt) const
+std::string sutime::stringify(const std::string& fmt) const
 {
     return to_string(fmt);
 }
 
-std::string silly_posix_time::to_string(const std::string& fmt) const
+std::string sutime::to_string(const std::string& fmt) const
 {
     std::string result;
     try
@@ -165,15 +176,15 @@ std::string silly_posix_time::to_string(const std::string& fmt) const
     return result;
 }
 
-silly_posix_time silly_posix_time::operator+(const silly_time_duration& td) const
+sutime sutime::operator+(const suduration& td) const
 {
-    silly_posix_time result;
+    sutime result;
     result.m_time_point = m_time_point + std::chrono::seconds(td.total_seconds());
     result.fix_tm();
     return result;
 }
 
-silly_posix_time& silly_posix_time::operator+=(const silly_time_duration& td)
+sutime& sutime::operator+=(const suduration& td)
 {
     std::scoped_lock lock(m_mutex);
     m_time_point += std::chrono::seconds(td.total_seconds());
@@ -181,14 +192,14 @@ silly_posix_time& silly_posix_time::operator+=(const silly_time_duration& td)
     return *this;
 }
 
-silly_posix_time silly_posix_time::operator-(const silly_time_duration& td) const
+sutime sutime::operator-(const suduration& td) const
 {
-    silly_posix_time result;
+    sutime result;
     result.m_time_point = m_time_point - std::chrono::seconds(td.total_seconds());
     result.fix_tm();
     return result;
 }
-silly_posix_time& silly_posix_time::operator-=(const silly_time_duration& td)
+sutime& sutime::operator-=(const suduration& td)
 {
     std::scoped_lock lock(m_mutex);
     m_time_point -= std::chrono::seconds(td.total_seconds());
@@ -196,101 +207,101 @@ silly_posix_time& silly_posix_time::operator-=(const silly_time_duration& td)
     return *this;
 }
 
-silly_time_duration silly_posix_time::operator-(const silly_posix_time& rh) const
+suduration sutime::operator-(const sutime& rh) const
 {
     auto td = std::chrono::duration_cast<std::chrono::seconds>(m_time_point - rh.m_time_point);
-    return silly_time_duration(td.count());
+    return suduration(td.count());
 }
 
-silly_time_stamp silly_posix_time::stamp_sec() const
+sustamp sutime::stamp_sec() const
 {
     return std::chrono::system_clock::to_time_t(m_time_point);
 }
 
-std::chrono::system_clock::time_point silly_posix_time::time_point() const
+std::chrono::system_clock::time_point sutime::time_point() const
 {
     return m_time_point;
 }
 
-std::tm silly_posix_time::tm() const
+std::tm sutime::tm() const
 {
     return m_tm;
 }
 
-int silly_posix_time::year() const
+int sutime::year() const
 {
     return m_tm.tm_year + 1900;
 }
 
-int silly_posix_time::month() const
+int sutime::month() const
 {
     return m_tm.tm_mon + 1;
 }
 
-int silly_posix_time::day() const
+int sutime::day() const
 {
     return m_tm.tm_mday;
 }
 
-int silly_posix_time::hour() const
+int sutime::hour() const
 {
     return m_tm.tm_hour;
 }
 
-int silly_posix_time::minute() const
+int sutime::minute() const
 {
     return m_tm.tm_min;
 }
 
-int silly_posix_time::second() const
+int sutime::second() const
 {
     return m_tm.tm_sec;
 }
 
-int silly_posix_time::yday() const
+int sutime::yday() const
 {
     return m_tm.tm_yday;
 }
 
-int silly_posix_time::wday() const
+int sutime::wday() const
 {
     return m_tm.tm_wday;
 }
 
-void silly_posix_time::fix_tm()
+void sutime::fix_tm()
 {
     std::time_t stt = std::chrono::system_clock::to_time_t(m_time_point);
-    stt += 8 * SEC_IN_HOUR;
+    stt += SU_TIME_ZONE * SEC_IN_HOUR;
     // 将 time_t 转换为 tm 结构
     m_tm = *std::gmtime(&stt);
 }
 
-bool silly_posix_time::operator>(const silly_posix_time& rh) const
+bool sutime::operator>(const sutime& rh) const
 {
     return m_time_point > rh.m_time_point;
 }
 
-bool silly_posix_time::operator==(const silly_posix_time& rh) const
+bool sutime::operator==(const sutime& rh) const
 {
     return m_time_point == rh.m_time_point;
 }
 
-bool silly_posix_time::operator<(const silly_posix_time& rh) const
+bool sutime::operator<(const sutime& rh) const
 {
     return m_time_point < rh.m_time_point;
 }
 
-bool silly_posix_time::operator>=(const silly_posix_time& rh) const
+bool sutime::operator>=(const sutime& rh) const
 {
     return m_time_point >= rh.m_time_point;
 }
 
-bool silly_posix_time::operator<=(const silly_posix_time& rh) const
+bool sutime::operator<=(const sutime& rh) const
 {
     return m_time_point <= rh.m_time_point;
 }
 
-silly_posix_time silly_posix_time::operator=(const silly_posix_time& rh)
+sutime sutime::operator=(const sutime& rh)
 {
     std::scoped_lock lock(m_mutex);
     m_time_point = rh.m_time_point;
@@ -298,27 +309,27 @@ silly_posix_time silly_posix_time::operator=(const silly_posix_time& rh)
     return *this;
 }
 
-silly_posix_time silly_posix_time::now()
+sutime sutime::now()
 {
-    silly_posix_time result;
+    sutime result;
     result.m_time_point = std::chrono::system_clock::now();
     result.fix_tm();
     return result;
 }
 
-silly_posix_time silly_posix_time::time_from_string(const std::string& str, const std::string& fmt)
+sutime sutime::time_from_string(const std::string& str, const std::string& fmt)
 {
-    silly_posix_time result;
+    sutime result;
     result.from_string(str, fmt);
     return result;
 }
 
-std::string silly_posix_time::time_to_string(const silly_posix_time& pt, const std::string& fmt)
+std::string sutime::time_to_string(const sutime& pt, const std::string& fmt)
 {
     return pt.to_string(fmt);
 }
 
-bool silly_posix_time::is_not_a_date_time() const
+bool sutime::is_not_a_date_time() const
 {
     try
     {
