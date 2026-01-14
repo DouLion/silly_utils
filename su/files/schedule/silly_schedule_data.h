@@ -8,15 +8,12 @@
  * @description: silly_schedule_data 头文件
  * @version: v1.0.1 2025-12-11 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_SCHEDULE_DATA_H
-#define SILLY_UTILS_SILLY_SCHEDULE_DATA_H
+#ifndef SILLY_SCHEDULE_DATA_H
+#define SILLY_SCHEDULE_DATA_H
 #include <files/silly_file.h>
 #include <log/silly_log.h>
 #include <json/silly_jsonpp.h>
 
-// 类型大小映射表
-static std::unordered_map<std::string, size_t> TYPE_SIZE =
-    {{"int16_t", sizeof(int16_t)}, {"int32_t", sizeof(int32_t)}, {"float", sizeof(float)}, {"double", sizeof(double)}};
 
 class suScheduleData
 {
@@ -43,7 +40,9 @@ class suScheduleData
     };
 
   public:
-    suScheduleData(std::string& filepath);
+    suScheduleData() = default;
+    // deprecated, 后面记得删除
+    suScheduleData(const supath& file);
     /// <summary>
     /// 获取数据
     /// </summary>
@@ -64,6 +63,7 @@ class suScheduleData
 
   public:
     std::map<std::string, std::vector<cellDesc>> name2desc;
+    std::map<std::string, size_t> name2size;
 
     template <typename T>
     static double extractValue(const std::vector<char>& data, size_t offset, int scale)
@@ -85,4 +85,4 @@ class suScheduleData
         return ret;
     }
 };
-#endif  // SILLY_UTILS_SILLY_SCHEDULE_DATA_H
+#endif  // SILLY_SCHEDULE_DATA_H

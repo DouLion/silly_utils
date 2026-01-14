@@ -9,11 +9,29 @@
  * @version: v1.0.1 2025-12-11 dou li yang
  */
 #include "silly_schedule_data.h"
+// 类型大小映射表
+static std::unordered_map<std::string, size_t> TYPE_SIZE = {
+    {"int8_t", sizeof(int8_t)},
+    {"int16_t", sizeof(int16_t)},
+    {"int32_t", sizeof(int32_t)},
+    {"int64_t", sizeof(int64_t)},
+    {"float", sizeof(float)},
+    {"double", sizeof(double)}
+};
 
-suScheduleData::suScheduleData(std::string& jsonfile)
+enum SCHEDULE_DATA_TYPE
 {
-    Json::Value root;
-    root = silly_jsonpp::read(suPath(jsonfile));
+    SCHEDULE_DATA_TYPE_INT8 = 0,
+    SCHEDULE_DATA_TYPE_INT16,
+    SCHEDULE_DATA_TYPE_INT32,
+    SCHEDULE_DATA_TYPE_INT64,
+    SCHEDULE_DATA_TYPE_FLOAT,
+    SCHEDULE_DATA_TYPE_DOUBLE
+};
+
+suScheduleData::suScheduleData(const supath& file)
+{
+    Json::Value root = silly_jsonpp::read(file);
     if (root.isNull() || !root.isObject())
     {
         SLOG_ERROR("读取json文件失败");
@@ -43,8 +61,10 @@ suScheduleData::suScheduleData(std::string& jsonfile)
                 return;
             }
             name2desc[member].push_back(cellDesc{key, type, scale});
+            name2size[member] += TYPE_SIZE[type];
         }
     }
+
 }
 
 double suScheduleData::get(const std::string& name, const std::string& key, std::vector<char>& data)
@@ -57,34 +77,34 @@ double suScheduleData::get(const std::string& name, const std::string& key, std:
     }
 
     int offset = 0;
-    for (auto& desc : name2desc[name])
+    for (const auto& [k, type, scale] : name2desc[name])
     {
-        if (desc.key == key)
+        if (k == key)
         {
-            if (desc.type == "int16_t")
+            if (type == "int16_t")
             {
-                ret = extractValue<int16_t>(data, offset, desc.scale);
+                ret = extractValue<int16_t>(data, offset, scale);
                 break;
             }
-            else if (desc.type == "float")
+            else if (type == "float")
             {
-                ret = extractValue<float>(data, offset, desc.scale);
+                ret = extractValue<float>(data, offset, scale);
                 break;
             }
-            else if (desc.type == "double")
+            else if (type == "double")
             {
-                ret = extractValue<double>(data, offset, desc.scale);
+                ret = extractValue<double>(data, offset, scale);
                 break;
             }
-            else if (desc.type == "int32_t")
+            else if (type == "int32_t")
             {
-                ret = extractValue<int32_t>(data, offset, desc.scale);
+                ret = extractValue<int32_t>(data, offset, scale);
                 break;
             }
         }
         else
         {
-            offset += TYPE_SIZE[desc.type];
+            offset += TYPE_SIZE[type];
         }
     }
 

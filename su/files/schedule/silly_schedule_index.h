@@ -8,8 +8,8 @@
  * @description: silly_schedule_index 头文件
  * @version: v1.0.1 2025-12-11 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_SCHEDULE_INDEX_H
-#define SILLY_UTILS_SILLY_SCHEDULE_INDEX_H
+#ifndef SILLY_SCHEDULE_INDEX_H
+#define SILLY_SCHEDULE_INDEX_H
 #include <files/silly_file.h>
 #include <log/silly_log.h>
 
@@ -40,4 +40,4 @@ protected:
     bool m_added = false;
     suPath m_file;
 };
-#endif  // SILLY_UTILS_SILLY_SCHEDULE_INDEX_H
+#endif  // SILLY_SCHEDULE_INDEX_H

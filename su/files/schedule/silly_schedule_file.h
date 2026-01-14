@@ -9,8 +9,8 @@
  * @description: 定时生成的文件
  * @version: v1.0.1 2024-10-18 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_SCHEDULE_FILE_H
-#define SILLY_UTILS_SILLY_SCHEDULE_FILE_H
+#ifndef SILLY_SCHEDULE_FILE_H
+#define SILLY_SCHEDULE_FILE_H
 #include <files/silly_memory_map.h>
 #include <files/schedule/silly_schedule_index.h>
 #include <files/schedule/silly_schedule_data.h>
@@ -275,4 +275,4 @@ bool suScheduleFile::Write(const sutime& tm, const std::map<std::string, T>& cod
     return true;
 }
 
-#endif  // SILLY_UTILS_SILLY_SCHEDULE_FILE_H
+#endif  // SILLY_SCHEDULE_FILE_H
