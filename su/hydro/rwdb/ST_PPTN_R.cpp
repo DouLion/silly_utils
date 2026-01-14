@@ -49,7 +49,7 @@ extern std::map<std::time_t, float> RWDB::AggDrpByIntv(const std::map<std::time_
     return ret;
 }
 
-extern std::map<std::string, std::string> MaxDrpStation(const std::map<std::string, std::vector<std::string>>& code2stcds, const std::map<std::string, std::map<std::time_t, float>>& stcd2tm2drp)
+extern std::map<std::string, std::string> RWDB::MaxDrpStation(const std::map<std::string, std::vector<std::string>>& code2stcds, const std::map<std::string, std::map<std::time_t, float>>& stcd2tm2drp)
 {
     std::map<std::string, std::string> ret;
     std::map<std::string, float> stcd2sum;
