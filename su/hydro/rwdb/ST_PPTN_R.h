@@ -55,7 +55,15 @@ struct ST_PPTN_R
  * @param intv 时间步长 秒
  * @return 输出结果会从bt+step开始,表示从bt到 bt+step内的累计雨量
  */
-std::map<std::time_t, float> AggRainByIntv(const std::map<std::time_t, float>& tm2rain, const std::time_t& bt, const std::time_t& et, const std::time_t& intv);
+std::map<std::time_t, float> AggDrpByIntv(const std::map<std::time_t, float>& tm2rain, const std::time_t& bt, const std::time_t& et, const std::time_t& intv);
+
+/**
+ * @brief 危险区(或其他)关联的雨量站中, 降雨量最大的站
+ * @param code2stcds 目标关联的雨量站
+ * @param stcd2tm2drp 雨量站的降雨信息
+ * @return
+ */
+std::map<std::string, std::string> MaxDrpStation(const std::map<std::string, std::vector<std::string>>& code2stcds, const std::map<std::string, std::map<std::time_t, float>>& stcd2tm2drp);
 }
 
 #endif  // ST_PPTN_R_H

@@ -9,6 +9,7 @@
  * @version: v1.0.1 2025-12-24 dou li yang
  */
 #include "ST_PPTN_R.h"
+#include "system/silly_system.h"
 double RWDB::ST_PPTN_R::INTV2S(const double& intv)
 {
     if (intv <= 0.0)
@@ -24,7 +25,7 @@ double RWDB::ST_PPTN_R::INTV2MS(const double& intv)
     return INTV2S(intv) * 1000.0;
 }
 
-extern std::map<std::time_t, float> RWDB::AggRainByIntv(const std::map<std::time_t, float>& tm2rain, const std::time_t& bt, const std::time_t& et, const std::time_t& intv)
+extern std::map<std::time_t, float> RWDB::AggDrpByIntv(const std::map<std::time_t, float>& tm2rain, const std::time_t& bt, const std::time_t& et, const std::time_t& intv)
 {
     auto t = bt +  intv;
     std::map<std::time_t, float> ret;
@@ -46,4 +47,42 @@ extern std::map<std::time_t, float> RWDB::AggRainByIntv(const std::map<std::time
         t+=intv;
     }
     return ret;
+}
+
+extern std::map<std::string, std::string> MaxDrpStation(const std::map<std::string, std::vector<std::string>>& code2stcds, const std::map<std::string, std::map<std::time_t, float>>& stcd2tm2drp)
+{
+    std::map<std::string, std::string> ret;
+    std::map<std::string, float> stcd2sum;
+    for (const auto& [stcd, tm2drp] : stcd2tm2drp )
+    {
+        float tmp = 0;
+        for (const auto& [_, drp]: tm2drp)
+        {
+            tmp+= drp;
+        }
+        stcd2sum[stcd] = tmp;
+    }
+    for (const auto& [code, stcds] : code2stcds)
+    {
+        float maxSum = 0;
+        std::string maxStcd;
+        for (const auto & stcd: stcds)
+        {
+            if (HAS(stcd2sum, stcd))
+            {
+                if (const float& tsum = stcd2sum[stcd]; tsum > maxSum)
+                {
+                    maxSum = tsum;
+                    maxStcd = stcd;
+                }
+            }
+        }
+        if (maxStcd.empty())
+        {
+            continue;
+        }
+        ret[code] = maxStcd;
+    }
+    return ret;
+
 }
