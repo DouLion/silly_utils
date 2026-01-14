@@ -42,8 +42,20 @@ struct ST_PPTN_R
      */
     static double INTV2S(const double& intv);
     static double INTV2MS(const double& intv);
-
 };
+
+/**
+ * @brief 将高频率(如每5分钟)的降雨数据,按左开右闭区间 (t−step, t]
+ *  聚合到低频时间窗口(如整小时、整3小时),
+ *  输出每个聚合窗口结束时刻对应的累计雨量.
+ *
+ * @param tm2rain 原始降雨序列
+ * @param bt 开始时间戳
+ * @param et 结束时间戳
+ * @param intv 时间步长 秒
+ * @return 输出结果会从bt+step开始,表示从bt到 bt+step内的累计雨量
+ */
+std::map<std::time_t, float> AggRainByIntv(const std::map<std::time_t, float>& tm2rain, const std::time_t& bt, const std::time_t& et, const std::time_t& intv);
 }
 
 #endif  // ST_PPTN_R_H
