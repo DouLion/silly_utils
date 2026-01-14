@@ -121,6 +121,20 @@ extern void WINDOWS_UTF8_PAGE(const unsigned int& codePage, const std::string& f
 }
 #endif
 
+extern bool START_WITH(const std::string& s, const std::string& prefix)
+{
+    if (prefix.size() > s.size())
+        return false;
+    return s.compare(0, prefix.size(), prefix) == 0;
+}
+
+extern bool END_WITH(const std::string& s, const std::string& suffix)
+{
+    if (suffix.size() > s.size())
+        return false;
+    return s.compare(s.size() - suffix.size(), suffix.size(), suffix) == 0;
+}
+
 extern std::string TO_UPPER(const std::string& str)
 {
     std::string ret = str;

@@ -5,7 +5,7 @@
  * @author: dou li yang
  * @date: 2025-12-24
  * @file: ST_RIVER_R.cpp
- * @description: 河道水情表
+ * @description: 河道水情表 River Record
  * @version: v1.0.1 2025-12-24 dou li yang
  */
 #ifndef ST_RIVER_R_H
@@ -24,7 +24,7 @@ enum class eWaterTrend : char
     Stagnant = 6,  // 平
 };
 
-struct ST_RIVER
+struct ST_RIVER_R
 {
     std::string STCD;
     std::time_t TM;

@@ -20,9 +20,9 @@ bool TzxIni::set(const std::string& section, const std::string& property, const 
     {
         m_sect2prop2comment[section][property] = comment;
     }
-    if (MAP_HAS(m_sect2prop2value, section))
+    if (HAS(m_sect2prop2value, section))
     {
-        if (MAP_HAS(m_sect2prop2value.at(section), property))
+        if (HAS(m_sect2prop2value.at(section), property))
         {
             return true;
         }
@@ -32,11 +32,11 @@ bool TzxIni::set(const std::string& section, const std::string& property, const 
 
 bool TzxIni::remove(const std::string& section, const std::string& property)
 {
-    if (!MAP_HAS(m_sect2prop2value, section))
+    if (!HAS(m_sect2prop2value, section))
     {
         return true;
     }
-    if (!MAP_HAS(m_sect2prop2value.at(section), property))
+    if (!HAS(m_sect2prop2value.at(section), property))
     {
         return true;
     }
@@ -48,9 +48,9 @@ double TzxIni::numeric(const std::string& section, const std::string& property) 
     double ret = std::numeric_limits<double>::quiet_NaN();
     try
     {
-        if (MAP_HAS(m_sect2prop2value, section))
+        if (HAS(m_sect2prop2value, section))
         {
-            if (MAP_HAS(m_sect2prop2value.at(section), property))
+            if (HAS(m_sect2prop2value.at(section), property))
             {
                ret =  std::stod(m_sect2prop2value.at(section).at(property));
             }
@@ -67,9 +67,9 @@ double TzxIni::numeric(const std::string& section, const std::string& property) 
 std::string TzxIni::string(const std::string& section, const std::string& property) const
 {
 
-    if (MAP_HAS(m_sect2prop2value, section))
+    if (HAS(m_sect2prop2value, section))
     {
-        if (MAP_HAS(m_sect2prop2value.at(section), property))
+        if (HAS(m_sect2prop2value.at(section), property))
         {
             return m_sect2prop2value.at(section).at(property);
         }

@@ -107,7 +107,7 @@ void MatchingSquares::Calc()
 std::vector<suLine> MatchingSquares::GetLines(const ReadParam& param) const
 {
     std::vector<suLine> ret;
-    if (!MAP_HAS(m_l2points, param.level))
+    if (!HAS(m_l2points, param.level))
     {
         return ret;
     }
@@ -129,7 +129,7 @@ std::vector<suLine> MatchingSquares::GetLines(const ReadParam& param) const
 std::vector<suPoly> MatchingSquares::GetPolys(const ReadParam& param) const
 {
     std::vector<suPoly> ret;
-    if (!MAP_HAS(m_l2points, param.level))
+    if (!HAS(m_l2points, param.level))
     {
         return ret;
     }

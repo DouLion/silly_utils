@@ -114,7 +114,7 @@ bool suScheduleFile::CheckCode(const char* readCode, const std::string& givenCod
 }
 std::shared_ptr<suMemMapFile> suScheduleFile::OpenMMap(const int& year, const size_t& size, eMMFMode mode)
 {
-    if (MAP_HAS(m_year2mmap, year))
+    if (HAS(m_year2mmap, year))
     {
         // SLOG_DEBUG("已存在[{}.dat]文件映射", year)
         return m_year2mmap.at(year);

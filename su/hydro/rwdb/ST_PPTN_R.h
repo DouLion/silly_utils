@@ -25,7 +25,7 @@ enum class eWeather
     Cloudy = 8,// 阴
     Sunny = 9, // 晴
 };
-struct ST_PPTN
+struct ST_PPTN_R
 {
     std::string STCD;
     std::time_t TM = 0;

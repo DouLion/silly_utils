@@ -9,7 +9,7 @@
  * @version: v1.0.1 2025-12-24 dou li yang
  */
 #include "ST_PPTN_R.h"
-double RWDB::ST_PPTN::INTV2S(const double& intv)
+double RWDB::ST_PPTN_R::INTV2S(const double& intv)
 {
     if (intv <= 0.0)
     {
@@ -19,7 +19,7 @@ double RWDB::ST_PPTN::INTV2S(const double& intv)
     double minute = intv - hour;
     return hour * 3600 + minute * 60;
 }
-double RWDB::ST_PPTN::INTV2MS(const double& intv)
+double RWDB::ST_PPTN_R::INTV2MS(const double& intv)
 {
     return INTV2S(intv) * 1000.0;
 }

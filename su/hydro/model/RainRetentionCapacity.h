@@ -40,12 +40,12 @@ struct NynlParam
     int CalcType = 1;       // 0 反算 1 正算
     struct
     {
-        double TCH = 0;         // 出流时间 分钟
-        double WCH = -1;        // 出流量 百万方
+        double TCH = 0;   // 出流时间 分钟
+        double WCH = -1;  // 出流量 百万方
 
-        double pmin = -1;       // 最小降雨(mm)
-        double pmax = -1;       // 最大降雨(mm)
-    } optional; // 可选参数
+        double pmin = -1;  // 最小降雨(mm)
+        double pmax = -1;  // 最大降雨(mm)
+    } optional;            // 可选参数
 };
 
 struct NynlResult
