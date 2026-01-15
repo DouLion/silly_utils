@@ -416,7 +416,7 @@ suUCMatrix suDem::HillShade(const double& azimuth_deg, const double& height_deg,
             double aspect_rad = atan2(dz_dy, -dz_dx);
             if (aspect_rad < 0)
             {
-                aspect_rad += 2 * M_PI;
+                aspect_rad += 2 * MATH::PI_;
             }
 
             double tmp_shade = 255.0 * (zenithRad_cos * cos(slope_rad)) + (zenithRad_sin * sin(slope_rad) * cos(azimuth_rad - aspect_rad));
