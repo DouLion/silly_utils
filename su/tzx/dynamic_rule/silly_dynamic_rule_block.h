@@ -47,7 +47,7 @@ class suDynamicRule
     ///
     /// <param name="data"></param>
     /// <returns></returns>
-    bool read(const std::string& code, const sutime& time, Cell& data);
+    bool read(const std::string& code, const sutime& time, Cell& data) const;
 
     /// <summary>
     /// 读取指定时间一批危险区的数据
@@ -55,7 +55,7 @@ class suDynamicRule
     /// <param name="time"></param>
     /// <param name="code_data"></param>
     /// <returns></returns>
-    bool read(const sutime& time, std::map<std::string, Cell>& code_data);
+    bool read(const sutime& time, std::map<std::string, Cell>& code_data) const;
 
     /// <summary>
     /// 读取指定危险区在一段时间内的数据, [btm, etm], 最多能跨一年
@@ -65,7 +65,7 @@ class suDynamicRule
     /// <param name="etm"></param>
     /// <param name="time2data"></param>
     /// <returns></returns>
-    bool read(const std::string& code, const sutime& btm, const sutime& etm, std::map<std::time_t, Cell>& time2data);
+    bool read(const std::string& code, const sutime& btm, const sutime& etm, std::map<std::time_t, Cell>& time2data) const;
 
     /// <summary>
     /// 写入指定时间指定危险区的数据
@@ -96,10 +96,10 @@ class suDynamicRule
     void close();
 
   private:
-    bool open_dat(const sutime& time);
-    bool open_dat(const std::string& year_str);
+    bool open_dat(const sutime& time) const;
+    bool open_dat(const std::string& year_str) const;
 
-    void read(const size_t& offset, const size_t& bi, const size_t& ei, const sutime& time, std::map<std::time_t, Cell>& time2data);
+    void read(const size_t& offset, const size_t& bi, const size_t& ei, const sutime& time, std::map<std::time_t, Cell>& time2data) const;
 
   private:
     bool m_read_mode = true;
@@ -108,7 +108,7 @@ class suDynamicRule
     size_t m_num = 0;
     size_t m_max_index = 0;  // 当前最大危险区索引, 不能超过m_num
     std::map<std::string, size_t> m_code_index;
-    std::map<std::string, std::shared_ptr<suMemMapFile>> m_year_mmap;
+    mutable std::map<std::string, std::shared_ptr<suMemMapFile>> m_year_mmap;
 };
 
 

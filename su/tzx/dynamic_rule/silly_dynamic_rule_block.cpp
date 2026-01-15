@@ -58,16 +58,16 @@ bool suDynamicRule::init(const suPath& root, const size_t& num, const bool& read
     return m_init;
 }
 
-bool suDynamicRule::read(const std::string& code, const sutime& time, Cell& data)
+bool suDynamicRule::read(const std::string& code, const sutime& time, Cell& data) const
 {
     std::string year = time.to_string(DTFMT_Y);
     if (!open_dat(year))
     {
         return false;
     }
-    if (m_code_index.find(code) != m_code_index.end())
+    if (HAS(m_code_index, code))
     {
-        size_t index = m_code_index[code];
+        size_t index = m_code_index.at(code);
         size_t offset = index * CODE_SIZE_PER_YEAR;
 
         size_t pos = offset + index_in_year(time) * sizeof(Cell);
@@ -77,7 +77,7 @@ bool suDynamicRule::read(const std::string& code, const sutime& time, Cell& data
     return false;
 }
 
-bool suDynamicRule::read(const sutime& time, std::map<std::string, Cell>& code2data)
+bool suDynamicRule::read(const sutime& time, std::map<std::string, Cell>& code2data) const
 {
     std::string year = time.to_string(DTFMT_Y);
 
@@ -97,13 +97,13 @@ bool suDynamicRule::read(const sutime& time, std::map<std::string, Cell>& code2d
     return !code2data.empty();
 }
 
-bool suDynamicRule::read(const std::string& code, const sutime& btm, const sutime& etm, std::map<time_t, Cell>& time2data)
+bool suDynamicRule::read(const std::string& code, const sutime& btm, const sutime& etm, std::map<time_t, Cell>& time2data) const
 {
-    if (m_code_index.find(code) == m_code_index.end())
+    if (!HAS(m_code_index, code))
     {
         return false;
     }
-    size_t offset = m_code_index[code];
+    size_t offset = m_code_index.at(code);
     if (btm.year() == etm.year())
     {
         std::string year = btm.to_string(DTFMT_Y);
@@ -184,13 +184,13 @@ bool suDynamicRule::write(const sutime& time, const std::map<std::string, Cell>&
     return true;
 }
 
-bool suDynamicRule::open_dat(const sutime& time)
+bool suDynamicRule::open_dat(const sutime& time) const
 {
     std::string year = time.to_string(DTFMT_Y);
     return open_dat(year);
 }
 
-bool suDynamicRule::open_dat(const std::string& year_str)
+bool suDynamicRule::open_dat(const std::string& year_str) const
 {
     if (!m_init)
     {
@@ -247,7 +247,7 @@ bool suDynamicRule::open_dat(const std::string& year_str)
     return true;
 }
 
-void suDynamicRule::read(const size_t& offset, const size_t& bi, const size_t& ei, const sutime& time, std::map<std::time_t, Cell>& time2data)
+void suDynamicRule::read(const size_t& offset, const size_t& bi, const size_t& ei, const sutime& time, std::map<std::time_t, Cell>& time2data) const
 {
     std::string year = time.to_string(DTFMT_Y);
     std::time_t pt_0101 = time.time_from_string(time.to_string("%Y-01-01 00:00")).stamp_sec();

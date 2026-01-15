@@ -45,17 +45,17 @@ suScheduleData::suScheduleData(const supath& file)
         std::string key;
         for (auto& value : root[member])
         {
-            if (!silly::jsonpp::check_str(value, "key", key))
+            if (!sujson::check_str(value, "key", key))
             {
                 SLOG_ERROR("缺少key字段");
                 return;
             }
-            if (!silly::jsonpp::check_str(value, "type", type))
+            if (!sujson::check_str(value, "type", type))
             {
                 SLOG_ERROR("缺少type字段");
                 return;
             }
-            if (!silly::jsonpp::check_double(value, "scale", scale))
+            if (!sujson::check_double(value, "scale", scale))
             {
                 SLOG_ERROR("缺少scale字段");
                 return;

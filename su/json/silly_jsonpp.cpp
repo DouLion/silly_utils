@@ -5,14 +5,8 @@
 #include <json/silly_jsonpp.h>
 #include <files/silly_file.h>
 #include <log/silly_log.h>
-using namespace silly;
 
-Json::Value jsonpp::loadf(const suPath& file)
-{
-    return jsonpp::read(file);
-}
-
-Json::Value jsonpp::read(const suPath& file)
+Json::Value suJsonPP::read(const suPath& file)
 {
     std::fstream input;
     input.open(suPath(file), std::ios::binary | std::ios::in);
@@ -34,12 +28,12 @@ Json::Value jsonpp::read(const suPath& file)
     input.close();
     return root;
 }
-Json::Value jsonpp::loads(const std::string& content)
+Json::Value suJsonPP::loads(const std::string& content)
 {
-    return jsonpp::parse(content);
+    return suJsonPP::parse(content);
 }
 
-Json::Value jsonpp::parse(const std::string& content)
+Json::Value suJsonPP::parse(const std::string& content)
 {
     Json::Reader reader;
     Json::Value root;
@@ -51,7 +45,7 @@ Json::Value jsonpp::parse(const std::string& content)
     return Json::nullValue;
 }
 
-std::string jsonpp::to_string(const Json::Value root, const jsonpp::style& opt)
+std::string suJsonPP::to_string(const Json::Value& root, const suJsonPP::style& opt)
 {
     Json::StreamWriterBuilder stream_builder;
     stream_builder["emitUTF8"] = opt.utf8;
@@ -70,27 +64,17 @@ std::string jsonpp::to_string(const Json::Value root, const jsonpp::style& opt)
     return stream.str();
 }
 
-std::string jsonpp::stringify(const Json::Value root, const jsonpp::style& opt)
+std::string suJsonPP::stringify(const Json::Value& root, const suJsonPP::style& opt)
 {
-    return jsonpp::to_string(root, opt);
+    return suJsonPP::to_string(root, opt);
 }
 
-std::string jsonpp::dumps(const Json::Value& root, const jsonpp::style& opt)
+std::string suJsonPP::dumps(const Json::Value& root, const suJsonPP::style& opt)
 {
-    return jsonpp::to_string(root, opt);
+    return suJsonPP::to_string(root, opt);
 }
 
-bool jsonpp::dumpf(const suPath& file, const Json::Value& root, const jsonpp::style& opt)
-{
-    return sufile::write(file, jsonpp::to_string(root, opt)) > 0;
-}
-
-bool jsonpp::savef(const suPath& file, const Json::Value& root, const jsonpp::style& opt)
-{
-    return dumpf(file, jsonpp::to_string(root, opt));
-}
-
-bool jsonpp::write(const suPath& file, const Json::Value& root, const jsonpp::style& opt)
+bool suJsonPP::write(const suPath& file, const Json::Value& root, const suJsonPP::style& opt)
 {
     try
     {
@@ -119,7 +103,7 @@ bool jsonpp::write(const suPath& file, const Json::Value& root, const jsonpp::st
     return suPath::file_size(file) > 0;
 }
 
-bool jsonpp::check_str(const Json::Value& root, const std::string& key, std::string& val)
+bool suJsonPP::check_str(const Json::Value& root, const std::string& key, std::string& val)
 {
     if (root.isNull())
     {
@@ -146,7 +130,7 @@ bool jsonpp::check_str(const Json::Value& root, const std::string& key, std::str
     return false;
 }
 
-bool jsonpp::check_double(const Json::Value& root, const std::string& key, double& val)
+bool suJsonPP::check_double(const Json::Value& root, const std::string& key, double& val)
 {
     if (root.isNull())
     {
@@ -173,7 +157,7 @@ bool jsonpp::check_double(const Json::Value& root, const std::string& key, doubl
     return false;
 }
 
-bool jsonpp::check_bool(const Json::Value& root, const std::string& key, bool& val)
+bool suJsonPP::check_bool(const Json::Value& root, const std::string& key, bool& val)
 {
     if (root.isNull())
     {
@@ -199,7 +183,7 @@ bool jsonpp::check_bool(const Json::Value& root, const std::string& key, bool& v
     return false;
 }
 
-bool jsonpp::check_arr(const Json::Value& root, const std::string& key, Json::Value& jv_arr)
+bool suJsonPP::check_arr(const Json::Value& root, const std::string& key, Json::Value& jv_arr)
 {
     if (root.isNull())
     {
@@ -226,7 +210,7 @@ bool jsonpp::check_arr(const Json::Value& root, const std::string& key, Json::Va
     return false;
 }
 
-bool jsonpp::check_obj(const Json::Value& root, const std::string& key, Json::Value& jv_obj)
+bool suJsonPP::check_obj(const Json::Value& root, const std::string& key, Json::Value& jv_obj)
 {
     if (root.isNull())
     {
@@ -253,7 +237,7 @@ bool jsonpp::check_obj(const Json::Value& root, const std::string& key, Json::Va
     return false;
 }
 
-bool jsonpp::check_int32(const Json::Value& root, const std::string& key, int32_t& val)
+bool suJsonPP::check_int32(const Json::Value& root, const std::string& key, int32_t& val)
 {
     if (root.isNull())
     {
@@ -279,7 +263,7 @@ bool jsonpp::check_int32(const Json::Value& root, const std::string& key, int32_
     return false;
 }
 
-bool jsonpp::check_uint32(const Json::Value& root, const std::string& key, uint32_t& val)
+bool suJsonPP::check_uint32(const Json::Value& root, const std::string& key, uint32_t& val)
 {
     if (root.isNull())
     {
@@ -305,7 +289,7 @@ bool jsonpp::check_uint32(const Json::Value& root, const std::string& key, uint3
     return false;
 }
 
-bool jsonpp::check_int64(const Json::Value& root, const std::string& key, int64_t& val)
+bool suJsonPP::check_int64(const Json::Value& root, const std::string& key, int64_t& val)
 {
     if (root.isNull())
     {
@@ -331,7 +315,7 @@ bool jsonpp::check_int64(const Json::Value& root, const std::string& key, int64_
     return false;
 }
 
-bool jsonpp::check_uint64(const Json::Value& root, const std::string& key, uint64_t& val)
+bool suJsonPP::check_uint64(const Json::Value& root, const std::string& key, uint64_t& val)
 {
     if (root.isNull())
     {
@@ -358,7 +342,7 @@ bool jsonpp::check_uint64(const Json::Value& root, const std::string& key, uint6
     return false;
 }
 
-void jsonpp::try_str(const Json::Value& root, const std::string& key, std::string& val)
+void suJsonPP::try_str(const Json::Value& root, const std::string& key, std::string& val)
 {
     if (root.isNull())
     {
@@ -384,7 +368,7 @@ void jsonpp::try_str(const Json::Value& root, const std::string& key, std::strin
     }
 }
 
-void jsonpp::try_double(const Json::Value& root, const std::string& key, double& val)
+void suJsonPP::try_double(const Json::Value& root, const std::string& key, double& val)
 {
     if (root.isNull())
     {
@@ -407,7 +391,7 @@ void jsonpp::try_double(const Json::Value& root, const std::string& key, double&
         throw std::runtime_error("不存在字段 " + key);
     }
 }
-void jsonpp::try_bool(const Json::Value& root, const std::string& key, bool& val)
+void suJsonPP::try_bool(const Json::Value& root, const std::string& key, bool& val)
 {
     if (root.isNull())
     {
@@ -430,7 +414,7 @@ void jsonpp::try_bool(const Json::Value& root, const std::string& key, bool& val
     }
 }
 
-void jsonpp::try_arr(const Json::Value& root, const std::string& key, Json::Value& jv_arr)
+void suJsonPP::try_arr(const Json::Value& root, const std::string& key, Json::Value& jv_arr)
 {
     if (root.isNull())
     {
@@ -454,7 +438,7 @@ void jsonpp::try_arr(const Json::Value& root, const std::string& key, Json::Valu
     }
 }
 
-void jsonpp::try_obj(const Json::Value& root, const std::string& key, Json::Value& jv_obj)
+void suJsonPP::try_obj(const Json::Value& root, const std::string& key, Json::Value& jv_obj)
 {
     if (root.isNull())
     {
@@ -478,7 +462,7 @@ void jsonpp::try_obj(const Json::Value& root, const std::string& key, Json::Valu
     }
 }
 
-void jsonpp::try_int32(const Json::Value& root, const std::string& key, int32_t& val)
+void suJsonPP::try_int32(const Json::Value& root, const std::string& key, int32_t& val)
 {
     if (root.isNull())
     {
@@ -501,7 +485,7 @@ void jsonpp::try_int32(const Json::Value& root, const std::string& key, int32_t&
     }
 }
 
-void jsonpp::try_uint32(const Json::Value& root, const std::string& key, uint32_t& val)
+void suJsonPP::try_uint32(const Json::Value& root, const std::string& key, uint32_t& val)
 {
     if (root.isNull())
     {
@@ -524,7 +508,7 @@ void jsonpp::try_uint32(const Json::Value& root, const std::string& key, uint32_
     }
 }
 
-void jsonpp::try_int64(const Json::Value& root, const std::string& key, int64_t& val)
+void suJsonPP::try_int64(const Json::Value& root, const std::string& key, int64_t& val)
 {
     if (root.isNull())
     {
@@ -547,7 +531,7 @@ void jsonpp::try_int64(const Json::Value& root, const std::string& key, int64_t&
     }
 }
 
-void jsonpp::try_uint64(const Json::Value& root, const std::string& key, uint64_t& val)
+void suJsonPP::try_uint64(const Json::Value& root, const std::string& key, uint64_t& val)
 {
     if (root.isNull())
     {

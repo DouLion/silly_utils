@@ -4,7 +4,6 @@
 
 #include <geo/geometry/silly_geojson.h>
 #include <files/silly_file.h>
-using namespace silly;
 
 // geojson中的key
 #define K_FEATURES "features"
@@ -19,13 +18,13 @@ using namespace silly;
 
 std::vector<suGeoColl> suGeoJson::read(const suPath& file)
 {
-    Json::Value jv = jsonpp::loadf(file);
+    Json::Value jv = sujson::read(file);
     return load(jv);
 }
 
 std::vector<suGeoColl> suGeoJson::load(const std::string& geojson)
 {
-    Json::Value jv = jsonpp::loads(geojson);
+    Json::Value jv = sujson::loads(geojson);
     return load(jv);
 }
 
@@ -37,7 +36,7 @@ std::vector<suGeoColl> suGeoJson::load(const Json::Value& jv)
     if (V_FEATURE_COLLECTION == type)
     {
         Json::Value jvFeatures;
-        if (jsonpp::check_arr(jv, K_FEATURES, jvFeatures))
+        if (sujson::check_arr(jv, K_FEATURES, jvFeatures))
         {
             for (auto& jvf : jvFeatures)
             {
@@ -108,7 +107,7 @@ bool suGeoJson::load(const Json::Value& jv, suGeoColl& gc)
 {
     std::string type;
     Json::Value jvGeo, jvProps;
-    if (!jsonpp::check_str(jv, K_TYPE, type))
+    if (!sujson::check_str(jv, K_TYPE, type))
     {
         return false;
     }
@@ -121,7 +120,7 @@ bool suGeoJson::load(const Json::Value& jv, suGeoColl& gc)
     {
         return false;
     }
-    if (!jsonpp::check_obj(jv, K_GEOMETRY, jvGeo))
+    if (!sujson::check_obj(jv, K_GEOMETRY, jvGeo))
     {
         return false;
     }
@@ -164,7 +163,7 @@ bool suGeoJson::load(const Json::Value& jv, suGeoColl& gc)
     {
         return false;
     }
-    if (jsonpp::check_obj(jv, K_PROPERTIES, jvProps))
+    if (sujson::check_obj(jv, K_PROPERTIES, jvProps))
     {
         if (!load(jvProps, gc.properties()))
         {
