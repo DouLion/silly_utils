@@ -14,7 +14,6 @@
 #include <log/silly_log.h>
 #include <json/silly_jsonpp.h>
 
-
 class suScheduleData
 {
   public:
@@ -35,12 +34,23 @@ class suScheduleData
     struct cellDesc
     {
         std::string key;
-        std::string type;
-        double scale;
+        int type = 0;
+        double scale = 1.0;
+        int offset = 0;
+
+        double getValue(const std::vector<char>& data) const;
     };
 
   public:
     suScheduleData() = default;
+
+    /// <summary>
+    /// 初始化
+    /// </summary>
+    /// <param name="celldesc"></param>
+    /// <returns></returns>
+    bool init(std::map<std::string, std::vector<cellDesc>>& celldesc);
+
     // deprecated, 后面记得删除
     suScheduleData(const supath& file);
     /// <summary>
@@ -66,7 +76,7 @@ class suScheduleData
     std::map<std::string, size_t> name2size;
 
     template <typename T>
-    static double extractValue(const std::vector<char>& data, size_t offset, int scale)
+    static double extractValue(const std::vector<char>& data, size_t offset, double scale)
     {
         double ret = 0.0;
         if (offset + sizeof(T) > data.size())
@@ -84,5 +94,50 @@ class suScheduleData
         }
         return ret;
     }
+
+    //使用函数表优化switch
+    using ParseFuncPtr = double (*)(const char*, double);
+    static inline std::array<ParseFuncPtr, 6> parseFunctions = {[](const char* data, double scale) {
+                                                                    int8_t val;
+                                                                    memcpy(&val, data, sizeof(int8_t));
+                                                                    if (scale > 0 && scale != 1)
+                                                                        return static_cast<double>(val) / scale;
+                                                                    return static_cast<double>(val);
+                                                                },
+                                                                [](const char* data, double scale) {
+                                                                    int16_t val;
+                                                                    memcpy(&val, data, sizeof(int16_t));
+                                                                    if (scale > 0 && scale != 1)
+                                                                        return static_cast<double>(val) / scale;
+                                                                    return static_cast<double>(val);
+                                                                },
+                                                                [](const char* data, double scale) {
+                                                                    int32_t val;
+                                                                    memcpy(&val, data, sizeof(int32_t));
+                                                                    if (scale > 0 && scale != 1)
+                                                                        return static_cast<double>(val) / scale;
+                                                                    return static_cast<double>(val);
+                                                                },
+                                                                [](const char* data, double scale) {
+                                                                    int64_t val;
+                                                                    memcpy(&val, data, sizeof(int64_t));
+                                                                    if (scale > 0 && scale != 1)
+                                                                        return static_cast<double>(val) / scale;
+                                                                    return static_cast<double>(val);
+                                                                },
+                                                                [](const char* data, double scale) {
+                                                                    float val;
+                                                                    memcpy(&val, data, sizeof(float));
+                                                                    if (scale > 0 && scale != 1)
+                                                                        return static_cast<double>(val) / scale;
+                                                                    return static_cast<double>(val);
+                                                                },
+                                                                [](const char* data, double scale) {
+                                                                    double val;
+                                                                    memcpy(&val, data, sizeof(double));
+                                                                    if (scale > 0 && scale != 1)
+                                                                        return static_cast<double>(val) / scale;
+                                                                    return static_cast<double>(val);
+                                                                }};
 };
 #endif  // SILLY_SCHEDULE_DATA_H

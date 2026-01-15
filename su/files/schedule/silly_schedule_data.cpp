@@ -9,15 +9,6 @@
  * @version: v1.0.1 2025-12-11 dou li yang
  */
 #include "silly_schedule_data.h"
-// 类型大小映射表
-static std::unordered_map<std::string, size_t> TYPE_SIZE = {
-    {"int8_t", sizeof(int8_t)},
-    {"int16_t", sizeof(int16_t)},
-    {"int32_t", sizeof(int32_t)},
-    {"int64_t", sizeof(int64_t)},
-    {"float", sizeof(float)},
-    {"double", sizeof(double)}
-};
 
 enum SCHEDULE_DATA_TYPE
 {
@@ -28,6 +19,33 @@ enum SCHEDULE_DATA_TYPE
     SCHEDULE_DATA_TYPE_FLOAT,
     SCHEDULE_DATA_TYPE_DOUBLE
 };
+
+// 类型大小映射表
+static std::unordered_map<int, size_t> TYPE_SIZE = {{SCHEDULE_DATA_TYPE_INT8, sizeof(int8_t)},
+                                                    {SCHEDULE_DATA_TYPE_INT16, sizeof(int16_t)},
+                                                    {SCHEDULE_DATA_TYPE_INT32, sizeof(int32_t)},
+                                                    {SCHEDULE_DATA_TYPE_INT64, sizeof(int64_t)},
+                                                    {SCHEDULE_DATA_TYPE_FLOAT, sizeof(float)},
+                                                    {SCHEDULE_DATA_TYPE_DOUBLE, sizeof(double)}};
+
+static std::unordered_map<std::string, int> TYPE_INDEX =
+    {{"int8_t", SCHEDULE_DATA_TYPE_INT8}, {"int16_t", SCHEDULE_DATA_TYPE_INT16}, {"int32_t", SCHEDULE_DATA_TYPE_INT32}, {"int64_t", SCHEDULE_DATA_TYPE_INT64}, {"float", SCHEDULE_DATA_TYPE_FLOAT}, {"double", SCHEDULE_DATA_TYPE_DOUBLE}};
+
+bool suScheduleData::init(std::map<std::string, std::vector<cellDesc>>& celldesc)
+{
+    if (celldesc.empty())
+    {
+        SLOG_ERROR("输入数据为空");
+        return false;
+    }
+    name2desc = celldesc;
+    for (auto& [name, desc] : celldesc)
+    {
+        int type = desc[desc.size() - 1].type;
+        name2size[name] = desc[desc.size() - 1].offset + TYPE_SIZE[type];
+    }
+    return true;
+}
 
 suScheduleData::suScheduleData(const supath& file)
 {
@@ -43,6 +61,7 @@ suScheduleData::suScheduleData(const supath& file)
         std::string type;
         double scale = 0.0;
         std::string key;
+        int offset = 0;
         for (auto& value : root[member])
         {
             if (!sujson::check_str(value, "key", key))
@@ -60,11 +79,11 @@ suScheduleData::suScheduleData(const supath& file)
                 SLOG_ERROR("缺少scale字段");
                 return;
             }
-            name2desc[member].push_back(cellDesc{key, type, scale});
-            name2size[member] += TYPE_SIZE[type];
+            name2desc[member].push_back(cellDesc{key, TYPE_INDEX[type], scale, offset});
+            name2size[member] += TYPE_SIZE[TYPE_INDEX[type]];
+            offset += TYPE_SIZE[TYPE_INDEX[type]];
         }
     }
-
 }
 
 double suScheduleData::get(const std::string& name, const std::string& key, std::vector<char>& data)
@@ -72,39 +91,21 @@ double suScheduleData::get(const std::string& name, const std::string& key, std:
     double ret = 0.0;
     if (name2desc.count(name) == 0)
     {
-        SLOG_ERROR("缺少key字段");
+        SLOG_ERROR("没有{}的数据", name);
         return ret;
     }
 
-    int offset = 0;
-    for (const auto& [k, type, scale] : name2desc[name])
+    if (data.size() < name2size[name])
     {
-        if (k == key)
+        SLOG_ERROR("数据长度不足:{} ", name);
+    }
+    for (const auto& desc : name2desc[name])
+    {
+        if (desc.key == key)
         {
-            if (type == "int16_t")
-            {
-                ret = extractValue<int16_t>(data, offset, scale);
-                break;
-            }
-            else if (type == "float")
-            {
-                ret = extractValue<float>(data, offset, scale);
-                break;
-            }
-            else if (type == "double")
-            {
-                ret = extractValue<double>(data, offset, scale);
-                break;
-            }
-            else if (type == "int32_t")
-            {
-                ret = extractValue<int32_t>(data, offset, scale);
-                break;
-            }
-        }
-        else
-        {
-            offset += TYPE_SIZE[type];
+            // ret = desc.getValue(data);
+            ret = parseFunctions[desc.type](data.data() + desc.offset, desc.scale);
+            return ret;
         }
     }
 
@@ -119,4 +120,28 @@ std::map<std::string, double> suScheduleData::get(const std::string& name, const
         ret[key] = get(name, key, data);
     }
     return ret;
+}
+
+
+double suScheduleData::cellDesc::getValue(const std::vector<char>& data) const
+{
+    switch (type)
+    {
+        case SCHEDULE_DATA_TYPE_INT8:
+            return extractValue<int8_t>(data, offset, scale);
+        case SCHEDULE_DATA_TYPE_INT16:
+            return extractValue<int16_t>(data, offset, scale);
+        case SCHEDULE_DATA_TYPE_INT32:
+            return extractValue<int32_t>(data, offset, scale);
+        case SCHEDULE_DATA_TYPE_INT64:
+            return extractValue<int64_t>(data, offset, scale);
+        case SCHEDULE_DATA_TYPE_FLOAT:
+            return extractValue<float>(data, offset, scale);
+        case SCHEDULE_DATA_TYPE_DOUBLE:
+            return extractValue<double>(data, offset, scale);
+        default:
+            SLOG_ERROR("未知类型:{}", type);
+            break;
+    }
+    return 0.0;
 }
