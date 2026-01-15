@@ -68,7 +68,7 @@ class RainRetentionCapacity
     RainRetentionCapacity() = default;
     ~RainRetentionCapacity() = default;
     RZ2W_L pRZ2WLine;  // 水位库容关系
-    PAPR_L pPaPrLine;  // 雨量径流关系
+    PaPR_L pPaPRLine;  // 雨量径流关系
 
     std::vector<NynlResult> CalcNYNL(const NynlParam& p) const;
     NynlResult CalcPPZ(const NynlParam& p, const double& dstRZ) const;

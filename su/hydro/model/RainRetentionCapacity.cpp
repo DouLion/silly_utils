@@ -42,7 +42,7 @@ std::vector<NynlResult> RainRetentionCapacity::CalcNYNL(const NynlParam& p) cons
         else
         {
             // 反算
-            // const {PP : rPPF.PP, PE : PE1, dW : dW1, OTQ : OTQ1, OTW : OTW1} = CalcPPF(BRZ, KCH, TCH, WCH, pRZ2WLine, pPaPrLine, Pa, Wm, Area, BadE, YhdW, YhdE, ERZ);
+            // const {PP : rPPF.PP, PE : PE1, dW : dW1, OTQ : OTQ1, OTW : OTW1} = CalcPPF(BRZ, KCH, TCH, WCH, pRZ2WLine, pPaPRLine, Pa, Wm, Area, BadE, YhdW, YhdE, ERZ);
             auto rPPF = CalcPPF(p, dstRZ);
             nynlRet[i].PE = rPPF.PE;
             nynlRet[i].dW = rPPF.dW;
@@ -56,7 +56,7 @@ std::vector<NynlResult> RainRetentionCapacity::CalcNYNL(const NynlParam& p) cons
             }
 
             // 第二次计算PP（使用相同的参数�?
-            // const {PP : rPPZ.PP, PE : rPPZ.PE, dW : dW2, OTW : OTW2} = CalcPPZ(BRZ, KCH, pRZ2WLine, pPaPrLine, Pa, Wm, pmin, pmax, CalcSteps, Area, BadE, YhdW, YhdE, ERZ);
+            // const {PP : rPPZ.PP, PE : rPPZ.PE, dW : dW2, OTW : OTW2} = CalcPPZ(BRZ, KCH, pRZ2WLine, pPaPRLine, Pa, Wm, pmin, pmax, CalcSteps, Area, BadE, YhdW, YhdE, ERZ);
             auto rPPZ = CalcPPZ(p, dstRZ);
 
             // 应用范围限制
@@ -231,7 +231,7 @@ NynlResult RainRetentionCapacity::CalcPPZ(const NynlParam& p, const double& dstR
     }
 
     // 计算最终降雨量PP
-    ret.PP = pPaPrLine.GetP(p.Pa, ret.PE, p.Wm);
+    ret.PP = pPaPRLine.GetP(p.Pa, ret.PE, p.Wm);
     ret.PE = std::round(ret.PE * 100) / 100;
     ret.PP = std::round(ret.PP * 100) / 100;
     ret.dW = std::round(ret.dW * 10000) / 10000;
@@ -261,7 +261,7 @@ NynlResult RainRetentionCapacity::CalcPPF(const NynlParam& p, const double& dstR
     double PE = ret.dW * pRZ2WLine.Unit() / (p.Area * 1000.0);
 
     // 计算降雨量PP
-    double PP = pPaPrLine.GetP(p.Pa, PE, p.Wm);
+    double PP = pPaPRLine.GetP(p.Pa, PE, p.Wm);
     
     ret.PE = std::round(PE * 100) / 100;
     ret.PP = std::round(PP * 100) / 100;
@@ -312,17 +312,17 @@ void RainRetentionCapacity::TestPAPRLine()
     {
         PairsL tmp;
         tmp.SetData(paPR.PP, paPR.R);
-        pPaPrLine.AddLine(paPR.extVal, tmp);
+        pPaPRLine.AddLine(paPR.extVal, tmp);
     }
 
-    SLOG_DEBUG("\n最大Pa值:{}", pPaPrLine.GetMaxPa());
+    SLOG_DEBUG("\n最大Pa值:{}", pPaPRLine.GetMaxPa());
 
     // 测试1: 验证离散点计算
     {
         const double testPa = 24;
         const double testP = 40;
         const double expectedR = 3.886667;
-        const double calculatedR = pPaPrLine.GetR(testPa, testP);
+        const double calculatedR = pPaPRLine.GetR(testPa, testP);
         SLOG_DEBUG(R"(
 测试1 : 离散点计算(Pa = {:.6f}, P = {:.6f})
 预期径流量: {:.6f}
@@ -340,7 +340,7 @@ void RainRetentionCapacity::TestPAPRLine()
         const double testPa = 24;
         const double testP = 40;
         const double testR = 3.886667;
-        const double calculatedPa = pPaPrLine.GetPA(testP, testR);
+        const double calculatedPa = pPaPRLine.GetPA(testP, testR);
         SLOG_DEBUG(R"(
 测试2 : 反向查询(P = {:.6f}, R = {:.6f})
 预期Pa值:{:.6f}
@@ -360,7 +360,7 @@ void RainRetentionCapacity::TestPAPRLine()
 计算径流量:{:.6f})",
                    testPa2,
                    testP2,
-                   pPaPrLine.GetR(testPa2, testP2));
+                   pPaPRLine.GetR(testPa2, testP2));
     }
 
     // 测试4: 边界情况测试 (Pa=0)
@@ -373,7 +373,7 @@ void RainRetentionCapacity::TestPAPRLine()
 )",
                    testPa3,
                    testP3,
-                   pPaPrLine.GetR(testPa3, testP3));
+                   pPaPRLine.GetR(testPa3, testP3));
     }
 
     // 测试5: 极端情况测试 (Pa=120, P=200)
@@ -385,7 +385,7 @@ void RainRetentionCapacity::TestPAPRLine()
 计算径流量:{:.6f})",
                    testPa4,
                    testP4,
-                   pPaPrLine.GetR(testPa4, testP4));
+                   pPaPRLine.GetR(testPa4, testP4));
     }
 
     // 测试6: 获取总雨量P
@@ -397,12 +397,12 @@ void RainRetentionCapacity::TestPAPRLine()
 计算总雨量:{:.6f})",
                    testPa5,
                    testR2,
-                   pPaPrLine.GetP(testPa5, testR2));
+                   pPaPRLine.GetP(testPa5, testR2));
     }
 
     // 测试7: 单条曲线行为模拟
     {
-        PAPR_L singlePaPrLine;
+        PaPR_L singlePaPrLine;
         PairsL singleLine;
         singleLine.SetData({0, 0, 50, 30, 100, 80, 150, 130});
         singlePaPrLine.AddLine(50, singleLine);
@@ -431,7 +431,7 @@ void RainRetentionCapacity::TestModel()
     {
         PairsL tmp;
         tmp.SetData(paPR.PP, paPR.R);
-        pPaPrLine.AddLine(paPR.extVal, tmp);
+        pPaPRLine.AddLine(paPR.extVal, tmp);
     }
     NynlParam p;
     p.BRZ = 447;   // 起始水位(m)
