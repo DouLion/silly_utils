@@ -9,7 +9,7 @@
  * @version: v1.0.1 2025-12-24 dou li yang
  */
 #include "PAPR_L.h"
-double PAPR_L::GetMaxPa() const
+double PaPR_L::GetMaxPa() const
 {
     if (m_key2Pairs.empty())
     {
@@ -17,7 +17,7 @@ double PAPR_L::GetMaxPa() const
     }
     return m_key2Pairs.rbegin()->first;
 }
-double PAPR_L::GetR(const double& pa, const double& p) const
+double PaPR_L::GetR(const double& pa, const double& p) const
 {
     if (m_key2Pairs.empty())
     {
@@ -31,7 +31,7 @@ double PAPR_L::GetR(const double& pa, const double& p) const
     double r = GetYFromX(pa, p, 2);
     return std::min(r, p);
 }
-double PAPR_L::GetPA(const double& p, const double& r) const
+double PaPR_L::GetPA(const double& p, const double& r) const
 {
     if (m_key2Pairs.empty())
     {
@@ -49,7 +49,7 @@ double PAPR_L::GetPA(const double& p, const double& r) const
     }
     return tmp.GetXFromY(-p, 2);
 }
-double PAPR_L::GetP(const double& pa, const double& r, const double& Wm) const
+double PaPR_L::GetP(const double& pa, const double& r, const double& Wm) const
 {
     if (m_key2Pairs.empty())
     {

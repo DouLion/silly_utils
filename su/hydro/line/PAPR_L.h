@@ -6,12 +6,14 @@
  * @date: 2025-12-24
  * @file: PAPR_L.h
  * @description: 降雨-径流关系曲线
+ *  Pa 前期降雨 P 本次降雨  R 径流(产流量)
+ *  不同前雨下的关系曲线是不一样的，
  * @version: v1.0.1 2025-12-24 dou li yang
  */
 #ifndef PAPR_L_H
 #define PAPR_L_H
 #include <hydro/line/M_PAIRS_L.h>
-class PAPR_L : public MultiPairsL
+class PaPR_L : public MultiPairsL
 {
 public:
     // 获取最大降雨量 Pa

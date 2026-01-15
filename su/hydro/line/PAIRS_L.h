@@ -14,12 +14,12 @@
 #define PAIRS_L_H
 #include <hydro/line/ALGO_L.h>
 class MultiPairsL;
-class PAPR_L;
+class PaPR_L;
 class RZ2F_L;
 class PairsL
 {
     friend class MultiPairsL;
-    friend class PAPR_L;
+    friend class PaPR_L;
     friend class RZ2F_L;
 
   public:
