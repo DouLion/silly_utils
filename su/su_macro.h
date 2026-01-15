@@ -161,6 +161,9 @@ using SU_HANDLE = int;
 #ifndef PI
 #define PI MATH::PI_
 #endif
+#ifndef M_PI
+#define M_PI MATH::PI_
+#endif
 
 // 自然指数e
 #ifndef BASE_E
