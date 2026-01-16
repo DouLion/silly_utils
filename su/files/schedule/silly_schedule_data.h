@@ -14,7 +14,6 @@
 #include <log/silly_log.h>
 #include <json/silly_jsonpp.h>
 
-
 class suScheduleData
 {
   public:
@@ -35,12 +34,59 @@ class suScheduleData
     struct cellDesc
     {
         std::string key;
-        std::string type;
-        double scale;
+        int type = 0;
+        double scale = 1.0;
+        int offset = 0;
+
+        std::function<double(const std::vector<char>&)> func;
+        double getValue(const std::vector<char>& data) const
+        {
+            if (!func)
+            {
+                SLOG_ERROR("key:{}未定义解析函数", key);
+                return 0.0;
+            }
+            return func(data);
+        }
+
+        cellDesc(const std::string& k, int t = 0, double s = 1.0, int o = 0)  // t默认=0
+            : key(k), type(t), scale(s), offset(o)
+        {
+            bindFunc();  // 自动绑定
+        }
+
+      private:
+        void bindFunc();
+        template <typename T>
+        static double extractValue(const std::vector<char>& data, size_t offset, double scale)
+        {
+            double ret = 0.0;
+            if (offset + sizeof(T) > data.size())
+            {
+                SLOG_ERROR("数据长度:{},计算长度:{}", data.size(), offset + sizeof(T));
+                return ret;
+            }
+
+            T* value = (T*)(data.data() + offset);
+
+            if (scale > 0 || scale != 1)
+            {
+                return static_cast<double>(*value) / scale;
+            }
+            return static_cast<double>(*value);
+        }
     };
 
   public:
     suScheduleData() = default;
+
+    /// <summary>
+    /// 初始化
+    /// </summary>
+    /// <param name="celldesc"></param>
+    /// <returns></returns>
+    bool init(std::map<std::string, std::vector<cellDesc>>& celldesc);
+
     // deprecated, 后面记得删除
     suScheduleData(const supath& file);
     /// <summary>
@@ -64,25 +110,5 @@ class suScheduleData
   public:
     std::map<std::string, std::vector<cellDesc>> name2desc;
     std::map<std::string, size_t> name2size;
-
-    template <typename T>
-    static double extractValue(const std::vector<char>& data, size_t offset, int scale)
-    {
-        double ret = 0.0;
-        if (offset + sizeof(T) > data.size())
-        {
-            SLOG_ERROR("数据长度:{},计算长度:{}", data.size(), offset + sizeof(T));
-            return ret;
-        }
-
-        T value;
-        memcpy(&value, data.data() + offset, sizeof(T));
-
-        if (scale > 0)
-        {
-            ret = value / static_cast<double>(scale);
-        }
-        return ret;
-    }
 };
 #endif  // SILLY_SCHEDULE_DATA_H
