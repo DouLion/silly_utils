@@ -10,27 +10,6 @@
  */
 #include "silly_schedule_data.h"
 
-enum SCHEDULE_DATA_TYPE
-{
-    SCHEDULE_DATA_TYPE_INT8 = 0,
-    SCHEDULE_DATA_TYPE_INT16,
-    SCHEDULE_DATA_TYPE_INT32,
-    SCHEDULE_DATA_TYPE_INT64,
-    SCHEDULE_DATA_TYPE_FLOAT,
-    SCHEDULE_DATA_TYPE_DOUBLE
-};
-
-// 类型大小映射表
-static std::unordered_map<int, size_t> TYPE_SIZE = {{SCHEDULE_DATA_TYPE_INT8, sizeof(int8_t)},
-                                                    {SCHEDULE_DATA_TYPE_INT16, sizeof(int16_t)},
-                                                    {SCHEDULE_DATA_TYPE_INT32, sizeof(int32_t)},
-                                                    {SCHEDULE_DATA_TYPE_INT64, sizeof(int64_t)},
-                                                    {SCHEDULE_DATA_TYPE_FLOAT, sizeof(float)},
-                                                    {SCHEDULE_DATA_TYPE_DOUBLE, sizeof(double)}};
-
-static std::unordered_map<std::string, int> TYPE_INDEX =
-    {{"int8_t", SCHEDULE_DATA_TYPE_INT8}, {"int16_t", SCHEDULE_DATA_TYPE_INT16}, {"int32_t", SCHEDULE_DATA_TYPE_INT32}, {"int64_t", SCHEDULE_DATA_TYPE_INT64}, {"float", SCHEDULE_DATA_TYPE_FLOAT}, {"double", SCHEDULE_DATA_TYPE_DOUBLE}};
-
 bool suScheduleData::init(std::map<std::string, std::vector<cellDesc>>& celldesc)
 {
     if (celldesc.empty())

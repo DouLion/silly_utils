@@ -17,6 +17,27 @@
 class suScheduleData
 {
   public:
+    enum SCHEDULE_DATA_TYPE
+    {
+        SCHEDULE_DATA_TYPE_INT8 = 0,
+        SCHEDULE_DATA_TYPE_INT16,
+        SCHEDULE_DATA_TYPE_INT32,
+        SCHEDULE_DATA_TYPE_INT64,
+        SCHEDULE_DATA_TYPE_FLOAT,
+        SCHEDULE_DATA_TYPE_DOUBLE
+    };
+
+    // 类型大小映射表
+    static inline std::unordered_map<int, size_t> TYPE_SIZE = {{SCHEDULE_DATA_TYPE_INT8, sizeof(int8_t)},
+                                                               {SCHEDULE_DATA_TYPE_INT16, sizeof(int16_t)},
+                                                               {SCHEDULE_DATA_TYPE_INT32, sizeof(int32_t)},
+                                                               {SCHEDULE_DATA_TYPE_INT64, sizeof(int64_t)},
+                                                               {SCHEDULE_DATA_TYPE_FLOAT, sizeof(float)},
+                                                               {SCHEDULE_DATA_TYPE_DOUBLE, sizeof(double)}};
+
+    static inline std::unordered_map<std::string, int> TYPE_INDEX =
+        {{"int8_t", SCHEDULE_DATA_TYPE_INT8}, {"int16_t", SCHEDULE_DATA_TYPE_INT16}, {"int32_t", SCHEDULE_DATA_TYPE_INT32}, {"int64_t", SCHEDULE_DATA_TYPE_INT64}, {"float", SCHEDULE_DATA_TYPE_FLOAT}, {"double", SCHEDULE_DATA_TYPE_DOUBLE}};
+
     /// <summary>
     /// 文件描述
     /// </summary>
@@ -48,17 +69,25 @@ class suScheduleData
             }
             return func(data);
         }
-
+        cellDesc() = default;
         cellDesc(const std::string& k, int t = 0, double s = 1.0, int o = 0)  // t默认=0
             : key(k), type(t), scale(s), offset(o)
         {
             bindFunc();  // 自动绑定
         }
 
-      private:
+        // 拷贝构造函数：重新绑定函数
+        cellDesc(const cellDesc& other) : key(other.key), type(other.type), scale(other.scale), offset(other.offset)
+        {
+            bindFunc();  // 重新绑定，避免this指针问题
+        }
+
+        //解析函数绑定
         void bindFunc();
+
+      private:
         template <typename T>
-        static double extractValue(const std::vector<char>& data, size_t offset, double scale)
+        double extractValue(const std::vector<char>& data, int offset, double scale)
         {
             double ret = 0.0;
             if (offset + sizeof(T) > data.size())
@@ -69,7 +98,7 @@ class suScheduleData
 
             T* value = (T*)(data.data() + offset);
 
-            if (scale > 0 || scale != 1)
+            if (scale > 0 && scale != 1)
             {
                 return static_cast<double>(*value) / scale;
             }
