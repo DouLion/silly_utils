@@ -114,7 +114,7 @@ class suScheduleData
     /// </summary>
     /// <param name="celldesc"></param>
     /// <returns></returns>
-    bool init(std::map<std::string, std::vector<cellDesc>>& celldesc);
+    bool init(const std::map<std::string, std::vector<cellDesc>>& celldesc);
 
     // deprecated, 后面记得删除
     suScheduleData(const supath& file);
@@ -125,7 +125,7 @@ class suScheduleData
     /// <param name="key"></param>
     /// <param name="data"></param>
     /// <returns></returns>
-    double get(const std::string& name, const std::string& key, std::vector<char>& data);
+    double get(const std::string& name, const std::string& key, const std::vector<char>& data);
 
     /// <summary>
     /// 批量获取数据

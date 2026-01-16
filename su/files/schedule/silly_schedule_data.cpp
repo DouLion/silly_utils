@@ -10,7 +10,7 @@
  */
 #include "silly_schedule_data.h"
 
-bool suScheduleData::init(std::map<std::string, std::vector<cellDesc>>& celldesc)
+bool suScheduleData::init(const std::map<std::string, std::vector<cellDesc>>& celldesc)
 {
     if (celldesc.empty())
     {
@@ -65,7 +65,7 @@ suScheduleData::suScheduleData(const supath& file)
     }
 }
 
-double suScheduleData::get(const std::string& name, const std::string& key, std::vector<char>& data)
+double suScheduleData::get(const std::string& name, const std::string& key, const std::vector<char>& data)
 {
     double ret = 0.0;
     if (name2desc.count(name) == 0)
@@ -77,6 +77,7 @@ double suScheduleData::get(const std::string& name, const std::string& key, std:
     if (data.size() < name2size[name])
     {
         SLOG_ERROR("数据长度不足:{} ", name);
+        return ret;
     }
     for (const auto& desc : name2desc[name])
     {
