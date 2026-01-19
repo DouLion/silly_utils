@@ -4,7 +4,7 @@
 
 #include "silly_vector_to_raster.h"
 
-void XScanLine::check_line_point(const suPoint&  point, std::vector<Point>& vct, int& last_x, int& last_y) const
+void XScanLine::check_line_point(const suPoint& point, std::vector<Point>& vct, int& last_x, int& last_y) const
 {
     // m_row_pairs.clear();
     int tmp_x = static_cast<int>(std::round((point.x - m_rect.min.x) / m_cell_size));
@@ -307,11 +307,12 @@ std::vector<suPoly> XScanLine::grids() const
                 double lon = m_rect.min.x + c * m_cell_size;
                 double lat = m_rect.max.y - r * m_cell_size;
                 suPoly poly;
-                poly.outer.points.push_back({lon, lat});
-                poly.outer.points.push_back({lon + m_cell_size, lat});
-                poly.outer.points.push_back({lon + m_cell_size, lat - m_cell_size});
-                poly.outer.points.push_back({lon, lat - m_cell_size});
-                poly.outer.points.push_back({lon, lat});
+                double c2 = m_cell_size / 2.0;
+                poly.outer.points.push_back({lon - c2, lat - c2});
+                poly.outer.points.push_back({lon + c2, lat - c2});
+                poly.outer.points.push_back({lon + c2, lat + c2});
+                poly.outer.points.push_back({lon - c2, lat + c2});
+                poly.outer.points.push_back({lon - c2, lat - c2});
 
                 ret.push_back({poly});
             }
