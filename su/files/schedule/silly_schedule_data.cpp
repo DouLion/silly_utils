@@ -31,7 +31,7 @@ static std::unordered_map<int, size_t> TYPE_SIZE = {{SCHEDULE_DATA_TYPE_INT8, si
 static std::unordered_map<std::string, int> TYPE_INDEX =
     {{"int8_t", SCHEDULE_DATA_TYPE_INT8}, {"int16_t", SCHEDULE_DATA_TYPE_INT16}, {"int32_t", SCHEDULE_DATA_TYPE_INT32}, {"int64_t", SCHEDULE_DATA_TYPE_INT64}, {"float", SCHEDULE_DATA_TYPE_FLOAT}, {"double", SCHEDULE_DATA_TYPE_DOUBLE}};
 
-bool suScheduleData::init(std::vector<cellDesc>& celldesc)
+bool suScheduleData::init(const std::vector<cellDesc>& celldesc)
 {
     if (celldesc.empty())
     {

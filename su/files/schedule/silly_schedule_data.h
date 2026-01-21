@@ -75,7 +75,7 @@ class suScheduleData
     /// </summary>
     /// <param name="celldesc"></param>
     /// <returns></returns>
-    bool init(std::vector<cellDesc>& celldesc);
+    bool init(const std::vector<cellDesc>& celldesc);
 
     /// <summary>
     /// 获取数据
