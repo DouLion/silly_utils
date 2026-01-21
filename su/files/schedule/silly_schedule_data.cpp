@@ -54,11 +54,13 @@ bool suScheduleData::init(std::vector<cellDesc>& celldesc)
         // 2.bind函数
         desc.bindFunc();
 
+        desc.bindFunc_();
+
         // 3. 计算偏移量
         desc.offset = offset;
         offset += TYPE_SIZE[desc.type];
     }
-    //数据块大小
+    // 数据块大小
     m_size = offset;
 
     return true;
@@ -91,6 +93,23 @@ std::map<std::string, double> suScheduleData::get(const std::vector<std::string>
     for (auto& key : keys)
     {
         ret[key] = get(key, data);
+    }
+    return ret;
+}
+
+std::vector<char> suScheduleData::convert(const std::vector<float>& data)
+{
+    std::vector<char> ret(m_size);
+
+    if (data.size() != m_descs.size())
+    {
+        SLOG_ERROR("数据长度不足:{} ", m_size);
+        return ret;
+    }
+    for (size_t i = 0; i < m_descs.size(); i++)
+    {
+        std::vector<char> data_char = m_descs[i].convertValue(data[i]);
+        memcpy(ret.data() + m_descs[i].offset, data_char.data(), data_char.size());
     }
     return ret;
 }
@@ -199,6 +218,71 @@ void suScheduleData::cellDesc::bindFunc()
 
         default:
             func = nullptr;
+            break;
+    }
+}
+
+void suScheduleData::cellDesc::bindFunc_()
+{
+    switch (type)
+    {
+        case SCHEDULE_DATA_TYPE_INT8:
+            func_ = [this](const float& data) {
+                std::vector<char> data_char(sizeof(int8_t));
+                int8_t value = data * scale;
+
+                memcpy(data_char.data(), &value, sizeof(int8_t));
+                return data_char;
+            };
+            break;
+        case SCHEDULE_DATA_TYPE_INT16:
+            func_ = [this](const float& data) {
+                std::vector<char> data_char(sizeof(int16_t));
+                int16_t value = data * scale;
+
+                memcpy(data_char.data(), &value, sizeof(int16_t));
+                return data_char;
+            };
+            break;
+        case SCHEDULE_DATA_TYPE_INT32:
+            func_ = [this](const float& data) {
+                std::vector<char> data_char(sizeof(int32_t));
+                int32_t value = data * scale;
+
+                memcpy(data_char.data(), &value, sizeof(int32_t));
+                return data_char;
+            };
+            break;
+        case SCHEDULE_DATA_TYPE_INT64:
+            func_ = [this](const float& data) {
+                std::vector<char> data_char(sizeof(int64_t));
+                int64_t value = data * scale;
+
+                memcpy(data_char.data(), &value, sizeof(int64_t));
+                return data_char;
+            };
+            break;
+        case SCHEDULE_DATA_TYPE_FLOAT:
+            func_ = [this](const float& data) {
+                std::vector<char> data_char(sizeof(float));
+                float value = data * scale;
+
+                memcpy(data_char.data(), &value, sizeof(float));
+                return data_char;
+            };
+            break;
+        case SCHEDULE_DATA_TYPE_DOUBLE:
+            func_ = [this](const float& data) {
+                std::vector<char> data_char(sizeof(double));
+                double value = data * scale;
+
+                memcpy(data_char.data(), &value, sizeof(double));
+                return data_char;
+            };
+            break;
+
+        default:
+            func_ = nullptr;
             break;
     }
 }

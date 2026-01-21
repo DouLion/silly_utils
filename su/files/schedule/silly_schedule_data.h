@@ -40,6 +40,7 @@ class suScheduleData
         int offset = 0;
 
         std::function<double(const std::vector<char>&)> func;
+        std::function<std::vector<char>(const float&)> func_;
         double getValue(const std::vector<char>& data) const
         {
             if (!func)
@@ -49,10 +50,21 @@ class suScheduleData
             }
             return func(data);
         }
+        std::vector<char> convertValue(const float& data) const
+        {
+            std::vector<char> ret;
+            if (!func_)
+            {
+                SLOG_ERROR("key:{}未定义解析函数", key);
+                return ret;
+            }
+            return func_(data);
+        }
         cellDesc() = default;
 
-        //解析函数绑定
+        // 解析函数绑定
         void bindFunc();
+        void bindFunc_();
     };
 
   public:
@@ -81,8 +93,10 @@ class suScheduleData
     /// <returns></returns>
     std::map<std::string, double> get(const std::vector<std::string>& keys, std::vector<char>& data);
 
+    std::vector<char> convert(const std::vector<float>& code2data);
+
   public:
-    std::vector<cellDesc> m_descs;  //数据描述
-    size_t m_size = 0;              //数据块大小
+    std::vector<cellDesc> m_descs;  // 数据描述
+    size_t m_size = 0;              // 数据块大小
 };
 #endif  // SILLY_SCHEDULE_DATA_H
