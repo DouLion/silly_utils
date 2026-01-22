@@ -2,7 +2,7 @@
 // Created by dell on 2024/7/19.
 //
 
-#include <ascii_grid_image.h>
+#include "ascii_grid_image.h"
 #include <graphics/silly_png.h>
 #include <files/silly_file.h>
 #include <geo/proj/silly_proj.h>
@@ -180,8 +180,8 @@ void convert_image(double ncols, double nrows, double xllcorner, double yllcorne
 
     size_t* pi = png_index;
 
-    double udist = uMax - uMin;
-    double vdist = vMax - vMin;
+    double udist = (uMax - uMin);
+    double vdist = (vMax - vMin);
 
     for (size_t r = 0; r < png_height; ++r)
     {
@@ -199,6 +199,7 @@ void convert_image(double ncols, double nrows, double xllcorner, double yllcorne
             pi++;
             if (h > G_TINY_DEPTH)
             {
+                h *= G_SCALE;
                 qu = qx[pos] * G_SCALE / (h * cellsize);
                 qv = qy[pos] * G_SCALE / (h * cellsize);
                 {  // qx qy
@@ -304,10 +305,13 @@ void convert_hq(double ncols, double nrows, double xllcorner, double yllcorner, 
 
             if (h > G_TINY_DEPTH)
             {
+                h *= G_SCALE;
                 qu = qxData[pos] * G_SCALE / (h * cellsize);
                 qv = qyData[pos] * G_SCALE / (h * cellsize);
                 suColor cXYH;
                 //
+
+
                 cXYH.red = static_cast<unsigned char>(G_MAX_V * h / hMax);
                 cXYH.green = static_cast<unsigned char>(std::round(G_MAX_V * (qu - uMin) / udist));
                 cXYH.blue = static_cast<unsigned char>(std::round(G_MAX_V * (qv - vMin) / vdist));
