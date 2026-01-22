@@ -24,21 +24,28 @@ class suDem
         size_t width = 0;
         size_t height = 0;
         suRect bound;
-        double central = 0;  // 有效值 [75, 135] 间隔3, 否则认为高斯坐标系
+        double central = std::numeric_limits<double>::quiet_NaN();  // 有效值 [75, 135] 间隔3, 否则认为高斯坐标系
     };
 
   public:
+
+
+
     /*
      * 根据central 的值判断是否是高斯
      */
     bool IsGauss() const;
+
+
+    void Gauss2Mercator(const suDem& rh);
+
     /**
      *
      * @param rh
      * @param cell_size
      * @param l0
      */
-    void Gauss2LonLat(const suDem& rh, const double& cell_size, const double& l0);
+    void Gauss2LonLat(const suDem& rh);
 
     /**
      *

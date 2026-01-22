@@ -11,18 +11,18 @@
 #include "silly_dem.h"
 
 #include "geo/silly_geo_utils.h"
-#define CVT_CHECK_G2LL_BOUND(l0, x0, y0, x1, y1, rect0)             \
-    suGeoProj::gauss_to_lonlat(l0, x0, y0, x1, y1); \
-    rect0.min.x = std::min(x1, rect0.min.x);                        \
-    rect0.min.y = std::min(y1, rect0.min.y);                        \
-    rect0.max.x = std::max(x1, rect0.max.x);                        \
+#define CVT_CHECK_G2LL_BOUND(l0, x0, y0, x1, y1, rect0) \
+    suGeoProj::gauss_to_lonlat(l0, x0, y0, x1, y1);     \
+    rect0.min.x = std::min(x1, rect0.min.x);            \
+    rect0.min.y = std::min(y1, rect0.min.y);            \
+    rect0.max.x = std::max(x1, rect0.max.x);            \
     rect0.max.y = std::max(y1, rect0.max.y);
 
-#define CVT_CHECK_LL2G_BOUND(l0, x0, y0, x1, y1, rect0)             \
-    suGeoProj::lonlat_to_gauss(l0, x0, y0, x1, y1); \
-    rect0.min.x = std::min(x1, rect0.min.x);                        \
-    rect0.min.y = std::min(y1, rect0.min.y);                        \
-    rect0.max.x = std::max(x1, rect0.max.x);                        \
+#define CVT_CHECK_LL2G_BOUND(l0, x0, y0, x1, y1, rect0) \
+    suGeoProj::lonlat_to_gauss(l0, x0, y0, x1, y1);     \
+    rect0.min.x = std::min(x1, rect0.min.x);            \
+    rect0.min.y = std::min(y1, rect0.min.y);            \
+    rect0.max.x = std::max(x1, rect0.max.x);            \
     rect0.max.y = std::max(y1, rect0.max.y);
 
 bool suDem::IsGauss() const
@@ -31,48 +31,146 @@ bool suDem::IsGauss() const
     return valid.find(static_cast<int>(info.central)) != std::end(valid);
 }
 
-void suDem::Gauss2LonLat(const suDem& rh, const double& cell_size, const double& l0)
+void suDem::Gauss2Mercator(const suDem& rh)
 {
     if (this == &rh)
     {
         throw std::runtime_error("对象地址相同,无法转换");
     }
-    // TODO: 需要先检查 是否为高斯
-    info.bound.min.x = -999.0;
-    info.bound.max.x = -999.0;
-    info.bound.min.y = -999.0;
-    info.bound.max.y = -999.0;
-    double lon, lat;
-    CVT_CHECK_G2LL_BOUND(l0, rh.info.bound.min.x, rh.info.bound.max.y, lon, lat, info.bound)
-    CVT_CHECK_G2LL_BOUND(l0, rh.info.bound.min.x, rh.info.bound.min.y, lon, lat, info.bound)
-    CVT_CHECK_G2LL_BOUND(l0, rh.info.bound.max.x, rh.info.bound.max.y, lon, lat, info.bound)
-    CVT_CHECK_G2LL_BOUND(l0, rh.info.bound.max.x, rh.info.bound.min.y, lon, lat, info.bound)
-    info.height = std::round((info.bound.max.y - info.bound.min.y) / cell_size);
-    info.width = std::round(((info.bound.max.x - info.bound.min.x) / cell_size));
-    info.dx = cell_size;
-    info.dy = cell_size;
-    raster.create(info.height, info.width, true);
-    raster.set(rh.info.fill);
-    float* dp = raster.data();
-    for (int64_t r = 0; r < info.height; r++)
+    if (rh.info.central < 75 || rh.info.central > 135)
     {
-        for (int64_t c = 0; c < info.width; c++)
+        throw std::runtime_error("无效的高斯中央经线");
+        return;
+    }
+
+    info = rh.info;
+    suPoint lt, rb, lb, rt;
+    GAUSS2LONLAT(rh.info.central, rh.info.bound.min.x, rh.info.bound.max.y, lt.x, lt.y);
+    GAUSS2LONLAT(rh.info.central, rh.info.bound.max.x, rh.info.bound.min.y, rb.x, rb.y);
+    GAUSS2LONLAT(rh.info.central, rh.info.bound.min.x, rh.info.bound.min.y, lb.x, lb.y);
+    GAUSS2LONLAT(rh.info.central, rh.info.bound.max.x, rh.info.bound.max.y, rt.x, rt.y);
+    suRect llbd;
+    llbd.min.x = std::max(lt.x, lb.x);
+    llbd.max.x = std::min(rb.x, rt.x);
+    llbd.max.y = std::min(rt.y, lt.y);
+    llbd.min.y = std::max(lb.y, rb.y);
+
+    LONLAT2MERCATOR(llbd.min.x, llbd.max.y, info.bound.min.x, info.bound.max.y);
+    LONLAT2MERCATOR(llbd.max.x, llbd.min.y, info.bound.max.x, info.bound.min.y);
+    double distx = info.bound.max.x - info.bound.min.x;
+    double disty = info.bound.max.y - info.bound.min.y;
+
+     if (distx < disty)
+    {
+        info.dx = distx / rh.info.width;
+        info.dy = info.dx;
+        info.height = std::floor(disty / info.dy);
+    }
+    else
+    {
+        info.dy = disty / rh.info.height;
+        info.dx = info.dy;
+        info.width = std::floor(distx / info.dx);
+    }
+
+    raster.create(info.height, info.width, true);
+    raster.set(info.fill);
+    float * thisp = raster.data();
+    float * rhp = rh.raster.data();
+
+    int maxrh = rh.info.height * rh.info.width;
+    int maxthis = info.height * info.width;
+
+    for (size_t r = 0; r < info.height; ++r)
+    {
+        for (size_t c = 0; c < info.width; ++c)
         {
-            double gx, gy;
-            lon = info.bound.min.x + c * info.dx;
-            lat = info.bound.max.y - r * info.dy;
-            LONLAT2GAUSS(l0, lon, lat, gx, gy);
-            int64_t gC = std::round((gx - rh.info.bound.min.x) / rh.info.dx);
-            int64_t gR = std::round((gy - rh.info.bound.min.y) / rh.info.dy);
-            if (gR >= 0 && gR < rh.raster.rows() && gC >= 0 && gC < rh.raster.cols())
+            suPoint mp, gp;
+            mp.x = info.bound.min.x + c * info.dx;
+            mp.y = info.bound.max.y - r * info.dy;
+            MERCATOR2GAUSS(rh.info.central, mp.x, mp.y, gp.x, gp.y);
+
+            int gcol = static_cast<size_t>(std::round((gp.x - rh.info.bound.min.x) / rh.info.dx));
+            int grol = static_cast<size_t>(std::round((rh.info.bound.max.y - gp.y) / rh.info.dy));
+            if (gcol >= 0 && grol >= 0 && gcol < rh.info.width && grol < rh.info.height)
             {
-                const int64_t gI = gR * rh.raster.cols() + gC;
-                *dp = rh.raster.data()[gI];
+                size_t gpos = grol * rh.info.width + gcol;
+                size_t pos = r * info.width + c;
+                thisp[pos] = rhp[gpos];
             }
-            dp++;
         }
     }
 }
+
+void suDem::Gauss2LonLat(const suDem& rh)
+{
+    if (this == &rh)
+    {
+        throw std::runtime_error("对象地址相同,无法转换");
+    }
+    if (rh.info.central < 75 || rh.info.central > 135)
+    {
+        throw std::runtime_error("无效的高斯中央经线");
+        return;
+    }
+
+    info = rh.info;
+    suPoint lt, rb, lb, rt;
+    GAUSS2LONLAT(rh.info.central, rh.info.bound.min.x, rh.info.bound.max.y, lt.x, lt.y);
+    GAUSS2LONLAT(rh.info.central, rh.info.bound.max.x, rh.info.bound.min.y, rb.x, rb.y);
+    GAUSS2LONLAT(rh.info.central, rh.info.bound.min.x, rh.info.bound.min.y, lb.x, lb.y);
+    GAUSS2LONLAT(rh.info.central, rh.info.bound.max.x, rh.info.bound.max.y, rt.x, rt.y);
+    
+    info.bound.min.x = std::max(lt.x, lb.x);
+    info.bound.max.x = std::min(rb.x, rt.x);
+    info.bound.max.y = std::min(rt.y, lt.y);
+    info.bound.min.y = std::max(lb.y, rb.y);
+
+    double distx = info.bound.max.x - info.bound.min.x;
+    double disty = info.bound.max.y - info.bound.min.y;
+
+    if (distx < disty)
+    {
+        info.dx = distx / rh.info.width;
+        info.dy = info.dx;
+        info.height = std::floor(disty / info.dy);
+    }
+    else
+    {
+        info.dy = disty / rh.info.height;
+        info.dx = info.dy;
+        info.width = std::floor(distx / info.dx);
+    }
+
+    raster.create(info.height, info.width, true);
+    raster.set(info.fill);
+    float* thisp = raster.data();
+    float* rhp = rh.raster.data();
+
+    int maxrh = rh.info.height * rh.info.width;
+    int maxthis = info.height * info.width;
+
+    for (size_t r = 0; r < info.height; ++r)
+    {
+        for (size_t c = 0; c < info.width; ++c)
+        {
+            suPoint mp, llp;
+            mp.x = info.bound.min.x + c * info.dx;
+            mp.y = info.bound.max.y - r * info.dy;
+            LONLAT2GAUSS(rh.info.central, mp.x, mp.y, llp.x, llp.y);
+
+            int gcol = static_cast<size_t>(std::round((llp.x - rh.info.bound.min.x) / rh.info.dx));
+            int grol = static_cast<size_t>(std::round((rh.info.bound.max.y - llp.y) / rh.info.dy));
+            if (gcol >= 0 && grol >= 0 && gcol < rh.info.width && grol < rh.info.height)
+            {
+                size_t gpos = grol * rh.info.width + gcol;
+                size_t pos = r * info.width + c;
+                thisp[pos] = rhp[gpos];
+            }
+        }
+    }
+}
+
 void suDem::LonLat2Gauss(const suDem& rh, const double& cell_size, const double& l0)
 {
     if (this == &rh)
@@ -138,6 +236,7 @@ void suDem::Cover(const suDem& rh)
         }
     }
 }
+
 void suDem::Extra(const suRing& ring)
 {
     for (int r = 0; r < info.height; ++r)
@@ -380,7 +479,7 @@ suFMatrix suDem::SlopePercent(const int& method) const
 
     return ret;
 }
-suUCMatrix suDem::HillShade(const double& azimuth_deg, const double& height_deg, const double& z_factor)const
+suUCMatrix suDem::HillShade(const double& azimuth_deg, const double& height_deg, const double& z_factor) const
 {
     suUCMatrix shade;
     shade.create(info.height, info.width, true);

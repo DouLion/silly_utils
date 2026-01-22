@@ -18,22 +18,22 @@ class suAsciiGrid : public suDem
     suAsciiGrid() = default;
     ~suAsciiGrid() = default;
 
-    bool create(const suDem::Info& _info);
+    bool Create(const suDem::Info& _info);
 
-    bool read(const suPath& file, const bool& onlyhead = false);
+    bool Read(const suPath& file, const bool& onlyhead = false);
 
-    bool write(const suPath& file) const;
+    bool Write(const suPath& file, const int& ph = 15, const int& pd = 3) const;
 
-    std::string stringify_ll(const int& precision = 3) const;
+    std::string StringifyLL(const int& precision = 3) const;
 
   private:
-    bool read_asc(const suPath& file, const bool& onlyhead = false);
-    bool read_bin(const suPath& file);
-    bool read_prj(const suPath& file);
+    bool ReadASC(const suPath& file, const bool& onlyhead = false);
+    bool ReadBIN(const suPath& file);
+    bool ReadPRJ(const suPath& file);
 
-    bool write_asc(const suPath& file) const;
-    bool write_bin(const suPath& file) const;
-    bool write_prj(const suPath& file) const;
+    bool WriteASC(const suPath& file, const int& ph, const int& pd) const;
+    bool WriteBIN(const suPath& file) const;
+    bool WritePRJ(const suPath& file) const;
 
   private:
     std::string m_root;
