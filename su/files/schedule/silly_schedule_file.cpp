@@ -165,7 +165,7 @@ std::shared_ptr<suMemMapFile> suScheduleFile::OpenMMap(const int& year, const si
     suMemMapFile::Param p;
     p.file_size = size;
     p.map_size = size;
-    p.mode = mode;
+    p.mode = eMMFMode::Write;
     p.path = datafile;
     if (ret->open(p))
     {
