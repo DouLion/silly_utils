@@ -1,30 +1,33 @@
-//
-// Created by dell on 2023/10/24.
-//
-
-#ifndef SILLY_UTILS_SILLY_SPATIALITE_H
-#define SILLY_UTILS_SILLY_SPATIALITE_H
+/*
+ * @copyright: Beijing TianZhiXiang Information Technology Co., Ltd. All rights
+ * reserved. 北京天智祥信息科技有限公司版权所有
+ * @website: http://www.tianzhixiang.com.cn/
+ * @author: dou li yang
+ * @date: 2023-10-24
+ * @file: silly_spatialite.h
+ * @description: spatialite 的一些常用用法
+ * @version: v1.0.1 2023-10-24 dou li yang
+ */
+#ifndef SILLY_SPATIALITE_H
+#define SILLY_SPATIALITE_H
 
 #include <geo/geometry/silly_geo_coll.h>
 #include <sqlite3.h>
 
-class silly_spatialite
+class suSpatiaLite
 {
   public:
-    silly_spatialite() = default;
-    ~silly_spatialite();
-
     /// <summary>
     /// 初始化spatialite和sqlite3环境
     /// </summary>
     /// <param name="db_path"></param>
     /// <returns></returns>
-    bool initialize(const std::string &db_path);
+    bool Open(const std::string &db_path);
 
     /// <summary>
     /// 释放spatialite和sqlite3环境
     /// </summary>
-    void destory();
+    void Close();
 
     /// <summary>
     /// 创建表
@@ -75,4 +78,4 @@ class silly_spatialite
     bool m_is_init{false};
 };
 
-#endif  // SILLY_UTILS_SILLY_SPATIALITE_H
+#endif  // SILLY_SPATIALITE_H

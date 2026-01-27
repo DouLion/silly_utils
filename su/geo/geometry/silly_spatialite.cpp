@@ -459,10 +459,10 @@ bool geo_spatialite_to_silly(const gaiaGeomCollPtr &ggcp, suGeoColl &gc)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-/////  silly_spatialite 类的主体实现
+/////  suSpatiaLite 类的主体实现
 //////////////////////////////////////////////////////////////////////////////////////////
 
-bool silly_spatialite::initialize(const std::string &db_path)
+bool suSpatiaLite::Open(const std::string &db_path)
 {
     if (m_is_init)  // 已经初始化
     {
@@ -489,7 +489,7 @@ bool silly_spatialite::initialize(const std::string &db_path)
     return m_is_init;
 }
 
-void silly_spatialite::destory()
+void suSpatiaLite::Close()
 {
     if (m_is_init)
     {
@@ -500,12 +500,7 @@ void silly_spatialite::destory()
     }
 }
 
-silly_spatialite::~silly_spatialite()
-{
-    destory();
-}
-
-bool silly_spatialite::create_table(const std::string &sql)
+bool suSpatiaLite::create_table(const std::string &sql)
 {
     bool result = false;
     int rc;
@@ -524,13 +519,13 @@ bool silly_spatialite::create_table(const std::string &sql)
     return result;
 }
 
-int silly_spatialite::insert_geo(const std::vector<suGeoColl> &gc, const std::string &sql, int bind_index)
+int suSpatiaLite::insert_geo(const std::vector<suGeoColl> &gc, const std::string &sql, int bind_index)
 {
     int affect_rows = 0;
     if (!m_is_init)
     {
 #ifdef _DEBUG
-        std::cout << "ERROR: SpatiaLite environment not initialized \nPlease execute the silly_spatialite::initialize() first  " << std::endl;
+        std::cout << "ERROR: SpatiaLite environment not initialized \nPlease execute the suSpatiaLite::initialize() first  " << std::endl;
 #endif
         return affect_rows;
     }
@@ -586,13 +581,13 @@ int silly_spatialite::insert_geo(const std::vector<suGeoColl> &gc, const std::st
     return affect_rows;
 }
 
-int silly_spatialite::select_geo(std::vector<suGeoColl> &gc, const std::string &sql)
+int suSpatiaLite::select_geo(std::vector<suGeoColl> &gc, const std::string &sql)
 {
     int affect_rows = 0;
     if (!m_is_init)
     {
 #ifdef _DEBUG
-        std::cout << "ERROR: SpatiaLite environment not initialized \nPlease execute the silly_spatialite::initialize() first  " << std::endl;
+        std::cout << "ERROR: SpatiaLite environment not initialized \nPlease execute the suSpatiaLite::initialize() first  " << std::endl;
 #endif
         return affect_rows;
     }
@@ -643,13 +638,13 @@ int silly_spatialite::select_geo(std::vector<suGeoColl> &gc, const std::string &
     }
 }
 
-int silly_spatialite::remove_geo(const std::string &sql)
+int suSpatiaLite::remove_geo(const std::string &sql)
 {
     int affect_rows = 0;
     if (!m_is_init)
     {
 #ifdef _DEBUG
-        std::cout << "ERROR: SpatiaLite environment not initialized \nPlease execute the silly_spatialite::initialize() first  " << std::endl;
+        std::cout << "ERROR: SpatiaLite environment not initialized \nPlease execute the suSpatiaLite::initialize() first  " << std::endl;
 #endif
         return affect_rows;
     }
@@ -675,13 +670,13 @@ int silly_spatialite::remove_geo(const std::string &sql)
     }
 }
 
-int silly_spatialite::modify_geo(const suGeoColl &gc, const std::string &sql, int bind_index)
+int suSpatiaLite::modify_geo(const suGeoColl &gc, const std::string &sql, int bind_index)
 {
     int affect_rows = 0;
     if (!m_is_init)
     {
 #ifdef _DEBUG
-        std::cout << "ERROR: SpatiaLite environment not initialized \nPlease execute the silly_spatialite::initialize() first  " << std::endl;
+        std::cout << "ERROR: SpatiaLite environment not initialized \nPlease execute the suSpatiaLite::initialize() first  " << std::endl;
 #endif
         return affect_rows;
     }

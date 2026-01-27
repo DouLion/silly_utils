@@ -395,7 +395,7 @@ bool suGDAL::ReadProperties(const OGRFeature* feature, const std::map<uint16_t, 
             break;
             case eGeoFieldType::Long:
             {
-                long long value = feature->GetFieldAsInteger64(index);
+                int64_t value = feature->GetFieldAsInteger64(index);
                 props[info.u8name] = {value};
             }
             break;

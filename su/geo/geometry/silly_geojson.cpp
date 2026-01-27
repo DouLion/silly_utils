@@ -309,7 +309,7 @@ bool suGeoJson::load(const Json::Value& jv, std::unordered_map<std::string, suGe
         }
         else if (jv[name].isInt64())
         {
-            props[name] = suGeoProp(static_cast<long long>(jv[name].asInt64()));
+            props[name] = suGeoProp(static_cast<int64_t>(jv[name].asInt64()));
         }
         else if (jv[name].isDouble())
         {

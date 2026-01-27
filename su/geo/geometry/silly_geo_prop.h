@@ -7,54 +7,62 @@
  * @version: 1.0.1
  * @description: 矢量的属性段
  */
-#ifndef SILLY_UTILS_SILLY_GEO_PROP_H
-#define SILLY_UTILS_SILLY_GEO_PROP_H
-#include <su_macro.h>
+#ifndef SILLY_GEO_PROP_H
+#define SILLY_GEO_PROP_H
 
-// 属性段类型,与org_core.h中定义的OGRFieldType一致
+#include <string>
+#include <vector>
+#include <variant>
+#include <cstdint>
+#include <stdexcept>
+#include <type_traits>
+
+// 保持原有的枚举定义，用于对外兼容
 enum class eGeoFieldType : int8_t
 {
-    None = -1,      // 无效
-    Int = 0,        // 整形
-    Numeric = 2,    // 浮点数
-    String = 4,     // 字符串
-    Binary = 8,     // 二进制流
-    Date = 9,       // 日期
-    Time = 10,      // 时间
-    DateTime = 11,  // 日期加时间
-    Long = 12       // 长整形
+    None = -1,
+    Int = 0,        // int32_t
+    Numeric = 2,    // double
+    String = 4,     // std::string
+    Binary = 8,     // std::vector<unsigned char>
+    Date = 9,       // (暂未实现逻辑，通常存为 string 或 int64)
+    Time = 10,
+    DateTime = 11,
+    Long = 12       // int64_t
 };
 
-struct GeoFiledInfo
-{
-    std::string name;
-    std::string u8name;
-    eGeoFieldType type;
-    uint16_t index;
-};
+// 属性值的具体存储类型
+// std::monostate 对应 None
+using GeoPropValue = std::variant<std::monostate, int32_t, int64_t, double, std::string, std::vector<unsigned char>>;
+
 class suGeoProp
 {
-  public:
-    suGeoProp() = default;
-    suGeoProp(const std::string& s);
-    suGeoProp(const int& i);
-    suGeoProp(const double& d);
-    suGeoProp(const long long& ll);
-    suGeoProp(const std::vector<unsigned char>& bs);
-    suGeoProp(const suGeoProp& other);
-    ~suGeoProp();
+public:
+    // rule of zero: 不需要手动写析构、拷贝构造、赋值，variant 会自动处理
 
-  public:
+    suGeoProp() = default;
+
+    // 泛型构造：自动匹配类型
+    // 使用 std::decay_t 去除引用和 const，确保匹配 variant 内部类型
+    template <typename T, 
+              typename = std::enable_if_t<std::is_constructible_v<GeoPropValue, std::decay_t<T>>>>
+    suGeoProp(T&& val) : m_data(std::forward<T>(val)) {}
+
+    // 特化处理字符串字面量 (const char*) 转 std::string，防止匹配成 bool 或其他
+    suGeoProp(const char* str) : m_data(std::string(str)) {}
+
+public:
     eGeoFieldType type() const;
+    
+    // 核心转换函数
     std::string as_string() const;
     int32_t as_int32() const;
     double as_double() const;
-    std::vector<unsigned char> as_binary() const;
     long long as_int64() const;
+    std::vector<unsigned char> as_binary() const;
 
-  private:
-    eGeoFieldType m_type{eGeoFieldType::None};
-    std::any m_data;
+private:
+    GeoPropValue m_data;
 };
 
-#endif  // SILLY_UTILS_SILLY_GEO_PROP_H
+#endif // SILLY_GEO_PROP_H

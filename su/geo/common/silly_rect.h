@@ -18,9 +18,11 @@ class suRect  // 普通坐标点
     suPoint min = {std::numeric_limits<double>::max(), std::numeric_limits<double>::max()};
     suPoint max = {-std::numeric_limits<double>::max(), -std::numeric_limits<double>::max()};
 
-  public:
     suRect() = default;
-    ~suRect() = default;
+    suRect(const suPoint& bl, const suPoint& tr)
+        : min(bl), max(tr) {
+        correct();
+    }
 
     suRect(const double& l, const double& t, const double& r, const double& b)
     {
@@ -28,6 +30,16 @@ class suRect  // 普通坐标点
         max.y = t;
         max.x = r;
         min.y = b;
+    }
+
+    double area() const
+    {
+        if (!valid())
+        {
+            return  0;
+        }
+
+        return (max.x - min.x) * (max.y - min.y);
     }
 
     /**
