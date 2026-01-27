@@ -23,6 +23,9 @@ string(TOUPPER "${CMAKE_BUILD_TYPE}" UPPER_CMAKE_BUILD_TYPE)
 if("DEBUG" STREQUAL "${UPPER_CMAKE_BUILD_TYPE}")
 set(DEBUG_MODE 1)
   message(STATUS "Debug 模式")
+else()
+  set(DEBUG_MODE 0)
+  message(STATUS "Release 模式")
 endif()
 
 # 系统信息
@@ -185,8 +188,15 @@ endif()
 # ##############################################################################
 # 设置全局的可执行程序和链接库的生成路径.
 # ##############################################################################
+set(PROJECT_ROOT "${CMAKE_SOURCE_DIR}")
+if(DEBUG_MODE)
+    add_definitions(-DPROJECT_ROOT="${PROJECT_ROOT}")
+else()
+    add_definitions(-DPROJECT_ROOT="./")
+endif()
+
 set(EXECUTABLE_OUTPUT_PATH
-    "${CMAKE_SOURCE_DIR}/Bin/${PLATFORM_NAME}/${ARCH_NAME}/${CMAKE_BUILD_TYPE}")
+    "${PROJECT_ROOT}/Bin/${PLATFORM_NAME}/${ARCH_NAME}/${CMAKE_BUILD_TYPE}")
 set(LIBRARY_OUTPUT_PATH "${EXECUTABLE_OUTPUT_PATH}")
 
 

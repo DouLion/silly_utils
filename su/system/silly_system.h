@@ -24,7 +24,7 @@
  * @param wd  CMAKE中设置的项目目录,仅在debug模式下有效
  * @return
  */
-void BIN_CHDIR(const std::filesystem::path& wd);
+void BIN_CHDIR(const std::filesystem::path& wd = PROJECT_ROOT);
 
 /**
  * 设置环境变量
