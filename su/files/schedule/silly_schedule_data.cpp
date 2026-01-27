@@ -10,76 +10,72 @@
  */
 #include "silly_schedule_data.h"
 
-bool suScheduleData::init(const std::map<std::string, std::vector<cellDesc>>& celldesc)
+enum SCHEDULE_DATA_TYPE
+{
+    SCHEDULE_DATA_TYPE_INT8 = 0,
+    SCHEDULE_DATA_TYPE_INT16,
+    SCHEDULE_DATA_TYPE_INT32,
+    SCHEDULE_DATA_TYPE_INT64,
+    SCHEDULE_DATA_TYPE_FLOAT,
+    SCHEDULE_DATA_TYPE_DOUBLE
+};
+
+// 类型大小映射表
+static std::unordered_map<int, size_t> TYPE_SIZE = {{SCHEDULE_DATA_TYPE_INT8, sizeof(int8_t)},
+                                                    {SCHEDULE_DATA_TYPE_INT16, sizeof(int16_t)},
+                                                    {SCHEDULE_DATA_TYPE_INT32, sizeof(int32_t)},
+                                                    {SCHEDULE_DATA_TYPE_INT64, sizeof(int64_t)},
+                                                    {SCHEDULE_DATA_TYPE_FLOAT, sizeof(float)},
+                                                    {SCHEDULE_DATA_TYPE_DOUBLE, sizeof(double)}};
+
+static std::unordered_map<std::string, int> TYPE_INDEX =
+    {{"int8_t", SCHEDULE_DATA_TYPE_INT8}, {"int16_t", SCHEDULE_DATA_TYPE_INT16}, {"int32_t", SCHEDULE_DATA_TYPE_INT32}, {"int64_t", SCHEDULE_DATA_TYPE_INT64}, {"float", SCHEDULE_DATA_TYPE_FLOAT}, {"double", SCHEDULE_DATA_TYPE_DOUBLE}};
+
+bool suScheduleData::init(const std::vector<cellDesc>& celldesc)
 {
     if (celldesc.empty())
     {
         SLOG_ERROR("输入数据为空");
         return false;
     }
-    name2desc = celldesc;
-    for (auto& [name, desc] : celldesc)
+    m_descs = celldesc;
+
+    int offset = 0;
+    for (auto& desc : m_descs)
     {
-        int type = desc[desc.size() - 1].type;
-        name2size[name] = desc[desc.size() - 1].offset + TYPE_SIZE[type];
+        // 1. 检查类型是否合法，转enum 类型
+        if (!HAS(TYPE_INDEX, desc.type_str))
+        {
+            SLOG_ERROR("类型{}不合法", desc.type_str);
+            break;
+        }
+        desc.type = TYPE_INDEX[desc.type_str];
+
+        // 2.bind函数
+        desc.bindFunc();
+
+        desc.bindFunc_();
+
+        // 3. 计算偏移量
+        desc.offset = offset;
+        offset += TYPE_SIZE[desc.type];
     }
+    // 数据块大小
+    m_size = offset;
+
     return true;
 }
 
-suScheduleData::suScheduleData(const supath& file)
-{
-    Json::Value root = silly_jsonpp::read(file);
-    if (root.isNull() || !root.isObject())
-    {
-        SLOG_ERROR("读取json文件失败");
-        return;
-    }
-
-    for (auto& member : root.getMemberNames())
-    {
-        std::string type;
-        double scale = 0.0;
-        std::string key;
-        int offset = 0;
-        for (auto& value : root[member])
-        {
-            if (!sujson::check_str(value, "key", key))
-            {
-                SLOG_ERROR("缺少key字段");
-                return;
-            }
-            if (!sujson::check_str(value, "type", type))
-            {
-                SLOG_ERROR("缺少type字段");
-                return;
-            }
-            if (!sujson::check_double(value, "scale", scale))
-            {
-                SLOG_ERROR("缺少scale字段");
-                return;
-            }
-            name2desc[member].push_back(cellDesc{key, TYPE_INDEX[type], scale, offset});
-            name2size[member] += TYPE_SIZE[TYPE_INDEX[type]];
-            offset += TYPE_SIZE[TYPE_INDEX[type]];
-        }
-    }
-}
-
-double suScheduleData::get(const std::string& name, const std::string& key, const std::vector<char>& data)
+double suScheduleData::get(const std::string& key, const std::vector<char>& data)
 {
     double ret = 0.0;
-    if (name2desc.count(name) == 0)
-    {
-        SLOG_ERROR("没有{}的数据", name);
-        return ret;
-    }
 
-    if (data.size() < name2size[name])
+    if (data.size() < m_size)
     {
-        SLOG_ERROR("数据长度不足:{} ", name);
+        SLOG_ERROR("数据长度不足:{} ", m_size);
         return ret;
     }
-    for (const auto& desc : name2desc[name])
+    for (const auto& desc : m_descs)
     {
         if (desc.key == key)
         {
@@ -91,12 +87,29 @@ double suScheduleData::get(const std::string& name, const std::string& key, cons
     return ret;
 }
 
-std::map<std::string, double> suScheduleData::get(const std::string& name, const std::vector<std::string>& keys, std::vector<char>& data)
+std::map<std::string, double> suScheduleData::get(const std::vector<std::string>& keys, std::vector<char>& data)
 {
     std::map<std::string, double> ret;
     for (auto& key : keys)
     {
-        ret[key] = get(name, key, data);
+        ret[key] = get(key, data);
+    }
+    return ret;
+}
+
+std::vector<char> suScheduleData::convert(const std::vector<float>& data)
+{
+    std::vector<char> ret(m_size);
+
+    if (data.size() != m_descs.size())
+    {
+        SLOG_ERROR("数据长度不足:{} ", m_size);
+        return ret;
+    }
+    for (size_t i = 0; i < m_descs.size(); i++)
+    {
+        std::vector<char> data_char = m_descs[i].convertValue(data[i]);
+        memcpy(ret.data() + m_descs[i].offset, data_char.data(), data_char.size());
     }
     return ret;
 }
@@ -107,26 +120,169 @@ void suScheduleData::cellDesc::bindFunc()
     switch (type)
     {
         case SCHEDULE_DATA_TYPE_INT8:
-            func = [this](const std::vector<char>& data) { return extractValue<int8_t>(data, offset, scale); };
+            func = [this](const std::vector<char>& data) {
+                if (offset + sizeof(int8_t) > data.size())
+                {
+                    SLOG_ERROR("数据长度:{},计算长度:{}", data.size(), offset + sizeof(int8_t));
+                    return 0.0;
+                }
+                int8_t* value = (int8_t*)(data.data() + offset);
+
+                if (scale > 0 && scale != 1)
+                {
+                    return static_cast<double>(*value) / scale;
+                }
+                return static_cast<double>(*value);
+            };
             break;
         case SCHEDULE_DATA_TYPE_INT16:
-            func = [this](const std::vector<char>& data) { return extractValue<int16_t>(data, offset, scale); };
+            func = [this](const std::vector<char>& data) {
+                if (offset + sizeof(int16_t) > data.size())
+                {
+                    SLOG_ERROR("数据长度:{},计算长度:{}", data.size(), offset + sizeof(int16_t));
+                    return 0.0;
+                }
+                int16_t* value = (int16_t*)(data.data() + offset);
+
+                if (scale > 0 && scale != 1)
+                {
+                    return static_cast<double>(*value) / scale;
+                }
+                return static_cast<double>(*value);
+            };
             break;
         case SCHEDULE_DATA_TYPE_INT32:
-            func = [this](const std::vector<char>& data) { return extractValue<int32_t>(data, offset, scale); };
+            func = [this](const std::vector<char>& data) {
+                if (offset + sizeof(int32_t) > data.size())
+                {
+                    SLOG_ERROR("数据长度:{},计算长度:{}", data.size(), offset + sizeof(int32_t));
+                    return 0.0;
+                }
+                int32_t* value = (int32_t*)(data.data() + offset);
+
+                if (scale > 0 && scale != 1)
+                {
+                    return static_cast<double>(*value) / scale;
+                }
+                return static_cast<double>(*value);
+            };
             break;
         case SCHEDULE_DATA_TYPE_INT64:
-            func = [this](const std::vector<char>& data) { return extractValue<int64_t>(data, offset, scale); };
+            func = [this](const std::vector<char>& data) {
+                if (offset + sizeof(int64_t) > data.size())
+                {
+                    SLOG_ERROR("数据长度:{},计算长度:{}", data.size(), offset + sizeof(int64_t));
+                    return 0.0;
+                }
+                int64_t* value = (int64_t*)(data.data() + offset);
+
+                if (scale > 0 && scale != 1)
+                {
+                    return static_cast<double>(*value) / scale;
+                }
+                return static_cast<double>(*value);
+            };
             break;
         case SCHEDULE_DATA_TYPE_FLOAT:
-            func = [this](const std::vector<char>& data) { return extractValue<float>(data, offset, scale); };
+            func = [this](const std::vector<char>& data) {
+                if (offset + sizeof(float) > data.size())
+                {
+                    SLOG_ERROR("数据长度:{},计算长度:{}", data.size(), offset + sizeof(float));
+                    return 0.0;
+                }
+                float* value = (float*)(data.data() + offset);
+
+                if (scale > 0 && scale != 1)
+                {
+                    return static_cast<double>(*value) / scale;
+                }
+                return static_cast<double>(*value);
+            };
             break;
         case SCHEDULE_DATA_TYPE_DOUBLE:
-            func = [this](const std::vector<char>& data) { return extractValue<double>(data, offset, scale); };
+            func = [this](const std::vector<char>& data) {
+                if (offset + sizeof(double) > data.size())
+                {
+                    SLOG_ERROR("数据长度:{},计算长度:{}", data.size(), offset + sizeof(double));
+                    return 0.0;
+                }
+                double* value = (double*)(data.data() + offset);
+
+                if (scale > 0 && scale != 1)
+                {
+                    return static_cast<double>(*value) / scale;
+                }
+                return static_cast<double>(*value);
+            };
             break;
 
         default:
             func = nullptr;
+            break;
+    }
+}
+
+void suScheduleData::cellDesc::bindFunc_()
+{
+    switch (type)
+    {
+        case SCHEDULE_DATA_TYPE_INT8:
+            func_ = [this](const float& data) {
+                std::vector<char> data_char(sizeof(int8_t));
+                int8_t value = data * scale;
+
+                memcpy(data_char.data(), &value, sizeof(int8_t));
+                return data_char;
+            };
+            break;
+        case SCHEDULE_DATA_TYPE_INT16:
+            func_ = [this](const float& data) {
+                std::vector<char> data_char(sizeof(int16_t));
+                int16_t value = data * scale;
+
+                memcpy(data_char.data(), &value, sizeof(int16_t));
+                return data_char;
+            };
+            break;
+        case SCHEDULE_DATA_TYPE_INT32:
+            func_ = [this](const float& data) {
+                std::vector<char> data_char(sizeof(int32_t));
+                int32_t value = data * scale;
+
+                memcpy(data_char.data(), &value, sizeof(int32_t));
+                return data_char;
+            };
+            break;
+        case SCHEDULE_DATA_TYPE_INT64:
+            func_ = [this](const float& data) {
+                std::vector<char> data_char(sizeof(int64_t));
+                int64_t value = data * scale;
+
+                memcpy(data_char.data(), &value, sizeof(int64_t));
+                return data_char;
+            };
+            break;
+        case SCHEDULE_DATA_TYPE_FLOAT:
+            func_ = [this](const float& data) {
+                std::vector<char> data_char(sizeof(float));
+                float value = data * scale;
+
+                memcpy(data_char.data(), &value, sizeof(float));
+                return data_char;
+            };
+            break;
+        case SCHEDULE_DATA_TYPE_DOUBLE:
+            func_ = [this](const float& data) {
+                std::vector<char> data_char(sizeof(double));
+                double value = data * scale;
+
+                memcpy(data_char.data(), &value, sizeof(double));
+                return data_char;
+            };
+            break;
+
+        default:
+            func_ = nullptr;
             break;
     }
 }

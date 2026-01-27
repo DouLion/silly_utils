@@ -13,11 +13,11 @@
 suFileLock::suFileLock(const supath& file)
 {
 #ifdef IS_WIN32
-    m_file_hdl = CreateFile(file.wstring().c_str(), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    m_file_hdl = CreateFile(file.wstring().c_str(), GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 
     if (m_file_hdl == INVALID_HANDLE_VALUE)
     {
-        m_err = GetLastError();
+        m_err = std::to_string(GetLastError());
         throw std::runtime_error(m_err.c_str());
     }
     // 获取文件大小
@@ -35,7 +35,7 @@ suFileLock::suFileLock(const supath& file)
     BOOL result = LockFileEx(m_file_hdl, lockFlags, 0, fileSize.LowPart, fileSize.HighPart, &overlapped);
     if (!result)
     {
-        m_err = GetLastError();
+        m_err = std::to_string(GetLastError());
         CloseHandle(m_file_hdl);
         throw std::runtime_error(m_err.c_str());
     }
