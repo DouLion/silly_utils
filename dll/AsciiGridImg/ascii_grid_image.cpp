@@ -125,9 +125,9 @@ MinMaxT summary_minmax(size_t ncols, size_t nrows, double cellsize, double* dept
     while (pos++ < max)
     {
         double h = depth[pos];
-        if (isnan(h) || h <= G_TINY_DEPTH)
+        if (isnan(h) || h < G_TINY_DEPTH)
         {
-            depth[pos] = 0;
+            // depth[pos] = 0;
             h = 0;
             continue;
         }
@@ -197,23 +197,24 @@ void convert_image(double ncols, double nrows, double xllcorner, double yllcorne
 
             h = Hdata[pos];
             pi++;
-            if (h > G_TINY_DEPTH)
+            if (h >= G_TINY_DEPTH)
             {
+                qu = qx[pos] / (h * cellsize) * G_SCALE;
+                qv = qy[pos] / (h * cellsize) * G_SCALE;
                 h *= G_SCALE;
-                qu = qx[pos] * G_SCALE / (h * cellsize);
-                qv = qy[pos] * G_SCALE / (h * cellsize);
-                {  // qx qy
-                    suColor pc;
-                    pc.red = G_MAX_V * (qu - uMin) / (uMax - uMin);
-                    pc.green = G_MAX_V * (qv - vMin) / (vMax - vMin);
-                    pdXY.pixel(r, c, pc);
-                }
-                {
-                    // depth
-                    suColor pc;
-                    pc.red = static_cast<uint8_t>(G_MAX_V * h / hMax);
-                    pdH.pixel(r, c, pc);
-                }
+                
+            }
+            {  // qx qy
+                suColor pc;
+                pc.red = G_MAX_V * (qu - uMin) / (uMax - uMin);
+                pc.green = G_MAX_V * (qv - vMin) / (vMax - vMin);
+                pdXY.pixel(r, c, pc);
+            }
+            {
+                // depth
+                suColor pc;
+                pc.red = static_cast<uint8_t>(G_MAX_V * h / hMax);
+                pdH.pixel(r, c, pc);
             }
         }
     }
@@ -303,20 +304,20 @@ void convert_hq(double ncols, double nrows, double xllcorner, double yllcorner, 
             double h = 0., qu = 0., qv = 0.;
             h = hData[pos];
 
-            if (h > G_TINY_DEPTH)
+            if (h >= G_TINY_DEPTH)
             {
-                h *= G_SCALE;
+               
                 qu = qxData[pos] * G_SCALE / (h * cellsize);
                 qv = qyData[pos] * G_SCALE / (h * cellsize);
-                suColor cXYH;
-                //
-
-
-                cXYH.red = static_cast<unsigned char>(G_MAX_V * h / hMax);
-                cXYH.green = static_cast<unsigned char>(std::round(G_MAX_V * (qu - uMin) / udist));
-                cXYH.blue = static_cast<unsigned char>(std::round(G_MAX_V * (qv - vMin) / vdist));
-                pdA.pixel(r, c, cXYH);
+                h *= G_SCALE;
+                
             }
+            suColor cXYH;
+
+            cXYH.red = static_cast<unsigned char>(G_MAX_V * h / hMax);
+            cXYH.green = static_cast<unsigned char>(std::round(G_MAX_V * (qu - uMin) / udist));
+            cXYH.blue = static_cast<unsigned char>(std::round(G_MAX_V * (qv - vMin) / vdist));
+            pdA.pixel(r, c, cXYH);
         }
     }
     std::string hqPNGData;
