@@ -229,22 +229,22 @@ OGRGeometry* suGDAL::GeoCollToOGR(const suGeoColl& coll)
     switch (coll.type())
     {
         case eGeometryType::Point:
-            return new OGRPoint(PointToOGR(coll.point()));
+            return new OGRPoint(PointToOGR(coll.asPoint()));
 
         case eGeometryType::MultiPoint:
-            return new OGRMultiPoint(MultiPointToOGR(coll.multiPoint()));
+            return new OGRMultiPoint(MultiPointToOGR(coll.asMultiPoint()));
 
         case eGeometryType::LineString:
-            return new OGRLineString(LineToOGR(coll.line()));
+            return new OGRLineString(LineToOGR(coll.asLine()));
 
         case eGeometryType::MultiLineString:
-            return new OGRMultiLineString(MultiLineToOGR(coll.multiLine()));
+            return new OGRMultiLineString(MultiLineToOGR(coll.asMultiLine()));
 
         case eGeometryType::Polygon:
-            return new OGRPolygon(PolyToOGR(coll.poly()));
+            return new OGRPolygon(PolyToOGR(coll.asPoly()));
 
         case eGeometryType::MultiPolygon:
-            return new OGRMultiPolygon(MultiPolyToOGR(coll.multiPoly()));
+            return new OGRMultiPolygon(MultiPolyToOGR(coll.asMultiPoly()));
 
         default:
             SLOG_ERROR("Error: Unsupported type: {}", suGeoType2Str(coll.type()));
@@ -532,22 +532,22 @@ bool suGDAL::FillGeometry(const eGeometryType& type, OGRLayer* outputLayer, OGRF
     switch (type)
     {
         case eGeometryType::Point:
-            geometry = OGRPoint(geoColl.point().x, geoColl.point().y).clone();
+            geometry = OGRPoint(geoColl.asPoint().x, geoColl.asPoint().y).clone();
             break;
         case eGeometryType::LineString:
-            geometry = LineToOGR(geoColl.line()).clone();
+            geometry = LineToOGR(geoColl.asLine()).clone();
             break;
         case eGeometryType::Polygon:
-            geometry = PolyToOGR(geoColl.poly()).clone();
+            geometry = PolyToOGR(geoColl.asPoly()).clone();
             break;
         case eGeometryType::MultiPoint:
-            geometry = MultiPointToOGR(geoColl.multiPoint()).clone();
+            geometry = MultiPointToOGR(geoColl.asMultiPoint()).clone();
             break;
         case eGeometryType::MultiLineString:
-            geometry = MultiLineToOGR(geoColl.multiLine()).clone();
+            geometry = MultiLineToOGR(geoColl.asMultiLine()).clone();
             break;
         case eGeometryType::MultiPolygon:
-            geometry = MultiPolyToOGR(geoColl.multiPoly()).clone();
+            geometry = MultiPolyToOGR(geoColl.asMultiPoly()).clone();
 
             break;
         default:
@@ -576,19 +576,19 @@ bool suGDAL::FillField(OGRFeature* feature, const std::unordered_map<std::string
             switch (prop.type())
             {
                 case eGeoFieldType::Int:
-                    feature->SetField(fieldIndex, prop.as_int32());
+                    feature->SetField(fieldIndex, prop.asInt32());
                     break;
                 case eGeoFieldType::Numeric:
-                    feature->SetField(fieldIndex, prop.as_double());
+                    feature->SetField(fieldIndex, prop.asDouble());
                     break;
                 case eGeoFieldType::String:
                 case eGeoFieldType::Time:
                 case eGeoFieldType::Date:
                 case eGeoFieldType::DateTime:
-                    feature->SetField(fieldIndex, prop.as_string().c_str());
+                    feature->SetField(fieldIndex, prop.asString().c_str());
                     break;
                 case eGeoFieldType::Long:
-                    feature->SetField(fieldIndex, prop.as_int64());
+                    feature->SetField(fieldIndex, prop.asInt64());
                     break;
                 default:
                     status = false;

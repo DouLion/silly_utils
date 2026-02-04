@@ -182,28 +182,27 @@ void XScanLine::rasterize(const std::vector<std::vector<Point>>& vertices_arr)
     }
 }
 
-void XScanLine::rasterize(const suGeoColl& geo_coll)
+void XScanLine::rasterize(const suGeoColl& gc)
 {
-    eGeometryType feature_type = geo_coll.type();
-    switch (feature_type)
+    switch (gc.type())
     {
         case eGeometryType::Point:  // 单点
-            rasterize(geo_coll.point());
+            rasterize(gc.asPoint());
             break;
         case eGeometryType::LineString:  // 单线
-            rasterize(geo_coll.line());
+            rasterize(gc.asLine());
             break;
         case eGeometryType::Polygon:  // 单面
-            rasterize(geo_coll.poly());
+            rasterize(gc.asPoly());
             break;
         case eGeometryType::MultiPoint:  // 多点
-            rasterize(geo_coll.multiPoint());
+            rasterize(gc.asMultiPoint());
             break;
         case eGeometryType::MultiLineString:  // 多线
-            rasterize(geo_coll.multiLine());
+            rasterize(gc.asMultiLine());
             break;
         case eGeometryType::MultiPolygon:  // 多面
-            rasterize(geo_coll.multiPoly());
+            rasterize(gc.asMultiPoly());
             break;
         default:
             std::cerr << "无效类型" << std::endl;

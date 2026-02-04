@@ -92,21 +92,21 @@ eGeoFieldType Geometry::FiledType(const std::string& key) const
 }
 int Geometry::GetInt(const std::string& key)
 {
-    return mFields.at(key).as_int32();
+    return mFields.at(key).asInt32();
 }
 std::string Geometry::GetStr(const std::string& key) const
 {
-    return mFields.at(key).as_string();
+    return mFields.at(key).asString();
 }
 double Geometry::GetDouble(const std::string& key) const
 {
-    return mFields.at(key).as_double();
+    return mFields.at(key).asDouble();
 }
 std::vector<unsigned char> Geometry::GetBin(const std::string& key) const
 {
-    return mFields.at(key).as_binary();
+    return mFields.at(key).asBinary();
 }
 long long Geometry::GetLL(const std::string& key) const
 {
-    return mFields.at(key).as_int64();
+    return mFields.at(key).asInt64();
 }

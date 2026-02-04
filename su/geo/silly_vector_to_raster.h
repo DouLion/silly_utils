@@ -89,9 +89,9 @@ public:
     /// <summary>
     /// 光栅化任意一个矢量
     /// </summary>
-    /// <param name="geo_coll"></param>
+    /// <param name="gc"></param>
     /// <returns></returns>
-    void rasterize(const suGeoColl& geo_coll);
+    void rasterize(const suGeoColl& gc);
 
     /// <summary>
     /// 将光栅化结果绘制到灰度图上

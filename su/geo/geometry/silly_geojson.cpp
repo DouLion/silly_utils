@@ -16,19 +16,19 @@
 #define V_FEATURE "Feature"
 #define V_FEATURE_COLLECTION "FeatureCollection"
 
-std::vector<suGeoColl> suGeoJson::read(const suPath& file)
+std::vector<suGeoColl> suGeoJson::Read(const suPath& file)
 {
     Json::Value jv = sujson::read(file);
-    return load(jv);
+    return Parse(jv);
 }
 
-std::vector<suGeoColl> suGeoJson::load(const std::string& geojson)
+std::vector<suGeoColl> suGeoJson::Parse(const std::string& geojson)
 {
     Json::Value jv = sujson::loads(geojson);
-    return load(jv);
+    return Parse(jv);
 }
 
-std::vector<suGeoColl> suGeoJson::load(const Json::Value& jv)
+std::vector<suGeoColl> suGeoJson::Parse(const Json::Value& jv)
 {
     std::vector<suGeoColl> ret;
     std::string type;
@@ -133,27 +133,27 @@ bool suGeoJson::load(const Json::Value& jv, suGeoColl& gc)
     switch (suGeoStr2Type(jvGeo[K_TYPE].asString()))
     {
         case eGeometryType::Point:
-            load(jv[K_COORDINATES], _p);
+            load(jvGeo[K_COORDINATES], _p);
             gc.set(_p);
             break;
         case eGeometryType::MultiPoint:
-            load(jv[K_COORDINATES], _mp);
+            load(jvGeo[K_COORDINATES], _mp);
             gc.set(_mp);
             break;
         case eGeometryType::LineString:
-            load(jv[K_COORDINATES], _l);
+            load(jvGeo[K_COORDINATES], _l);
             gc.set(_l);
             break;
         case eGeometryType::MultiLineString:
-            load(jv[K_COORDINATES], _ml);
+            load(jvGeo[K_COORDINATES], _ml);
             gc.set(_ml);
             break;
         case eGeometryType::Polygon:
-            load(jv[K_COORDINATES], _pl);
+            load(jvGeo[K_COORDINATES], _pl);
             gc.set(_pl);
             break;
         case eGeometryType::MultiPolygon:
-            load(jv[K_COORDINATES], _mpl);
+            load(jvGeo[K_COORDINATES], _mpl);
             gc.set(_mpl);
             break;
         default:
@@ -416,22 +416,22 @@ Json::Value suGeoJson::jsonify(const suGeoColl& gc)
     switch (gc.type())
     {
         case eGeometryType::Point:
-            ret = jsonify(gc.point());
+            ret = jsonify(gc.asPoint());
             break;
         case eGeometryType::MultiPoint:
-            ret = jsonify(gc.multiPoint());
+            ret = jsonify(gc.asMultiPoint());
             break;
         case eGeometryType::LineString:
-            ret = jsonify(gc.line());
+            ret = jsonify(gc.asLine());
             break;
         case eGeometryType::MultiLineString:
-            ret = jsonify(gc.multiLine());
+            ret = jsonify(gc.asMultiLine());
             break;
         case eGeometryType::Polygon:
-            ret = jsonify(gc.poly());
+            ret = jsonify(gc.asPoly());
             break;
         case eGeometryType::MultiPolygon:
-            ret = jsonify(gc.multiLine());
+            ret = jsonify(gc.asMultiPoly());
             break;
         default:
             return Json::nullValue;
@@ -444,16 +444,16 @@ Json::Value suGeoJson::jsonify(const suGeoColl& gc)
             switch (v.type())
             {
                 case eGeoFieldType::Int:
-                    jvProp[k] = v.as_int32();
+                    jvProp[k] = v.asInt32();
                     break;
                 case eGeoFieldType::Long:
-                    jvProp[k] = v.as_int32();
+                    jvProp[k] = v.asInt32();
                     break;
                 case eGeoFieldType::Numeric:
-                    jvProp[k] = v.as_double();
+                    jvProp[k] = v.asDouble();
                     break;
                 case eGeoFieldType::String:
-                    jvProp[k] = v.as_string();
+                    jvProp[k] = v.asString();
                     break;
 
                 default:

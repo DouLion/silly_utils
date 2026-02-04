@@ -55,11 +55,11 @@ public:
     eGeoFieldType type() const;
     
     // 核心转换函数
-    std::string as_string() const;
-    int32_t as_int32() const;
-    double as_double() const;
-    long long as_int64() const;
-    std::vector<unsigned char> as_binary() const;
+    std::string asString() const;
+    int32_t asInt32() const;
+    double asDouble() const;
+    long long asInt64() const;
+    std::vector<unsigned char> asBinary() const;
 
 private:
     GeoPropValue m_data;

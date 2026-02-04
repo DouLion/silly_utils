@@ -361,22 +361,22 @@ bool geo_silly_to_spatialite(const suGeoColl &gc, gaiaGeomCollPtr &ggcp)
     switch (gc.type())
     {
         case eGeometryType::Point:
-            status = silly_point_to_gaiageo(gc.point(), ggcp);
+            status = silly_point_to_gaiageo(gc.asPoint(), ggcp);
             break;
         case eGeometryType::MultiPoint:
-            status = silly_multi_point_to_gaiageo(gc.multiPoint(), ggcp);
+            status = silly_multi_point_to_gaiageo(gc.asMultiPoint(), ggcp);
             break;
         case eGeometryType::LineString:
-            status = silly_line_to_gaiageo(gc.line(), ggcp);
+            status = silly_line_to_gaiageo(gc.asLine(), ggcp);
             break;
         case eGeometryType::MultiLineString:
-            status = silly_multi_silly_line_to_gaiageo(gc.multiLine(), ggcp);
+            status = silly_multi_silly_line_to_gaiageo(gc.asMultiLine(), ggcp);
             break;
         case eGeometryType::Polygon:
-            status = silly_poly_to_gaiageo(gc.poly(), ggcp);
+            status = silly_poly_to_gaiageo(gc.asPoly(), ggcp);
             break;
         case eGeometryType::MultiPolygon:
-            status = silly_multi_poly_to_gaiageo(gc.multiPoly(), ggcp);
+            status = silly_multi_poly_to_gaiageo(gc.asMultiPoly(), ggcp);
             break;
         default:
             break;

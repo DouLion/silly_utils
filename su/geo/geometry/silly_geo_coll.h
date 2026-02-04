@@ -16,6 +16,7 @@
 #include <stdexcept>
 #include <type_traits>
 #include <string>
+
 struct GeoFiledInfo
 {
     std::string name;
@@ -39,17 +40,22 @@ struct GeoTraits;
     };
 
 REGISTER_GEO_TYPE(suPoint, eGeometryType::Point, "Point")
+
 REGISTER_GEO_TYPE(suMultiPoint, eGeometryType::MultiPoint, "MultiPoint")
+
 REGISTER_GEO_TYPE(suLine, eGeometryType::LineString, "LineString")
+
 REGISTER_GEO_TYPE(suMultiLine, eGeometryType::MultiLineString, "MultiLineString")
+
 REGISTER_GEO_TYPE(suPoly, eGeometryType::Polygon, "Polygon")
+
 REGISTER_GEO_TYPE(suMultiPoly, eGeometryType::MultiPolygon, "MultiPolygon")
 
 #undef REGISTER_GEO_TYPE
 
 class suGeoColl
 {
-  public:
+public:
     using suGeoCollType = std::variant<suPoint, suMultiPoint, suLine, suMultiLine, suPoly, suMultiPoly>;
 
     // 默认构造
@@ -76,58 +82,63 @@ class suGeoColl
         m_type = GeoTraits<DecayedT>::type;
     }
 
-    // --- 4. 具体的访问接口 (保持原有 API) ---
-    // 内部实现转发给 genericAccess，代码量减少 80%
-    suPoint& point()
-    {
-        return Access<suPoint>();
-    }
-    const suPoint& point() const
+    ///  获取矢量信息
+    suPoint& asPoint()
     {
         return Access<suPoint>();
     }
 
-    suMultiPoint& multiPoint()
+    const suPoint& asPoint() const
+    {
+        return Access<suPoint>();
+    }
+
+    suMultiPoint& asMultiPoint()
     {
         return Access<suMultiPoint>();
     }
-    const suMultiPoint& multiPoint() const
+
+    const suMultiPoint& asMultiPoint() const
     {
         return Access<suMultiPoint>();
     }
 
-    suLine& line()
-    {
-        return Access<suLine>();
-    }
-    const suLine& line() const
+    suLine& asLine()
     {
         return Access<suLine>();
     }
 
-    suMultiLine& multiLine()
+    const suLine& asLine() const
     {
-        return Access<suMultiLine>();
+        return Access<suLine>();
     }
-    const suMultiLine& multiLine() const
+
+    suMultiLine& asMultiLine()
     {
         return Access<suMultiLine>();
     }
 
-    suPoly& poly()
+    const suMultiLine& asMultiLine() const
     {
-        return Access<suPoly>();
+        return Access<suMultiLine>();
     }
-    const suPoly& poly() const
+
+    suPoly& asPoly()
     {
         return Access<suPoly>();
     }
 
-    suMultiPoly& multiPoly()
+    const suPoly& asPoly() const
+    {
+        return Access<suPoly>();
+    }
+
+    suMultiPoly& asMultiPoly()
     {
         return Access<suMultiPoly>();
     }
-    const suMultiPoly& multiPoly() const
+
+    const suMultiPoly& asMultiPoly() const
     {
         return Access<suMultiPoly>();
     }
@@ -137,11 +148,12 @@ class suGeoColl
         return m_type;
     }
 
-    // --- 属性相关 ---
+    ///  获取属性信息
     std::unordered_map<std::string, suGeoProp>& properties()
     {
         return m_properties;
     }
+
     const std::unordered_map<std::string, suGeoProp>& properties() const
     {
         return m_properties;
@@ -150,26 +162,30 @@ class suGeoColl
     // 稍微优化了一下属性访问，统一错误处理
     std::string asString(const std::string& key) const
     {
-        return getProp(key).as_string();
-    }
-    int32_t asInt32(const std::string& key) const
-    {
-        return getProp(key).as_int32();
-    }
-    double asDouble(const std::string& key) const
-    {
-        return getProp(key).as_double();
-    }
-    long long asInt64(const std::string& key) const
-    {
-        return getProp(key).as_int64();
-    }
-    std::vector<unsigned char> asBinary(const std::string& key) const
-    {
-        return getProp(key).as_binary();
+        return getProp(key).asString();
     }
 
-  private:
+    int32_t asInt32(const std::string& key) const
+    {
+        return getProp(key).asInt32();
+    }
+
+    double asDouble(const std::string& key) const
+    {
+        return getProp(key).asDouble();
+    }
+
+    long long asInt64(const std::string& key) const
+    {
+        return getProp(key).asInt64();
+    }
+
+    std::vector<unsigned char> asBinary(const std::string& key) const
+    {
+        return getProp(key).asBinary();
+    }
+
+private:
     // --- 核心泛型访问器 ---
     template <typename T>
     T& Access()
@@ -198,12 +214,12 @@ class suGeoColl
         return m_properties.at(key);
     }
 
-  private:
+private:
     suGeoCollType m_geometry;
     eGeometryType m_type{eGeometryType::Invalid};
 
     std::unordered_map<std::string, suGeoProp> m_properties;
-    std::map<uint16_t, std::string> m_prop_index;  // 看起来这个成员没用到？如果没用建议删除
+    std::map<uint16_t, std::string> m_prop_index; // 写入shp时,控制属性段的输出顺序
 };
 
 #endif  // SILLY_GEO_COLL_H

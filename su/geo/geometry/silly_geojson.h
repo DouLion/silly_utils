@@ -7,8 +7,8 @@
  * @version: 1.0.1
  * @description:  geojson 读写, 参照https://geojson.cn/docs/ref/geojson
  */
-#ifndef SILLY_UTILS_SILLY_GEOJSON_H
-#define SILLY_UTILS_SILLY_GEOJSON_H
+#ifndef SILLY_GEO_JSON_H
+#define SILLY_GEO_JSON_H
 #include <geo/geometry/silly_geo_coll.h>
 #include <json/silly_jsonpp.h>
 
@@ -22,21 +22,21 @@ class suGeoJson
     /// </summary>
     /// <param name="file"></param>
     /// <returns></returns>
-    static std::vector<suGeoColl> read(const suPath& file);
+    static std::vector<suGeoColl> Read(const suPath& file);
 
     /// <summary>
     /// 从字符串加载所有矢量
     /// </summary>
     /// <param name="geojson"></param>
     /// <returns></returns>
-    static std::vector<suGeoColl> load(const std::string& geojson);
+    static std::vector<suGeoColl> Parse(const std::string& geojson);
 
     /// <summary>
     /// 从Json::Value对象加载所有矢量
     /// </summary>
     /// <param name="jv"></param>
     /// <returns></returns>
-    static std::vector<suGeoColl> load(const Json::Value& jv);
+    static std::vector<suGeoColl> Parse(const Json::Value& jv);
 
     static bool check(const Json::Value& jv, suPoint& point);
     static bool check(const Json::Value& jv, suMultiPoint& mpoint);
@@ -162,4 +162,4 @@ class suGeoJson
     static std::string stringify(const suMultiPoly& mpoly, const int& precision = 8);
 };
 
-#endif  // SILLY_UTILS_SILLY_GEOJSON_H
+#endif  // SILLY_GEO_JSON_H

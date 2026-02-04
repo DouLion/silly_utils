@@ -23,7 +23,7 @@ eGeoFieldType suGeoProp::type() const
 }
 
 // --- String 转换 (尽可能转换一切) ---
-std::string suGeoProp::as_string() const
+std::string suGeoProp::asString() const
 {
     return std::visit([](auto&& arg) -> std::string {
         using T = std::decay_t<decltype(arg)>;
@@ -44,7 +44,7 @@ std::string suGeoProp::as_string() const
 }
 
 // --- Double 转换 (实现原本逻辑中的“智能转换”) ---
-double suGeoProp::as_double() const
+double suGeoProp::asDouble() const
 {
     return std::visit([](auto&& arg) -> double {
         using T = std::decay_t<decltype(arg)>;
@@ -63,7 +63,7 @@ double suGeoProp::as_double() const
 }
 
 // --- Int32 转换 (保持原本的严格逻辑，或稍微放宽) ---
-int32_t suGeoProp::as_int32() const
+int32_t suGeoProp::asInt32() const
 {
     // 如果想要严格匹配：
     if (auto* val = std::get_if<int32_t>(&m_data)) return *val;
@@ -76,7 +76,7 @@ int32_t suGeoProp::as_int32() const
 }
 
 // --- Int64 转换 ---
-long long suGeoProp::as_int64() const
+long long suGeoProp::asInt64() const
 {
     if (auto* val = std::get_if<int64_t>(&m_data)) return *val;
     if (auto* val = std::get_if<int32_t>(&m_data)) return static_cast<long long>(*val);
@@ -84,7 +84,7 @@ long long suGeoProp::as_int64() const
 }
 
 // --- Binary 转换 ---
-std::vector<unsigned char> suGeoProp::as_binary() const
+std::vector<unsigned char> suGeoProp::asBinary() const
 {
     if (auto* val = std::get_if<std::vector<unsigned char>>(&m_data)) {
         return *val;
