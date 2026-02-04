@@ -10,9 +10,13 @@
  */
 #ifndef SILLY_PYRAMID_TILE_H
 #define SILLY_PYRAMID_TILE_H
+#include <tiff.h>
 #include <geo/silly_geo.h>
 constexpr int PYRAMID_TILE_SIZE = 256; // 瓦片的默认大小
 constexpr double MAX_LAT = 85.05113; // 墨卡托 投影的纬度范围
+constexpr int TILE_EXTEND_SIZE = 4096;
+using PyXYZ = std::tuple<uint32_t, uint32_t, uint8_t>;
+using PyXY = std::tuple<uint32_t, uint32_t>;
 class suPyramidTile
 {
     /**
@@ -79,6 +83,16 @@ public:
         ret.y *= tile_size;
         return ret;
     }
+
+    static suPoint LonLat2TileO(const suPoint& llp, const int& zoom)
+    {
+        suPoint tile0 = LonLatToFXYZ(llp, zoom);
+        tile0.x = std::floor(tile0.x);
+        tile0.y = std::floor(tile0.y);
+        return tile0;
+
+    }
+
 
     /**
      * 场景坐标 转 经纬度
