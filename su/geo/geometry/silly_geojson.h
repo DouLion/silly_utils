@@ -31,6 +31,22 @@ class suGeoJson
     /// <returns></returns>
     static std::vector<suGeoColl> Parse(const std::string& geojson);
 
+    static bool Parse(const std::string& geojson, suGeoColl& gc);
+
+    static bool Parse(const Json::Value& geojson, suGeoColl& gc);
+
+
+    static bool Parse(const Json::Value& geojson, suPoint& meta);
+    static bool Parse(const Json::Value& geojson, suMultiPoint& meta);
+    static bool Parse(const Json::Value& geojson, suLine& meta);
+    static bool Parse(const Json::Value& geojson, suMultiLine& meta);
+    static bool Parse(const Json::Value& geojson, suPoly& meta);
+    static bool Parse(const Json::Value& geojson, suMultiPoly& meta);
+
+    static bool ParseProperties(const Json::Value& prop, std::unordered_map<std::string, suGeoProp>& kv,std::map<uint16_t, std::string>& sort );
+
+    static void CheckParse();
+
     /// <summary>
     /// 从Json::Value对象加载所有矢量
     /// </summary>

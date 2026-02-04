@@ -343,7 +343,7 @@ bool MVTTile::decode(const std::string &message, bool &was_compressed)
     return true;
 }
 
-std::string MVTTile::encode(const bool &compressed)
+std::string MVTTile::encode(const bool &compressed)  const
 {
     std::string data;
 
@@ -367,7 +367,7 @@ std::string MVTTile::encode(const bool &compressed)
         {
             std::string value_string;
             protozero::pbf_writer value_writer(value_string);
-            MVTValue &pbv = layers[i].values[v];
+            const MVTValue &pbv = layers[i].values[v];
 
             if (pbv.type == eMVTValueType::mvt_string)
             {
@@ -431,7 +431,7 @@ std::string MVTTile::encode(const bool &compressed)
             int cmd = -1;
             int length = 0;
 
-            std::vector<MVTGeometry> &geom = layers[i].features[f].geometry;
+            const std::vector<MVTGeometry> &geom = layers[i].features[f].geometry;
 
             for (size_t g = 0; g < geom.size(); g++)
             {

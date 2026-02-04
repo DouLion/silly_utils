@@ -16,6 +16,247 @@
 #define V_FEATURE "Feature"
 #define V_FEATURE_COLLECTION "FeatureCollection"
 
+bool suGeoJson::Parse(const Json::Value& geojson, suPoint& meta)
+{
+    Json::Value jv = geojson;
+    if (!jv.isArray())
+    {
+        if (jv.isObject())
+        {
+            if (jv.isMember(K_COORDINATES))
+            {
+                jv = geojson[K_COORDINATES];
+            }
+            else if (geojson.isMember(K_GEOMETRY))
+            {
+                jv = geojson[K_GEOMETRY][K_COORDINATES];
+            }
+        }
+    }
+
+    if (jv.isArray())
+    {
+        if (jv.size() == 2 && jv[0].isNumeric())
+        {
+            meta.x = jv[0].asDouble();
+            meta.y = jv[1].asDouble();
+            return true;
+        }
+    }
+    return false;
+}
+
+bool suGeoJson::Parse(const Json::Value& geojson, suMultiPoint& meta)
+{
+    Json::Value jv = geojson;
+    if (!jv.isArray())
+    {
+        if (jv.isObject())
+        {
+            if (jv.isMember(K_COORDINATES))
+            {
+                jv = geojson[K_COORDINATES];
+            }
+            else if (geojson.isMember(K_GEOMETRY))
+            {
+                jv = geojson[K_GEOMETRY][K_COORDINATES];
+            }
+        }
+    }
+
+    if (jv.isArray())
+    {
+        for (const auto& jvp : jv)
+        {
+            if (jvp.isArray() && jvp[0].isNumeric())
+            {
+                suPoint tmp;
+                tmp.x = jvp[0].asDouble();
+                tmp.y = jvp[1].asDouble();
+                meta.push_back(tmp);
+            }
+            else
+            {
+                return false;
+            }
+        }
+        return !meta.empty();
+    }
+    return false;
+}
+
+bool suGeoJson::Parse(const Json::Value& geojson, suLine& meta)
+{
+    Json::Value jv = geojson;
+    if (!jv.isArray())
+    {
+        if (jv.isObject())
+        {
+            if (jv.isMember(K_COORDINATES))
+            {
+                jv = geojson[K_COORDINATES];
+            }
+            else if (geojson.isMember(K_GEOMETRY))
+            {
+                jv = geojson[K_GEOMETRY][K_COORDINATES];
+            }
+        }
+    }
+
+    if (jv.isArray())
+    {
+        for (const auto& jvp : jv)
+        {
+            if (jvp.isArray() && jvp[0].isNumeric())
+            {
+                suPoint tmp;
+                tmp.x = jvp[0].asDouble();
+                tmp.y = jvp[1].asDouble();
+                meta.push_back(tmp);
+            }
+            else
+            {
+                return false;
+            }
+        }
+        return !meta.empty();
+    }
+    return false;
+}
+
+bool suGeoJson::Parse(const Json::Value& geojson, suMultiLine& meta)
+{
+    Json::Value jv = geojson;
+    if (!jv.isArray())
+    {
+        if (jv.isObject())
+        {
+            if (jv.isMember(K_COORDINATES))
+            {
+                jv = geojson[K_COORDINATES];
+            }
+            else if (geojson.isMember(K_GEOMETRY))
+            {
+                jv = geojson[K_GEOMETRY][K_COORDINATES];
+            }
+        }
+    }
+
+    if (jv.isArray())
+    {
+        for (const auto& jvl : jv)
+        {
+            suLine tmpl;
+            if (!Parse(jvl, tmpl))
+            {
+                return false;
+            }
+            meta.push_back(tmpl);
+        }
+        return !meta.empty();
+    }
+    return false;
+}
+
+bool suGeoJson::Parse(const Json::Value& geojson, suPoly& meta)
+{
+    Json::Value jv = geojson;
+    if (!jv.isArray())
+    {
+        if (jv.isObject())
+        {
+            if (jv.isMember(K_COORDINATES))
+            {
+                jv = geojson[K_COORDINATES];
+            }
+            else if (geojson.isMember(K_GEOMETRY))
+            {
+                jv = geojson[K_GEOMETRY][K_COORDINATES];
+            }
+        }
+    }
+
+    if (jv.isArray())
+    {
+        for (const auto& jvp : jv)
+        {
+            if (!jvp.isArray())
+            {
+                return false;
+            }
+            for (const auto jvr : jvp)
+            {
+                suRing tmpr;
+                if (jvr.isArray() && jvr[0].isNumeric())
+                {
+                    suPoint tmp;
+                    tmp.x = jvr[0].asDouble();
+                    tmp.y = jvr[1].asDouble();
+                    tmpr.points.push_back(tmp);
+                }
+                else
+                {
+                    std::cout << sujson::stringify(jvp) << std::endl;
+                    return false;
+                }
+                if (meta.outer.points.empty())
+                {
+                    meta.outer = std::move(tmpr);
+                    meta.outer.is_outer = 1;
+                }
+                else
+                {
+                    meta.holes.emplace_back(tmpr);
+                }
+            }
+        }
+        return meta.outer.is_outer;
+    }
+    return false;
+}
+
+bool suGeoJson::Parse(const Json::Value& geojson, suMultiPoly& meta)
+{
+    Json::Value jv = geojson;
+
+    if (!jv.isArray())
+    {
+        std::string ss = sujson::stringify(jv);
+        if (jv.isObject())
+        {
+            if (jv.isMember(K_COORDINATES))
+            {
+                jv = jv[K_COORDINATES];
+            }
+            else if (jv.isMember(K_GEOMETRY))
+            {
+                jv = jv[K_GEOMETRY][K_COORDINATES];
+            }
+        }
+    }
+
+    if (jv.isArray())
+    {
+        for (const auto& jvp : jv)
+        {
+            suPoly tmp;
+            if (!Parse(jvp, tmp))
+            {
+                return false;
+            }
+            meta.push_back(tmp);
+        }
+        return !meta.empty();
+    }
+    return false;
+}
+
+bool suGeoJson::ParseProperties(const Json::Value& prop, std::unordered_map<std::string, suGeoProp>& kv, std::map<uint16_t, std::string>& sort)
+{
+    return false;
+}
+
+
 std::vector<suGeoColl> suGeoJson::Read(const suPath& file)
 {
     Json::Value jv = sujson::read(file);
@@ -26,6 +267,85 @@ std::vector<suGeoColl> suGeoJson::Parse(const std::string& geojson)
 {
     Json::Value jv = sujson::loads(geojson);
     return Parse(jv);
+}
+
+bool suGeoJson::Parse(const std::string& geojson, suGeoColl& gc)
+{
+    Json::Value jv = sujson::loads(geojson);
+    if (!jv.isObject())
+    {
+        return false;
+    }
+    return Parse(jv, gc);
+}
+
+bool suGeoJson::Parse(const Json::Value& geojson, suGeoColl& gc)
+{
+    if (!geojson.isMember(K_GEOMETRY))
+    {
+        return false;
+    }
+    const Json::Value& jvGeo = geojson[K_GEOMETRY];
+    if (!jvGeo.isMember(K_TYPE))
+    {
+        return false;
+    }
+    std::string type = jvGeo[K_TYPE].asString();
+    const auto etp = suGeoStr2Type(type);
+    if (etp == eGeometryType::Invalid)
+    {
+        return false;
+    }
+    if (etp == eGeometryType::Point)
+    {
+        suPoint meta;
+        if (!Parse(jvGeo, meta))
+        {
+            return false;
+        }
+    }
+    else if (etp == eGeometryType::MultiPoint)
+    {
+        suMultiPoint meta;
+        if (!Parse(jvGeo, meta))
+        {
+            return false;
+        }
+    }
+    else if (etp == eGeometryType::LineString)
+    {
+        suLine meta;
+        if (!Parse(jvGeo, meta))
+        {
+            return false;
+        }
+    }
+    else if (etp == eGeometryType::MultiLineString)
+    {
+        suMultiLine meta;
+        if (!Parse(jvGeo, meta))
+        {
+            return false;
+        }
+    }
+    else if (etp == eGeometryType::Polygon)
+    {
+        suPoly meta;
+        if (!Parse(jvGeo, meta))
+        {
+            return false;
+        }
+    }
+    else if (etp == eGeometryType::MultiPolygon)
+    {
+        suMultiPoly meta;
+        if (!Parse(jvGeo, meta))
+        {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 std::vector<suGeoColl> suGeoJson::Parse(const Json::Value& jv)
@@ -713,4 +1033,169 @@ bool suGeoJson::check(const Json::Value& jv, suMultiPoly& mpoly)
         return load(jv[K_COORDINATES], mpoly);
     }
     return false;
+}
+
+
+void suGeoJson::CheckParse()
+{
+    suGeoColl meta; {
+        std::string geojson = R"(
+{
+	"type": "Feature",
+	"geometry": {
+		"type": "Point",
+		"coordinates": [125.6, 10.1]
+	},
+	"properties": {
+		"name": "Dinagat Islands"
+	}
+}
+        )";
+        //suPoint meta;
+        if (!suGeoJson::Parse(geojson, meta))
+        {
+            SU_ERROR_PRINT("suPoint 错误")
+        }
+        else
+        {
+            SU_INFO_PRINT("suPoint 通过")
+        }
+    } {
+        std::string geojson = R"(
+{
+	"type": "Feature",
+	"geometry": {
+		"type": "MultiPoint",
+		"coordinates": [
+			[105.380859375,31.57853542647338],
+			[105.580859375,31.52853542647338]
+		]
+	}
+}
+        )";
+        //suMultiPoint meta;
+        if (!suGeoJson::Parse(geojson, meta))
+        {
+            SU_ERROR_PRINT("suMultiPoint 错误")
+        }
+        else
+        {
+            SU_INFO_PRINT("suMultiPoint 通过")
+        }
+    } {
+        std::string geojson = R"(
+{
+	"geometry":{
+		"type":"LineString",
+		"coordinates":[
+			[105.6005859375,30.65681556429287],
+			[107.95166015624999,31.98944183792288],
+			[109.3798828125,30.031055426540206],
+			[107.7978515625,29.935895213372444]
+		]
+	}
+}
+        )";
+        //suLine meta;
+        if (!suGeoJson::Parse(geojson, meta))
+        {
+            SU_ERROR_PRINT("suLine 错误")
+        }
+        else
+        {
+            SU_INFO_PRINT("suLine 通过")
+        }
+    } {
+        std::string geojson = R"(
+{
+	"geometry":{
+		"type":"MultiLineString",
+		"coordinates":[
+			[
+				[105.6005859375,30.65681556429287],
+				[107.95166015624999,31.98944183792288],
+				[109.3798828125,30.031055426540206],
+				[107.7978515625,29.935895213372444]
+			],
+			[
+				[109.3798828125,30.031055426540206],
+				[107.1978515625,31.235895213372444]
+			]
+		]
+	}
+}
+        )";
+        //suMultiLine meta;
+        if (!suGeoJson::Parse(geojson, meta))
+        {
+            SU_ERROR_PRINT("suMultiLine 错误")
+        }
+        else
+        {
+            SU_INFO_PRINT("suMultiLine 通过")
+        }
+    } {
+        std::string geojson = R"(
+{
+	"geometry":{
+		"type":"Polygon",
+		"coordinates":[
+			[
+				[106.10595703125,33.33970700424026],
+				[106.32568359375,32.41706632846282],
+				[108.03955078125,32.2313896627376],
+				[108.25927734375,33.15594830078649],
+				[106.10595703125,33.33970700424026]
+			]
+		]
+	}
+}
+        )";
+        //suPoly meta;
+        if (!suGeoJson::Parse(geojson, meta))
+        {
+            SU_ERROR_PRINT("suPoly 错误")
+        }
+        else
+        {
+            SU_INFO_PRINT("suPoly 通过")
+        }
+    } {
+        std::string geojson = R"(
+{
+	"geometry": {
+		"type": "MultiPolygon",
+		"coordinates":[
+			[
+				[
+					[109.2041015625,30.088107753367257],
+					[115.02685546875,30.088107753367257],
+					[115.02685546875,32.7872745269555],
+					[109.2041015625,32.7872745269555],
+					[109.2041015625,30.088107753367257]
+				]
+			],
+			[
+				[
+					[112.9833984375,26.82407078047018],
+					[116.69677734375,26.82407078047018],
+					[116.69677734375,29.036960648558267],
+					[112.9833984375,29.036960648558267],
+					[112.9833984375,26.82407078047018]
+				]
+			]
+		]
+	}
+}
+        )";
+        // suMultiPoly meta;
+        if (!suGeoJson::Parse(geojson, meta))
+        {
+            SU_ERROR_PRINT("suMultiPoly 错误")
+        }
+        else
+        {
+            SU_INFO_PRINT("suMultiPoly 通过")
+        }
+    }
 }

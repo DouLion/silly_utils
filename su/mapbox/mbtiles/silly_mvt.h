@@ -149,7 +149,7 @@ struct MVTTile
 {
     std::vector<MVTLayer> layers{};
 
-    std::string encode(const bool &compressed = true);
+    std::string encode(const bool &compressed = true) const;
     bool decode(const std::string &message, bool &was_compressed);
 };
 
