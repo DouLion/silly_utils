@@ -10,8 +10,8 @@
  */
 #ifndef SILLY_POINT_H
 #define SILLY_POINT_H
-
 #include <su_macro.h>
+#include <datastruct/silly_vec_template.h>
 // 支持外面覆盖这个值
 #ifndef SU_GEO_EPSILON
 #define SU_GEO_EPSILON (1e-8)
@@ -201,93 +201,9 @@ class suPoint
 /****************************************/
 /// 多点
 /****************************************/
-class suMultiPoint
+class suMultiPoint : public suVecTemplate<suPoint>
 {
-  public:
-    suMultiPoint() = default;
-    ~suMultiPoint() = default;
-    /*suMultiPoint(const suMultiPoint& rh);
-    suMultiPoint(const std::vector<suPoint>& rh);*/
-    using iterator = typename std::vector<suPoint>::iterator;
-    using const_iterator = typename std::vector<suPoint>::const_iterator;
-    using value_type = suPoint;  // 兼容STL容器类型定义
-
-    // 代理vector的常用接口
-    void push_back(const suPoint& p)
-    {
-        m_points.push_back(p);
-    }
-    void push_back(suPoint&& p)
-    {
-        m_points.push_back(std::move(p));
-    }
-    void pop_back()
-    {
-        m_points.pop_back();
-    }
-    size_t size() const
-    {
-        return m_points.size();
-    }
-    bool empty() const
-    {
-        return m_points.empty();
-    }
-
-    // 元素访问（引用传递，避免拷贝)
-    suPoint& operator[](size_t pos)
-    {
-        return m_points[pos];
-    }
-    const suPoint& operator[](size_t pos) const
-    {
-        return m_points[pos];
-    }
-    suPoint& front()
-    {
-        return m_points.front();
-    }
-    const suPoint& front() const
-    {
-        return m_points.front();
-    }
-    suPoint& back()
-    {
-        return m_points.back();
-    }
-    const suPoint& back() const
-    {
-        return m_points.back();
-    }
-
-    // 迭代器支持（兼容范围for循环)
-    iterator begin()
-    {
-        return m_points.begin();
-    }
-    iterator end()
-    {
-        return m_points.end();
-    }
-    const_iterator begin() const
-    {
-        return m_points.begin();
-    }
-    const_iterator end() const
-    {
-        return m_points.end();
-    }
-    const_iterator cbegin() const
-    {
-        return m_points.cbegin();
-    }
-    const_iterator cend() const
-    {
-        return m_points.cend();
-    }
-
-  protected:
-    std::vector<suPoint> m_points;
+public:
 };
 
 /**

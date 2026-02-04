@@ -13,17 +13,17 @@
 suLine suLine::equidistant(const double& dist) const
 {
     suLine ret;
-    if (m_points.size() < 2)
+    if (m_items.size() < 2)
     {
         return ret;
     }
-    ret.m_points.reserve(length() / dist * 2);
+    ret.m_items.reserve(length() / dist * 2);
     double remain = dist;
-    ret.m_points.push_back(m_points.front());
-    for (size_t i = 1; i < m_points.size(); ++i)
+    ret.m_items.push_back(m_items.front());
+    for (size_t i = 1; i < m_items.size(); ++i)
     {
-        const suPoint& p0 = m_points[i - 1];
-        const suPoint& p1 = m_points[i];
+        const suPoint& p0 = m_items[i - 1];
+        const suPoint& p1 = m_items[i];
         double tmpDist = p1.dist(p0);
         double ratio1 = dist / tmpDist;
         double ratio = remain / tmpDist;
@@ -44,7 +44,7 @@ suLine suLine::equidistant(const double& dist) const
     // 最后一个点算完,剩余长度还较多,则添加最后一个点
     if (remain > 1e-8)
     {
-        ret.push_back(m_points.back());
+        ret.push_back(m_items.back());
     }
     return ret;
 }
@@ -52,25 +52,25 @@ suLine suLine::equidistant(const double& dist) const
 double suLine::length() const
 {
     double ret = 0.0;
-    if (m_points.size() < 2)
+    if (m_items.size() < 2)
     {
         return ret;
     }
-    for (size_t i = 1; i < m_points.size(); ++i)
+    for (size_t i = 1; i < m_items.size(); ++i)
     {
-        ret += m_points[i].dist(m_points[i - 1]);
+        ret += m_items[i].dist(m_items[i - 1]);
     }
     return ret;
 }
 
 bool suLine::intersect(const suLine& rh) const
 {
-    for (size_t i = 1; i < m_points.size(); ++i)
+    for (size_t i = 1; i < m_items.size(); ++i)
     {
-        suSegment s1(m_points[i - 1], m_points[i]);
-        for (size_t j = 1; j < rh.m_points.size(); ++j)
+        suSegment s1(m_items[i - 1], m_items[i]);
+        for (size_t j = 1; j < rh.m_items.size(); ++j)
         {
-            suSegment s2(rh.m_points[j-1], rh.m_points[j]);
+            suSegment s2(rh.m_items[j-1], rh.m_items[j]);
             if (s1.intersect(s2))
             {
                 return true;
@@ -83,12 +83,12 @@ bool suLine::intersect(const suLine& rh) const
 std::vector<suPoint> suLine::intersection(const suLine& rh) const
 {
     std::vector<suPoint> ret;
-    for (size_t i = 1; i < m_points.size(); ++i)
+    for (size_t i = 1; i < m_items.size(); ++i)
     {
-        suSegment s1(m_points[i - 1], m_points[i]);
-        for (size_t j = 1; j < rh.m_points.size(); ++j)
+        suSegment s1(m_items[i - 1], m_items[i]);
+        for (size_t j = 1; j < rh.m_items.size(); ++j)
         {
-            suSegment s2(rh.m_points[j-1], rh.m_points[j]);
+            suSegment s2(rh.m_items[j-1], rh.m_items[j]);
             std::optional<suPoint> tmp = s1.intersection(s2);
             if (tmp.has_value())
             {

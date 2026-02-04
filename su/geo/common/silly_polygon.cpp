@@ -66,7 +66,7 @@ bool suPoly::intersect(const suPoint& p) const
 double suMultiPoly::area() const
 {
     double total = 0;
-    for (const auto& poly : m_polys)
+    for (const auto& poly : m_items)
     {
         total += poly.area();
     }
@@ -75,10 +75,10 @@ double suMultiPoly::area() const
 
 suRect suMultiPoly::bound() const
 {
-    suRect ret = m_polys.front().bound();
-    for (size_t i = 1; i < m_polys.size(); ++i)
+    suRect ret = m_items.front().bound();
+    for (size_t i = 1; i < m_items.size(); ++i)
     {
-        suRect tmp = m_polys[i].bound();
+        suRect tmp = m_items[i].bound();
         ret = ret.MBR(tmp);
     }
     return ret;
@@ -86,7 +86,7 @@ suRect suMultiPoly::bound() const
 
 bool suMultiPoly::intersect(const suPoint& p) const
 {
-    for (const auto poly : m_polys)
+    for (const auto poly : m_items)
     {
         if (poly.intersect(p))
         {
