@@ -13,64 +13,74 @@
 
 std::vector<NynlResult> RainRetentionCapacity::CalcNYNL(const NynlParam& p) const
 {
-    // 目标水位数组
-    std::vector pTargetRZ = {p.DstRZ.YhdE, p.DstRZ.JhRZ, p.DstRZ.SjRZ, p.DstRZ.BadE};
+    // 定义四个目标水位：溢洪道、校核、设计、坝顶
+    std::vector<double> pTargetRZ = {p.DstRZ.YhdE, p.DstRZ.JhRZ, p.DstRZ.SjRZ, p.DstRZ.BadE};
     std::vector<NynlResult> nynlRet(pTargetRZ.size());
 
-    // 计算起始库容
+    // 1. 查水位库容曲线(Z-V Curve)，获取当前水位对应的库容
     double BW = pRZ2WLine.GetWFromZ(p.BRZ, 1);
 
-    // 循环计算4个目标水�?
     for (int i = 0; i < pTargetRZ.size(); i++)
     {
-        nynlRet[i] = {};
+        nynlRet[i] = {}; // 初始化
         nynlRet[i].BRZ = p.BRZ;
         nynlRet[i].BW = BW;
 
         double dstRZ = pTargetRZ[i];
+
+        // 查目标水位对应的库容
         double EW = pRZ2WLine.GetWFromZ(dstRZ, 1);
         nynlRet[i].ERZ = dstRZ;
         nynlRet[i].EW = EW;
 
-        if (p.BRZ >= dstRZ || dstRZ <= 0)
+        // 异常判断：如果当前水位已经超过目标水位，纳雨能力为0
+        if (p.BRZ >= dstRZ || dstRZ <= -999)
         {
-            // 无效情况，PP设为0
             nynlRet[i].PE = 0;
             nynlRet[i].OTW = 0;
             nynlRet[i].PP = 0;
         }
         else
         {
-            // 反算
-            // const {PP : rPPF.PP, PE : PE1, dW : dW1, OTQ : OTQ1, OTW : OTW1} = CalcPPF(BRZ, KCH, TCH, WCH, pRZ2WLine, pPaPRLine, Pa, Wm, Area, BadE, YhdW, YhdE, ERZ);
+            // -------------------------------------------------------
+            // 第一步：CalcPPF (粗算) - 基于水量平衡
+            // -------------------------------------------------------
             auto rPPF = CalcPPF(p, dstRZ);
+
+            // 先暂存粗算结果
             nynlRet[i].PE = rPPF.PE;
             nynlRet[i].dW = rPPF.dW;
             nynlRet[i].OTW = rPPF.OTW;
             nynlRet[i].PP = rPPF.PP;
 
-
+            // 如果不需要精算，或者计算出的出库量异常，则直接跳过精算
             if (p.CalcType == 0 || rPPF.OTW <= 0)
             {
                 continue;
             }
 
-            // 第二次计算PP（使用相同的参数�?
-            // const {PP : rPPZ.PP, PE : rPPZ.PE, dW : dW2, OTW : OTW2} = CalcPPZ(BRZ, KCH, pRZ2WLine, pPaPRLine, Pa, Wm, pmin, pmax, CalcSteps, Area, BadE, YhdW, YhdE, ERZ);
+            // -------------------------------------------------------
+            // 第二步：CalcPPZ (精算) - 基于调洪演算
+            // -------------------------------------------------------
+            // 使用二分法逼近，考虑了水位上涨过程中的动态泄流变化
             auto rPPZ = CalcPPZ(p, dstRZ);
 
-            // 应用范围限制
+            // -------------------------------------------------------
+            // 第三步：结果融合与约束
+            // -------------------------------------------------------
             double finalPP = rPPZ.PP;
-            if (rPPZ.PP < rPPF.PP * 0.8)
-                finalPP = rPPF.PP * 0.8;
-            if (rPPZ.PP > rPPF.PP * 1.2)
-                finalPP = rPPF.PP * 1.2;
 
-            if (rPPZ.PP < p.optional.pmin && p.optional.pmin > 0)
-                finalPP = p.optional.pmin;
-            if (rPPZ.PP > p.optional.pmax && p.optional.pmax > 0)
-                finalPP = p.optional.pmax;
-            nynlRet[i].PE = rPPZ.PE;
+            // 安全约束：强制精算结果在粗算结果的 [0.8, 1.2] 倍之间
+            // 防止调洪演算因参数敏感导致结果过大或过小
+            if (finalPP < rPPF.PP * 0.8) finalPP = rPPF.PP * 0.8;
+            if (finalPP > rPPF.PP * 1.2) finalPP = rPPF.PP * 1.2;
+
+            // 应用用户指定的绝对上下限
+            if (p.optional.pmin > 0 && finalPP < p.optional.pmin) finalPP = p.optional.pmin;
+            if (p.optional.pmax > 0 && finalPP > p.optional.pmax) finalPP = p.optional.pmax;
+
+            // 更新最终结果
+            nynlRet[i].PE = rPPZ.PE; // 注意：PE通常保留精算的PE，或者应该根据finalPP反推
             nynlRet[i].dW = rPPZ.dW;
             nynlRet[i].OTW = rPPZ.OTW;
             nynlRet[i].PP = finalPP;
@@ -82,98 +92,84 @@ std::vector<NynlResult> RainRetentionCapacity::CalcNYNL(const NynlParam& p) cons
 NynlResult RainRetentionCapacity::CalcPPZ(const NynlParam& p, const double& dstRZ) const
 {
     NynlResult ret;
-    // 获取起始和结束库�?
-    double BW = pRZ2WLine.GetWFromZ(p.BRZ, 1);
-    double EW = pRZ2WLine.GetWFromZ(dstRZ, 1);
+    double BW = pRZ2WLine.GetWFromZ(p.BRZ, 1); // 起始库容
+    double EW = pRZ2WLine.GetWFromZ(dstRZ, 1); // 目标库容
 
-    // 初始化溢洪道流量和净雨量范围
+    // ==========================================
+    // 1. 确定二分查找的边界 (MinPE, MaxPE)
+    // ==========================================
     double MinOTQ = 0;
     double MaxOTQ = 0;
 
-    // 计算最大溢洪道流量（如果目标水位高于溢洪道高程�?
+    // 估算最大可能的泄流量（假设水位一直维持在目标水位 dstRZ）
+    // 宽顶堰流公式: Q = m * ε * B * sqrt(2g) * H^1.5
+    // m=0.385, ε=p.KCH, B=p.YhdW
     if (dstRZ > p.DstRZ.YhdE)
     {
         MaxOTQ = 0.385 * p.KCH * std::sqrt(2 * 9.8) * p.YhdW * std::pow(dstRZ - p.DstRZ.YhdE, 1.5);
-        MaxOTQ = MaxOTQ * 3600 * 24;  // 转换为立方米/小时
+        // 注意：这里原文乘以 3600*24，意味着估算最大排泄量是按"一天"计算的
+        // 这决定了MaxPE的搜索上限量级
+        MaxOTQ = MaxOTQ * 3600 * 24;
     }
 
-    // 计算净雨量(PE)的最小值和最大�?
+    // 最小净雨量：假设不泄洪，仅填满剩余库容
+    // (EW - BW) * Unit 是将库容转为 m3
     double MinPE = ((EW - BW) * pRZ2WLine.Unit() + MinOTQ) / (p.Area * 1000.0);
+    // 最大净雨量：填满库容 + 全天最大泄洪
     double MaxPE = ((EW - BW) * pRZ2WLine.Unit() + MaxOTQ) / (p.Area * 1000.0);
 
-    if (p.optional.pmin > 0)
-    {
-        MinPE = p.optional.pmin;
-    }
+    // 应用用户约束
+    if (p.optional.pmin > 0) MinPE = p.optional.pmin;
+    if (p.optional.pmax > 0) MaxPE = p.optional.pmax;
+    if (MinPE < 0) MinPE = 0;
+    if (MaxPE > 999) MaxPE = 999;
 
-    if (p.optional.pmax > 0)
-    {
-        MaxPE = p.optional.pmax;
-    }
-
-    // 确保净雨量在合理范围内
-    if (MinPE < 0)
-        MinPE = 0;
-    if (MaxPE > 999)
-        MaxPE = 999;
-
-    ret.PE = MinPE;
-    ret.PP = 0;
-    ret.OTW = 0;
-    double OutQ = 0;
-    ret.dW = 0;
-
-    // 计算时间步数
+    // ==========================================
+    // 2. 构建概化单位线 (Unit Hydrograph)
+    // ==========================================
+    // 假设降雨历时为 1小时 (60分钟)
     int Steps = std::ceil(60.0 / p.CalcSteps);
-    if (Steps <= 0)
-        Steps = 1;
+    if (Steps <= 0) Steps = 1;
 
-    // 初始化流量数�?
-    std::vector<double> vQVal;
-    std::vector<double> vUnit;
-    double StepRainVal = 0;
-    double Loop = 0;
+    // 估算汇流总时长 (Steps数)
+    // 经验公式：Area / 30.0 是一种概化的汇流时间估算
+    int step_factor = std::max(std::floor(60.0 / p.CalcSteps), 1.);
+    int sizeT = std::ceil(p.Area / 30.0) * step_factor + 2;
+    int peakT = std::max(std::floor(sizeT / 3), 1.); // 假设洪峰出现在 1/3 处
 
-    // 概化单位线处�?
-    int step = std::max(std::floor(60.0 / p.CalcSteps), 1.);
-    int sizeT = std::ceil(p.Area / 30.0) * step + 2;
-    int maxT = std::max(std::floor(sizeT / 3), 1.);
+    // 构建三角形单位线
+    std::vector<double> vUnit(sizeT, 0.0);
+    vUnit[peakT] = (p.Area * 1000) / (p.CalcSteps * 60.0 * 2); // 峰值流量
 
-    // 初始化单位线
-    vUnit.resize(sizeT);
-    vUnit[maxT] = (p.Area * 1000) / (p.CalcSteps * 60.0 * 2);
-
-    // 计算单位线总和
+    // 计算单位线形状（简单的三角形分布）
     double Sum = 0;
-    for (int i = maxT + 1; i < sizeT; i++)
-    {
-        vUnit[i] = vUnit[i - 1] / 2;
-        Sum += vUnit[i];
-    }
-    for (int i = maxT - 1; i > 0; i--)
-    {
-        vUnit[i] = vUnit[i + 1] / 4;
-        Sum += vUnit[i];
-    }
+    for (int i = peakT + 1; i < sizeT; i++) { vUnit[i] = vUnit[i - 1] / 2; Sum += vUnit[i]; }
+    for (int i = peakT - 1; i > 0; i--)     { vUnit[i] = vUnit[i + 1] / 4; Sum += vUnit[i]; }
 
-    // 调整单位
+    // 归一化单位线：保证单位线对应的总水量等于单位净雨
     if (Sum > 0)
     {
         double scaleFactor = (p.Area * 1000) / (Sum * p.CalcSteps * 60.0);
-        for (auto& vu : vUnit)
-        {
-            vu = vu * scaleFactor;
-        }
+        for (auto& vu : vUnit) vu *= scaleFactor;
     }
 
-    // 使用二分法迭代计算净雨量
+    // ==========================================
+    // 3. 二分法迭代计算 (Binary Search)
+    // ==========================================
+    ret.PE = MinPE;
+    ret.PP = 0;
+    ret.OTW = 0;
+    double Loop = 0;
+
+    std::vector<double> vQVal; // 存储入库流量过程
+
     while (MaxPE - MinPE > 0.1 && Loop <= 100)
     {
         ret.PE = (MaxPE + MinPE) / 2;
-        // 计算流量过程
-        vQVal.clear();
-        vQVal.resize(sizeT + Steps + 1);
-        StepRainVal = ret.PE / Steps;
+
+        // 3.1 净雨 -> 入库流量过程 (卷积计算)
+        vQVal.assign(sizeT + Steps + 1, 0.0);
+        double StepRainVal = ret.PE / Steps; // 假设净雨在60分钟内均匀分布
 
         for (int i = 0; i < Steps; i++)
         {
@@ -186,86 +182,109 @@ NynlResult RainRetentionCapacity::CalcPPZ(const NynlParam& p, const double& dstR
             }
         }
 
-        // 模拟洪水演进过程
+        // 3.2 调洪演算 (Level Pool Routing)
         double RZ = p.BRZ;
         double W = pRZ2WLine.GetWFromZ(RZ, 1);
         bool bExceed = false;
-
         ret.OTW = 0;
-        for (auto& q : vQVal)
+
+        for (auto& q_in : vQVal) // q_in 单位: m3/s (假设)
         {
-            // 计算溢洪道流量
-            OutQ = 0;
+            // 计算当前水位的出库流量
+            double q_out = 0;
             if (RZ > p.DstRZ.YhdE)
             {
-                OutQ = 0.385 * p.KCH * std::sqrt(2 * 9.8) * p.YhdW * std::pow(RZ - p.DstRZ.YhdE, 1.5);
+                // 宽顶堰公式
+                q_out = 0.385 * p.KCH * std::sqrt(2 * 9.8) * p.YhdW * std::pow(RZ - p.DstRZ.YhdE, 1.5);
             }
-            ret.OTW += OutQ * p.CalcSteps * 60.0 / pRZ2WLine.Unit();
 
-            // 更新库容
-            W += (q - OutQ) * p.CalcSteps * 60.0 / pRZ2WLine.Unit();
+            // 累加出库水量
+            ret.OTW += q_out * p.CalcSteps * 60.0 / pRZ2WLine.Unit();
+
+            // 水量平衡方程: W(t+1) = W(t) + (Qin - Qout) * dt
+            W += (q_in - q_out) * p.CalcSteps * 60.0 / pRZ2WLine.Unit();
 
             // 更新水位
             RZ = pRZ2WLine.GetZFromW(W, 1);
 
-            // 检查是否超过目标水位
+            // 判断是否超限
             if (RZ >= dstRZ)
             {
                 bExceed = true;
-                // break;
+                // 只要瞬间水位超限，即认为该降雨量不可行（保守策略）
+                // 若允许短时超限，可在此调整逻辑
             }
         }
-        ret.dW = EW - BW + ret.OTW;
+        ret.dW = EW - BW + ret.OTW; // 实际上 dW = FinalW - InitialW
 
-        // 调整净雨量范围
+        // 3.3 调整二分范围
         if (bExceed)
-        {
-            MaxPE = ret.PE;
-        }
+            MaxPE = ret.PE; // 雨太大了，减小上限
         else
-        {
-            MinPE = ret.PE;
-        }
+            MinPE = ret.PE; // 还能多下点，提高下限
 
         Loop++;
     }
 
-    // 计算最终降雨量PP
+    // ==========================================
+    // 4. 反推降雨量 (Hydrology Back-Calculation)
+    // ==========================================
+    // 根据最终确定的净雨 PE，结合土壤含水量 Pa，反推降雨量 PP
     ret.PP = pPaPRLine.GetP(p.Pa, ret.PE, p.Wm);
+
+    // 结果保留小数位
     ret.PE = std::round(ret.PE * 100) / 100;
     ret.PP = std::round(ret.PP * 100) / 100;
     ret.dW = std::round(ret.dW * 10000) / 10000;
     ret.OTW = std::round(ret.OTW * 10000) / 10000;
     return ret;
 }
+
+
 NynlResult RainRetentionCapacity::CalcPPF(const NynlParam& p, const double& dstRZ) const
 {
     NynlResult ret;
     double BW = pRZ2WLine.GetWFromZ(p.BRZ, 1);
     double EW = pRZ2WLine.GetWFromZ(dstRZ, 1);
 
-    double OTQ = 0;
-    // 计算溢洪道流量
+    // 1. 计算预计出库水量 (OTW)
+    double OTQ = 0; // 平均出库流量 m3/s
+
+    // 优先级1: 用户直接指定了总泄量
     if (p.optional.WCH > 0)
     {
         ret.OTW = p.optional.WCH;
     }
+    // 优先级2: 指定了泄流时长，根据水位差估算平均泄量
     else if (dstRZ > p.DstRZ.YhdE && p.optional.TCH > 0 && p.KCH > 0)
     {
-        OTQ = 0.385 * p.KCH * std::sqrt(2 * 9.8) * p.YhdW * std::pow((dstRZ - p.DstRZ.YhdE), 1.5);
-        ret.OTW = OTQ * p.optional.TCH * 60 / pRZ2WLine.Unit();  // 转换为立方米/小时
+        // 简化假设：以 (目标水位 - 堰顶) 的水头恒定泄流
+        // 这是一个比较激进的估计（高估泄量），因为水位是逐渐上涨的
+        // 如果为了安全，这里应该用 (StartHead + EndHead)/2 或者更保守的值
+        double head = dstRZ - p.DstRZ.YhdE;
+        OTQ = 0.385 * p.KCH * std::sqrt(2 * 9.8) * p.YhdW * std::pow(head, 1.5);
+
+        // 转换体积: m3/s * 分钟 * 60 / 单位换算
+        ret.OTW = OTQ * p.optional.TCH * 60 / pRZ2WLine.Unit();
+    }
+    else
+    {
+        ret.OTW = 0;
     }
 
-    // 计算净雨量PE
-    ret.dW = EW - BW + ret.OTW;
+    // 2. 计算允许的总净雨体积 (Delta W + Outflow)
+    // 逻辑: 允许进来的水 = 坑里剩下的空间 + 期间能流走的水
+    ret.dW = EW - BW + ret.OTW; // 注意：这里的dW变量名可能略有歧义，实际代表 Total Allowed Inflow Volume
+
+    // 3. 换算为净雨深 PE (mm)
     double PE = ret.dW * pRZ2WLine.Unit() / (p.Area * 1000.0);
 
-    // 计算降雨量PP
+    // 4. 反推降雨量 PP (mm)
     double PP = pPaPRLine.GetP(p.Pa, PE, p.Wm);
-    
+
+    // 格式化输出
     ret.PE = std::round(PE * 100) / 100;
     ret.PP = std::round(PP * 100) / 100;
-    // OTQ = std::round(OTQ * 100) / 100;
     ret.OTW = std::round(ret.OTW * 10000) / 10000;
     return ret;
 }
