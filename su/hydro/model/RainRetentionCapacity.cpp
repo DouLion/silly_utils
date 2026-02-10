@@ -11,34 +11,39 @@
 #include "RainRetentionCapacity.h"
 #include <log/silly_log.h>
 
-std::vector<NynlResult> RainRetentionCapacity::CalcNYNL(const NynlParam& p) const
+RRCResultSet RainRetentionCapacity::CalcRRC(const RRCParam& p) const
 {
     // 定义四个目标水位：溢洪道、校核、设计、坝顶
     std::vector<double> pTargetRZ = {p.DstRZ.YhdE, p.DstRZ.JhRZ, p.DstRZ.SjRZ, p.DstRZ.BadE};
-    std::vector<NynlResult> nynlRet(pTargetRZ.size());
+    RRCResultSet ret;
+    std::vector<RRCResult*> nynlRet = {
+        &ret.YhdE,
+        &ret.JhRZ,
+        &ret.SjRZ,
+        &ret.BadE
+    };
 
     // 1. 查水位库容曲线(Z-V Curve)，获取当前水位对应的库容
     double BW = pRZ2WLine.GetWFromZ(p.BRZ, 1);
 
     for (int i = 0; i < pTargetRZ.size(); i++)
     {
-        nynlRet[i] = {}; // 初始化
-        nynlRet[i].BRZ = p.BRZ;
-        nynlRet[i].BW = BW;
+        nynlRet[i]->BRZ = p.BRZ;
+        nynlRet[i]->BW = BW;
 
         double dstRZ = pTargetRZ[i];
 
         // 查目标水位对应的库容
         double EW = pRZ2WLine.GetWFromZ(dstRZ, 1);
-        nynlRet[i].ERZ = dstRZ;
-        nynlRet[i].EW = EW;
+        nynlRet[i]->ERZ = dstRZ;
+        nynlRet[i]->EW = EW;
 
         // 异常判断：如果当前水位已经超过目标水位，纳雨能力为0
         if (p.BRZ >= dstRZ || dstRZ <= -999)
         {
-            nynlRet[i].PE = 0;
-            nynlRet[i].OTW = 0;
-            nynlRet[i].PP = 0;
+            nynlRet[i]->PE = 0;
+            nynlRet[i]->OTW = 0;
+            nynlRet[i]->PP = 0;
         }
         else
         {
@@ -48,10 +53,10 @@ std::vector<NynlResult> RainRetentionCapacity::CalcNYNL(const NynlParam& p) cons
             auto rPPF = CalcPPF(p, dstRZ);
 
             // 先暂存粗算结果
-            nynlRet[i].PE = rPPF.PE;
-            nynlRet[i].dW = rPPF.dW;
-            nynlRet[i].OTW = rPPF.OTW;
-            nynlRet[i].PP = rPPF.PP;
+            nynlRet[i]->PE = rPPF.PE;
+            nynlRet[i]->dW = rPPF.dW;
+            nynlRet[i]->OTW = rPPF.OTW;
+            nynlRet[i]->PP = rPPF.PP;
 
             // 如果不需要精算，或者计算出的出库量异常，则直接跳过精算
             if (p.CalcType == 0 || rPPF.OTW <= 0)
@@ -72,26 +77,31 @@ std::vector<NynlResult> RainRetentionCapacity::CalcNYNL(const NynlParam& p) cons
 
             // 安全约束：强制精算结果在粗算结果的 [0.8, 1.2] 倍之间
             // 防止调洪演算因参数敏感导致结果过大或过小
-            if (finalPP < rPPF.PP * 0.8) finalPP = rPPF.PP * 0.8;
-            if (finalPP > rPPF.PP * 1.2) finalPP = rPPF.PP * 1.2;
+            if (finalPP < rPPF.PP * 0.8)
+                finalPP = rPPF.PP * 0.8;
+            if (finalPP > rPPF.PP * 1.2)
+                finalPP = rPPF.PP * 1.2;
 
             // 应用用户指定的绝对上下限
-            if (p.optional.pmin > 0 && finalPP < p.optional.pmin) finalPP = p.optional.pmin;
-            if (p.optional.pmax > 0 && finalPP > p.optional.pmax) finalPP = p.optional.pmax;
+            if (p.optional.pmin > 0 && finalPP < p.optional.pmin)
+                finalPP = p.optional.pmin;
+            if (p.optional.pmax > 0 && finalPP > p.optional.pmax)
+                finalPP = p.optional.pmax;
 
             // 更新最终结果
-            nynlRet[i].PE = rPPZ.PE; // 注意：PE通常保留精算的PE，或者应该根据finalPP反推
-            nynlRet[i].dW = rPPZ.dW;
-            nynlRet[i].OTW = rPPZ.OTW;
-            nynlRet[i].PP = finalPP;
+            nynlRet[i]->PE = rPPZ.PE; // 注意：PE通常保留精算的PE，或者应该根据finalPP反推
+            nynlRet[i]->dW = rPPZ.dW;
+            nynlRet[i]->OTW = rPPZ.OTW;
+            nynlRet[i]->PP = finalPP;
         }
     }
 
-    return nynlRet;
+    return ret;
 }
-NynlResult RainRetentionCapacity::CalcPPZ(const NynlParam& p, const double& dstRZ) const
+
+RRCResult RainRetentionCapacity::CalcPPZ(const RRCParam& p, const double& dstRZ) const
 {
-    NynlResult ret;
+    RRCResult ret;
     double BW = pRZ2WLine.GetWFromZ(p.BRZ, 1); // 起始库容
     double EW = pRZ2WLine.GetWFromZ(dstRZ, 1); // 目标库容
 
@@ -119,17 +129,22 @@ NynlResult RainRetentionCapacity::CalcPPZ(const NynlParam& p, const double& dstR
     double MaxPE = ((EW - BW) * pRZ2WLine.Unit() + MaxOTQ) / (p.Area * 1000.0);
 
     // 应用用户约束
-    if (p.optional.pmin > 0) MinPE = p.optional.pmin;
-    if (p.optional.pmax > 0) MaxPE = p.optional.pmax;
-    if (MinPE < 0) MinPE = 0;
-    if (MaxPE > 999) MaxPE = 999;
+    if (p.optional.pmin > 0)
+        MinPE = p.optional.pmin;
+    if (p.optional.pmax > 0)
+        MaxPE = p.optional.pmax;
+    if (MinPE < 0)
+        MinPE = 0;
+    if (MaxPE > 999)
+        MaxPE = 999;
 
     // ==========================================
     // 2. 构建概化单位线 (Unit Hydrograph)
     // ==========================================
     // 假设降雨历时为 1小时 (60分钟)
     int Steps = std::ceil(60.0 / p.CalcSteps);
-    if (Steps <= 0) Steps = 1;
+    if (Steps <= 0)
+        Steps = 1;
 
     // 估算汇流总时长 (Steps数)
     // 经验公式：Area / 30.0 是一种概化的汇流时间估算
@@ -143,14 +158,23 @@ NynlResult RainRetentionCapacity::CalcPPZ(const NynlParam& p, const double& dstR
 
     // 计算单位线形状（简单的三角形分布）
     double Sum = 0;
-    for (int i = peakT + 1; i < sizeT; i++) { vUnit[i] = vUnit[i - 1] / 2; Sum += vUnit[i]; }
-    for (int i = peakT - 1; i > 0; i--)     { vUnit[i] = vUnit[i + 1] / 4; Sum += vUnit[i]; }
+    for (int i = peakT + 1; i < sizeT; i++)
+    {
+        vUnit[i] = vUnit[i - 1] / 2;
+        Sum += vUnit[i];
+    }
+    for (int i = peakT - 1; i > 0; i--)
+    {
+        vUnit[i] = vUnit[i + 1] / 4;
+        Sum += vUnit[i];
+    }
 
     // 归一化单位线：保证单位线对应的总水量等于单位净雨
     if (Sum > 0)
     {
         double scaleFactor = (p.Area * 1000) / (Sum * p.CalcSteps * 60.0);
-        for (auto& vu : vUnit) vu *= scaleFactor;
+        for (auto& vu : vUnit)
+            vu *= scaleFactor;
     }
 
     // ==========================================
@@ -241,9 +265,9 @@ NynlResult RainRetentionCapacity::CalcPPZ(const NynlParam& p, const double& dstR
 }
 
 
-NynlResult RainRetentionCapacity::CalcPPF(const NynlParam& p, const double& dstRZ) const
+RRCResult RainRetentionCapacity::CalcPPF(const RRCParam& p, const double& dstRZ) const
 {
-    NynlResult ret;
+    RRCResult ret;
     double BW = pRZ2WLine.GetWFromZ(p.BRZ, 1);
     double EW = pRZ2WLine.GetWFromZ(dstRZ, 1);
 
@@ -289,7 +313,7 @@ NynlResult RainRetentionCapacity::CalcPPF(const NynlParam& p, const double& dstR
     return ret;
 }
 
-void NynlResult::Print() const
+void RRCResult::Print() const
 {
     std::cout << "{\n  BRZ:" << BRZ;
     std::cout << "\n  BW:" << BW;
@@ -298,16 +322,17 @@ void NynlResult::Print() const
     std::cout << "\n  PP:" << PP;
     std::cout << "\n  PE:" << PE;
     std::cout << "\n  dW:" << dW;
-    std::cout << "\n  OTW:" << OTW  << "\n}," << std::endl;
+    std::cout << "\n  OTW:" << OTW << "\n}," << std::endl;
 }
 
 #ifndef NDEBUG
 struct PaPR
 {
     double extVal;
-    std::vector<double> PP;  // 降雨量
-    std::vector<double> R;   // 径流
+    std::vector<double> PP; // 降雨量
+    std::vector<double> R;  // 径流
 };
+
 std::vector<PaPR> PAPRs = {{
 
                                0,
@@ -320,11 +345,11 @@ std::vector<PaPR> PAPRs = {{
                            {120, {0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200}, {0, 10.913333, 29.793333, 49.006667, 68.426667, 87.946667, 107.506667, 127.08, 146.66, 166.246667, 185.84}}};
 
 std::vector<double> RZs = {444.5, 445, 445.5, 446, 446.5, 447, 447.17, 447.5, 448, 448.5, 449, 449.5, 450, 450.5, 451, 451.5, 452, 452.5, 453, 453.5, 454, 454.5, 455, 455.5, 456, 456.5, 457, 457.5, 458, 458.44, 458.5, 459, 459.05, 459.31, 459.5, 460};
-std::vector<double> Ws = {0,        0.000227, 0.001398, 0.003565, 0.006848, 0.01135,  0.0133,  0.01705,  0.024231, 0.032963, 0.04316,  0.054616, 0.067059, 0.080542, 0.095294, 0.111263, 0.128361, 0.146621,
-                          0.166056, 0.18657,  0.208026, 0.230437, 0.253783, 0.277973, 0.30299, 0.328989, 0.356011, 0.384258, 0.413783, 0.4407,   0.444343, 0.476025, 0.4793,   0.4964,   0.508918, 0.543015};
+std::vector<double> Ws = {0, 0.000227, 0.001398, 0.003565, 0.006848, 0.01135, 0.0133, 0.01705, 0.024231, 0.032963, 0.04316, 0.054616, 0.067059, 0.080542, 0.095294, 0.111263, 0.128361, 0.146621,
+                          0.166056, 0.18657, 0.208026, 0.230437, 0.253783, 0.277973, 0.30299, 0.328989, 0.356011, 0.384258, 0.413783, 0.4407, 0.444343, 0.476025, 0.4793, 0.4964, 0.508918, 0.543015};
 #endif
 
-void RainRetentionCapacity::TestPAPRLine()
+void RainRetentionCapacity::TestPaPRLine()
 {
 #ifndef NDEBUG
     for (auto& paPR : PAPRs)
@@ -434,6 +459,7 @@ void RainRetentionCapacity::TestPAPRLine()
     }
 #endif
 }
+
 void RainRetentionCapacity::TestRZWLine()
 {
 #ifndef NDEBUG
@@ -452,25 +478,25 @@ void RainRetentionCapacity::TestModel()
         tmp.SetData(paPR.PP, paPR.R);
         pPaPRLine.AddLine(paPR.extVal, tmp);
     }
-    NynlParam p;
-    p.BRZ = 447;   // 起始水位(m)
-    p.Area = 5;        // 流域面积(km2)
-    p.Wm = 120;        // 最大蓄水量(mm)
-    p.Pa = 20;         // 前期影响雨量(mm)
-    p.DstRZ.BadE = 460;      // 坝顶高程(m)
-    p.YhdW = 2;        // 溢洪道宽度(m)
-    p.DstRZ.YhdE = 454;     // 溢洪道高程(m)
-    p.DstRZ.SjRZ = 456;      // 设计洪水位(m)
-    p.DstRZ.JhRZ = 452;      // 校核洪水位(m)
-    p.KCH = 0.6;       // 流量系数
-    p.optional.TCH = 60;        // 出流时间 分钟
-    p.optional.WCH = -1;        // 出流量 百万方
-    p.optional.pmin = -1;       // 最小降雨(mm)
-    p.optional.pmax = -1;       // 最大降雨(mm)
-    p.CalcSteps = 15;  // 计算步长 分钟
-    p.CalcType = 0;    // 0 反算 1 正算
+    RRCParam p;
+    p.BRZ = 447;          // 起始水位(m)
+    p.Area = 5;           // 流域面积(km2)
+    p.Wm = 120;           // 最大蓄水量(mm)
+    p.Pa = 20;            // 前期影响雨量(mm)
+    p.DstRZ.BadE = 460;   // 坝顶高程(m)
+    p.YhdW = 2;           // 溢洪道宽度(m)
+    p.DstRZ.YhdE = 454;   // 溢洪道高程(m)
+    p.DstRZ.SjRZ = 456;   // 设计洪水位(m)
+    p.DstRZ.JhRZ = 452;   // 校核洪水位(m)
+    p.KCH = 0.6;          // 流量系数
+    p.optional.TCH = 60;  // 出流时间 分钟
+    p.optional.WCH = -1;  // 出流量 百万方
+    p.optional.pmin = -1; // 最小降雨(mm)
+    p.optional.pmax = -1; // 最大降雨(mm)
+    p.CalcSteps = 15;     // 计算步长 分钟
+    p.CalcType = 0;       // 0 反算 1 正算
 
-    std::vector<NynlResult> ret = CalcNYNL(p);
+    RRCResultSet ret = CalcRRC(p);
     if (p.CalcType)
     {
         std::cout << "========正算========" << std::endl;
@@ -479,8 +505,15 @@ void RainRetentionCapacity::TestModel()
     {
         std::cout << "========反算========" << std::endl;
     }
-   
-    for (auto& r : ret)
+
+    std::vector<RRCResult> rrcSet = {
+        ret.YhdE,
+        ret.JhRZ,
+        ret.SjRZ,
+        ret.BadE
+    };
+
+    for (auto& r : rrcSet)
     {
         r.Print();
     }
