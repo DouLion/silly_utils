@@ -24,12 +24,7 @@ class TzxPyramidHandle
     TzxPyramidHandle(const TzxPyramidHandle&) = delete;
     // 删除拷贝赋值操作符
     TzxPyramidHandle& operator=(const TzxPyramidHandle&) = delete;
-    bool begin_read(const char* root);
-    bool begin_read(const std::string& root);
     bool begin_read(const suPath& root);
-
-    bool begin_write(const char* root);
-    bool begin_write(const std::string& root);
     bool begin_write(const suPath& root);
 
     ////////////////////////////////////////////////////////////

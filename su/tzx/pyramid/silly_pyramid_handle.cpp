@@ -22,23 +22,6 @@ TzxPyramidHandle::~TzxPyramidHandle()
     SU_MEM_DEL(m_index)
     SU_MEM_DEL(m_data)
 }
-bool TzxPyramidHandle::begin_read(const char* root)
-{
-    return begin_read(suPath(root));
-}
-bool TzxPyramidHandle::begin_write(const char* root)
-{
-    return begin_write(suPath(root));
-}
-
-bool TzxPyramidHandle::begin_read(const std::string& root)
-{
-    return begin_read(suPath(root));
-}
-bool TzxPyramidHandle::begin_write(const std::string& root)
-{
-    return begin_write(suPath(root));
-}
 
 bool TzxPyramidHandle::begin_read(const suPath& root)
 {
