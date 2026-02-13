@@ -31,50 +31,39 @@ class XAJ_HN43
      *  当 PointNum 大于 RainNum 时, 超过RainNum的部分属于无水预报
      *  适用预报值填充 vRain 使 RainNum >= PointNum, 那么就是预报流量
      * @param vRain 输入雨量值序列
-     * @param vResultQ 输出流量序列
+     * @return 输出流量序列
      */
-    void Calc(std::vector<double>& vRain, std::vector<double>& vResultQ)
+    std::vector<double>  Calc(std::vector<double>& vRain)
     {
+        std::vector<double> vResultQ;
         if (Ki + Kg > 0.9)
         {
             double sum = Ki + Kg;
             Ki = Ki / sum;
             Kg = Kg / sum;
         }
-
         const int RainNum = vRain.size();
-        double weight = 1;
-        std::vector<double> vEM;
-        std::vector<double> vE;
-        std::vector<double> vR;
-        std::vector<double> vRS;
-        std::vector<double> vRI;
-        std::vector<double> vRG;
-        std::vector<double> vQS;
-        std::vector<double> vQI;
-        std::vector<double> vQG;
-        std::vector<double> vQ;
-
         const int PointNum = RainNum + static_cast<int>(ForePeriod * 60.0 / CalcSteps);
-        // 常数日蒸散发 4.8 mm/day(典型湿润地区经验值)
-        const double EM = 4.8 * CalcSteps / 60.0 / 24;  // 每个时段的蒸散量
-        vEM.resize(PointNum, EM);
-        vE.resize(PointNum, 0);
-        vR.resize(PointNum, 0);
-        vRS.resize(PointNum, 0);
-        vRI.resize(PointNum, 0);
-        vRG.resize(PointNum, 0);
-        vQS.resize(PointNum, 0);
-        vQI.resize(PointNum, 0);
-        vQG.resize(PointNum, 0);
-        vQ.resize(PointNum, 0);
-        vResultQ.clear();
-        vResultQ.resize(PointNum, 0);
-
         if (PointNum <= 0)
         {
-            return;
+            return vResultQ;
         }
+        double weight = 1;
+        // 常数日蒸散发 4.8 mm/day(典型湿润地区经验值)
+        const double EM = 4.8 * CalcSteps / 60.0 / 24;  // 每个时段的蒸散量
+
+        std::vector<double> vEM(PointNum, EM);
+        std::vector<double> vE(PointNum, 0.0);
+        std::vector<double> vR(PointNum, 0.0);
+        std::vector<double> vRS(PointNum, 0.0);
+        std::vector<double> vRI(PointNum, 0.0);
+        std::vector<double> vRG(PointNum, 0.0);
+        std::vector<double> vQS(PointNum, 0.0);
+        std::vector<double> vQI(PointNum, 0.0);
+        std::vector<double> vQG(PointNum, 0.0);
+        std::vector<double> vQ(PointNum, 0.0);
+
+        vResultQ.resize(PointNum, 0);
 
         Calc(vRain.data(), RainNum, weight, vEM.data(), vE.data(), vR.data(), vRS.data(), vRI.data(), vRG.data(), vQS.data(), vQI.data(), vQG.data(), vQ.data(), PointNum);
 

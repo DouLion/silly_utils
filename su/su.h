@@ -62,7 +62,6 @@
 #include <files/silly_xlsx.h>  // xlsx文件操作 未实现
 
 // 几何(平面几何,地理空间空间)
-#include <geo/gpc/gpc.h>                            // gpc源码
 #include <geo/proj/gdal/silly_projection_define.h>  // 投影坐标系的 wtk
 #include <geo/proj/gdal/silly_proj_convert.h>       // 地理坐标系的转换
 #include <geo/proj/silly_proj.h>                    // (高斯投影, 墨卡托投影)转经纬度坐标

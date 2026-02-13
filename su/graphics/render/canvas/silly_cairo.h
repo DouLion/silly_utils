@@ -150,6 +150,8 @@ class suCairo
     /// <param name="u8str"></param>
     static size_t count_occupy(const std::string& u8str);
 
+    void draw_poly(const suPoly& poly);
+
     /// <summary>
     /// 绘制矢量面, 这个可以扩展出很多用法,
     /// rect用于其他任何形式的等比例缩放
@@ -192,6 +194,7 @@ class suCairo
     size_t height() const;
 
   private:
+    void draw_ring(const suRing& ring);
     void draw_ring(const suRing& ring, const suRect& rect);
     void draw_ring_web_mercator(const suRing& ring, const suRect& rect);
 
