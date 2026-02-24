@@ -30,7 +30,7 @@ struct RRCParam
     struct
     {
         double YhdE = -9999; // 溢洪道堰顶高程 (Spillway Elevation, m)
-        double JhRZ = -9999; // 校核洪水位 (Check Flood Level, m)
+        double XxRZ = -9999; // 校核洪水位 (Check Flood Level, m)
         double SjRZ = -9999; // 设计洪水位 (Design Flood Level, m)
         double BadE = -9999; // 坝顶高程 (Dam Crest Elevation, m)
     } DstRZ;
@@ -76,7 +76,7 @@ struct RRCResult
 struct RRCResultSet
 {
     RRCResult YhdE; // 溢洪道高程对应的纳雨能力
-    RRCResult JhRZ; // 校核洪水位对应的纳雨能力
+    RRCResult XxRZ; // 汛限水位洪水位对应的纳雨能力
     RRCResult SjRZ; // 设计洪水位对应的纳雨能力
     RRCResult BadE; // 坝顶高程对应的纳雨能力
 };
