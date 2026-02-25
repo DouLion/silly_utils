@@ -17,18 +17,21 @@
 
 #include <geo/silly_geo.h>
 #include <geo/triangular/delaunator.hpp>
-#include <graphics/render/canvas/silly_cairo.h>
 
 class suDelaunay
 {
 public:
     void BuildTri(const std::vector<suPoint>& points);
 
-    void TraceLine(const double& th, std::vector<suLine>& lines);
-    void TracePoly(const double& th, std::vector<suPoly>& polys);
+    void TraceLine(const double& th, std::vector<suLine>& lines) const;
+    void TracePoly(const double& th, std::vector<suPoly>& polys) const;
+#ifndef NDEBUG
     void Test();
-
     void Test2();
+    void TestWithDB();
+
+#endif
+
 
   private:
     struct EdgeID
@@ -74,7 +77,7 @@ public:
     };
 
      // 提取公共逻辑：构建线段片段
-    void _BuildSegments(const double& th, std::vector<RawSegment>& out_segs, std::unordered_map<EdgeID, std::vector<size_t>, EdgeID::Hash>& out_adj);
+    void _BuildSegments(const double& th, std::vector<RawSegment>& out_segs, std::unordered_map<EdgeID, std::vector<size_t>, EdgeID::Hash>& out_adj) const;
   protected:
 
     std::vector<suPoint> m_points;

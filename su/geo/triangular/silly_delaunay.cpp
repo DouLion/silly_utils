@@ -5,11 +5,11 @@
 #include "silly_delaunay.h"
 #include <datetime/silly_timer.h>
 #include <log/silly_log.h>
-static constexpr double DTRI_EPSILON = 1e-6;
+static constexpr double DELAUNAY_TRI_EPSILON = 1e-6;
 
 // 唯一的边 ID
 
-static suPoint _interp_point(const suPoint& p1, const suPoint& p2, double th)
+static suPoint _InterpPoint(const suPoint& p1, const suPoint& p2, double th)
 {
     // 防止分母为0 (虽然逻辑上跨越阈值时v不应该相等，但为了健壮性)
     if (std::abs(p2.v - p1.v) < 1e-9)
@@ -33,13 +33,13 @@ void suDelaunay::BuildTri(const std::vector<suPoint>& input_points)
 
     // 2. 排序 (为了去重，也为了让三角剖分更稳定)
     std::sort(m_points.begin(), m_points.end(), [](const suPoint& a, const suPoint& b) {
-        if (std::abs(a.x - b.x) > DTRI_EPSILON)
+        if (std::abs(a.x - b.x) > DELAUNAY_TRI_EPSILON)
             return a.x < b.x;
         return a.y < b.y;
     });
 
     // 3. 去重 (std::unique)
-    auto last = std::unique(m_points.begin(), m_points.end(), [](const suPoint& a, const suPoint& b) { return std::abs(a.x - b.x) < DTRI_EPSILON && std::abs(a.y - b.y) < DTRI_EPSILON; });
+    auto last = std::unique(m_points.begin(), m_points.end(), [](const suPoint& a, const suPoint& b) { return std::abs(a.x - b.x) < DELAUNAY_TRI_EPSILON && std::abs(a.y - b.y) < DELAUNAY_TRI_EPSILON; });
     m_points.erase(last, m_points.end());
     std::vector<double> coords;
     coords.reserve(m_points.size() * 2 + 8);
@@ -76,7 +76,7 @@ void suDelaunay::BuildTri(const std::vector<suPoint>& input_points)
     }
 }
 
-void suDelaunay::TraceLine(const double& th, std::vector<suLine>& outPolylines)
+void suDelaunay::TraceLine(const double& th, std::vector<suLine>& outPolylines) const
 {
     outPolylines.clear();
     const auto& pts = m_points;
@@ -111,8 +111,8 @@ void suDelaunay::TraceLine(const double& th, std::vector<suLine>& outPolylines)
             int j = (i + 1) % 3;
             if (b[i] != b[j])
             {
-                // _interp_point 是你的插值函数
-                cuts.push_back({_interp_point(*p[i], *p[j], th), EdgeID(idx[i], idx[j])});
+                // _InterpPoint 是你的插值函数
+                cuts.push_back({_InterpPoint(*p[i], *p[j], th), EdgeID(idx[i], idx[j])});
             }
         }
 
@@ -239,7 +239,7 @@ void suDelaunay::TraceLine(const double& th, std::vector<suLine>& outPolylines)
         outPolylines.push_back(loop);
     }
 }
-void suDelaunay::TracePoly(const double& input_th, std::vector<suPoly>& polys)
+void suDelaunay::TracePoly(const double& input_th, std::vector<suPoly>& polys) const
 {
     polys.clear();
     const auto& pts = m_points;
@@ -247,7 +247,7 @@ void suDelaunay::TracePoly(const double& input_th, std::vector<suPoly>& polys)
 
     // === 1. 阈值微调 (Epsilon Shift) ===
     // 使得 "等于" 变为 "大于", 避免除零和重合判断
-    double th = input_th - 0.01;
+    double th = input_th - 0.0001;
 
     // === 2. 构建线段 (Build Segments) ===
     // 这一步和 TraceLine 是一样的，只是为了代码独立完整写在这里
@@ -286,7 +286,7 @@ void suDelaunay::TracePoly(const double& input_th, std::vector<suPoly>& polys)
             {
                 if (cnt < 2)
                 {
-                    cuts[cnt].p = _interp_point(*p[i], *p[j], th);  // 插值
+                    cuts[cnt].p = _InterpPoint(*p[i], *p[j], th);  // 插值
                     cuts[cnt].e = EdgeID(idx[i], idx[j]);
                     cnt++;
                 }
@@ -461,8 +461,64 @@ void suDelaunay::TracePoly(const double& input_th, std::vector<suPoly>& polys)
     }
 }
 
-void suDelaunay::Test2()
+void suDelaunay::_BuildSegments(const double& th, std::vector<RawSegment>& out_segs, std::unordered_map<EdgeID, std::vector<size_t>, EdgeID::Hash>& out_adj) const
+{
+    out_segs.clear();
+    out_adj.clear();
 
+    const auto& pts = m_points;
+    const auto& tris = m_tris;
+
+    // 遍历三角形，提取切片
+    for (const auto& tri : tris)
+    {
+        size_t idx[3] = {std::get<0>(tri), std::get<1>(tri), std::get<2>(tri)};
+        const suPoint* p[3] = {&pts[idx[0]], &pts[idx[1]], &pts[idx[2]]};
+        bool b[3] = {p[0]->v >= th, p[1]->v >= th, p[2]->v >= th};
+
+        // 快速剔除全在同侧的情况
+        if (b[0] == b[1] && b[1] == b[2])
+            continue;
+
+        // 寻找交点
+        struct CutInfo
+        {
+            suPoint pt;
+            EdgeID edge;
+        };
+        CutInfo cuts[2];
+        int cut_count = 0;
+
+        for (int i = 0; i < 3; ++i)
+        {
+            int j = (i + 1) % 3;
+            if (b[i] != b[j])
+            {
+                if (cut_count < 2)
+                {
+                    cuts[cut_count].pt = _InterpPoint(*p[i], *p[j], th);
+                    cuts[cut_count].edge = EdgeID(idx[i], idx[j]);
+                    cut_count++;
+                }
+            }
+        }
+
+        if (cut_count == 2)
+        {
+            size_t seg_idx = out_segs.size();
+            out_segs.push_back({cuts[0].pt, cuts[1].pt, cuts[0].edge, cuts[1].edge});
+
+            // 构建邻接表
+            out_adj[cuts[0].edge].push_back(seg_idx);
+            out_adj[cuts[1].edge].push_back(seg_idx);
+        }
+    }
+}
+
+#ifndef NDEBUG
+#include <graphics/render/canvas/silly_cairo.h>
+#include <database/otl/silly_otl.h>
+void suDelaunay::Test2()
 {
     double width = 10000;
     double height = 10000;
@@ -546,6 +602,75 @@ void suDelaunay::Test2()
     }
 
     cairo.write("./all.png");
+    cairo.release();
+}
+void suDelaunay::TestWithDB()
+{
+    std::string sql = "select b.LGTD, b.LTTD, SUM(DRP) as total from ST_PPTN_R a LEFT JOIN ST_STBPRP_B b on a.STCD = b.STCD where TM > '2024-06-24 08:00' and TM < '2024-06-25 08:00' and DRP > 0 GROUP BY a.STCD order  by total desc";
+    std::string db = R"(
+{
+  "type": "mysql",
+  "ip": "192.168.0.73",
+  "port": 3306,
+  "driver": "MariaDB ODBC 3.1 Driver",
+  "schema": "RWDB_HN",
+  "user": "root",
+  "password": "3edc9ijn~"
+}
+)";
+
+    std::vector<double> thresholds = {0.1, 10, 25, 50, 100, 150, 250};
+    std::vector<std::string> colors = {"afc9ecc0", "afa9dd9b", "af7bcc7e", "af009989", "af003a8f", "af00006e", "af00004b"};
+    suOTL otl;
+    otl.from_json(db);
+    otl.check();
+    std::vector<suPoint> points;
+    if (!otl.select(sql,
+                    [&points](otl_stream* stm) {
+                        while (!stm->eof())
+                        {
+                            std::string stcd;
+                            double lgtd, lttd, total;
+                            otl_read_row(*stm, lgtd, lttd, total);
+                            points.push_back({lgtd, lttd, 0, total});
+                        }
+                    }))
+    {
+        SLOG_ERROR(otl.err())
+        return;
+    }
+    suTimer timer;
+    BuildTri(points);
+    suRect bound;
+    bound.min = {108.5, 24.5};
+    bound.max = {114.5, 30.5};
+    int width = 2000;
+    int height = 2000;
+    suCairo cairo;
+    cairo.create(width, height);
+    for (int i = 0; i < thresholds.size(); ++i)
+    {
+        double th = thresholds[i];
+        suColor color;
+        color.hex2argb(colors[i]);
+        std::vector<suPoly> polys;
+        TracePoly(th, polys);
+        for (auto& poly : polys)
+        {
+            poly.outer.points = SU_SMOOTH_B_SPLINE(poly.outer.points, 10);
+            for (auto& ring : poly.holes)
+            {
+                ring.points = SU_SMOOTH_B_SPLINE(ring.points, 10);
+            }
+        }
+        cairo.set(color);
+        for (const auto& poly : polys)
+        {
+            cairo.draw_poly(poly, bound);
+        }
+    }
+    SLOG_INFO("{}ms", timer.elapsed_ms())
+    cairo.write("./iso_db.png");
     cairo.release();
 }
 
@@ -645,57 +770,4 @@ void suDelaunay::Test()
         cairo.write("./isoarea.png");
     }
 }
-
-void suDelaunay::_BuildSegments(const double& th, std::vector<RawSegment>& out_segs, std::unordered_map<EdgeID, std::vector<size_t>, EdgeID::Hash>& out_adj)
-{
-    out_segs.clear();
-    out_adj.clear();
-
-    const auto& pts = m_points;
-    const auto& tris = m_tris;
-
-    // 遍历三角形，提取切片
-    for (const auto& tri : tris)
-    {
-        size_t idx[3] = {std::get<0>(tri), std::get<1>(tri), std::get<2>(tri)};
-        const suPoint* p[3] = {&pts[idx[0]], &pts[idx[1]], &pts[idx[2]]};
-        bool b[3] = {p[0]->v >= th, p[1]->v >= th, p[2]->v >= th};
-
-        // 快速剔除全在同侧的情况
-        if (b[0] == b[1] && b[1] == b[2])
-            continue;
-
-        // 寻找交点
-        struct CutInfo
-        {
-            suPoint pt;
-            EdgeID edge;
-        };
-        CutInfo cuts[2];
-        int cut_count = 0;
-
-        for (int i = 0; i < 3; ++i)
-        {
-            int j = (i + 1) % 3;
-            if (b[i] != b[j])
-            {
-                if (cut_count < 2)
-                {
-                    cuts[cut_count].pt = _interp_point(*p[i], *p[j], th);
-                    cuts[cut_count].edge = EdgeID(idx[i], idx[j]);
-                    cut_count++;
-                }
-            }
-        }
-
-        if (cut_count == 2)
-        {
-            size_t seg_idx = out_segs.size();
-            out_segs.push_back({cuts[0].pt, cuts[1].pt, cuts[0].edge, cuts[1].edge});
-
-            // 构建邻接表
-            out_adj[cuts[0].edge].push_back(seg_idx);
-            out_adj[cuts[1].edge].push_back(seg_idx);
-        }
-    }
-}
+#endif
