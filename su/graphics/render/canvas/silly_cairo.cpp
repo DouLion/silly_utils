@@ -587,8 +587,8 @@ void suCairo::draw_poly(const suPoly &poly)
         draw_ring(ring);
     }
     cairo_set_fill_rule(m_cr, CAIRO_FILL_RULE_EVEN_ODD);
-    cairo_fill_preserve(m_cr);
-    cairo_stroke(m_cr);
+    cairo_fill_preserve(m_cr); // 填充面，并保留路径
+    // cairo_stroke(m_cr); // 沿着保留的路径“描边”（画线）
 #endif
 }
 
