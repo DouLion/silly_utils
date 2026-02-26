@@ -151,6 +151,7 @@ class suCairo
     static size_t count_occupy(const std::string& u8str);
 
     void draw_poly(const suPoly& poly);
+    void draw_poly(const std::vector<suPoly> &polys);
 
     /// <summary>
     /// 绘制矢量面, 这个可以扩展出很多用法,
@@ -192,6 +193,11 @@ class suCairo
 
     size_t width() const;
     size_t height() const;
+
+    cairo_t* get_cairo()
+    {
+        return m_cr;
+    }
 
   private:
     void draw_ring(const suRing& ring);

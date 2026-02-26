@@ -576,8 +576,6 @@ void suCairo::clean(suColor color)
 void suCairo::draw_poly(const suPoly &poly)
 {
 #if SU_THIRD_SUPPORT_CAIRO
-
-    std::unique_lock loc(m_mtx);
     // 画外环
     draw_ring(poly.outer);
 
@@ -587,8 +585,42 @@ void suCairo::draw_poly(const suPoly &poly)
         draw_ring(ring);
     }
     cairo_set_fill_rule(m_cr, CAIRO_FILL_RULE_EVEN_ODD);
-    cairo_fill_preserve(m_cr); // 填充面，并保留路径
+    cairo_fill(m_cr); // 填充面，并保留路径
     // cairo_stroke(m_cr); // 沿着保留的路径“描边”（画线）
+#endif
+}
+
+void suCairo::draw_poly(const std::vector<suPoly> &polys)
+{
+#if SU_THIRD_SUPPORT_CAIRO
+    cairo_set_fill_rule(m_cr, CAIRO_FILL_RULE_EVEN_ODD);
+    for (const auto& poly: polys)
+    {
+        // 画外环
+        draw_ring(poly.outer);
+        // 画内环
+        for (auto &ring : poly.holes)
+        {
+            draw_ring(ring);
+        }
+    }
+    cairo_fill(m_cr); // 填充面，并保留路径
+    // cairo_stroke(m_cr); // 沿着保留的路径“描边”（画线）
+#endif
+}
+
+
+void suCairo::draw_ring(const suRing &ring)
+{
+#if SU_THIRD_SUPPORT_CAIRO
+    cairo_new_sub_path(m_cr);
+
+    cairo_move_to(m_cr, ring.points[0].x, ring.points[0].y);
+    for (int i = 1; i < ring.points.size(); ++i)
+    {
+        cairo_line_to(m_cr, ring.points[i].x, ring.points[i].y);
+    }
+    cairo_close_path(m_cr);
 #endif
 }
 
@@ -627,20 +659,6 @@ void suCairo::draw_poly_web_mercator(const suPoly &poly, const suRect &rect)
     cairo_set_fill_rule(m_cr, CAIRO_FILL_RULE_EVEN_ODD);
     cairo_fill_preserve(m_cr);
     cairo_stroke(m_cr);
-#endif
-}
-
-void suCairo::draw_ring(const suRing &ring)
-{
-#if SU_THIRD_SUPPORT_CAIRO
-    cairo_new_sub_path(m_cr);
-
-    cairo_move_to(m_cr, ring.points[0].x, ring.points[0].y);
-    for (int i = 1; i < ring.points.size(); ++i)
-    {
-        cairo_line_to(m_cr, ring.points[i].x, ring.points[i].y);
-    }
-    cairo_close_path(m_cr);
 #endif
 }
 
