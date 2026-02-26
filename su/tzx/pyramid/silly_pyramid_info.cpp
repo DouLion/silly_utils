@@ -19,7 +19,7 @@ bool TzxPyramidInfo::open(const suPath& file, const eMMFMode& mode, const bool& 
 {
     if (TzxPyramidBase::open(file, mode, usemmap))
     {
-        if (m_mode == eMMFMode::Read)
+        //if (m_mode == eMMFMode::Read)
         {
             read();
             close();
