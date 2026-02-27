@@ -20,19 +20,18 @@
 
 class suDelaunay
 {
-public:
+  public:
     void BuildTriangles(const std::vector<suPoint>& points);
 
     void TraceLine(const double& th, std::vector<suLine>& lines) const;
     void TracePoly(const double& th, std::vector<suPoly>& polys) const;
 #ifndef NDEBUG
+    // 这三个函数在silly_delaunay_test.cpp中实现
     void Test();
     void Test2();
     void TestWithDB();
 
 #endif
-
-
   private:
     struct EdgeID
     {
@@ -67,18 +66,24 @@ public:
             }
         };
     };
-    struct RawSegment // 穿过三角形的线段
+    struct RawSegment  // 穿过三角形的线段
     {
         suPoint p1, p2;
         EdgeID e1, e2;
         bool visited = false;
     };
-     // 提取公共逻辑：构建线段片段
+    struct PolyNode
+    {
+        suRing ring;
+        suRect bbox;      // 缓存包围盒，加速包含检测
+        double area_abs;  // 面积, 用于
+    };
+    // 提取公共逻辑：构建线段片段
     void BuildSegments(const double& threshold, std::vector<RawSegment>& segments, std::unordered_map<EdgeID, std::vector<size_t>, EdgeID::Hash>& out_adj) const;
-  protected:
 
+  protected:
     std::vector<suPoint> m_points;
-    std::vector<std::tuple<size_t,size_t,size_t>> m_tris; // 存的是在m_points中的索引
+    std::vector<std::tuple<size_t, size_t, size_t>> m_tris;  // 存的是在m_points中的索引
 };
 
 #endif  // SILLY_DELAUNAY_H

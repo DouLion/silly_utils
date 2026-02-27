@@ -55,38 +55,9 @@ void suDelaunay::Test2()
     BuildTriangles(pts);
     SLOG_DEBUG("点数量: {}, 时间: {} ms", m_points.size(), timer.elapsed_ms())
     SLOG_DEBUG("三角形数量: {}", m_tris.size());
-    std::vector<suLine> lines;
-
-    double th = thresholds[0];
-    timer.restart();
-    TraceLine(th, lines);
-    SLOG_DEBUG("线数量: {}, 时间: {} ms", lines.size(), timer.elapsed_ms())
-
-    std::vector<suPoly> polys;
-    timer.restart();
-    TracePoly(th, polys);
-    SLOG_DEBUG("面数量: {}, 时间: {} ms", polys.size(), timer.elapsed_ms())
-
     suCairo cairo;
     cairo.create(width, height);
-    cairo.set(suColor(102, 255, 102, 255));
-    if (1)
-    {
-        cairo.draw_poly(polys);
-    }
-    else
-    {
-        suPoly nep;
-        nep.outer.points = lines.front().to_vector();
-        for (int i = 1; i < lines.size(); ++i)
-        {
-            suRing tmp;
-            tmp.points = lines[i].to_vector();
-            nep.holes.push_back(tmp);
-        }
-        cairo.draw_poly(nep);
-    }
-
+    cairo.set(CAIRO_OPERATOR_SOURCE);
     if (0)
     {  // 三角形
         cairo.set(suColor(255, 51, 153, 255));
@@ -95,24 +66,37 @@ void suDelaunay::Test2()
             cairo.draw_line({m_points[a], m_points[b], m_points[c], m_points[a]});
         }
     }
-
-    cairo.set(suColor(51, 51, 255, 255));
-    for (const auto& line : lines)
+    for (int i = 0; i < thresholds.size(); ++i)
     {
-        cairo.draw_line(line.to_vector());
+        double th = thresholds[i] - 0.000001;
+        suColor color;
+        color.hex2argb(colors[i]);
+        cairo.set(color);
+        std::vector<suPoly> polys;
+        timer.restart();
+        TracePoly(th, polys);
+        SLOG_DEBUG("面数量: {}, 时间: {} ms", polys.size(), timer.elapsed_ms())
+
+        cairo.draw_poly(polys);
     }
-
-    for (const auto& p : m_points)
+    
+    if (1)
     {
-        if (p.v >= th)
+        for (int i = 0; i < thresholds.size(); ++i)
         {
-            cairo.set(suColor(255, 0, 0, 255));  // 红
+            double th = thresholds[i] - 0.000001;
+            suColor color;
+            color.hex2argb(colors[i]);
+            color.alpha = 255;
+            cairo.set(color);
+            for (const auto& p : m_points)
+            {
+                if (p.v >= th)
+                {
+                    cairo.draw_point(p, 3); 
+                }
+            }
         }
-        else
-        {
-            cairo.set(suColor(0, 0, 0, 255));  //  黑
-        }
-        cairo.draw_point(p, 3);
     }
 
     cairo.write("./all.png");
