@@ -93,13 +93,24 @@ class suGeoUtils
     /// <returns></returns>
     static bool nearby(const suPoint& point, const suLine& line, const double& dist);
 
-    /// <summary>
-    /// 两个面的相交区域
-    /// </summary>
-    /// <param name="multiPoly1"></param>
-    /// <param name="multiPoly2"></param>
-    /// <returns></returns>
-    static std::vector<suPoly> intersection(const suMultiPoly& multiPoly1, const suMultiPoly& multiPoly2);
+    /**
+     * 两个面的相交区域
+     * @param p1
+     * @param p2
+     * @return
+     */
+    static suMultiPoly intersection(const suMultiPoly& p1, const suMultiPoly& p2);
+    static suMultiPoly intersection(const suMultiPoly& p1, const suPoly& p2);
+    static suMultiPoly intersection(const suPoly& p1, const suPoly& p2);
+
+    /**
+     * 面与矩形框的相交区域
+     * @param p1
+     * @param rect
+     * @return
+     */
+    static suMultiPoly intersection(const suMultiPoly& p1, const suRect& rect);
+    static suMultiPoly intersection(const suPoly& p1, const suRect& rect);
 
     /// <summary>
     /// 两个线段相交点

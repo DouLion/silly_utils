@@ -3,13 +3,14 @@
 //
 
 #include "silly_delaunay.h"
-#include <datetime/silly_timer.h>
-#include <log/silly_log.h>
-static constexpr double DELAUNAY_TRI_EPSILON = 1e-6;
+static constexpr double DELAUNAY_TRI_EPSILON = 1e-10;
 
 // 唯一的边 ID
+/*
+1. 利用第三方库
+*/
 
-static suPoint _InterpPoint(const suPoint& p1, const suPoint& p2, double th)
+static suPoint InterpPoint(const suPoint& p1, const suPoint& p2, double th)
 {
     // 防止分母为0 (虽然逻辑上跨越阈值时v不应该相等，但为了健壮性)
     if (std::abs(p2.v - p1.v) < 1e-9)
@@ -21,26 +22,32 @@ static suPoint _InterpPoint(const suPoint& p1, const suPoint& p2, double th)
     // z 和 v 也可以插值，或者 v 直接设为 th
     return suPoint(p1.x + (p2.x - p1.x) * t,
                    p1.y + (p2.y - p1.y) * t,
-                   p1.z + (p2.z - p1.z) * t,  // 如果有高程，也插值
-                   th                         // 切点的值必然是 th
+                   0,  // p1.z + (p2.z - p1.z) * t  如果有高程，也插值
+                   th  // 切点的值必然是 th
     );
 }
 
-void suDelaunay::BuildTri(const std::vector<suPoint>& input_points)
+void suDelaunay::BuildTriangles(const std::vector<suPoint>& input_points)
 {
-    // 1. 拷贝
+    // 拷贝
     m_points = input_points;
 
-    // 2. 排序 (为了去重，也为了让三角剖分更稳定)
+    // 排序 (为了去重，也为了让三角剖分更稳定)
     std::sort(m_points.begin(), m_points.end(), [](const suPoint& a, const suPoint& b) {
         if (std::abs(a.x - b.x) > DELAUNAY_TRI_EPSILON)
             return a.x < b.x;
         return a.y < b.y;
     });
 
-    // 3. 去重 (std::unique)
-    auto last = std::unique(m_points.begin(), m_points.end(), [](const suPoint& a, const suPoint& b) { return std::abs(a.x - b.x) < DELAUNAY_TRI_EPSILON && std::abs(a.y - b.y) < DELAUNAY_TRI_EPSILON; });
+    // 去重 (std::unique)
+    auto _fn_uinque = [](const suPoint& a, const suPoint& b) 
+        { 
+            return std::abs(a.x - b.x) < DELAUNAY_TRI_EPSILON && std::abs(a.y - b.y) < DELAUNAY_TRI_EPSILON; 
+        };
+    auto last = std::unique(m_points.begin(), m_points.end(), _fn_uinque);
     m_points.erase(last, m_points.end());
+
+    // 构建delaunator::Delaunator需要的顶点
     std::vector<double> coords;
     coords.reserve(m_points.size() * 2 + 8);
     suRect rect;
@@ -76,56 +83,18 @@ void suDelaunay::BuildTri(const std::vector<suPoint>& input_points)
     }
 }
 
-void suDelaunay::TraceLine(const double& th, std::vector<suLine>& outPolylines) const
+void suDelaunay::TraceLine(const double& th, std::vector<suLine>& lines) const
 {
-    outPolylines.clear();
+    lines.clear();
     const auto& pts = m_points;
     const auto& tris = m_tris;
-
-    std::vector<RawSegment> raw_segs;
     // 邻接表: 记录某条边被哪些线段(index)连接
     // 正常情况下，内部边对应的 vector size 应该是 2，边界边是 1
+    std::vector<RawSegment> raw_segs;
     std::unordered_map<EdgeID, std::vector<size_t>, EdgeID::Hash> adj_map;
 
     // === Step 1: 遍历三角形，提取所有切片 ===
-    for (const auto& tri : tris)
-    {
-        size_t idx[3] = {std::get<0>(tri), std::get<1>(tri), std::get<2>(tri)};
-        const suPoint* p[3] = {&pts[idx[0]], &pts[idx[1]], &pts[idx[2]]};
-        bool b[3] = {p[0]->v >= th, p[1]->v >= th, p[2]->v >= th};
-
-        // 快速剔除全在同侧的情况
-        if (b[0] == b[1] && b[1] == b[2])
-            continue;
-
-        // 寻找交点
-        struct Cut
-        {
-            suPoint p;
-            EdgeID e;
-        };
-        std::vector<Cut> cuts;
-
-        for (int i = 0; i < 3; ++i)
-        {
-            int j = (i + 1) % 3;
-            if (b[i] != b[j])
-            {
-                // _InterpPoint 是你的插值函数
-                cuts.push_back({_InterpPoint(*p[i], *p[j], th), EdgeID(idx[i], idx[j])});
-            }
-        }
-
-        if (cuts.size() == 2)
-        {
-            size_t seg_idx = raw_segs.size();
-            raw_segs.push_back({cuts[0].p, cuts[1].p, cuts[0].e, cuts[1].e});
-
-            // 注册到邻接表
-            adj_map[cuts[0].e].push_back(seg_idx);
-            adj_map[cuts[1].e].push_back(seg_idx);
-        }
-    }
+    BuildSegments(th, raw_segs, adj_map);
 
     if (raw_segs.empty())
         return;
@@ -205,12 +174,12 @@ void suDelaunay::TraceLine(const double& th, std::vector<suLine>& outPolylines) 
         // 如果 count1==1, 说明 e1 是边界，我们要往 e2 方向跑
         if (count1 == 1 && count2 != 1)
         {
-            outPolylines.push_back(trace_path(i, raw_segs[i].e2));
+            lines.push_back(trace_path(i, raw_segs[i].e2));
         }
         // 如果 count2==1, 说明 e2 是边界，我们要往 e1 方向跑
         else if (count2 == 1 && count1 != 1)
         {
-            outPolylines.push_back(trace_path(i, raw_segs[i].e1));
+            lines.push_back(trace_path(i, raw_segs[i].e1));
         }
         // 如果两头都是1，说明这根线就这一个片段（极短线），两头都不连
         else if (count1 == 1 && count2 == 1)
@@ -219,7 +188,7 @@ void suDelaunay::TraceLine(const double& th, std::vector<suLine>& outPolylines) 
             suLine tiny;
             tiny.push_back(raw_segs[i].p1);
             tiny.push_back(raw_segs[i].p2);
-            outPolylines.push_back(tiny);
+            lines.push_back(tiny);
         }
     }
 
@@ -236,74 +205,23 @@ void suDelaunay::TraceLine(const double& th, std::vector<suLine>& outPolylines) 
         // 跑完的结果首尾应该是非常接近的（在同一个三角形边上）
         suLine loop = trace_path(i, raw_segs[i].e2);
 
-        outPolylines.push_back(loop);
+        lines.push_back(loop);
     }
 }
-void suDelaunay::TracePoly(const double& input_th, std::vector<suPoly>& polys) const
+void suDelaunay::TracePoly(const double& threshold, std::vector<suPoly>& polys) const
 {
     polys.clear();
     const auto& pts = m_points;
-    const auto& tris = m_tris;
 
-    // === 1. 阈值微调 (Epsilon Shift) ===
-    // 使得 "等于" 变为 "大于", 避免除零和重合判断
-    double th = input_th - 0.0001;
-
-    // === 2. 构建线段 (Build Segments) ===
-    // 这一步和 TraceLine 是一样的，只是为了代码独立完整写在这里
-    struct RawSegment
-    {
-        suPoint p1, p2;
-        EdgeID e1, e2;
-        bool visited = false;
-    };
-    std::vector<RawSegment> raw_segs;
+    std::vector<RawSegment> segments;
     std::unordered_map<EdgeID, std::vector<size_t>, EdgeID::Hash> adj_map;
 
-    for (const auto& tri : tris)
+    BuildSegments(threshold, segments, adj_map);
+
+    if (segments.empty())
     {
-        size_t idx[3] = {std::get<0>(tri), std::get<1>(tri), std::get<2>(tri)};
-        const suPoint* p[3] = {&pts[idx[0]], &pts[idx[1]], &pts[idx[2]]};
-
-        // 使用调整后的 th，只用 > 即可
-        bool b[3] = {p[0]->v > th, p[1]->v > th, p[2]->v > th};
-
-        if (b[0] == b[1] && b[1] == b[2])
-            continue;
-
-        struct Cut
-        {
-            suPoint p;
-            EdgeID e;
-        };
-        Cut cuts[2];
-        int cnt = 0;
-
-        for (int i = 0; i < 3; ++i)
-        {
-            int j = (i + 1) % 3;
-            if (b[i] != b[j])
-            {
-                if (cnt < 2)
-                {
-                    cuts[cnt].p = _InterpPoint(*p[i], *p[j], th);  // 插值
-                    cuts[cnt].e = EdgeID(idx[i], idx[j]);
-                    cnt++;
-                }
-            }
-        }
-
-        if (cnt == 2)
-        {
-            size_t seg_idx = raw_segs.size();
-            raw_segs.push_back({cuts[0].p, cuts[1].p, cuts[0].e, cuts[1].e});
-            adj_map[cuts[0].e].push_back(seg_idx);
-            adj_map[cuts[1].e].push_back(seg_idx);
-        }
-    }
-
-    if (raw_segs.empty())
         return;
+    }
 
     // === 3. 追踪闭合环 (Trace Rings) ===
     // 此时不关心方向，不关心极性，只管把线连成圈
@@ -311,60 +229,66 @@ void suDelaunay::TracePoly(const double& input_th, std::vector<suPoly>& polys) c
     {
         suRing ring;
         suRect bbox;          // 缓存包围盒，加速包含检测
-        double area_abs;      // 面积绝对值，用于排序
+        double area_abs;      // 面积, 用于
         int parent_idx = -1;  // 在 nodes 数组中的父级索引
         int depth = 0;        // 嵌套深度
     };
     std::vector<PolyNode> nodes;
 
-    for (size_t i = 0; i < raw_segs.size(); ++i)
+    for (size_t i = 0; i < segments.size(); ++i)
     {
-        if (raw_segs[i].visited)
+        if (segments[i].visited)
+        {
             continue;
-
+        }
         PolyNode node;
         // 初始化环
-        node.ring.points.push_back(raw_segs[i].p1);
-        node.ring.points.push_back(raw_segs[i].p2);
-        raw_segs[i].visited = true;
+        node.ring.points.push_back(segments[i].p1);
+        node.ring.points.push_back(segments[i].p2);
+        segments[i].visited = true;
 
-        EdgeID curr_edge_tail = raw_segs[i].e2;
+        EdgeID tail = segments[i].e2;  // tail 用于存储当前计算到那个边
         bool extended = true;
 
         // 贪心追踪
         while (extended)
         {
             extended = false;
-            const auto& neighbors = adj_map[curr_edge_tail];
-            for (size_t next_idx : neighbors)
+            const auto& neighbors = adj_map[tail];
+            for (size_t idx : neighbors)
             {
-                if (raw_segs[next_idx].visited)
-                    continue;
-
-                RawSegment& next_seg = raw_segs[next_idx];
-                next_seg.visited = true;
-
-                if (next_seg.e1 == curr_edge_tail)
+                if (segments[idx].visited)
                 {
-                    node.ring.points.push_back(next_seg.p2);
-                    curr_edge_tail = next_seg.e2;
+                    continue;
+                }
+
+                RawSegment& nxtSeg = segments[idx];
+                nxtSeg.visited = true;
+
+                if (nxtSeg.e1 == tail)
+                {
+                    node.ring.points.push_back(nxtSeg.p2);
+                    tail = nxtSeg.e2;
                 }
                 else
                 {
-                    node.ring.points.push_back(next_seg.p1);
-                    curr_edge_tail = next_seg.e1;
+                    node.ring.points.push_back(nxtSeg.p1);
+                    tail = nxtSeg.e1;
                 }
                 extended = true;
-                break;
             }
         }
-
-        // 闭合检查 (去除未闭合的断线)
+        /*
         if (node.ring.points.size() < 3 || node.ring.points.front().dist2(node.ring.points.back()) > 1e-9)
         {
+            std::cout << "未闭合" << std::endl;
+            continue;
+        }*/
+        if (node.ring.points.size() < 3)
+        {
+            std::cout << "未闭合" << std::endl;
             continue;
         }
-        node.ring.points.pop_back();  // 移除重复的首尾点
 
         // 计算几何属性
         node.bbox = node.ring.bound();               // 你的 suRing 应该有 bound()
@@ -396,7 +320,7 @@ void suDelaunay::TracePoly(const double& input_th, std::vector<suPoly>& polys) c
 
             // 精确判断：点在面内
             // 只要有一个点在里面，整个环就在里面 (因为等值线互不相交)
-            if (nodes[j].ring.intersect(nodes[i].ring.points[0]))
+            if (nodes[j].ring.contains(nodes[i].ring.points[0]))
             {
                 best_parent = j;
                 break;
@@ -461,313 +385,55 @@ void suDelaunay::TracePoly(const double& input_th, std::vector<suPoly>& polys) c
     }
 }
 
-void suDelaunay::_BuildSegments(const double& th, std::vector<RawSegment>& out_segs, std::unordered_map<EdgeID, std::vector<size_t>, EdgeID::Hash>& out_adj) const
+void suDelaunay::BuildSegments(const double& threshold, std::vector<RawSegment>& segments, std::unordered_map<EdgeID, std::vector<size_t>, EdgeID::Hash>& out_adj) const
 {
-    out_segs.clear();
+    segments.clear();
     out_adj.clear();
+    // 降雨值一般保留小数点后1位
+    // 使用的阈值一般也是小数点后1位
+    // 减去一个较小值留有容差,简化判断,避免除0
+    double th = threshold - 0.000001;
 
-    const auto& pts = m_points;
-    const auto& tris = m_tris;
-
-    // 遍历三角形，提取切片
-    for (const auto& tri : tris)
+    for (const auto& [i1, i2, i3] : m_tris)
     {
-        size_t idx[3] = {std::get<0>(tri), std::get<1>(tri), std::get<2>(tri)};
-        const suPoint* p[3] = {&pts[idx[0]], &pts[idx[1]], &pts[idx[2]]};
-        bool b[3] = {p[0]->v >= th, p[1]->v >= th, p[2]->v >= th};
+        size_t idx[3] = {i1, i2, i3};
+        const suPoint* p[3] = {&m_points[i1], &m_points[i2], &m_points[i3]};
 
-        // 快速剔除全在同侧的情况
-        if (b[0] == b[1] && b[1] == b[2])
-            continue;
+        // 使用调整后的 th，只用 > 即可
+        bool bigger[3] = {p[0]->v > th, p[1]->v > th, p[2]->v > th};
 
-        // 寻找交点
-        struct CutInfo
+        if (bigger[0] == bigger[1] && bigger[1] == bigger[2])
         {
-            suPoint pt;
-            EdgeID edge;
+            // 全部大于阈值或者全部小于阈值
+            // 那么等值线不会从该三角形中穿过
+            continue;
+        }
+        struct Cut
+        {
+            suPoint p;
+            EdgeID e;
         };
-        CutInfo cuts[2];
-        int cut_count = 0;
+        Cut cuts[2];
+        int cnt = 0;
 
+        // 遍历三个边, 通过值判断
         for (int i = 0; i < 3; ++i)
         {
             int j = (i + 1) % 3;
-            if (b[i] != b[j])
+            if (bigger[i] != bigger[j])  // 一个大一个小
             {
-                if (cut_count < 2)
+                if (cnt < 2)
                 {
-                    cuts[cut_count].pt = _InterpPoint(*p[i], *p[j], th);
-                    cuts[cut_count].edge = EdgeID(idx[i], idx[j]);
-                    cut_count++;
+                    cuts[cnt].p = InterpPoint(*p[i], *p[j], th);  // 插值
+                    cuts[cnt].e = EdgeID(idx[i], idx[j]);
+                    cnt++;
                 }
             }
         }
 
-        if (cut_count == 2)
-        {
-            size_t seg_idx = out_segs.size();
-            out_segs.push_back({cuts[0].pt, cuts[1].pt, cuts[0].edge, cuts[1].edge});
-
-            // 构建邻接表
-            out_adj[cuts[0].edge].push_back(seg_idx);
-            out_adj[cuts[1].edge].push_back(seg_idx);
-        }
+        size_t seg_idx = segments.size();
+        segments.push_back({cuts[0].p, cuts[1].p, cuts[0].e, cuts[1].e});
+        out_adj[cuts[0].e].push_back(seg_idx);
+        out_adj[cuts[1].e].push_back(seg_idx);
     }
 }
-
-#ifndef NDEBUG
-#include <graphics/render/canvas/silly_cairo.h>
-#include <database/otl/silly_otl.h>
-void suDelaunay::Test2()
-{
-    double width = 10000;
-    double height = 10000;
-    std::vector<suPoint> pts;
-    int num = 20000;
-    double th = 60.1;
-    std::vector<double> vs = RANDOM(0.1 * width, 0.9 * width, num * 2);
-    std::vector<double> dd = RANDOM(10, 120, num);
-    suPoint p0(width / 2, height / 2);
-    for (int i = 0; i < num; i++)
-    {
-        suPoint tmp(vs[i * 2], vs[i * 2 + 1]);
-        // tmp.v = tmp.dist(p0);
-        tmp.v = (int)dd[i];
-        pts.push_back(tmp);
-    }
-    suTimer timer;
-    BuildTri(pts);
-    SLOG_DEBUG("点数量: {}, 时间: {} ms", m_points.size(), timer.elapsed_ms())
-    SLOG_DEBUG("三角形数量: {}", m_tris.size());
-    std::vector<suLine> lines;
-
-    timer.restart();
-    TraceLine(th, lines);
-    SLOG_DEBUG("线数量: {}, 时间: {} ms", lines.size(), timer.elapsed_ms())
-
-    std::vector<suPoly> polys;
-    timer.restart();
-    TracePoly(th, polys);
-    SLOG_DEBUG("面数量: {}, 时间: {} ms", polys.size(), timer.elapsed_ms())
-
-    suCairo cairo;
-    cairo.create(width, height);
-    cairo.set(suColor(102, 255, 102, 255));
-    if (1)
-    {
-        for (const auto& poly : polys)
-        {
-            cairo.draw_poly(poly);
-        }
-    }
-    else
-    {
-        suPoly nep;
-        nep.outer.points = lines.front().to_vector();
-        for (int i = 1; i < lines.size(); ++i)
-        {
-            suRing tmp;
-            tmp.points = lines[i].to_vector();
-            nep.holes.push_back(tmp);
-        }
-        cairo.draw_poly(nep);
-    }
-   
-    if (0)
-    {  // 三角形
-        cairo.set(suColor(255, 51, 153, 255));
-        for (const auto& [a, b, c] : m_tris)
-        {
-            cairo.draw_line({m_points[a], m_points[b], m_points[c], m_points[a]});
-        }
-    }
-
-    cairo.set(suColor(51, 51, 255, 255));
-    for (const auto& line : lines)
-    {
-        cairo.draw_line(line.to_vector());
-    }
-
-    for (const auto& p : m_points)
-    {
-        if (p.v >= th)
-        {
-            cairo.set(suColor(255, 0, 0, 255));  // 红
-        }
-        else
-        {
-            cairo.set(suColor(0, 0, 0, 255));  //  黑
-        }
-        cairo.draw_point(p, 6);
-    }
-
-    cairo.write("./all.png");
-    cairo.release();
-}
-void suDelaunay::TestWithDB()
-{
-    std::string sql = "select b.LGTD, b.LTTD, SUM(DRP) as total from ST_PPTN_R a LEFT JOIN ST_STBPRP_B b on a.STCD = b.STCD where TM > '2024-06-24 08:00' and TM < '2024-06-25 08:00' and DRP > 0 GROUP BY a.STCD order  by total desc";
-    std::string db = R"(
-{
-  "type": "mysql",
-  "ip": "192.168.0.73",
-  "port": 3306,
-  "driver": "MariaDB ODBC 3.1 Driver",
-  "schema": "RWDB_HN",
-  "user": "root",
-  "password": "3edc9ijn~"
-}
-)";
-
-    std::vector<double> thresholds = {0.1, 10, 25, 50, 100, 150, 250};
-    std::vector<std::string> colors = {"afc9ecc0", "afa9dd9b", "af7bcc7e", "af009989", "af003a8f", "af00006e", "af00004b"};
-    suOTL otl;
-    otl.from_json(db);
-    otl.check();
-    std::vector<suPoint> points;
-    if (!otl.select(sql,
-                    [&points](otl_stream* stm) {
-                        while (!stm->eof())
-                        {
-                            std::string stcd;
-                            double lgtd, lttd, total;
-                            otl_read_row(*stm, lgtd, lttd, total);
-                            points.push_back({lgtd, lttd, 0, total});
-                        }
-                    }))
-    {
-        SLOG_ERROR(otl.err())
-        return;
-    }
-    suTimer timer;
-    BuildTri(points);
-    suRect bound;
-    bound.min = {108.5, 24.5};
-    bound.max = {114.5, 30.5};
-    int width = 2000;
-    int height = 2000;
-    suCairo cairo;
-    cairo.create(width, height);
-    for (int i = 0; i < thresholds.size(); ++i)
-    {
-        double th = thresholds[i];
-        suColor color;
-        color.hex2argb(colors[i]);
-        std::vector<suPoly> polys;
-        TracePoly(th, polys);
-        for (auto& poly : polys)
-        {
-            poly.outer.points = SU_SMOOTH_B_SPLINE(poly.outer.points, 10);
-            for (auto& ring : poly.holes)
-            {
-                ring.points = SU_SMOOTH_B_SPLINE(ring.points, 10);
-            }
-        }
-        cairo.set(color);
-        for (const auto& poly : polys)
-        {
-            cairo.draw_poly(poly, bound);
-        }
-    }
-    SLOG_INFO("{}ms", timer.elapsed_ms())
-    cairo.write("./iso_db.png");
-    cairo.release();
-}
-
-void suDelaunay::Test()
-{
-    double width = 2000;
-    double height = 2000;
-    std::vector<suPoint> pts;
-    int num = 1000;
-    std::vector<double> vs = RANDOM(0.1 * width, 0.9 * width, num * 2);
-    std::vector<double> dd = RANDOM(10, 120, num);
-    suPoint p0(width / 2, height / 2);
-    for (int i = 0; i < num; i++)
-    {
-        suPoint tmp(vs[i * 2], vs[i * 2 + 1]);
-        // tmp.v = tmp.dist(p0);
-        tmp.v = (int)dd[i];
-        pts.push_back(tmp);
-    }
-    suTimer timer;
-    BuildTri(pts);
-    SLOG_DEBUG("点数量: {}, 时间: {} ms", m_points.size(), timer.elapsed_ms())
-    SLOG_DEBUG("三角形数量: {}", m_tris.size());
-
-    double th = 60.1;
-    // auto tris = delaunay.triangles();
-    {  // 画三角
-        suCairo cairo;
-        cairo.create(width, height);
-        cairo.set(suColor(0, 0, 255, 255));
-        suRect nr;
-        nr.min = suPoint(0, 0);
-        nr.max = suPoint(width, height);
-        for (const auto& [a, b, c] : m_tris)
-        {
-            cairo.draw_line({m_points[a], m_points[b], m_points[c], m_points[a]});
-        }
-        cairo.set(suColor(255, 0, 0, 255));
-        for (const auto& p : m_points)
-        {
-            cairo.draw_point(p, 4);
-        }
-        cairo.write("./tri.png");
-    }
-    if (0)
-    {
-        std::vector<suLine> lines;
-
-        timer.restart();
-        TraceLine(th, lines);
-        SLOG_DEBUG("线数量: {}, 时间: {} ms", lines.size(), timer.elapsed_ms())
-        // 画线
-        suCairo cairo;
-        cairo.create(width, height);
-        cairo.set(suColor(0, 0, 255, 255));
-
-        for (const auto& line : lines)
-        {
-            cairo.draw_line(line.to_vector());
-        }
-        cairo.set(suColor(255, 0, 0, 255));
-        for (const auto& p : m_points)
-        {
-            cairo.draw_point(p, 4);
-        }
-        cairo.write("./isoline.png");
-    }
-
-    if (1)
-    {
-        std::vector<suPoly> polys;
-        timer.restart();
-        TracePoly(th, polys);
-        SLOG_DEBUG("面数量: {}, 时间: {} ms", polys.size(), timer.elapsed_ms())
-        // 画线
-        suCairo cairo;
-        cairo.create(width, height);
-        cairo.set(suColor(0, 0, 255, 255));
-
-        for (const auto& poly : polys)
-        {
-            cairo.draw_poly(poly);
-        }
-
-        for (const auto& p : m_points)
-        {
-            if (p.v >= th)
-            {
-                cairo.set(suColor(255, 0, 0, 255));
-            }
-            else
-            {
-                cairo.set(suColor(0, 255, 0, 255));
-            }
-            cairo.draw_point(p, 6);
-        }
-        cairo.write("./isoarea.png");
-    }
-}
-#endif

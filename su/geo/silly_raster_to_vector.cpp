@@ -163,7 +163,7 @@ std::vector<suPoly> MatchingSquares::GetPolys(const ReadParam& param) const
             ckp.y = param.bound.max.y - r * param.dy + param.dy;
             // 点对应的值大于0 且 点再面内
             // 或 点对应的值小于0 且 点再面外
-            if (greater == nr.intersect(ckp))
+            if (greater == nr.contains(ckp))
             {
                 nr.is_outer = 1;
                 suPoly tp;

@@ -21,7 +21,7 @@
 class suDelaunay
 {
 public:
-    void BuildTri(const std::vector<suPoint>& points);
+    void BuildTriangles(const std::vector<suPoint>& points);
 
     void TraceLine(const double& th, std::vector<suLine>& lines) const;
     void TracePoly(const double& th, std::vector<suPoly>& polys) const;
@@ -67,17 +67,14 @@ public:
             }
         };
     };
-
-    // 原始线段片段：携带拓扑信息
-    struct RawSegment
+    struct RawSegment // 穿过三角形的线段
     {
         suPoint p1, p2;
-        EdgeID e1, e2;  // p1在e1上, p2在e2上
+        EdgeID e1, e2;
         bool visited = false;
     };
-
      // 提取公共逻辑：构建线段片段
-    void _BuildSegments(const double& th, std::vector<RawSegment>& out_segs, std::unordered_map<EdgeID, std::vector<size_t>, EdgeID::Hash>& out_adj) const;
+    void BuildSegments(const double& threshold, std::vector<RawSegment>& segments, std::unordered_map<EdgeID, std::vector<size_t>, EdgeID::Hash>& out_adj) const;
   protected:
 
     std::vector<suPoint> m_points;

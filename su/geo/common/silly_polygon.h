@@ -36,7 +36,7 @@ public:
      * @param p
      * @return
      */
-    bool intersect(const suPoint& p) const;
+    bool contains(const suPoint& p) const;
 };
 
 /****************************************/
@@ -65,7 +65,7 @@ public:
      * @param p
      * @return
      */
-    bool intersect(const suPoint& p) const;
+    bool contains(const suPoint& p) const;
 };
 
 /****************************************/
@@ -91,6 +91,6 @@ public:
      * @param p
      * @return
      */
-    bool intersect(const suPoint& p) const;
+    bool contains(const suPoint& p) const;
 };
 #endif  // SILLY_POLYGON_H
