@@ -184,9 +184,9 @@ bool suGeoJson::Parse(const Json::Value& geojson, suPoly& meta)
             {
                 return false;
             }
+            suRing tmpr;
             for (const auto jvr : jvp)
             {
-                suRing tmpr;
                 if (jvr.isArray() && jvr[0].isNumeric())
                 {
                     suPoint tmp;
@@ -199,15 +199,15 @@ bool suGeoJson::Parse(const Json::Value& geojson, suPoly& meta)
                     std::cout << sujson::stringify(jvp) << std::endl;
                     return false;
                 }
-                if (meta.outer.points.empty())
-                {
-                    meta.outer = std::move(tmpr);
-                    meta.outer.is_outer = 1;
-                }
-                else
-                {
-                    meta.holes.emplace_back(tmpr);
-                }
+            }
+            if (meta.outer.points.empty())
+            {
+                meta.outer = std::move(tmpr);
+                meta.outer.is_outer = 1;
+            }
+            else
+            {
+                meta.holes.emplace_back(tmpr);
             }
         }
         return meta.outer.is_outer;
@@ -256,7 +256,6 @@ bool suGeoJson::ParseProperties(const Json::Value& prop, std::unordered_map<std:
     return false;
 }
 
-
 std::vector<suGeoColl> suGeoJson::Read(const suPath& file)
 {
     Json::Value jv = sujson::read(file);
@@ -303,6 +302,7 @@ bool suGeoJson::Parse(const Json::Value& geojson, suGeoColl& gc)
         {
             return false;
         }
+        gc.set(meta);
     }
     else if (etp == eGeometryType::MultiPoint)
     {
@@ -319,6 +319,7 @@ bool suGeoJson::Parse(const Json::Value& geojson, suGeoColl& gc)
         {
             return false;
         }
+        gc.set(meta);
     }
     else if (etp == eGeometryType::MultiLineString)
     {
@@ -327,6 +328,7 @@ bool suGeoJson::Parse(const Json::Value& geojson, suGeoColl& gc)
         {
             return false;
         }
+        gc.set(meta);
     }
     else if (etp == eGeometryType::Polygon)
     {
@@ -335,6 +337,7 @@ bool suGeoJson::Parse(const Json::Value& geojson, suGeoColl& gc)
         {
             return false;
         }
+        gc.set(meta);
     }
     else if (etp == eGeometryType::MultiPolygon)
     {
@@ -1035,10 +1038,10 @@ bool suGeoJson::check(const Json::Value& jv, suMultiPoly& mpoly)
     return false;
 }
 
-
 void suGeoJson::CheckParse()
 {
-    suGeoColl meta; {
+    suGeoColl meta;
+    {
         std::string geojson = R"(
 {
 	"type": "Feature",
@@ -1051,7 +1054,7 @@ void suGeoJson::CheckParse()
 	}
 }
         )";
-        //suPoint meta;
+        // suPoint meta;
         if (!suGeoJson::Parse(geojson, meta))
         {
             SU_ERROR_PRINT("suPoint 错误")
@@ -1060,7 +1063,8 @@ void suGeoJson::CheckParse()
         {
             SU_INFO_PRINT("suPoint 通过")
         }
-    } {
+    }
+    {
         std::string geojson = R"(
 {
 	"type": "Feature",
@@ -1073,7 +1077,7 @@ void suGeoJson::CheckParse()
 	}
 }
         )";
-        //suMultiPoint meta;
+        // suMultiPoint meta;
         if (!suGeoJson::Parse(geojson, meta))
         {
             SU_ERROR_PRINT("suMultiPoint 错误")
@@ -1082,7 +1086,8 @@ void suGeoJson::CheckParse()
         {
             SU_INFO_PRINT("suMultiPoint 通过")
         }
-    } {
+    }
+    {
         std::string geojson = R"(
 {
 	"geometry":{
@@ -1096,7 +1101,7 @@ void suGeoJson::CheckParse()
 	}
 }
         )";
-        //suLine meta;
+        // suLine meta;
         if (!suGeoJson::Parse(geojson, meta))
         {
             SU_ERROR_PRINT("suLine 错误")
@@ -1105,7 +1110,8 @@ void suGeoJson::CheckParse()
         {
             SU_INFO_PRINT("suLine 通过")
         }
-    } {
+    }
+    {
         std::string geojson = R"(
 {
 	"geometry":{
@@ -1125,7 +1131,7 @@ void suGeoJson::CheckParse()
 	}
 }
         )";
-        //suMultiLine meta;
+        // suMultiLine meta;
         if (!suGeoJson::Parse(geojson, meta))
         {
             SU_ERROR_PRINT("suMultiLine 错误")
@@ -1134,7 +1140,8 @@ void suGeoJson::CheckParse()
         {
             SU_INFO_PRINT("suMultiLine 通过")
         }
-    } {
+    }
+    {
         std::string geojson = R"(
 {
 	"geometry":{
@@ -1151,7 +1158,7 @@ void suGeoJson::CheckParse()
 	}
 }
         )";
-        //suPoly meta;
+        // suPoly meta;
         if (!suGeoJson::Parse(geojson, meta))
         {
             SU_ERROR_PRINT("suPoly 错误")
@@ -1160,7 +1167,8 @@ void suGeoJson::CheckParse()
         {
             SU_INFO_PRINT("suPoly 通过")
         }
-    } {
+    }
+    {
         std::string geojson = R"(
 {
 	"geometry": {

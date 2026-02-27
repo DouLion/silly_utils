@@ -28,8 +28,9 @@ bool TzxPyramidBase::open(const suPath& f, const eMMFMode& mode, const bool& use
         {
             SLOG_WARN("写入功能目前不支持内存文件映射方式(MMAP)")
         }
-        stream_open(file, std::ios::out | std::ios::binary);
+        stream_open(file, std::ios::out | std::ios::binary | std::ios::in);
         // 写入头部信息,
+        read_info();
     }
 
     return m_opened;

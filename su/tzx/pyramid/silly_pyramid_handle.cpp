@@ -191,6 +191,7 @@ void TzxPyramidHandle::close()
     m_index->close();
     m_data->close();
     m_info->close();
+    m_opened = false;
 }
 
 size_t TzxPyramidHandle::brow(const uint8_t& layer) const
