@@ -20,6 +20,11 @@ static suPoint InterpPoint(const suPoint& p1, const suPoint& p2, double th)
 void suDelaunay::BuildTriangles(const std::vector<suPoint>& input_points)
 {
     // 拷贝
+    if (input_points.size() < 3)
+    {
+        return;
+    }
+
     m_points = input_points;
 
     // 排序 (为了去重，也为了让三角剖分更稳定)
@@ -33,40 +38,52 @@ void suDelaunay::BuildTriangles(const std::vector<suPoint>& input_points)
     auto _fn_uinque = [](const suPoint& a, const suPoint& b) { return std::abs(a.x - b.x) < DELAUNAY_TRI_EPSILON && std::abs(a.y - b.y) < DELAUNAY_TRI_EPSILON; };
     auto last = std::unique(m_points.begin(), m_points.end(), _fn_uinque);
     m_points.erase(last, m_points.end());
-
-    // 构建delaunator::Delaunator需要的顶点
-    std::vector<double> coords;
-    coords.reserve(m_points.size() * 2 + 8);
+    size_t num = m_points.size();
     suRect rect;
+
     for (const auto& p : m_points)
     {
         rect.min.x = std::min(rect.min.x, p.x);
         rect.min.y = std::min(rect.min.y, p.y);
         rect.max.x = std::max(rect.max.x, p.x);
         rect.max.y = std::max(rect.max.y, p.y);
-        coords.push_back(p.x);
-        coords.push_back(p.y);
     }
 
     {  // 最外边添加四个点
         suRect ex = rect.expand(0.1);
-        std::vector<suPoint> expts = {{ex.min.x, ex.min.y}, {ex.max.x, ex.min.y}, {ex.max.x, ex.max.y}, {ex.min.x, ex.max.y}};
-        for (const auto& p : expts)
-        {
-            coords.push_back(p.x);
-            coords.push_back(p.y);
-        }
+        std::vector<suPoint> expts = {{ex.min.x, ex.min.y, 0, 0}, {ex.max.x, ex.min.y, 0, 0}, {ex.max.x, ex.max.y, 0, 0}, {ex.min.x, ex.max.y, 0, 0}};
         m_points.insert(m_points.end(), expts.begin(), expts.end());
+    }
+    // 再排个序
+    /*std::sort(m_points.begin(), m_points.end(), [](const suPoint& a, const suPoint& b) {
+        if (std::abs(a.x - b.x) > DELAUNAY_TRI_EPSILON)
+            return a.x < b.x;
+        return a.y < b.y;
+    });*/
+    // 构建delaunator::Delaunator需要的顶点
+    std::vector<double> coords;
+    coords.reserve(m_points.size() * 2 + 8);
+    const double scale = 1e6;
+    for (const auto& p : m_points)
+    {
+        coords.push_back(p.x * scale);
+        coords.push_back(p.y * scale);
     }
     delaunator::Delaunator d(coords);
 
     size_t triNum = d.triangles.size() / 3;
-    m_tris.resize(triNum);
-
+    m_tris.reserve(triNum);
+    num -= 2;
     for (size_t i = 0; i < triNum; ++i)
     {
         // 注意：delaunator 返回的是点的索引
-        m_tris[i] = {d.triangles[i * 3], d.triangles[i * 3 + 1], d.triangles[i * 3 + 2]};
+        size_t a = d.triangles[i * 3], b = d.triangles[i * 3 + 1], c = d.triangles[i * 3 + 2];
+
+        /*if (a > num || b > num || c > num)
+        {
+            continue;
+        }*/
+        m_tris.push_back({d.triangles[i * 3], d.triangles[i * 3 + 1], d.triangles[i * 3 + 2]});
     }
 }
 
@@ -150,9 +167,17 @@ void suDelaunay::TracePoly(const double& threshold, std::vector<suPoly>& polys) 
                 extended = true;
             }
         }
-        if (node.ring.points.size() < 3 || node.ring.points.front().dist2(node.ring.points.back()) > 1e-9)
+        const suPoint& front = node.ring.points.front();
+        const suPoint& back = node.ring.points.back();
+        const suPoint& diff = front - back;
+        if (node.ring.points.size() < 3)
         {
-            std::cout << "未闭合" << std::endl;
+            std::cout << "不完整的环" << std::endl;
+            continue;
+        }
+        if (node.ring.points.front().dist2(node.ring.points.back()) > 1e-9)
+        {
+            std::cout << "不闭合" << std::endl;
             continue;
         }
 
@@ -179,6 +204,18 @@ void suDelaunay::TracePoly(const double& threshold, std::vector<suPoly>& polys) 
             holes.push_back(std::move(node));
         }
     }
+#ifndef NDEBUG
+    int notTraceSeg = 0;
+
+    for (const auto& seg : segments)
+    {
+        if (!seg.visited)
+        {
+            notTraceSeg++;
+        }
+    }
+    std::cout << "未追踪线段: " << notTraceSeg << std::endl;
+#endif
     // 从小到大排序,保证内环在找父级时优先找到父级而不会找到爷爷级的
     std::sort(outers.begin(), outers.end(), [](const PolyNode& a, const PolyNode& b) { return a.area_abs < b.area_abs; });
     polys.resize(outers.size());
@@ -211,6 +248,7 @@ void suDelaunay::TracePoly(const double& threshold, std::vector<suPoly>& polys) 
             }
         }
     }
+#ifndef NDEBUG
     // 额外检查
     for (int j = 0; j < holes.size(); ++j)
     {
@@ -219,6 +257,7 @@ void suDelaunay::TracePoly(const double& threshold, std::vector<suPoly>& polys) 
             std::cout << "孤儿内环" << std::endl;
         }
     }
+#endif
 }
 
 void suDelaunay::BuildSegments(const double& threshold, std::vector<RawSegment>& segments, std::unordered_map<EdgeID, std::vector<size_t>, EdgeID::Hash>& out_adj) const

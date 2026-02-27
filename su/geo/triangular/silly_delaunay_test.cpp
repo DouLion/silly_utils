@@ -10,7 +10,17 @@
 #include <graphics/render/canvas/silly_cairo.h>
 #include <database/otl/silly_otl.h>
 std::vector<double> thresholds = {0.1, 10, 25, 50, 100, 150, 250};
-std::vector<std::string> colors = {"afc9ecc0", "afa9dd9b", "af7bcc7e", "af009989", "af003a8f", "af00006e", "af00004b"};
+std::vector<std::string> colors = {"afa7f38f", "af3dbb3d", "af60b8ff", "af0000fe", "affb00fb", "af00006e", "af00004b"};
+
+static suPoint Convert(const suPoint& p, const suRect& bound, const double& width, const double& height)
+{
+    suPoint ret;
+    double bdw = bound.max.x - bound.min.x;
+    double bdh = bound.max.y - bound.min.y;
+    ret.x = (p.x - bound.min.x) / bdw * width;
+    ret.y = (bound.max.y - p.y) / bdh * height;
+    return ret;
+}
 void suDelaunay::Test2()
 {
     double width = 2000;
@@ -35,19 +45,13 @@ void suDelaunay::Test2()
             SLOG_ERROR("数据格式错误：元素数量不是3的倍数")
             return;
         }
-        suRect bound = {108, 32, 115, 23.5};
-        double bdw = bound.max.x - bound.min.x;
-        double bdh = bound.max.y - bound.min.y;
-
         // 每三个元素组成一个元组
         for (size_t i = 0; i < values.size(); i += 3)
         {
             double x = values[i];
             double y = values[i + 1];
             double v = values[i + 2];
-            x = (x - bound.min.x) / bdw * width;
-            y = (bound.max.y - y) / bdh * height;
-            pts.emplace_back(x, y, 0, values[i + 2]);
+            pts.emplace_back(x, y, 0, v);
         }
     }
 
@@ -55,31 +59,27 @@ void suDelaunay::Test2()
     BuildTriangles(pts);
     SLOG_DEBUG("点数量: {}, 时间: {} ms", m_points.size(), timer.elapsed_ms())
     SLOG_DEBUG("三角形数量: {}", m_tris.size());
+    std::vector<RawSegment> segments;
+    std::unordered_map<EdgeID, std::vector<size_t>, EdgeID::Hash> adj_map;
+    const double th = thresholds[0] - 0.000001;
+    BuildSegments(th, segments, adj_map);
+    suRect bound = {108, 32, 115, 23.5};
+    double bdw = bound.max.x - bound.min.x;
+    double bdh = bound.max.y - bound.min.y;
     suCairo cairo;
     cairo.create(width, height);
     cairo.set(CAIRO_OPERATOR_SOURCE);
+
+
     if (0)
-    {  // 三角形
-        cairo.set(suColor(255, 51, 153, 255));
-        for (const auto& [a, b, c] : m_tris)
+    {
+        for (const auto& seg : segments)
         {
-            cairo.draw_line({m_points[a], m_points[b], m_points[c], m_points[a]});
+            suPoint p1 = Convert(seg.p1, bound, width, height);
+            suPoint p2 = Convert(seg.p2, bound, width, height);
+            cairo.draw_line({p1, p2});
         }
     }
-    for (int i = 0; i < thresholds.size(); ++i)
-    {
-        double th = thresholds[i] - 0.000001;
-        suColor color;
-        color.hex2argb(colors[i]);
-        cairo.set(color);
-        std::vector<suPoly> polys;
-        timer.restart();
-        TracePoly(th, polys);
-        SLOG_DEBUG("面数量: {}, 时间: {} ms", polys.size(), timer.elapsed_ms())
-
-        cairo.draw_poly(polys);
-    }
-    
     if (1)
     {
         for (int i = 0; i < thresholds.size(); ++i)
@@ -87,14 +87,61 @@ void suDelaunay::Test2()
             double th = thresholds[i] - 0.000001;
             suColor color;
             color.hex2argb(colors[i]);
-            color.alpha = 255;
             cairo.set(color);
-            for (const auto& p : m_points)
+            std::vector<suPoly> polys;
+            timer.restart();
+            TracePoly(th, polys);
+            SLOG_DEBUG("面数量: {}, 时间: {} ms", polys.size(), timer.elapsed_ms())
+
+            // 每三个元素组成一个元组
+            for (auto& poly : polys)
             {
+                for (auto& p : poly.outer.points)
+                {
+                    p = Convert(p, bound, width, height);
+                }
+            }
+            cairo.draw_poly(polys);
+        }
+    }
+   
+    if (0)
+    {  // 三角形
+        cairo.set(suColor(255, 51, 153, 255));
+        for (const auto& [a, b, c] : m_tris)
+        {
+            suPoint pa = Convert(m_points[a], bound, width, height);
+            suPoint pb = Convert(m_points[b], bound, width, height);
+            suPoint pc = Convert(m_points[c], bound, width, height);
+            cairo.draw_line({pa, pb, pc, pa});
+        }
+    }
+    if (0)
+    {
+        for (int i = 0; i < thresholds.size(); ++i)
+        {
+            double th = thresholds[i] - 0.000001;
+            suColor color;
+            color.hex2argb(colors[i]);
+            color.alpha = 254;
+            cairo.set(color);
+            for (auto& p : m_points)
+            {
+               
                 if (p.v >= th)
                 {
-                    cairo.draw_point(p, 3); 
+                    auto np = Convert(p, bound, width, height);
+                    cairo.draw_point(np, 3);
                 }
+            }
+        }
+        cairo.set({0, 0, 0, 254});
+        for (auto& p : m_points)
+        {
+            if (p.v < thresholds[0])
+            {
+                auto np = Convert(p, bound, width, height);
+                cairo.draw_point(np, 3);
             }
         }
     }

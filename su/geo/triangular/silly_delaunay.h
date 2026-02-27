@@ -79,7 +79,9 @@ class suDelaunay
         double area_abs;  // 面积, 用于
     };
     // 提取公共逻辑：构建线段片段
-    void BuildSegments(const double& threshold, std::vector<RawSegment>& segments, std::unordered_map<EdgeID, std::vector<size_t>, EdgeID::Hash>& out_adj) const;
+    void BuildSegments(const double& threshold, std::vector<RawSegment>& segments, std::unordered_map<EdgeID, std::vector<size_t>, EdgeID::Hash>& nearEdges) const;
+
+    void TraceRings(std::vector<PolyNode> outers, std::vector<PolyNode> holes) const;
 
   protected:
     std::vector<suPoint> m_points;
