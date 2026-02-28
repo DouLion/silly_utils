@@ -251,6 +251,27 @@ bool suGeoJson::Parse(const Json::Value& geojson, suMultiPoly& meta)
     return false;
 }
 
+std::string suGeoJson::Stringify(const std::vector<suPoly>& polys)
+{
+    std::string ret;
+    sujson::style opt;
+    opt.precision = 8;
+    Json::Value jvObj = Json::objectValue;
+    jvObj[K_TYPE] = V_FEATURE_COLLECTION;
+    Json::Value jvArr = Json::arrayValue;
+    for (const auto& item : polys)
+    {
+        jvArr.append(jsonify(item));
+    }
+    jvObj[K_FEATURES] = jvArr;
+    return sujson::stringify(jvObj, opt);
+}
+
+bool suGeoJson::Write(const suPath& file, const std::vector<suPoly>& polys)
+{
+    return sufile::write(file, Stringify(polys)) > 0;
+}
+
 bool suGeoJson::ParseProperties(const Json::Value& prop, std::unordered_map<std::string, suGeoProp>& kv, std::map<uint16_t, std::string>& sort)
 {
     return false;
@@ -849,7 +870,7 @@ Json::Value suGeoJson::jsonify(const suPoly& poly)
     }
 
     jvGeo[K_COORDINATES] = jvPoly;
-    ret[K_GEOMETRY][K_COORDINATES] = jvGeo;
+    ret[K_GEOMETRY] = jvGeo;
     return ret;
 }
 
@@ -931,7 +952,7 @@ Json::Value suGeoJson::jsonify(const suMultiPoly& mpoly)
     }
 
     jvGeo[K_COORDINATES] = jvPolys;
-    ret[K_GEOMETRY][K_COORDINATES] = jvGeo;
+    ret[K_GEOMETRY] = jvGeo;
     return ret;
 }
 

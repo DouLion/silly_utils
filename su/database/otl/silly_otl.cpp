@@ -354,6 +354,7 @@ bool suOTL::load(const std::string& cfg)
     if (m_dsn.empty())
     {
         // 检测驱动名称是否有效
+        /*
         std::vector<std::string> driver = drivers();
         std::string lower_driver = TO_LOWER(m_driver);
         bool valid = false;
@@ -374,7 +375,7 @@ bool suOTL::load(const std::string& cfg)
         {
             m_err = "无效的数据库驱动: " + m_driver;
             return status;
-        }
+        }*/
     }
     m_conn = odbc(true);
 
