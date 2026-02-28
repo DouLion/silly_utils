@@ -613,6 +613,10 @@ void suCairo::draw_poly(const std::vector<suPoly> &polys)
 void suCairo::draw_ring(const suRing &ring)
 {
 #if SU_THIRD_SUPPORT_CAIRO
+    if (ring.points.empty())
+    {
+        return;
+    }
     cairo_new_sub_path(m_cr);
 
     cairo_move_to(m_cr, ring.points[0].x, ring.points[0].y);

@@ -29,6 +29,7 @@ class suDelaunay
     // 这三个函数在silly_delaunay_test.cpp中实现
     void Test();
     void Test2();
+    void Test3();
     void TestWithDB();
 
 #endif

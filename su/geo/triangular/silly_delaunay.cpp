@@ -24,7 +24,7 @@ void suDelaunay::BuildTriangles(const std::vector<suPoint>& input_points)
     {
         return;
     }
-
+    m_tris.clear();
     m_points = input_points;
 
     // 排序 (为了去重，也为了让三角剖分更稳定)
@@ -55,17 +55,13 @@ void suDelaunay::BuildTriangles(const std::vector<suPoint>& input_points)
         m_points.insert(m_points.end(), expts.begin(), expts.end());
     }
     // 再排个序
-    /*std::sort(m_points.begin(), m_points.end(), [](const suPoint& a, const suPoint& b) {
-        if (std::abs(a.x - b.x) > DELAUNAY_TRI_EPSILON)
-            return a.x < b.x;
-        return a.y < b.y;
-    });*/
     // 构建delaunator::Delaunator需要的顶点
     std::vector<double> coords;
     coords.reserve(m_points.size() * 2 + 8);
     const double scale = 1e6;
     for (const auto& p : m_points)
     {
+        // 放大一些, 防止三角形外接环判断出现精度误差
         coords.push_back(p.x * scale);
         coords.push_back(p.y * scale);
     }
@@ -73,16 +69,10 @@ void suDelaunay::BuildTriangles(const std::vector<suPoint>& input_points)
 
     size_t triNum = d.triangles.size() / 3;
     m_tris.reserve(triNum);
-    num -= 2;
     for (size_t i = 0; i < triNum; ++i)
     {
         // 注意：delaunator 返回的是点的索引
         size_t a = d.triangles[i * 3], b = d.triangles[i * 3 + 1], c = d.triangles[i * 3 + 2];
-
-        /*if (a > num || b > num || c > num)
-        {
-            continue;
-        }*/
         m_tris.push_back({d.triangles[i * 3], d.triangles[i * 3 + 1], d.triangles[i * 3 + 2]});
     }
 }
@@ -167,9 +157,11 @@ void suDelaunay::TracePoly(const double& threshold, std::vector<suPoly>& polys) 
                 extended = true;
             }
         }
+#ifndef NDEBUG
         const suPoint& front = node.ring.points.front();
         const suPoint& back = node.ring.points.back();
         const suPoint& diff = front - back;
+#endif
         if (node.ring.points.size() < 3)
         {
             std::cout << "不完整的环" << std::endl;
@@ -182,9 +174,17 @@ void suDelaunay::TracePoly(const double& threshold, std::vector<suPoly>& polys) 
         }
 
         // 计算几何属性
-        bool greater = segments[i].p1.v > th;
-        bool in = node.ring.contains(segments[i].p1);
-        if (greater == in)
+        node.bbox = node.ring.bound();
+        node.area_abs = std::abs(node.ring.area());
+        if (node.area_abs < 1e-6) // 太小的面就先不管了
+        {
+            continue;
+        }
+        // 任取一个穿过的三角形的顶底,用于判断内外环
+        EdgeID e1 = segments[i].e1;
+        bool greater = m_points[e1.u].v > th;
+        bool in = node.ring.contains(m_points[e1.u]);
+        if ((greater && in) || (!greater && !in))
         {
             node.ring.is_outer = 1;  // 该环是外环
         }
@@ -193,8 +193,6 @@ void suDelaunay::TracePoly(const double& threshold, std::vector<suPoly>& polys) 
             node.ring.is_outer = 0;  //  该环是内环环
         }
 
-        node.bbox = node.ring.bound();
-        node.area_abs = std::abs(node.ring.area());
         if (node.ring.is_outer)
         {
             outers.push_back(std::move(node));
@@ -252,7 +250,7 @@ void suDelaunay::TracePoly(const double& threshold, std::vector<suPoly>& polys) 
     // 额外检查
     for (int j = 0; j < holes.size(); ++j)
     {
-        if (holes[j].ring.points.empty())
+        if (!holes[j].ring.points.empty())
         {
             std::cout << "孤儿内环" << std::endl;
         }
@@ -293,7 +291,7 @@ void suDelaunay::BuildSegments(const double& threshold, std::vector<RawSegment>&
         for (int i = 0; i < 3; ++i)
         {
             int j = (i + 1) % 3;
-            if (bigger[i] != bigger[j])  // 一个大一个小
+            if (bigger[i] != bigger[j])  // 一个大一个小才会从此处穿边
             {
                 if (cnt < 2)
                 {

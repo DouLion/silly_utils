@@ -9,6 +9,8 @@
 
 #include <graphics/render/canvas/silly_cairo.h>
 #include <database/otl/silly_otl.h>
+#include <geo/silly_geo_utils.h>
+#include <geo/geometry/silly_geojson.h>
 std::vector<double> thresholds = {0.1, 10, 25, 50, 100, 150, 250};
 std::vector<std::string> colors = {"afa7f38f", "af3dbb3d", "af60b8ff", "af0000fe", "affb00fb", "af00006e", "af00004b"};
 
@@ -21,39 +23,145 @@ static suPoint Convert(const suPoint& p, const suRect& bound, const double& widt
     ret.y = (bound.max.y - p.y) / bdh * height;
     return ret;
 }
+static std::vector<suPoint> ReadPoints(supath& file)
+{
+    std::vector<suPoint> ret;
+    std::string content = sufile::read(file);
+    // 创建字符串流用于分割
+    std::istringstream ss(content);
+    std::string token;
+    std::vector<double> values;
+
+    // 分割字符串并转换为double
+    while (std::getline(ss, token, ','))
+    {
+        values.push_back(std::stod(token));
+    }
+
+    // 检查数据量是否完整（应为3的倍数）
+    if (values.size() % 3 != 0)
+    {
+        SLOG_ERROR("数据格式错误：元素数量不是3的倍数")
+        return ret;
+    }
+    // 每三个元素组成一个元组
+    for (size_t i = 0; i < values.size(); i += 3)
+    {
+        double x = values[i];
+        double y = values[i + 1];
+        double v = values[i + 2];
+        ret.emplace_back(x, y, 0, v);
+    }
+    return ret;
+}
+
+void suDelaunay::Test3()
+{
+    suGeoUtils::init_gdal_env();
+    std::vector<suPoint> pts = ReadPoints(supath("Z:/iso_1772193243.txt"));
+    
+
+    suTimer timer;
+    BuildTriangles(pts);
+    std::vector<RawSegment> segments;
+    std::unordered_map<EdgeID, std::vector<size_t>, EdgeID::Hash> adj_map;
+    const double th = 10 - 0.000001;
+    BuildSegments(th, segments, adj_map);
+    std::vector<suGeoColl> gcs;
+    int ring_num = 0;
+    for (size_t i = 0; i < segments.size(); ++i)
+    {
+        if (segments[i].visited)
+        {
+            continue;
+        }
+        ring_num++;
+        PolyNode node;
+        // 初始化环
+        node.ring.points.push_back(segments[i].p1);
+        node.ring.points.push_back(segments[i].p2);
+        segments[i].visited = true;
+
+        EdgeID tail = segments[i].e2;  // tail 用于存储当前计算到那个边
+        bool extended = true;
+
+        // 贪心追踪
+        while (extended)
+        {
+            extended = false;
+            const auto& neighbors = adj_map[tail];
+            for (size_t idx : neighbors)
+            {
+                if (segments[idx].visited)
+                {
+                    continue;
+                }
+
+                RawSegment& nxtSeg = segments[idx];
+                nxtSeg.visited = true;
+
+                if (nxtSeg.e1 == tail)
+                {
+                    node.ring.points.push_back(nxtSeg.p2);
+                    tail = nxtSeg.e2;
+                }
+                else
+                {
+                    node.ring.points.push_back(nxtSeg.p1);
+                    tail = nxtSeg.e1;
+                }
+                extended = true;
+            }
+        }
+        const suPoint& front = node.ring.points.front();
+        const suPoint& back = node.ring.points.back();
+        const suPoint& diff = front - back;
+        if (node.ring.points.size() < 3)
+        {
+            std::cout << "不完整的环" << std::endl;
+            continue;
+        }
+        if (node.ring.points.front().dist2(node.ring.points.back()) > 1e-9)
+        {
+            std::cout << "不闭合" << std::endl;
+            continue;
+        }
+        EdgeID e1 = segments[i].e1;
+
+        // 计算几何属性
+        suPoint& cp = m_points[e1.u];
+        bool greater = cp.v > th;
+        bool in = node.ring.contains(cp);
+        std::cout << cp.x << ", " << cp.y << "," << cp.v << std::endl;
+
+        if ((greater && in) || (!greater && !in))
+        {
+            node.ring.is_outer = 1;  // 该环是外环
+        }
+        else
+        {
+            node.ring.is_outer = 0;  //  该环是内环环
+        }
+
+        
+        suPoly poly;
+        poly.outer = node.ring;
+        suGeoColl gc(poly);
+        gc.properties()["x"] = cp.x;
+        gc.properties()["y"] = cp.y;
+        gc.properties()["v"] = cp.v;
+        gc.properties()["outer"] = node.ring.is_outer;
+
+        gcs.push_back(gc);
+    }
+    suGeoUtils::write("Z:/check.shp", gcs);
+
+}
 void suDelaunay::Test2()
 {
     double width = 2000;
     double height = 2000;
-    std::string content = sufile::read("Z:/fore_iso.txt");
-    std::vector<suPoint> pts;
-    {
-        // 创建字符串流用于分割
-        std::istringstream ss(content);
-        std::string token;
-        std::vector<double> values;
-
-        // 分割字符串并转换为double
-        while (std::getline(ss, token, ','))
-        {
-            values.push_back(std::stod(token));
-        }
-
-        // 检查数据量是否完整（应为3的倍数）
-        if (values.size() % 3 != 0)
-        {
-            SLOG_ERROR("数据格式错误：元素数量不是3的倍数")
-            return;
-        }
-        // 每三个元素组成一个元组
-        for (size_t i = 0; i < values.size(); i += 3)
-        {
-            double x = values[i];
-            double y = values[i + 1];
-            double v = values[i + 2];
-            pts.emplace_back(x, y, 0, v);
-        }
-    }
+    std::vector<suPoint> pts = ReadPoints(supath("Z:/iso_1772193243.txt"));
 
     suTimer timer;
     BuildTriangles(pts);
@@ -70,7 +178,6 @@ void suDelaunay::Test2()
     cairo.create(width, height);
     cairo.set(CAIRO_OPERATOR_SOURCE);
 
-
     if (0)
     {
         for (const auto& seg : segments)
@@ -84,7 +191,7 @@ void suDelaunay::Test2()
     {
         for (int i = 0; i < thresholds.size(); ++i)
         {
-            double th = thresholds[i] - 0.000001;
+            double th = 10;  // thresholds[i] - 0.000001;
             suColor color;
             color.hex2argb(colors[i]);
             cairo.set(color);
@@ -92,28 +199,46 @@ void suDelaunay::Test2()
             timer.restart();
             TracePoly(th, polys);
             SLOG_DEBUG("面数量: {}, 时间: {} ms", polys.size(), timer.elapsed_ms())
-
+            
+            OGRPolygon ogr = suGDAL::PolyToOGR(polys.front());
+            bool isvalid = ogr.IsValid();
+            if (!isvalid)
+            {
+                suGeoJson::Write("Z:/error.json", {polys.front()});
+                std::cout << "错误面" << std::endl;
+            }
             // 每三个元素组成一个元组
             for (auto& poly : polys)
             {
+                if (poly.outer.points.size() > 40)
+                {
+                    poly.outer.points.clear();
+                    poly.holes.clear();
+                    continue;
+                }
                 for (auto& p : poly.outer.points)
                 {
                     p = Convert(p, bound, width, height);
                 }
             }
             cairo.draw_poly(polys);
+            break;
         }
     }
-   
+
     if (0)
     {  // 三角形
         cairo.set(suColor(255, 51, 153, 255));
         for (const auto& [a, b, c] : m_tris)
         {
-            suPoint pa = Convert(m_points[a], bound, width, height);
-            suPoint pb = Convert(m_points[b], bound, width, height);
-            suPoint pc = Convert(m_points[c], bound, width, height);
-            cairo.draw_line({pa, pb, pc, pa});
+            EdgeID ea(a, b), eb(b, c), ec(c, a);
+            if (adj_map.count(ea) || adj_map.count(eb) || adj_map.count(ec))
+            {
+                suPoint pa = Convert(m_points[a], bound, width, height);
+                suPoint pb = Convert(m_points[b], bound, width, height);
+                suPoint pc = Convert(m_points[c], bound, width, height);
+                cairo.draw_line({pa, pb, pc, pa});
+            }
         }
     }
     if (0)
@@ -127,7 +252,6 @@ void suDelaunay::Test2()
             cairo.set(color);
             for (auto& p : m_points)
             {
-               
                 if (p.v >= th)
                 {
                     auto np = Convert(p, bound, width, height);

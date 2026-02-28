@@ -10,6 +10,33 @@
  */
 #include "silly_point.h"
 
+const double EPSILON = 1e-10;
+// 辅助函数：浮点数近似相等比较
+bool is_nearly_equal(double a, double b)
+{
+    return std::abs(a - b) < EPSILON;
+}
+
+// 辅助函数：判断点 p 是否在线段 (a, b) 上
+// 这包含了共线性检查和点是否在线段的包围盒内检查
+bool is_on_segment(const suPoint& p, const suPoint& a, const suPoint& b)
+{
+    // 1. 检查共线性：使用叉积，如果点在线段延长线上，叉积为0
+    // (p - a) x (b - a) = (p.x - a.x) * (b.y - a.y) - (p.y - a.y) * (b.x - a.x)
+    double cross_product = (p.x - a.x) * (b.y - a.y) - (p.y - a.y) * (b.x - a.x);
+    if (!is_nearly_equal(cross_product, 0.0))
+    {
+        return false;  // 不共线
+    }
+
+    // 2. 检查点是否在线段的包围盒内（包括端点）
+    // 即检查 p.x 是否在 [min(a.x, b.x), max(a.x, b.x)] 之间
+    // 和 p.y 是否在 [min(a.y, b.y), max(a.y, b.y)] 之间
+    bool x_in_bounds = (p.x >= std::min(a.x, b.x) - EPSILON && p.x <= std::max(a.x, b.x) + EPSILON);
+    bool y_in_bounds = (p.y >= std::min(a.y, b.y) - EPSILON && p.y <= std::max(a.y, b.y) + EPSILON);
+
+    return x_in_bounds && y_in_bounds;
+}
 extern bool SU_POINT_IN_CLOSED_RING(const suPoint& point, const std::vector<suPoint>& ring)
 {
     bool is_inside = false;
