@@ -196,7 +196,12 @@ class suCairo
 
     cairo_t* get_cairo()
     {
+#if SU_THIRD_SUPPORT_CAIRO
         return m_cr;
+#else
+        return nullptr;
+#endif
+
     }
 
   private:

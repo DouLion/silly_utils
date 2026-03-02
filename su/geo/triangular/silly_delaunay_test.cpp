@@ -200,13 +200,7 @@ void suDelaunay::Test2()
             TracePoly(th, polys);
             SLOG_DEBUG("面数量: {}, 时间: {} ms", polys.size(), timer.elapsed_ms())
             
-            OGRPolygon ogr = suGDAL::PolyToOGR(polys.front());
-            bool isvalid = ogr.IsValid();
-            if (!isvalid)
-            {
-                suGeoJson::Write("Z:/error.json", {polys.front()});
-                std::cout << "错误面" << std::endl;
-            }
+
             // 每三个元素组成一个元组
             for (auto& poly : polys)
             {
