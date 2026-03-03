@@ -10,8 +10,8 @@
  */
 #pragma once
 
-#ifndef SILLY_UTILS_SILLY_RAR_H
-#define SILLY_UTILS_SILLY_RAR_H
+#ifndef SILLY_RAR_H
+#define SILLY_RAR_H
 #include <compress/silly_compress.h>
 #include <log/silly_log.h>
 
@@ -57,4 +57,4 @@ class suRAR
     static eCompressErr decompress(const char* c_in_val, const size_t& i_in_len, char** c_out_val, size_t& i_out_len);
 };
 
-#endif  // SILLY_UTILS_SILLY_RAR_H
+#endif  // SILLY_RAR_H

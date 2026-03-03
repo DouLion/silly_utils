@@ -7,8 +7,8 @@
  * @version: 1.0.1
  * @description: suCairo 类声明
  */
-#ifndef SILLY_UTILS_SILLY_CAIRO_H
-#define SILLY_UTILS_SILLY_CAIRO_H
+#ifndef SILLY_CAIRO_H
+#define SILLY_CAIRO_H
 #include <geo/silly_geo.h>
 #include <files/silly_file.h>
 #include <graphics/silly_color.h>
@@ -229,4 +229,4 @@ class suCairo
 #endif
 };
 
-#endif  // SILLY_UTILS_SILLY_CAIRO_H
+#endif  // SILLY_CAIRO_H

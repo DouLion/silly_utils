@@ -7,8 +7,8 @@
  * @version: 1.0.1
  * @description: c++ 正则表达式工具
  */
-#ifndef SILLY_UTILS_SILLY_REGEX_H
-#define SILLY_UTILS_SILLY_REGEX_H
+#ifndef SILLY_REGEX_H
+#define SILLY_REGEX_H
 
 #include <regex>
 #include <encode/silly_encode.h>
@@ -67,4 +67,4 @@ class valid
 }  // namespace str
 }  // namespace silly
 
-#endif  // SILLY_UTILS_SILLY_REGEX_H
+#endif  // SILLY_REGEX_H

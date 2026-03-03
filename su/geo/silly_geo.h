@@ -10,8 +10,8 @@
  */
 #pragma once
 
-#ifndef SILLY_UTILS_SILLY_GEO_H
-#define SILLY_UTILS_SILLY_GEO_H
+#ifndef SILLY_GEO_H
+#define SILLY_GEO_H
 #include <geo/common/silly_point.h>
 #include <geo/common/silly_circle.h>
 #include <geo/common/silly_ellipse.h>
@@ -96,4 +96,4 @@ static eGeometryType suGeoStr2Type(const std::string& str)
     return eGeometryType::Invalid;
 }
 
-#endif  // SILLY_UTILS_SILLY_GEO_H
+#endif  // SILLY_GEO_H

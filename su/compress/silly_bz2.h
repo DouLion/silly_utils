@@ -8,8 +8,8 @@
  * @software: silly_utils
  * @description:
  */
-#ifndef SILLY_UTILS_SILLY_BZ2_H
-#define SILLY_UTILS_SILLY_BZ2_H
+#ifndef SILLY_BZ2_H
+#define SILLY_BZ2_H
 #include <log/silly_log.h>
 #include <compress/silly_compress.h>
 
@@ -66,4 +66,4 @@ class BZ2
 
 typedef silly_compress::BZ2 silly_bz2;
 
-#endif  // SILLY_UTILS_SILLY_BZ2_H
+#endif  // SILLY_BZ2_H

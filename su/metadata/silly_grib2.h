@@ -7,8 +7,8 @@
  * @version: 1.0.1
  * @description: grib2格式的读取, 参照 https://github.com/weathersource/grib_api/tree/master
  */
-#ifndef SILLY_UTILS_SILLY_GRIB2_H
-#define SILLY_UTILS_SILLY_GRIB2_H
+#ifndef SILLY_GRIB2_H
+#define SILLY_GRIB2_H
 #include <geo/silly_geo.h>
 #include <files/silly_file.h>
 /// <summary>
@@ -79,4 +79,4 @@ class silly_grib2_utils
     static bool close_grib2_handle(void* file_h, void* grb2_c, void* grb2_h);
 };
 
-#endif  // SILLY_UTILS_SILLY_GRIB2_H
+#endif  // SILLY_GRIB2_H

@@ -8,8 +8,8 @@
  * @description: akima插值
  * @version: v1.0.1 2024-12-30 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_AKIMA_H
-#define SILLY_UTILS_SILLY_AKIMA_H
+#ifndef SILLY_AKIMA_H
+#define SILLY_AKIMA_H
 #include <su_macro.h>
 namespace silly
 {
@@ -50,4 +50,4 @@ class akima
 }  // namespace interpolation
 }  // namespace silly
 
-#endif  // SILLY_UTILS_SILLY_AKIMA_H
+#endif  // SILLY_AKIMA_H

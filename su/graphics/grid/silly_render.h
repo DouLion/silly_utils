@@ -7,8 +7,8 @@
  * @version: 1.0.1
  * @description: silly_render 类声明
  */
-#ifndef SILLY_UTILS_SILLY_RENDER_H
-#define SILLY_UTILS_SILLY_RENDER_H
+#ifndef SILLY_RENDER_H
+#define SILLY_RENDER_H
 
 #include <math/silly_matrix.h>
 #include <graphics/silly_png.h>
@@ -18,4 +18,4 @@ namespace silly_render
 {
 }
 
-#endif  // SILLY_UTILS_SILLY_RENDER_H
+#endif  // SILLY_RENDER_H

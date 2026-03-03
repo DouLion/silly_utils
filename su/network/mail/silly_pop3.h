@@ -8,8 +8,8 @@
  * @description: silly_pop3 类声明
  * @version: v1.0.1 2024-09-11 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_POP3_H
-#define SILLY_UTILS_SILLY_POP3_H
+#ifndef SILLY_POP3_H
+#define SILLY_POP3_H
 
 class silly_pop3
 {
@@ -20,4 +20,4 @@ class silly_pop3
   private:
 };
 
-#endif  // SILLY_UTILS_SILLY_POP3_H
+#endif  // SILLY_POP3_H

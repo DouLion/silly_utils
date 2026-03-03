@@ -13,4 +13,4 @@
 #ifdef CATCH2_UNIT_TEST
 #include <catch2/catch_test_macros.hpp>
 
-#endif //SILLY_UTILS_TEST_PROJ_HPP
+#endif //TEST_PROJ_HPP

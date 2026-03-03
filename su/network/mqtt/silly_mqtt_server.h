@@ -8,8 +8,8 @@
  * @description: silly_mqtt_server 类声明
  * @version: v1.0.1 2024-09-11 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_MQTT_SERVER_H
-#define SILLY_UTILS_SILLY_MQTT_SERVER_H
+#ifndef SILLY_MQTT_SERVER_H
+#define SILLY_MQTT_SERVER_H
 
 class silly_mqtt_server
 {
@@ -20,4 +20,4 @@ class silly_mqtt_server
   private:
 };
 
-#endif  // SILLY_UTILS_SILLY_MQTT_SERVER_H
+#endif  // SILLY_MQTT_SERVER_H

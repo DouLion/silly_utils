@@ -8,8 +8,8 @@
  * @description: silly_cairo_fill_pattern 类声明
  * @version: v1.0.1 2024-11-04 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_CAIRO_PATTERN_H
-#define SILLY_UTILS_SILLY_CAIRO_PATTERN_H
+#ifndef SILLY_CAIRO_PATTERN_H
+#define SILLY_CAIRO_PATTERN_H
 #include <cairo/cairo.h>
 class silly_cairo_fill_pattern
 {
@@ -23,4 +23,4 @@ class silly_cairo_fill_pattern
     cairo_pattern_t* m_pattern = nullptr;
 };
 
-#endif  // SILLY_UTILS_SILLY_CAIRO_PATTERN_H
+#endif  // SILLY_CAIRO_PATTERN_H

@@ -8,8 +8,8 @@
  * @description: silly_mail_receive 类声明
  * @version: v1.0.1 2024-09-11 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_MAIL_RECEIVE_H
-#define SILLY_UTILS_SILLY_MAIL_RECEIVE_H
+#ifndef SILLY_MAIL_RECEIVE_H
+#define SILLY_MAIL_RECEIVE_H
 
 class silly_mail_receive
 {
@@ -20,4 +20,4 @@ class silly_mail_receive
   private:
 };
 
-#endif  // SILLY_UTILS_SILLY_MAIL_RECEIVE_H
+#endif  // SILLY_MAIL_RECEIVE_H

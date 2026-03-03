@@ -7,8 +7,8 @@
  * @version: 1.0.1
  * @description:
  */
-#ifndef SILLY_UTILS_SILLY_ASCII_GRID_H
-#define SILLY_UTILS_SILLY_ASCII_GRID_H
+#ifndef SILLY_ASCII_GRID_H
+#define SILLY_ASCII_GRID_H
 #include <files/silly_file.h>
 #include <metadata/silly_dem.h>
 
@@ -42,4 +42,4 @@ class suAsciiGrid : public suDem
     std::string m_err;
 };
 
-#endif  // SILLY_UTILS_SILLY_ASCII_GRID_H
+#endif  // SILLY_ASCII_GRID_H

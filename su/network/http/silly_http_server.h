@@ -8,8 +8,8 @@
  * @description: silly_http_server 类声明
  * @version: v1.0.1 2024-09-11 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_HTTP_SERVER_H
-#define SILLY_UTILS_SILLY_HTTP_SERVER_H
+#ifndef SILLY_HTTP_SERVER_H
+#define SILLY_HTTP_SERVER_H
 #include <json/silly_jsonpp.h>
 #include <system/silly_system.h>
 
@@ -97,7 +97,7 @@ class suHttpUtils
     static double TryNum(const std::unordered_map<std::string, std::string>& k2v, const std::string& key);
 };
 
-#endif  // SILLY_UTILS_SILLY_HTTP_SERVER_H
+#endif  // SILLY_HTTP_SERVER_H
 
 
 #ifdef DROGON_EXPORT_H

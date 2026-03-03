@@ -8,8 +8,8 @@
  * @description: RadxRate 类声明
  * @version: v1.0.1 2025-02-24 dou li yang
  */
-#ifndef SILLY_UTILS_RADXRATE_H
-#define SILLY_UTILS_RADXRATE_H
+#ifndef RADXRATE_H
+#define RADXRATE_H
 #include <radar/params/RadxCommon.h>
 class RadxRate
 {
@@ -74,4 +74,4 @@ class RadxRate
       int max_realtime_data_age_secs = 300;*/
 };
 
-#endif  // SILLY_UTILS_RADXRATE_H
+#endif  // RADXRATE_H

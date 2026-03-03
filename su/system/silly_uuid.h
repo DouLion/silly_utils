@@ -10,8 +10,8 @@
  */
 #pragma once
 
-#ifndef SILLY_UTILS_SILLY_UUID_H
-#define SILLY_UTILS_SILLY_UUID_H
+#ifndef SILLY_UUID_H
+#define SILLY_UUID_H
 
 #include <stdint.h>
 #include <array>
@@ -32,4 +32,4 @@ class silly_uuid
     static std::string random_uuid();
 };
 
-#endif  // SILLY_UTILS_SILLY_UUID_H
+#endif  // SILLY_UUID_H

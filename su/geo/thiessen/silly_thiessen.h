@@ -9,8 +9,8 @@
  * @version: v1.0.1 2025-01-23 dou li yang
  */
 
-#ifndef SILLY_UTILS_SILLY_THIESSEN_H
-#define SILLY_UTILS_SILLY_THIESSEN_H
+#ifndef SILLY_THIESSEN_H
+#define SILLY_THIESSEN_H
 
 class silly_thiessen
 {
@@ -21,4 +21,4 @@ class silly_thiessen
   private:
 };
 
-#endif  // SILLY_UTILS_SILLY_THIESSEN_H
+#endif  // SILLY_THIESSEN_H

@@ -8,8 +8,8 @@
  * @description: silly_rain_utils 类声明
  * @version: v1.0.1 2025-06-05 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_RAIN_UTILS_H
-#define SILLY_UTILS_SILLY_RAIN_UTILS_H
+#ifndef SILLY_RAIN_UTILS_H
+#define SILLY_RAIN_UTILS_H
 #include <su_macro.h>
 namespace su
 {
@@ -34,4 +34,4 @@ class RainUtils
 };
 }  // namespace su
 
-#endif  // SILLY_UTILS_SILLY_RAIN_UTILS_H
+#endif  // SILLY_RAIN_UTILS_H

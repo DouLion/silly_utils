@@ -8,8 +8,8 @@
  * @description: silly_crc 类声明
  * @version: v1.0.1 2024-12-16 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_CRC_H
-#define SILLY_UTILS_SILLY_CRC_H
+#ifndef SILLY_CRC_H
+#define SILLY_CRC_H
 #include <su_macro.h>
 
 namespace silly
@@ -35,4 +35,4 @@ class crc
 
 }  // namespace silly
 
-#endif  // SILLY_UTILS_SILLY_CRC_H
+#endif  // SILLY_CRC_H

@@ -8,8 +8,8 @@
  * @description: Gravity Field Model of the Earth 地球重力场文件数据
  * @version: v1.0.1 2024-12-13 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_EGM_H
-#define SILLY_UTILS_SILLY_EGM_H
+#ifndef SILLY_EGM_H
+#define SILLY_EGM_H
 #include <su_macro.h>
 #include <files/silly_file.h>
 #include <files/silly_memory_map.h>
@@ -125,4 +125,4 @@ class suEarthGravityModel
 
 */
 
-#endif  // SILLY_UTILS_SILLY_EGM_H
+#endif  // SILLY_EGM_H

@@ -8,8 +8,8 @@
  * @description: silly_system 头文件
  * @version: v1.0.1 2025-09-25 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_SYSTEM_H
-#define SILLY_UTILS_SILLY_SYSTEM_H
+#ifndef SILLY_SYSTEM_H
+#define SILLY_SYSTEM_H
 #include <su_macro.h>
 
 /**

@@ -8,8 +8,8 @@
  * @description: silly_http_headers 类声明
  * @version: v1.0.1 2024-10-09 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_HTTP_HEADERS_H
-#define SILLY_UTILS_SILLY_HTTP_HEADERS_H
+#ifndef SILLY_HTTP_HEADERS_H
+#define SILLY_HTTP_HEADERS_H
 #include <su_macro.h>
 enum eHttpReqType : int8_t
 {
@@ -94,4 +94,4 @@ enum eHttpStatus : int32_t
     NetworkAuthenticationRequired_511 = 511,
 };
 
-#endif  // SILLY_UTILS_SILLY_HTTP_HEADERS_H
+#endif  // SILLY_HTTP_HEADERS_H

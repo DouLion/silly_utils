@@ -7,8 +7,8 @@
  * @version: 1.0.1
  * @description: 中国气象局Micaps系统的数据
  */
-#ifndef SILLY_UTILS_SILLY_MICAPS_H
-#define SILLY_UTILS_SILLY_MICAPS_H
+#ifndef SILLY_MICAPS_H
+#define SILLY_MICAPS_H
 #include <math/silly_matrix.h>
 #include <files/silly_path.h>
 /// <summary>
@@ -95,4 +95,4 @@ class silly_micaps_utils
   private:
 };
 
-#endif  // SILLY_UTILS_SILLY_MICAPS_H
+#endif  // SILLY_MICAPS_H

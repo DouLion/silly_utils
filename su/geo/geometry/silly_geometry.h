@@ -8,8 +8,8 @@
  * @description: silly_geometry 头文件
  * @version: v1.0.1 2025-09-25 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_GEOMETRY_H
-#define SILLY_UTILS_SILLY_GEOMETRY_H
+#ifndef SILLY_GEOMETRY_H
+#define SILLY_GEOMETRY_H
 #include <geo/silly_geo.h>
 #include <geo/geometry/silly_geo_filed.h>
 #include <geo/geometry/silly_geo_prop.h>
@@ -48,4 +48,4 @@ class Geometry
 };
 }  // namespace su
 
-#endif  // SILLY_UTILS_SILLY_GEOMETRY_H
+#endif  // SILLY_GEOMETRY_H

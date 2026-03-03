@@ -8,8 +8,8 @@
  * @description: silly_websocket_server 类声明
  * @version: v1.0.1 2024-09-11 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_WEBSOCKET_SERVER_H
-#define SILLY_UTILS_SILLY_WEBSOCKET_SERVER_H
+#ifndef SILLY_WEBSOCKET_SERVER_H
+#define SILLY_WEBSOCKET_SERVER_H
 #include <su_macro.h>
 #if ENABLE_WEBSOCKET_PP
 #include <websocketpp/config/asio_no_tls.hpp>
@@ -31,4 +31,4 @@ class silly_websocket_server
     std::string m_err;
 };
 
-#endif  // SILLY_UTILS_SILLY_WEBSOCKET_SERVER_H
+#endif  // SILLY_WEBSOCKET_SERVER_H

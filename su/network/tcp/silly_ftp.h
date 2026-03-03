@@ -10,8 +10,8 @@
  */
 #pragma once
 
-#ifndef SILLY_UTILS_SILLY_FTP_H
-#define SILLY_UTILS_SILLY_FTP_H
+#ifndef SILLY_FTP_H
+#define SILLY_FTP_H
 #include <sys/types.h>
 #if defined(_WIN32)
 
@@ -211,4 +211,4 @@ class silly_ftp
     int CorrectPasvResponse(unsigned char* v);
 };
 
-#endif  // SILLY_UTILS_SILLY_FTP_H
+#endif  // SILLY_FTP_H

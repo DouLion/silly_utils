@@ -8,8 +8,8 @@
  * @description: mqtt 客户端
  * @version: v1.0.1 2024-09-11 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_MQTT_CLIENT_H
-#define SILLY_UTILS_SILLY_MQTT_CLIENT_H
+#ifndef SILLY_MQTT_CLIENT_H
+#define SILLY_MQTT_CLIENT_H
 #include <su_macro.h>
 /* 常用的协议
 "mqtt://<host>:<port>"   - TCP, unsecure
@@ -133,4 +133,4 @@ int main(int argc, char** argv)
 
 */
 
-#endif  // SILLY_UTILS_SILLY_MQTT_CLIENT_H
+#endif  // SILLY_MQTT_CLIENT_H

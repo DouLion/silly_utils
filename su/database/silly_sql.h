@@ -8,8 +8,8 @@
  * @description: 一些常用的SQL
  * @version: v1.0.1 2024-12-26 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_SQL_H
-#define SILLY_UTILS_SILLY_SQL_H
+#ifndef SILLY_SQL_H
+#define SILLY_SQL_H
 #include <iostream>
 namespace silly
 {
@@ -69,4 +69,4 @@ static const std::string LAST_INSERT_ID = "SELECT @@IDENTITY";
 }  // namespace sql
 }  // namespace silly
 
-#endif  // SILLY_UTILS_SILLY_SQL_H
+#endif  // SILLY_SQL_H

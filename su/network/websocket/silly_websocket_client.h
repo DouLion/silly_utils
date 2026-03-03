@@ -8,8 +8,8 @@
  * @description: silly_websocket_client 类声明
  * @version: v1.0.1 2024-09-11 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_WEBSOCKET_CLIENT_H
-#define SILLY_UTILS_SILLY_WEBSOCKET_CLIENT_H
+#ifndef SILLY_WEBSOCKET_CLIENT_H
+#define SILLY_WEBSOCKET_CLIENT_H
 #include <su_macro.h>
 #if ENABLE_WEBSOCKET_PP
 #ifndef _WEBSOCKETPP_CPP11_RANDOM_DEVICE_
@@ -144,4 +144,4 @@ void suWSClient::on_close(Func&& func, Args&&... args)
 #endif
 }
 
-#endif  // SILLY_UTILS_SILLY_WEBSOCKET_CLIENT_H
+#endif  // SILLY_WEBSOCKET_CLIENT_H

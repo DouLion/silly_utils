@@ -8,8 +8,8 @@
  * @description: RainRates 类声明
  * @version: v1.0.1 2025-02-24 dou li yang
  */
-#ifndef SILLY_UTILS_RAINRATES_H
-#define SILLY_UTILS_RAINRATES_H
+#ifndef RAINRATES_H
+#define RAINRATES_H
 #include <files/silly_file.h>
 class RainRates
 {
@@ -51,4 +51,4 @@ class RainRates
     double RATE_bringi_zdr_threshold = 0.1;
 };
 
-#endif  // SILLY_UTILS_RAINRATES_H
+#endif  // RAINRATES_H

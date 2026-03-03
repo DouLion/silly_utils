@@ -8,8 +8,8 @@
  * @description: 告警内容的终极信息, 尽量包含目前已知的信息
  * @version: v1.0.1 2024-10-18 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_ULTIMATE_WARN_H
-#define SILLY_UTILS_SILLY_ULTIMATE_WARN_H
+#ifndef SILLY_ULTIMATE_WARN_H
+#define SILLY_ULTIMATE_WARN_H
 #include <tzx/warn/silly_simple_warn.h>
 
 class silly_ultimate_warn : public silly_simple_warn
@@ -43,4 +43,4 @@ class silly_ultimate_warn : public silly_simple_warn
     float m_moisture_p{0};    // 含水率百分比 单位%
 };
 
-#endif  // SILLY_UTILS_SILLY_ULTIMATE_WARN_H
+#endif  // SILLY_ULTIMATE_WARN_H

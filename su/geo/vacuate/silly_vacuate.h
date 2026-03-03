@@ -8,8 +8,8 @@
  * @description: silly_vacuate 类声明   http://sourceforge.net/projects/psimpl/
  * @version: v1.0.1 2024-08-28 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_VACUATE_H
-#define SILLY_UTILS_SILLY_VACUATE_H
+#ifndef SILLY_VACUATE_H
+#define SILLY_VACUATE_H
 #include <geo/silly_geo.h>
 
 enum eVacuateAlgo
@@ -53,4 +53,4 @@ class suVacuate
     static bool douglas_peucker_variant(const int& pointNum, const std::vector<suPoint>& points, std::vector<suPoint>& outputs, const int& dims = 2);
 };
 
-#endif  // SILLY_UTILS_SILLY_VACUATE_H
+#endif  // SILLY_VACUATE_H

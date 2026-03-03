@@ -12,4 +12,4 @@
 #ifdef CATCH2_UNIT_TEST
 #include <catch2/catch_test_macros.hpp>
 
-#endif //SILLY_UTILS_TEST_CONVERT_HPP
+#endif //TEST_CONVERT_HPP

@@ -8,8 +8,8 @@
  * @description: silly_file_lock 类声明
  * @version: v1.0.1 2024-09-24 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_FILE_LOCK_H
-#define SILLY_UTILS_SILLY_FILE_LOCK_H
+#ifndef SILLY_FILE_LOCK_H
+#define SILLY_FILE_LOCK_H
 #include <files/silly_file.h>
 
 class suFileLock
@@ -32,4 +32,4 @@ class suFileLock
 #endif
 };
 
-#endif  // SILLY_UTILS_SILLY_FILE_LOCK_H
+#endif  // SILLY_FILE_LOCK_H

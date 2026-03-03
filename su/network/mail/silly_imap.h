@@ -8,8 +8,8 @@
  * @description: silly_imap 类声明
  * @version: v1.0.1 2024-09-11 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_IMAP_H
-#define SILLY_UTILS_SILLY_IMAP_H
+#ifndef SILLY_IMAP_H
+#define SILLY_IMAP_H
 
 class silly_imap
 {
@@ -20,4 +20,4 @@ class silly_imap
   private:
 };
 
-#endif  // SILLY_UTILS_SILLY_IMAP_H
+#endif  // SILLY_IMAP_H

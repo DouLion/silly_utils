@@ -223,4 +223,4 @@ TEST_CASE("TestDataBase")
 }
 
 
-#endif //SILLY_UTILS_TEST_DATABASE_HPP
+#endif //TEST_DATABASE_HPP

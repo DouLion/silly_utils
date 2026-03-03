@@ -8,8 +8,8 @@
  * @description: http(https)客户端 类声明
  * @version: v1.0.1 2024-09-11 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_HTTP_CLIENT_H
-#define SILLY_UTILS_SILLY_HTTP_CLIENT_H
+#ifndef SILLY_HTTP_CLIENT_H
+#define SILLY_HTTP_CLIENT_H
 #include <files/silly_file.h>
 #include <network/http/silly_http_headers.h>
 
@@ -196,7 +196,7 @@ class suHttpClient
     size_t m_max_recv_speed{0};  // kb/s   0为不做设置
     double m_resp_content_len = 0.0;
 };
-#endif  // SILLY_UTILS_SILLY_HTTP_CLIENT_H
+#endif  // SILLY_HTTP_CLIENT_H
 
 /* 用例 Usecase
 

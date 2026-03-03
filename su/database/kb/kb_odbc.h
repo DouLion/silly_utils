@@ -10,11 +10,11 @@
  */
 #pragma once
 
-#ifndef SILLY_UTILS_KB_ODBC_H
-#define SILLY_UTILS_KB_ODBC_H
+#ifndef KB_ODBC_H
+#define KB_ODBC_H
 
 class kb_odbc
 {
 };
 
-#endif  // SILLY_UTILS_KB_ODBC_H
+#endif  // KB_ODBC_H

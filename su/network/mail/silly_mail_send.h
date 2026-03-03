@@ -7,8 +7,8 @@
  * @version: 1.0.1
  * @description: smtp发送邮箱, 已经在湖南项目中验证
  */
-#ifndef SILLY_UTILS_SILLY_MAIL_SEND_H
-#define SILLY_UTILS_SILLY_MAIL_SEND_H
+#ifndef SILLY_MAIL_SEND_H
+#define SILLY_MAIL_SEND_H
 #include <log/silly_log.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
@@ -160,4 +160,4 @@ class SimpleSslSmtpEmail : public SslSmtpEmail
     virtual std::string GetEmailBody(const EmailInfo& info);
 };
 
-#endif  // SILLY_UTILS_SILLY_MAIL_SEND_H
+#endif  // SILLY_MAIL_SEND_H

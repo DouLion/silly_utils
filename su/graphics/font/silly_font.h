@@ -8,8 +8,8 @@
  * @description: silly_font 类声明
  * @version: v1.0.1 2024-11-04 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_FONT_H
-#define SILLY_UTILS_SILLY_FONT_H
+#ifndef SILLY_FONT_H
+#define SILLY_FONT_H
 
 #include <su_macro.h>
 #include <cairo/cairo.h>
@@ -80,4 +80,4 @@ class silly_font
     FT_Library m_ft_library;
 };
 
-#endif  // SILLY_UTILS_SILLY_FONT_H
+#endif  // SILLY_FONT_H

@@ -8,8 +8,8 @@
  * @description: silly_render_shapes 类声明
  * @version: v1.0.1 2024-10-25 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_RENDER_SHAPES_H
-#define SILLY_UTILS_SILLY_RENDER_SHAPES_H
+#ifndef SILLY_RENDER_SHAPES_H
+#define SILLY_RENDER_SHAPES_H
 #include <geo/silly_geo.h>
 namespace silly_render
 {
@@ -41,4 +41,4 @@ class multi_polygon : suMultiPoly
 };
 }  // namespace silly_render
 
-#endif  // SILLY_UTILS_SILLY_RENDER_SHAPES_H
+#endif  // SILLY_RENDER_SHAPES_H

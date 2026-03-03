@@ -8,8 +8,8 @@
  * @description: silly_raw 类声明
  * @version: v1.0.1 2025-01-02 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_RAW_H
-#define SILLY_UTILS_SILLY_RAW_H
+#ifndef SILLY_RAW_H
+#define SILLY_RAW_H
 
 class suRaw
 {
@@ -20,4 +20,4 @@ class suRaw
   private:
 };
 
-#endif  // SILLY_UTILS_SILLY_RAW_H
+#endif  // SILLY_RAW_H

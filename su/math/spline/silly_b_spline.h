@@ -7,8 +7,8 @@
  * @version: 1.0.1
  * @description:
  */
-#ifndef SILLY_UTILS_SILLY_B_SPLINE_H
-#define SILLY_UTILS_SILLY_B_SPLINE_H
+#ifndef SILLY_B_SPLINE_H
+#define SILLY_B_SPLINE_H
 #include <geo/silly_geo.h>
 
 class silly_b_spline
@@ -39,4 +39,4 @@ class silly_b_spline
     }
 };
 
-#endif  // SILLY_UTILS_SILLY_B_SPLINE_H
+#endif  // SILLY_B_SPLINE_H

@@ -8,8 +8,8 @@
  * @description: 一个告警必要的属性内容
  * @version: v1.0.1 2024-10-18 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_SIMPLE_WARN_H
-#define SILLY_UTILS_SILLY_SIMPLE_WARN_H
+#ifndef SILLY_SIMPLE_WARN_H
+#define SILLY_SIMPLE_WARN_H
 #include <datetime/silly_posix_time.h>
 class silly_simple_warn
 {
@@ -50,4 +50,4 @@ class silly_simple_warn
     float m_moisture{0}; // 土壤湿度
 };
 
-#endif  // SILLY_UTILS_SILLY_SIMPLE_WARN_H
+#endif  // SILLY_SIMPLE_WARN_H

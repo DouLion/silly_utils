@@ -8,8 +8,8 @@
  * @description: 网格点索引统一
  * @version: v1.0.1 2024-10-11 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_GRID_INDEX_H
-#define SILLY_UTILS_SILLY_GRID_INDEX_H
+#ifndef SILLY_GRID_INDEX_H
+#define SILLY_GRID_INDEX_H
 #include <su_macro.h>
 
 class suCNGrid
@@ -111,4 +111,4 @@ class suGridIndx
     static std::pair<double, double> customize_point(const int64_t& index, const double& step, std::pair<double, double> minp, std::pair<double, double> maxp, const int64_t& bidx);
 };
 
-#endif  // SILLY_UTILS_SILLY_GRID_INDEX_H
+#endif  // SILLY_GRID_INDEX_H

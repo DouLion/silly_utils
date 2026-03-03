@@ -8,8 +8,8 @@
  * @description: silly_rwdb_record 类声明
  * @version: v1.0.1 2024-11-14 dou li yang
  */
-#ifndef SILLY_UTILS_RWDB_RECORD_H
-#define SILLY_UTILS_RWDB_RECORD_H
+#ifndef RWDB_RECORD_H
+#define RWDB_RECORD_H
 #include <su_macro.h>
 
 class silly_rwdb_record
@@ -28,4 +28,4 @@ class silly_rwdb_record
     static constexpr const char* FILE_NAME = "";
 };
 
-#endif  // SILLY_UTILS_RWDB_RECORD_H
+#endif  // RWDB_RECORD_H

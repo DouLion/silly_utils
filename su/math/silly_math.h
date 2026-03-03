@@ -8,8 +8,8 @@
  * @description: silly_math 类声明
  * @version: v1.0.1 2025-03-05 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_MATH_H
-#define SILLY_UTILS_SILLY_MATH_H
+#ifndef SILLY_MATH_H
+#define SILLY_MATH_H
 #include <su_macro.h>
 
 class suMath
@@ -128,4 +128,4 @@ public:
         return std::sqrt(sq_sum / data.size());*/
     }
 };
-#endif  // SILLY_UTILS_SILLY_MATH_H
+#endif  // SILLY_MATH_H

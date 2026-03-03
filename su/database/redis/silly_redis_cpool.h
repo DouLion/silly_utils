@@ -7,7 +7,7 @@
  * @version: 1.0.1
  * @description: redis 连接池
  */
-#ifndef SILLY_UTILS_SILLY_REDIS_CPOOL_H
-#define SILLY_UTILS_SILLY_REDIS_CPOOL_H
+#ifndef SILLY_REDIS_CPOOL_H
+#define SILLY_REDIS_CPOOL_H
 
-#endif  // SILLY_UTILS_SILLY_REDIS_CPOOL_H
+#endif  // SILLY_REDIS_CPOOL_H

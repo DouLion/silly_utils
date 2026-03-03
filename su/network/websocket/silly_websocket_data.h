@@ -8,8 +8,8 @@
  * @description: silly_websocket_data 类声明
  * @version: v1.0.1 2024-10-15 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_WEBSOCKET_DATA_H
-#define SILLY_UTILS_SILLY_WEBSOCKET_DATA_H
+#ifndef SILLY_WEBSOCKET_DATA_H
+#define SILLY_WEBSOCKET_DATA_H
 #include <su_macro.h>
 
-#endif  // SILLY_UTILS_SILLY_WEBSOCKET_DATA_H
+#endif  // SILLY_WEBSOCKET_DATA_H

@@ -7,8 +7,8 @@
  * @version: 1.0.1
  * @description: 单位换算基于1024进制
  */
-#ifndef SILLY_UTILS_SILLY_DISK_H
-#define SILLY_UTILS_SILLY_DISK_H
+#ifndef SILLY_DISK_H
+#define SILLY_DISK_H
 #include <files/silly_file.h>
 
 enum class eStorageUint : uint8_t
@@ -82,4 +82,4 @@ class suDisk
     static double space_used_percent(const suPath& file);
 };
 
-#endif  // SILLY_UTILS_SILLY_DISK_H
+#endif  // SILLY_DISK_H

@@ -8,8 +8,8 @@
  * @description: silly_lora_gateway 类声明
  * @version: v1.0.1 2024-10-09 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_LORA_GATEWAY_H
-#define SILLY_UTILS_SILLY_LORA_GATEWAY_H
+#ifndef SILLY_LORA_GATEWAY_H
+#define SILLY_LORA_GATEWAY_H
 
 class silly_lora_gateway
 {
@@ -20,4 +20,4 @@ class silly_lora_gateway
   private:
 };
 
-#endif  // SILLY_UTILS_SILLY_LORA_GATEWAY_H
+#endif  // SILLY_LORA_GATEWAY_H

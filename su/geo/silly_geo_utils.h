@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef SILLY_UTILS_SILLY_GEO_OPERATION_H
-#define SILLY_UTILS_SILLY_GEO_OPERATION_H
+#ifndef SILLY_GEO_OPERATION_H
+#define SILLY_GEO_OPERATION_H
 
 #include <geo/geometry/silly_geo_coll.h>
 #include <geo/proj/gdal/silly_projection_define.h>
@@ -331,4 +331,4 @@ double suGeoUtils::area(const int& pnum, const T* xs, const T* ys)
 using silly_geo_utils = suGeoUtils;
 using sugeoutils = suGeoUtils;
 
-#endif  // SILLY_UTILS_SILLY_GEO_OPERATION_H
+#endif  // SILLY_GEO_OPERATION_H

@@ -8,8 +8,8 @@
  * @description: RadxConvert 类声明
  * @version: v1.0.1 2025-02-24 dou li yang
  */
-#ifndef SILLY_UTILS_RADXCONVERT_H
-#define SILLY_UTILS_RADXCONVERT_H
+#ifndef RADXCONVERT_H
+#define RADXCONVERT_H
 
 class RadxConvert
 {
@@ -20,4 +20,4 @@ class RadxConvert
   private:
 };
 
-#endif  // SILLY_UTILS_RADXCONVERT_H
+#endif  // RADXCONVERT_H

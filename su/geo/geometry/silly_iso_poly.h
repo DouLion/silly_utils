@@ -8,8 +8,8 @@
  * @description: 等值面使用的一种txt文件格式的矢量面
  * @version: v1.0.1 2024-12-19 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_ISO_POLY_H
-#define SILLY_UTILS_SILLY_ISO_POLY_H
+#ifndef SILLY_ISO_POLY_H
+#define SILLY_ISO_POLY_H
 #include <geo/silly_geo.h>
 #include <files/silly_file.h>
 class suIsoPoly
@@ -23,4 +23,4 @@ class suIsoPoly
   private:
 };
 
-#endif  // SILLY_UTILS_SILLY_ISO_POLY_H
+#endif  // SILLY_ISO_POLY_H

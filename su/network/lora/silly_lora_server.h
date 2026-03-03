@@ -8,8 +8,8 @@
  * @description: silly_lora_server 类声明
  * @version: v1.0.1 2024-10-09 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_LORA_SERVER_H
-#define SILLY_UTILS_SILLY_LORA_SERVER_H
+#ifndef SILLY_LORA_SERVER_H
+#define SILLY_LORA_SERVER_H
 
 class silly_lora_server
 {
@@ -20,4 +20,4 @@ class silly_lora_server
   private:
 };
 
-#endif  // SILLY_UTILS_SILLY_LORA_SERVER_H
+#endif  // SILLY_LORA_SERVER_H

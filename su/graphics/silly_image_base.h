@@ -8,8 +8,8 @@
  * @description: silly_image_base 类声明
  * @version: v1.0.1 2025-01-02 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_IMAGE_BASE_H
-#define SILLY_UTILS_SILLY_IMAGE_BASE_H
+#ifndef SILLY_IMAGE_BASE_H
+#define SILLY_IMAGE_BASE_H
 #include <graphics/silly_color.h>
 #include <files/silly_file.h>
 
@@ -139,4 +139,4 @@ class suImgBase
     // unsigned char** m_nbytes = nullptr;
 };
 
-#endif  // SILLY_UTILS_SILLY_IMAGE_BASE_H
+#endif  // SILLY_IMAGE_BASE_H

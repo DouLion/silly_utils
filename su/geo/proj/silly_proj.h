@@ -19,8 +19,8 @@
     643517.2824050392,3459001.3302408773
     121.5064999999,31.2439600166
  */
-#ifndef SILLY_UTILS_SILLY_PROJ_H
-#define SILLY_UTILS_SILLY_PROJ_H
+#ifndef SILLY_PROJ_H
+#define SILLY_PROJ_H
 #include <su_macro.h>
 
 #define SU_GAUSS3_NO(_lon_) (static_cast<int>(std::floor((_lon_ + 1.5) / 3)))
@@ -295,4 +295,4 @@ class suGeoProj
     }
 };
 
-#endif  // SILLY_UTILS_SILLY_PROJ_H
+#endif  // SILLY_PROJ_H

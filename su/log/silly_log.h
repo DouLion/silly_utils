@@ -1,6 +1,6 @@
 #pragma once
-#ifndef SILLY_UTILS_SILLY_LOG_H
-#define SILLY_UTILS_SILLY_LOG_H
+#ifndef SILLY_LOG_H
+#define SILLY_LOG_H
 #include <singleton/silly_singleton.h>
 #include <files/silly_file.h>
 #include <string/silly_format.h>
@@ -138,4 +138,4 @@ void silly_log::error(Args&&... s)
 
 #define SLOG_ERROR(s, ...) silly_log::instance().error(fmt::format("<{}:{}> ", SU_FILE_NAME, __LINE__).append(s), ##__VA_ARGS__);
 
-#endif  // SILLY_UTILS_SILLY_LOG_H
+#endif  // SILLY_LOG_H

@@ -24,4 +24,4 @@ TEST_CASE("TEST_CASE")
     }
 }
 
-#endif //SILLY_UTILS_TEST_DEMO_HPP
+#endif //TEST_DEMO_HPP

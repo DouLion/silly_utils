@@ -8,8 +8,8 @@
  * @description: silly_socket 类声明
  * @version: v1.0.1 2024-11-22 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_SOCKET_H
-#define SILLY_UTILS_SILLY_SOCKET_H
+#ifndef SILLY_SOCKET_H
+#define SILLY_SOCKET_H
 #include <su_macro.h>
 #ifdef WIN32
 typedef SOCKET socket_t;
@@ -49,4 +49,4 @@ class suSocket
     std::mutex m_mutex;
 };
 
-#endif  // SILLY_UTILS_SILLY_SOCKET_H
+#endif  // SILLY_SOCKET_H

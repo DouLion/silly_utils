@@ -7,8 +7,8 @@
  * @version: 1.0.1
  * @description:
  */
-#ifndef SILLY_UTILS_SILLY_PINYIN_H
-#define SILLY_UTILS_SILLY_PINYIN_H
+#ifndef SILLY_PINYIN_H
+#define SILLY_PINYIN_H
 #include <su_macro.h>
 
 class silly_pinyin
@@ -22,4 +22,4 @@ class silly_pinyin
     static std::string chinese_to_pinyin(const std::string &gbk_chinese);
 };
 
-#endif  // SILLY_UTILS_SILLY_PINYIN_H
+#endif  // SILLY_PINYIN_H

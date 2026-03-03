@@ -7,8 +7,8 @@
  * @version: 1.0.1
  * @description: color 类声明
  */
-#ifndef SILLY_UTILS_SILLY_COLOR_H
-#define SILLY_UTILS_SILLY_COLOR_H
+#ifndef SILLY_COLOR_H
+#define SILLY_COLOR_H
 
 #include <su_macro.h>
 #define COLOR_MAX_D 255.0
@@ -105,7 +105,7 @@ class suColor
     uint8_t alpha{0};
     uint8_t gray{0};
 };
-#endif  // SILLY_UTILS_SILLY_COLOR_H
+#endif  // SILLY_COLOR_H
 
 /* shader中的恢复函数
 

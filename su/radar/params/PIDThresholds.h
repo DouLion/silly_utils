@@ -8,8 +8,8 @@
  * @description: PIDThresholds 类声明
  * @version: v1.0.1 2025-02-24 dou li yang
  */
-#ifndef SILLY_UTILS_PIDTHRESHOLDS_H
-#define SILLY_UTILS_PIDTHRESHOLDS_H
+#ifndef PIDTHRESHOLDS_H
+#define PIDTHRESHOLDS_H
 
 class PIDThresholds
 {
@@ -20,4 +20,4 @@ class PIDThresholds
   private:
 };
 
-#endif  // SILLY_UTILS_PIDTHRESHOLDS_H
+#endif  // PIDTHRESHOLDS_H

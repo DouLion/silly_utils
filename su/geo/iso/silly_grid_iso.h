@@ -8,8 +8,8 @@
  * @description: 网格点实现等值面/等值线, matching square 算法
  * @version: v1.0.1 2025-04-03 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_GRID_ISO_H
-#define SILLY_UTILS_SILLY_GRID_ISO_H
+#ifndef SILLY_GRID_ISO_H
+#define SILLY_GRID_ISO_H
 
 class silly_grid_iso
 {
@@ -20,4 +20,4 @@ class silly_grid_iso
   private:
 };
 
-#endif  // SILLY_UTILS_SILLY_GRID_ISO_H
+#endif  // SILLY_GRID_ISO_H

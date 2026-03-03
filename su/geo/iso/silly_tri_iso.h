@@ -8,8 +8,8 @@
  * @description: 三角化实现等值面/等值线
  * @version: v1.0.1 2025-04-03 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_TRI_ISO_H
-#define SILLY_UTILS_SILLY_TRI_ISO_H
+#ifndef SILLY_TRI_ISO_H
+#define SILLY_TRI_ISO_H
 
 class silly_tri_iso
 {
@@ -20,4 +20,4 @@ class silly_tri_iso
   private:
 };
 
-#endif  // SILLY_UTILS_SILLY_TRI_ISO_H
+#endif  // SILLY_TRI_ISO_H

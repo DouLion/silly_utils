@@ -10,8 +10,8 @@
  */
 #pragma once
 
-#ifndef SILLY_UTILS_FTP_UTILS_H
-#define SILLY_UTILS_FTP_UTILS_H
+#ifndef FTP_UTILS_H
+#define FTP_UTILS_H
 
 #include <curl/curl.h>
 #include <files/silly_file.h>
@@ -77,4 +77,4 @@ class ftp_utils
     static bool ftp_upload(const std::string& localFileFath, const std::string& remote_file_path, const std::string& user, const std::string& passwd, int timeout, bool IsDir);
 };
 
-#endif  // SILLY_UTILS_FTP_UTILS_H
+#endif  // FTP_UTILS_H

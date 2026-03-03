@@ -8,8 +8,8 @@
  * @description: silly_render_brush 类声明
  * @version: v1.0.1 2024-10-25 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_RENDER_BRUSH_H
-#define SILLY_UTILS_SILLY_RENDER_BRUSH_H
+#ifndef SILLY_RENDER_BRUSH_H
+#define SILLY_RENDER_BRUSH_H
 
 class silly_render_brush
 {
@@ -20,4 +20,4 @@ class silly_render_brush
   private:
 };
 
-#endif  // SILLY_UTILS_SILLY_RENDER_BRUSH_H
+#endif  // SILLY_RENDER_BRUSH_H

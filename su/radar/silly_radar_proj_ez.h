@@ -7,7 +7,7 @@
  * @version: 1.0.1
  * @description: 雷达坐标系简化用法
  */
-#ifndef SILLY_UTILS_SILLY_RADAR_PROJ_EZ_H
-#define SILLY_UTILS_SILLY_RADAR_PROJ_EZ_H
+#ifndef SILLY_RADAR_PROJ_EZ_H
+#define SILLY_RADAR_PROJ_EZ_H
 
-#endif  // SILLY_UTILS_SILLY_RADAR_PROJ_EZ_H
+#endif  // SILLY_RADAR_PROJ_EZ_H
