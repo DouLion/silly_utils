@@ -126,13 +126,13 @@ elseif(CMAKE_HOST_SYSTEM_NAME MATCHES "Windows")
     set(CMAKE_CXX_FLAGS_DEBUG "/Zi /Ob0 /Od /RTC1 /EHsc /MDd")
 
     # MinSizeRel: 最小体积
-    set(CMAKE_CXX_FLAGS_MINSIZEREL "/O1 /Zi /Ob2 /Oi /Os /EHsc /MD")
+    set(CMAKE_CXX_FLAGS_MINSIZEREL "/O1 /Zi /Ob2 /Oi /Os /EHsc /MD /D NDEBUG")
 
     # RelWithDebInfo: 发布带调试信息 (保持原样)
-    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "/O2 /Zi /Ob1 /EHsc /MD")
+    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "/O2 /Zi /Ob1 /EHsc /MD /D NDEBUG")
 
     # 1. 保留 /Zi：编译器必须生成包含调试信息的 .obj 文件
-    set(CMAKE_CXX_FLAGS_RELEASE "/O2 /Zi /Ob1 /EHsc /MD")
+    set(CMAKE_CXX_FLAGS_RELEASE "/O2 /Zi /Ob1 /EHsc /MD /D NDEBUG")
 
     # ---------------------------------------------------------
     # 2. 链接器标志 (Linker Flags)
