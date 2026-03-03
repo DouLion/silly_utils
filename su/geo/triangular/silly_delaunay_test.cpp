@@ -23,7 +23,7 @@ static suPoint Convert(const suPoint& p, const suRect& bound, const double& widt
     ret.y = (bound.max.y - p.y) / bdh * height;
     return ret;
 }
-static std::vector<suPoint> ReadPoints(supath& file)
+static std::vector<suPoint> ReadPoints(const supath& file)
 {
     std::vector<suPoint> ret;
     std::string content = sufile::read(file);
@@ -55,11 +55,12 @@ static std::vector<suPoint> ReadPoints(supath& file)
     return ret;
 }
 
+std::string point_file = R"("Z:/iso_1772193243.txt)";
+
 void suDelaunay::Test3()
 {
     suGeoUtils::init_gdal_env();
-    std::vector<suPoint> pts = ReadPoints(supath("Z:/iso_1772193243.txt"));
-    
+    std::vector<suPoint> pts = ReadPoints(point_file);
 
     suTimer timer;
     BuildTriangles(pts);
@@ -143,7 +144,6 @@ void suDelaunay::Test3()
             node.ring.is_outer = 0;  //  该环是内环环
         }
 
-        
         suPoly poly;
         poly.outer = node.ring;
         suGeoColl gc(poly);
@@ -155,13 +155,13 @@ void suDelaunay::Test3()
         gcs.push_back(gc);
     }
     suGeoUtils::write("Z:/check.shp", gcs);
-
 }
 void suDelaunay::Test2()
 {
     double width = 2000;
     double height = 2000;
-    std::vector<suPoint> pts = ReadPoints(supath("Z:/iso_1772193243.txt"));
+
+    std::vector<suPoint> pts = ReadPoints(point_file);
 
     suTimer timer;
     BuildTriangles(pts);
@@ -199,7 +199,6 @@ void suDelaunay::Test2()
             timer.restart();
             TracePoly(th, polys);
             SLOG_DEBUG("面数量: {}, 时间: {} ms", polys.size(), timer.elapsed_ms())
-            
 
             // 每三个元素组成一个元组
             for (auto& poly : polys)
