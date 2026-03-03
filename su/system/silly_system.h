@@ -27,6 +27,12 @@
 void BIN_CHDIR(const std::filesystem::path& wd = PROJECT_ROOT);
 
 /**
+ * 程序奔溃时自动生成崩溃文件
+ * 需要生成.pdb
+ */
+void LOG_CRASH_DUMP();
+
+/**
  * 设置环境变量
  * @param name 环境变量名
  * @param value 环境变量值

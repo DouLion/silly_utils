@@ -122,14 +122,36 @@ elseif(CMAKE_HOST_SYSTEM_NAME MATCHES "Windows")
     # ===== MSVC 特定配置 =====
     add_compile_options(/wd4819 /wd4005 /wd4834 /wd4996 /utf-8 /openmp)
 
-    # MSVC 编译器标志
-    set(CMAKE_CXX_FLAGS_DEBUG "/D_DEBUG /MDd /Zi /Ob0 /Od /RTC1 /Gy /EHsc")
-    set(CMAKE_CXX_FLAGS_MINSIZEREL "/MD /Zi /O1 /Ob2 /Oi /Os /D NDEBUG /GS-")
-    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "/MD /Zi /O2 /Ob1 /D NDEBUG")
-    set(CMAKE_CXX_FLAGS_RELEASE "/MD /Zi /O2 /Ob1 /D NDEBUG")
+    # 去掉了手动的 /D_DEBUG 和 /D NDEBUG，CMake 会自动处理这些宏
+    set(CMAKE_CXX_FLAGS_DEBUG "/Zi /Ob0 /Od /RTC1 /EHsc /MDd")
 
-    # MSVC 的 OpenMP 是 /openmp，线程由运行时库处理
-    # CMake 通常能自动处理 MSVC 的线程库
+    # MinSizeRel: 最小体积
+    set(CMAKE_CXX_FLAGS_MINSIZEREL "/O1 /Zi /Ob2 /Oi /Os /EHsc /MD")
+
+    # RelWithDebInfo: 发布带调试信息 (保持原样)
+    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "/O2 /Zi /Ob1 /EHsc /MD")
+
+    # 1. 保留 /Zi：编译器必须生成包含调试信息的 .obj 文件
+    set(CMAKE_CXX_FLAGS_RELEASE "/O2 /Zi /Ob1 /EHsc /MD")
+
+    # ---------------------------------------------------------
+    # 2. 链接器标志 (Linker Flags)
+    # ---------------------------------------------------------
+
+    # 基础优化选项 (Release 模式标配)
+    set(CMAKE_EXE_LINKER_FLAGS_BASE_RELEASE "/OPT:REF /OPT:ICF")
+    set(CMAKE_SHARED_LINKER_FLAGS_BASE_RELEASE "/OPT:REF /OPT:ICF")
+
+    # /DEBUG:FASTLINK 告诉链接器生成快速加载的 PDB
+    set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_BASE_RELEASE} /DEBUG:FASTLINK")
+    set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS_BASE_RELEASE} /DEBUG:FASTLINK")
+
+    # ---------------------------------------------------------
+    # 3. 确保 PDB 文件名与目标一致 (避免 vc140.pdb 冲突)
+    # ---------------------------------------------------------
+    # 虽然 /DEBUG:FASTLINK 通常会自动生成 <target>.pdb，
+    # 但为了保险，我们可以强制 CMake 将 PDB 输出到运行时目录
+    set(CMAKE_PDB_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
 
   else()
     # ===== MinGW (或任何非 MSVC 的 Windows 编译器，如 Clang) =====
