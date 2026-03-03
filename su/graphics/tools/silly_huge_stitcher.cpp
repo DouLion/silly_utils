@@ -42,9 +42,10 @@ bool suHugeStitcher::check(const std::string& data, int& width, int& height, int
 
 bool suHugeStitcher::attach(const Block& blk)
 {
+    bool status = false;
     if (!m_init)
     {
-        return false;
+        return status;
     }
 #if SU_THIRD_SUPPORT_GDAL
     GDALDataset* tmp_dataset = nullptr; {
