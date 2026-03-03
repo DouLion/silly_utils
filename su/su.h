@@ -18,7 +18,7 @@
 #include <log/silly_log.h>  // 日志
 
 // compress (压缩/解压缩)
-#include <compress/silly_compress_common.h>  // 压缩 错误码定义
+#include <compress/silly_compress.hpp>       // 压缩
 #include <compress/silly_7z.h>               // 7z压缩/解压缩, 未实现
 #include <compress/silly_bz2.h>              // bz2 压缩/解压缩 (文件,内存数据)
 #include <compress/silly_gzip.h>             // gzip 压缩/解压缩(内存数据), 文件的压缩解压缩未实现

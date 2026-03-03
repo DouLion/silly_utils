@@ -8,25 +8,23 @@
  * @description: silly_compress实现
  * @version: v1.0.1 2025-08-04 dou li yang
  */
-#include "silly_compress.h"
-
-#include "silly_minizip.h"
-
+#include "silly_compress.hpp"
+#include <compress/silly_minizip.h>
 #include <compress/silly_7z.h>
 #include <compress/silly_bz2.h>
 #include <compress/silly_gzip.h>
 #include <compress/silly_rar.h>
 #include <compress/silly_zip.h>
 
-eCompressErr su::CompressFile(const suPath& src, const suPath& dst, const eCompressMethod& method)
+eCompressErr CompressFile(const suPath& src, const suPath& dst, const eCompressMethod& method)
 {
     return eCompressErr::NotImplement;
 }
-eCompressErr su::CompressDir(const suPath& src, const suPath& dst, const eCompressMethod& method)
+eCompressErr CompressDir(const suPath& src, const suPath& dst, const eCompressMethod& method)
 {
     return eCompressErr::NotImplement;
 }
-eCompressErr su::CompressBin(const std::string& src, std::string& dst, const eCompressMethod& method)
+eCompressErr CompressBin(const std::string& src, std::string& dst, const eCompressMethod& method)
 {
     eCompressErr ret = eCompressErr::NotImplement;
     if (src.empty())
@@ -77,42 +75,42 @@ eCompressErr su::CompressBin(const std::string& src, std::string& dst, const eCo
     return ret;
 }
 
-std::string su::CompressBin(const std::string& src, const eCompressMethod& method)
+std::string CompressBin(const std::string& src, const eCompressMethod& method)
 {
     std::string ret;
     CompressBin(src, ret, method);
     return ret;
 }
 
-eCompressErr su::DecompressFile(const suPath& src, const suPath& dst, const eCompressMethod& method)
+eCompressErr DecompressFile(const suPath& src, const suPath& dst, const eCompressMethod& method)
 {
     return eCompressErr::NotImplement;
 }
-eCompressErr su::DecompressDir(const suPath& src, const suPath& dst, const eCompressMethod& method)
+eCompressErr DecompressDir(const suPath& src, const suPath& dst, const eCompressMethod& method)
 {
     return eCompressErr::NotImplement;
 }
-eCompressErr su::DecompressBin(const std::string& src, std::string& dst, const eCompressMethod& method)
+eCompressErr DecompressBin(const std::string& src, std::string& dst, const eCompressMethod& method)
 {
     return eCompressErr::NotImplement;
 }
-std::string su::DecompressBin(const std::string& src, const eCompressMethod& method)
+std::string DecompressBin(const std::string& src, const eCompressMethod& method)
 {
     return "";
 }
-eCompressErr su::AutoDecompressFile(const suPath& src, const suPath& dst)
+eCompressErr AutoDecompressFile(const suPath& src, const suPath& dst)
 {
     return eCompressErr::NotImplement;
 }
-eCompressErr su::AutoDecompressDir(const suPath& src, const suPath& dst)
+eCompressErr AutoDecompressDir(const suPath& src, const suPath& dst)
 {
     return eCompressErr::NotImplement;
 }
-eCompressErr su::AutoDecompressBin(const std::string& src, std::string& dst)
+eCompressErr AutoDecompressBin(const std::string& src, std::string& dst)
 {
     return eCompressErr::NotImplement;
 }
-std::string su::AutoDecompressBin(const std::string& src)
+std::string AutoDecompressBin(const std::string& src)
 {
     return "";
 }

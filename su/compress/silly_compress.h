@@ -11,40 +11,66 @@
 #ifndef SILLY_COMPRESS_H
 #define SILLY_COMPRESS_H
 #include <files/silly_file.h>
-#include <compress/silly_compress_common.h>
-namespace su
+#include <log/silly_log.h>
+
+enum class eCompressMethod
 {
+    Unknown,
+    BZ2,  // 压缩率最高
+    ZIP,
+    RAR,
+    RAR4,
+    Zip7Z,
+    LZ4,     // 一个相对轻量,压缩率,压缩速度相对合适的压缩算法
+    Brotli,  // 未支持
+    WebP     // 未支持
 
-/// ---------------- 压缩 ----------------
+};
 
-static eCompressErr CompressFile(const suPath& src, const suPath& dst, const eCompressMethod& method = eCompressMethod::ZIP);
+enum class eCompressErr
+{
+    Ok = 0,
+    EmptyInputErr = 1,
+    MallocErr = 2,
+    FileNotExistErr = 3,
+    MemAllocErr = 4,
+    InValidInputErr = 5,
+    InValidOutputErr = 6,
+    // bz2的错误
+    Bz2DecompressErr = 101,
+    Bz2NotSupportDirErr = 102,
+    Bz2CompressErr = 103,
+    Bz2OpenFileErr = 104,
 
-static eCompressErr CompressDir(const suPath& src, const suPath& dst, const eCompressMethod& method = eCompressMethod::ZIP);
+    // minizip的错误
+    MiniZDecompressErr = 201,
+    MiniZCreatZipErr = 202,
+    MiniZOpenFileErr = 203,
+    MiniZCreatDirErr = 204,
+    MiniZFileEmptyErr = 205,
+    MiniZGetInforErr = 206,
 
-static eCompressErr CompressBin(const std::string& src, std::string& dst, const eCompressMethod& method = eCompressMethod::ZIP);
+    MiniZCompressStrErr = 207,
+    MiniZUncompressStrErr = 208,
+    MiniZUnknowErr = 299,
+    // gzip的错误
 
-static std::string CompressBin(const std::string& src, const eCompressMethod& method = eCompressMethod::ZIP);
+    GZipDecompressErr = 301,
 
-/// ---------------- 解压 ----------------
+    // 7z的错误
+    Z7zDecompressErr = 401,
 
-/// 指定解压格式
-static eCompressErr DecompressFile(const suPath& src, const suPath& dst, const eCompressMethod& method);
+    // rar的错误
+    RAROpenErr = 501,
+    RARCreatDirErr = 502,
+    RARSuportFormatErr = 503,
+    RARWriteErr = 504,
+    RARReadErr = 505,
 
-static eCompressErr DecompressDir(const suPath& src, const suPath& dst, const eCompressMethod& method);
+    // 其他
+    InvalidMethod = 998,
+    NotImplement = 999
 
-static eCompressErr DecompressBin(const std::string& src, std::string& dst, const eCompressMethod& method);
-
-static std::string DecompressBin(const std::string& src, const eCompressMethod& method);
-
-/// 自动判断解压格式
-static eCompressErr AutoDecompressFile(const suPath& src, const suPath& dst);
-
-static eCompressErr AutoDecompressDir(const suPath& src, const suPath& dst);
-
-static eCompressErr AutoDecompressBin(const std::string& src, std::string& dst);
-
-static std::string AutoDecompressBin(const std::string& src);
-
-}  // namespace su
+};
 
 #endif  // SILLY_COMPRESS_H
