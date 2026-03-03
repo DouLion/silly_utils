@@ -9,7 +9,7 @@
 #include <ogr_api.h>
 #endif
 #if SU_THIRD_SUPPORT_POLY_CLIPPING
-#include <clipper2/clipper.h>
+//#include <clipper2/clipper.h>
 #endif
 #include <encode/silly_encode.h>
 #include <files/silly_file.h>
