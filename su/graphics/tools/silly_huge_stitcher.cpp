@@ -62,7 +62,6 @@ bool suHugeStitcher::attach(const Block& blk)
         return false;
     }
 
-    bool status = false;
     do
     {
         {
