@@ -9,6 +9,7 @@
  * @version: v1.0.1 2025-02-28 dou li yang
  */
 #include "RadarDataSLB.h"
+#include <compress/silly_bz2.h>
 using namespace RadarData;
 
 template <typename T>
@@ -291,7 +292,16 @@ bool SLB::Read(const suPath& file)
     {
         return false;
     }
-    char* bp = (char*)content.c_str();
+    char* bp = content.data();
+    std::string bz2dp;
+    if (suBz2::valid(content))
+    {
+        if (eCompressErr::Ok != suBz2::decompress(content, bz2dp))
+        {
+            return false;
+        }
+        bp = bz2dp.data();
+    }
     char* p = bp;
     Clear();
     do

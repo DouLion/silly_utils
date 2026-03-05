@@ -46,7 +46,7 @@ eCompressErr CompressBin(const std::string& src, std::string& dst, const eCompre
     }
     else if (eCompressMethod::BZ2 == method)
     {
-        silly_bz2 bz2;
+        suBz2 bz2;
         char* out = nullptr;
         size_t out_len = 0;
         ret = bz2.compress(src.data(), src.size(), &out, out_len);
