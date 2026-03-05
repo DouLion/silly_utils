@@ -227,80 +227,45 @@ std::string CLASS_PURE_NAME(const T&)
 }
 
 /// 简化容器操作
-template <typename K, typename V>
-bool HAS(const std::map<K, V>& m, const K& k)
+template <typename T, typename = void>
+struct has_key_type : std::false_type {};
+
+template <typename T>
+struct has_key_type<T, std::void_t<typename T::key_type>> : std::true_type {};
+
+// 2. 用于检测类型 T 是否有嵌套类型 'value_type'
+//    大多数标准容器（无论关联还是序列）都有 value_type。
+//    这主要用来确保容器是可迭代并存储值的。
+template <typename T, typename = void>
+struct has_value_type : std::false_type {};
+
+template <typename T>
+struct has_value_type<T, std::void_t<typename T::value_type>> : std::true_type {};
+
+
+// --- HAS 模板函数重载 ---
+
+// 1. 为【关联容器】设计的 HAS 函数（例如 std::map, std::set, std::unordered_map, std::unordered_set）
+//    这个版本使用容器的成员函数 .find()。
+//    它只有在 Container 类型具有 'key_type' 嵌套类型时才会被启用 (通过 std::enable_if)。
+template <typename Container, typename LookupKeyType>
+typename std::enable_if<has_key_type<Container>::value, bool>::type
+HAS(const Container& c, const LookupKeyType& k)
 {
-    return m.find(k) != m.end();
+    // 对于关联容器，其 .find() 方法能够处理 LookupKeyType 到其内部 key_type 的隐式转换
+    // 例如，std::map<std::string, int> 的 .find() 可以接受 const char*
+    return c.find(k) != std::end(c);
 }
 
-template <typename K, typename V>
-bool HAS(const std::multimap<K, V>& m, const K& k)
+// 2. 为【序列容器】设计的 HAS 函数（例如 std::vector, std::list, std::deque, std::array）
+//    这个版本使用标准算法 std::find()。
+//    它只有在 Container 类型【不】具有 'key_type' 嵌套类型，并且具有 'value_type' 时才会被启用。
+//    这保证了它不会与上面的关联容器版本冲突，并且适用于常见的序列容器。
+template <typename Container, typename ValueType>
+typename std::enable_if<!has_key_type<Container>::value && has_value_type<Container>::value, bool>::type
+HAS(const Container& c, const ValueType& x)
 {
-    return m.find(k) != m.end();  // 只需判断是否存在至少一个
-}
-
-template <typename K>
-bool HAS(const std::set<K>& s, const K& k)
-{
-    return s.find(k) != s.end();
-}
-
-template <typename K>
-bool HAS(const std::multiset<K>& s, const K& k)
-{
-    return s.find(k) != s.end();
-}
-
-// ---- 无序关联容器（哈希表，平均 O(1)）----
-
-template <typename K, typename V>
-bool HAS(const std::unordered_map<K, V>& m, const K& k)
-{
-    return m.find(k) != m.end();
-}
-
-template <typename K, typename V>
-bool HAS(const std::unordered_multimap<K, V>& m, const K& k)
-{
-    return m.find(k) != m.end();
-}
-
-template <typename K>
-bool HAS(const std::unordered_set<K>& s, const K& k)
-{
-    return s.find(k) != s.end();
-}
-
-template <typename K>
-bool HAS(const std::unordered_multiset<K>& s, const K& k)
-{
-    return s.find(k) != s.end();
-}
-
-// ---- 序列容器（线性查找 O(n)，使用 std::find 更简洁）----
-
-template <typename T, typename Alloc>
-bool HAS(const std::vector<T, Alloc>& v, const T& x)
-{
-    return std::find(v.begin(), v.end(), x) != v.end();
-}
-
-template <typename T, typename Alloc>
-bool HAS(const std::deque<T, Alloc>& d, const T& x)
-{
-    return std::find(d.begin(), d.end(), x) != d.end();
-}
-
-template <typename T, typename Alloc>
-bool HAS(const std::list<T, Alloc>& l, const T& x)
-{
-    return std::find(l.begin(), l.end(), x) != l.end();
-}
-
-template <typename T, std::size_t N>
-bool HAS(const std::array<T, N>& a, const T& x)
-{
-    return std::find(a.begin(), a.end(), x) != a.end();
+    return std::find(std::begin(c), std::end(c), x) != std::end(c);
 }
 
 #endif
