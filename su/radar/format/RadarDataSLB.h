@@ -294,6 +294,10 @@ class SLB
 
     SiteInfo GetSiteInfo() const;
 
+    BlockInfo GetBlockInfo() const;
+
+    ObserveTime GetObserveTime() const;
+
     std::map<int, double> Layer2Elevation() const;
 
     void Clear();

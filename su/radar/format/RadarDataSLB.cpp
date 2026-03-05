@@ -95,7 +95,12 @@ bool Alerts::Read(char*& p)
     AlertList.resize(AlertCounts);
     for (int32_t i = 0; i < AlertCounts; i++)
     {
-        assert(AlertList[i].Read(p));
+        bool ret = AlertList[i].Read(p);
+        assert(ret);
+        if (!ret)
+        {
+            return false;
+        }
     }
     return true;
 }
@@ -146,7 +151,12 @@ bool BlockInfo::Read(char*& p)
     LayerParams.resize(LayerCounts);
     for (int32_t i = 0; i < LayerCounts; i++)
     {
-        assert(LayerParams[i].Read(p));
+        bool ret = LayerParams[i].Read(p);
+        assert(ret);
+        if (!ret)
+        {
+            return false;
+        }
     }
 
     return true;
@@ -443,6 +453,16 @@ std::vector<float> SLB::GetData(const int& layer, const eType& type) const
 SiteInfo SLB::GetSiteInfo() const
 {
     return m_SiteInfo;
+}
+
+BlockInfo SLB::GetBlockInfo() const
+{
+    return m_BlockInfo;
+}
+
+ObserveTime SLB::GetObserveTime() const 
+{
+    return m_ObTime;
 }
 
 std::map<int, double> SLB::Layer2Elevation() const
