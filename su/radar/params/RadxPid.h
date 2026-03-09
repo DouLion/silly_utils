@@ -8,8 +8,8 @@
  * @description: RadxPid 类声明
  * @version: v1.0.1 2025-02-24 dou li yang
  */
-#ifndef SILLY_UTILS_RADXPID_H
-#define SILLY_UTILS_RADXPID_H
+#ifndef RADXPID_H
+#define RADXPID_H
 
 class RadxPid
 {
@@ -20,4 +20,4 @@ class RadxPid
   private:
 };
 
-#endif  // SILLY_UTILS_RADXPID_H
+#endif  // RADXPID_H

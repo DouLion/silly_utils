@@ -90,7 +90,7 @@ class suRect  // 普通坐标点
      * @param containBoundary
      * @return
      */
-    bool intersect(const suPoint& p, const bool& containBoundary = true) const;
+    bool contains(const suPoint& p, const bool& containBoundary = true) const;
 
     /**
      * 转为字符串

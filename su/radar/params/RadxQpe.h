@@ -8,8 +8,8 @@
  * @description: RadxQpe 类声明
  * @version: v1.0.1 2025-02-24 dou li yang
  */
-#ifndef SILLY_UTILS_RADXQPE_H
-#define SILLY_UTILS_RADXQPE_H
+#ifndef RADXQPE_H
+#define RADXQPE_H
 
 class RadxQpe
 {
@@ -20,4 +20,4 @@ class RadxQpe
   private:
 };
 
-#endif  // SILLY_UTILS_RADXQPE_H
+#endif  // RADXQPE_H

@@ -8,8 +8,8 @@
  * @description: silly_process 类声明
  * @version: v1.0.1 2024-12-03 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_PROCESS_H
-#define SILLY_UTILS_SILLY_PROCESS_H
+#ifndef SILLY_PROCESS_H
+#define SILLY_PROCESS_H
 #include <su_macro.h>
 class silly_process
 {
@@ -29,4 +29,4 @@ class silly_process
     static double memory_usage_kbyte(const int& pid = 0);
 };
 
-#endif  // SILLY_UTILS_SILLY_PROCESS_H
+#endif  // SILLY_PROCESS_H

@@ -8,8 +8,8 @@
  * @description: silly_mail 类声明
  * @version: v1.0.1 2024-09-11 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_MAIL_H
-#define SILLY_UTILS_SILLY_MAIL_H
+#ifndef SILLY_MAIL_H
+#define SILLY_MAIL_H
 #include <su_macro.h>
 
 using silly_mail_user = std::pair<std::string, std::string>;  // 邮箱 用户名
@@ -72,4 +72,4 @@ class silly_mail_receive_content
     ~silly_mail_receive_content();
 };
 
-#endif  // SILLY_UTILS_SILLY_MAIL_H
+#endif  // SILLY_MAIL_H

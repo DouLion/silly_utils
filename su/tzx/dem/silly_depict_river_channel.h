@@ -9,8 +9,8 @@
  *                 统一使用高斯坐标处理横断面,纵断面
  * @version: v1.0.1 2025-02-24 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_DEPICT_RIVER_CHANNEL_H
-#define SILLY_UTILS_SILLY_DEPICT_RIVER_CHANNEL_H
+#ifndef SILLY_DEPICT_RIVER_CHANNEL_H
+#define SILLY_DEPICT_RIVER_CHANNEL_H
 #include <geo/silly_geo.h>
 namespace silly
 {
@@ -52,4 +52,4 @@ class depict
 }  // namespace tzx
 }  // namespace silly
 
-#endif  // SILLY_UTILS_SILLY_DEPICT_RIVER_CHANNEL_H
+#endif  // SILLY_DEPICT_RIVER_CHANNEL_H

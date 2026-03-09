@@ -28,6 +28,65 @@ extern void BIN_CHDIR(const std::filesystem::path& wd)
 }
 
 #if _WIN32
+#include <DbgHelp.h>
+#pragma comment(lib, "DbgHelp.lib")
+
+// 创建Dump文件
+void CreateDumpFile(LPCWSTR lpstrDumpFilePathName, EXCEPTION_POINTERS* pException)
+{
+    HANDLE hDumpFile = CreateFileW(lpstrDumpFilePathName, GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+
+    // 【修复2】必须检查句柄是否有效，防止二次崩溃
+    if (hDumpFile == INVALID_HANDLE_VALUE)
+    {
+        return;
+    }
+
+    // Dump信息
+    MINIDUMP_EXCEPTION_INFORMATION dumpInfo;
+    dumpInfo.ExceptionPointers = pException;
+    dumpInfo.ThreadId = GetCurrentThreadId();
+    dumpInfo.ClientPointers = TRUE;
+
+    // 【优化4】增加 Dump 包含的信息量，方便 VS 调试时查看局部变量
+    MINIDUMP_TYPE dumpType = static_cast<MINIDUMP_TYPE>(MiniDumpNormal | MiniDumpWithDataSegs |  // 包含全局变量
+                                                        MiniDumpWithThreadInfo |                 // 包含线程执行时间等信息
+                                                        MiniDumpWithIndirectlyReferencedMemory   // 包含栈上指针指向的一小部分堆内存(极度推荐)
+    );
+
+    // 写入Dump文件内容
+    MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), hDumpFile, dumpType, &dumpInfo, nullptr, nullptr);
+    CloseHandle(hDumpFile);
+}
+
+// 【修复1】必须加上 WINAPI 调用约定！
+LONG WINAPI ApplicationCrashHandler(EXCEPTION_POINTERS* pException)
+{
+    // 【优化3】生成带时间戳的文件名，防止覆盖
+    SYSTEMTIME st;
+    GetLocalTime(&st);
+    wchar_t dumpName[256];
+    swprintf_s(dumpName, L"crash_%04d%02d%02d_%02d%02d%02d.dmp", st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
+
+    CreateDumpFile(dumpName, pException);
+
+    // 返回 EXCEPTION_EXECUTE_HANDLER 表示程序异常已处理，准备安静退出
+    return EXCEPTION_EXECUTE_HANDLER;
+}
+#else
+
+#endif
+
+extern void LOG_CRASH_DUMP()
+{
+#if _WIN32
+    SetUnhandledExceptionFilter((LPTOP_LEVEL_EXCEPTION_FILTER)ApplicationCrashHandler);
+#else
+
+#endif
+}
+
+#if _WIN32
 extern std::wstring S2WS(const std::string& str, UINT codePage)
 
 {

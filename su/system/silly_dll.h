@@ -7,8 +7,8 @@
  * @version: 1.0.1
  * @description: DLL/so工具类
  */
-#ifndef SILLY_UTILS_SILLY_DLL_H
-#define SILLY_UTILS_SILLY_DLL_H
+#ifndef SILLY_DLL_H
+#define SILLY_DLL_H
 #include <files/silly_file.h>
 #if IS_WIN32
 #else
@@ -53,4 +53,4 @@ class silly_dll
     static SU_FUNC_ADDR func(SU_HANDLER handler, const std::string& name);
 };
 
-#endif  // SILLY_UTILS_SILLY_DLL_H
+#endif  // SILLY_DLL_H

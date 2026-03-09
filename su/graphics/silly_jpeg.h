@@ -8,8 +8,8 @@
  * @description: silly_jpeg 类声明
  * @version: v1.0.1 2025-01-02 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_JPEG_H
-#define SILLY_UTILS_SILLY_JPEG_H
+#ifndef SILLY_JPEG_H
+#define SILLY_JPEG_H
 
 #include <graphics/silly_image_base.h>
 class suJPEG : public suImgBase
@@ -77,4 +77,4 @@ class suJPEG : public suImgBase
     int m_quality{75};
 };
 
-#endif  // SILLY_UTILS_SILLY_JPEG_H
+#endif  // SILLY_JPEG_H

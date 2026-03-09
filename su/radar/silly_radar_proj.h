@@ -7,8 +7,8 @@
  * @version: 1.0.1
  * @description: 雷达坐标系 参照 https://zhuanlan.zhihu.com/p/640911915 代码是网上抄的
  */
-#ifndef SILLY_UTILS_SILLY_RADAR_PROJ_H
-#define SILLY_UTILS_SILLY_RADAR_PROJ_H
+#ifndef SILLY_RADAR_PROJ_H
+#define SILLY_RADAR_PROJ_H
 
 #include <su_macro.h>
 
@@ -66,4 +66,4 @@ class silly_radar_proj : public silly_radar_earth
     virtual ~silly_radar_proj() = default;
 };
 
-#endif  // SILLY_UTILS_SILLY_RADAR_PROJ_H
+#endif  // SILLY_RADAR_PROJ_H

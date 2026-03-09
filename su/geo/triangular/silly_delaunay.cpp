@@ -3,158 +3,308 @@
 //
 
 #include "silly_delaunay.h"
-#include <datetime/silly_timer.h>
-#include <log/silly_log.h>
-DelaunayBW::Tri::Tri(const suPoint& a1, const suPoint& b1, const suPoint& c1)
-{
-    a = a1;
-    b = b1;
-    c = c1;
-    CalcCircum();
-}
-void DelaunayBW::Tri::CalcCircum()
-{
-    double A = a.x * a.x + a.y * a.y;
-    double B = b.x * b.x + b.y * b.y;
-    double C = c.x * c.x + c.y * c.y;
-    double D = a.x * (b.y - c.y) + b.x * (c.y - a.y) + c.x * (a.y - b.y);
+static constexpr double DELAUNAY_TRI_EPSILON = 1e-10;
 
-    const double EPS = 1e-12;
-    if (std::abs(D) < EPS) {
-        // 退化三角形：设为极大圆
-#ifndef NDEBUG
-        std::cout << "HUGE" << std::endl;
-#endif
-        CP = suPoint(0, 0);
-        R2 = std::numeric_limits<double>::max();
+static suPoint InterpPoint(const suPoint& p1, const suPoint& p2, double th)
+{
+    double t = (th - p1.v) / (p2.v - p1.v);
+
+    // 按照比例 t 插值 x, y
+    return suPoint(p1.x + (p2.x - p1.x) * t,
+                   p1.y + (p2.y - p1.y) * t,
+                   0,  // p1.z + (p2.z - p1.z) * t  如果有高程，也插值
+                   th  // 切点的值必然是 th
+    );
+}
+
+void suDelaunay::BuildTriangles(const std::vector<suPoint>& input_points)
+{
+    // 拷贝
+    if (input_points.size() < 3)
+    {
+        return;
+    }
+    m_tris.clear();
+    m_points = input_points;
+
+    // 排序 (为了去重，也为了让三角剖分更稳定)
+    std::sort(m_points.begin(), m_points.end(), [](const suPoint& a, const suPoint& b) {
+        if (std::abs(a.x - b.x) > DELAUNAY_TRI_EPSILON)
+            return a.x < b.x;
+        return a.y < b.y;
+    });
+
+    // 去重 (std::unique)
+    auto _fn_uinque = [](const suPoint& a, const suPoint& b) { return std::abs(a.x - b.x) < DELAUNAY_TRI_EPSILON && std::abs(a.y - b.y) < DELAUNAY_TRI_EPSILON; };
+    auto last = std::unique(m_points.begin(), m_points.end(), _fn_uinque);
+    m_points.erase(last, m_points.end());
+    size_t num = m_points.size();
+    suRect rect;
+
+    for (const auto& p : m_points)
+    {
+        rect.min.x = std::min(rect.min.x, p.x);
+        rect.min.y = std::min(rect.min.y, p.y);
+        rect.max.x = std::max(rect.max.x, p.x);
+        rect.max.y = std::max(rect.max.y, p.y);
+    }
+
+    {  // 最外边添加四个点
+        suRect ex = rect.expand(0.1);
+        std::vector<suPoint> expts = {{ex.min.x, ex.min.y, 0, 0}, {ex.max.x, ex.min.y, 0, 0}, {ex.max.x, ex.max.y, 0, 0}, {ex.min.x, ex.max.y, 0, 0}};
+        m_points.insert(m_points.end(), expts.begin(), expts.end());
+    }
+    // 再排个序
+    // 构建delaunator::Delaunator需要的顶点
+    std::vector<double> coords;
+    coords.reserve(m_points.size() * 2 + 8);
+    const double scale = 1e6;
+    for (const auto& p : m_points)
+    {
+        // 放大一些, 防止三角形外接环判断出现精度误差
+        coords.push_back(p.x * scale);
+        coords.push_back(p.y * scale);
+    }
+    delaunator::Delaunator d(coords);
+
+    size_t triNum = d.triangles.size() / 3;
+    m_tris.reserve(triNum);
+    for (size_t i = 0; i < triNum; ++i)
+    {
+        // 注意：delaunator 返回的是点的索引
+        size_t a = d.triangles[i * 3], b = d.triangles[i * 3 + 1], c = d.triangles[i * 3 + 2];
+        m_tris.push_back({d.triangles[i * 3], d.triangles[i * 3 + 1], d.triangles[i * 3 + 2]});
+    }
+}
+
+void suDelaunay::TraceLine(const double& th, std::vector<suLine>& lines) const
+{
+    lines.clear();
+    const auto& pts = m_points;
+    const auto& tris = m_tris;
+    // 邻接表: 记录某条边被哪些线段(index)连接
+    // 正常情况下，内部边对应的 vector size 应该是 2，边界边是 1
+    std::vector<RawSegment> raw_segs;
+    std::unordered_map<EdgeID, std::vector<size_t>, EdgeID::Hash> adj_map;
+
+    BuildSegments(th, raw_segs, adj_map);
+
+    if (raw_segs.empty())
+        return;
+    // TODO: 线和面追踪逻辑应该也是重合的,面多了一步内外环关系的构建
+}
+void suDelaunay::TracePoly(const double& threshold, std::vector<suPoly>& polys) const
+{
+    polys.clear();
+    const auto& pts = m_points;
+
+    std::vector<RawSegment> segments;
+    std::unordered_map<EdgeID, std::vector<size_t>, EdgeID::Hash> adj_map;
+    // 降雨值一般保留小数点后1位
+    // 使用的阈值一般也是小数点后1位
+    // 减去一个较小值留有容差,简化判断,避免除0
+    const double th = threshold - 0.000001;
+    BuildSegments(th, segments, adj_map);
+
+    if (segments.empty())
+    {
         return;
     }
 
-    CP.x = (a.x * (B - C) + b.x * (C - A) + c.x * (A - B)) / (2 * D);
-    CP.y = (a.y * (B - C) + b.y * (C - A) + c.y * (A - B)) / (2 * D);
-    R2 = (CP.x - a.x) * (CP.x - a.x) + (CP.y - a.y) * (CP.y - a.y);
+    std::vector<PolyNode> outers;
+    std::vector<PolyNode> holes;
 
-}
-bool DelaunayBW::Tri::InCircum(const suPoint& p) const
-{
-    suPoint np = p - CP;
-    return np.x * np.x + np.y * np.y <= R2;
-}
-void DelaunayBW::points(std::set<suPoint>& pts)
-{
-    m_points = pts;
-    m_tris.clear();
-    m_superVertices.clear();
+    for (size_t i = 0; i < segments.size(); ++i)
+    {
+        if (segments[i].visited)
+        {
+            continue;
+        }
+        PolyNode node;
+        // 初始化环
+        node.ring.points.push_back(segments[i].p1);
+        node.ring.points.push_back(segments[i].p2);
+        segments[i].visited = true;
 
-    if (pts.empty()) return;
+        EdgeID tail = segments[i].e2;  // tail 用于存储当前计算到那个边
+        bool extended = true;
 
-    // 计算包围盒
-    double min_x = std::numeric_limits<double>::max();
-    double max_x = std::numeric_limits<double>::lowest();
-    double min_y = std::numeric_limits<double>::max();
-    double max_y = std::numeric_limits<double>::lowest();
+        // 贪心追踪
+        while (extended)
+        {
+            extended = false;
+            const auto& neighbors = adj_map[tail];
+            for (size_t idx : neighbors)
+            {
+                if (segments[idx].visited)
+                {
+                    continue;
+                }
 
-    for (const auto& p : pts) {
-        min_x = std::min(min_x, p.x);
-        max_x = std::max(max_x, p.x);
-        min_y = std::min(min_y, p.y);
-        max_y = std::max(max_y, p.y);
+                RawSegment& nxtSeg = segments[idx];
+                nxtSeg.visited = true;
+
+                if (nxtSeg.e1 == tail)
+                {
+                    node.ring.points.push_back(nxtSeg.p2);
+                    tail = nxtSeg.e2;
+                }
+                else
+                {
+                    node.ring.points.push_back(nxtSeg.p1);
+                    tail = nxtSeg.e1;
+                }
+                extended = true;
+            }
+        }
+#ifndef NDEBUG
+        const suPoint& front = node.ring.points.front();
+        const suPoint& back = node.ring.points.back();
+        const suPoint& diff = front - back;
+#endif
+        if (node.ring.points.size() < 3)
+        {
+            std::cout << "不完整的环" << std::endl;
+            continue;
+        }
+        if (node.ring.points.front().dist2(node.ring.points.back()) > 1e-9)
+        {
+            std::cout << "不闭合" << std::endl;
+            continue;
+        }
+
+        // 计算几何属性
+        node.bbox = node.ring.bound();
+        node.area_abs = std::abs(node.ring.area());
+        if (node.area_abs < 1e-6) // 太小的面就先不管了
+        {
+            continue;
+        }
+        // 任取一个穿过的三角形的顶底,用于判断内外环
+        EdgeID e1 = segments[i].e1;
+        bool greater = m_points[e1.u].v > th;
+        bool in = node.ring.contains(m_points[e1.u]);
+        if ((greater && in) || (!greater && !in))
+        {
+            node.ring.is_outer = 1;  // 该环是外环
+        }
+        else
+        {
+            node.ring.is_outer = 0;  //  该环是内环环
+        }
+
+        if (node.ring.is_outer)
+        {
+            outers.push_back(std::move(node));
+        }
+        else
+        {
+            holes.push_back(std::move(node));
+        }
+    }
+#ifndef NDEBUG
+    int notTraceSeg = 0;
+
+    for (const auto& seg : segments)
+    {
+        if (!seg.visited)
+        {
+            notTraceSeg++;
+        }
+    }
+    std::cout << "未追踪线段: " << notTraceSeg << std::endl;
+#endif
+    // 从小到大排序,保证内环在找父级时优先找到父级而不会找到爷爷级的
+    std::sort(outers.begin(), outers.end(), [](const PolyNode& a, const PolyNode& b) { return a.area_abs < b.area_abs; });
+    polys.resize(outers.size());
+    for (int i = 0; i < polys.size(); ++i)
+    {
+        polys[i].outer.points.swap(outers[i].ring.points);
     }
 
-    double delta = std::max(max_x - min_x, max_y - min_y) * 10.0;
-    if (delta == 0) delta = 10.0; // 所有点重合
+    for (int j = 0; j < holes.size(); ++j)
+    {
+        for (int i = 0; i < polys.size(); ++i)
+        {
+            if (holes[j].area_abs >= outers[i].area_abs)
+            {
+                continue;
+            }
+            if (holes[j].ring.points.empty())  // 多余的
+            {
+                continue;
+            }
 
-    suPoint p1(min_x - delta, min_y - delta);
-    suPoint p2(min_x - delta, max_y + delta);
-    suPoint p3(max_x + delta, min_y - delta);
-
-    m_superVertices = {p1, p2, p3};
-    m_tris.emplace_back(p1, p2, p3);
-
+            const suPoint& fp = holes[j].ring.points.front();
+            if (outers[i].bbox.contains(fp))
+            {
+                if (polys[i].outer.contains(fp))
+                {
+                    polys[i].holes.push_back(std::move(holes[j].ring));
+                    break;
+                }
+            }
+        }
+    }
+#ifndef NDEBUG
+    // 额外检查
+    for (int j = 0; j < holes.size(); ++j)
+    {
+        if (!holes[j].ring.points.empty())
+        {
+            std::cout << "孤儿内环" << std::endl;
+        }
+    }
+#endif
 }
-void DelaunayBW::triangulate()
-{
-    for (const auto& pt : m_points) {
-        // Step 1: 标记坏三角形
-        std::vector<bool> toErase(m_tris.size(), false);
-        std::vector<size_t> badIndices;
 
-        for (size_t i = 0; i < m_tris.size(); ++i) {
-            if (m_tris[i].InCircum(pt)) {
-                toErase[i] = true;
-                badIndices.push_back(i);
+void suDelaunay::BuildSegments(const double& threshold, std::vector<RawSegment>& segments, std::unordered_map<EdgeID, std::vector<size_t>, EdgeID::Hash>& out_adj) const
+{
+    segments.clear();
+    out_adj.clear();
+
+    const double th = threshold;
+
+    for (const auto& [i1, i2, i3] : m_tris)
+    {
+        size_t idx[3] = {i1, i2, i3};
+        const suPoint* p[3] = {&m_points[i1], &m_points[i2], &m_points[i3]};
+
+        // 使用调整后的 th，只用 > 即可
+        bool bigger[3] = {p[0]->v > th, p[1]->v > th, p[2]->v > th};
+
+        if (bigger[0] == bigger[1] && bigger[1] == bigger[2])
+        {
+            // 全部大于阈值或者全部小于阈值
+            // 那么等值线不会从该三角形中穿过
+            continue;
+        }
+        struct Cut
+        {
+            suPoint p;
+            EdgeID e;
+        };
+        Cut cuts[2];
+        int cnt = 0;
+
+        // 遍历三个边, 通过值判断
+        for (int i = 0; i < 3; ++i)
+        {
+            int j = (i + 1) % 3;
+            if (bigger[i] != bigger[j])  // 一个大一个小才会从此处穿边
+            {
+                if (cnt < 2)
+                {
+                    cuts[cnt].p = InterpPoint(*p[i], *p[j], th);  // 插值
+                    cuts[cnt].e = EdgeID(idx[i], idx[j]);
+                    cnt++;
+                }
             }
         }
 
-        // Step 2: 统计边出现次数
-        std::unordered_map<Edge, int, Edge::Hash> edgeCount;
-        for (size_t i : badIndices) {
-            const auto& t = m_tris[i];
-            edgeCount[Edge(t.a, t.b)]++;
-            edgeCount[Edge(t.b, t.c)]++;
-            edgeCount[Edge(t.c, t.a)]++;
-        }
-
-        // Step 3: 构建新三角形（仅边界边）
-        std::vector<Tri> newTris;
-        for (const auto& [edge, count] : edgeCount) {
-            if (count == 1) {
-                newTris.emplace_back(edge.p1, edge.p2, pt);
-            }
-        }
-
-        // Step 4: 批量删除坏三角形
-        std::vector<Tri> temp;
-        for (size_t i = 0; i < m_tris.size(); ++i) {
-            if (!toErase[i]) {
-                temp.push_back(std::move(m_tris[i]));
-            }
-        }
-        m_tris = std::move(temp);
-
-        // Step 5: 添加新三角形
-        m_tris.insert(m_tris.end(),
-                      std::make_move_iterator(newTris.begin()),
-                      std::make_move_iterator(newTris.end()));
+        size_t seg_idx = segments.size();
+        segments.push_back({cuts[0].p, cuts[1].p, cuts[0].e, cuts[1].e});
+        out_adj[cuts[0].e].push_back(seg_idx);
+        out_adj[cuts[1].e].push_back(seg_idx);
     }
-
-    // Step 6: 移除包含超三角形顶点的三角形
-    removeSuperTriangles();
-}
-void DelaunayBW::draw(const suPath& file)
-{
-}
-void DelaunayBW::test(){
-
-    double width = 1000;
-    double height = 1000;
-    std::set<suPoint> pts;
-    int num = 50;
-    std::vector<double> vs = RANDOM(0.1* width, 0.9 * width, num * 2);
-    for (int i = 0; i < num; i++)
-    {
-        pts.insert(suPoint(vs[i*2], vs[i*2+1]));
-    }
-    suTimer timer;
-    points(pts);
-    triangulate();
-    SLOG_DEBUG("点数量: {}, 时间: {} ms", num, timer.elapsed_ms())
-    SLOG_DEBUG("三角形数量: {}", m_tris.size());
-    // auto tris = delaunay.triangles();
-    suCairo cairo;
-    cairo.create(width, height);
-    cairo.set(suColor(0,0,255, 255));
-    suRect nr;
-    nr.min = suPoint(0,0);
-    nr.max = suPoint(width,height);
-    for (const auto& tri : m_tris)
-    {
-        cairo.draw_line({tri.a, tri.b, tri.c,tri.a}, nr);
-    }
-    cairo.set(suColor(255,0,0, 255));
-    for (const auto& p : pts)
-    {
-        cairo.draw_point(p, 4);;
-    }
-    cairo.write("./tri.png");
 }

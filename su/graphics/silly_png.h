@@ -8,8 +8,8 @@
  * @description: silly_png 类声明
  * @version: v1.0.1 2025-01-02 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_PNG_H
-#define SILLY_UTILS_SILLY_PNG_H
+#ifndef SILLY_PNG_H
+#define SILLY_PNG_H
 #include <graphics/silly_color.h>
 #include <graphics/silly_image_base.h>
 
@@ -96,4 +96,4 @@ class suPNG : public suImgBase
     std::vector<uint8_t *> m_nbytes;
 };
 
-#endif  // SILLY_UTILS_SILLY_PNG_H
+#endif  // SILLY_PNG_H

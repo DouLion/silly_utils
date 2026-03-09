@@ -7,8 +7,8 @@
  * @version: 1.0.1
  * @description:
  */
-#ifndef SILLY_UTILS_SILLY_FORMAT_H
-#define SILLY_UTILS_SILLY_FORMAT_H
+#ifndef SILLY_FORMAT_H
+#define SILLY_FORMAT_H
 #include <su_macro.h>
 #if SU_THIRD_SUPPORT_FMT
 #include <fmt/core.h>
@@ -60,4 +60,4 @@
 
 #endif
 
-#endif  // SILLY_UTILS_SILLY_FORMAT_H
+#endif  // SILLY_FORMAT_H

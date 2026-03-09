@@ -14,8 +14,8 @@
  */
 #pragma once
 
-#ifndef SILLY_UTILS_SILLY_ENCRYPT_H
-#define SILLY_UTILS_SILLY_ENCRYPT_H
+#ifndef SILLY_ENCRYPT_H
+#define SILLY_ENCRYPT_H
 #include <su_macro.h>
 
 #define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
@@ -79,4 +79,4 @@ class silly_encrypt
     static std::string base64_text_decode(const std::string &text);
 };
 
-#endif  // SILLY_UTILS_SILLY_ENCRYPT_H
+#endif  // SILLY_ENCRYPT_H

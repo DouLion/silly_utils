@@ -43,6 +43,11 @@ class suGeoJson
     static bool Parse(const Json::Value& geojson, suPoly& meta);
     static bool Parse(const Json::Value& geojson, suMultiPoly& meta);
 
+
+    static std::string Stringify(const std::vector<suPoly>& polys);
+
+    static bool Write(const suPath& file, const std::vector<suPoly>& polys);
+
     static bool ParseProperties(const Json::Value& prop, std::unordered_map<std::string, suGeoProp>& kv,std::map<uint16_t, std::string>& sort );
 
     static void CheckParse();

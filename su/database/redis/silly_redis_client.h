@@ -7,8 +7,8 @@
  * @version: 1.0.1
  * @description: redis客户端
  */
-#ifndef SILLY_UTILS_SILLY_REDIS_CLIENT_H
-#define SILLY_UTILS_SILLY_REDIS_CLIENT_H
+#ifndef SILLY_REDIS_CLIENT_H
+#define SILLY_REDIS_CLIENT_H
 #include <su_macro.h>
 
 class silly_redis_client
@@ -22,4 +22,4 @@ class silly_redis_client
     int m_port;
 };
 
-#endif  // SILLY_UTILS_SILLY_REDIS_CLIENT_H
+#endif  // SILLY_REDIS_CLIENT_H

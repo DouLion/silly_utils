@@ -8,8 +8,8 @@
  * @description: RadxCommon 类声明
  * @version: v1.0.1 2025-02-24 dou li yang
  */
-#ifndef SILLY_UTILS_RADXCOMMON_H
-#define SILLY_UTILS_RADXCOMMON_H
+#ifndef RADXCOMMON_H
+#define RADXCOMMON_H
 #include <files/silly_file.h>
 namespace radar
 {
@@ -53,4 +53,4 @@ struct CopyField
 
 }  // namespace radar
 
-#endif  // SILLY_UTILS_RADXCOMMON_H
+#endif  // RADXCOMMON_H

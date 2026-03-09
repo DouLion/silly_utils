@@ -10,8 +10,8 @@
  */
 #pragma once
 
-#ifndef SILLY_UTILS_JSON_TO_OBJ_HPP
-#define SILLY_UTILS_JSON_TO_OBJ_HPP
+#ifndef JSON_TO_OBJ_HPP
+#define JSON_TO_OBJ_HPP
 
 #pragma once
 #include <list>
@@ -1051,4 +1051,4 @@ class JsonHelper
         return true;
     }
 };
-#endif  // SILLY_UTILS_JSON_TO_OBJ_HPP
+#endif  // JSON_TO_OBJ_HPP

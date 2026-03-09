@@ -452,7 +452,7 @@ bool suCairo::decode(const std::string &bin)
     return decode((const unsigned char *)bin.c_str(), bin.size());
 }
 
-bool suCairo::decode(const unsigned char *data, const size_t& size)
+bool suCairo::decode(const unsigned char *data, const size_t &size)
 {
 #if SU_THIRD_SUPPORT_CAIRO
 
@@ -543,7 +543,6 @@ void suCairo::draw_text(const suCairoText &sct)
 #endif
 }
 
-
 void suCairo::set(const suColor &color)
 {
 #if SU_THIRD_SUPPORT_CAIRO
@@ -571,6 +570,61 @@ void suCairo::clean(suColor color)
 
     set(color);
     cairo_paint(m_cr);
+#endif
+}
+
+void suCairo::draw_poly(const suPoly &poly)
+{
+#if SU_THIRD_SUPPORT_CAIRO
+    // 画外环
+    draw_ring(poly.outer);
+
+    // 画内环
+    for (auto &ring : poly.holes)
+    {
+        draw_ring(ring);
+    }
+    cairo_set_fill_rule(m_cr, CAIRO_FILL_RULE_EVEN_ODD);
+    cairo_fill(m_cr); // 填充面，并保留路径
+    // cairo_stroke(m_cr); // 沿着保留的路径“描边”（画线）
+#endif
+}
+
+void suCairo::draw_poly(const std::vector<suPoly> &polys)
+{
+#if SU_THIRD_SUPPORT_CAIRO
+    cairo_set_fill_rule(m_cr, CAIRO_FILL_RULE_EVEN_ODD);
+    for (const auto& poly: polys)
+    {
+        // 画外环
+        draw_ring(poly.outer);
+        // 画内环
+        for (auto &ring : poly.holes)
+        {
+            draw_ring(ring);
+        }
+    }
+    cairo_fill(m_cr); // 填充面，并保留路径
+    // cairo_stroke(m_cr); // 沿着保留的路径“描边”（画线）
+#endif
+}
+
+
+void suCairo::draw_ring(const suRing &ring)
+{
+#if SU_THIRD_SUPPORT_CAIRO
+    if (ring.points.empty())
+    {
+        return;
+    }
+    cairo_new_sub_path(m_cr);
+
+    cairo_move_to(m_cr, ring.points[0].x, ring.points[0].y);
+    for (int i = 1; i < ring.points.size(); ++i)
+    {
+        cairo_line_to(m_cr, ring.points[i].x, ring.points[i].y);
+    }
+    cairo_close_path(m_cr);
 #endif
 }
 
@@ -766,7 +820,6 @@ void suCairo::draw_line(const std::vector<suPoint> &line)
 {
 #if SU_THIRD_SUPPORT_CAIRO
 
-
     cairo_move_to(m_cr, line[0].x, line[0].y);
     for (int i = 1; i < line.size(); ++i)
     {
@@ -815,14 +868,14 @@ void suCairo::draw_line_web_mercator(const std::vector<suPoint> &line, const suR
 #endif
 }
 
-void suCairo::fill_rect(const suRect& rect)
+void suCairo::fill_rect(const suRect &rect)
 {
 #if SU_THIRD_SUPPORT_CAIRO
     double w = rect.max.x - rect.min.x;
     double h = rect.max.y - rect.min.y;
-    cairo_rectangle (m_cr, rect.min.x, rect.min.y, w, h);
-    cairo_set_fill_rule (m_cr, CAIRO_FILL_RULE_EVEN_ODD);
-    cairo_fill_preserve (m_cr);
+    cairo_rectangle(m_cr, rect.min.x, rect.min.y, w, h);
+    cairo_set_fill_rule(m_cr, CAIRO_FILL_RULE_EVEN_ODD);
+    cairo_fill_preserve(m_cr);
     cairo_stroke(m_cr);
 #endif
 }
@@ -850,14 +903,11 @@ void suCairo::draw_point(const suPoint &p, const double &size)
 }
 void suCairo::draw_point_web_mercator(const suPoint &p, const double &size, const suRect &rect)
 {
-
 #if SU_THIRD_SUPPORT_CAIRO
 
     suRect mcr;
     suGeoProj::lonlat_to_mercator(rect.min.x, rect.max.y, mcr.min.x, mcr.max.y);
     suGeoProj::lonlat_to_mercator(rect.max.x, rect.min.y, mcr.max.x, mcr.min.y);
-
-
 
     double x_pixel_per_degree = m_width / (mcr.max.x - mcr.min.x);
     double y_pixel_per_degree = m_height / (mcr.max.y - mcr.min.y);

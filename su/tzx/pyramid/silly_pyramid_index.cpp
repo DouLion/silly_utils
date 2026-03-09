@@ -32,6 +32,7 @@ bool TzxPyramidIndex::open(const suPath& file, const eMMFMode& mode, const bool&
     {
         // 写入时需要根据给定数据自动初始化好索引
         // return m_pack.init();
+        return parse();
     }
     return true;
 }
@@ -143,9 +144,9 @@ bool TzxPyramidIndex::write(const TzxPyramidBlock& blk)
     BlockPos pos;
     pos.offset = blk.pos;
     pos.size = blk.size;
-    TzxPyramidBase::write(offset, (char*)&pos, sizeof(BlockPos));
+    return TzxPyramidBase::write(offset, (char*)&pos, sizeof(BlockPos));
 
-    return true;
+    //return true;
 }
 
 void TzxPyramidIndex::close()

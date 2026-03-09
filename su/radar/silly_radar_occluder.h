@@ -8,8 +8,8 @@
  * @description: 雷达遮挡物分析
  * @version: v1.0.1 2025-02-14 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_RADAR_OCCLUDER_H
-#define SILLY_UTILS_SILLY_RADAR_OCCLUDER_H
+#ifndef SILLY_RADAR_OCCLUDER_H
+#define SILLY_RADAR_OCCLUDER_H
 #include <geo/silly_geo_utils.h>
 
 class silly_radar_occluder
@@ -67,4 +67,4 @@ class silly_radar_occluder
     size_t m_rSize = 0;
 };
 
-#endif  // SILLY_UTILS_SILLY_RADAR_OCCLUDER_H
+#endif  // SILLY_RADAR_OCCLUDER_H

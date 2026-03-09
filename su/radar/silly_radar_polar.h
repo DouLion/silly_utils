@@ -7,8 +7,8 @@
  * @version: 1.0.1
  * @description: 雷达极坐标系数据存储
  */
-#ifndef SILLY_UTILS_SILLY_RADAR_POLAR_H
-#define SILLY_UTILS_SILLY_RADAR_POLAR_H
+#ifndef SILLY_RADAR_POLAR_H
+#define SILLY_RADAR_POLAR_H
 
 #include <files/silly_path.h>
 #include <math/silly_matrix.h>
@@ -98,4 +98,4 @@ class silly_radar_polar
 
     float* data{nullptr};
 };
-#endif  // SILLY_UTILS_SILLY_RADAR_POLAR_H
+#endif  // SILLY_RADAR_POLAR_H

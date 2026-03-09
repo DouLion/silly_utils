@@ -7,7 +7,7 @@
  * @version: 1.0.1
  * @description:
  */
-#ifndef SILLY_UTILS_SILLY_CUBE_SPLINE_H
-#define SILLY_UTILS_SILLY_CUBE_SPLINE_H
+#ifndef SILLY_CUBE_SPLINE_H
+#define SILLY_CUBE_SPLINE_H
 
-#endif  // SILLY_UTILS_SILLY_CUBE_SPLINE_H
+#endif  // SILLY_CUBE_SPLINE_H

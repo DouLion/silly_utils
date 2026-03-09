@@ -7,8 +7,8 @@
  * @version: 1.0.1
  * @description:
  */
-#ifndef SILLY_UTILS_SILLY_TZX_GRID_H
-#define SILLY_UTILS_SILLY_TZX_GRID_H
+#ifndef SILLY_TZX_GRID_H
+#define SILLY_TZX_GRID_H
 
 #include <su_macro.h>
 #include <math/silly_matrix.h>
@@ -189,4 +189,4 @@ class TzxGrid
 
 using silly_tzx_grid = TzxGrid;
 
-#endif  // SILLY_UTILS_SILLY_TZX_GRID_H
+#endif  // SILLY_TZX_GRID_H

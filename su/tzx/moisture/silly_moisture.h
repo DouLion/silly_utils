@@ -8,8 +8,8 @@
  * @description: 土壤含水文件格式
  * @version: v1.0.1 2024-09-11 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_MOISTURE_H
-#define SILLY_UTILS_SILLY_MOISTURE_H
+#ifndef SILLY_MOISTURE_H
+#define SILLY_MOISTURE_H
 #include <files/silly_file.h>
 
 class MoistureIndex
@@ -74,4 +74,4 @@ class MoistureFile
     int m_num = 0;
 };
 
-#endif  // SILLY_UTILS_SILLY_MOISTURE_H
+#endif  // SILLY_MOISTURE_H

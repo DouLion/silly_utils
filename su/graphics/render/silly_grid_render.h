@@ -7,8 +7,8 @@
  * @version: 1.0.1
  * @description: png 图片渲染
  */
-#ifndef SILLY_UTILS_SILLY_GRID_RENDER_H
-#define SILLY_UTILS_SILLY_GRID_RENDER_H
+#ifndef SILLY_GRID_RENDER_H
+#define SILLY_GRID_RENDER_H
 #include <log/silly_log.h>
 #include <graphics/silly_png.h>
 #include <geo/proj/silly_proj.h>
@@ -202,4 +202,4 @@ bool matrix_geo_to_mercator(suMatrix<T> src, const suRect& rect, suMatrix<T>& ds
     }
 };
 
-#endif  // SILLY_UTILS_SILLY_GRID_RENDER_H
+#endif  // SILLY_GRID_RENDER_H

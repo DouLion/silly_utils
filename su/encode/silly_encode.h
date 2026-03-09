@@ -71,8 +71,8 @@
     It can convert from any of these encodings to any other, through Unicode conversion.
 */
 
-#ifndef SILLY_UTILS_SILLY_ENCODE_H
-#define SILLY_UTILS_SILLY_ENCODE_H
+#ifndef SILLY_ENCODE_H
+#define SILLY_ENCODE_H
 #include <files/silly_file.h>
 enum class eCharset : int
 {
@@ -137,4 +137,4 @@ class silly_encode
     static void from_hex(const char *str, unsigned char *Hstr);
 };
 
-#endif  // SILLY_UTILS_SILLY_ENCODE_H
+#endif  // SILLY_ENCODE_H

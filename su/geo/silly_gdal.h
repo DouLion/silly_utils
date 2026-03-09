@@ -2,8 +2,8 @@
 // Created by dell on 2025/9/23.
 //
 
-#ifndef SILLY_UTILS_SILLY_GDAL_H
-#define SILLY_UTILS_SILLY_GDAL_H
+#ifndef SILLY_GDAL_H
+#define SILLY_GDAL_H
 #include <geo/geometry/silly_geo_coll.h>
 #include <files/silly_file.h>
 #if SU_THIRD_SUPPORT_GDAL
@@ -197,4 +197,4 @@ class suGDAL
 #endif
 };
 
-#endif  // SILLY_UTILS_SILLY_GDAL_H
+#endif  // SILLY_GDAL_H

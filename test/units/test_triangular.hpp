@@ -97,4 +97,4 @@ SECTION("LAWSON_TRI")      // Delaunay 劳森算法
 
 }
 
-#endif //SILLY_UTILS_TEST_TRIANGULAR_H
+#endif //TEST_TRIANGULAR_H

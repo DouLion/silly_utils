@@ -11,27 +11,50 @@
 #ifndef SILLY_MOBILE_H
 #define SILLY_MOBILE_H
 #include <su_macro.h>
+#include <files/silly_path.h>
 
-/// <summary>
-/// 移动网络运营商
-/// </summary>
-enum class eMobileOP : int8_t
+class suMobileDB
 {
-    ChinaMobile,   // 中国移动
-    ChinaUnicom,   // 中国联通
-    ChinaTelecom,  // 中国电信
-    Unknown        // 未知
+public:
+    struct Info
+    {
+        // 代码,号段,省区,城市,服务商,区号,邮编,区划代码
+        std::string prefix;   // 前缀代码
+        std::string segment;  //  号段
+        std::string province; // 省区
+        std::string city;     // 城市
+        std::string carrier;  // 服务商
+        std::string area;     // 区号
+        std::string postal;   // 邮编
+        std::string region;   // 区划代码
+    };
+
+    bool Load(const supath& file);
+
+    /**
+     * @brief: 查询手机号码信息
+     * @param: number 手机号码
+     * @return: std::optional<Info> 手机号码信息
+     */
+    std::optional<Info> Query(const std::string& number) const;
+
+    /**
+     * @brief: 批量查询手机号码信息
+     * @param: number 手机号码
+     * @return: std::vector<Info> 手机号码信息
+     */
+    std::vector<Info> Query(const std::vector<std::string>& number) const;
+
+    /**
+     * 是否是个有效的手机号码
+     * @param number
+     * @return
+     */
+    bool IsValid(const std::string& number) const;
+
+protected:
+    std::unordered_map<std::string, Info> m_prefix2info;
+    std::string m_data_time; // 数据收集时间
 };
-namespace silly
-{
-class mobile
-{
-    static std::string op2str(const eMobileOP& op);
-    static eMobileOP opcode(const std::string& number);
-    static std::map<std::string, eMobileOP> opcode(const std::vector<std::string>& numbers);
-    static std::string opstr(const std::string& number);
-    static std::map<std::string, std::string> opstr(const std::vector<std::string>& numbers);
-};
-}  // namespace silly
 
 #endif  // SILLY_MOBILE_H

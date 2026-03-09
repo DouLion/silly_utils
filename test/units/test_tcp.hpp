@@ -44,4 +44,4 @@ SECTION("SILLY_FTP_UPLOATE") // silly_ftp �ϴ�
 }
 
 
-#endif //SILLY_UTILS_TEST_TCP_HPP
+#endif //TEST_TCP_HPP

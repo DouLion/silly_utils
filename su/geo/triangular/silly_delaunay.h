@@ -16,83 +16,77 @@
 #define SILLY_DELAUNAY_H
 
 #include <geo/silly_geo.h>
-#include <graphics/render/canvas/silly_cairo.h>
+#include <geo/triangular/delaunator.hpp>
 
-/// Bowyer–Watson 算法实现的德劳内三角
-class DelaunayBW
+class suDelaunay
 {
-public:
-    class Tri
+  public:
+    void BuildTriangles(const std::vector<suPoint>& points);
+
+    void TraceLine(const double& th, std::vector<suLine>& lines) const;
+    void TracePoly(const double& th, std::vector<suPoly>& polys) const;
+#ifndef NDEBUG
+    // 这三个函数在silly_delaunay_test.cpp中实现
+    void Test();
+    void Test2();
+    void Test3();
+    void TestWithDB();
+
+#endif
+  private:
+    struct EdgeID
     {
-    public:
-        Tri() = default;
-        Tri(const suPoint& a1, const suPoint& b1, const suPoint& c1);
-        /// 计算外接圆
-        void CalcCircum();
-
-        /// 点是否在外接圆内
-        bool InCircum(const suPoint& p) const;
-        suPoint CP;
-        double R = 0;
-        double R2 = 0;
-        // 三个顶点
-        suPoint a;
-        suPoint b;
-        suPoint c;
-    };
-    struct Edge {
-        suPoint p1, p2;
-
-        Edge(const suPoint& a, const suPoint& b) {
-            if (a < b) { p1 = a; p2 = b; }
-            else       { p1 = b; p2 = a; }
+        size_t u, v;
+        EdgeID() : u(0), v(0)
+        {
+        }
+        EdgeID(size_t a, size_t b)
+        {
+            if (a < b)
+            {
+                u = a;
+                v = b;
+            }
+            else
+            {
+                u = b;
+                v = a;
+            }
+        }
+        bool operator==(const EdgeID& o) const
+        {
+            return u == o.u && v == o.v;
         }
 
-        bool operator==(const Edge& other) const {
-            return p1 == other.p1 && p2 == other.p2;
-        }
-
-        struct Hash {
-            size_t operator()(const Edge& e) const {
-                return std::hash<double>()(e.p1.x) ^ std::hash<double>()(e.p1.y)
-                     ^ std::hash<double>()(e.p2.x) ^ std::hash<double>()(e.p2.y);
-                // 更健壮的哈希可使用 boost::hash 或组合策略
+        struct Hash
+        {
+            size_t operator()(const EdgeID& e) const
+            {
+                // 简单的移位异或哈希
+                return std::hash<size_t>()(e.u) ^ (std::hash<size_t>()(e.v) << 1);
             }
         };
     };
-  public:
-    void points(std::set<suPoint>& pts);
-    void triangulate();
-    void draw(const suPath& file);
-
-    std::vector<Tri> triangles()
+    struct RawSegment  // 穿过三角形的线段
     {
-        return m_tris;
-    }
+        suPoint p1, p2;
+        EdgeID e1, e2;
+        bool visited = false;
+    };
+    struct PolyNode
+    {
+        suRing ring;
+        suRect bbox;      // 缓存包围盒，加速包含检测
+        double area_abs;  // 面积, 用于
+    };
+    // 提取公共逻辑：构建线段片段
+    void BuildSegments(const double& threshold, std::vector<RawSegment>& segments, std::unordered_map<EdgeID, std::vector<size_t>, EdgeID::Hash>& nearEdges) const;
 
-    void test();
-protected:
-    bool isSuperVertex(const suPoint& p) const {
-        return m_superVertices.find(p) != m_superVertices.end();
-    }
-
-    void removeSuperTriangles() {
-        std::vector<Tri> filtered;
-        for (auto& tri : m_tris) {
-            if (!isSuperVertex(tri.a) &&
-                !isSuperVertex(tri.b) &&
-                !isSuperVertex(tri.c)) {
-                filtered.push_back(std::move(tri));
-                }
-        }
-        m_tris = std::move(filtered);
-    }
+    void TraceRings(std::vector<PolyNode> outers, std::vector<PolyNode> holes) const;
 
   protected:
-    std::set<suPoint> m_points;
-    std::vector<Tri> m_tris;
-    suRect m_rect;
-    std::set<suPoint> m_superVertices;
+    std::vector<suPoint> m_points;
+    std::vector<std::tuple<size_t, size_t, size_t>> m_tris;  // 存的是在m_points中的索引
 };
 
 #endif  // SILLY_DELAUNAY_H

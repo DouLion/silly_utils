@@ -7,8 +7,8 @@
  * @version: 1.0.1
  * @description: 验证码
  */
-#ifndef SILLY_UTILS_SILLY_CAPTCHA_H
-#define SILLY_UTILS_SILLY_CAPTCHA_H
+#ifndef SILLY_CAPTCHA_H
+#define SILLY_CAPTCHA_H
 #include <log/silly_log.h>
 #include <singleton/silly_singleton.h>
 
@@ -61,4 +61,4 @@ class silly_captcha : public silly_singleton<silly_captcha>
     std::string generate_math_calc_captcha(std::string& result);
 };
 
-#endif  // SILLY_UTILS_SILLY_CAPTCHA_H
+#endif  // SILLY_CAPTCHA_H

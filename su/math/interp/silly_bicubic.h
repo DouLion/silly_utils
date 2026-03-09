@@ -8,8 +8,8 @@
  * @description: silly_cubic 类声明
  * @version: v1.0.1 2024-12-30 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_BICUBIC_H
-#define SILLY_UTILS_SILLY_BICUBIC_H
+#ifndef SILLY_BICUBIC_H
+#define SILLY_BICUBIC_H
 #include <su_macro.h>
 namespace silly
 {
@@ -41,4 +41,4 @@ class bicubic
 }  // namespace interpolation
 }  // namespace silly
 
-#endif  // SILLY_UTILS_SILLY_BICUBIC_H
+#endif  // SILLY_BICUBIC_H

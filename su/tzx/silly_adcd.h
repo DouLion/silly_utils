@@ -8,8 +8,8 @@
  * @description: silly_adcd 类声明
  * @version: v1.0.1 2024-10-11 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_ADCD_H
-#define SILLY_UTILS_SILLY_ADCD_H
+#ifndef SILLY_ADCD_H
+#define SILLY_ADCD_H
 #include <su_macro.h>
 
 #define AD_DA 0x00000001
@@ -61,4 +61,4 @@ class silly_adcd
     std::map<std::string, std::string> std_zu_adnm;   // 组,自然村
 };
 
-#endif  // SILLY_UTILS_SILLY_ADCD_H
+#endif  // SILLY_ADCD_H

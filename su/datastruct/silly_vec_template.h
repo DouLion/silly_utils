@@ -17,19 +17,18 @@ class suVecTemplate
 {
     using ItemIt = typename std::vector<T>::iterator;
     using ConstItemIt = typename std::vector<T>::const_iterator;
-public:
+
+  public:
     // 默认构造
     suVecTemplate() = default;
 
     // 从 std::vector<T> 拷贝构造
-    explicit suVecTemplate(const std::vector<T>& items)
-        : m_items(items)  // 直接初始化，高效且清晰
+    explicit suVecTemplate(const std::vector<T>& items) : m_items(items)  // 直接初始化，高效且清晰
     {
     }
 
     // 支持移动构造（更高效）
-    explicit suVecTemplate(std::vector<T>&& items)
-        : m_items(std::move(items))
+    explicit suVecTemplate(std::vector<T>&& items) : m_items(std::move(items))
     {
     }
     // 代理vector的常用接口
@@ -178,8 +177,12 @@ public:
     {
         m_items.swap(other.m_items);
     }
+    std::vector<T> to_vector() const
+    {
+        return m_items;
+    }
 
-protected:
+  protected:
     std::vector<T> m_items;
 };
 #endif

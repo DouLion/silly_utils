@@ -8,8 +8,8 @@
  * @description: silly_river 实测河道水位记录
  * @version: v1.0.1 2024-09-30 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_RIVER_H
-#define SILLY_UTILS_SILLY_RIVER_H
+#ifndef SILLY_RIVER_H
+#define SILLY_RIVER_H
 
 #include <tzx/rwdb/silly_rwdb_record.h>
 #define SILLY_RIVER_FORMAT_V1 1
@@ -46,4 +46,4 @@ class silly_river : public silly_rwdb_record
     static constexpr const char* FILE_NAME = "RIVER.dat";
 };
 
-#endif  // SILLY_UTILS_SILLY_RIVER_H
+#endif  // SILLY_RIVER_H

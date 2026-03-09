@@ -10,8 +10,8 @@
  */
 #pragma once
 
-#ifndef SILLY_UTILS_SILLY_FTP_H
-#define SILLY_UTILS_SILLY_FTP_H
+#ifndef SILLY_FTP_H
+#define SILLY_FTP_H
 #include <sys/types.h>
 #if defined(_WIN32)
 
@@ -67,8 +67,6 @@ typedef struct x509_st X509;
 #ifndef _silly_ftp_SSL_CLIENT_METHOD_
 #define _silly_ftp_SSL_CLIENT_METHOD_ TLSv1_2_client_method
 #endif
-
-using namespace std;
 
 // SSL
 typedef struct ssl_st SSL;
@@ -213,4 +211,4 @@ class silly_ftp
     int CorrectPasvResponse(unsigned char* v);
 };
 
-#endif  // SILLY_UTILS_SILLY_FTP_H
+#endif  // SILLY_FTP_H

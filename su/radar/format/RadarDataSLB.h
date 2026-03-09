@@ -11,7 +11,7 @@
 #ifndef RADAR_DATA_SLB_V1_H
 #define RADAR_DATA_SLB_V1_H
 #include <files/silly_file.h>
-using PolorGrid = std::vector<std::vector<float>>;
+using PolorGrid = std::vector<float>;
 namespace RadarData
 {
 
@@ -34,6 +34,7 @@ enum ScanMode : int32_t
 
 enum eDataType : int32_t
 {
+    INVALID = 0,
     BYTE = 1,    // 1-BYTE
     USHORT = 2,  // 2-USHORT
     SHORT = 3,   // 3-SHORT
@@ -76,7 +77,7 @@ struct FileVolume  // 文件卷标基本信息结构
     uint64_t FileLength = 0;         // 无压缩的数据文件字节数?
     uint32_t RayOrder = PitchFirst;  // 径向数据排序
 
-    bool Read(std::fstream& input);
+    bool Read(char*& p);
 };
 
 struct SiteInfo  // 达站基本信息
@@ -90,7 +91,7 @@ struct SiteInfo  // 达站基本信息
     int32_t Latitude = 0;      // 纬度 / 10000.0 度
     int32_t Height = 0;        // 高度 /10m
     char Reserved[44] = {0};
-    bool Read(std::fstream& input);
+    bool Read(char*& p);
 };
 
 struct ObserveTime  // 水利测雨雷达观测起止时间
@@ -110,7 +111,7 @@ struct ObserveTime  // 水利测雨雷达观测起止时间
     int16_t EMinute = 0;
     int16_t ESecond = 0;
     char Reserved[8] = {0};
-    bool Read(std::fstream& input);
+    bool Read(char*& p);
 };
 
 struct OperationInfo  // 运维数据信息
@@ -190,7 +191,7 @@ struct OperationInfo  // 运维数据信息
     float DPCalibrationValue = 0.0;         // 差分传播相位标定值
 
     char Reserved[92] = {0};
-    bool Read(std::fstream& input);
+    bool Read(char*& p);
 };
 
 struct AlertInfo
@@ -204,7 +205,7 @@ struct AlertInfo
     int32_t AlarmMode = 2;   // 1-短信；2-其他
     char Reserved[16] = {0};
 
-    bool Read(std::fstream& input);
+    bool Read(char*& p);
 };
 
 struct Alerts
@@ -213,7 +214,7 @@ struct Alerts
     char Reserved[8] = {0};
     std::vector<AlertInfo> AlertList;
 
-    bool Read(std::fstream& input);
+    bool Read(char*& p);
 };
 
 // 雷达层参数结构
@@ -228,7 +229,7 @@ struct LayerParam
     std::vector<int16_t> GateCounts;  // GateCounts[VarCounts]本层变量库数
     char Reserved2[8] = {0};
 
-    bool Read(std::fstream& input);
+    bool Read(char*& p);
 };
 
 // 雷达数据记录块信息
@@ -240,7 +241,7 @@ struct BlockInfo
     uint32_t DataWidth = 0;         // 数据库长,以米为单位
     char Reserved[4] = {0};
     std::vector<LayerParam> LayerParams;
-    bool Read(std::fstream& input);
+    bool Read(char*& p);
 };
 class SLB;
 struct BlockData
@@ -269,7 +270,7 @@ struct BlockData
     //  当[数值]为4时，表示无回波数据
     // std::vector<uint8_t> data;
 
-    bool Read(std::fstream& input, const BlockInfo& info, SLB& slb);
+    bool Read(char*& p, const BlockInfo& info, SLB& slb, size_t azNum, size_t gateNum);
 };
 #pragma pack()
 
@@ -289,14 +290,18 @@ class SLB
     /// <param name="layer"></param>
     /// <param name="type"></param>
     /// <returns></returns>
-    PolorGrid GetData(const int& layer, const eType& type) const;
+    std::vector<float> GetData(const int& layer, const eType& type) const;
 
     SiteInfo GetSiteInfo() const;
+
+    BlockInfo GetBlockInfo() const;
+
+    ObserveTime GetObserveTime() const;
 
     std::map<int, double> Layer2Elevation() const;
 
     void Clear();
-
+    float* GetFP(const eType& tp, size_t npoff);
   protected:
     // ---- 公共数据块 ----
     FileVolume m_FileVol;    // 文件卷信息
@@ -311,15 +316,15 @@ class SLB
     std::set<int32_t> m_ElevationNumber;
     int m_RadialNumber0 = 0;  //  0度对应的径向序号
 
-    std::vector<PolorGrid> _th;     // 解码方式:([数值]-66)/2=[实际值]dBZ
-    std::vector<PolorGrid> _zh;     // 水平反射率因子Zh;([数值]-66)/2=[实际值]dBZ
-    std::vector<PolorGrid> _vel;    // 径向速度V;([数值]-129)/2=[实际值]米/秒
-    std::vector<PolorGrid> _width;  // 谱宽W ;([数值]-129)/2=[实际值]米/秒
-    std::vector<PolorGrid> _zdr;    // 差分反射率因子ZDR;([数值]-130)/16=[实际值]dB
-    std::vector<PolorGrid> _phidp;  // 差分传播相位PHIDP;([数值]-50)/100=[实际值]度
-    std::vector<PolorGrid> _kdp;    // 差分传播相位率KDP;([数值]-50)/10=[实际值]度/千米
-    std::vector<PolorGrid> _cc;     // 相关系数CC;([数值]-5)/200=[实际值]
-    std::vector<PolorGrid> _tv;     //  原始垂直反射率因子Tv;([数值]-66)/2=[实际值]dBZ
+    std::vector<float> _th;     // 解码方式:([数值]-66)/2=[实际值]dBZ
+    std::vector<float> _zh;     // 水平反射率因子Zh;([数值]-66)/2=[实际值]dBZ
+    std::vector<float> _vel;    // 径向速度V;([数值]-129)/2=[实际值]米/秒
+    std::vector<float> _width;  // 谱宽W ;([数值]-129)/2=[实际值]米/秒
+    std::vector<float> _zdr;    // 差分反射率因子ZDR;([数值]-130)/16=[实际值]dB
+    std::vector<float> _phidp;  // 差分传播相位PHIDP;([数值]-50)/100=[实际值]度
+    std::vector<float> _kdp;    // 差分传播相位率KDP;([数值]-50)/10=[实际值]度/千米
+    std::vector<float> _cc;     // 相关系数CC;([数值]-5)/200=[实际值]
+    std::vector<float> _tv;     //  原始垂直反射率因子Tv;([数值]-66)/2=[实际值]dBZ
 
   private:
 };

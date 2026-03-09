@@ -10,8 +10,8 @@
  */
 #pragma once
 
-#ifndef SILLY_UTILS_SILLY_GZIP_H
-#define SILLY_UTILS_SILLY_GZIP_H
+#ifndef SILLY_GZIP_H
+#define SILLY_GZIP_H
 
 #include <iostream>
 
@@ -54,4 +54,4 @@ class silly_gzip
     int decompress(const char* c_in_val, const unsigned int& i_in_len, char** c_out_val, unsigned int* i_out_len);
 };
 
-#endif  // SILLY_UTILS_SILLY_GZIP_H
+#endif  // SILLY_GZIP_H

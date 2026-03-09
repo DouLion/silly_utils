@@ -10,8 +10,8 @@
  */
 #pragma once
 
-#ifndef SILLY_UTILS_SILLY_ZIP_H
-#define SILLY_UTILS_SILLY_ZIP_H
+#ifndef SILLY_ZIP_H
+#define SILLY_ZIP_H
 #include <iostream>
 
 class silly_zip
@@ -27,4 +27,4 @@ class silly_zip
     };
 };
 
-#endif  // SILLY_UTILS_SILLY_ZIP_H
+#endif  // SILLY_ZIP_H

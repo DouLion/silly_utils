@@ -8,8 +8,8 @@
  * @description: silly_xlsx 类声明
  * @version: v1.0.1 2024-12-27 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_XLSX_H
-#define SILLY_UTILS_SILLY_XLSX_H
+#ifndef SILLY_XLSX_H
+#define SILLY_XLSX_H
 
 namespace silly
 {
@@ -23,7 +23,7 @@ class xlsx
 };
 }  // namespace silly
 
-#endif  // SILLY_UTILS_SILLY_XLSX_H
+#endif  // SILLY_XLSX_H
 
 /* https://github.com/brechtsanders/xlsxio/blob/master/examples/example_xlsxio_write.c
 

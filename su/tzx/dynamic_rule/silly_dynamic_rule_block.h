@@ -9,8 +9,8 @@
  *  动态指标每个小时记录一次,每个站按照366天*24小时分配空间
  * @version: v1.0.1 2025-03-13 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_DYNAMIC_RULE_BLOCK_H
-#define SILLY_UTILS_SILLY_DYNAMIC_RULE_BLOCK_H
+#ifndef SILLY_DYNAMIC_RULE_BLOCK_H
+#define SILLY_DYNAMIC_RULE_BLOCK_H
 #include <datetime/silly_posix_time.h>
 #include <files/silly_memory_map.h>
 class suDynamicRule
@@ -112,4 +112,4 @@ class suDynamicRule
 };
 
 
-#endif  // SILLY_UTILS_SILLY_DYNAMIC_RULE_BLOCK_H
+#endif  // SILLY_DYNAMIC_RULE_BLOCK_H

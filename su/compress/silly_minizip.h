@@ -10,9 +10,9 @@
  */
 #pragma once
 
-#ifndef SILLY_UTILS_SILLY_MINIZIP_H
-#define SILLY_UTILS_SILLY_MINIZIP_H
-#include <compress/silly_compress_common.h>
+#ifndef SILLY_MINIZIP_H
+#define SILLY_MINIZIP_H
+#include <compress/silly_compress.h>
 #include <log/silly_log.h>
 #include <files/silly_file.h>
 namespace silly_compress
@@ -63,4 +63,4 @@ class MiniZip
 
 using silly_minizip = silly_compress::MiniZip;
 
-#endif  // SILLY_UTILS_SILLY_MINIZIP_H
+#endif  // SILLY_MINIZIP_H

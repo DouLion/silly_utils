@@ -7,8 +7,8 @@
  * @version: 1.0.1
  * @description: suCairo 类声明
  */
-#ifndef SILLY_UTILS_SILLY_CAIRO_H
-#define SILLY_UTILS_SILLY_CAIRO_H
+#ifndef SILLY_CAIRO_H
+#define SILLY_CAIRO_H
 #include <geo/silly_geo.h>
 #include <files/silly_file.h>
 #include <graphics/silly_color.h>
@@ -150,6 +150,9 @@ class suCairo
     /// <param name="u8str"></param>
     static size_t count_occupy(const std::string& u8str);
 
+    void draw_poly(const suPoly& poly);
+    void draw_poly(const std::vector<suPoly> &polys);
+
     /// <summary>
     /// 绘制矢量面, 这个可以扩展出很多用法,
     /// rect用于其他任何形式的等比例缩放
@@ -191,7 +194,18 @@ class suCairo
     size_t width() const;
     size_t height() const;
 
+    cairo_t* get_cairo()
+    {
+#if SU_THIRD_SUPPORT_CAIRO
+        return m_cr;
+#else
+        return nullptr;
+#endif
+
+    }
+
   private:
+    void draw_ring(const suRing& ring);
     void draw_ring(const suRing& ring, const suRect& rect);
     void draw_ring_web_mercator(const suRing& ring, const suRect& rect);
 
@@ -215,4 +229,4 @@ class suCairo
 #endif
 };
 
-#endif  // SILLY_UTILS_SILLY_CAIRO_H
+#endif  // SILLY_CAIRO_H

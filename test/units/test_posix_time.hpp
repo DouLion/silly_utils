@@ -8,13 +8,13 @@
  * @description: test_posix_time 类声明
  * @version: v1.0.1 2024-08-30 dou li yang
  */
-#ifndef SILLY_UTILS_TEST_POSIX_TIME_H
-#define SILLY_UTILS_TEST_POSIX_TIME_H
+#ifndef TEST_POSIX_TIME_H
+#define TEST_POSIX_TIME_H
 #ifdef CATCH2_UNIT_TEST
 #include <catch2/catch_test_macros.hpp>
 #include <datetime/silly_posix_time.h>
 #include <log/silly_log.h>
-#ifdef SILLY_UTILS_BOOST_ENABLE
+#ifdef BOOST_ENABLE
 #endif
 
 TEST_CASE("POSIX_TIME")
@@ -98,4 +98,4 @@ TEST_CASE("POSIX_TIME")
     }
 }
 #endif
-#endif  // SILLY_UTILS_TEST_POSIX_TIME_H
+#endif  // TEST_POSIX_TIME_H

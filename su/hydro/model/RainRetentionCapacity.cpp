@@ -14,11 +14,11 @@
 RRCResultSet RainRetentionCapacity::CalcRRC(const RRCParam& p) const
 {
     // 定义四个目标水位：溢洪道、校核、设计、坝顶
-    std::vector<double> pTargetRZ = {p.DstRZ.YhdE, p.DstRZ.JhRZ, p.DstRZ.SjRZ, p.DstRZ.BadE};
+    std::vector<double> pTargetRZ = {p.DstRZ.YhdE, p.DstRZ.XxRZ, p.DstRZ.SjRZ, p.DstRZ.BadE};
     RRCResultSet ret;
     std::vector<RRCResult*> nynlRet = {
         &ret.YhdE,
-        &ret.JhRZ,
+        &ret.XxRZ,
         &ret.SjRZ,
         &ret.BadE
     };
@@ -487,7 +487,7 @@ void RainRetentionCapacity::TestModel()
     p.YhdW = 2;           // 溢洪道宽度(m)
     p.DstRZ.YhdE = 454;   // 溢洪道高程(m)
     p.DstRZ.SjRZ = 456;   // 设计洪水位(m)
-    p.DstRZ.JhRZ = 452;   // 校核洪水位(m)
+    p.DstRZ.XxRZ = 452;   // 汛限洪水位(m)
     p.KCH = 0.6;          // 流量系数
     p.optional.TCH = 60;  // 出流时间 分钟
     p.optional.WCH = -1;  // 出流量 百万方
@@ -508,7 +508,7 @@ void RainRetentionCapacity::TestModel()
 
     std::vector<RRCResult> rrcSet = {
         ret.YhdE,
-        ret.JhRZ,
+        ret.XxRZ,
         ret.SjRZ,
         ret.BadE
     };

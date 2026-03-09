@@ -8,8 +8,8 @@
  * @description: RadxGrid 类声明
  * @version: v1.0.1 2025-02-24 dou li yang
  */
-#ifndef SILLY_UTILS_RADXGRID_H
-#define SILLY_UTILS_RADXGRID_H
+#ifndef RADXGRID_H
+#define RADXGRID_H
 #include <radar/params/RadxCommon.h>
 namespace radar
 {
@@ -497,4 +497,4 @@ class RadxGrid
 
 };  // namespace radar
 
-#endif  // SILLY_UTILS_RADXGRID_H
+#endif  // RADXGRID_H

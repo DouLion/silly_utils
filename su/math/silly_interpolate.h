@@ -7,8 +7,8 @@
  * @version: 1.0.1
  * @description: 插值函数
  */
-#ifndef SILLY_UTILS_SILLY_INTERPOLATE_H
-#define SILLY_UTILS_SILLY_INTERPOLATE_H
+#ifndef SILLY_INTERPOLATE_H
+#define SILLY_INTERPOLATE_H
 
 // template <typename double>
 /*
@@ -48,4 +48,4 @@ class silly_bilinear_interpolate
     double Q4;  // right top
 };
 
-#endif  // SILLY_UTILS_SILLY_INTERPOLATE_H
+#endif  // SILLY_INTERPOLATE_H

@@ -37,4 +37,4 @@ TEST_CASE("TestFiles")
     };
 }
 
-#endif  // SILLY_UTILS_TEST_FILE_HPP
+#endif  // TEST_FILE_HPP

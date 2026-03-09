@@ -27,6 +27,7 @@
 **/tmp
 **/bak
 **/BAK
+**/*.dmp
 /docs/NYNL*
 /su/su_config.h
 

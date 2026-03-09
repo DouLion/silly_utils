@@ -18,7 +18,7 @@
 #include <log/silly_log.h>  // 日志
 
 // compress (压缩/解压缩)
-#include <compress/silly_compress_common.h>  // 压缩 错误码定义
+#include <compress/silly_compress.hpp>       // 压缩
 #include <compress/silly_7z.h>               // 7z压缩/解压缩, 未实现
 #include <compress/silly_bz2.h>              // bz2 压缩/解压缩 (文件,内存数据)
 #include <compress/silly_gzip.h>             // gzip 压缩/解压缩(内存数据), 文件的压缩解压缩未实现
@@ -62,7 +62,6 @@
 #include <files/silly_xlsx.h>  // xlsx文件操作 未实现
 
 // 几何(平面几何,地理空间空间)
-#include <geo/gpc/gpc.h>                            // gpc源码
 #include <geo/proj/gdal/silly_projection_define.h>  // 投影坐标系的 wtk
 #include <geo/proj/gdal/silly_proj_convert.h>       // 地理坐标系的转换
 #include <geo/proj/silly_proj.h>                    // (高斯投影, 墨卡托投影)转经纬度坐标

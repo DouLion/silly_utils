@@ -182,4 +182,4 @@ TEST_CASE("TestJPEG")
     }
 }
 
-#endif  // SILLY_UTILS_TEST_JPEG_HPP
+#endif  // TEST_JPEG_HPP

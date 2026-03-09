@@ -8,8 +8,8 @@
  * @description: silly_bmp 类声明
  * @version: v1.0.1 2025-01-02 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_BMP_H
-#define SILLY_UTILS_SILLY_BMP_H
+#ifndef SILLY_BMP_H
+#define SILLY_BMP_H
 
 class suBMP
 {
@@ -20,4 +20,4 @@ class suBMP
   private:
 };
 
-#endif  // SILLY_UTILS_SILLY_BMP_H
+#endif  // SILLY_BMP_H

@@ -7,8 +7,8 @@
  * @version: 1.0.1
  * @description:
  */
-#ifndef SILLY_UTILS_SILLY_DECORATOR_H
-#define SILLY_UTILS_SILLY_DECORATOR_H
+#ifndef SILLY_DECORATOR_H
+#define SILLY_DECORATOR_H
 
 #include <functional>
 #include <string>
@@ -33,4 +33,4 @@ auto exception_decorator_member_func(Func&& func, Obj&& obj, std::string&& err, 
     return decltype(std::invoke(std::forward<Func>(func), std::forward<Obj>(obj), std::forward<Args>(args)...))();  // 返回默认值
 }
 
-#endif  // SILLY_UTILS_SILLY_DECORATOR_H
+#endif  // SILLY_DECORATOR_H

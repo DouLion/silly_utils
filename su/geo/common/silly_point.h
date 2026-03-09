@@ -19,14 +19,15 @@
 class suPoint
 {
     /*不要扩散概念, 避免出现意外的错误*/
-  public:
-    double x = 0.0;         // 横坐标
-    double y = 0.0;         // 纵坐标
-    double z = 0.0;         // 高
-    double v = 0.0;         // 值
+public:
+    double x = 0.0; // 横坐标
+    double y = 0.0; // 纵坐标
+    double z = 0.0; // 高
+    double v = 0.0; // 值
 
-  public:
+public:
     suPoint() = default;
+
     ~suPoint() = default;
 
     suPoint(const double& xx, const double& yy)
@@ -69,6 +70,7 @@ class suPoint
         suPoint ret(x - rh.x, y - rh.y, z - rh.z);
         return ret;
     }
+
     suPoint& operator-=(const suPoint& rh)
     {
         x -= rh.x;
@@ -94,7 +96,7 @@ class suPoint
     suPoint operator/(const double& scale) const
     {
         suPoint ret(*this);
-        ret/=scale;
+        ret /= scale;
         return ret;
     }
 
@@ -232,5 +234,13 @@ double SU_CLOSED_RING_ORIENTED_AREA(const std::vector<suPoint>& ring);
  * @return
  */
 double SU_CLOSED_RING_NORMAL_AREA(const std::vector<suPoint>& ring);
+
+/**
+ * 三次均匀B样条（Cubic Uniform B-Spline） 进行曲线拟合和平滑
+ * @param points 输入点
+ * @param density_factor 密度因子
+ * @return
+ */
+std::vector<suPoint> SU_SMOOTH_B_SPLINE(const std::vector<suPoint>& points, int density_factor = 5);
 
 #endif  // SILLY_POINT_H

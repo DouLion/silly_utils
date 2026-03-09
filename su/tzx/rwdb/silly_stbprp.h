@@ -8,8 +8,8 @@
  * @description: silly_stbprp 测站基本信息
  * @version: v1.0.1 2024-09-30 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_STBPRP_H
-#define SILLY_UTILS_SILLY_STBPRP_H
+#ifndef SILLY_STBPRP_H
+#define SILLY_STBPRP_H
 #include <su_macro.h>
 class silly_stbprp
 {
@@ -52,4 +52,4 @@ class silly_stbprp
     static constexpr const char* FILE_NAME = "STBPRP.dat";
 };
 
-#endif  // SILLY_UTILS_SILLY_STBPRP_H
+#endif  // SILLY_STBPRP_H

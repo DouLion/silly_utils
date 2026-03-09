@@ -10,11 +10,11 @@
  */
 #pragma once
 
-#ifndef SILLY_UTILS_DM8_PRO_C_H
-#define SILLY_UTILS_DM8_PRO_C_H
+#ifndef DM8_PRO_C_H
+#define DM8_PRO_C_H
 
 class dm8_pro_c
 {
 };
 
-#endif  // SILLY_UTILS_DM8_PRO_C_H
+#endif  // DM8_PRO_C_H

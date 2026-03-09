@@ -79,7 +79,7 @@ SECTION("BOOST_INI")		// mmap文件读取
 	std::string property_str_2 = "boundary_db_conn_str";
 	std::string property_i_2 = "boundary_db_type";
 	std::string property_s_3 = "url";
-#ifdef SILLY_UTILS_BOOST_ENABLE
+#ifdef BOOST_ENABLE
 	silly_boost_ini_parser su_boot_ini;
 
 	su_boot_ini.load(ini.string());
@@ -105,5 +105,5 @@ SECTION("BOOST_INI")		// mmap文件读取
 }
 }
 
-#endif //SILLY_UTILS_TEST_INI_HPP
+#endif //TEST_INI_HPP
 

@@ -8,8 +8,8 @@
  * @description: silly_rsvr 实测水库水位记录
  * @version: v1.0.1 2024-09-30 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_RSVR_H
-#define SILLY_UTILS_SILLY_RSVR_H
+#ifndef SILLY_RSVR_H
+#define SILLY_RSVR_H
 
 #include <tzx/rwdb/silly_rwdb_record.h>
 #define SILLY_RSVR_FORMAT_V1 1
@@ -48,4 +48,4 @@ class silly_rsvr : public silly_rwdb_record
     static constexpr const char* FILE_NAME = "RSVR.dat";
 };
 
-#endif  // SILLY_UTILS_SILLY_RSVR_H
+#endif  // SILLY_RSVR_H

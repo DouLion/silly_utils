@@ -8,8 +8,8 @@
  * @description: RadxBeamBlock 类声明
  * @version: v1.0.1 2025-02-24 dou li yang
  */
-#ifndef SILLY_UTILS_RADXBEAMBLOCK_H
-#define SILLY_UTILS_RADXBEAMBLOCK_H
+#ifndef RADXBEAMBLOCK_H
+#define RADXBEAMBLOCK_H
 
 class RadxBeamBlock
 {
@@ -20,4 +20,4 @@ class RadxBeamBlock
   private:
 };
 
-#endif  // SILLY_UTILS_RADXBEAMBLOCK_H
+#endif  // RADXBEAMBLOCK_H

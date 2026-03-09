@@ -7,8 +7,8 @@
  * @version: 1.0.1
  * @description:
  */
-#ifndef SILLY_UTILS_SILLY_PROJECTION_DEFINE_H
-#define SILLY_UTILS_SILLY_PROJECTION_DEFINE_H
+#ifndef SILLY_PROJECTION_DEFINE_H
+#define SILLY_PROJECTION_DEFINE_H
 #include <su_macro.h>
 #if SU_THIRD_SUPPORT_GDAL
 #include <ogr_spatialref.h>
@@ -102,4 +102,4 @@ class CRS
 //};
 }  // namespace silly::geo::proj
 
-#endif  // SILLY_UTILS_SILLY_PROJECTION_DEFINE_H
+#endif  // SILLY_PROJECTION_DEFINE_H

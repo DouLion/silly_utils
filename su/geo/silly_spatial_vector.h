@@ -2,8 +2,8 @@
 // Created by dell on 2025/9/23.
 //
 
-#ifndef SILLY_UTILS_SILLY_SPATIAL_VECTOR_H
-#define SILLY_UTILS_SILLY_SPATIAL_VECTOR_H
+#ifndef SILLY_SPATIAL_VECTOR_H
+#define SILLY_SPATIAL_VECTOR_H
 
 // 空间向量
 #include <geo/silly_geo.h>
@@ -89,4 +89,4 @@ class suSpatialVec
     static suPoint RightAngleBisector(const suPoint& p1, const suPoint& p2, const suPoint& p3, const double& distance);
 };
 
-#endif  // SILLY_UTILS_SILLY_SPATIAL_VECTOR_H
+#endif  // SILLY_SPATIAL_VECTOR_H

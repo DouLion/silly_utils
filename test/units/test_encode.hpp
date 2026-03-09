@@ -13,4 +13,4 @@
 #ifdef CATCH2_UNIT_TEST
 #include <catch2/catch_test_macros.hpp>
 
-#endif //SILLY_UTILS_TEST_ENCODE_H
+#endif //TEST_ENCODE_H

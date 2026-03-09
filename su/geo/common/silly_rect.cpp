@@ -38,11 +38,13 @@ suRect suRect::expand(const double& scale) const
 {
     suRect ret;
     double w = (max.x - min.x);
-    double h = (max.x - min.x);
+    double h = (max.y - min.y);
+
     ret.min.x = min.x - scale * w;
     ret.min.y = min.y - scale * h;
     ret.max.x = max.x + scale * w;
     ret.max.y = max.y + scale * h;
+
     return ret;
 }
 bool suRect::intersect(const suRect& rh, const bool& containBoundary) const
@@ -112,7 +114,7 @@ bool suRect::parse(const std::string& str, const char& delimiter)
     return false;
 }
 
-bool suRect::intersect(const suPoint& p, const bool& containBoundary) const
+bool suRect::contains(const suPoint& p, const bool& containBoundary) const
 {
     if (!containBoundary)
     {

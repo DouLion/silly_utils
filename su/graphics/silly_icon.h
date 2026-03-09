@@ -8,8 +8,8 @@
  * @description: silly_icon 类声明
  * @version: v1.0.1 2025-01-02 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_ICON_H
-#define SILLY_UTILS_SILLY_ICON_H
+#ifndef SILLY_ICON_H
+#define SILLY_ICON_H
 
 class suIcon
 {
@@ -20,4 +20,4 @@ class suIcon
   private:
 };
 
-#endif  // SILLY_UTILS_SILLY_ICON_H
+#endif  // SILLY_ICON_H

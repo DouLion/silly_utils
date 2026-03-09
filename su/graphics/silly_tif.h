@@ -8,8 +8,8 @@
  * @description: silly_tif 类声明
  * @version: v1.0.1 2025-01-02 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_TIF_H
-#define SILLY_UTILS_SILLY_TIF_H
+#ifndef SILLY_TIF_H
+#define SILLY_TIF_H
 
 class suTIF
 {
@@ -20,4 +20,4 @@ class suTIF
   private:
 };
 
-#endif  // SILLY_UTILS_SILLY_TIF_H
+#endif  // SILLY_TIF_H

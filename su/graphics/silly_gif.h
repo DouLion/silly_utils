@@ -8,8 +8,8 @@
  * @description: silly_gif 类声明
  * @version: v1.0.1 2025-01-02 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_GIF_H
-#define SILLY_UTILS_SILLY_GIF_H
+#ifndef SILLY_GIF_H
+#define SILLY_GIF_H
 
 class suGIF
 {
@@ -20,4 +20,4 @@ class suGIF
   private:
 };
 
-#endif  // SILLY_UTILS_SILLY_GIF_H
+#endif  // SILLY_GIF_H

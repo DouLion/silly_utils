@@ -8,8 +8,8 @@
  * @description: silly_pptn 实测降雨记录
  * @version: v1.0.1 2024-09-30 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_PPTN_H
-#define SILLY_UTILS_SILLY_PPTN_H
+#ifndef SILLY_PPTN_H
+#define SILLY_PPTN_H
 #include <tzx/rwdb/silly_rwdb_record.h>
 #define SILLY_PPTN_FORMAT_V1 1
 #define SILLY_PPTN_FORMAT_V2 2
@@ -40,4 +40,4 @@ class silly_pptn : public silly_rwdb_record
     static constexpr const char* FILE_NAME = "PPTN.dat";
 };
 
-#endif  // SILLY_UTILS_SILLY_PPTN_H
+#endif  // SILLY_PPTN_H

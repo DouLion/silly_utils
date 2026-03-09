@@ -8,8 +8,8 @@
  * @description: silly_dynamic_rule 类声明
  * @version: v1.0.1 2024-09-11 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_DYNAMIC_RULE_H
-#define SILLY_UTILS_SILLY_DYNAMIC_RULE_H
+#ifndef SILLY_DYNAMIC_RULE_H
+#define SILLY_DYNAMIC_RULE_H
 #include <su_macro.h>
 #include <datastruct/silly_safe_bimap.h>
 /*static uint8_t DRFMT_CODE_INDEX = 0b10001001;   // 前三个个bit表示类型, 后面为占位符
@@ -76,4 +76,4 @@ class silly_dynamic_rule
     dynamic_rule_code_index m_index{};
 };*/
 
-#endif  // SILLY_UTILS_SILLY_DYNAMIC_RULE_H
+#endif  // SILLY_DYNAMIC_RULE_H

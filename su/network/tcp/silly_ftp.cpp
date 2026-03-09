@@ -62,7 +62,6 @@ typedef int socklen_t;
 #define strdup _strdup
 #endif
 
-using namespace std;
 
 */
 /* socket values */                             /*

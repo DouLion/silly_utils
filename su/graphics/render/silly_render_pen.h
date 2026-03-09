@@ -8,8 +8,8 @@
  * @description: silly_render_pen 类声明
  * @version: v1.0.1 2024-10-25 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_RENDER_PEN_H
-#define SILLY_UTILS_SILLY_RENDER_PEN_H
+#ifndef SILLY_RENDER_PEN_H
+#define SILLY_RENDER_PEN_H
 #include <su_macro.h>
 class suRenderPen
 {
@@ -22,4 +22,4 @@ class suRenderPen
     std::vector<float> m_dash_arr;
 };
 
-#endif  // SILLY_UTILS_SILLY_RENDER_PEN_H
+#endif  // SILLY_RENDER_PEN_H

@@ -26,7 +26,7 @@ suRect suRing::bound() const
     }
     return ret;
 }
-bool suRing::intersect(const suPoint& p) const
+bool suRing::contains(const suPoint& p) const
 {
     return SU_POINT_IN_CLOSED_RING(p, points);
 }
@@ -47,15 +47,15 @@ suRect suPoly::bound() const
     return outer.bound();
 }
 
-bool suPoly::intersect(const suPoint& p) const
+bool suPoly::contains(const suPoint& p) const
 {
-    if (!outer.intersect(p))
+    if (!outer.contains(p))
     {
         return false;
     }
     for (const auto& ring : holes)
     {
-        if (ring.intersect(p))
+        if (ring.contains(p))
         {
             return false;
         }
@@ -84,11 +84,11 @@ suRect suMultiPoly::bound() const
     return ret;
 }
 
-bool suMultiPoly::intersect(const suPoint& p) const
+bool suMultiPoly::contains(const suPoint& p) const
 {
-    for (const auto poly : m_items)
+    for (const auto& poly : m_items)
     {
-        if (poly.intersect(p))
+        if (poly.contains(p))
         {
             return true;
         }

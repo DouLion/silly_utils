@@ -11,8 +11,8 @@
 */
 #pragma once
 
-#ifndef SILLY_UTILS_SILLY_MATRIX_H
-#define SILLY_UTILS_SILLY_MATRIX_H
+#ifndef SILLY_MATRIX_H
+#define SILLY_MATRIX_H
 #include <su_macro.h>
 template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
 class suMatrix
@@ -1062,4 +1062,4 @@ typedef suMatrix<unsigned char> suUCMatrix;
 typedef suMatrix<long long> suLMatrix;
 typedef suMatrix<unsigned long long> suUMatrix;
 
-#endif  // SILLY_UTILS_SILLY_MATRIX_H
+#endif  // SILLY_MATRIX_H

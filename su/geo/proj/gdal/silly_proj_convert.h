@@ -7,8 +7,8 @@
  * @version: 1.0.1
  * @description:
  */
-#ifndef SILLY_UTILS_SILLY_PROJ_CONVERT_H
-#define SILLY_UTILS_SILLY_PROJ_CONVERT_H
+#ifndef SILLY_PROJ_CONVERT_H
+#define SILLY_PROJ_CONVERT_H
 #include <geo/proj/gdal/silly_projection_define.h>
 
 namespace silly
@@ -47,4 +47,4 @@ class gdal_convert
 }  // namespace geo
 }  // namespace silly
 
-#endif  // SILLY_UTILS_SILLY_PROJ_CONVERT_H
+#endif  // SILLY_PROJ_CONVERT_H

@@ -7,8 +7,8 @@
  * @version: 1.0.1
  * @description: silly_netcdf 类声明
  */
-#ifndef SILLY_UTILS_SILLY_NETCDF_H
-#define SILLY_UTILS_SILLY_NETCDF_H
+#ifndef SILLY_NETCDF_H
+#define SILLY_NETCDF_H
 
 #include <log/silly_log.h>
 #include <files/silly_file.h>
@@ -177,4 +177,4 @@ class suNetCDF
     std::vector<Band> m_bands;
 };
 
-#endif  // SILLY_UTILS_SILLY_NETCDF_H
+#endif  // SILLY_NETCDF_H

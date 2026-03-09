@@ -8,12 +8,13 @@
 #include <gdal_alg.h>
 #include <ogr_api.h>
 #endif
-#include <polyclipping/clipper.hpp>
+#if SU_THIRD_SUPPORT_POLY_CLIPPING
+//#include <clipper2/clipper.h>
+#endif
 #include <encode/silly_encode.h>
 #include <files/silly_file.h>
 #include <geo/proj/silly_proj.h>
 using namespace silly::geo;
-using namespace ClipperLib;
 
 void suGeoUtils::init_proj_env()
 {
@@ -443,7 +444,7 @@ bool suGeoUtils::intersect(const suMultiPoly& geo1, const suLine& geo2)
 {
     for (const auto& p : geo2)
     {
-        if (geo1.intersect(p))
+        if (geo1.contains(p))
         {
             return true;
         }
@@ -453,7 +454,7 @@ bool suGeoUtils::intersect(const suMultiPoly& geo1, const suLine& geo2)
 
 bool suGeoUtils::intersect(const suMultiPoly& geo1, const suPoint& geo2)
 {
-    return geo1.intersect(geo2);
+    return geo1.contains(geo2);
 }
 
 bool suGeoUtils::intersect(const suPoly& geo1, const suPoly& geo2)
@@ -476,7 +477,7 @@ bool suGeoUtils::intersect(const suPoly& geo1, const suLine& geo2)
 {
     for (const auto& p : geo2)
     {
-        if (geo1.intersect(p))
+        if (geo1.contains(p))
         {
             return true;
         }
@@ -486,53 +487,17 @@ bool suGeoUtils::intersect(const suPoly& geo1, const suLine& geo2)
 
 bool suGeoUtils::intersect(const suPoly& geo1, const suPoint& geo2)
 {
-    return geo1.intersect(geo2);
+    return geo1.contains(geo2);
 }
+#if SU_THIRD_SUPPORT_POLY_CLIPPING
 
-std::vector<suPoly> suGeoUtils::intersection(const suMultiPoly& multiPoly1, const suMultiPoly& multiPoly2)
+#endif
+
+suMultiPoly suGeoUtils::intersection(const suMultiPoly& p1, const suMultiPoly& p2)
 {
-    std::vector<suPoly> result;
-#if SU_THIRD_SUPPORT_GDAL
-    // 创建 OGRPolygon 对象
-    OGRMultiPolygon org_ploy_1 = suGDAL::MultiPolyToOGR(multiPoly1);
-    OGRMultiPolygon org_ploy_2 = suGDAL::MultiPolyToOGR(multiPoly2);
+    suMultiPoly result;
+#if SU_THIRD_SUPPORT_POLY_CLIPPING
 
-    /*// 判断两个 OGRPolygon 是否相交
-    if (!org_ploy_1.Intersects(&org_ploy_2))
-    {
-        return result;
-    }*/
-
-    // 计算相交区域
-    OGRGeometry* intersection = org_ploy_1.Intersection(&org_ploy_2);
-
-    // 处理不同几何类型的情况
-    OGRwkbGeometryType geometryType = intersection->getGeometryType();
-    switch (geometryType)
-    {
-        // 单面
-        case wkbPolygon:
-        case wkbPolygon25D:
-        {
-            auto intersectingPolygon = (OGRPolygon*)(intersection);
-            result.emplace_back(suGDAL::PolyFromOGR(intersectingPolygon));
-            break;
-        }
-        // 多面
-        case wkbMultiPolygon:
-        case wkbMultiPolygon25D:
-        {
-            auto intersectingMultiPolygon = (OGRMultiPolygon*)(intersection);
-            auto m_polys = suGDAL::MultiPolyFromOGR(intersectingMultiPolygon);
-            for (const auto& poly : m_polys)
-            {
-                result.emplace_back(poly);
-            }
-            break;
-        }
-        default:
-            break;
-    }
 #endif
 
     return result;

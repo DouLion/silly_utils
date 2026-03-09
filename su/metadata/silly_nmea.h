@@ -8,8 +8,8 @@
  * @description:  GPGSA GPS数据传输标准
  * @version: v1.0.1 2024-12-13 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_NMEA_H
-#define SILLY_UTILS_SILLY_NMEA_H
+#ifndef SILLY_NMEA_H
+#define SILLY_NMEA_H
 #include <files/silly_file.h>
 #define GNGGA "GNGGA"
 // $GNGGA,030634.00,3415.26032290,N,11125.48176926,E,4,41,0.5,496.7253,M,-24.9553,M,1.0,3482*74
@@ -75,4 +75,4 @@ class nmea
 }  // namespace meta
 }  // namespace silly
 
-#endif  // SILLY_UTILS_SILLY_NMEA_H
+#endif  // SILLY_NMEA_H

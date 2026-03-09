@@ -8,8 +8,8 @@
  * @description: silly_ftp_client 类声明
  * @version: v1.0.1 2024-09-11 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_FTP_CLIENT_H
-#define SILLY_UTILS_SILLY_FTP_CLIENT_H
+#ifndef SILLY_FTP_CLIENT_H
+#define SILLY_FTP_CLIENT_H
 
 class suFtpClient
 {
@@ -20,4 +20,4 @@ class suFtpClient
   private:
 };
 
-#endif  // SILLY_UTILS_SILLY_FTP_CLIENT_H
+#endif  // SILLY_FTP_CLIENT_H

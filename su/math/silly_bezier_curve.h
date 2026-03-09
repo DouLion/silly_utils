@@ -7,8 +7,8 @@
  * @version: 1.0.1
  * @description:
  */
-#ifndef SILLY_UTILS_SILLY_BEZIER_CURVE_H
-#define SILLY_UTILS_SILLY_BEZIER_CURVE_H
+#ifndef SILLY_BEZIER_CURVE_H
+#define SILLY_BEZIER_CURVE_H
 
 #include <geo/silly_geo.h>
 
@@ -113,4 +113,4 @@ class silly_bezier_curve
     }
 };
 
-#endif  // SILLY_UTILS_SILLY_BEZIER_CURVE_H
+#endif  // SILLY_BEZIER_CURVE_H

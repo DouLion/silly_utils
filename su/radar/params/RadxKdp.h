@@ -8,8 +8,8 @@
  * @description: RadxKdp 类声明
  * @version: v1.0.1 2025-02-24 dou li yang
  */
-#ifndef SILLY_UTILS_RADXKDP_H
-#define SILLY_UTILS_RADXKDP_H
+#ifndef RADXKDP_H
+#define RADXKDP_H
 
 class RadxKdp
 {
@@ -20,4 +20,4 @@ class RadxKdp
   private:
 };
 
-#endif  // SILLY_UTILS_RADXKDP_H
+#endif  // RADXKDP_H

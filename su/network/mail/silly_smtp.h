@@ -8,8 +8,8 @@
  * @description: silly_smtp 类声明
  * @version: v1.0.1 2024-09-11 dou li yang
  */
-#ifndef SILLY_UTILS_SILLY_SMTP_H
-#define SILLY_UTILS_SILLY_SMTP_H
+#ifndef SILLY_SMTP_H
+#define SILLY_SMTP_H
 #include <network/mail/silly_mail.h>
 #include <network/socket/silly_socket.h>
 
@@ -49,4 +49,4 @@ class silly_smtp
     silly_mail_conn_opt m_conn_opt;
 };
 
-#endif  // SILLY_UTILS_SILLY_SMTP_H
+#endif  // SILLY_SMTP_H
