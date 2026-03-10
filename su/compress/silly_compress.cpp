@@ -36,7 +36,7 @@ eCompressErr CompressBin(const std::string& src, std::string& dst, const eCompre
     {
         char* out = nullptr;
         size_t out_len = 0;
-        ret = silly_compress::MiniZip::compress(src.data(), src.size(), &out, out_len);
+        ret = suMiniZIP::compress(src.data(), src.size(), &out, out_len);
         if (eCompressErr::Ok == ret)
         {
             dst.resize(out_len);
