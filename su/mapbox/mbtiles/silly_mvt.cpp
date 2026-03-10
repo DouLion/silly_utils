@@ -9,7 +9,7 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <zlib.h>
+
 #include <errno.h>
 #include <limits.h>
 #include <ctype.h>
@@ -32,106 +32,7 @@ MVTGeometry::MVTGeometry(eMVTOperation nop, long long nx, long long ny)
     this->y = ny;
 }
 
-// https://github.com/mapbox/mapnik-vector-tile/blob/master/src/vector_tile_compression.hpp
-static bool is_compressed(std::string const &data)
-{
-    return data.size() > 2 && (((uint8_t)data[0] == 0x78 && (uint8_t)data[1] == 0x9C) || ((uint8_t)data[0] == 0x1F && (uint8_t)data[1] == 0x8B));
-}
 
-// https://github.com/mapbox/mapnik-vector-tile/blob/master/src/vector_tile_compression.hpp
-static bool decompress(std::string const &input, std::string &output)
-{
-    z_stream inflate_s;
-    inflate_s.zalloc = Z_NULL;
-    inflate_s.zfree = Z_NULL;
-    inflate_s.opaque = Z_NULL;
-    inflate_s.avail_in = 0;
-    inflate_s.next_in = Z_NULL;
-    if (inflateInit2(&inflate_s, 32 + 15) != Z_OK)
-    {
-        fprintf(stderr, "Decompression error: %s\n", inflate_s.msg);
-    }
-    inflate_s.next_in = (Bytef *)input.data();
-    inflate_s.avail_in = input.size();
-    inflate_s.next_out = (Bytef *)output.data();
-    inflate_s.avail_out = output.size();
-
-    while (true)
-    {
-        size_t existing_output = inflate_s.next_out - (Bytef *)output.data();
-
-        output.resize(existing_output + 2 * inflate_s.avail_in + 100);
-        inflate_s.next_out = (Bytef *)output.data() + existing_output;
-        inflate_s.avail_out = output.size() - existing_output;
-
-        int ret = inflate(&inflate_s, 0);
-        if (ret < 0)
-        {
-            fprintf(stderr, "Decompression error: ");
-            if (ret == Z_DATA_ERROR)
-            {
-                fprintf(stderr, "data error");
-            }
-            if (ret == Z_STREAM_ERROR)
-            {
-                fprintf(stderr, "stream error");
-            }
-            if (ret == Z_MEM_ERROR)
-            {
-                fprintf(stderr, "out of memory");
-            }
-            if (ret == Z_BUF_ERROR)
-            {
-                fprintf(stderr, "no data in buffer");
-            }
-            fprintf(stderr, "\n");
-            return false;
-        }
-
-        if (ret == Z_STREAM_END)
-        {
-            break;
-        }
-
-        // ret must be Z_OK or Z_NEED_DICT;
-        // continue decompresing
-    }
-
-    output.resize(inflate_s.next_out - (Bytef *)output.data());
-    inflateEnd(&inflate_s);
-    return true;
-}
-
-// https://github.com/mapbox/mapnik-vector-tile/blob/master/src/vector_tile_compression.hpp
-static bool compress(std::string const &input, std::string &output)
-{
-    z_stream deflate_s;
-    deflate_s.zalloc = Z_NULL;
-    deflate_s.zfree = Z_NULL;
-    deflate_s.opaque = Z_NULL;
-    deflate_s.avail_in = 0;
-    deflate_s.next_in = Z_NULL;
-    deflateInit2(&deflate_s, Z_BEST_COMPRESSION, Z_DEFLATED, 31, 8, Z_DEFAULT_STRATEGY);
-    deflate_s.next_in = (Bytef *)input.data();
-    deflate_s.avail_in = input.size();
-    size_t length = 0;
-    do
-    {
-        size_t increase = input.size() / 2 + 1024;
-        output.resize(length + increase);
-        deflate_s.avail_out = increase;
-        deflate_s.next_out = (Bytef *)(output.data() + length);
-        int ret = deflate(&deflate_s, Z_FINISH);
-        if (ret != Z_STREAM_END && ret != Z_OK && ret != Z_BUF_ERROR)
-        {
-            return false;
-        }
-        length += (increase - deflate_s.avail_out);
-    } while (deflate_s.avail_out == 0);
-    deflateEnd(&deflate_s);
-    output.resize(length);
-    return true;
-}
 
 bool MVTTile::decode(const std::string &message, bool &was_compressed)
 {

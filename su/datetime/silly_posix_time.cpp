@@ -342,8 +342,3 @@ bool sutime::is_not_a_date_time() const
 
     return false;
 }
-
-extern std::string TimeStringify(const sutime& tm, const std::string& fmt)
-{
-    return tm.stringify(fmt);
-}

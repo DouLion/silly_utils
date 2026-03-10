@@ -9,65 +9,23 @@
  * @version: v1.0.1 2025-04-18 dou li yang
  */
 #include "silly_mobile.h"
-using namespace silly;
-static const std::unordered_map<std::string, eMobileOP> MOBILE_PREFIX_MAP = {
-    {"138", eMobileOP::ChinaMobile},
-    {"139", eMobileOP::ChinaMobile},
-    {"150", eMobileOP::ChinaMobile},
-    {"159", eMobileOP::ChinaMobile},
-    {"135", eMobileOP::ChinaMobile},
-    {"186", eMobileOP::ChinaUnicom},
-    {"180", eMobileOP::ChinaTelecom},
-    {"133", eMobileOP::ChinaTelecom},
-    {"156", eMobileOP::ChinaTelecom},
-    {"181", eMobileOP::ChinaTelecom}
-    // 可以继续扩展更多号段
-};
 
-std::string mobile::op2str(const eMobileOP& op)
+bool suMobileDB::Load(const supath& file)
 {
-    switch (op)
-    {
-        case eMobileOP::ChinaMobile:
-            return "China Mobile";
-        case eMobileOP::ChinaUnicom:
-            return "China Unicom";
-        case eMobileOP::ChinaTelecom:
-            return "China Telecom";
-        default:
-            return "Unknown";
-    }
+    return false;
 }
-eMobileOP mobile::opcode(const std::string& number)
+
+std::optional<suMobileDB::Info> suMobileDB::Query(const std::string& number) const
 {
-    std::string prefix = number.substr(0, 3);
-    auto iter = MOBILE_PREFIX_MAP.find(prefix);
-    // 查找对应的运营商
-    if (iter != MOBILE_PREFIX_MAP.end())
-    {
-        return iter->second;
-    }
-    return eMobileOP::Unknown;
+    return std::nullopt;
 }
-std::map<std::string, eMobileOP> mobile::opcode(const std::vector<std::string>& numbers)
+
+std::vector<suMobileDB::Info> suMobileDB::Query(const std::vector<std::string>& number) const
 {
-    std::map<std::string, eMobileOP> ret;
-    for (const auto& number : numbers)
-    {
-        ret[number] = opcode(number);
-    }
-    return ret;
+    return {};
 }
-std::string mobile::opstr(const std::string& number)
+
+bool suMobileDB::IsValid(const std::string& number) const
 {
-    return op2str(opcode(number));
-}
-std::map<std::string, std::string> mobile::opstr(const std::vector<std::string>& numbers)
-{
-    std::map<std::string, std::string> ret;
-    for (const auto& number : numbers)
-    {
-        ret[number] = opstr(number);
-    }
-    return ret;
+    return false;
 }
