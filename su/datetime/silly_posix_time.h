@@ -158,6 +158,11 @@ protected:
     std::mutex m_mutex;
 };
 
+static std::string TimeStringify(const sutime& t, const std::string& fmt = "%Y-%m-%d %H:%M:%S")
+{
+    return t.stringify(fmt);
+}
+
 using silly_time_duration = suduration;
 using silly_posix_time = sutime;
 #endif  // SILLY_POSIX_TIME_H
