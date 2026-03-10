@@ -227,80 +227,53 @@ std::string CLASS_PURE_NAME(const T&)
 }
 
 /// 简化容器操作
-template <typename K, typename V>
-bool HAS(const std::map<K, V>& m, const K& k)
+// 辅助结构：检测是否为关联容器 (有 key_type 和 find 成员)
+template <typename T, typename = void>
+struct is_associative_container : std::false_type
 {
-    return m.find(k) != m.end();
+};
+
+template <typename T>
+struct is_associative_container<T, std::void_t<typename T::key_type, decltype(std::declval<T>().find(std::declval<typename T::key_type>()))>> : std::true_type
+{
+};
+
+template <typename T>
+inline constexpr bool is_associative_container_v = is_associative_container<T>::value;
+
+// ---- 核心实现：关联容器 (Map/Set) ----
+// 利用 typename Container::key_type 进行类型转换，解决 "abc" (const char*) vs std::string 的问题
+template <typename Container, typename Key>
+std::enable_if_t<is_associative_container_v<Container>, bool> HAS(const Container& c, const Key& k)
+{
+    using RealKey = typename Container::key_type;
+    // 显式构造 RealKey，触发 const char* -> std::string 等隐式转换
+    return c.find(RealKey(k)) != c.end();
 }
 
-template <typename K, typename V>
-bool HAS(const std::multimap<K, V>& m, const K& k)
+// ---- 核心实现：序列容器 (Vector/List/etc) ----
+// 同样利用 value_type 进行转换
+template <typename Container, typename T>
+std::enable_if_t<!is_associative_container_v<Container> && !std::is_array_v<Container>, bool>  // 排除 C 风格数组，下面单独处理
+HAS(const Container& c, const T& x)
 {
-    return m.find(k) != m.end();  // 只需判断是否存在至少一个
+    using ValueType = typename Container::value_type;
+    // 显式构造 ValueType
+    return std::find(c.begin(), c.end(), ValueType(x)) != c.end();
 }
 
-template <typename K>
-bool HAS(const std::set<K>& s, const K& k)
+// ---- 特殊处理：std::array ----
+template <typename T, std::size_t N, typename U>
+bool HAS(const std::array<T, N>& a, const U& x)
 {
-    return s.find(k) != s.end();
+    return std::find(a.begin(), a.end(), T(x)) != a.end();
 }
 
-template <typename K>
-bool HAS(const std::multiset<K>& s, const K& k)
+// ---- 特殊处理：C 风格数组 (可选) ----
+template <typename T, std::size_t N, typename U>
+bool HAS(const T (&arr)[N], const U& x)
 {
-    return s.find(k) != s.end();
-}
-
-// ---- 无序关联容器（哈希表，平均 O(1)）----
-
-template <typename K, typename V>
-bool HAS(const std::unordered_map<K, V>& m, const K& k)
-{
-    return m.find(k) != m.end();
-}
-
-template <typename K, typename V>
-bool HAS(const std::unordered_multimap<K, V>& m, const K& k)
-{
-    return m.find(k) != m.end();
-}
-
-template <typename K>
-bool HAS(const std::unordered_set<K>& s, const K& k)
-{
-    return s.find(k) != s.end();
-}
-
-template <typename K>
-bool HAS(const std::unordered_multiset<K>& s, const K& k)
-{
-    return s.find(k) != s.end();
-}
-
-// ---- 序列容器（线性查找 O(n)，使用 std::find 更简洁）----
-
-template <typename T, typename Alloc>
-bool HAS(const std::vector<T, Alloc>& v, const T& x)
-{
-    return std::find(v.begin(), v.end(), x) != v.end();
-}
-
-template <typename T, typename Alloc>
-bool HAS(const std::deque<T, Alloc>& d, const T& x)
-{
-    return std::find(d.begin(), d.end(), x) != d.end();
-}
-
-template <typename T, typename Alloc>
-bool HAS(const std::list<T, Alloc>& l, const T& x)
-{
-    return std::find(l.begin(), l.end(), x) != l.end();
-}
-
-template <typename T, std::size_t N>
-bool HAS(const std::array<T, N>& a, const T& x)
-{
-    return std::find(a.begin(), a.end(), x) != a.end();
+    return std::find(std::begin(arr), std::end(arr), T(x)) != std::end(arr);
 }
 
 #endif
