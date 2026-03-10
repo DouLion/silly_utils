@@ -6,8 +6,6 @@
 #include "minizip/zip.h"
 #include "minizip/unzip.h"
 #include <log/silly_log.h>
-using namespace silly_compress;
-
 //  压缩使用的最大内存 500M
 #define SILLY_MINIZ_MAX_BUFF_SIZE (0x1F400000)
 
@@ -126,19 +124,19 @@ int minizip_compress_dir(const zipFile& zipHDL, const suPath& root)
 }
 
 /// 将文件或目录压缩为ZIP文件
-eCompressErr MiniZip::compress(const suPath& s_src, const suPath& s_dst, const bool& append)
+eCompressErr suMiniZIP::compress(const suPath& src, const suPath& dst, const bool& append)
 {
     auto status = eCompressErr::MiniZUnknowErr;
     try
     {
-        if (!s_src.exists())
+        if (!src.exists())
         {
             return eCompressErr::FileNotExistErr;
         }
-        std::string out_dst = s_dst;
+        std::string out_dst = dst;
         if (out_dst.empty())  // 补充默认压缩路径
         {
-            auto sfp_src = suPath(s_src);
+            auto sfp_src = suPath(src);
             out_dst = sfp_src.parent().append(sfp_src.stem().append(SILLY_MINIZ_FILE_EXTENSION)).string();
         }
         if (!append)  // 非追加,先删除原文件
@@ -153,9 +151,9 @@ eCompressErr MiniZip::compress(const suPath& s_src, const suPath& s_dst, const b
 
         do
         {
-            if (suPath::is_dir(s_src))  // 压缩文件夹
+            if (suPath::is_dir(src))  // 压缩文件夹
             {
-                if (ZIP_OK != minizip_compress_dir(zipHDL, s_src))
+                if (ZIP_OK != minizip_compress_dir(zipHDL, src))
                 {
                     status = eCompressErr::MiniZOpenFileErr;
                     break;
@@ -163,7 +161,7 @@ eCompressErr MiniZip::compress(const suPath& s_src, const suPath& s_dst, const b
             }
             else  // 压缩单个文件
             {
-                if (ZIP_OK != minizip_compress_file(zipHDL, s_src))
+                if (ZIP_OK != minizip_compress_file(zipHDL, src))
                 {
                     status = eCompressErr::MiniZOpenFileErr;
                     break;
@@ -186,20 +184,20 @@ eCompressErr MiniZip::compress(const suPath& s_src, const suPath& s_dst, const b
 }
 
 /// 解压zip文件,解压单独文件和目录文件
-eCompressErr MiniZip::decompress(const suPath& s_src, const suPath& s_dst)
+eCompressErr suMiniZIP::decompress(const suPath& src, const suPath& dst)
 {
-    if (!s_src.exists())  // 解压文件不存在
+    if (!src.exists())  // 解压文件不存在
     {
         return eCompressErr::FileNotExistErr;
     }
     suPath outputDir;
-    if (s_dst.is_file())  // 如果解压路径为空,创建一个和压缩包名称相同的目录,解压到该目录下
+    if (dst.is_file())  // 如果解压路径为空,创建一个和压缩包名称相同的目录,解压到该目录下
     {
-        outputDir = suPath(s_src).parent();
+        outputDir = suPath(src).parent();
     }
     else
     {
-        outputDir = s_dst;
+        outputDir = dst;
     }
     if (!suPath::exists(outputDir))
     {
@@ -208,7 +206,7 @@ eCompressErr MiniZip::decompress(const suPath& s_src, const suPath& s_dst)
             return eCompressErr::MiniZCreatDirErr;  // 创建目录失败
         }
     }
-    unzFile zipFile = unzOpen64(s_src.string().c_str());  // 打开ZIP文件
+    unzFile zipFile = unzOpen64(src.string().c_str());  // 打开ZIP文件
     if (zipFile == nullptr)
     {
         return eCompressErr::MiniZOpenFileErr;  // 打开ZIP文件失败
@@ -295,7 +293,7 @@ eCompressErr MiniZip::decompress(const suPath& s_src, const suPath& s_dst)
     return eCompressErr::Ok;
 }
 
-eCompressErr MiniZip::compress(const char* c_in_val, const size_t& i_in_len, char** c_out_val, size_t& i_out_len)
+eCompressErr suMiniZIP::compress(const char* c_in_val, const size_t& i_in_len, char** c_out_val, size_t& i_out_len)
 {
     if (c_in_val == nullptr || i_in_len == 0)
     {
@@ -326,7 +324,7 @@ eCompressErr MiniZip::compress(const char* c_in_val, const size_t& i_in_len, cha
     return eCompressErr::Ok;
 }
 
-eCompressErr MiniZip::decompress(const char* c_in_val, const size_t& i_in_len, char** c_out_val, size_t& i_out_len)
+eCompressErr suMiniZIP::decompress(const char* c_in_val, const size_t& i_in_len, char** c_out_val, size_t& i_out_len)
 {
     // 检查输入参数
     if (c_in_val == nullptr || i_in_len == 0)
