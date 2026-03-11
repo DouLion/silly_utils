@@ -12,21 +12,23 @@
 #define SILLY_MOBILE_H
 #include <su_macro.h>
 #include <files/silly_path.h>
+#include <files/silly_file.h>
+#include <log/silly_log.h>
 
 class suMobileDB
 {
-public:
+  public:
     struct Info
     {
         // 代码,号段,省区,城市,服务商,区号,邮编,区划代码
-        std::string prefix;   // 前缀代码
-        std::string segment;  //  号段
-        std::string province; // 省区
-        std::string city;     // 城市
-        std::string carrier;  // 服务商
-        std::string area;     // 区号
-        std::string postal;   // 邮编
-        std::string region;   // 区划代码
+        std::string prefix;    // 前缀代码
+        std::string segment;   // 号段
+        std::string province;  // 省区
+        std::string city;      // 城市
+        std::string carrier;   // 服务商
+        std::string area;      // 区号
+        std::string postal;    // 邮编
+        std::string region;    // 区划代码
     };
 
     bool Load(const supath& file);
@@ -52,9 +54,9 @@ public:
      */
     bool IsValid(const std::string& number) const;
 
-protected:
+  protected:
     std::unordered_map<std::string, Info> m_prefix2info;
-    std::string m_data_time; // 数据收集时间
+    std::string m_data_time;  // 数据收集时间
 };
 
 #endif  // SILLY_MOBILE_H
