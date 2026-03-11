@@ -276,4 +276,23 @@ bool HAS(const T (&arr)[N], const U& x)
     return std::find(std::begin(arr), std::end(arr), T(x)) != std::end(arr);
 }
 
+/**
+ * 安全移除功能,适用于所有支持erase(iterator) 和 begin()/end()的容器
+ * @tparam Container 容器类型
+ * @tparam Predicate 匿名函数
+ * @param c
+ * @param pred
+ */
+template <typename Container, typename Predicate>
+void ERASE_IF(Container& c, Predicate pred) {
+    for (auto it = c.begin(); it != c.end(); ) {
+        if (pred(*it)) {
+            it = c.erase(it);  // 安全删除并获取下一个迭代器
+        } else {
+            ++it;
+        }
+    }
+}
+
+
 #endif
