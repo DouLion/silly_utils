@@ -158,7 +158,7 @@ protected:
     std::mutex m_mutex;
 };
 
-static std::string TimeStringify(const sutime& t, const std::string& fmt = "%Y-%m-%d %H:%M:%S")
+static std::string TimeStringify(const sutime& t, const std::string& fmt = "%Y-%m-%d %H:%M")
 {
     return t.stringify(fmt);
 }
