@@ -69,14 +69,10 @@ bool suMobileDB::IsValid(const std::string& number) const
 {
     if (number.length() != 11)
         return false;
-    if (number[0] != '1')
-        return false;
-    if (number[1] < '3' || number[1] > '9')
-        return false;
     for (char c : number)
     {
         if (!std::isdigit(c))
             return false;
     }
-    return true;
+    return HAS(m_prefix2info, number.substr(0, 7));
 }
