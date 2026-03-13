@@ -189,7 +189,7 @@ bool BlockData::Read(char*& p, const BlockInfo& info, SLB& slb, size_t azNum, si
     for (int i = 0; i < head.VarCounts; i++)
     {
         const int layer = head.ElevationNumber - 1;
-        const int az = std::round(head.Azimuth / info.AngularResolution);  // head.RadialNumber - 1;
+        const int az =  head.RadialNumber - 1;
         size_t count = info.LayerParams[layer].GateCounts[i];
         if (count != gateNum)
         {
