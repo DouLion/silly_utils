@@ -13,23 +13,24 @@
 using namespace RadarData;
 
 template <typename T>
-static void SetVal(const std::vector<T>& src, float* ret)
+static void CalcVal(const std::vector<T>& src, float* ret, const int32_t& offset, const float scale)
 {
     float* fp = ret;
     for (const T& v : src)
     {
-        *fp = v;
+        if (v  == 1 || v == 4)
+        {
+            *fp = -9999;
+        }
+       
+        else
+        {
+            // 强制赋值,使char能够正常下溢
+            T t = v - offset;
+            *fp = t / scale;
+        }
         fp++;
-    }
-}
-
-template <typename T>
-static void CalcVal(std::vector<T>& src, const int32_t& offset, const int32_t scale)
-{
-    for (T& v : src)
-    {
-        v = (T)(v - offset);  // 强制赋值,使char能够正常下溢
-        v = v / scale;
+       
     }
 }
 
@@ -169,11 +170,11 @@ bool BlockData::Read(char*& p, const BlockInfo& info, SLB& slb, size_t azNum, si
         return false;
     }
     std::memcpy(reinterpret_cast<char*>(&head), p, sizeof(head));
-    p += sizeof(head);
-    if (head.VarCounts <= 0)
+    if (head.VarCounts <= 0 || head.VarCounts > 100)
     {
         return false;
     }
+    p += sizeof(head);
     DataType.resize(head.VarCounts);
     Scale.resize(head.VarCounts);
     Offset.resize(head.VarCounts);
@@ -189,7 +190,7 @@ bool BlockData::Read(char*& p, const BlockInfo& info, SLB& slb, size_t azNum, si
     for (int i = 0; i < head.VarCounts; i++)
     {
         const int layer = head.ElevationNumber - 1;
-        const int az =  head.RadialNumber - 1;
+        const int az = head.RadialNumber - 1;
         size_t count = info.LayerParams[layer].GateCounts[i];
         if (count != gateNum)
         {
@@ -208,12 +209,11 @@ bool BlockData::Read(char*& p, const BlockInfo& info, SLB& slb, size_t azNum, si
         {
             case eDataType::BYTE:
             {
-                std::vector<int8_t> data;
+                std::vector<uint8_t> data;
                 data.resize(count);
                 std::memcpy(reinterpret_cast<char*>(data.data()), p, count);
-                p += count * sizeof(int8_t);
-                CalcVal(data, offset, scale);
-                SetVal(data, SetP);
+                p += count * sizeof(uint8_t);
+                CalcVal(data, SetP, offset, scale);
             }
 
             break;
@@ -223,8 +223,7 @@ bool BlockData::Read(char*& p, const BlockInfo& info, SLB& slb, size_t azNum, si
                 data.resize(count);
                 std::memcpy(reinterpret_cast<char*>(data.data()), p, count * sizeof(int16_t));
                 p += count * sizeof(int16_t);
-                CalcVal(data, offset, scale);
-                SetVal(data, SetP);
+                CalcVal(data, SetP, offset, scale);
             }
             break;
             case eDataType::USHORT:
@@ -233,8 +232,7 @@ bool BlockData::Read(char*& p, const BlockInfo& info, SLB& slb, size_t azNum, si
                 data.resize(count);
                 std::memcpy(reinterpret_cast<char*>(data.data()), p, count * sizeof(uint16_t));
                 p += count * sizeof(uint16_t);
-                CalcVal(data, offset, scale);
-                SetVal(data, SetP);
+                CalcVal(data, SetP, offset, scale);
             }
             break;
             case eDataType::UINT:
@@ -243,8 +241,7 @@ bool BlockData::Read(char*& p, const BlockInfo& info, SLB& slb, size_t azNum, si
                 data.resize(count);
                 std::memcpy(reinterpret_cast<char*>(data.data()), p, count * sizeof(uint32_t));
                 p += count * sizeof(uint32_t);
-                CalcVal(data, offset, scale);
-                SetVal(data, SetP);
+                CalcVal(data, SetP, offset, scale);
             }
             break;
             case eDataType::INT:
@@ -253,8 +250,7 @@ bool BlockData::Read(char*& p, const BlockInfo& info, SLB& slb, size_t azNum, si
                 data.resize(count);
                 std::memcpy(reinterpret_cast<char*>(data.data()), p, count * sizeof(int32_t));
                 p += count * sizeof(int32_t);
-                CalcVal(data, offset, scale);
-                SetVal(data, SetP);
+                CalcVal(data, SetP, offset, scale);
             }
             break;
             case eDataType::FLOAT:
@@ -273,8 +269,7 @@ bool BlockData::Read(char*& p, const BlockInfo& info, SLB& slb, size_t azNum, si
                 data.resize(count);
                 std::memcpy(reinterpret_cast<char*>(data.data()), p, count * sizeof(long long));
                 p += count * sizeof(long long);
-                CalcVal(data, offset, scale);
-                SetVal(data, SetP);
+                CalcVal(data, SetP, offset, scale);
             }
             break;
             default:
@@ -349,8 +344,10 @@ bool SLB::Read(const suPath& file)
             _cc.resize(layerNum * azNum * gateNum);
             _tv.resize(layerNum * azNum * gateNum);
         }
+        int count = 0;
         while (p - bp < size)
         {
+            count++;
             BlockData tmp;
             if (tmp.Read(p, m_BlockInfo, *this, azNum, gateNum))
             {
@@ -471,7 +468,7 @@ BlockInfo SLB::GetBlockInfo() const
     return m_BlockInfo;
 }
 
-ObserveTime SLB::GetObserveTime() const 
+ObserveTime SLB::GetObserveTime() const
 {
     return m_ObTime;
 }
