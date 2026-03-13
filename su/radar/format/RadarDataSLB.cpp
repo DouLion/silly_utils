@@ -301,6 +301,7 @@ bool SLB::Read(const suPath& file)
             return false;
         }
         bp = bz2dp.data();
+        size = bz2dp.size();
     }
     char* p = bp;
     Clear();
