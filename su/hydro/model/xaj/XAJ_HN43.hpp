@@ -2,330 +2,303 @@
  * @copyright: Beijing TianZhiXiang Information Technology Co., Ltd. All rights
  * reserved. 北京天智祥信息科技有限公司版权所有
  * @website: http://www.tianzhixiang.com.cn/
- * @author: dou li yang
+ * @author: zhao yan wei
  * @date: 2025-12-25
  * @file: XAJ_HN43
  * @description: 赵 提供的 适用湖南的新安江模型的简化版
- * @version: v1.0.1 2025-12-25 dou li yang
+ * @version: v1.0.1 2025-12-25 zhao yan wei
  */
-#ifndef XAJ_HN43_H
-#define XAJ_HN43_H
-/*
-流域特征	Area, Imp
-蒸散发/土壤	Wum, Wlm, Wdm, Wm, Wu0/Wl0/Wd0, C
-产流机制	B
-水源划分	Sm, Kg, Ki(隐含 Ks = 1-Ki-Kg)
-汇流演算	Ci, Cg, LagCS, LagTM
-时间设置	ForePeriod, CalcSteps
-初始状态	S0, Q0, QS0, QI0, QG0 等
-*/
+
+#ifndef XAJ_HN43_HPP
+#define XAJ_HN43_HPP
 
 #include <vector>
-// 每个水库有一套参数
-// Q0取时段初站点流量，没有的话就给0
-// Qs0、QI0、QG0外部给定用外部的，外部没有给定程序会根据Q0按比例分一个出来
+#include <cmath>
+#include <algorithm>
+
 class XAJ_HN43
 {
   public:
-    /**
-     *  当 PointNum 大于 RainNum 时, 超过RainNum的部分属于无水预报
-     *  适用预报值填充 vRain 使 RainNum >= PointNum, 那么就是预报流量
-     * @param vRain 输入雨量值序列
-     * @return 输出流量序列
-     */
-    std::vector<double>  Calc(std::vector<double>& vRain)
+    // 1. 时间与基础配置 (Time & Base Config)
+    struct ConfigParam
     {
-        std::vector<double> vResultQ;
-        if (Ki + Kg > 0.9)
-        {
-            double sum = Ki + Kg;
-            Ki = Ki / sum;
-            Kg = Kg / sum;
-        }
-        const int RainNum = vRain.size();
-        const int PointNum = RainNum + static_cast<int>(ForePeriod * 60.0 / CalcSteps);
-        if (PointNum <= 0)
-        {
-            return vResultQ;
-        }
-        double weight = 1;
-        // 常数日蒸散发 4.8 mm/day(典型湿润地区经验值)
-        const double EM = 4.8 * CalcSteps / 60.0 / 24;  // 每个时段的蒸散量
+        double Area = 100.0;       // 流域面积(km²)
+        double CalcSteps = 60.0;   // 计算时间步长(分钟)
+        double ForePeriod = 24.0;  // 预报时长(小时)
+        double Imp = 0.01;         // 不透水面积比例(0~1)
+    } Config;
 
-        std::vector<double> vEM(PointNum, EM);
-        std::vector<double> vE(PointNum, 0.0);
-        std::vector<double> vR(PointNum, 0.0);
-        std::vector<double> vRS(PointNum, 0.0);
-        std::vector<double> vRI(PointNum, 0.0);
-        std::vector<double> vRG(PointNum, 0.0);
-        std::vector<double> vQS(PointNum, 0.0);
-        std::vector<double> vQI(PointNum, 0.0);
-        std::vector<double> vQG(PointNum, 0.0);
-        std::vector<double> vQ(PointNum, 0.0);
+    // 2. 土壤与蒸散发参数 (Soil & Evapotranspiration)
+    struct SoilParam
+    {
+        double Wm = 70.0;   // 总张力水容量(mm)
+        double Wum = 20.0;  // 上层最大蓄水容量(mm)
+        double Wlm = 40.0;  // 下层最大蓄水容量(mm)
+        double Wdm = 10.0;  // 深层最大蓄水容量(mm)
+        double B = 0.14;    // 蓄水容量空间分布指数
+        double C = 0.15;    // 深层蒸散发折减系数
+        double K = 0.9;     // 潜在蒸发折算系数
+    } Soil;
 
-        vResultQ.resize(PointNum, 0);
+    // 3. 分水源与产流参数 (Runoff & Source)
+    struct SourceParam
+    {
+        double Sm = 15.0;  // 自由水最大容量(mm)
+        double Ex = 1.1;   // 自由水出流非线性指数
+        double Kg = 0.3;   // 地下径流出流系数
+        double Ki = 0.4;   // 壤中流出流系数
+    } Source;
 
-        Calc(vRain.data(), RainNum, weight, vEM.data(), vE.data(), vR.data(), vRS.data(), vRI.data(), vRG.data(), vQS.data(), vQI.data(), vQG.data(), vQ.data(), PointNum);
+    // 4. 汇流演进参数 (Routing & Muskingum)
+    struct RouteParam
+    {
+        double Ci = 0.9;     // 壤中流消退系数
+        double Cg = 0.998;   // 地下径流消退系数
+        double LagCS = 0.4;  // 地表汇流调蓄系数 (同时兼作平滑系数)
+        double MskX = 0.4;   // 马斯京根权重系数
+        double MskK = 1.0;   // 马斯京根蓄量常数
+        double rlen = 0.0;   // 特征河长 (决定Muskingum串联段数)
+        double LagTM = 0.0;  // Xaj3_LL滞后时间 (小时)
+    } Route;
 
-        if (MskK > 0)
-        {
-            Xaj3_LL(PointNum, vQ.data(), vResultQ.data(), LagTM, LagCS);
-        }
-        else
-        {
-            vResultQ.swap(vQ);
-        }
+    // 5. 初始状态 (Initial States)
+    struct InitStateParam
+    {
+        double Wu0 = 0.0;   // 上层初始土壤含水量
+        double Wl0 = 40.0;  // 下层初始土壤含水量
+        double Wd0 = 10.0;  // 深层初始土壤含水量
+        double Fr0 = 0.3;   // 自由水初始蓄满度
+        double S0 = 0.0;    // 自由水初始蓄量
+        double Q0 = 0.0;    // 初始总流量
+        double QS0 = 0.0;   // 初始地表流
+        double QI0 = 0.0;   // 初始壤中流
+        double QG0 = 0.0;   // 初始地下流
+    } Init;
+
+    // 6. 结果与输出 (Output Data)
+    struct OutputData
+    {
+        std::vector<double> pE;   // 实际蒸散发
+        std::vector<double> pR;   // 总产流量
+        std::vector<double> pRS;  // 地表产流量
+        std::vector<double> pRI;  // 壤中产流量
+        std::vector<double> pRG;  // 地下产流量
+        std::vector<double> pQ;   // 最终总流量
+    } Out;
+
+  public:
+    XAJ_HN43()
+    {
     }
 
-    /**
-     * 核心计算函数, 计算流量
-     * @param[ in] pRain 降雨序列
-     * @param[ in] RainNum 降雨时段数
-     * @param[ in] weight 雨量站权重
-     * @param[ in] pEM 潜在蒸散发序列
-     * @param[out] pE 实际蒸散发(累计)
-     * @param[out] pR 总产流量(mm)
-     * @param[out] pRS 地表产流(mm)
-     * @param[out] pRI 壤中流产流(mm)
-     * @param[out] pRG 地下产流(mm)
-     * @param[out] pQS 地表流量(m³/s)
-     * @param[out] pQI 壤中流流量(m³/s)
-     * @param[out] pQG 地下流流量(m³/s)
-     * @param[out] pQ 总流量(m³/s)
-     * @param[ in] QNum 要计算的总时段数(预报长度)
-     */
-    void Calc(double* pRain, int RainNum, double weight, double* pEM, double* pE, double* pR, double* pRS, double* pRI, double* pRG, double* pQS, double* pQI, double* pQG, double* pQ, int QNum)
+    // ==========================================
+    // 兼容原版的单雨量站接口
+    // ==========================================
+    std::vector<double> Calc(const std::vector<double>& vRain)
     {
-        if (RainNum <= 0 || QNum <= 0)
+        std::vector<std::vector<double>> vRains = {vRain};
+        std::vector<double> weights = {1.0};
+        return CalcMulti(vRains, weights);
+    }
+
+    // ==========================================
+    // 多雨量站核心接口
+    // ==========================================
+    std::vector<double> CalcMulti(const std::vector<std::vector<double>>& vRains, const std::vector<double>& weights)
+    {
+        std::vector<double> emptyRes;
+        if (vRains.empty() || vRains[0].empty())
+            return emptyRes;
+
+        // 动态计算总步长 (历史降雨 + 预报期)
+        int rainNum = static_cast<int>(vRains[0].size());
+        int foreNum = static_cast<int>(Config.ForePeriod * 60.0 / Config.CalcSteps);
+        int totalSteps = rainNum + foreNum;
+        if (totalSteps <= 0)
+            return emptyRes;
+
+        PrepareOutput(totalSteps);
+
+        // 临时累加变量 (用于收集加权后的各水源)
+        std::vector<double> sumRS(totalSteps, 0.0);
+        std::vector<double> sumRI(totalSteps, 0.0);
+        std::vector<double> sumRG(totalSteps, 0.0);
+
+        // 处理所有雨量站的产流
+        for (size_t i = 0; i < vRains.size(); ++i)
         {
-            return;
-        }
-        int i, j, jj;
-        double mm, ms, dd, cs, ci, cg;
-        double c0, c1, c2, c7, c8, c9, ki, kg, q1, ddt;
-        double t, X, ss, q, id;
-        double gd;
-        double au;
-        double d;
-        double e2 = 0;
-        double tq1, tq2;
-        double qg, qi, qs;
-        double s;
-        double q11;
-        double U, a, fr;
-        double em, pp, pe;
-        double rb;
-        double r = 0, r1 = 0, r2, r3, rs, rg, ri;
-        double ln, g;
-        // VBto upgrade warning: WU As CComVariant	OnWrite(float, short)	OnRead(float)
-        double WD, WU, WL;
-        ddt = CalcSteps / 60.0;
-
-        std::vector<double> vtmpQ;
-        vtmpQ.resize(rlen + 1);
-
-        mm = (1 + B) * Wm / (1 - Imp);  //   Wm / (1 - Imp) => 透水区的水容量, Wm 指全区内的平均水容量
-        ms = (1 + Ex) * Sm;
-        dd = ddt / 24;
-        cs = (double)(std::pow(LagCS, dd));
-        ci = (double)(std::pow(Ci, dd));
-        cg = (double)(std::pow(Cg, dd));
-        c9 = MskK * MskX;
-        c8 = (double)(0.5 * ddt);
-        c7 = MskK - c9 + c8;
-        if (c7 == 0)
-            return;
-
-        c0 = (c8 - c9) / c7;
-        c1 = (c8 + c9) / c7;
-        c2 = (MskK - c9 - c8) / c7;
-
-        ki = (double)((1 - std::pow((1 - (Kg + Ki)), dd)) / (1 + Kg / Ki));
-        kg = ki * Kg / Ki;
-
-        q1 = QS0 + QI0 + QG0;
-        if (q1 <= 0.)
-        {
-            q1 = 1;
-            QS0 = 0.1;
-            QI0 = 0.5;
-            QG0 = 0.4;
-        }
-        double w = Wu0 + Wl0 + Wd0;
-        WU = Wu0;
-        WL = Wl0;
-        WD = Wd0;
-        qg = QG0;
-        qi = QI0;
-        qs = QS0;
-        s = S0;
-
-        // 预报单元雨量站权重
-        q11 = q1 * weight;
-        pQ[0] = q11;
-
-        // 对起始流量的实时校正
-        qs = weight * QS0;
-        qi = weight * QI0;
-        qg = weight * QG0;
-        WD = Wd0;
-        U = weight * Area / (3.6 * ddt);
-
-        if (w >= Wm)
-        {
-            // 初始的土壤总蓄水量已经超过蓄水能力
-            w = Wm - 0.01;
+            AddStationRunoff(vRains[i], weights[i], totalSteps, rainNum, sumRS, sumRI, sumRG);
         }
 
-        a = mm * (1 - std::pow((1 - w / Wm), (1 / (1 + B))));
-        fr = 1 - (1 - Imp) * std::pow((1 - a / mm), B) - Imp;
+        // 汇流演算
+        return ExecuteRouting(totalSteps, weights[0], sumRS, sumRI, sumRG);
+    }
 
-        ln = rlen / ddt + 1;
-        if (ln > 0)
+  private:
+    void PrepareOutput(int totalSteps)
+    {
+        Out.pE.assign(totalSteps, 0.0);
+        Out.pR.assign(totalSteps, 0.0);
+        Out.pRS.assign(totalSteps, 0.0);
+        Out.pRI.assign(totalSteps, 0.0);
+        Out.pRG.assign(totalSteps, 0.0);
+        Out.pQ.assign(totalSteps, 0.0);
+    }
+
+    // ==========================================
+    // 原汁原味：产流与分水源计算 (含三层蒸发与非线性出流)
+    // ==========================================
+    void AddStationRunoff(const std::vector<double>& vRain, double weight, int totalSteps, int rainNum, std::vector<double>& sumRS, std::vector<double>& sumRI, std::vector<double>& sumRG)
+    {
+        double WU = Init.Wu0;
+        double WL = Init.Wl0;
+        double WD = Init.Wd0;
+        double w = WU + WL + WD;
+        if (w >= Soil.Wm)
+            w = Soil.Wm - 0.01;
+
+        double s = Init.S0;
+        double fr = Init.Fr0;
+
+        double ddt = Config.CalcSteps / 60.0;
+        double dd = ddt / 24.0;
+        double em_constant = 4.8 * ddt / 24.0;
+
+        // 约束 Ki + Kg 不大于 0.9 (原版逻辑)
+        double localKi = Source.Ki;
+        double localKg = Source.Kg;
+        if (localKi + localKg > 0.9)
         {
-            for (i = 0; i < ln; i++)
-            {
-                vtmpQ[i] = q11;
-            }
+            double sumK = localKi + localKg;
+            localKi /= sumK;
+            localKg /= sumK;
         }
 
-        for (i = 0; i < QNum - 1; i++)
+        double ki = (1.0 - std::pow(1.0 - (localKg + localKi), dd)) / (1.0 + localKg / localKi);
+        double kg = ki * localKg / localKi;
+
+        double mm = (1.0 + Soil.B) * Soil.Wm / (1.0 - Config.Imp);
+        double ms = (1.0 + Source.Ex) * Source.Sm;
+
+        for (int i = 0; i < totalSteps - 1; i++)
         {
-            // Step 1: 计算净雨
-            if (i < RainNum)
-            {
-                em = K * pEM[i];  // 调整后的潜在蒸散发
-                pp = pRain[i];
-            }
-            else
-            {
-                pp = 0;
-            }
-            pe = pp - em;  //  净雨(可能为负)
-            // Step 2: 蒸散发计算(三层)
+            double pp = (i < rainNum && i < vRain.size()) ? vRain[i] : 0.0;
+            double em = Soil.K * em_constant;
+            double pe = pp - em;
+
+            double r = 0, rb = 0, rs = 0, ri = 0, rg = 0;
+
             if (pe > 0)
             {
-                pE[i] += weight * pe;
-                // Step 3: 产流计算(蓄满产流 + 不透水面积)
-                rb = Imp * pe;  // 不透水面积直接产流(地表)
-                // 可透水部分：判断是否蓄满,计算 r(可透水产流量)
-                if (w >= Wm)
+                Out.pE[i] += weight * pe;
+                rb = Config.Imp * pe;
+
+                if (w >= Soil.Wm)
                 {
-                    r = pe + w - Wm;
+                    r = pe + w - Soil.Wm;
                 }
                 else
                 {
-                    // 使用 B 参数计算蓄水容量曲线,求 r
-                    a = mm * (1 - std::pow((1 - w / Wm), (1 / (1 + B))));
+                    double a = mm * (1.0 - std::pow(1.0 - w / Soil.Wm, 1.0 / (1.0 + Soil.B)));
                     if (a + pe >= mm)
                     {
-                        r = pe + w - Wm;
+                        r = pe + w - Soil.Wm;
                     }
                     else
                     {
-                        r = pe - Wm + w + Wm * (std::pow((1 - (pe + a) / mm), (1 + B)));
+                        r = pe - Soil.Wm + w + Soil.Wm * std::pow(1.0 - (pe + a) / mm, 1.0 + Soil.B);
                     }
                 }
-                // Step 4: 水源划分(自由水水库 + 非线性出流)
-                t = r - rb;
-                X = fr;
-                fr = t / pe;     // 产流面积比例
-                s = X * s / fr;  // 自由水蓄量
-                ss = s;
-                q = t / fr;
-                g = floor(q / 5.) + 1;
-                q /= g;
-                id = (1. - std::pow((1. - (kg + ki)), (1. / g))) / (1 + kg / ki);
-                gd = (double)(id * kg / ki);
-                rs = 0.;  // 计算地表径流
-                rg = 0.;  // 计算地下流
-                ri = 0.;  // 计算壤中流
-                for (jj = 0; jj < g; jj++)
+
+                double t = r - rb;
+                double X = fr;
+                fr = t / pe;
+
+                if (fr > 1e-6)
                 {
-                    // r1：本时段自由水水库产生的总出流量 r1=RI+RG
-                    // rs：累计的壤中流（Interflow）
-                    if (s >= Sm)
+                    s = X * s / fr;
+                    double ss = s;
+                    double q = t / fr;
+
+                    int g_steps = static_cast<int>(std::floor(q / 5.0)) + 1;
+                    q /= g_steps;
+                    double id = (1.0 - std::pow(1.0 - (kg + ki), 1.0 / g_steps)) / (1.0 + kg / ki);
+                    double gd = id * kg / ki;
+
+                    for (int jj = 0; jj < g_steps; jj++)
                     {
-                        // 自由水水库已满（s >= Sm）
-                        // 超过容量的部分（包括原有超量 s - Sm + 新增 q）全部作为出流
-                        r1 = q + s - Sm;
-                        rs = r1 * fr + rs;
-                    }
-                    else
-                    {
-                        // 计算等效蓄量 au
-                        // Ex = 0（线性）时，au = s
-                        // Ex > 0，au 对高含水量更敏感
-                        au = ms * (1 - std::pow((1 - s / Sm), (1 / (1 + Ex))));
-                        if (au + q < ms)
-                        {  // 加入q 后还未充满
-                            r1 = q - Sm + s + Sm * std::pow((1 - (q + au) / ms), (1 + Ex));
-                            rs = r1 * fr + rs;  // 下渗的吗??
+                        double r1 = 0;
+                        if (s >= Source.Sm)
+                        {
+                            r1 = q + s - Source.Sm;
+                            rs = r1 * fr + rs;
                         }
                         else
                         {
-                            r1 = q + s - Sm;
-                            rs = r1 * fr + rs;
+                            double au = ms * (1.0 - std::pow(1.0 - s / Source.Sm, 1.0 / (1.0 + Source.Ex)));
+                            if (au + q < ms)
+                            {
+                                r1 = q - Source.Sm + s + Source.Sm * std::pow(1.0 - (q + au) / ms, 1.0 + Source.Ex);
+                                rs = r1 * fr + rs;
+                            }
+                            else
+                            {
+                                r1 = q + s - Source.Sm;
+                                rs = r1 * fr + rs;
+                            }
                         }
+                        s = q - r1 + s;
+                        double r2 = s * id;
+                        ri = r2 * fr + ri;
+                        double r3 = s * gd;
+                        rg = r3 * fr + rg;
+                        s = (jj + 1) * q + ss - (rs + ri + rg) / fr;
                     }
-                    s = q - r1 + s;
-                    r2 = s * id;
-                    ri = r2 * fr + ri;
-                    r3 = s * gd;
-                    rg = r3 * fr + rg;
-                    s = (jj + 1) * q + ss - (rs + ri + rg) / fr;
                 }
                 rs += rb;
             }
             else
             {
-                r = 0;
-                rs = 0;
-                rg = s * kg * fr;
-                ri = rg * ki / kg;
-                if (fr == 0)
+                if (fr > 1e-6)
                 {
-                    return;
-                }
-                else
-                {
+                    rg = s * kg * fr;
+                    ri = rg * ki / kg;
                     s -= (rg + ri) / fr;
                 }
             }
-            d = (double)(WU + pe - r);
-            // Step 2: 蒸散发计算(三层)
-            if (d >= 0)
+
+            // 三层蒸发分配 (原版逻辑)
+            double d_val = WU + pe - r;
+            if (d_val >= 0)
             {
-                e2 = 0.;
-                if (d <= Wum)
+                if (d_val <= Soil.Wum)
                 {
-                    WU = d;
+                    WU = d_val;
                 }
                 else
                 {
-                    WU = Wum;
-                    WL += d - Wum;
-                    if (WL > Wlm)
+                    WU = Soil.Wum;
+                    WL += d_val - Soil.Wum;
+                    if (WL > Soil.Wlm)
                     {
-                        WD += WL - Wlm;
-                        WL = Wlm;
-                        if (WD > Wdm)
-                        {
-                            WD = Wdm;
-                        }
+                        WD += WL - Soil.Wlm;
+                        WL = Soil.Wlm;
+                        if (WD > Soil.Wdm)
+                            WD = Soil.Wdm;
                     }
                 }
             }
             else
             {
                 WU = 0;
-                if (WL / Wlm <= C)
+                double e2 = 0;
+                if (WL / Soil.Wlm <= Soil.C)
                 {
-                    e2 = abs(d) * C;
+                    e2 = std::abs(d_val) * Soil.C;
                 }
                 else
                 {
-                    e2 = abs(d) * WL / Wlm;
+                    e2 = std::abs(d_val) * WL / Soil.Wlm;
                 }
                 WL -= e2;
                 if (WL < 0)
@@ -335,199 +308,136 @@ class XAJ_HN43
                 }
             }
             w = WU + WL + WD;
-            // e = e1 + e2;
 
-            if (rg < 0)
-            {
-                rg = 0;
-            }
-            if (ri < 0)
-            {
-                ri = 0;
-            }
-            if (rs < 0)
-            {
-                rs = 0;
-            }
-            // Step 5: 汇流演算(三种水源分别处理)
-            qg = (double)(qg * cg + rg * (1 - cg) * U);  // 地下流：线性水库
-            qi = (double)(qi * ci + ri * (1 - ci) * U);  // 壤中流：线性水库
-            qs = (double)(qs * cs + rs * (1 - cs) * U);  // 地表流：用 LagCS 消退
-            if (qg < 0)
-            {
-                qg = 0;
-            }
-            if (qi < 0)
-            {
-                qi = 0;
-            }
-            if (qs < 0)
-            {
-                qs = 0;
-            }
-            tq2 = qs + qi + qg;
+            // 限制防越界并累加至总集合
+            sumRS[i] += weight * std::max(0.0, rs);
+            sumRI[i] += weight * std::max(0.0, ri);
+            sumRG[i] += weight * std::max(0.0, rg);
 
-            pRS[i] += weight * rs;
-            pRI[i] += weight * ri;
-            pRG[i] += weight * rg;
-            pR[i] += pRS[i] + pRI[i] + pRG[i];
-            pQS[i] += qs;
-            pQI[i] += qi;
-            pQG[i] += qg;
-            // Step 6: 河道汇流(Muskingum 多段演进)
-            if (rlen > 0)
-            {
-                for (j = 1; j < ln; j++)
-                {
-                    tq1 = vtmpQ[j - 1];
-                    vtmpQ[j - 1] = (double)tq2;
-                    // 使用 vtmpQ 数组模拟河道延迟
-                    tq2 = c0 * tq2 + c1 * tq1 + c2 * vtmpQ[j];
-                    if (tq2 < 0)
-                    {
-                        tq2 = 0;
-                    }
-                }  // j
-                tq1 = vtmpQ[ln - 1];
-                vtmpQ[ln - 1] = (double)tq2;
-            }
-
-            if (pQ[i + 1] < 0.)
-            {
-                pQ[i + 1] = 0.;
-            }
-            pQ[i + 1] += tq2;
-
-            if (i == RainNum - 2)
-            {
-                Wu1 += weight * WU;
-                Wl1 += weight * WL;
-                Wd1 += weight * WD;
-                Fr1 += weight * fr;
-                S1 += weight * s;
-                Q1 += tq2;
-                QS1 += qs;
-                QI1 += qi;
-                QG1 += qg;
-            }
-        }  // i
+            Out.pRS[i] += weight * std::max(0.0, rs);
+            Out.pRI[i] += weight * std::max(0.0, ri);
+            Out.pRG[i] += weight * std::max(0.0, rg);
+            Out.pR[i] += Out.pRS[i] + Out.pRI[i] + Out.pRG[i];
+        }
     }
 
-    /**
-     * @brief 新安江模型中用于地表径流(或总流量)汇流演算的一个简化模块
-     *        其作用是对输入流量过程 Inq 进行滞后与调蓄处理,以模拟水流在坡面或河道中的传播延迟和坦化效应
-     * @param[ in] qnum 流量序列长度(时段数)
-     * @param[ in] Inq 输入流量过程(m³/s),通常是 Calc 输出的 vQ(三水源叠加后)
-     * @param[out] Otq 输出流量过程(经汇流演算后)
-     * @param[ in] nLL 滞后时间(Lag Time),单位：时段数(非小时！)
-     * @param[ in] nCS 调蓄系数(0~1),控制当前流量与滞后流量的权重 典型值 0.3~0.7
-     */
-    void Xaj3_LL(int qnum, double* Inq, double* Otq, double nLL, double nCS)
+    // ==========================================
+    // 汇流演算 (三种水源消退 + 串联河道演算 + Lag平滑)
+    // ==========================================
+    std::vector<double> ExecuteRouting(int totalSteps, double weight0, const std::vector<double>& sumRS, const std::vector<double>& sumRI, const std::vector<double>& sumRG)
     {
-        int index, i;
-        // float* nQQ;
-        // 无滞后情况(直接透传)
+        double ddt = Config.CalcSteps / 60.0;
+        double dd = ddt / 24.0;
+
+        double cs = std::pow(Route.LagCS, dd);
+        double ci = std::pow(Route.Ci, dd);
+        double cg = std::pow(Route.Cg, dd);
+        double U = weight0 * Config.Area / (3.6 * ddt);
+
+        // 决定初始初值
+        double q1 = Init.QS0 + Init.QI0 + Init.QG0;
+        double initQS = Init.QS0, initQI = Init.QI0, initQG = Init.QG0;
+        if (q1 <= 0.0)
+        {
+            q1 = 1.0;
+            initQS = 0.1;
+            initQI = 0.5;
+            initQG = 0.4;
+        }
+
+        double qs = weight0 * initQS;
+        double qi = weight0 * initQI;
+        double qg = weight0 * initQG;
+        double q11 = q1 * weight0;
+
+        // --- Muskingum 初始化准备 ---
+        double c9 = Route.MskK * Route.MskX;
+        double c8 = 0.5 * ddt;
+        double c7 = Route.MskK - c9 + c8;
+
+        double c0 = 0, c1 = 0, c2 = 0;
+        if (c7 != 0)
+        {
+            c0 = (c8 - c9) / c7;
+            c1 = (c8 + c9) / c7;
+            c2 = (Route.MskK - c9 - c8) / c7;
+        }
+
+        // 修复原版的数组越界风险: ln 代表串联计算段数
+        int ln = static_cast<int>(Route.rlen / ddt) + 1;
+        std::vector<double> vtmpQ(std::max(1, ln), q11);
+
+        std::vector<double> vQ(totalSteps, 0.0);
+        vQ[0] = q11;
+
+        for (int i = 0; i < totalSteps - 1; i++)
+        {
+            // 三水源各自水库消退
+            qs = std::max(0.0, qs * cs + sumRS[i] * (1.0 - cs) * U);
+            qi = std::max(0.0, qi * ci + sumRI[i] * (1.0 - ci) * U);
+            qg = std::max(0.0, qg * cg + sumRG[i] * (1.0 - cg) * U);
+
+            double tq2 = qs + qi + qg;
+
+            // 原版的多段演进 (Muskingum 级联)
+            if (Route.rlen > 0 && c7 != 0)
+            {
+                for (int j = 1; j < ln; j++)
+                {
+                    double tq1 = vtmpQ[j - 1];
+                    vtmpQ[j - 1] = tq2;
+                    tq2 = c0 * tq2 + c1 * tq1 + c2 * vtmpQ[j];
+                    if (tq2 < 0)
+                        tq2 = 0;
+                }
+                vtmpQ[ln - 1] = tq2;
+            }
+
+            vQ[i + 1] = std::max(0.0, tq2);
+        }
+
+        std::vector<double> vResultQ(totalSteps, 0.0);
+
+        // --- 最终叠加外层的 Lag 滞后平滑 ---
+        if (Route.MskK > 0)
+        {
+            ApplyLagSmoothing(totalSteps, vQ.data(), vResultQ.data(), Route.LagTM, Route.LagCS);
+        }
+        else
+        {
+            vResultQ = vQ;
+        }
+
+        Out.pQ = vResultQ;
+        return vResultQ;
+    }
+
+    // ==========================================
+    // 原版 Xaj3_LL 纯粹的滑动滞后加权
+    // ==========================================
+    void ApplyLagSmoothing(int qnum, double* Inq, double* Otq, double nLL, double nCS)
+    {
         if (nLL <= 0)
         {
-            for (i = 0; i < qnum; i++)
-            {
+            for (int i = 0; i < qnum; i++)
                 Otq[i] = Inq[i];
-            }
             return;
         }
-        // nCS 越大 → 越依赖近期流量(响应快,洪峰高)
-        // nCS 越小 → 越依赖滞后流量(响应慢,洪峰平缓)
-        for (i = 1; i < qnum; i++)
+
+        Otq[0] = Inq[0];
+        for (int i = 1; i < qnum; i++)
         {
+            Otq[i] = 0.0;
             if (i >= nLL)
             {
-                index = floor(i - nLL + 0.5);
+                int index = static_cast<int>(std::floor(i - nLL + 0.5));
                 if (index > 0 && index < qnum)
                 {
-                    Otq[i] = Inq[i - 1] * nCS + Inq[index] * (1 - nCS);
+                    Otq[i] = Inq[i - 1] * nCS + Inq[index] * (1.0 - nCS);
                 }
             }
         }
     }
-
-    double InterpolateInflow(double currentTime, std::vector<double>& vFlows, double step)
-    {
-        if (vFlows.empty())
-        {
-            return 0;
-        }
-        double index = currentTime / step;
-        int lastIndex = floor(index);
-        int NextIndex = lastIndex + 1;
-
-        if (NextIndex <= 0)
-        {
-            return vFlows.front();
-        }
-        if (NextIndex >= vFlows.size())
-        {
-            return 0;
-        }
-
-        return (vFlows[lastIndex] * (NextIndex - index)) + vFlows[NextIndex] * (index - lastIndex);
-    }
-
-    double Area = 100;  // 流域面积(km²)
-    double Imp = 0.01;  // 不透水面积比例(0~1)
-
-    double Wm = 70;   // 总张力水容量(mm),Wm = Wum + Wlm + Wdm
-    double Wu0 = 0;   // 上层初始土壤含水量(mm)
-    double Wl0 = 40;  // 下层初始土壤含水量(mm)
-    double Wd0 = 10;  // 深层初始土壤含水量(mm)
-    double Wum = 20;  // 上层最大蓄水容量(mm)
-    double Wlm = 40;  // 下层最大蓄水容量(mm)
-    double Wdm = 10;  // 深层最大蓄水容量(mm)
-
-    double K = 0.9;   // 自由水总出流系数(部分实现使用,常被 Kg/Ki/Ks 替代)
-    double B = 0.14;  // 蓄水容量空间分布不均匀性指数(b 参数,0~1)
-    double C = 0.15;  // 深层蒸散发折减系数(0~1)
-
-    double Kg = 0.3;  // 地下径流出流系数(自由水→地下流)
-    double Ki = 0.4;  // 壤中流出流系数(自由水→壤中流)
-
-    double Ci = 0.9;    // 壤中流线性水库消退系数(汇流用)
-    double Cg = 0.998;  // 地下径流消退系数(接近1,退水极慢)
-
-    double Sm = 15;   // 自由水蓄水库最大容量(mm)
-    double Ex = 1.1;  // 自由水出流非线性指数(标准模型通常为1.0)
-
-    double ForePeriod = 24;  // 预报时长(小时)
-    double CalcSteps = 60;   // 计算时间步长(分钟)
-
-    double Fr0 = 0.3;  // 自由水初始蓄满度(或比例)
-    double S0 = 0;     // 自由水初始蓄量(mm)
-
-    double Q0 = 0;   // 初始总流量(m³/s)
-    double QS0 = 0;  // 初始地表流(m³/s)
-    double QI0 = 0;  // 初始壤中流(m³/s)
-    double QG0 = 0;  // 初始地下流(m³/s)
-
-    // 下一时刻状态变量(用于迭代计算)
-    double Wu1 = 0;  // 上层含水量(t+1)
-    double Wl1 = 0;  // 下层含水量(t+1)
-    double Wd1 = 0;  // 深层含水量(t+1)
-
-    double Fr1 = 0;  // 自由水蓄满度(t+1)
-    double S1 = 0;   // 自由水蓄量(t+1)
-
-    double Q1 = 0;   // 总流量(t+1)
-    double QS1 = 0;  // 地表流(t+1)
-    double QI1 = 0;  // 壤中流(t+1)
-    double QG1 = 0;  // 地下流(t+1)
-
-    double LagTM = 0;    // 地表汇流滞后时间(小时,此处未启用)
-    double LagCS = 0.4;  // 地表汇流调蓄系数
-
-    double MskX = 0.4;  // 马斯京根法流量权重系数(0~0.5)
-    double MskK = 1;    // 马斯京根法蓄量常数(小时)
-    // 把一段真实、可能弯曲、变宽、分叉的天然河道，简化为一段理想化的、均质的直河道，其长度即为“特征河长”
-    // 如果整条河使用一个糙率, 那么该河段应该可以适用统一的特征河长
-    // 如果细分河段的糙率, 那么应是多段的
-    double rlen = 0;  // 特征河长
 };
-#endif
+
+#endif  // XAJ_HN43_HPP
