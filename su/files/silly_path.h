@@ -13,16 +13,23 @@
 #ifndef SILLY_PATH_H
 #define SILLY_PATH_H
 #include <system/silly_system.h>
-#define SU_MATCH_ALL_WILD_CHAR "*"
+const std::string SU_MATCH_ALL_WILD_CHAR = "*";
+
 class suPath
 {
-  public:
+public:
     suPath() = default;
+
     suPath(const std::string& path);
+
     suPath(const char* path);
+
     suPath(const suPath& path);
+
     suPath(const std::filesystem::path& path);
+
     ~suPath() = default;
+
     /**
      * 添加节点 目录
      * windows下会自动将含有中文的UTF8 转为GBK路径,避免出现问题
@@ -36,19 +43,28 @@ class suPath
      * 但是与实际应用情况大相径庭,所以仅在Windows平台上支持
      */
     suPath(const std::wstring& path);
+
     suPath(const wchar_t* path);
+
     suPath& append(const std::wstring& node);
+
     std::wstring wstring() const;
+
     std::wstring name_ws() const;
+
     std::wstring stem_ws() const;
+
     std::wstring extension_ws() const;
 #endif
 
-////////////////////////////////////////////////////////////////
-/// 基本属性
-////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
+    /// 基本属性
+    ////////////////////////////////////////////////////////////////
     // 转换为 string
-    operator std::string() const { return m_path.string(); }
+    operator std::string() const
+    {
+        return m_path.string();
+    }
 
     /**
      * 当前工作目录
@@ -61,13 +77,19 @@ class suPath
      * @return
      */
     bool is_absolute() const;
+
     static bool is_absolute(const suPath& path);
+
     suPath absolute() const;
+
     static suPath absolute(const suPath& path);
 
     bool is_relative() const;
+
     static bool is_relative(const suPath& path);
+
     suPath relative(const suPath& root) const;
+
     static suPath relative(const suPath& src, const suPath& root);
 
     /**
@@ -75,11 +97,15 @@ class suPath
      * @return
      */
     suPath parent() const;
+
     static suPath parent(const suPath& path);
+
     suPath root() const;
+
     static suPath root(const suPath& path);
 
     bool exists() const;
+
     static bool exists(const suPath& path);
 
     /**
@@ -87,6 +113,7 @@ class suPath
      * @return
      */
     bool is_dir() const;
+
     static bool is_dir(const suPath& path);
 
     /**
@@ -99,6 +126,7 @@ class suPath
      * @return
      */
     bool is_file() const;
+
     static bool is_file(const suPath& path);
 
     /**
@@ -106,9 +134,11 @@ class suPath
      * @return
      */
     bool is_link() const;
+
     static bool is_link(const suPath& path);
 
     std::string string() const;
+
     std::string u8string() const;
 
     /**
@@ -152,7 +182,8 @@ class suPath
      * @return
      */
     size_t file_size() const;
-    static size_t file_size(const suPath &fp);
+
+    static size_t file_size(const suPath& fp);
 
     /**
      * 文件扩展到指定大小
@@ -160,6 +191,7 @@ class suPath
      * @return
      */
     bool resize_file(const size_t& len) const;
+
     static bool resize_file(const suPath& fp, const size_t& len);
 
     /**
@@ -167,7 +199,8 @@ class suPath
      * @return
      */
     std::time_t mstamp() const;
-    static std::time_t mstamp(const suPath &fp);
+
+    static std::time_t mstamp(const suPath& fp);
 
     /**
     * 文件(夹)创建时间戳, linux下不一定有效
@@ -177,21 +210,25 @@ class suPath
     * @return
     */
     std::time_t crstamp() const;
-    static std::time_t crstamp(const suPath &fp);
+
+    static std::time_t crstamp(const suPath& fp);
 
     /**
      * 最近一次访问时间
      * @return
      */
     std::time_t astamp() const;
-    static std::time_t astamp(const suPath &fp);
+
+    static std::time_t astamp(const suPath& fp);
 
 
-////////////////////////////////////////////////////////////////
-/// 基本操作
-////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
+    /// 基本操作
+    ////////////////////////////////////////////////////////////////
     static bool chdir(const suPath& path);
+
     bool mkdir() const;
+
     static bool mkdir(const suPath& path);
 
     /**
@@ -200,26 +237,27 @@ class suPath
      * @param lnk 链接地址, 如果lnk目录不存在,会自动创建
      */
     bool mklnk(const suPath& lnk) const;
+
     static bool mklnk(const suPath& src, const suPath& lnk);
 
     /**
      * 删除普通文件
      * @param fp
      */
-    static bool rmfile(const suPath &fp);
+    static bool rmfile(const suPath& fp);
 
     /**
      * 删除目录, 慎用递归
      * @param fp
      * @param r 是否递归删除
      */
-    static bool rmdir(const suPath &fp, const bool& r = false);
+    static bool rmdir(const suPath& fp, const bool& r = false);
 
     /**
      * 删除软链接
      * @param fp
      */
-    static bool rmlnk(const suPath &fp);
+    static bool rmlnk(const suPath& fp);
 
     /**
      * 拷贝文件
@@ -227,7 +265,8 @@ class suPath
      * @param cover 如果原文件存在,是否覆盖
      */
     bool copyfile(const suPath& dst, const bool& cover = false) const;
-    static bool copyfile(const suPath &src, const suPath &dst, const bool& cover=false);
+
+    static bool copyfile(const suPath& src, const suPath& dst, const bool& cover = false);
 
     /**
      * 递归拷贝目录
@@ -235,23 +274,26 @@ class suPath
      * @param cover 如果有文件存在,是否覆盖
      */
     bool copydir(const suPath& dst, const bool& cover = false) const;
-    static bool copydir(const suPath &src, const suPath &dst, const bool& cover=false);
+
+    static bool copydir(const suPath& src, const suPath& dst, const bool& cover = false);
 
     /**
      * 根据通配符 列出(仅)文件夹下所有匹配的文件
      * @param u8filter 如果有中文, 必须是utf8编码
      * @return
      */
-    std::vector<suPath> list(const std::string &u8filter = SU_MATCH_ALL_WILD_CHAR) const;
-    static std::vector<suPath> list(const suPath &fp, const std::string &u8filter = SU_MATCH_ALL_WILD_CHAR);
+    std::vector<suPath> list(const std::string& u8filter /*= SU_MATCH_ALL_WILD_CHAR*/) const;
+
+    static std::vector<suPath> list(const suPath& fp, const std::string& u8filter /*= SU_MATCH_ALL_WILD_CHAR*/);
 
     /**
      * 根据通配符 递归列出文件夹下所有匹配的文件
      * @param u8filter
      * @return
      */
-    std::vector<suPath> relist(const std::string &u8filter = SU_MATCH_ALL_WILD_CHAR) const;
-    static std::vector<suPath> relist(const suPath &fp, const std::string &u8filter = SU_MATCH_ALL_WILD_CHAR);
+    std::vector<suPath> relist(const std::string& u8filter /*= SU_MATCH_ALL_WILD_CHAR*/) const;
+
+    static std::vector<suPath> relist(const suPath& fp, const std::string& u8filter /*= SU_MATCH_ALL_WILD_CHAR*/);
 
     /**
      * 预留此函数,以处理现在还未考虑到的情况
@@ -259,9 +301,12 @@ class suPath
      */
     std::filesystem::path path() const;
 
-    std::string err() const {return m_err;}
+    std::string err() const
+    {
+        return m_err;
+    }
 
-  protected:
+protected:
     std::filesystem::path m_path = std::filesystem::current_path();
     mutable std::string m_err;
 };
