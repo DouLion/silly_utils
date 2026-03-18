@@ -478,6 +478,76 @@ std::map<int, double> SLB::Layer2Elevation() const
     return m_Layer2Elevation;
 }
 
+static constexpr double EARTH_RADIUS_M = 6371000.0;
+static constexpr double K_FACTOR = 4.0 / 3.0;
+static constexpr double DEG_TO_RAD = M_PI / 180.0;
+static constexpr double RAD_TO_DEG = 180.0 / M_PI;
+
+std::optional<std::pair<size_t, size_t>> RadarData::SLB::CalcAG(float lon, float lat, float targetAlt) const
+{
+    double lat1 = static_cast<double>(m_SiteInfo.Latitude * 10000.0) * DEG_TO_RAD;
+    double lon1 = static_cast<double>(m_SiteInfo.Longitude * 10000.0) * DEG_TO_RAD;
+    double lat2 = static_cast<double>(lat) * DEG_TO_RAD;
+    double lon2 = static_cast<double>(lon) * DEG_TO_RAD;
+
+    double dLat = lat2 - lat1;
+    double dLon = lon2 - lon1;
+
+    // 1. 使用 Haversine 公式计算高精度的地面大圆距离 (Ground Range)
+    double a = std::sin(dLat / 2.0) * std::sin(dLat / 2.0) + std::cos(lat1) * std::cos(lat2) * std::sin(dLon / 2.0) * std::sin(dLon / 2.0);
+    a = std::clamp(a, 0.0, 1.0);  // 防止浮点数误差导致越界
+    double c = 2.0 * std::atan2(std::sqrt(a), std::sqrt(1.0 - a));
+    double groundDist = EARTH_RADIUS_M * c;
+
+    // 2. 计算精确的正向方位角 (True Bearing)
+    double y = std::sin(dLon) * std::cos(lat2);
+    double x = std::cos(lat1) * std::sin(lat2) - std::sin(lat1) * std::cos(lat2) * std::cos(dLon);
+    double azRad = std::atan2(y, x);
+
+    if (azRad < 0.0)
+    {
+        azRad += 2.0 * M_PI;
+    }
+
+    // 3. 计算方位角索引 (支持非 360 的任意方位角数量)
+    double azDeg = azRad * RAD_TO_DEG;
+    // 例如 AzNum = 360, 每一度一个; AzNum = 720, 每 0.5 度一个
+    double azRes = 360.0 / static_cast<double>(m_BlockInfo.RadialCounts);
+    size_t azIndex = static_cast<size_t>(std::round(azDeg / azRes));
+
+    if (azIndex >= m_BlockInfo.RadialCounts)
+    {
+        azIndex = 0;  // 360度回绕到 0
+    }
+
+    // 4. 计算斜距 (Slant Range) - 改进的数值稳定算法
+    double R_eff = EARTH_RADIUS_M * K_FACTOR;
+    double r_radar = R_eff + static_cast<double>(m_SiteInfo.Height);
+    double r_target = R_eff + static_cast<double>(targetAlt);
+
+    double theta = groundDist / R_eff;
+
+    // 稳定的余弦定理变体，避免大数相减导致的精度丢失 (Catastrophic Cancellation)
+    double delta_r = r_target - r_radar;
+    double sinHalfTheta = std::sin(theta / 2.0);
+
+    double slantRangeSq = delta_r * delta_r + 4.0 * r_radar * r_target * sinHalfTheta * sinHalfTheta;
+
+    double slantRange = std::sqrt(slantRangeSq);
+
+    // 5. 计算距离门索引 - 应该用向下取整 (Floor/截断) 而非 Round
+    // 因为每个距离门是一个区间：Gate 0 是 [0, GateLen)
+    size_t gateIndex = static_cast<size_t>(slantRange / static_cast<double>(m_BlockInfo.DataWidth));
+
+    // 6. 边界检查
+    if (gateIndex >= 1000.0)
+    {
+        return std::nullopt;  // 超出雷达探测范围
+    }
+
+    return std::make_pair(azIndex, gateIndex);
+}
+
 void SLB::Clear()
 {  // 重置
     m_FileVol = FileVolume();

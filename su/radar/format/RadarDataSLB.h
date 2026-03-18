@@ -11,13 +11,12 @@
 #ifndef RADAR_DATA_SLB_V1_H
 #define RADAR_DATA_SLB_V1_H
 #include <files/silly_file.h>
-using PolorGrid = std::vector<float>;
 namespace RadarData
 {
 
 static const char VOL_LABEL_RD[4] = {'R', 'D', 0x00, 0x00};  // 雷达基数据
 static const char VOL_LABEL_GD[4] = {'G', 'D', 0x00, 0x00};  // 衍生数据
-static const char VOL_VER_NO[4] = {'1', '.', '0', 0x00};     // 衍生数据
+static const char VOL_VER_NO[4] = {'1', '.', '0', 0x00};     // 版本号
 #pragma pack(1)
 enum RayOrder : uint8_t
 {
@@ -299,6 +298,16 @@ class SLB
     ObserveTime GetObserveTime() const;
 
     std::map<int, double> Layer2Elevation() const;
+
+    /**
+     * @brief 根据给定的经纬度，计算其对应的雷达方位角(Az)和距离门(Gate)索引
+     *        考虑了地球曲率
+     * @param lon 目标点经度 (度)
+     * @param lat 目标点纬度 (度)
+     * @param targetAlt 目标点海拔高度 (米)
+     * @return 成功返回包含 {azIndex, gateIndex} 的 optional；若越界或无效则返回 std::nullopt
+     */
+    std::optional<std::pair<size_t, size_t>> CalcAG(float lon, float lat, float targetAlt = 0.0f) const;
 
     void Clear();
     float* GetFP(const eType& tp, size_t npoff);
