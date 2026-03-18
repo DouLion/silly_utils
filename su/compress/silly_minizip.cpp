@@ -81,7 +81,7 @@ int minizip_compress_file(const zipFile& zipHDL, const suPath& src)
 // 压缩文件夹
 int minizip_compress_dir(const zipFile& zipHDL, const suPath& root)
 {
-    std::vector<suPath> paths = root.relist();
+    std::vector<suPath> paths = root.relist(SU_MATCH_ALL_WILD_CHAR);
     auto sfp_relate_root =root.parent();
     std::string relate_root = sfp_relate_root.string();
     for (const auto& path : paths)
