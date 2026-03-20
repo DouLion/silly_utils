@@ -332,6 +332,7 @@ bool suGeoJson::Parse(const Json::Value& geojson, suGeoColl& gc)
         {
             return false;
         }
+        gc.set(meta);
     }
     else if (etp == eGeometryType::LineString)
     {
@@ -367,6 +368,7 @@ bool suGeoJson::Parse(const Json::Value& geojson, suGeoColl& gc)
         {
             return false;
         }
+        gc.set(meta);
     }
 
     return true;
