@@ -9,7 +9,9 @@
  * @version: v1.0.1 2025-12-04 dou li yang
  */
 #include "silly_path.h"
+#if _WIN32
 #include <winioctl.h>
+#endif
 #include <system/silly_system.h>
 
 suPath::suPath(const std::string& path)
