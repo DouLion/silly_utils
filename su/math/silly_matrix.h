@@ -349,7 +349,7 @@ class suMatrix
             size_t i = 0;
             while (i < m_total)
             {
-                ret.m_data[i] = this->m_data[i] * rh;
+                ret.m_data[i] = this->m_data[i] / rh;
                 i++;
             }
         }
