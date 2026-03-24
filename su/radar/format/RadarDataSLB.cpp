@@ -18,11 +18,11 @@ static void CalcVal(const std::vector<T>& src, float* ret, const int32_t& offset
     float* fp = ret;
     for (const T& v : src)
     {
-        if (v  == 1 || v == 4)
+        if (v == 1 || v == 4)
         {
             *fp = -9999;
         }
-       
+
         else
         {
             // 强制赋值,使char能够正常下溢
@@ -30,7 +30,6 @@ static void CalcVal(const std::vector<T>& src, float* ret, const int32_t& offset
             *fp = t / scale;
         }
         fp++;
-       
     }
 }
 
@@ -402,10 +401,11 @@ std::vector<float> SLB::GetData(const int& layer, const eType& type) const
     switch (type)
     {
         case eType::DBZ:
-            dataSource = _th.data();
+            dataSource = _zh.data();
+
             break;
         case eType::REF:
-            dataSource = _zh.data();
+            dataSource = _th.data();
             break;
         case eType::VEL:
             dataSource = _vel.data();
@@ -567,10 +567,10 @@ float* SLB::GetFP(const eType& tp, size_t npoff)
     switch (tp)
     {
         case eType::DBZ:
-            SetP = &_th[npoff];
+            SetP = &_zh[npoff];
             break;
         case eType::REF:
-            SetP = &_zh[npoff];
+            SetP = &_th[npoff];
             break;
         case eType::VEL:
             SetP = &_vel[npoff];

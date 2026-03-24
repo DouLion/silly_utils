@@ -133,7 +133,7 @@ eCompressErr suMiniZIP::compress(const suPath& src, const suPath& dst, const boo
         {
             return eCompressErr::FileNotExistErr;
         }
-        std::string out_dst = dst;
+        std::string out_dst = dst.string();
         if (out_dst.empty())  // 补充默认压缩路径
         {
             auto sfp_src = suPath(src);
@@ -143,7 +143,13 @@ eCompressErr suMiniZIP::compress(const suPath& src, const suPath& dst, const boo
         {
             std::filesystem::remove(out_dst);
         }
-        zipFile zipHDL = zipOpen64(out_dst.c_str(), APPEND_STATUS_CREATE);
+        // 确定打开模式
+        int openMode = APPEND_STATUS_CREATE;
+        if (append && dst.exists())
+        {
+            openMode = APPEND_STATUS_ADDINZIP;
+        }
+        zipFile zipHDL = zipOpen64(out_dst.c_str(), openMode);
         if (!zipHDL)
         {
             return eCompressErr::MiniZCreatZipErr;  //  创建写入的zip失败

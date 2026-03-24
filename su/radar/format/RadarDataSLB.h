@@ -56,8 +56,8 @@ enum eRadialState : int32_t
 
 enum eType : int32_t
 {
-    DBZ = 0,    // 滤波前反射率
-    REF = 1,    // 滤波后反射率
+    REF = 0,    // 滤波前反射率
+    DBZ = 1,    // 滤波后反射率
     VEL = 2,    // 径向速度
     WIDTH = 3,  // 谱宽
     ZDR = 4,    // 差分反射率
@@ -67,7 +67,7 @@ enum eType : int32_t
     TV = 8      // 原始垂直反射率因子
 };
 
-static std::vector TYPE_ORDER = {eType::DBZ, eType::REF, eType::VEL, eType::WIDTH, eType::ZDR, eType::PHIDP, eType::KDP, eType::CC, eType::TV};
+static std::vector TYPE_ORDER = {eType::REF, eType::DBZ, eType::VEL, eType::WIDTH, eType::ZDR, eType::PHIDP, eType::KDP, eType::CC, eType::TV};
 
 struct FileVolume  // 文件卷标基本信息结构
 {

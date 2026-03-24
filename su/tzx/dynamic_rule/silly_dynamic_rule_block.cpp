@@ -214,10 +214,11 @@ bool suDynamicRule::open_dat(const std::string& year_str) const
         }
         if (reset_file)
         {
-            std::ofstream ofs(file, std::ios::binary | std::ios::out);
+            /*std::ofstream ofs(file, std::ios::binary | std::ios::out);
             ofs.seekp(total_size, std::ios::beg);
             ofs.write("EOF", 3);
-            ofs.close();
+            ofs.close();*/
+            supath::resize_file(file, total_size);
         }
         std::shared_ptr<suMemMapFile> tmp = std::make_shared<suMemMapFile>();
         if (m_read_mode)
