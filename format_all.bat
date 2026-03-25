@@ -1,16 +1,48 @@
 @echo off
 setlocal enabledelayedexpansion
 
-rem å®šä¹‰ clang-format çš„è·¯å¾„
+rem ¶¨Òå clang-format µÄÂ·¾¶
 set CLANG_FORMAT_PATH=clang-format.exe
 
-rem æŸ¥æ‰¾å½“å‰ç›®å½•ä¸‹çš„ su å­ç›®å½•ä¸­çš„æ‰€æœ‰ .cpp, .h, .hpp, .c æ–‡ä»¶
-for /r su %%f in (*.cpp *.h *.hpp *.c) do (
-  if not "%%~nxf" == "otlv4.h" (
-    echo Formatting %%f...
-    "!CLANG_FORMAT_PATH!" -i "%%f"
-  )
+echo ËµÃ÷£ºÊäÈëÄ¿Â¼Â·¾¶£¨Ïà¶Ô»ò¾ø¶Ô£©ÒÔ¸ñÊ½»¯ÆäÖÐµÄ C/C++ ÎÄ¼þ£¬ÊäÈë exit ÍË³ö¡£
+echo.
+
+:main_loop
+set "TARGET_DIR="
+set /p "TARGET_DIR=ÇëÊäÈëÒª±éÀúµÄÄ¿Â¼ (ÊäÈë exit ÍË³ö): "
+
+rem ¼ì²éÊÇ·ñÒªÍË³ö
+if /i "!TARGET_DIR!"=="exit" (
+    echo ÍË³ö³ÌÐò¡£
+    goto :eof
 )
 
-echo Done!
-pause
+rem È¥³ýÊäÈë¿ÉÄÜ´æÔÚµÄÒýºÅ£¨¿ÉÑ¡£¬±ãÓÚ¼ì²éÄ¿Â¼´æÔÚ£©
+set "TARGET_DIR=!TARGET_DIR:"=!"
+
+rem ¼ì²éÊäÈëÊÇ·ñÎª¿Õ
+if "!TARGET_DIR!"=="" (
+    echo Ä¿Â¼²»ÄÜÎª¿Õ£¬ÇëÖØÐÂÊäÈë¡£
+    goto main_loop
+)
+
+rem ¼ì²éÄ¿Â¼ÊÇ·ñ´æÔÚ
+if not exist "!TARGET_DIR!" (
+    echo Ä¿Â¼ "!TARGET_DIR!" ²»´æÔÚ£¬ÇëÖØÐÂÊäÈë¡£
+    goto main_loop
+)
+
+echo ¿ªÊ¼¸ñÊ½»¯Ä¿Â¼ "!TARGET_DIR!" ÖÐµÄÎÄ¼þ...
+
+rem ±éÀúÖ¸¶¨Ä¿Â¼ÏÂµÄËùÓÐ .cpp, .h, .hpp, .c ÎÄ¼þ
+
+for /r "%TARGET_DIR%" %%f in (*.cpp *.h *.hpp *.c *.cc *.hh) do (
+    if not "%%~nxf" == "otlv4.h" (
+        echo Formatting %%f...
+        "!CLANG_FORMAT_PATH!" -i "%%f"
+    )
+)
+
+echo Íê³É¶ÔÄ¿Â¼ "!TARGET_DIR!" µÄ´¦Àí¡£
+echo.
+goto main_loop
