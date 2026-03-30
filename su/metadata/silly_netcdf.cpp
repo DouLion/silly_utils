@@ -176,7 +176,7 @@ std::vector<std::string> suNetCDF::members()
     auto nc_all_vars = m_nc_all_grps.getVars(netCDF::NcGroup::Current);
     for (auto& [k, var] : nc_all_vars)
     {
-        std::cout <<  k << ": " << var.getDimCount() << std::endl;
+        std::cout << k << ": " << var.getDimCount() << std::endl;
         if (var.getDimCount() > 1)
         {
             result.push_back(k);
@@ -198,7 +198,71 @@ void suNetCDF::close()
     m_nc_file.close();
 #endif
 }
-#
+
+std::vector<float> suNetCDF::read1d(const std::string& group)
+{
+    std::vector<float> ret;
+#if SU_THIRD_SUPPORT_NETCDF_CXX
+    m_nc_all_grps = m_nc_file.getGroup("/", netCDF::NcGroup::GroupLocation::AllGrps);
+    netCDF::NcVar nv_dst = m_nc_all_grps.getVar(group);
+    if (nv_dst.isNull())
+    {
+        return ret;
+    }
+    std::vector<netCDF::NcDim> ndims = nv_dst.getDims();
+    std::vector<std::tuple<std::string, size_t, netCDF::NcVar>> name_nvdims;
+    size_t total_val_size = 1;
+    for (const auto& ndim : ndims)
+    {
+        std::string name = ndim.getName();
+        if (ndim.getSize() == 1)
+        {
+            continue;
+        }
+        SLOG_DEBUG(name)
+        total_val_size *= ndim.getSize();
+    }
+
+    std::map<std::string, netCDF::NcVarAtt> attr_vars = nv_dst.getAtts();
+    for (const auto& [key, attr] : attr_vars)
+    {
+        m_attr_names.push_back(key);
+        if (key == "_FillValue")
+        {
+            attr.getValues(&m_fill);
+        }
+        else if (key == "add_offset")
+        {
+            attr.getValues(&m_offset);
+        }
+        else if (key == "scale_factor")
+        {
+            attr.getValues(&m_scale);
+        }
+    }
+
+    ret.resize(total_val_size);
+
+    nv_dst.getVar(ret.data());
+    if (std::abs(m_scale - 1.0) > 1e-6)
+    {
+        for (auto& v : ret)
+        {
+            v *= m_scale;
+        }
+    }
+    if (std::abs(m_offset) > 1e-6)
+    {
+        for (auto& v : ret)
+        {
+            v += m_offset;
+        }
+        
+    }
+
+#endif
+    return ret;
+}
 bool suNetCDF::read(const std::string& group, const std::string& lon, const std::string& lat)
 {
     bool status = false;

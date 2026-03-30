@@ -104,7 +104,9 @@ class suNetCDF
     /// <returns></returns>
     bool read(const std::string& group, const std::string& lon = "lon", const std::string& lat = "lat");
 
-    silly_tzx_grid convert(const size_t& b, const size_t& e) const;
+    std::vector<float> read1d(const std::string& group);
+
+    TzxGrid convert(const size_t& b, const size_t& e) const;
 
     static bool write(const suPath& file, const Data& snd);
 
