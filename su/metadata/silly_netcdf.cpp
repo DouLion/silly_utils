@@ -176,9 +176,12 @@ std::vector<std::string> suNetCDF::members()
     auto nc_all_vars = m_nc_all_grps.getVars(netCDF::NcGroup::Current);
     for (auto& [k, var] : nc_all_vars)
     {
-        std::cout << k << ": " << var.getDimCount() << std::endl;
-        if (var.getDimCount() > 1)
+        if (var.getDimCount() > 0)
         {
+#ifndef NDEBUG
+
+            /// std::cout << k << ": " << var.getDimCount() << std::endl;
+#endif
             result.push_back(k);
         }
     }
@@ -209,6 +212,14 @@ std::vector<float> suNetCDF::read1d(const std::string& group)
     {
         return ret;
     }
+    netCDF::NcType t = nv_dst.getType();
+    if (t == netCDF::NcType::nc_CHAR || t == netCDF::NcType::nc_STRING)
+    {
+        std::cout << "typeClass=" << (int)t.getTypeClass() << ", typeId=" << t.getId() << std::endl;
+
+        return ret;
+    }
+
     std::vector<netCDF::NcDim> ndims = nv_dst.getDims();
     std::vector<std::tuple<std::string, size_t, netCDF::NcVar>> name_nvdims;
     size_t total_val_size = 1;
@@ -219,7 +230,6 @@ std::vector<float> suNetCDF::read1d(const std::string& group)
         {
             continue;
         }
-        SLOG_DEBUG(name)
         total_val_size *= ndim.getSize();
     }
 
@@ -244,20 +254,39 @@ std::vector<float> suNetCDF::read1d(const std::string& group)
     ret.resize(total_val_size);
 
     nv_dst.getVar(ret.data());
-    if (std::abs(m_scale - 1.0) > 1e-6)
+    bool isValid = false;
+    if (!std::isnan(m_fill))
+    {
+        for (const auto& v : ret)
+        {
+            if (v != m_fill)
+            {
+                isValid = true;
+                break;
+            }
+        }
+    }
+    if (!isValid)
+    {
+        ret.clear();
+        return ret;
+    }
+#ifndef NDDEBUG
+    std::cout << "Fill : " << m_fill << std::endl;
+#endif
+    if (!std::isnan(m_scale) && std::abs(m_scale - 1.0) > 1e-6)
     {
         for (auto& v : ret)
         {
             v *= m_scale;
         }
     }
-    if (std::abs(m_offset) > 1e-6)
+    if (!std::isnan(m_offset) && std::abs(m_offset) > 1e-6)
     {
         for (auto& v : ret)
         {
             v += m_offset;
         }
-        
     }
 
 #endif
@@ -706,9 +735,9 @@ bool suNetCDF::write(const suPath& file) const
     return status;
 }
 
-silly_tzx_grid suNetCDF::convert(const size_t& b, const size_t& e) const
+TzxGrid suNetCDF::convert(const size_t& b, const size_t& e) const
 {
-    silly_tzx_grid ret;
+    TzxGrid ret;
     if (m_bands.empty() || b > e)
     {
         return ret;

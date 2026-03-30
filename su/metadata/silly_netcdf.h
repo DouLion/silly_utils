@@ -171,9 +171,9 @@ class suNetCDF
 #endif
     std::string m_err;
     Geo m_geo;
-    float m_fill = -9999.0;
-    float m_offset = 0.0;
-    float m_scale = 1.0;
+    float m_fill = std::numeric_limits<float>::quiet_NaN();
+    float m_offset = std::numeric_limits<float>::quiet_NaN();
+    float m_scale = std::numeric_limits<float>::quiet_NaN();
     std::vector<std::string> m_dem_names;
     std::vector<std::string> m_attr_names;
     std::vector<Band> m_bands;
