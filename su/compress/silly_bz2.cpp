@@ -11,6 +11,12 @@
 // /* recommended size */
 #define SILLY_BZ2_SUGGEST_COMPRESS_SIZE(in_len) ((unsigned int)(in_len * 1.1 + 600))
 
+static inline size_t bz_total_in64(const bz_stream &s)
+{
+    // total_in_hi32 / lo32 组合成 64 位
+    return (static_cast<size_t>(s.total_in_hi32) << 32) | static_cast<size_t>(s.total_in_lo32);
+}
+
 eCompressErr suBz2::compress(const suPath &s_src, const suPath &s_dst)
 {
     if (!s_src.exists())
@@ -246,7 +252,25 @@ eCompressErr suBz2::compress(const char *inBin, const size_t &inLen, char **outB
     outLen = current_dst_len;  // 实际压缩后的数据长度
     return eCompressErr::Ok;
 }
+eCompressErr suBz2::decompress(const std::string &inBin, std::string &outBin)
+{
+    const char *in_data = inBin.data();
+    size_t in_len = inBin.size();
+    char *out_data = nullptr;  // 由下一层函数分配
+    size_t out_len = 0;
 
+    eCompressErr ret = decompress(in_data, in_len, &out_data, out_len);
+    if (ret == eCompressErr::Ok && out_len > 0)
+    {
+        outBin.assign(out_data, out_len);  // 使用 assign 避免不必要的拷贝
+        SU_MEM_FREE(out_data);
+    }
+    else if (out_data)
+    {  // 如果有分配但失败，也要释放
+        SU_MEM_FREE(out_data);
+    }
+    return ret;
+}
 eCompressErr suBz2::decompress(const char *inBin, const size_t &inLen, char **outBin, size_t &outLen)
 {
     if (!inBin || inLen == 0)
@@ -254,75 +278,102 @@ eCompressErr suBz2::decompress(const char *inBin, const size_t &inLen, char **ou
         SU_ERROR_PRINT("解压(内存): Empty input data.");
         return eCompressErr::InValidInputErr;
     }
-    if (*outBin)  // 期望 outBin 指向 nullptr，由本函数分配内存
+    if (*outBin)
     {
         SU_ERROR_PRINT("解压(内存): Output buffer already allocated. Clean it first.");
         return eCompressErr::InValidOutputErr;
     }
 
-    outLen = 0;  // 初始化输出长度
+    *outBin = nullptr;
+    outLen = 0;
 
-    unsigned int current_dst_len = SILLY_BZ2_DECOMPRESS_DEFAULT_SIZE;
-    char *decompress_buffer = (char *)std::malloc(current_dst_len);
-    if (!decompress_buffer)
+    const unsigned char *p = reinterpret_cast<const unsigned char *>(inBin);
+    size_t remaining = inLen;
+
+    std::string result;
+
+    const size_t chunk_size = 1024 * 1024;  // 1024KB，堆上，避免栈溢出
+    std::vector<char> out_chunk(chunk_size);
+
+    while (remaining > 0)
     {
-        SU_ERROR_PRINT("解压(内存): Failed to allocate initial decompress buffer.");
-        return eCompressErr::MemAllocErr;
+        bz_stream strm{};
+        strm.next_in = (char *)p;
+        strm.avail_in = (unsigned int)std::min(remaining, (size_t)0xFFFFFFFFu);
+
+        int rc = BZ2_bzDecompressInit(&strm, 0, 0);
+        if (rc != BZ_OK)
+        {
+            SU_ERROR_PRINT("解压(流式): BZ2_bzDecompressInit failed: %d", rc);
+            return (rc == BZ_MEM_ERROR) ? eCompressErr::MemAllocErr : eCompressErr::Bz2DecompressErr;
+        }
+
+        // 记录本成员开始前的 total_in，用于计算本成员消耗了多少输入
+        size_t in_before = bz_total_in64(strm);
+
+        while (true)
+        {
+            strm.next_out = out_chunk.data();
+            strm.avail_out = static_cast<unsigned int>(out_chunk.size());
+
+            rc = BZ2_bzDecompress(&strm);
+
+            if (rc == BZ_OK)
+            {
+                size_t produced = out_chunk.size() - strm.avail_out;
+                if (produced > 0)
+                    result.append(out_chunk.data(), produced);
+                continue;
+            }
+            else if (rc == BZ_STREAM_END)
+            {
+                size_t produced = out_chunk.size() - strm.avail_out;
+                if (produced > 0)
+                    result.append(out_chunk.data(), produced);
+                break;
+            }
+            else
+            {
+                BZ2_bzDecompressEnd(&strm);
+                SU_ERROR_PRINT("解压(流式): BZ2_bzDecompress failed: %d", rc);
+                return (rc == BZ_MEM_ERROR) ? eCompressErr::MemAllocErr : eCompressErr::Bz2DecompressErr;
+            }
+        }
+
+        // 计算本成员消耗的输入字节数
+        size_t in_after = bz_total_in64(strm);
+        size_t consumed = in_after - in_before;
+
+        BZ2_bzDecompressEnd(&strm);
+
+        if (consumed == 0)
+        {
+            SU_ERROR_PRINT("解压(流式): consumed == 0，输入可能损坏/格式不符合预期，避免死循环。");
+            break;
+        }
+        if (consumed > remaining)
+        {
+            SU_ERROR_PRINT("解压(流式): consumed > remaining，逻辑错误/输入异常。");
+            break;
+        }
+
+        p += consumed;
+        remaining -= consumed;
     }
 
-    int rc = BZ_OUTBUFF_FULL;  // 强制进入循环以处理初次解压
-
-    while (rc == BZ_OUTBUFF_FULL)
+    outLen = result.size();
+    if (outLen == 0)
     {
-        unsigned int actual_decompressed_size_attempt = current_dst_len;  // 每次尝试的最大解压量
-        rc = BZ2_bzBuffToBuffDecompress(decompress_buffer, &actual_decompressed_size_attempt, (char *)inBin, inLen, 0, 0);
-
-        if (rc == BZ_OUTBUFF_FULL)
-        {
-            // bz2库会将 actual_decompressed_size_attempt 设置为需要的最小大小
-            unsigned int required_len = actual_decompressed_size_attempt;
-            if (required_len <= current_dst_len)
-            {
-                // 这通常不应该发生，但作为安全措施
-                required_len = current_dst_len + SILLY_BZ2_DECOMPRESS_DEFAULT_SIZE;
-            }
-
-            char *tmp = (char *)std::realloc(decompress_buffer, required_len);
-            if (!tmp)
-            {
-                SU_ERROR_PRINT("解压(内存): Failed to reallocate decompress buffer.");
-                SU_MEM_FREE(decompress_buffer);
-                return eCompressErr::MemAllocErr;
-            }
-            decompress_buffer = tmp;
-            current_dst_len = required_len;  // 更新为新的缓冲区大小
-        }
-        else if (rc != BZ_OK)
-        {
-            SU_ERROR_PRINT("解压(内存): BZ2_bzBuffToBuffDecompress failed with error code: %d", rc);
-            SU_MEM_FREE(decompress_buffer);
-            if (rc == BZ_MEM_ERROR)
-                return eCompressErr::MemAllocErr;
-            return eCompressErr::Bz2DecompressErr;
-        }
-        else
-        {
-            // 解压成功，实际解压数据大小在actual_decompressed_size_attempt中
-            outLen = actual_decompressed_size_attempt;
-        }
+        return eCompressErr::Ok;  // 或者你们约定返回错误码
     }
 
-    // 将解压后的数据拷贝到最终的输出缓冲区
     *outBin = (char *)std::malloc(outLen);
     if (!*outBin)
     {
         SU_ERROR_PRINT("解压(内存): Failed to allocate final output buffer.");
-        SU_MEM_FREE(decompress_buffer);
         return eCompressErr::MemAllocErr;
     }
-    std::memcpy(*outBin, decompress_buffer, outLen);
-    SU_MEM_FREE(decompress_buffer);
-
+    std::memcpy(*outBin, result.data(), outLen);
     return eCompressErr::Ok;
 }
 
@@ -346,25 +397,7 @@ eCompressErr suBz2::compress(const std::string &inBin, std::string &outBin)
     return ret;
 }
 
-eCompressErr suBz2::decompress(const std::string &inBin, std::string &outBin)
-{
-    const char *in_data = inBin.data();
-    size_t in_len = inBin.size();
-    char *out_data = nullptr;  // 由下一层函数分配
-    size_t out_len = 0;
 
-    eCompressErr ret = decompress(in_data, in_len, &out_data, out_len);
-    if (ret == eCompressErr::Ok && out_len > 0)
-    {
-        outBin.assign(out_data, out_len);  // 使用 assign 避免不必要的拷贝
-        SU_MEM_FREE(out_data);
-    }
-    else if (out_data)
-    {  // 如果有分配但失败，也要释放
-        SU_MEM_FREE(out_data);
-    }
-    return ret;
-}
 
 bool suBz2::valid(const std::string &bin)
 {
