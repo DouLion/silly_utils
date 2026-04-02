@@ -12,86 +12,109 @@
 #define SILLY_HGT_H
 #include <su_macro.h>
 #include <log/silly_log.h>
+#include <files/silly_file.h>
 
 class suHGT
 {
-    // 字节序转换
-    short swap_bytes(short val);
-
   public:
     struct HgtData
     {
-        int southwest_lat = 0;            // 瓦片西南角的纬度
-        int southwest_lon = 0;            // 瓦片西南角的经度
+        std::string filepath;             // HGT 文件的完整路径
+        int southwest_lat = 0;            // 瓦片西南角的纬度（整数）
+        int southwest_lon = 0;            // 瓦片西南角的经度（整数）
         int resolution_arc_seconds = 0;   // 分辨率：1 (SRTM1) 或 3 (SRTM3) 弧秒
         int grid_size = 0;                // 瓦片一边的采样点数量 (SRTM1 为 3601, SRTM3 为 1201)
         std::vector<int16_t> elevations;  // 存储海拔高度数据 (16位有符号整数，单位：米)
 
-        // 检查数据是否已加载
-        bool is_loaded() const
+        void unload_elevations()
         {
-            return !elevations.empty();
+            elevations.clear();
+            elevations.shrink_to_fit();
         }
-        // 清除所有数据，重置为初始状态
+
         void clear()
         {
+            filepath.clear();
             southwest_lat = 0;
             southwest_lon = 0;
             resolution_arc_seconds = 0;
             grid_size = 0;
-            elevations.clear();
+            unload_elevations();
         }
     };
 
     /// <summary>
-    /// 加载HGT文件数据
+    /// 扫描指定根目录下的所有 .hgt 文件，并加载其元数据。
     /// </summary>
-    /// <param name="hgt_filepath">文件路径</param>
-    /// <param name="hgt_data">hgt结构体</param>
-    /// <returns></returns>
-    bool read(const std::string& hgt_filepath, HgtData& hgt_data);
+    /// <param name="root_path">根目录路径</param>
+    /// <returns>成功加载至少一个瓦片时返回 true，否则返回 false</returns>
+    bool open(const std::string& root_path);
 
     /// <summary>
-    /// 根据给定的 HgtData、经纬度返回海拔高度(单位：米)
+    /// 卸载所有已加载的海拔数据，释放内存，但保留瓦片元数据。
     /// </summary>
-    /// <param name="hgt_data">hgt结构体</param>
-    /// <param name="lat">经度</param>
-    /// <param name="lon">纬度</param>
-    /// <returns></returns>
-    int16_t get_elevation(const HgtData& hgt_data, double lat, double lon) const;
-    int16_t get_elevation(const HgtData& hgt_data, int row, int col) const;
+    void unload_all_elevations();
 
-    // 根据给定的 HgtData、经纬度返回海拔高度（单位：米）。
-    // 采用双线性插值，提供更精确和平滑的结果。
-    // 返回 -32768 (标准缺失数据值) 如果坐标超出瓦片范围或数据缺失。
-    // 如果传入的 HgtData 未加载，则抛出 std::runtime_error 异常。
-    double get_interpolated_elevation(const HgtData& hgt_data, double latitude, double longitude) const;
+    /// <summary>
+    /// 卸载指定瓦片的海拔数据。
+    /// </summary>
+    /// <param name="lat">瓦片西南角纬度</param>
+    /// <param name="lon">瓦片西南角经度</param>
+    /// <returns>成功卸载返回 true，否则返回 false</returns>
+    bool unload_tile_elevations(int lat, int lon);
 
-    // 检查给定的经纬度是否在 HGT 瓦片覆盖的地理范围内。
-    // 如果传入的 HgtData 未加载，则抛出 std::runtime_error 异常。
-    bool is_coordinate_within_tile(const HgtData& hgt_data, double latitude, double longitude) const;
+    /// <summary>
+    /// 根据经纬度返回海拔高度（最近邻插值）。
+    /// </summary>
+    /// <param name="lat">纬度</param>
+    /// <param name="lon">经度</param>
+    /// <returns>海拔高度（米），如果数据不可用返回 -32768</returns>
+    int16_t get_elevation(double lat, double lon);
 
-    // 获取 HGT 瓦片所覆盖的地理边界。
-    // 如果传入的 HgtData 未加载，则抛出 std::runtime_error 异常。
-    void get_tile_geographic_bounds(const HgtData& hgt_data, double& min_lat, double& max_lat, double& min_lon, double& max_lon) const;
-
-    // 获取 HGT 瓦片中存储的最小和最大海拔值。
-    // 如果传入的 HgtData 未加载，则抛出 std::runtime_error 异常。
-    void get_min_max_elevation(const HgtData& hgt_data, short& min_elev, short& max_elev) const;
+    /// <summary>
+    /// 根据经纬度返回海拔高度（双线性插值）。
+    /// </summary>
+    /// <param name="lat">纬度</param>
+    /// <param name="lon">经度</param>
+    /// <returns>插值后的海拔高度（米），如果数据不可用返回 -32768.0</returns>
+    double get_interpolated_elevation(double lat, double lon);
 
   private:
-    /// <summary>
-    /// 解析文件名并确定分辨率
-    /// </summary>
-    /// <param name="hgt_filepath">文件路径</param>
-    /// <param name="filename">文件名</param>
-    /// <param name="hgt_data">hgt结构体</param>
-    /// <returns></returns>
-    bool parse_filename(const std::string& hgt_filepath, const std::string& filename, HgtData& hgt_data);
+    std::map<std::pair<int, int>, HgtData> hgt_tiles_;
 
-    // 辅助函数：将经纬度转换为 HGT 网格的浮点型行/列索引。
-    // 如果坐标超出瓦片范围，返回 false。
-    bool get_coordinates(const HgtData& hgt_data, double latitude, double longitude, double& float_row, double& float_col) const;
+    /// <summary>
+    /// 从文件名中解析坐标信息，并填充 HgtData 结构体。
+    /// 文件名格式：[N|S]yy[E|W]xxx.hgt，如 N40E120.hgt
+    /// </summary>
+    /// <param name="hgt_filepath">HGT 文件的完整路径</param>
+    /// <param name="hgt_data">输出参数，保存解析结果</param>
+    /// <returns>解析成功返回 true，否则返回 false</returns>
+    bool parse_metadata(const std::string& hgt_filepath, HgtData& hgt_data);
+
+    /// <summary>
+    /// 获取指定坐标对应的 HgtData，如果数据未加载则按需加载。
+    /// </summary>
+    /// <param name="lat">纬度</param>
+    /// <param name="lon">经度</param>
+    /// <returns>指向 HgtData 的指针，如果瓦片不存在或加载失败返回 nullptr</returns>
+    HgtData* get_hgt_data(double lat, double lon);
+
+    /// <summary>
+    /// 从文件中加载指定 HgtData 的海拔数据到内存。
+    /// 自动根据文件大小判断分辨率（1 弧秒或 3 弧秒）。
+    /// </summary>
+    /// <param name="hgt_data">待加载的 HgtData 结构体</param>
+    /// <returns>成功加载返回 true，否则返回 false</returns>
+    bool load_elevations_for_tile(HgtData& hgt_data);
+
+    /// <summary>
+    /// 安全地获取 HGT 数据中指定行列索引处的海拔值。
+    /// </summary>
+    /// <param name="hgt_data">HGT 数据</param>
+    /// <param name="row">行索引</param>
+    /// <param name="col">列索引</param>
+    /// <returns>海拔值，如果索引超出范围返回 -32768</returns>
+    int16_t get_elevation_at_index(const HgtData& hgt_data, int row, int col) const;
 };
 
 #endif  // SILLY_HGT_H
