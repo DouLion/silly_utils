@@ -95,10 +95,10 @@ std::string suColor::argb2hex() const
 {
     std::ostringstream oss;
     oss << std::uppercase << std::hex << std::setfill('0');
-    oss << std::setw(2) << alpha;
-    oss << std::setw(2) << red;
-    oss << std::setw(2) << green;
-    oss << std::setw(2) << blue;
+    oss << std::setw(2) << static_cast<int>(alpha);
+    oss << std::setw(2) << static_cast<int>(red);
+    oss << std::setw(2) << static_cast<int>(green);
+    oss << std::setw(2) << static_cast<int>(blue);
     return oss.str();
 }
 

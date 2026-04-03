@@ -501,6 +501,7 @@ class suOTL
     std::string user() const;
     std::string pwd() const;
     std::string err() const;
+    int timeout() const;
 
     ///////////////////////////////
     /// setter

@@ -131,7 +131,6 @@ static std::map<std::string, std::string> parse_odbc(const std::string& odbc)
     return result;
 }
 
-
 std::string suOTL::LStr2Str(const otl_long_string& lstr)
 {
     std::string ret;
@@ -172,27 +171,29 @@ otl_datetime suOTL::Str2Time(const std::string& str)
 {
     otl_datetime dt{};
     // 正则：年(4位) - 月(1~2) - 日(1~2) [空格 时(1~2) : 分(1~2) [: 秒(1~2) [ . 毫秒(1~3) ]]]
-    const std::regex pattern(
-        R"((\d{4})-(\d{1,2})-(\d{1,2})(?: (\d{1,2}):(\d{1,2})(?::(\d{1,2})(?:\.(\d{1,3}))?)?)?)"
-    );
+    const std::regex pattern(R"((\d{4})-(\d{1,2})-(\d{1,2})(?: (\d{1,2}):(\d{1,2})(?::(\d{1,2})(?:\.(\d{1,3}))?)?)?)");
 
     std::smatch matches;
 
-    if (std::regex_search(str, matches, pattern)) {
+    if (std::regex_search(str, matches, pattern))
+    {
         // ===== 必选部分：年、月、日 =====
-        dt.year  = std::stoi(matches[1]);
+        dt.year = std::stoi(matches[1]);
         dt.month = std::stoi(matches[2]);
-        dt.day   = std::stoi(matches[3]);
+        dt.day = std::stoi(matches[3]);
 
         // ===== 可选部分：时:分:秒.毫秒 =====
-        if (matches.size() > 4 && matches[4].matched) {  // 有时:分
-            dt.hour   = std::stoi(matches[4]);
+        if (matches.size() > 4 && matches[4].matched)
+        {  // 有时:分
+            dt.hour = std::stoi(matches[4]);
             dt.minute = std::stoi(matches[5]);
 
-            if (matches.size() > 6 && matches[6].matched) {  // 有秒
+            if (matches.size() > 6 && matches[6].matched)
+            {  // 有秒
                 dt.second = std::stoi(matches[6]);
 
-                if (matches.size() > 7 && matches[7].matched) {  // 有毫秒
+                if (matches.size() > 7 && matches[7].matched)
+                {  // 有毫秒
                     std::string ms_str = matches[7];
                     int ms_len = ms_str.length();
 
@@ -204,16 +205,22 @@ otl_datetime suOTL::Str2Time(const std::string& str)
                     // 如果你希望 fraction 是微秒，可以乘以 10^(3-ms_len)
                     // 例如 .1 → 100, .12 → 120, .123 → 123
                     // 但目前我们直接存原始值，你可以后续按需处理
-                } else {
+                }
+                else
+                {
                     dt.fraction = 0;
                     dt.frac_precision = 0;
                 }
-            } else {
+            }
+            else
+            {
                 dt.second = 0;
                 dt.fraction = 0;
                 dt.frac_precision = 0;
             }
-        } else {
+        }
+        else
+        {
             // 只有年月日
             dt.hour = 0;
             dt.minute = 0;
@@ -835,6 +842,11 @@ std::string suOTL::pwd() const
 std::string suOTL::err() const
 {
     return m_err;
+}
+
+int suOTL::timeout() const
+{
+    return m_timeout;
 }
 
 void suOTL::type(const eOtlDbType& tp)
