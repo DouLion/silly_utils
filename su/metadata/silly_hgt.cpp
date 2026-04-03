@@ -20,7 +20,7 @@ bool suHGT::parse_metadata(const std::string& hgt_filepath, HgtData& out_hgt_dat
     out_hgt_data.clear();
     out_hgt_data.filepath = hgt_filepath;
 
-    suPath p = suPath::suPath(hgt_filepath);
+    suPath p(hgt_filepath);
     std::string filename = p.name();
 
     // 验证文件名长度和后缀
