@@ -551,34 +551,44 @@ void TzxGrid::puzzle(const std::vector<silly_tzx_grid>& grids, const suRect& bou
     m_xdelta = d;
     m_rows = std::round((m_top - m_bottom) / m_ydelta);
     m_cols = std::round((m_right - m_left) / m_xdelta);
-    m_frames.resize(1);
-    m_frames[0].create(m_rows, m_cols);
-    for (int r = 0; r < m_rows; r++)
+    size_t minSize = 999;
+    for (const auto& grid : grids)
     {
-        for (int c = 0; c < m_cols; c++)
+        minSize = std::min(minSize, grid.frame_num());
+    }
+    m_frames.resize(minSize);
+    for (auto& frame : m_frames)
+    {
+        frame.create(m_rows, m_cols);
+
+        for (int r = 0; r < m_rows; r++)
         {
-            float x = m_left + c * m_xdelta;
-            float y = m_top - r * m_ydelta;
-            // 使用两个值之间的最大值
-            float value = -999999.0;  // invalid data
-
-            for (auto& grid : grids)
+            for (int c = 0; c < m_cols; c++)
             {
-                if (std::abs(grid.m_xdelta - d) > 0.0001)
-                {
-                    continue;
-                }
+                float x = m_left + c * m_xdelta;
+                float y = m_top - r * m_ydelta;
+                // 使用两个值之间的最大值
+                float value = -999999.0;  // invalid data
 
-                int tx = std::round((x - grid.m_left) / grid.m_xdelta);
-                int ty = std::round((grid.m_top - y) / grid.m_ydelta);
-                if (tx >= 0 && tx < grid.m_cols && ty >= 0 && ty < grid.m_rows)
+                for (auto& grid : grids)
                 {
-                    value = SU_MAX(value, grid.m_frames[0][ty][tx]);
+                    if (std::abs(grid.m_xdelta - d) > 0.0001)
+                    {
+                        continue;
+                    }
+
+                    int tx = std::round((x - grid.m_left) / grid.m_xdelta);
+                    int ty = std::round((grid.m_top - y) / grid.m_ydelta);
+                    if (tx >= 0 && tx < grid.m_cols && ty >= 0 && ty < grid.m_rows)
+                    {
+                        value = SU_MAX(value, grid.m_frames[0][ty][tx]);
+                    }
                 }
+                frame[r][c] = value;
             }
-            m_frames[0][r][c] = value;
         }
     }
+    
 }
 silly_tzx_grid& TzxGrid::operator=(const silly_tzx_grid& rh)
 {
