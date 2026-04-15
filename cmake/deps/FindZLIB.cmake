@@ -1,21 +1,15 @@
-# FindZLIB.cmake
-# 查找 ZLIB 压缩库
-# DISABLE_ZLIB=ON 时跳过查找
-
-message("\n[deps] 检查库 ZLIB")
+message("\n检查库 ZLIB")
 
 if(DISABLE_ZLIB)
-    message(STATUS "[deps] 禁用 ZLIB")
-    set(SU_THIRD_SUPPORT_ZLIB 0)
+    message(STATUS "禁用ZLIB")
 else()
-    find_package(ZLIB CONFIG)
+    find_package(ZLIB)
     if(ZLIB_FOUND)
-        message(STATUS "[deps] ZLIB found: TRUE")
-        message(STATUS "[deps] ZLIB version: ${ZLIB_VERSION}")
+        message(STATUS "ZLIB found: ${ZLIB_FOUND}")
+        message(STATUS "ZLIB version: ${ZLIB_VERSION}")
         list(APPEND SU_ALL_REQUIRED_LIBRARIES ZLIB::ZLIB)
         set(SU_THIRD_SUPPORT_ZLIB 1)
     else()
-        message(WARNING "[deps] 未发现 ZLIB")
-        set(SU_THIRD_SUPPORT_ZLIB 0)
+        message(WARNING "未发现ZLIB")
     endif()
 endif()

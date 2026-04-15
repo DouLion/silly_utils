@@ -1,21 +1,13 @@
-# FindProtoZero.cmake
-# 查找 ProtoZero MVT 瓦片库
-# DISABLE_PROTO_ZERO=ON 时跳过查找
-
-message("\n[deps] 检查库 PROTO_ZERO")
-
+message("\n检查库 PROTO_ZERO")
 if(DISABLE_PROTO_ZERO)
-    message(STATUS "[deps] 禁用 PROTO_ZERO")
-    set(SU_THIRD_SUPPORT_PROTO_ZERO 0)
+    message(STATUS "禁用PROTO_ZERO")
 else()
-    find_package(protozero CONFIG)
-    if(protozero_FOUND)
-        message(STATUS "[deps] ProtoZero found: ${protozero_FOUND}")
-        message(STATUS "[deps] ProtoZero version: ${protozero_VERSION}")
-        list(APPEND SU_ALL_REQUIRED_LIBRARIES protozero::protozero)
+    find_path(PROTOZERO_INCLUDE_DIRS "protozero/basic_pbf_builder.hpp")
+    if(PROTOZERO_INCLUDE_DIRS)
+        message(STATUS "PROTO_ZERO found: ${PROTOZERO_INCLUDE_DIRS}")
+        include_directories(${PROTOZERO_INCLUDE_DIRS})
         set(SU_THIRD_SUPPORT_PROTO_ZERO 1)
     else()
-        message(WARNING "[deps] 未发现 ProtoZero")
-        set(SU_THIRD_SUPPORT_PROTO_ZERO 0)
+        message(WARNING "未发现PROTO_ZERO")
     endif()
 endif()

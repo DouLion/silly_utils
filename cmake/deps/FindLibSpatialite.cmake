@@ -1,21 +1,12 @@
-# FindLibSpatialite.cmake
-# 查找 SpatiaLite 空间数据库
-# DISABLE_SPATIALITE=ON 时跳过查找
-
-message("\n[deps] 检查库 SPATIALITE")
-
+message("\n检查库 SPATIALITE")
 if(DISABLE_SPATIALITE)
-    message(STATUS "[deps] 禁用 SPATIALITE")
-    set(SU_THIRD_SUPPORT_SPATIALITE 0)
+    message(STATUS "禁用SPATIALITE")
 else()
-    find_package(spatialite CONFIG)
-    if(spatialite_FOUND)
-        message(STATUS "[deps] SpatiaLite found: ${spatialite_FOUND}")
-        message(STATUS "[deps] SpatiaLite version: ${spatialite_VERSION}")
-        list(APPEND SU_ALL_REQUIRED_LIBRARIES spatialite::spatialite)
+    find_package(SPATIALITE_LIB NAMES "spatialite")
+    if(SPATIALITE_LIB_FOUND)
+        list(APPEND SU_ALL_REQUIRED_LIBRARIES ${SPATIALITE_LIB})
         set(SU_THIRD_SUPPORT_SPATIALITE 1)
     else()
-        message(WARNING "[deps] 未发现 SpatiaLite")
-        set(SU_THIRD_SUPPORT_SPATIALITE 0)
+        message(WARNING "未发现SPATIALITE")
     endif()
 endif()

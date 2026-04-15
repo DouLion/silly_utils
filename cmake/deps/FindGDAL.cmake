@@ -1,21 +1,14 @@
-# FindGDAL.cmake
-# 查找 GDAL 地理数据库
-# DISABLE_GDAL=ON 时跳过查找
-
-message("\n[deps] 检查库 GDAL")
-
+message("\n检查库 GDAL")
 if(DISABLE_GDAL)
-    message(STATUS "[deps] 禁用 GDAL")
-    set(SU_THIRD_SUPPORT_GDAL 0)
+	message(STATUS "禁用GDAL")
 else()
-    find_package(GDAL CONFIG)
+	find_package(GDAL CONFIG REQUIRED)
     if(GDAL_FOUND)
-        message(STATUS "[deps] GDAL found: ${GDAL_FOUND}")
-        message(STATUS "[deps] GDAL version: ${GDAL_VERSION}")
+        message(STATUS "GDAL found: ${GDAL_FOUND}")
+        message(STATUS "GDAL version: ${GDAL_VERSION}")
         list(APPEND SU_ALL_REQUIRED_LIBRARIES GDAL::GDAL)
         set(SU_THIRD_SUPPORT_GDAL 1)
     else()
-        message(WARNING "[deps] 未发现 GDAL")
-        set(SU_THIRD_SUPPORT_GDAL 0)
+        message(WARNING "未发现GDAL")
     endif()
 endif()
