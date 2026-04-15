@@ -31,4 +31,22 @@
 /docs/NYNL*
 /su/su_config.h
 
+# Visual Studio / CMake 生成的项目文件
+**/*.vcxproj
+**/*.vcxproj.filters
+**/*.vcxproj.user
+**/*.sln
+**/*.suo
+**/*.user
+CMakeCache.txt
+CMakeFiles/
+**/*.pdb
+**/*.obj
+**/*.lib
+**/*.dll
+**/*.exp
+**/*.il
+**/*.iid
+**/*.res
+
 

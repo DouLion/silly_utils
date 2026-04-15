@@ -1,43 +1,56 @@
 cmake_minimum_required(VERSION 3.15)
 project(silly_utils C CXX)
 
-# 判断当前目录是否为 cmake的根目录,如果不是,则是被其他项目引用的,不需要编译测试,工具模块
-message(STATUS "SU当前文件根目录 (CMAKE_CURRENT_SOURCE_DIR) ${CMAKE_CURRENT_SOURCE_DIR}")
-message(STATUS "SU当前项目根目录 (CMAKE_SOURCE_DIR) ${CMAKE_SOURCE_DIR}")
+# =============================================================================
+# silly_utils - 通用工具库
+# =============================================================================
 
-# 当前文件路径
+# 路径设置
 set(SU_FILE_ROOT "${CMAKE_CURRENT_SOURCE_DIR}")
-# 项目根CMakeLists.txt文件路径
 set(SU_PROJ_ROOT "${CMAKE_SOURCE_DIR}")
 set(CMAKE_MODULE_PATH "${SU_FILE_ROOT}/cmake;${CMAKE_MODULE_PATH}")
+
+# 判断是作为独立项目编译还是作为库嵌入
 if("${SU_FILE_ROOT}" STREQUAL "${SU_PROJ_ROOT}")
-	set(BUILD_AS_PROJ TRUE)
-	message(STATUS "作为单个工程编译")
-	include(${SU_PROJ_ROOT}/cmake/ThirdSupport.cmake)
-else ()
-	set(BUILD_AS_LIB TRUE)
-	message(STATUS "作为嵌入库编译")
+    set(BUILD_AS_PROJ TRUE)
+    # =============================================================================
+# 1. 加载项目配置和第三方库开关
+# =============================================================================
+    include(${SU_FILE_ROOT}/cmake/config/ProjectConfig.cmake)
+    message(STATUS "构建模式：作为独立项目编译")
+else()
+    set(BUILD_AS_LIB TRUE)
+    message(STATUS "构建模式：作为依赖库编译")
 endif()
 
-set(SU_ALL_REQUIRED_LIBRARIES "")
 
-# 检查工程环境
-include(${SU_FILE_ROOT}/cmake/CheckEnv.cmake)
-# 检查机器大小端序
-include(${SU_FILE_ROOT}/cmake/CheckOSEndian.cmake)
-# 检查所有第三方库
-include(${SU_FILE_ROOT}/cmake/CheckThirdLib.cmake)
-message(STATUS "\n库检查完成\n")
-# 配置一些宏定义
-include(${SU_FILE_ROOT}/cmake/ConfigSU.cmake)
+# =============================================================================
+# 2. 检查构建环境
+# =============================================================================
+include(${SU_FILE_ROOT}/cmake/env/CheckEnv.cmake)
+
+# =============================================================================
+# 3. 检查系统字节序
+# =============================================================================
+include(${SU_FILE_ROOT}/cmake/env/CheckOSEndian.cmake)
+
+# =============================================================================
+# 4. 检查并加载第三方库
+# =============================================================================
+include(${SU_FILE_ROOT}/cmake/tools/CheckThirdLib.cmake)
+
+# =============================================================================
+# 5. 配置项目
+# =============================================================================
+include(${SU_FILE_ROOT}/cmake/config/SUConfig.cmake)
+
+# =============================================================================
+# 6. 添加子目录
+# =============================================================================
 if(BUILD_AS_PROJ)
-	include_directories(${SU_PROJ_ROOT}/su)
-	add_definitions("-DDEFAULT_SU_ROOT_DIR=\"${SU_PROJ_ROOT}\"")
-    add_definitions("-DDEFAULT_SU_DATA_DIR=\"${SU_PROJ_ROOT}/data\"")
-	add_subdirectory(su)
-	add_subdirectory(dll)
-	add_subdirectory(test)
+    add_subdirectory(su)
+    add_subdirectory(dll)
+    add_subdirectory(test)
 else()
-	include_directories(${SU_FILE_ROOT}/su)
-	add_subdirectory(su)
+    add_subdirectory(su)
 endif()

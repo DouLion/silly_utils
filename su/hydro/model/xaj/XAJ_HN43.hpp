@@ -87,8 +87,62 @@ class XAJ_HN43
     } Out;
 
   public:
-    XAJ_HN43()
+    XAJ_HN43() = default;
+
+    std::vector<double> Calc(const std::map<std::time_t, double>& vReal, const std::map<std::time_t, double>& vFore)
     {
+        std::vector<double> ret;
+        if (vReal.empty() && vFore.empty())
+        {
+            return ret;
+        }
+        const std::time_t STEP = Config.CalcSteps * 60;
+        if (!vReal.empty() && !vFore.empty())
+        {
+            if (vFore.begin()->first - vReal.rbegin()->first != STEP)
+            {
+                std::cerr << "预报与实测间隔不等于Config.CalcSteps" << std::endl;
+                return ret;
+            }
+        }
+        {
+            std::time_t t0 = vReal.begin()->first;
+            for (const auto& [stamp, _] : vReal)
+            {
+                if (stamp == t0)
+                    continue;
+                if (stamp - t0 != STEP)
+                {
+                    std::cerr << "实测降雨间隔不等于Config.CalcSteps" << std::endl;
+                    return ret;
+                }
+
+            }
+        }
+        {
+            std::time_t t0 = vFore.begin()->first;
+            for (const auto& [stamp, _] : vFore)
+            {
+                if (stamp == t0)
+                    continue;
+                if (stamp - t0 != STEP)
+                {
+                    std::cerr << "预报降雨间隔不等于Config.CalcSteps" << std::endl;
+                    return ret;
+                }
+            }
+        }
+
+        std::vector<double> vRain;
+        vRain.reserve(vReal.size() + vFore.size());
+        for (const auto& [_, drp] : vReal)
+        {
+            vRain.push_back(drp);
+        }
+        for (const auto& [_, drp] : vReal)
+        {
+            vRain.push_back(drp);
+        }
     }
 
     // ==========================================
