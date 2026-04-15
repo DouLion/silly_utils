@@ -17,7 +17,7 @@ if("${CMAKE_BUILD_TYPE}" STREQUAL "")
 endif()
 
 string(TOUPPER "${CMAKE_BUILD_TYPE}" UPPER_CMAKE_BUILD_TYPE)
-if("DEBUG" STREQUAL "${UPPER_CXX_BUILD_TYPE}")
+if("DEBUG" STREQUAL "${UPPER_CMAKE_BUILD_TYPE}")
     set(DEBUG_MODE 1)
     message("构建模式：Debug")
 else()
