@@ -2,7 +2,9 @@
 # 检查构建环境（平台、编译器、C++ 标准等）
 
 message("\n===== 检查构建环境 =====")
-
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 # 确保 C++17 标准
 if(CMAKE_CXX_STANDARD LESS 17)
     message(FATAL_ERROR "silly_utils 最低要求 C++17，当前版本：${CMAKE_CXX_STANDARD}")
@@ -63,7 +65,7 @@ if(MSVC)
     add_definitions(-DIS_WIN32)
     add_definitions(-DWIN32_LEAN_AND_MEAN)
     add_definitions(-DUNICODE)
-    add_compile_options(/wd4819 /wd4005 /wd4834 /wd4996 /utf-8)
+    add_compile_options(/wd4819 /wd4005 /wd4834 /wd4996 /utf-8 /Zc:__cplusplus)
 else()
     message("编译器：${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
 endif()
