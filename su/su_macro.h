@@ -13,11 +13,11 @@
 #ifndef SU_MACRO_H
 #define SU_MACRO_H
 // 确认C++ 标准版本不小于C++17
-//#if !defined(__cplusplus) || (__cplusplus < 201703L && !defined(_MSVC_LANG))
-//#error "This header requires C++17 or later. Please enable C++17 support."
-//#elif defined(_MSVC_LANG) && _MSVC_LANG < 201703L
-//#error "This header requires C++17 or later. Please enable C++17 support in MSVC."
-//#endif
+#if !defined(__cplusplus) || (__cplusplus < 201703L && !defined(_MSVC_LANG))
+#error "This header requires C++17 or later. Please enable C++17 support."
+#elif defined(_MSVC_LANG) && _MSVC_LANG < 201703L
+#error "This header requires C++17 or later. Please enable C++17 support in MSVC."
+#endif
 
 #include <su_config.h>
 

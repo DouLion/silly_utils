@@ -95,4 +95,10 @@ add_definitions(-DENABLE_SILLY_LOG)
 add_definitions(-DNOMINMAX)
 add_definitions(-DUNICODE)
 
+if(DEBUG_MODE)
+    add_definitions(-DPROJECT_ROOT="${CMAKE_SOURCE_DIR}")
+else()
+    add_definitions(-DPROJECT_ROOT="./")
+endif()
+
 message("===== 环境检查完成 =====\n")
