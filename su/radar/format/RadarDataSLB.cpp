@@ -191,11 +191,12 @@ bool BlockData::Read(char*& p, const BlockInfo& info, SLB& slb, size_t azNum, si
         const int layer = head.ElevationNumber - 1;
         const int az = head.RadialNumber - 1;
         size_t count = info.LayerParams[layer].GateCounts[i];
-        if (count != gateNum)
+        if (count > gateNum)
         {
             return false;
         }
         size_t npoff = layer * azNum * gateNum + az * gateNum;
+        // 找到这块数的初始位置
         float* SetP = slb.GetFP(TYPE_ORDER[i], npoff);
         if (!SetP)
         {
