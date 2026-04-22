@@ -17,6 +17,8 @@ set(DISABLE_SPDLOG OFF)       # 日志库 (spdlog)
 set(DISABLE_JSONPP OFF)       # JSON 处理 (jsoncpp)
 
 # 地理空间库
+
+set(DISABLE_SQLITE3 ON)       # SQLite3（默认禁用，GDAL 已集成）
 set(DISABLE_GDAL OFF)         # GDAL 地理数据抽象库
 set(DISABLE_POLY_CLIPPING OFF) # 矢量切割算法 (Clipper2)
 set(DISABLE_GEOTIFF OFF)      # GeoTIFF 栅格数据读写
@@ -50,7 +52,6 @@ set(DISABLE_WEBSOCKET_PP OFF) # WebSocket++（已废弃，保留兼容）
 # 数据库库
 set(DISABLE_PROTO_ZERO ON)    # ProtoZero MVT 瓦片（默认禁用）
 set(DISABLE_SPATIALITE ON)    # SpatiaLite 空间数据库（默认禁用）
-set(DISABLE_SQLITE3 ON)       # SQLite3（默认禁用，GDAL 已集成）
 
 # 数学/几何库
 set(DISABLE_EIGEN3 ON)        # Eigen3 线性代数（默认禁用）
