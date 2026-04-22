@@ -221,4 +221,8 @@ else()
     add_definitions(-DPROJECT_ROOT="./")
 endif()
 
+set(EXECUTABLE_OUTPUT_PATH
+    "${PROJECT_ROOT}/Bin/${PLATFORM_NAME}/${ARCH_NAME}/${CMAKE_BUILD_TYPE}")
+set(LIBRARY_OUTPUT_PATH "${EXECUTABLE_OUTPUT_PATH}")
+
 message("===== 环境检查完成 =====\n")
