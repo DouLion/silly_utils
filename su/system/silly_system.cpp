@@ -353,25 +353,34 @@ extern bool IS_UTF8(const std::string& str)
 {
     const uint8_t* ptr = reinterpret_cast<const uint8_t*>(str.data());
     const uint8_t* end = ptr + str.size();
+
     while (ptr < end)
     {
         uint8_t first_byte = *ptr;
         int n;
 
-        if ((first_byte & 0x80) == 0x00)
-        {  // 1-byte (ASCII)
+        if (first_byte < 0x80)
+        {
+            // 1-byte (ASCII)
             n = 1;
         }
         else if ((first_byte & 0xE0) == 0xC0)
-        {  // 2-byte
+        {
+            // 2-byte
+            if (first_byte < 0xC2)
+                return false;  // 拦截 Overlong 编码 (0xC0, 0xC1)
             n = 2;
         }
         else if ((first_byte & 0xF0) == 0xE0)
-        {  // 3-byte
+        {
+            // 3-byte
             n = 3;
         }
         else if ((first_byte & 0xF8) == 0xF0)
-        {  // 4-byte
+        {
+            // 4-byte
+            if (first_byte > 0xF4)
+                return false;  // 拦截超出 Unicode 最大范围 (0xF5~0xF7)
             n = 4;
         }
         else
@@ -380,53 +389,92 @@ extern bool IS_UTF8(const std::string& str)
         }
 
         if (ptr + n > end)
-        {  // 检查剩余字节是否足够
+        {
+            // 检查剩余字节是否足够
             return false;
         }
 
-        for (int j = 1; j < n; ++j)
+        // 针对 3字节和 4字节 的第二字节进行严格的安全边界校验
+        if (n > 1)
+        {
+            uint8_t second_byte = ptr[1];
+            if ((second_byte & 0xC0) != 0x80)
+                return false;
+
+            if (n == 3)
+            {
+                // 拦截 3字节的 Overlong 编码 和 Surrogate 代理区
+                if (first_byte == 0xE0 && second_byte < 0xA0)
+                    return false;
+                if (first_byte == 0xED && second_byte > 0x9F)
+                    return false;
+            }
+            else if (n == 4)
+            {
+                // 拦截 4字节的 Overlong 编码 和 超出界限的值
+                if (first_byte == 0xF0 && second_byte < 0x90)
+                    return false;
+                if (first_byte == 0xF4 && second_byte > 0x8F)
+                    return false;
+            }
+        }
+
+        // 校验剩余的后续字节 (从第三个字节开始，如果有的话)
+        for (int j = 2; j < n; ++j)
         {
             if ((ptr[j] & 0xC0) != 0x80)
             {
                 return false;
             }
         }
+
         ptr += n;
     }
     return true;
 }
+
 extern bool IS_GBK(const std::string& str)
 {
-    for (size_t i = 0; i < str.size();)
+    const int len = str.length();
+    int i = 0;
+
+    while (i < len)
     {
-        uint8_t ch = static_cast<uint8_t>(str[i]);
-        if (ch <= 0x7F)
+        unsigned char c = str[i];
+
+        if (c <= 0x7F)
         {
-            // ASCII 字符（单字节）
-            i++;
+            // 单字节 ASCII (0x00 ~ 0x7F)
+            i += 1;
         }
-        else if (ch >= 0x81 && ch <= 0xFE)
+        else if (c >= 0x81 && c <= 0xFE)
         {
-            // 可能是 GBK 双字节字符
-            if (i + 1 >= str.size())
+            // 双字节字符：首字节必须在 0x81 ~ 0xFE 之间
+
+            // 检查是否有第二个字节
+            if (i + 1 >= len)
             {
-                return false;  // 没有足够的字节
+                return false;
             }
-            uint8_t next = static_cast<uint8_t>(str[i + 1]);
-            if ((next >= 0x40 && next <= 0x7E) || (next >= 0x80 && next <= 0xFE))
+
+            unsigned char trail = str[i + 1];
+            // 尾字节必须在 0x40 ~ 0xFE 之间，且不能等于 0x7F (DEL)
+            if (trail >= 0x40 && trail <= 0xFE && trail != 0x7F)
             {
-                i += 2;  // 有效的双字节字符
+                i += 2;
             }
             else
             {
-                return false;  // 无效的次字节
+                return false;  // 尾字节不合法
             }
         }
         else
         {
-            return false;  // 无效的首字节
+            // 遇到 0x80 或 0xFF 这类在 GBK 中没有定义的首字节
+            return false;
         }
     }
+
     return true;
 }
 
