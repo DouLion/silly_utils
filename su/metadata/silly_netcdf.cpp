@@ -581,6 +581,10 @@ bool suNetCDF::write(const suPath& file, const Data& snd)
     {
         netCDF::NcFile sfc;
         sfc.open(fp.string(), netCDF::NcFile::replace, netCDF::NcFile::nc4);
+        sfc.putAtt("Conventions", "CF-1.6");
+        auto crsVar = sfc.addVar("crs", netCDF::ncInt);
+        crsVar.putAtt("grid_mapping_name", "latitude_longitude");
+        crsVar.putAtt("epsg_code", netCDF::ncInt,4326);
         // 创建dims
         std::vector<netCDF::NcDim> dims;
         for (const auto& di : snd.dextra)
@@ -589,7 +593,7 @@ bool suNetCDF::write(const suPath& file, const Data& snd)
             auto& vars = std::get<1>(di);
             std::string units = std::get<2>(di);
             netCDF::NcDim tmpDim = sfc.addDim(name, vars.size());
-            netCDF::NcVar tmpVar = sfc.addVar(name, netCDF::ncFloat, tmpDim);  //
+            netCDF::NcVar tmpVar = sfc.addVar(name, netCDF::ncFloat, tmpDim);
             if (!units.empty())
             {
                 tmpVar.putAtt("units", units);
@@ -597,49 +601,99 @@ bool suNetCDF::write(const suPath& file, const Data& snd)
             tmpVar.putVar(&vars[0]);
             dims.push_back(tmpDim);
         }
-        // 坐标维度
+
+        // 坐标维度（改：lat 从南到北）
+
+        netCDF::NcDim yDim = sfc.addDim(snd.dgeo.yname, snd.dgeo.ylen);
+        netCDF::NcDim xDim = sfc.addDim(snd.dgeo.xname, snd.dgeo.xlen);
+        netCDF::NcVar yVar = sfc.addVar(snd.dgeo.yname, netCDF::ncFloat, yDim);
+        netCDF::NcVar xVar = sfc.addVar(snd.dgeo.xname, netCDF::ncFloat, xDim);
+
+        xVar.putAtt("units", "degrees_east");
+        xVar.putAtt("standard_name", "longitude");
+        xVar.putAtt("axis", "X");
+
+        yVar.putAtt("units", "degrees_north");
+        yVar.putAtt("standard_name", "latitude");
+        yVar.putAtt("axis", "Y");
+
+        std::vector<float> xs(snd.dgeo.xlen);
+        std::vector<float> ys(snd.dgeo.ylen);
+        xs[0] = snd.dgeo.xmin;
+        for (size_t i = 1; i < snd.dgeo.xlen; i++)
         {
-            netCDF::NcDim yDim = sfc.addDim(snd.dgeo.yname, snd.dgeo.ylen);
-            netCDF::NcDim xDim = sfc.addDim(snd.dgeo.xname, snd.dgeo.xlen);
-            netCDF::NcVar yVar = sfc.addVar(snd.dgeo.yname, netCDF::ncFloat, yDim);  // creates variable
-            netCDF::NcVar xVar = sfc.addVar(snd.dgeo.xname, netCDF::ncFloat, xDim);
-            std::vector<float> xs(snd.dgeo.xlen);
-            std::vector<float> ys(snd.dgeo.ylen);
-            for (int i = 0; i < snd.dgeo.xlen; i++)
-            {
-                xs[i] = snd.dgeo.xmin + i * snd.dgeo.xstep;
-            }
-
-            for (int i = 0; i < snd.dgeo.ylen; i++)
-            {
-                ys[i] = snd.dgeo.ymax - i * snd.dgeo.ystep;
-            }
-
-            yVar.putVar(ys.data());
-            xVar.putVar(xs.data());
-            dims.push_back(yDim);
-            dims.push_back(xDim);
+            xs[i] =  xs[i-1] +  snd.dgeo.xstep;  // lon: 西->东
         }
+        ys[0] = snd.dgeo.ymin;
+        for (size_t i = 1; i < snd.dgeo.ylen; i++)
+        {
+            ys[i] = ys[i-1] + snd.dgeo.ystep;  // lat: 南->北
+
+        }
+/*
+    for (size_t i = 0; i < std::min<size_t>(snd.dgeo.xlen, 20); i++)
+    {
+        std::cout << std::setprecision(15) << "xs[" << i << "]=" << xs[i];
+        if (i > 0) std::cout << "  diff=" << (xs[i] - xs[i-1]);
+        std::cout << "\n";
+    }
+
+    for (size_t i = 0; i < std::min<size_t>(snd.dgeo.ylen, 20); i++)
+    {
+        std::cout << std::setprecision(15) << "ys[" << i << "]=" << ys[i];
+        if (i > 0) std::cout << "  diff=" << (ys[i] - ys[i-1]);
+        std::cout << "\n";
+    }
+*/
+
+
+
+        yVar.putVar(ys.data());
+        xVar.putVar(xs.data());
+
+        dims.push_back(yDim);
+        dims.push_back(xDim);
+
 
         for (const auto& [grp, bands] : snd.grp_bands)
         {
-            netCDF::NcVar data = sfc.addVar(grp, netCDF::ncFloat, dims);
+            // 关键：维度顺序改为 (lat, lon)
+            std::vector<netCDF::NcDim> dims_lat_lon = { yDim, xDim };
+            netCDF::NcVar data = sfc.addVar(grp, netCDF::ncFloat, dims_lat_lon);
+
             data.putAtt("_FillValue", netCDF::ncFloat, bands.front().fill);
             data.putAtt("offset", netCDF::ncFloat, bands.front().offset);
             data.putAtt("scale", netCDF::ncFloat, bands.front().scale);
+            data.putAtt("coordinates", (snd.dgeo.yname + " " + snd.dgeo.xname)); // "lat lon"
+            data.putAtt("_CoordinateAxes", (snd.dgeo.yname + " " + snd.dgeo.xname)); // "lat lon"
+            data.putAtt("grid_mapping", "crs");
             if (!bands.front().units.empty())
-            {
                 data.putAtt("units", bands.front().units);
-            }
+
             std::vector<float> all(bands.size() * bands.front().grid.size());
-            data.setCompression(true, true, 5);  // 设置压缩
+            data.setCompression(true, true, 5);
+
             float* ptr = all.data();
-            const size_t step = snd.dgeo.xlen * snd.dgeo.ylen * sizeof(float);
+            const size_t xlen = snd.dgeo.xlen;
+            const size_t ylen = snd.dgeo.ylen;
+
             for (const auto& band : bands)
             {
-                memcpy(ptr, band.grid.data(), step);
-                ptr += snd.dgeo.xlen * snd.dgeo.ylen;
+                // band.grid: [srcRow(北->南)][col(0->xlen-1)]
+                // 写入文件: data(lat,lon)，其中 y=0 对应南->北的 lat 数组开头
+                for (size_t latIdx = 0; latIdx < ylen; latIdx++)
+                {
+                    size_t srcRow = (ylen - 1 - latIdx); // 北->南 -> 南->北 做行反转
+                    for (size_t lonIdx = 0; lonIdx < xlen; lonIdx++)
+                    {
+                        float v = band.grid[srcRow * xlen + lonIdx];
+                        // data(lat,lon) 的线性布局：latIdx 主导
+                        ptr[latIdx * xlen + lonIdx] = v;
+                    }
+                }
+                ptr += xlen * ylen;
             }
+
             data.putVar(all.data());
         }
 
