@@ -509,8 +509,20 @@ suMultiPoly suGeoUtils::intersection(const suMultiPoly& p1, const suPoly& p2)
 #if SU_THIRD_SUPPORT_GDAL
     OGRMultiPolygon mp = suGDAL::MultiPolyToOGR(p1);
     OGRPolygon poly = suGDAL::PolyToOGR(p2);
-    OGRMultiPolygon* xs = (OGRMultiPolygon*)mp.Intersection(&poly);
-    ret = suGDAL::MultiPolyFromOGR(xs);
+    OGRGeometry* xs = mp.Intersection(&poly);
+    if (xs)
+    {
+        if (xs->getGeometryType() == wkbMultiPolygon)
+        {
+            ret = suGDAL::MultiPolyFromOGR((OGRMultiPolygon*)xs);
+        }
+        else if (xs->getGeometryType() == wkbPolygon)
+        {
+            ret.push_back(suGDAL::PolyFromOGR((OGRPolygon*)xs));
+        }
+            
+    }
+    
 #endif
     return ret;
 }
