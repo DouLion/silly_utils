@@ -502,6 +502,19 @@ suMultiPoly suGeoUtils::intersection(const suMultiPoly& p1, const suMultiPoly& p
 
     return result;
 }
+
+suMultiPoly suGeoUtils::intersection(const suMultiPoly& p1, const suPoly& p2)
+{
+    suMultiPoly ret;
+#if SU_THIRD_SUPPORT_GDAL
+    OGRMultiPolygon mp = suGDAL::MultiPolyToOGR(p1);
+    OGRPolygon poly = suGDAL::PolyToOGR(p2);
+    OGRMultiPolygon* xs = (OGRMultiPolygon*)mp.Intersection(&poly);
+    ret = suGDAL::MultiPolyFromOGR(xs);
+#endif
+    return ret;
+}
+
 std::optional<suPoint> suGeoUtils::intersection(const suSegment& s1, const suSegment& s2)
 {
     double x1 = s1.p0.x;
