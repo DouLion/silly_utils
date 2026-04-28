@@ -450,14 +450,14 @@ bool suNetCDF::read(const std::string& group, const std::string& lon, const std:
             }
         }
         ptr += each_band_size;
-        if (m_scale != 1.0)
+        if (m_scale != 1.0 && !std::isnan(m_scale) )
         {
             for (auto& f : nbd.grid)
             {
                 f *= m_scale;
             }
         }
-        if (m_offset != 0.0)
+        if (m_offset != 0.0 && !std::isnan(m_offset))
         {
             for (auto& f : nbd.grid)
             {
