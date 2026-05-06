@@ -44,8 +44,10 @@
 #endif
 
 // 确保 C++17
-#if __cplusplus < 201703L
-#error "This code requires C++17 or later."
+#if !defined(__cplusplus) || (__cplusplus < 201703L && !defined(_MSVC_LANG))
+#error "This header requires C++17 or later. Please enable C++17 support."
+#elif defined(_MSVC_LANG) && _MSVC_LANG < 201703L
+#error "This header requires C++17 or later. Please enable C++17 support in MSVC."
 #endif
 
 namespace fs17 = std::filesystem;
