@@ -1,6 +1,13 @@
-//
-// Created by dell on 2023/8/10.
-//
+/*
+ * @copyright: Beijing TianZhiXiang Information Technology Co., Ltd. All rights
+ * reserved.
+ * @website: http://www.tianzhixiang.com.cn/
+ * @author: dou li yang
+ * @date: 2023/8/10 10:08
+ * @version: 2.0.2 (最终修复版)
+ * @software: silly_utils
+ * @description: RAR 压缩/解压缩工具实现 (基于 libarchive)
+ */
 
 #include "silly_rar.h"
 #if SU_THIRD_SUPPORT_LIBARCHIVE
@@ -8,227 +15,406 @@
 #include <archive_entry.h>
 #endif
 #include <log/silly_log.h>
-#include "encode/silly_encode.h"
+#include <encode/silly_encode.h>
+#include <fstream>
+#include <filesystem>
+#include <vector>
+#include <cstring>
+#include <ctime>
 
+#define RAR_BLOCK_SIZE (1024 * 1024)
 
-//  压缩使用的最大内存 500M
-#define SILLY_RAR_MAX_BUFF_SIZE (0x1F400000)
-
-#define SILLY_RAR_FILE_EXTENSION ".rar"
-
-/// 将文件或目录压缩为ZIP文件
-eCompressErr suRAR::compress(const suPath& s_src, const suPath& s_dst, const bool& append)
+eCompressErr suRAR::compressFile(const suPath& srcPath, const suPath& dstPath, bool append)
 {
-    auto status = eCompressErr::MiniZUnknowErr;
-#if SU_THIRD_SUPPORT_LIBARCHIVE
-    try
-    {
-        if (!s_src.exists())
-        {
-            return eCompressErr::FileNotExistErr;
-        }
-        std::string out_dst = s_dst;
-        if (out_dst.empty())  // 补充默认压缩路径
-        {
-            auto sfp_src = suPath(s_src);
-            out_dst = sfp_src.parent().append(sfp_src.stem().append(SILLY_RAR_FILE_EXTENSION)).string();
-        }
-        if (!append)  // 非追加,先删除原文件
-        {
-            std::filesystem::remove(out_dst);
-        }
-
-        //////////////
-
-        //////////////
-    }
-    catch (std::exception& e)
-    {
-        SLOG_ERROR("错误{}", e.what())
-    }
-    catch (...)
-    {
-        SLOG_ERROR("未知错误")
-    }
+#if !SU_THIRD_SUPPORT_LIBARCHIVE
+    return eCompressErr::RARSuportFormatErr;
 #endif
 
-    return status;
-}
-
-eCompressErr suRAR::decompress(const suPath& s_src, const suPath& s_dst)
-{
-#if SU_THIRD_SUPPORT_LIBARCHIVE
-    if (!s_src.exists())  // 解压文件不存在
+    if (!srcPath.exists())
     {
-        SLOG_ERROR("not exist {}", s_src.u8string());
         return eCompressErr::FileNotExistErr;
     }
 
-    suPath outputDir;
-    if (s_dst.is_dir())  // 如果解压路径为空,创建一个和压缩包名称相同的目录,解压到该目录下
+    suPath outPath = dstPath;
+    if (dstPath.string().empty())
     {
-        outputDir = s_dst;
-    }
-    else
-    {
-        outputDir = s_dst.parent();
+        outPath = srcPath.parent().append(srcPath.stem().append(".rar"));
     }
 
-    if (!suPath::exists(outputDir))
+    if (!append && outPath.exists())
     {
-        suPath::mkdir(outputDir);
-        if (!suPath::exists(outputDir))
+        std::filesystem::remove(outPath.string());
+    }
+
+    try
+    {
+        struct archive* a = archive_write_new();
+        if (!a)
+            return eCompressErr::RAROpenErr;
+
+        int r = archive_write_set_format_by_name(a, "rar");
+        if (r != ARCHIVE_OK)
         {
-            return eCompressErr::RARCreatDirErr;  // 创建目录失败
+            archive_write_free(a);
+            return eCompressErr::RARSuportFormatErr;
+        }
+
+        archive_write_add_filter_none(a);
+        archive_write_open_filename(a, outPath.string().c_str());
+
+        std::function<void(const suPath&, const suPath&)> addEntry = [&](const suPath& path, const suPath& base) {
+            std::string rel_path = path.relative(base).string();
+
+            if (path.is_file())
+            {
+                std::ifstream ifs(path.string(), std::ios::binary);
+                if (!ifs)
+                    return;
+
+                ifs.seekg(0, std::ios::end);
+                std::streamsize size = ifs.tellg();
+                ifs.seekg(0, std::ios::beg);
+
+                struct archive_entry* entry = archive_entry_new();
+                archive_entry_set_pathname(entry, rel_path.c_str());
+                archive_entry_set_size(entry, size);
+                archive_entry_set_filetype(entry, AE_IFREG);
+                archive_entry_set_perm(entry, 0644);
+                archive_entry_set_mtime(entry, time(nullptr), 0);
+
+                archive_write_header(a, entry);
+
+                std::vector<char> buffer(RAR_BLOCK_SIZE);
+                std::streamsize remaining = size;
+                while (remaining > 0)
+                {
+                    std::streamsize toRead = std::min(static_cast<std::streamsize>(RAR_BLOCK_SIZE), remaining);
+                    ifs.read(buffer.data(), toRead);
+                    std::streamsize bytesRead = ifs.gcount();
+                    archive_write_data(a, buffer.data(), bytesRead);
+                    remaining -= bytesRead;
+                }
+
+                archive_entry_free(entry);
+                ifs.close();
+            }
+            else if (path.is_dir())
+            {
+                struct archive_entry* entry = archive_entry_new();
+                archive_entry_set_pathname(entry, rel_path.c_str());
+                archive_entry_set_filetype(entry, AE_IFDIR);
+                archive_entry_set_perm(entry, 0755);
+                archive_write_header(a, entry);
+                archive_entry_free(entry);
+
+                for (const auto& entry : std::filesystem::directory_iterator(path.string()))
+                {
+                    addEntry(suPath(entry.path()), base);
+                }
+            }
+        };
+
+        addEntry(srcPath, srcPath.is_file() ? srcPath.parent() : srcPath);
+
+        archive_write_close(a);
+        archive_write_free(a);
+
+        return eCompressErr::Ok;
+    }
+    catch (const std::exception& e)
+    {
+        SLOG_ERROR("压缩异常：{}", e.what());
+        return eCompressErr::NotImplement;
+    }
+}
+
+eCompressErr suRAR::decompressFile(const suPath& srcPath, const suPath& dstPath)
+{
+#if !SU_THIRD_SUPPORT_LIBARCHIVE
+    return eCompressErr::RARSuportFormatErr;
+#endif
+
+    if (!srcPath.exists())
+    {
+        return eCompressErr::FileNotExistErr;
+    }
+
+    suPath outputDir = dstPath;
+    if (dstPath.string().empty() || (!outputDir.is_dir() && !dstPath.string().empty()))
+    {
+        outputDir = srcPath.parent();
+    }
+
+    if (!outputDir.exists())
+    {
+        try
+        {
+            std::filesystem::create_directories(outputDir.string());
+        }
+        catch (...)
+        {
+            return eCompressErr::RARCreatDirErr;
         }
     }
 
     struct archive* archive_ptr = archive_read_new();
-    if (archive_read_support_format_all(archive_ptr) != ARCHIVE_OK)
-    {
-        SLOG_ERROR("无法支持所有格式: {}", archive_error_string(archive_ptr));
-        archive_read_free(archive_ptr);
-        return eCompressErr::RARSuportFormatErr;
-    }
+    if (!archive_ptr)
+        return eCompressErr::RAROpenErr;
 
-    if (archive_read_open_filename(archive_ptr, s_src.string().c_str(), 10240) != ARCHIVE_OK)
+    archive_read_support_format_all(archive_ptr);
+    archive_read_support_filter_all(archive_ptr);
+
+    if (archive_read_open_filename(archive_ptr, srcPath.string().c_str(), 10240) != ARCHIVE_OK)
     {
-        SLOG_ERROR("无法打开压缩文件: {}", archive_error_string(archive_ptr));
         archive_read_free(archive_ptr);
         return eCompressErr::RAROpenErr;
     }
 
-    struct archive_entry* entry;
+    struct archive_entry* entry = nullptr;
     int r;
-
-    // 定义单个文件的最大读取块大小为100MB
-    const size_t predicte = 100 * 1024 * 1024;
 
     while ((r = archive_read_next_header(archive_ptr, &entry)) == ARCHIVE_OK)
     {
-        // 获取文件名和路径
-        std::string entry_name = archive_entry_pathname_utf8(entry);
-        std::string gbk_entry_name;
-        // TODO: 此处应该区分平台
-        if (!IS_GBK(entry_name))
+        const char* path_utf8 = archive_entry_pathname(entry);
+        if (!path_utf8)
         {
-            gbk_entry_name = silly_encode::utf8_gbk(entry_name);
+            archive_read_data_skip(archive_ptr);
+            continue;
         }
-        else
+
+        std::string entry_name = path_utf8;
+        suPath dest_path = outputDir.append(entry_name);
+
+        suPath parent = dest_path.parent();
+        if (!parent.exists() && parent.string().length() > 0)
         {
-            gbk_entry_name = entry_name;
-        }
-        suPath temp_path(outputDir);
-        temp_path.append(gbk_entry_name);
-        std::string full_path = temp_path.string();
-        // 处理文件或目录
-        suPath f_full_path(full_path);
-        if (!f_full_path.parent().exists())  // 解压文件不存在
-        {
-            suPath::mkdir(f_full_path.parent());  // 创建目录
+            try
+            {
+                std::filesystem::create_directories(parent.string());
+            }
+            catch (...)
+            {
+                archive_read_free(archive_ptr);
+                return eCompressErr::RARCreatDirErr;
+            }
         }
 
         if (archive_entry_filetype(entry) == AE_IFDIR)
         {
-            std::filesystem::create_directory(full_path);  // 创建目录
+            if (!dest_path.exists())
+            {
+                try
+                {
+                    std::filesystem::create_directories(dest_path.string());
+                }
+                catch (...)
+                {
+                }
+            }
         }
-        else if (archive_entry_filetype(entry) == AE_IFREG)
+        else if (archive_entry_filetype(entry) == AE_IFREG || archive_entry_filetype(entry) == AE_IFLNK)
         {
-            // 创建文件并写入内容
-            std::ofstream out_file(full_path, std::ios::binary | std::ios::trunc);
+            std::ofstream out_file(dest_path.string(), std::ios::binary | std::ios::trunc);
             if (!out_file)
             {
-                std::cerr << "Failed to create file: " << full_path << std::endl;
                 archive_read_free(archive_ptr);
                 return eCompressErr::RARWriteErr;
             }
 
-            // 写入文件内容
-            const void* buff;
-            size_t size;
-            int64_t offset;
-            off_t entry_size = archive_entry_size(entry);
+            const void* buff = nullptr;
+            size_t size = 0;
+            int64_t offset = 0;
 
-            // 对于大于 predicte 的文件进行分块读取和写入
-            if (entry_size > static_cast<off_t>(predicte))
+            while ((r = archive_read_data_block(archive_ptr, &buff, &size, &offset)) == ARCHIVE_OK)
             {
-                size_t bytes_written = 0;
-                while ((r = archive_read_data_block(archive_ptr, &buff, &size, &offset)) == ARCHIVE_OK)
-                {
-                    while (size > 0)
-                    {
-                        size_t chunkSize = std::min(size, predicte - (bytes_written % predicte));
-                        out_file.write(static_cast<const char*>(buff), chunkSize);
-                        if (!out_file)
-                        {
-                            std::cerr << "Error writing to file: " << full_path << std::endl;
-                            archive_read_free(archive_ptr);
-                            return eCompressErr::RARWriteErr;
-                        }
-                        bytes_written += chunkSize;
-                        size -= chunkSize;
-                        buff = static_cast<const char*>(buff) + chunkSize;
-                    }
-                }
-            }
-            else
-            {
-                // 对于小于 predicte 的文件一次性读取和写入
-                while ((r = archive_read_data_block(archive_ptr, &buff, &size, &offset)) == ARCHIVE_OK)
-                {
-                    out_file.write(static_cast<const char*>(buff), size);
-                }
+                if (size == 0)
+                    break;
+                out_file.write(static_cast<const char*>(buff), size);
             }
 
             out_file.close();
+
+            if (r != ARCHIVE_EOF && r != ARCHIVE_OK)
+            {
+                archive_read_free(archive_ptr);
+                return eCompressErr::RARReadErr;
+            }
         }
 
-        // 下一个文件
-        if (archive_read_data_skip(archive_ptr) != ARCHIVE_OK)
+        if (archive_entry_filetype(entry) == AE_IFLNK)
         {
-            SLOG_ERROR("跳过数据失败: {}", archive_error_string(archive_ptr));
-            archive_read_free(archive_ptr);
-            return eCompressErr::RARReadErr;
+            const char* linkname = archive_entry_symlink(entry);
+            if (linkname)
+            {
+                try
+                {
+                    std::filesystem::create_symlink(linkname, dest_path.string());
+                }
+                catch (...)
+                {
+                }
+            }
         }
+
+        archive_entry_free(entry);
+        entry = nullptr;
     }
 
     if (r != ARCHIVE_EOF)
     {
-        SLOG_ERROR("提取存档时出错: {}", archive_error_string(archive_ptr));
         archive_read_free(archive_ptr);
         return eCompressErr::RARReadErr;
     }
 
-    // 清理资源
     archive_read_free(archive_ptr);
+    return eCompressErr::Ok;
+}
+
+eCompressErr suRAR::compressBin(const char* inData, size_t inLen, char** outData, size_t& outLen)
+{
+    (void)inData;
+    (void)inLen;
+    (void)outData;
+    (void)outLen;
+    return eCompressErr::NotImplement;
+}
+
+eCompressErr suRAR::decompressBin(const char* inData, size_t inLen, char** outData, size_t& outLen)
+{
+#if !SU_THIRD_SUPPORT_LIBARCHIVE
+    return eCompressErr::RARSuportFormatErr;
 #endif
-    return eCompressErr::Ok;
-}
 
-eCompressErr suRAR::compress(const char* c_in_val, const size_t& i_in_len, char** c_out_val, size_t& i_out_len)
-{
-    if (c_in_val == nullptr || i_in_len == 0)
+    if (!inData || inLen == 0 || !outData)
     {
-        SLOG_ERROR("Empty input data.");
         return eCompressErr::InValidInputErr;
     }
 
-    return eCompressErr::Ok;
+    if (*outData)
+    {
+        delete[] *outData;
+        *outData = nullptr;
+    }
+    outLen = 0;
+
+    try
+    {
+        size_t estimate_size = inLen * 4;
+        std::vector<char> temp_buffer(estimate_size);
+
+        struct archive* archive_ptr = archive_read_new();
+        if (!archive_ptr)
+            return eCompressErr::RAROpenErr;
+
+        archive_read_support_format_all(archive_ptr);
+        archive_read_support_filter_all(archive_ptr);
+
+        int r = archive_read_open_memory(archive_ptr, inData, inLen);
+        if (r != ARCHIVE_OK)
+        {
+            archive_read_free(archive_ptr);
+            return eCompressErr::RAROpenErr;
+        }
+
+        struct archive_entry* entry = nullptr;
+        r = archive_read_next_header(archive_ptr, &entry);
+        if (r != ARCHIVE_OK)
+        {
+            archive_read_free(archive_ptr);
+            return eCompressErr::RARReadErr;
+        }
+
+        size_t entry_size = static_cast<size_t>(archive_entry_size(entry));
+        if (entry_size > 0 && entry_size > estimate_size)
+        {
+            temp_buffer.resize(entry_size);
+        }
+
+        size_t total_read = 0;
+        const void* buff = nullptr;
+        size_t size = 0;
+        int64_t offset = 0;
+
+        while ((r = archive_read_data_block(archive_ptr, &buff, &size, &offset)) == ARCHIVE_OK)
+        {
+            if (size == 0)
+                break;
+            if (total_read + size > temp_buffer.size())
+            {
+                temp_buffer.resize(temp_buffer.size() * 2);
+            }
+            std::memcpy(temp_buffer.data() + total_read, buff, size);
+            total_read += size;
+        }
+
+        archive_read_free(archive_ptr);
+
+        if (total_read == 0)
+        {
+            return eCompressErr::RARReadErr;
+        }
+
+        *outData = new char[total_read];
+        std::memcpy(*outData, temp_buffer.data(), total_read);
+        outLen = total_read;
+
+        return eCompressErr::Ok;
+    }
+    catch (const std::exception& e)
+    {
+        SLOG_ERROR("解压异常：{}", e.what());
+        return eCompressErr::RARReadErr;
+    }
 }
 
-eCompressErr suRAR::decompress(const char* c_in_val, const size_t& i_in_len, char** c_out_val, size_t& i_out_len)
+eCompressErr suRAR::compressBin(const std::string& inData, std::string& outData)
 {
-    // 检查输入参数
-    if (c_in_val == nullptr || i_in_len == 0)
+    (void)inData;
+    (void)outData;
+    return eCompressErr::NotImplement;
+}
+
+eCompressErr suRAR::decompressBin(const std::string& inData, std::string& outData)
+{
+    char* decompressed = nullptr;
+    size_t decompressed_len = 0;
+    eCompressErr result = decompressBin(inData.data(), inData.size(), &decompressed, decompressed_len);
+
+    if (result == eCompressErr::Ok && decompressed)
     {
-        SLOG_ERROR("Empty input data.");
-        return eCompressErr::InValidInputErr;
+        outData.assign(decompressed, decompressed_len);
+        delete[] decompressed;
     }
-    if (*c_out_val)
+    else
     {
-        SLOG_ERROR("Clean output and set null.");
-        return eCompressErr::InValidOutputErr;
+        outData.clear();
     }
 
-    return eCompressErr::Ok;
+    return result;
+}
+
+eCompressErr suRAR::compressBin(const std::string& inData, std::vector<char>& outData)
+{
+    (void)inData;
+    (void)outData;
+    return eCompressErr::NotImplement;
+}
+
+eCompressErr suRAR::decompressBin(const std::vector<char>& inData, std::string& outData)
+{
+    char* decompressed = nullptr;
+    size_t decompressed_len = 0;
+    eCompressErr result = decompressBin(inData.data(), inData.size(), &decompressed, decompressed_len);
+
+    if (result == eCompressErr::Ok && decompressed)
+    {
+        outData.assign(decompressed, decompressed_len);
+        delete[] decompressed;
+    }
+    else
+    {
+        outData.clear();
+    }
+
+    return result;
 }
