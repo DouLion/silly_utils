@@ -9,74 +9,78 @@
  */
 #ifndef SILLY_GRIB2_H
 #define SILLY_GRIB2_H
-#include <geo/silly_geo.h>
 #include <files/silly_file.h>
-/// <summary>
-/// grib2的帧数据
-/// </summary>
-class silly_grib2_frame
-{
-  public:
-    bool is_valid{false};
+#if SU_THIRD_SUPPORT_ECCODES
+#include <eccodes.h>
+#endif
 
-    std::vector<double> data;
-};
-namespace silly
-{
-namespace grib2
-{
-class message
-{
-  public:
-};
-
-class meta
-{
-  public:
-    std::vector<message> m_messages;
-    suRect m_rect;
-    size_t m_rows = 0;
-    size_t m_cols = 0;
-    double m_xdelta = 0.0;
-    double m_ydelta = 0.0;
-
-  private:
-    void* m_grb2_handel = nullptr;
-};
-
-class utils
-{
-  public:
-  private:
-};
-}  // namespace grib2
-}  // namespace silly
-class silly_grib2_utils
+class suGrib2
 {
   public:
     /// <summary>
-    /// 读取grib2文件中的某一帧数据
+    /// grib2的帧数据
     /// </summary>
-    /// <param name="path"></param>
-    /// <param name="grb"></param>
-    /// <param name="fidx"></param>
-    /// <returns></returns>
-    static bool read(const suPath& file, silly_grib2_frame& grb, const size_t& fidx = 0);
+    class Frame
+    {
+      public:
+        bool is_valid{false};
+
+        std::vector<double> data;
+    };
+    /// <summary>
+    /// 从GRIB2文件中读取某一帧数据
+    /// </summary>
+    /// <param name="file">GRIB2文件路径</param>
+    /// <param name="grb">用于存储读取到的帧数据</param>
+    /// <param name="fidx">要读取的帧索引，默认为0</param>
+    /// <returns>读取成功返回true，否则返回false</returns>
+    static bool read(const suPath& file, suGrib2::Frame& grb, const size_t& fidx = 0);
 
     /// <summary>
-    /// 读取grib2文件中的所有数据
+    /// 从GRIB2文件中读取所有帧数据
     /// </summary>
-    /// <param name="path"></param>
-    /// <param name="grb"></param>
-    /// <returns></returns>
-    static bool read(const suPath& file, std::map<size_t, silly_grib2_frame>& msgf_grb);
+    /// <param name="file">GRIB2文件路径</param>
+    /// <param name="msgf_grb">用于存储所有帧数据的映射，键为帧索引</param>
+    /// <returns>读取成功返回true，否则返回false</returns>
+    static bool read(const suPath& file, std::map<size_t, suGrib2::Frame>& msgf_grb);
 
   private:
-    static bool open_grib2_handle(const suPath& file, void** file_h, void** grb2_c, void** grb2_h);
+    /// <summary>
+    /// 打开GRIB2文件并获取句柄
+    /// </summary>
+    /// <param name="file">GRIB2文件路径</param>
+    /// <param name="fileHdl">文件句柄指针</param>
+    /// <param name="grbCtx">ECCODES上下文句柄指针</param>
+    /// <param name="grbHdl">GRIB2消息句柄指针</param>
+    /// <returns>打开成功返回true，否则返回false</returns>
+    static bool open_grib2_handle(const suPath& file, void** fileHdl, void** grbCtx, void** grbHdl);
 
-    static bool load_grib2_frame(const void* grb2_h, silly_grib2_frame& grb, const bool& skip = true);
+    /// <summary>
+    /// 加载GRIB2帧数据
+    /// </summary>
+    /// <param name="grbHdl">GRIB2消息句柄</param>
+    /// <param name="grb">用于存储读取到的帧数据</param>
+    /// <param name="skip">是否跳过当前帧，默认为true</param>
+    /// <returns>加载成功返回true，否则返回false</returns>
+#if SU_THIRD_SUPPORT_ECCODES
+    // 只有在启用ECCODES时才定义此函数，并使用codes_handle*类型
+    static bool load_grib2_frame(codes_handle* grbHdl, suGrib2::Frame& grb, const bool& skip = true);
+#else
+    // 如果不启用ECCODES，提供一个空实现，避免编译错误
+    static bool load_grib2_frame(void* grbHdl, suGrib2::Frame& grb, const bool& skip = true)
+    {
+        return false;
+    }
+#endif
 
-    static bool close_grib2_handle(void* file_h, void* grb2_c, void* grb2_h);
+    /// <summary>
+    /// 关闭GRIB2文件句柄
+    /// </summary>
+    /// <param name="fileHdl">文件句柄指针</param>
+    /// <param name="grbCtx">ECCODES上下文句柄指针</param>
+    /// <param name="grbHdl">GRIB2消息句柄指针</param>
+    /// <returns>关闭成功返回true，否则返回false</returns>
+    static bool close_grib2_handle(void* fileHdl, void* grbCtx, void* grbHdl);
 };
 
 #endif  // SILLY_GRIB2_H
