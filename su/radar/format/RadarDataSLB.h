@@ -298,6 +298,7 @@ class SLB
     ObserveTime GetObserveTime() const;
 
     std::map<int, double> Layer2Elevation() const;
+    std::string Err() const;
 
     /**
      * @brief 根据给定的经纬度，计算其对应的雷达方位角(Az)和距离门(Gate)索引
@@ -336,6 +337,7 @@ class SLB
     std::vector<float> _tv;     //  原始垂直反射率因子Tv;([数值]-66)/2=[实际值]dBZ
 
   private:
+    std::string m_Err;
 };
 
 }  // namespace RadarData

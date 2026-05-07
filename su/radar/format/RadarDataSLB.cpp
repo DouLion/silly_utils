@@ -285,6 +285,7 @@ bool SLB::Read(const suPath& file)
     std::string content = sufile::read(file);
     if (!(size > 8 && content.size() == size))
     {
+        m_Err = "文件大小异常";
         return false;
     }
     char* bp = content.data();
@@ -293,6 +294,7 @@ bool SLB::Read(const suPath& file)
     {
         if (eCompressErr::Ok != suBz2::decompress(content, bz2dp))
         {
+            m_Err = "解压错误";
             return false;
         }
         bp = bz2dp.data();
@@ -306,10 +308,10 @@ bool SLB::Read(const suPath& file)
         {
             break;
         }
-        if (m_FileVol.FileLength != size)
+        /*if (m_FileVol.FileLength != size)
         {
             break;
-        }
+        }*/
         if (!m_SiteInfo.Read(p))
         {
             break;
@@ -355,6 +357,7 @@ bool SLB::Read(const suPath& file)
             }
             else
             {
+                m_Err = "径向数据错误";
                 return false;
             }
         }
@@ -364,7 +367,12 @@ bool SLB::Read(const suPath& file)
         }
         m_RadialNumber0 = m_RadialBlocks.front().head.RadialNumber;
     } while (0);
-    return !m_RadialBlocks.empty();
+    if (m_RadialBlocks.empty())
+    {
+        m_Err = "缺少有效径向块";
+        return false;
+    }
+    return true;
 }
 
 static void MaxInRadial(std::vector<float>& ret, const std::vector<float>& src)
@@ -472,6 +480,10 @@ BlockInfo SLB::GetBlockInfo() const
 ObserveTime SLB::GetObserveTime() const
 {
     return m_ObTime;
+}
+std::string SLB ::Err() const
+{
+    return m_Err;
 }
 
 std::map<int, double> SLB::Layer2Elevation() const
