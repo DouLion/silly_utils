@@ -10,7 +10,7 @@
  */
 
 #include "silly_rar.h"
-#if SU_THIRD_SUPPORT_LIBARCHIVE
+#if SU_THIRD_SUPPORT_7ZIP
 #include <archive.h>
 #include <archive_entry.h>
 #endif
@@ -26,9 +26,9 @@
 
 eCompressErr suRAR::compressFile(const suPath& srcPath, const suPath& dstPath, bool append)
 {
-#if !SU_THIRD_SUPPORT_LIBARCHIVE
+#if !SU_THIRD_SUPPORT_7ZIP
     return eCompressErr::RARSuportFormatErr;
-#endif
+#else
 
     if (!srcPath.exists())
     {
@@ -126,13 +126,15 @@ eCompressErr suRAR::compressFile(const suPath& srcPath, const suPath& dstPath, b
         SLOG_ERROR("压缩异常：{}", e.what());
         return eCompressErr::NotImplement;
     }
+
+#endif
 }
 
 eCompressErr suRAR::decompressFile(const suPath& srcPath, const suPath& dstPath)
 {
-#if !SU_THIRD_SUPPORT_LIBARCHIVE
+#if !SU_THIRD_SUPPORT_7ZIP
     return eCompressErr::RARSuportFormatErr;
-#endif
+#else
 
     if (!srcPath.exists())
     {
@@ -267,6 +269,7 @@ eCompressErr suRAR::decompressFile(const suPath& srcPath, const suPath& dstPath)
     }
 
     archive_read_free(archive_ptr);
+#endif
     return eCompressErr::Ok;
 }
 
@@ -281,9 +284,9 @@ eCompressErr suRAR::compressBin(const char* inData, size_t inLen, char** outData
 
 eCompressErr suRAR::decompressBin(const char* inData, size_t inLen, char** outData, size_t& outLen)
 {
-#if !SU_THIRD_SUPPORT_LIBARCHIVE
+#if !SU_THIRD_SUPPORT_7ZIP
     return eCompressErr::RARSuportFormatErr;
-#endif
+#else
 
     if (!inData || inLen == 0 || !outData)
     {
@@ -365,6 +368,7 @@ eCompressErr suRAR::decompressBin(const char* inData, size_t inLen, char** outDa
         SLOG_ERROR("解压异常：{}", e.what());
         return eCompressErr::RARReadErr;
     }
+#endif
 }
 
 eCompressErr suRAR::compressBin(const std::string& inData, std::string& outData)

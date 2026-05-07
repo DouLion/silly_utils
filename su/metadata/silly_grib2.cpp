@@ -152,10 +152,11 @@ bool suGrib2::open_grib2_handle(const suPath& file, void** fileHdl, void** grbCt
 
 // 加载GRIB2帧数据
 // 参数 grbHdl 类型已更改为 codes_handle*
+#if SU_THIRD_SUPPORT_ECCODES
 bool suGrib2::load_grib2_frame(codes_handle* grbHdl, suGrib2::Frame& grb, const bool& skip)
 {
     bool status = skip;
-#if SU_THIRD_SUPPORT_ECCODES
+
     // 如果是跳过模式，则直接返回
     if (skip)
     {
@@ -272,10 +273,10 @@ bool suGrib2::load_grib2_frame(codes_handle* grbHdl, suGrib2::Frame& grb, const 
     grb.is_valid = true;  // 设置帧数据有效
     status = true;
 
-#endif
+
     return status;
 }
-
+#endif
 // 关闭GRIB2文件句柄
 bool suGrib2::close_grib2_handle(void* fileHdl, void* grbCtx, void* grbHdl)
 {

@@ -23,7 +23,7 @@
 
 #define SEVENZ_BLOCK_SIZE (1024 * 1024)
 
-std::string silly_7z::getVersionInfo() {
+std::string su7Zip::getVersionInfo() {
 #if SU_THIRD_SUPPORT_LIBARCHIVE
     return archive_version_string();
 #else
@@ -31,30 +31,36 @@ std::string silly_7z::getVersionInfo() {
 #endif
 }
 
-eCompressErr silly_7z::compressFile(const suPath& srcPath, const suPath& dstPath, bool append) {
+eCompressErr su7Zip::compressFile(const suPath& srcPath, const suPath& dstPath, bool append) {
 #if !SU_THIRD_SUPPORT_LIBARCHIVE
     return eCompressErr::Z7zDecompressErr;
-#endif
+    #else
 
-    if (!srcPath.exists()) {
+    if (!srcPath.exists())
+    {
         return eCompressErr::FileNotExistErr;
     }
 
     suPath outPath = dstPath;
-    if (dstPath.string().empty()) {
+    if (dstPath.string().empty())
+    {
         outPath = srcPath.parent().append(srcPath.stem().append(".7z"));
     }
 
-    if (!append && outPath.exists()) {
+    if (!append && outPath.exists())
+    {
         std::filesystem::remove(outPath.string());
     }
 
-    try {
+    try
+    {
         struct archive* a = archive_write_new();
-        if (!a) return eCompressErr::Z7zDecompressErr;
+        if (!a)
+            return eCompressErr::Z7zDecompressErr;
 
         int r = archive_write_set_format_by_name(a, "7zip");
-        if (r != ARCHIVE_OK) {
+        if (r != ARCHIVE_OK)
+        {
             archive_write_free(a);
             return eCompressErr::Z7zDecompressErr;
         }
@@ -64,10 +70,12 @@ eCompressErr silly_7z::compressFile(const suPath& srcPath, const suPath& dstPath
 
         std::function<void(const suPath&, const suPath&)> addEntry = [&](const suPath& path, const suPath& base) {
             std::string rel_path = path.relative(base).string();
-            
-            if (path.is_file()) {
+
+            if (path.is_file())
+            {
                 std::ifstream ifs(path.string(), std::ios::binary);
-                if (!ifs) return;
+                if (!ifs)
+                    return;
 
                 ifs.seekg(0, std::ios::end);
                 std::streamsize size = ifs.tellg();
@@ -84,7 +92,8 @@ eCompressErr silly_7z::compressFile(const suPath& srcPath, const suPath& dstPath
 
                 std::vector<char> buffer(SEVENZ_BLOCK_SIZE);
                 std::streamsize remaining = size;
-                while (remaining > 0) {
+                while (remaining > 0)
+                {
                     std::streamsize toRead = std::min(static_cast<std::streamsize>(SEVENZ_BLOCK_SIZE), remaining);
                     ifs.read(buffer.data(), toRead);
                     std::streamsize bytesRead = ifs.gcount();
@@ -94,7 +103,9 @@ eCompressErr silly_7z::compressFile(const suPath& srcPath, const suPath& dstPath
 
                 archive_entry_free(entry);
                 ifs.close();
-            } else if (path.is_dir()) {
+            }
+            else if (path.is_dir())
+            {
                 struct archive_entry* entry = archive_entry_new();
                 archive_entry_set_pathname(entry, rel_path.c_str());
                 archive_entry_set_filetype(entry, AE_IFDIR);
@@ -102,7 +113,8 @@ eCompressErr silly_7z::compressFile(const suPath& srcPath, const suPath& dstPath
                 archive_write_header(a, entry);
                 archive_entry_free(entry);
 
-                for (const auto& entry : std::filesystem::directory_iterator(path.string())) {
+                for (const auto& entry : std::filesystem::directory_iterator(path.string()))
+                {
                     addEntry(suPath(entry.path()), base);
                 }
             }
@@ -114,16 +126,21 @@ eCompressErr silly_7z::compressFile(const suPath& srcPath, const suPath& dstPath
         archive_write_free(a);
 
         return eCompressErr::Ok;
-    } catch (const std::exception& e) {
+    }
+    catch (const std::exception& e)
+    {
         SLOG_ERROR("7Z 压缩异常：{}", e.what());
         return eCompressErr::Z7zDecompressErr;
     }
+#endif
+
 }
 
-eCompressErr silly_7z::decompressFile(const suPath& srcPath, const suPath& dstPath) {
+eCompressErr su7Zip::decompressFile(const suPath& srcPath, const suPath& dstPath) {
 #if !SU_THIRD_SUPPORT_LIBARCHIVE
     return eCompressErr::Z7zDecompressErr;
-#endif
+    #else
+
 
     if (!srcPath.exists()) {
         return eCompressErr::FileNotExistErr;
@@ -225,54 +242,62 @@ eCompressErr silly_7z::decompressFile(const suPath& srcPath, const suPath& dstPa
     }
 
     archive_read_free(archive_ptr);
+
+#endif
     return eCompressErr::Ok;
 }
 
-eCompressErr silly_7z::compressData(const char* inData, size_t inLen, char** outData, size_t& outLen) {
+eCompressErr su7Zip::compressData(const char* inData, size_t inLen, char** outData, size_t& outLen) {
     (void)inData; (void)inLen; (void)outData; (void)outLen;
     return eCompressErr::NotImplement;
 }
 
-eCompressErr silly_7z::decompressData(const char* inData, size_t inLen, char** outData, size_t& outLen) {
+eCompressErr su7Zip::decompressData(const char* inData, size_t inLen, char** outData, size_t& outLen) {
 #if !SU_THIRD_SUPPORT_LIBARCHIVE
     return eCompressErr::Z7zDecompressErr;
-#endif
-
-    if (!inData || inLen == 0 || !outData) {
+#else
+    if (!inData || inLen == 0 || !outData)
+    {
         return eCompressErr::InValidInputErr;
     }
 
-    if (*outData) {
+    if (*outData)
+    {
         delete[] *outData;
         *outData = nullptr;
     }
     outLen = 0;
 
-    try {
+    try
+    {
         size_t estimate_size = inLen * 4;
         std::vector<char> temp_buffer(estimate_size);
 
         struct archive* archive_ptr = archive_read_new();
-        if (!archive_ptr) return eCompressErr::Z7zDecompressErr;
+        if (!archive_ptr)
+            return eCompressErr::Z7zDecompressErr;
 
         archive_read_support_format_all(archive_ptr);
         archive_read_support_filter_all(archive_ptr);
 
         int r = archive_read_open_memory(archive_ptr, inData, inLen);
-        if (r != ARCHIVE_OK) {
+        if (r != ARCHIVE_OK)
+        {
             archive_read_free(archive_ptr);
             return eCompressErr::Z7zDecompressErr;
         }
 
         struct archive_entry* entry = nullptr;
         r = archive_read_next_header(archive_ptr, &entry);
-        if (r != ARCHIVE_OK) {
+        if (r != ARCHIVE_OK)
+        {
             archive_read_free(archive_ptr);
             return eCompressErr::Z7zDecompressErr;
         }
 
         size_t entry_size = static_cast<size_t>(archive_entry_size(entry));
-        if (entry_size > 0 && entry_size > estimate_size) {
+        if (entry_size > 0 && entry_size > estimate_size)
+        {
             temp_buffer.resize(entry_size);
         }
 
@@ -281,9 +306,12 @@ eCompressErr silly_7z::decompressData(const char* inData, size_t inLen, char** o
         size_t size = 0;
         int64_t offset = 0;
 
-        while ((r = archive_read_data_block(archive_ptr, &buff, &size, &offset)) == ARCHIVE_OK) {
-            if (size == 0) break;
-            if (total_read + size > temp_buffer.size()) {
+        while ((r = archive_read_data_block(archive_ptr, &buff, &size, &offset)) == ARCHIVE_OK)
+        {
+            if (size == 0)
+                break;
+            if (total_read + size > temp_buffer.size())
+            {
                 temp_buffer.resize(temp_buffer.size() * 2);
             }
             std::memcpy(temp_buffer.data() + total_read, buff, size);
@@ -292,7 +320,8 @@ eCompressErr silly_7z::decompressData(const char* inData, size_t inLen, char** o
 
         archive_read_free(archive_ptr);
 
-        if (total_read == 0) {
+        if (total_read == 0)
+        {
             return eCompressErr::Z7zDecompressErr;
         }
 
@@ -301,18 +330,23 @@ eCompressErr silly_7z::decompressData(const char* inData, size_t inLen, char** o
         outLen = total_read;
 
         return eCompressErr::Ok;
-    } catch (const std::exception& e) {
+    }
+    catch (const std::exception& e)
+    {
         SLOG_ERROR("7Z 解压异常：{}", e.what());
         return eCompressErr::Z7zDecompressErr;
     }
+#endif
+
+    
 }
 
-eCompressErr silly_7z::compressBin(const std::string& inData, std::string& outData) {
+eCompressErr su7Zip::compressBin(const std::string& inData, std::string& outData) {
     (void)inData; (void)outData;
     return eCompressErr::NotImplement;
 }
 
-eCompressErr silly_7z::decompressBin(const std::string& inData, std::string& outData) {
+eCompressErr su7Zip::decompressBin(const std::string& inData, std::string& outData) {
     char* decompressed = nullptr;
     size_t decompressed_len = 0;
     eCompressErr result = decompressData(inData.data(), inData.size(), &decompressed, decompressed_len);
@@ -327,12 +361,12 @@ eCompressErr silly_7z::decompressBin(const std::string& inData, std::string& out
     return result;
 }
 
-eCompressErr silly_7z::compressBin(const std::string& inData, std::vector<char>& outData) {
+eCompressErr su7Zip::compressBin(const std::string& inData, std::vector<char>& outData) {
     (void)inData; (void)outData;
     return eCompressErr::NotImplement;
 }
 
-eCompressErr silly_7z::decompressBin(const std::vector<char>& inData, std::string& outData) {
+eCompressErr su7Zip::decompressBin(const std::vector<char>& inData, std::string& outData) {
     char* decompressed = nullptr;
     size_t decompressed_len = 0;
     eCompressErr result = decompressData(inData.data(), inData.size(), &decompressed, decompressed_len);

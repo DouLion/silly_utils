@@ -20,7 +20,7 @@
 #include "../files/silly_path.h"
 #include "silly_compress.h"
 
-class silly_7z
+class su7Zip
 {
 public:
     /// ==================== 文件操作 ====================
