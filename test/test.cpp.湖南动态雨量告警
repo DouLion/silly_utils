@@ -1,0 +1,393 @@
+/// 测试
+#if IS_WIN32
+// #include <vld.h>
+#endif
+
+#include <su.h>
+suOTL CONN;
+std::string URL = "http://10.43.1.207:8899/api/v1/dynamic_rule/all/on_time?tm={}";
+std::map<std::string, std::tuple<std::string, std::string>> WXQ2NAME;                            // 危险区基本信息 简称 和 全名
+std::map<std::string, std::map<std::string, double>> WXQ2STCD2W;                                 // 危险区 雨量站权重
+std::map<int, std::map<std::string, std::map<int, double, std::greater<int>>>> INTV2WXQ2GRD2TH;  // 1 3 6 小时对应的指标
+// 洑水8组 2026年04月21日17时1小时降雨达84.70毫米，超过立即转移动态指标(67.40)17.30毫米,请密切监视雨水情变化.
+std::string TEMPLATE = "截至{}，{} {}小时累计降雨达到{:.1f}毫米，超过{}预警指标({:.1f}){:.1f}毫米,请密切监视雨水情变化。";
+std::map<int, std::string> GRADE_NAME_MAP = {
+    {10, "准备转移"},
+    {11, "立即转移"},
+    {103, "准备转移"},
+    {104, "立即转移"},
+    {30, "准备转移"},
+    {31, "立即转移"},
+};
+struct WarnRecord
+{
+    std::string CODE;
+    int WarnGradeID = 0;
+    std::string WarnNM;
+    std::string WarnDesc;
+    double Threshold = 0.0;
+    double WarningVal = 0.0;
+    int INTV;
+};
+
+bool InitOtl();
+bool LoadInfo();
+void Process();
+std::map<std::string, int> RecentWarn2Grade(const std::time_t& tm);
+
+std::map<int, std::map<std::string, double>> GetDrpData(const std::time_t& tm);
+
+void LoadDynamicRule(const std::time_t& tm);
+
+int main(int argc, char** argv)
+{
+
+    SLOG_MAIN
+    if (!InitOtl())
+    {
+        std::cout << 1 << std::endl;
+        return -1;
+    }
+    if (!LoadInfo())
+    {
+        std::cout << 2 << std::endl;
+        return -2;
+    }
+    while (1)
+    {
+        Process();
+        std::this_thread::sleep_for(std::chrono::seconds(300));
+    }
+
+    return 0;
+}
+
+void Insert(const std::vector<WarnRecord>& records, const std::time_t& base_time)
+{
+    auto tmp = CONN;
+    std::string sql = R"(
+INSERT INTO WarnRecord_R 
+( CODE, WarnTypeID, WarnGradeID, WarnStatusID, WarnSTM, WarnNM, WarnDesc, Threshold, WarningVal, INTV, GenTM)
+VALUES
+(:f1<char[32]>, 21,:f2<int>, 0, :f3<timestamp>, :f4<char[256]>, :f5<varchar_long>, :f6<double>, :f7<double>, :f8<int>, NOW());
+)";
+    if (!tmp.insert(sql, [records, base_time](otl_stream* stm) {
+            otl_datetime tm = suOTL::Stamp2Time(base_time);
+            for (const auto& r : records)
+            {
+                otl_write_row(*stm, r.CODE, r.WarnGradeID, tm, r.WarnNM, r.WarnDesc, r.Threshold, r.WarningVal, r.INTV);
+            }
+        }))
+    {
+        SLOG_ERROR(tmp.err())
+    }
+}
+
+void Process()
+{
+    std::time_t now = std::time(nullptr);
+    std::map<int, std::map<std::string, double>> intv2stcd2drp = GetDrpData(now);
+    LoadDynamicRule(now);
+    if (INTV2WXQ2GRD2TH.empty())
+    {
+        SLOG_ERROR("指标为空")
+        return;
+    }
+    std::map<std::string, WarnRecord> code2record;
+    for (const auto& [intv, code2grd2th] : INTV2WXQ2GRD2TH)
+    {
+        for (const auto& [code, grd2th] : code2grd2th)
+        {
+            if (!HAS(WXQ2STCD2W, code) || !HAS(WXQ2NAME, code))
+            {
+                continue;
+            }
+
+            WarnRecord tmp;
+            for (const auto& [stcd, w] : WXQ2STCD2W.at(code))
+            {
+#if 1
+                tmp.WarningVal = std::max(tmp.WarningVal, intv2stcd2drp[intv][stcd]);  // 使用最大降雨站数据
+               
+#else
+                tmp.WarningVal += intv2stcd2drp[intv][stcd] * w;
+#endif
+            }
+           
+            tmp.CODE = code;
+            tmp.INTV = intv;
+            for (const auto& [grd, th] : grd2th)
+            {
+                if ((double)tmp.WarningVal >= th)
+                {
+                    tmp.WarnGradeID = grd;
+                    tmp.Threshold = th;
+                    break;
+                }
+            }
+            if (tmp.WarnGradeID == 0)
+            {
+                continue;
+            }
+            if (!HAS(code2record, tmp.CODE))
+            {
+                code2record[code] = tmp;
+                continue;
+            }
+
+            // 同批次有其他告警
+            // 告警等级越大优先级最高, 其次intv越小优先级越高
+            auto& other = code2record[code];
+            if (tmp.WarnGradeID > other.WarnGradeID)
+            {
+                code2record[code] = tmp;
+                continue;
+            }
+            if (tmp.WarnGradeID == other.WarnGradeID)
+            {
+                if (tmp.INTV < other.INTV)
+                {
+                    code2record[code] = tmp;
+                }
+            }
+        }
+    }
+
+    if (code2record.empty())
+    {
+        SLOG_INFO("当前无预警产生。")
+        return;
+    }
+    std::map<std::string, int> code2grd = RecentWarn2Grade(now);
+
+    // 如果最近一段时间产生过告警, 等级不提示就不重复预警
+    std::vector<WarnRecord> records;
+    std::string TMFMT = "%m月%d日%H时%M分";
+    std::string recordTM = TimeStringify(now, TMFMT);
+    for (auto& [code, r] : code2record)
+    {
+        if (r.WarnGradeID > code2grd[code])
+        {
+            std::string wxqNm = std::get<1>(WXQ2NAME[code]);
+            std::string grdNm = GRADE_NAME_MAP[r.WarnGradeID];
+            r.WarnNM = SUFMT("{}{}", std::get<0>(WXQ2NAME[code]), grdNm);  // 告警名称中使用简称, 告警描述中使用全称
+            
+            r.WarnDesc = SUFMT(TEMPLATE, recordTM, wxqNm, r.INTV, r.WarningVal, grdNm, r.Threshold, r.WarningVal - r.Threshold);
+            // SLOG_INFO(r.WarnDesc)
+            records.push_back(r);
+        }
+    }
+
+    SLOG_INFO("去重完毕，最终需入库 {}", records.size());
+    if (records.empty())
+    {
+        return;
+    }
+    Insert(records, now);
+}
+
+bool InitOtl()
+{
+    std::string cfg = R"({
+      "type": "mysql",
+      "ip": "10.143.1.205",
+      "port": 3306,
+      "schema": "TZX_FloodDisaster_HN",
+      "user": "root",
+      "password": "3EDC9ijn~",
+      "driver": "MySQL ODBC 8.0 ANSI Driver",
+      "timeout": 20,
+       "verbose":true
+    })";
+    if (!CONN.load(cfg))
+    {
+        SLOG_ERROR(CONN.err())
+        return false;
+    }
+    SLOG_INFO(CONN.odbc(true))
+    return true;
+}
+
+std::map<int, std::map<std::string, double>> GetDrpData(const std::time_t& tm)
+{
+    std::map<int, std::map<std::string, double>> ret;
+
+    std::time_t ntm = tm / SEC_IN_HOUR * SEC_IN_HOUR;
+    if (tm - ntm > 300)
+    {
+        ntm += SEC_IN_HOUR;
+    }
+    std::map<std::string, std::map<std::time_t, double>> stcd2tm2drp;
+    std::string _FMT = R"(SELECT STCD, TM, DRP FROM RWDB_HUNAN.ST_PPTN_R WHERE DRP > 0 AND TM > '{}' AND TM <= '{}')";
+    std::string sql = SUFMT(_FMT, TimeStringify(tm - 6 * SEC_IN_HOUR), TimeStringify(ntm));
+    auto tmp = CONN;
+    if (!tmp.select(sql, [&stcd2tm2drp](otl_stream* stm) {
+            while (!stm->eof())
+            {
+                std::string stcd;
+                otl_datetime odt;
+                double drp;
+                otl_read_row(*stm, stcd, odt, drp);
+                stcd2tm2drp[stcd][suOTL::Time2Stamp(odt)] = drp;
+            }
+        }))
+    {
+        SLOG_ERROR(tmp.err())
+        return ret;
+    }
+    SLOG_INFO("降雨记录数:{}", stcd2tm2drp.size())
+    const std::map<int, std::time_t> INTV2STAMP = {
+        {1, tm - SEC_IN_HOUR},
+        {3, tm - 3 * SEC_IN_HOUR},
+        {6, tm - 6 * SEC_IN_HOUR},
+    };
+
+    for (const auto& [stcd, stamp2drp] : stcd2tm2drp)
+    {
+        for (const auto& [stamp, drp] : stamp2drp)
+        {
+            for (auto [intv, minStamp] : INTV2STAMP)
+            {
+                if (stamp > minStamp)
+                {
+                    ret[intv][stcd] += drp;
+                }
+            }
+        }
+        
+    }
+    return ret;
+}
+
+std::map<std::string, int> RecentWarn2Grade(const std::time_t& tm)
+{
+    std::map<std::string, int> ret;
+    auto tmp = CONN;
+    std::string sql = SUFMT("SELECT CODE, WarnGradeID  FROM WarnRecord_R  WHERE WarnSTM > '{}' AND WarnSTM <= '{}' AND WarnTypeID = 21;", TimeStringify(tm - 3 * SEC_IN_HOUR), TimeStringify(tm));
+    if (!tmp.select(sql, [&ret](otl_stream* stm) {
+            while (!stm->eof())
+            {
+                std::string code;
+                int grade = 0;
+                otl_read_row(*stm, code, grade);
+                ret[code] = std::max(ret[code], grade);
+            }
+        }))
+    {
+        SLOG_ERROR(tmp.err())
+    }
+    return ret;
+}
+
+bool LoadInfo()
+{
+    {  // 加载基本信息
+        auto tmp = CONN;
+        std::string sql = "SELECT a.CODE, a.NAME, b.FULLNAME  FROM wxq_list_hunan.ia_adb_danad a, TZX_ADCD.TZX_ADCD b  WHERE a.isdel = 0 AND a.type = 1 and a.AID = b.AID ";
+        if (!tmp.select(sql, [](otl_stream* stm) {
+                while (!stm->eof())
+                {
+                    std::string code, name, fullname;
+                    otl_read_row(*stm, code, name, fullname);
+                    WXQ2NAME[code] = {name, fullname};
+                }
+            }))
+        {
+            SLOG_ERROR(tmp.err())
+            return false;
+        }
+        for (auto& [code, names] : WXQ2NAME)
+        {
+            auto& [name, fullname] = names;
+            auto pos = name.find("村");
+            if (pos != std::string::npos)
+            {
+                fullname.append(name.substr(pos + strlen("村")));
+            }
+
+        }
+    }
+
+    {  // 加载权重
+        auto tmp = CONN;
+        std::string sql = R"(SELECT DANAD_PID,STCD, WEIGHT FROM wxq_list_hunan.danad_stcd WHERE TYPE = 2 AND DANAD_PID in 
+(select CODE from wxq_list_hunan.ia_adb_danad where isdel = 0 AND type = 1);)";
+        if (!tmp.select(sql, [](otl_stream* stm) {
+                while (!stm->eof())
+                {
+                    std::string code, stcd;
+                    double w;
+                    otl_read_row(*stm, code, stcd, w);
+                    WXQ2STCD2W[code][stcd] = w;
+                }
+            }))
+        {
+            SLOG_ERROR(tmp.err())
+            return false;
+        }
+    }
+    return true;
+}
+
+void LoadDynamicRule(const std::time_t& tm)
+{
+    std::time_t target = tm / SEC_IN_HOUR * SEC_IN_HOUR;  // 取整点
+    std::cout << TimeStringify(target) << std::endl;
+    auto func = [](std::time_t tm2) -> std::map<int, std::map<std::string, std::map<int, double, std::greater<int>>>> {
+        std::map<int, std::map<std::string, std::map<int, double, std::greater<int>>>> ret;
+        suHttpClient cil;
+        std::string sTM = TimeStringify(tm2, "%Y-%m-%d %H:%M");
+        sTM = REPLACE(sTM, " ", "%20");
+        std::string url = SUFMT(URL, sTM);
+        std::string resp;
+        SLOG_INFO(url)
+        if (!cil.get(url, resp))
+        {
+            SLOG_ERROR(cil.err())
+            return ret;
+        }
+
+        Json::Value jv = sujson::parse(resp);
+        int num = 0;
+        if (jv.isObject() && jv.isMember("data") && jv["data"].isObject())
+        {
+            auto& jvData = jv["data"];
+            for (const auto& code : jvData.getMemberNames())
+            {
+                for (const auto& sintv : jvData[code].getMemberNames())
+                {
+                    for (const auto& sgrd : jvData[code][sintv].getMemberNames())
+                    {
+                        double th = jvData[code][sintv][sgrd].asDouble();
+                        if (th < 15)  // 忽略一些异常值
+                        {
+                            continue;
+                        }
+                        try
+                        {
+                            ret[std::stoi(sintv)][code][std::stoi(sgrd)] = th;
+                            num++;
+                        }
+                        catch (...)
+                        {
+                        }
+                    }
+                }
+            }
+        }
+        SLOG_INFO("指标数量: {}", num)
+        return ret;
+    };
+    auto tmp = func(target);
+    if (tmp.empty())
+    {
+        target -= SEC_IN_HOUR;
+        tmp = func(target);
+    }
+
+    if (tmp.empty())
+    {
+        return;
+    }
+    std::swap(INTV2WXQ2GRD2TH, tmp);
+}
