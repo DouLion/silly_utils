@@ -554,6 +554,10 @@ void TzxGrid::puzzle(const std::vector<silly_tzx_grid>& grids, const suRect& bou
     size_t minSize = 999;
     for (const auto& grid : grids)
     {
+        if (!grid.valid())
+        {
+            continue;
+        }
         minSize = std::min(minSize, grid.frame_num());
     }
     m_frames.resize(minSize);
@@ -572,6 +576,10 @@ void TzxGrid::puzzle(const std::vector<silly_tzx_grid>& grids, const suRect& bou
 
                 for (auto& grid : grids)
                 {
+                    if (!grid.valid())
+                    {
+                        continue;
+                    }
                     if (std::abs(grid.m_xdelta - d) > 0.0001)
                     {
                         continue;
