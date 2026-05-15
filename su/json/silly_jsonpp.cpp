@@ -45,7 +45,7 @@ Json::Value suJsonPP::parse(const std::string& content)
     return Json::nullValue;
 }
 
-std::string suJsonPP::to_string(const Json::Value& root, const suJsonPP::style& opt)
+std::string suJsonPP::to_string(const Json::Value& root, const suJsonPP::Style& opt)
 {
     Json::StreamWriterBuilder stream_builder;
     stream_builder["emitUTF8"] = opt.utf8;
@@ -64,17 +64,17 @@ std::string suJsonPP::to_string(const Json::Value& root, const suJsonPP::style& 
     return stream.str();
 }
 
-std::string suJsonPP::stringify(const Json::Value& root, const suJsonPP::style& opt)
+std::string suJsonPP::stringify(const Json::Value& root, const suJsonPP::Style& opt)
 {
     return suJsonPP::to_string(root, opt);
 }
 
-std::string suJsonPP::dumps(const Json::Value& root, const suJsonPP::style& opt)
+std::string suJsonPP::dumps(const Json::Value& root, const suJsonPP::Style& opt)
 {
     return suJsonPP::to_string(root, opt);
 }
 
-bool suJsonPP::write(const suPath& file, const Json::Value& root, const suJsonPP::style& opt)
+bool suJsonPP::write(const suPath& file, const Json::Value& root, const suJsonPP::Style& opt)
 {
     try
     {

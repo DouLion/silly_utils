@@ -135,6 +135,8 @@ public:
 
     sustamp stamp_sec() const;
 
+    sustamp stamp() const;
+
     std::chrono::system_clock::time_point time_point() const;
 
     std::tm tm() const;

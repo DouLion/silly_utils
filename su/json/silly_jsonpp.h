@@ -15,17 +15,17 @@
 class suJsonPP
 {
   public:
-    class style
+    class Style
     {
       public:
-        style() = default;
-        style(const bool& u8, const uint8_t& nn) : utf8(u8), precision(nn)
+        Style() = default;
+        Style(const bool& u8, const uint8_t& nn) : utf8(u8), precision(nn)
         {
         }
-        style(const uint8_t& nn) :  precision(nn)
+        Style(const uint8_t& nn) :  precision(nn)
         {
         }
-        ~style() = default;
+        ~Style() = default;
 
       public:
         bool utf8 = true;
@@ -56,9 +56,9 @@ class suJsonPP
     /// </summary>
     /// <param name="root"></param>
     /// <param name="opt">格式化方式</param>
-    static std::string dumps(const Json::Value& root, const suJsonPP::style& opt ={8});
-    static std::string to_string(const Json::Value& root, const suJsonPP::style& opt ={8});
-    static std::string stringify(const Json::Value& root, const suJsonPP::style& opt ={8});
+    static std::string dumps(const Json::Value& root, const suJsonPP::Style& opt ={8});
+    static std::string to_string(const Json::Value& root, const suJsonPP::Style& opt ={8});
+    static std::string stringify(const Json::Value& root, const suJsonPP::Style& opt ={8});
 
     /// <summary>
     /// 将json内容写入到文件
@@ -66,7 +66,7 @@ class suJsonPP
     /// <param name="file">文件路径</param>
     /// <param name="root"></param>
     /// <param name="opt">样式</param>
-    static bool write(const suPath& file, const Json::Value& root, const suJsonPP::style& opt ={8});
+    static bool write(const suPath& file, const Json::Value& root, const suJsonPP::Style& opt ={8});
 
     /// <summary>
     /// 检查json中指定key的数据类型,如果正确,则赋值,并且返回true,否则返回false

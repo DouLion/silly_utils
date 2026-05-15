@@ -218,6 +218,11 @@ sustamp sutime::stamp_sec() const
     return std::chrono::system_clock::to_time_t(m_time_point);
 }
 
+sustamp sutime::stamp() const
+{
+    return std::chrono::system_clock::to_time_t(m_time_point);
+}
+
 std::chrono::system_clock::time_point sutime::time_point() const
 {
     return m_time_point;

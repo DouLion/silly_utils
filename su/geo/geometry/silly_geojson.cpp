@@ -254,7 +254,7 @@ bool suGeoJson::Parse(const Json::Value& geojson, suMultiPoly& meta)
 std::string suGeoJson::Stringify(const std::vector<suPoly>& polys)
 {
     std::string ret;
-    sujson::style opt;
+    sujson::Style opt;
     opt.precision = 8;
     Json::Value jvObj = Json::objectValue;
     jvObj[K_TYPE] = V_FEATURE_COLLECTION;
@@ -671,7 +671,7 @@ bool suGeoJson::load(const Json::Value& jv, std::unordered_map<std::string, suGe
 
 std::string suGeoJson::stringify(const std::vector<suGeoColl>& geo_colls, const int& precision)
 {
-    sujson::style opt;
+    sujson::Style opt;
     opt.precision = precision;
     Json::Value jvObj = Json::objectValue;
     jvObj[K_TYPE] = V_FEATURE_COLLECTION;
@@ -686,7 +686,7 @@ std::string suGeoJson::stringify(const std::vector<suGeoColl>& geo_colls, const 
 
 std::string suGeoJson::stringify(const std::vector<suPoint>& points, const int& precision)
 {
-    sujson::style opt;
+    sujson::Style opt;
     opt.precision = precision;
     Json::Value jvArr = Json::arrayValue;
     for (const auto& item : points)
@@ -698,7 +698,7 @@ std::string suGeoJson::stringify(const std::vector<suPoint>& points, const int& 
 
 std::string suGeoJson::stringify(const std::vector<suLine>& lines, const int& precision)
 {
-    sujson::style opt;
+    sujson::Style opt;
     opt.precision = precision;
     Json::Value jvArr = Json::arrayValue;
     for (const auto& item : lines)
@@ -710,7 +710,7 @@ std::string suGeoJson::stringify(const std::vector<suLine>& lines, const int& pr
 
 std::string suGeoJson::stringify(const std::vector<suPoly>& polys, const int& precision)
 {
-    sujson::style opt;
+    sujson::Style opt;
     opt.precision = precision;
     Json::Value jvArr = Json::arrayValue;
     for (const auto& item : polys)
@@ -722,7 +722,7 @@ std::string suGeoJson::stringify(const std::vector<suPoly>& polys, const int& pr
 
 std::string suGeoJson::stringify(const std::vector<suMultiPoint>& mpoints, const int& precision)
 {
-    sujson::style opt;
+    sujson::Style opt;
     opt.precision = precision;
     Json::Value jvArr = Json::arrayValue;
     for (const auto& gc : mpoints)
@@ -734,7 +734,7 @@ std::string suGeoJson::stringify(const std::vector<suMultiPoint>& mpoints, const
 
 std::string suGeoJson::stringify(const std::vector<suMultiLine>& mlines, const int& precision)
 {
-    sujson::style opt;
+    sujson::Style opt;
     opt.precision = precision;
     Json::Value jvArr = Json::arrayValue;
     for (const auto& gc : mlines)
@@ -746,7 +746,7 @@ std::string suGeoJson::stringify(const std::vector<suMultiLine>& mlines, const i
 
 std::string suGeoJson::stringify(const std::vector<suMultiPoly>& mpolys, const int& precision)
 {
-    sujson::style opt;
+    sujson::Style opt;
     opt.precision = precision;
     Json::Value jvArr = Json::arrayValue;
     for (const auto& gc : mpolys)
@@ -960,49 +960,49 @@ Json::Value suGeoJson::jsonify(const suMultiPoly& mpoly)
 
 Json::Value suGeoJson::stringify(const suGeoColl& geo_coll, const int& precision)
 {
-    sujson::style opt;
+    sujson::Style opt;
     opt.precision = precision;
     return sujson::stringify(jsonify(geo_coll), opt);
 }
 
 std::string suGeoJson::stringify(const suPoint& point, const int& precision)
 {
-    sujson::style opt;
+    sujson::Style opt;
     opt.precision = precision;
     return sujson::stringify(jsonify(point), opt);
 }
 
 std::string suGeoJson::stringify(const suLine& line, const int& precision)
 {
-    sujson::style opt;
+    sujson::Style opt;
     opt.precision = precision;
     return sujson::stringify(jsonify(line), opt);
 }
 
 std::string suGeoJson::stringify(const suPoly& poly, const int& precision)
 {
-    sujson::style opt;
+    sujson::Style opt;
     opt.precision = precision;
     return sujson::stringify(jsonify(poly), opt);
 }
 
 std::string suGeoJson::stringify(const suMultiPoint& mpoint, const int& precision)
 {
-    sujson::style opt;
+    sujson::Style opt;
     opt.precision = precision;
     return sujson::stringify(jsonify(mpoint), opt);
 }
 
 std::string suGeoJson::stringify(const suMultiLine& mline, const int& precision)
 {
-    sujson::style opt;
+    sujson::Style opt;
     opt.precision = precision;
     return sujson::stringify(jsonify(mline), opt);
 }
 
 std::string suGeoJson::stringify(const suMultiPoly& mpoly, const int& precision)
 {
-    sujson::style opt;
+    sujson::Style opt;
     opt.precision = precision;
     return sujson::stringify(jsonify(mpoly), opt);
 }
