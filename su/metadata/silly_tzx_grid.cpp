@@ -42,9 +42,9 @@ TzxGrid::TzxGrid()
     m_header_len += (sizeof(m_name) + sizeof(m_units) + sizeof(m_rows) + sizeof(m_cols));
 }
 
-silly_tzx_grid TzxGrid::copy() const
+TzxGrid TzxGrid::copy() const
 {
-    silly_tzx_grid ret;
+    TzxGrid ret;
     ret.copy_info(*this);
     for (const auto& m : m_frames)
     {
@@ -54,9 +54,9 @@ silly_tzx_grid TzxGrid::copy() const
     return ret;
 }
 
-silly_tzx_grid TzxGrid::copy(const size_t& i) const
+TzxGrid TzxGrid::copy(const size_t& i) const
 {
-    silly_tzx_grid ret;
+    TzxGrid ret;
     ret.copy_info(*this);
     if (!m_frames.empty())
     {
@@ -67,7 +67,7 @@ silly_tzx_grid TzxGrid::copy(const size_t& i) const
     return ret;
 }
 
-void TzxGrid::copy_info(const silly_tzx_grid& rh)
+void TzxGrid::copy_info(const TzxGrid& rh)
 {
     m_left = rh.m_left;
     m_right = rh.m_right;
@@ -104,7 +104,7 @@ size_t TzxGrid::frame_num() const
     return m_frames.size();
 }
 
-bool TzxGrid::set(const size_t& i, const silly_tzx_grid& rh)
+bool TzxGrid::set(const size_t& i, const TzxGrid& rh)
 {
     if (i < m_frames.size())
     {
@@ -117,7 +117,7 @@ bool TzxGrid::set(const size_t& i, const silly_tzx_grid& rh)
     }
     return false;
 }
-bool TzxGrid::add(const silly_tzx_grid& rh)
+bool TzxGrid::add(const TzxGrid& rh)
 {
     if (!valid())
     {
@@ -537,7 +537,7 @@ bool TzxGrid::unserialize_v2(char* p, const int& index)
     return !m_frames.empty();
 }
 
-void TzxGrid::puzzle(const std::vector<silly_tzx_grid>& grids, const suRect& boundary, const float& d)
+void TzxGrid::puzzle(const std::vector<TzxGrid>& grids, const suRect& boundary, const float& d)
 {
     if (grids.empty())
     {
@@ -598,7 +598,7 @@ void TzxGrid::puzzle(const std::vector<silly_tzx_grid>& grids, const suRect& bou
     }
     
 }
-silly_tzx_grid& TzxGrid::operator=(const silly_tzx_grid& rh)
+TzxGrid& TzxGrid::operator=(const TzxGrid& rh)
 {
     if (this != &rh)
     {
@@ -617,7 +617,7 @@ silly_tzx_grid& TzxGrid::operator=(const silly_tzx_grid& rh)
 
     return *this;
 }
-bool TzxGrid::same(const silly_tzx_grid& rh) const
+bool TzxGrid::same(const TzxGrid& rh) const
 {
     bool ret = true;
     ret &= (this->m_cols > 0 && rh.m_rows > 0);
