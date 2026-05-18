@@ -25,10 +25,10 @@ double RWDB::ST_PPTN_R::INTV2MS(const double& intv)
     return INTV2S(intv) * 1000.0;
 }
 
-extern std::map<std::time_t, float> RWDB::AggDrpByIntv(const std::map<std::time_t, float>& tm2rain, const std::time_t& bt, const std::time_t& et, const std::time_t& intv)
+std::map<std::time_t, double> RWDB::ST_PPTN_R::Resample(const std::map<std::time_t, double>& tm2rain, const std::time_t& bt, const std::time_t& et, const std::time_t& intv)
 {
     auto t = bt +  intv;
-    std::map<std::time_t, float> ret;
+    std::map<std::time_t, double> ret;
     auto it = tm2rain.begin();
     auto eit = tm2rain.end();
     while (it != eit && it->first <= bt)
@@ -49,7 +49,7 @@ extern std::map<std::time_t, float> RWDB::AggDrpByIntv(const std::map<std::time_
     return ret;
 }
 
-extern std::map<std::string, std::string> RWDB::MaxDrpStation(const std::map<std::string, std::vector<std::string>>& code2stcds, const std::map<std::string, std::map<std::time_t, float>>& stcd2tm2drp)
+std::map<std::string, std::string> RWDB::ST_PPTN_R::MaxDrpStation(const std::map<std::string, std::vector<std::string>>& code2stcds, const std::map<std::string, std::map<std::time_t, float>>& stcd2tm2drp)
 {
     std::map<std::string, std::string> ret;
     std::map<std::string, float> stcd2sum;

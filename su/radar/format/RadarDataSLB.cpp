@@ -188,6 +188,13 @@ bool BlockData::Read(char*& p, const BlockInfo& info, SLB& slb, size_t azNum, si
 
     for (int i = 0; i < head.VarCounts; i++)
     {
+        // 调试：打印每个变量的 Type, Scale, Offset (无条件输出)
+        if (i < 10) {
+            std::cout << "[Debug] Var[" << i << "]: Type=" << (int)DataType[i] 
+                      << ", Scale=" << Scale[i] 
+                      << ", Offset=" << Offset[i] << std::endl;
+        }
+        
         const int layer = head.ElevationNumber - 1;
         const int az = head.RadialNumber - 1;
         size_t count = info.LayerParams[layer].GateCounts[i];
@@ -367,6 +374,14 @@ bool SLB::Read(const suPath& file)
         }
         m_RadialNumber0 = m_RadialBlocks.front().head.RadialNumber;
     } while (0);
+   
+#ifndef NDEBUG
+    std::cout << m_BlockInfo.LayerParams.size() << std::endl;
+    for (auto& parm : m_BlockInfo.LayerParams)
+    {
+        std::cout << parm.ElevationAngle << " : " << parm.GateCounts.front() << std::endl;
+    }
+#endif
     if (m_RadialBlocks.empty())
     {
         m_Err = "缺少有效径向块";

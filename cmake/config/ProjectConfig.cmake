@@ -23,7 +23,7 @@ set(DISABLE_GDAL OFF)         # GDAL 地理数据抽象库
 set(DISABLE_POLY_CLIPPING OFF) # 矢量切割算法 (Clipper2)
 set(DISABLE_GEOTIFF OFF)      # GeoTIFF 栅格数据读写
 set(DISABLE_NETCDF_CXX OFF)   # netCDF C++ 接口
-set(DISABLE_ECCODES OFF)       # ECMWF 气象数据库 (GRIB2)，默认禁用
+set(DISABLE_ECCODES ON)       # ECMWF 气象数据库 (GRIB2)，默认禁用
 
 # 图像处理库
 set(DISABLE_CAIRO OFF)        # Cairo 矢量绘图库

@@ -42,28 +42,31 @@ struct ST_PPTN_R
      */
     static double INTV2S(const double& intv);
     static double INTV2MS(const double& intv);
+    /**
+     * @brief 降雨数据,按左开右闭区间 (t−step, t]
+     *  重采样到指定时间窗口,
+     *  如果输入频率高于时间窗口,做累加
+     *  如果输入平吕低于时间窗口,均匀分摊到各窗口
+     *  输出每个聚合窗口结束时刻对应的累计雨量.
+     *
+     * @param tm2rain 原始降雨序列
+     * @param bt 开始时间戳
+     * @param et 结束时间戳
+     * @param intv 时间步长 秒
+     * @return 输出结果会从bt+step开始,表示从bt到 bt+step内的累计雨量
+     */
+    std::map<std::time_t, double> Resample(const std::map<std::time_t, double>& tm2rain, const std::time_t& bt, const std::time_t& et, const std::time_t& intv);
+
+    /**
+     * @brief 危险区(或其他)关联的雨量站中, 降雨量最大的站
+     * @param code2stcds 目标关联的雨量站
+     * @param stcd2tm2drp 雨量站的降雨信息
+     * @return
+     */
+    std::map<std::string, std::string> MaxDrpStation(const std::map<std::string, std::vector<std::string>>& code2stcds, const std::map<std::string, std::map<std::time_t, float>>& stcd2tm2drp);
 };
 
-/**
- * @brief 将高频率(如每5分钟)的降雨数据,按左开右闭区间 (t−step, t]
- *  聚合到低频时间窗口(如整小时、整3小时),
- *  输出每个聚合窗口结束时刻对应的累计雨量.
- *
- * @param tm2rain 原始降雨序列
- * @param bt 开始时间戳
- * @param et 结束时间戳
- * @param intv 时间步长 秒
- * @return 输出结果会从bt+step开始,表示从bt到 bt+step内的累计雨量
- */
-std::map<std::time_t, float> AggDrpByIntv(const std::map<std::time_t, float>& tm2rain, const std::time_t& bt, const std::time_t& et, const std::time_t& intv);
 
-/**
- * @brief 危险区(或其他)关联的雨量站中, 降雨量最大的站
- * @param code2stcds 目标关联的雨量站
- * @param stcd2tm2drp 雨量站的降雨信息
- * @return
- */
-std::map<std::string, std::string> MaxDrpStation(const std::map<std::string, std::vector<std::string>>& code2stcds, const std::map<std::string, std::map<std::time_t, float>>& stcd2tm2drp);
 }
 
 #endif  // ST_PPTN_R_H

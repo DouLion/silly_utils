@@ -1,0 +1,491 @@
+/// 测试
+#if IS_WIN32
+// #include <vld.h>
+#endif
+#define LOCAL_TEST 0
+#include <su.h>
+suOTL CONN;
+#if LOCAL_TEST
+std::string URL = "http://192.168.0.179:10022/radar/api/data/grid";
+#else
+std::string URL = "http://10.43.1.173:19090/shzh/api/data/grid";
+#endif
+std::map<std::string, std::tuple<std::string, double, double>> WXQ2INFO;
+std::map<std::string, std::map<int, double>> WXQ2GRD2TH;  // 危险区1小时的指标
+// 株洲市茶陵县湖口镇湖口村湖口村 2026 年 05 月 13 日 11 时 48 分 1 小时降雨量达 71.0 毫米，超过准备转移（70.0 毫米）1.0 毫米，请密切监视雨水情，做好影响区域人员转移准备，并及时主动向上级报送相关信息。
+//[山洪灾害短临预警] 根据测雨雷达外推数据，xx 县未来 1 小时最大雨强将超过 xx 毫米，xx 乡镇山洪灾害风险较大，请密切关注雨水情变化！
+std::string TEMPLATE = "根据测雨雷达外推数据，预计{}未来1小时最大雨强将达{:.1f}毫米，{}山洪灾害风险较大，请密切关注雨水情变化！";
+std::map<std::string, suMultiPoly> XIAN2POLY;
+std::map<std::string, std::string> XIAN2NAME;
+std::map<std::string, std::string> WXQ2XIAN;
+std::map<std::string, std::string> WXQ2XIANG;
+std::map<std::string, std::string> XIANG2NAME;
+
+double SCALE = 1.0;
+std::map<int, std::string> GRADE_NAME_MAP = {
+    {10, "准备转移"},
+    {11, "立即转移"},
+    {103, "准备转移"},
+    {104, "立即转移"},
+    {30, "准备转移"},
+    {31, "立即转移"},
+};
+struct ReqParam
+{
+    std::string project = "HNPROJ1";
+    std::string btm;  // 开始时间，由外部变量 target_time_str 赋值
+    std::string etm;  // 结束时间，同上
+    std::string type = "OHP_F";
+    int rate = 0;
+    double left = 104.0;
+    double top = 31.0;
+    double right = 118.0;
+    double bottom = 24.2;
+    double scale = 0.01;
+    std::string UrlFormat() const
+    {
+        std::ostringstream oss;
+        oss << "project=" << project << "&btm=" << btm << "&etm=" << etm << "&type=" << type << "&rate=" << rate << "&left=" << left << "&top=" << top << "&right=" << right << "&bottom=" << bottom << "&scale=" << scale;
+        return oss.str();
+    }
+};
+struct WarningRec
+{
+    std::string CODE;
+    int WarnGradeID = -1;
+    std::string WarnNM;
+    std::string WarnDesc;
+    std::string Name;
+    double Threshold = 0.0;
+    double WarningVal = 0.0;
+    double Lon = 0;
+    double Lat = 0;
+    std::string attr;
+    Json::Value jsonify() const
+    {
+        Json::Value ret = Json::objectValue;
+        ret["code"] = CODE;
+        ret["grade"] = WarnGradeID;
+        ret["name"] = Name;
+        ret["threshold"] = SUFMT("{:.1f}", Threshold);
+        ret["drp"] = SUFMT("{:.1f}", WarningVal);
+        ret["lon"] = Lon;
+        ret["lat"] = Lat;
+        return ret;
+    }
+};
+
+bool InitOtl();
+bool LoadInfo();
+void Process();
+
+double MaxValue(const std::string& xian, const std::map<int, std::map<int, double>>& lon2lat2drp);
+std::vector<WarningRec> WxqWarns(std::map<int, std::map<int, double>>& lon2lat2drp);
+
+std::map<int, std::map<int, double>> GetDrpData(const std::time_t& tm);
+
+int main(int argc, char** argv)
+{
+    BIN_CHDIR();
+    SLOG_MAIN
+
+    suGeoUtils::init_gdal_env();
+    if (argc > 1)
+    {
+        SCALE = std::stod(argv[1]);
+    }
+    if (!InitOtl())
+    {
+        std::cout << 1 << std::endl;
+        return -1;
+    }
+    if (!LoadInfo())
+    {
+        std::cout << 2 << std::endl;
+        return -2;
+    }
+    // Process();
+    // return 0;
+    while (1)
+    {
+        sutime tm(std::time(nullptr));
+        if (tm.minute() < 20 && tm.minute() > 10)
+        {
+            Process();
+            std::this_thread::sleep_for(std::chrono::minutes(20));
+        }
+        else
+        {
+            std::this_thread::sleep_for(std::chrono::minutes(1));
+        }
+    }
+
+    return 0;
+}
+
+void Insert(const std::vector<WarningRec>& records, const std::time_t& base_time)
+{
+    auto tmp = CONN;
+#if 0
+    for (const auto r : records)
+    {
+        std::cout << r.WarnDesc << std::endl;
+        std::cout << r.attr << std::endl;
+    }
+#else
+    std::string sqlInsertRecord = " INSERT INTO WarnRecord_R  (CODE, WarnTypeID, WarnGradeID, WarnStatusID, WarnSTM, WarnNM, WarnDesc, GenTM) VALUES(:f1<char[32]>, 26,:f2<int>, 0, :f3<timestamp>, :f4<char[256]>, :f5<varchar_long>, NOW());";
+    std::string autoIncID = tmp.last_insert_id_sql();
+    std::string sqlInsertAttr = " INSERT INTO WarnRecord_ATT_R (WarnID, Attachment) VALUES(:f1<int>, :f3<varchar_long>);";
+    if (!tmp.session([&](otl_connect* conn) {
+            otl_datetime tm = suOTL::Stamp2Time(base_time);
+            otl_stream stm1, stm2, stm3;
+
+            stm1.set_commit(false);
+            stm1.open(1, sqlInsertRecord.c_str(), *conn);
+            stm2.set_commit(false);
+            stm2.open(1, sqlInsertAttr.c_str(), *conn);
+            for (const auto& r : records)
+            {
+                int WarnID = 0;
+                otl_write_row(stm1, r.CODE, r.WarnGradeID, tm, r.WarnNM, r.WarnDesc);
+                stm3.open(1, autoIncID.c_str(), *conn);
+                otl_read_row(stm3, WarnID);
+                stm3.close();
+                otl_write_row(stm2, WarnID, r.attr);
+            }
+        }))
+    {
+        SLOG_ERROR(tmp.err())
+    }
+#endif
+}
+
+void Process()
+{
+    const int TIME_SPAN = 5 * 60;
+    std::time_t now = std::time(nullptr) - TIME_SPAN * 3;  // 往前倒一会儿, 防止数据延迟
+    now = now / TIME_SPAN * TIME_SPAN;                     // 取整5分钟
+
+    // now = sutime("2025-05-22 01:00").stamp();
+    std::map<int, std::map<int, double>> lon2lat2drp = GetDrpData(now);
+    std::map<std::string, std::vector<WarningRec>> adcd2warns;
+    {  // 先处理危险区的预警
+        std::vector<WarningRec> warns = WxqWarns(lon2lat2drp);
+
+        for (const auto& warn : warns)
+        {
+            adcd2warns[WXQ2XIAN[warn.CODE]].push_back(warn);
+        }
+    }
+
+    if (adcd2warns.empty())
+    {
+        SLOG_INFO("当前无预警产生。")
+        return;
+    }
+
+    std::time_t warnTM = std::time(nullptr);
+    warnTM = warnTM / SEC_IN_HOUR * SEC_IN_HOUR;
+    std::vector<WarningRec> warns;
+    for (auto& [adcd, wxqWarns] : adcd2warns)
+    {
+        std::set<std::string> xiangCodes;
+        Json::Value jvTmp = Json::objectValue;
+        Json::Value jvDetails = Json::arrayValue;
+
+        double MaxRate = MaxValue(adcd, lon2lat2drp);
+
+        WarningRec tmp;
+        tmp.CODE = adcd;
+        for (const auto& warn : wxqWarns)
+        {
+            xiangCodes.insert(WXQ2XIANG[warn.CODE]);
+            jvDetails.append(warn.jsonify());
+        }
+        tmp.WarnNM = XIAN2NAME[adcd] + "雷达短临预警";
+        std::string xiangNames;
+        for (const auto& xiangcd : xiangCodes)
+        {
+            xiangNames.append(XIANG2NAME[xiangcd]);
+            if (xiangcd != *xiangCodes.rbegin())
+            {
+                xiangNames.append("、");
+            }
+        }
+        tmp.WarnDesc = SUFMT(TEMPLATE, XIAN2NAME[adcd], MaxRate, xiangNames);
+        jvTmp["details"] = jvDetails;
+        jvTmp["code"] = adcd;
+        jvTmp["name"] = tmp.WarnNM;
+        jvTmp["time"] = TimeStringify(warnTM);
+        tmp.attr = sujson::stringify(jvTmp, 8);
+        warns.push_back(tmp);
+    }
+
+    SLOG_INFO("去重完毕，最终需入库 {}", warns.size());
+    Insert(warns, warnTM);
+}
+
+bool InitOtl()
+{
+#if LOCAL_TEST
+    std::string cfg = R"(
+{
+      "type": "mysql",
+      "ip": "192.168.0.73",
+      "port": 3306,
+      "driver": "MariaDB ODBC 3.1 Driver",
+      "schema": "TZX_FloodDisaster_HN",
+      "user": "root",
+      "password": "3edc9ijn~",
+      "verbose":true
+    })";
+#else
+
+    std::string cfg = R"({
+      "type": "mysql",
+      "ip": "10.143.1.205",
+      "port": 3306,
+      "schema": "TZX_FloodDisaster_HN",
+      "user": "root",
+      "password": "3EDC9ijn~",
+      "driver": "MariaDB ODBC 3.1 Driver",
+      "timeout": 20,
+       "verbose":true
+    })";
+#endif
+    if (!CONN.load(cfg))
+    {
+        SLOG_ERROR(CONN.err())
+        return false;
+    }
+    SLOG_INFO(CONN.odbc(true))
+    return true;
+}
+
+bool LoadInfo()
+{
+    {
+        auto tmp = CONN;
+
+        std::string sql = R"(
+
+
+SELECT wxq.CODE, wxq.NAME, wxq.LGTD, wxq.LTTD, wxq.ADCD as cunCD, wxq.ADNM as cunNM, xiang.ADCD as xiangCD, xiang.ADNM as xiangNM, xian.ADCD as xianCD, xian.ADNM as xianNM FROM (SELECT a.CODE, a.NAME, a.LGTD, a.LTTD, b.ADCD, b.ADNM FROM wxq_list_hunan.ia_adb_danad a, TZX_ADCD.TZX_ADCD b WHERE a.isdel = 0 AND a.type = 1 AND a.AID = b.AID) wxq, (SELECT ADCD, ADNM FROM TZX_ADCD.TZX_ADCD WHERE LENGTH(ADCD) = 9) xiang, (SELECT ADCD, ADNM FROM TZX_ADCD.TZX_ADCD WHERE LENGTH(ADCD) = 6) xian WHERE SUBSTR(wxq.ADCD, 1, 6) = xian.ADCD AND SUBSTR(wxq.ADCD, 1, 9) = xiang.ADCD;
+)";
+        if (!tmp.select(sql, [](otl_stream* stm) {
+                while (!stm->eof())
+                {
+                    std::string code, name, cunCD, cunNM, xiangCD, xiangNM, xianCD, xianNM;
+                    double lon, lat;
+                    otl_read_row(*stm, code, name, lon, lat, cunCD, cunNM, xiangCD, xiangNM, xianCD, xianNM);
+                    WXQ2INFO[code] = {name, lon, lat};
+
+                    WXQ2XIAN[code] = xianCD;
+                    WXQ2XIANG[code] = xiangCD;
+                    XIAN2NAME[xianCD] = xianNM;
+                    XIANG2NAME[xiangCD] = xiangNM;
+                }
+            }))
+        {
+            SLOG_ERROR(tmp.err())
+            return false;
+        }
+    }
+    {
+        auto tmp = CONN;
+        std::string sql = "SELECT CODE, WarnGradeID, Threshold FROM warnrule_b WHERE WarnTYpeID = 20 AND STDT = 1;";
+        if (!tmp.select(sql, [](otl_stream* stm) {
+                while (!stm->eof())
+                {
+                    std::string code;
+                    int grd;
+                    double th;
+                    otl_read_row(*stm, code, grd, th);
+                    WXQ2GRD2TH[code][grd] = th;
+                }
+            }))
+        {
+            SLOG_ERROR(tmp.err())
+            return false;
+        }
+    }
+
+    {
+#if LOCAL_TEST
+        supath file(R"(Z:\dev\work\tmp\poly_xian_s5000.shp)");
+#else
+        supath file(R"(./vector/poly_xian_s5000.shp)");
+#endif
+        std::vector<suGeoColl> colls = suGeoUtils::read(file);
+        if (colls.empty())
+        {
+            SLOG_ERROR("矢量加载错误: {}", file.u8string());
+            return false;
+        }
+        for (const auto& coll : colls)
+        {
+            std::string code = coll.asString("CODE").substr(0, 6);
+            if (!HAS(XIAN2NAME, code))
+            {
+                continue;
+            }
+            if (coll.type() == eGeometryType::MultiPolygon)
+            {
+                XIAN2POLY[code] = coll.asMultiPoly();
+            }
+            else
+            {
+                XIAN2POLY[code].push_back(coll.asPoly());
+            }
+        }
+    }
+    return true;
+}
+
+std::map<int, std::map<int, double>> GetDrpData(const std::time_t& tm)
+{
+    std::map<int, std::map<int, double>> ret;
+    ReqParam param;
+    sutime ptm(tm);
+    param.btm = SUFMT("{:04d}-{:02d}-{:02d}%20{:02d}:{:02d}", ptm.year(), ptm.month(), ptm.day(), ptm.hour(), ptm.minute());
+    param.etm = param.btm;
+    suHttpClient cli;
+    std::string resp;
+    std::string url = URL;
+    url.append("?").append(param.UrlFormat());
+    SLOG_INFO("请求:{}", url)
+    if (!cli.get(url, resp))
+    {
+        SLOG_ERROR(cli.err());
+        return ret;
+    }
+
+    Json::Value jv = sujson::parse(resp);
+    if (!jv.isObject())
+    {
+        SLOG_ERROR("JSON response is not an object");
+        return ret;
+    }
+
+    // 检查状态码
+    if (jv["status"].asInt() != 1 || !jv.isMember("data"))
+    {
+        std::string msg = jv.isMember("message") ? jv["message"].asString() : "unknown error";
+        SLOG_ERROR("Radar API status error: {}", msg);
+        return ret;
+    }
+
+    const Json::Value& data_arr = jv["data"];
+    if (!data_arr.isArray())
+    {
+        SLOG_ERROR("Radar data is not an array");
+        return ret;
+    }
+
+    for (const Json::Value& item : data_arr)
+    {
+        if (!item.isMember("lgtd") || !item.isMember("lttd") || !item.isMember("value"))
+            continue;
+        double rainfall = item["value"].asDouble() * SCALE;
+        if (rainfall < 20)
+        {
+            continue;
+        }
+        double lon = item["lgtd"].asDouble();
+        double lat = item["lttd"].asDouble();
+
+        int iLon = static_cast<int>(std::round(lon * 100.0));
+        int iLat = static_cast<int>(std::round(lat * 100.0));
+        ret[iLon][iLat] = rainfall;
+    }
+
+    // 可选：记录解析条目数
+    SLOG_INFO("解析数量{}", data_arr.size())
+
+    return ret;
+}
+
+double MaxValue(const std::string& xian, const std::map<int, std::map<int, double>>& lon2lat2drp)
+{
+    double ret = 0;
+    auto& mpoly = XIAN2POLY[xian];
+    for (const auto& [lon, xx] : lon2lat2drp)
+    {
+        for (const auto& [lat, drp] : xx)
+        {
+            if (drp < 20)
+            {
+                continue;
+            }
+            double dLon = lon * 0.01;
+            double dLat = lat * 0.01;
+            if (mpoly.contains({dLon, dLat}))
+            {
+                ret = std::max(ret, drp);
+            }
+        }
+    }
+    return ret;
+}
+
+std::vector<WarningRec> WxqWarns(std::map<int, std::map<int, double>>& lon2lat2drp)
+{
+    std::vector<WarningRec> warns;
+    for (const auto& [code, grd2th] : WXQ2GRD2TH)
+    {
+        auto itInfo = WXQ2INFO.find(code);
+        if (itInfo == WXQ2INFO.end())
+            continue;
+
+        auto [name, lon, lat] = itInfo->second;
+
+        int xi = (int)std::round(lon * 100.0);
+        int yi = (int)std::round(lat * 100.0);
+
+        double drp = 0.0f;
+        drp += lon2lat2drp[xi - 1][yi - 1];
+        drp += lon2lat2drp[xi][yi - 1];
+        drp += lon2lat2drp[xi + 1][yi - 1];
+        drp += lon2lat2drp[xi - 1][yi];
+        drp += lon2lat2drp[xi][yi];
+        drp += lon2lat2drp[xi + 1][yi];
+        drp += lon2lat2drp[xi - 1][yi + 1];
+        drp += lon2lat2drp[xi][yi + 1];
+        drp += lon2lat2drp[xi + 1][yi + 1];
+        drp /= 9.0;
+
+        if (drp == 0.0f)
+            continue;
+
+        if (grd2th.empty())
+            continue;
+
+        // python：thresholds[code]按threshold降序排序，匹配第一个 >= 阈值 即最高等级
+        std::vector<std::pair<int, double>> rules;
+        rules.reserve(grd2th.size());
+        for (const auto& [grade, th] : grd2th)
+            rules.emplace_back(grade, th);
+
+        std::sort(rules.begin(), rules.end(), [](const auto& a, const auto& b) { return a.second > b.second; });
+        WarningRec ox;
+        ox.CODE = code;
+        ox.Lon = lon;
+        ox.Lat = lat;
+        ox.Name = std::get<0>(WXQ2INFO[code]);
+        for (const auto& [grade, threshold] : rules)
+        {
+            if (drp >= threshold)
+            {
+                ox.WarnGradeID = grade;
+                ox.Threshold = threshold;
+                ox.WarningVal = drp;
+                break;
+            }
+        }
+        if (ox.WarnGradeID > 0)
+        {
+            warns.push_back(ox);
+        }
+    }
+    return warns;
+}
