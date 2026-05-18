@@ -561,6 +561,7 @@ void TzxGrid::puzzle(const std::vector<TzxGrid>& grids, const suRect& boundary, 
         minSize = std::min(minSize, grid.frame_num());
     }
     m_frames.resize(minSize);
+    int fIDX = 0;
     for (auto& frame : m_frames)
     {
         frame.create(m_rows, m_cols);
@@ -589,12 +590,13 @@ void TzxGrid::puzzle(const std::vector<TzxGrid>& grids, const suRect& boundary, 
                     int ty = std::round((grid.m_top - y) / grid.m_ydelta);
                     if (tx >= 0 && tx < grid.m_cols && ty >= 0 && ty < grid.m_rows)
                     {
-                        value = SU_MAX(value, grid.m_frames[0][ty][tx]);
+                        value = SU_MAX3(value, grid.m_frames[fIDX][ty][tx], 0);
                     }
                 }
                 frame[r][c] = value;
             }
         }
+        fIDX ++ ;
     }
     
 }
