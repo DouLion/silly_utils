@@ -80,88 +80,88 @@ std::string curlErrorToString(CURLcode code, const char* errorBuffer) {
 } // namespace
 
 suSFTPClient::suSFTPClient()
-    : port_(22),
-      authMode_(AuthMode::Password),
-      hostKeyVerifyMode_(HostKeyVerifyMode::Disabled),
-      timeoutSeconds_(0),
-      connectTimeoutSeconds_(30),
-      verbose_(false),
-      connected_(false) {
+    : m_Port(22),
+      m_AuthMode(AuthMode::Password),
+      m_HostKeyVerifyMode(HostKeyVerifyMode::Disabled),
+      m_TimeoutSeconds(0),
+      m_ConnectTimeoutSeconds(30),
+      m_Verbose(false),
+      m_Connected(false) {
 }
 
 suSFTPClient::~suSFTPClient() {
-    disconnect();
+    Disconnect();
 }
 
-bool suSFTPClient::connectWithPassword(const std::string& host,
+bool suSFTPClient::ConnectWithPassword(const std::string& host,
                                      int port,
                                      const std::string& username,
                                      const std::string& password) {
-    host_ = host;
-    port_ = port > 0 ? port : 22;
-    username_ = username;
-    password_ = password;
-    privateKeyFile_.clear();
-    publicKeyFile_.clear();
-    passphrase_.clear();
-    authMode_ = AuthMode::Password;
-    connected_ = true;
-    lastError_.clear();
+    m_Host = host;
+    m_Port = port > 0 ? port : 22;
+    m_UserName = username;
+    m_Password = password;
+    m_PrivateKeyFile_.clear();
+    m_PublicKeyFile.clear();
+    m_Passphrase.clear();
+    m_AuthMode = AuthMode::Password;
+    m_Connected = true;
+    m_LastError.clear();
 
     return true;
 }
 
-bool suSFTPClient::connectWithPrivateKey(const std::string& host,
+bool suSFTPClient::ConnectWithPrivateKey(const std::string& host,
                                        int port,
                                        const std::string& username,
                                        const std::string& privateKeyFile,
                                        const std::string& publicKeyFile,
                                        const std::string& passphrase) {
-    host_ = host;
-    port_ = port > 0 ? port : 22;
-    username_ = username;
-    password_.clear();
-    privateKeyFile_ = privateKeyFile;
-    publicKeyFile_ = publicKeyFile;
-    passphrase_ = passphrase;
-    authMode_ = AuthMode::PrivateKey;
-    connected_ = true;
-    lastError_.clear();
+    m_Host = host;
+    m_Port = port > 0 ? port : 22;
+    m_UserName = username;
+    m_Password.clear();
+    m_PrivateKeyFile_ = privateKeyFile;
+    m_PublicKeyFile = publicKeyFile;
+    m_Passphrase = passphrase;
+    m_AuthMode = AuthMode::PrivateKey;
+    m_Connected = true;
+    m_LastError.clear();
 
     return true;
 }
 
-void suSFTPClient::disconnect() {
-    connected_ = false;
+void suSFTPClient::Disconnect() {
+    m_Connected = false;
 }
 
-void suSFTPClient::setTimeout(long seconds) {
-    timeoutSeconds_ = seconds;
+void suSFTPClient::SetTimeout(long seconds) {
+    m_TimeoutSeconds = seconds;
 }
 
-void suSFTPClient::setConnectTimeout(long seconds) {
-    connectTimeoutSeconds_ = seconds;
+void suSFTPClient::SetConnectTimeout(long seconds) {
+    m_ConnectTimeoutSeconds = seconds;
 }
 
-void suSFTPClient::setVerbose(bool enabled) {
-    verbose_ = enabled;
+void suSFTPClient::SetVerbose(bool enabled) {
+    m_Verbose = enabled;
 }
 
-void suSFTPClient::setHostKeyVerifyMode(HostKeyVerifyMode mode) {
-    hostKeyVerifyMode_ = mode;
+void suSFTPClient::SetHostKeyVerifyMode(HostKeyVerifyMode mode) {
+    m_HostKeyVerifyMode = mode;
 }
 
-void suSFTPClient::setKnownHostsFile(const std::string& knownHostsFile) {
-    knownHostsFile_ = knownHostsFile;
+void suSFTPClient::SetKnownHostsFile(const std::string& knownHostsFile) {
+    m_KnownHostsFile = knownHostsFile;
 }
 
-bool suSFTPClient::uploadFile(const std::string& localPath,
+bool suSFTPClient::UploadFile(const std::string& localPath,
                             const std::string& remotePath) {
-    lastError_.clear();
+    m_LastError.clear();
 
     FILE* file = std::fopen(localPath.c_str(), "rb");
     if (!file) {
-        lastError_ = "Failed to open local file for reading: " + localPath;
+        m_LastError = "Failed to open local file for reading: " + localPath;
         return false;
     }
 
@@ -169,7 +169,7 @@ bool suSFTPClient::uploadFile(const std::string& localPath,
 
     std::ifstream ifs(localPath, std::ios::binary | std::ios::ate);
     if (!ifs) {
-        lastError_ = "Failed to get local file size: " + localPath;
+        m_LastError = "Failed to get local file size: " + localPath;
         return false;
     }
 
@@ -177,7 +177,7 @@ bool suSFTPClient::uploadFile(const std::string& localPath,
 
     CURL* curl = curl_easy_init();
     if (!curl) {
-        lastError_ = "curl_easy_init failed";
+        m_LastError = "curl_easy_init failed";
         return false;
     }
 
@@ -196,20 +196,20 @@ bool suSFTPClient::uploadFile(const std::string& localPath,
 
     CURLcode code = curl_easy_perform(curl);
     if (code != CURLE_OK) {
-        lastError_ = curlErrorToString(code, errorBuffer);
+        m_LastError = curlErrorToString(code, errorBuffer);
         return false;
     }
 
     return true;
 }
 
-bool suSFTPClient::downloadFile(const std::string& remotePath,
+bool suSFTPClient::DownloadFile(const std::string& remotePath,
                               const std::string& localPath) {
-    lastError_.clear();
+    m_LastError.clear();
 
     FILE* file = std::fopen(localPath.c_str(), "wb");
     if (!file) {
-        lastError_ = "Failed to open local file for writing: " + localPath;
+        m_LastError = "Failed to open local file for writing: " + localPath;
         return false;
     }
 
@@ -217,7 +217,7 @@ bool suSFTPClient::downloadFile(const std::string& remotePath,
 
     CURL* curl = curl_easy_init();
     if (!curl) {
-        lastError_ = "curl_easy_init failed";
+        m_LastError = "curl_easy_init failed";
         return false;
     }
 
@@ -234,16 +234,16 @@ bool suSFTPClient::downloadFile(const std::string& remotePath,
 
     CURLcode code = curl_easy_perform(curl);
     if (code != CURLE_OK) {
-        lastError_ = curlErrorToString(code, errorBuffer);
+        m_LastError = curlErrorToString(code, errorBuffer);
         return false;
     }
 
     return true;
 }
 
-bool suSFTPClient::uploadData(const std::string& data,
+bool suSFTPClient::UploadData(const std::string& data,
                             const std::string& remotePath) {
-    lastError_.clear();
+    m_LastError.clear();
 
     UploadMemoryContext ctx;
     ctx.data = data.data();
@@ -252,7 +252,7 @@ bool suSFTPClient::uploadData(const std::string& data,
 
     CURL* curl = curl_easy_init();
     if (!curl) {
-        lastError_ = "curl_easy_init failed";
+        m_LastError = "curl_easy_init failed";
         return false;
     }
 
@@ -271,21 +271,21 @@ bool suSFTPClient::uploadData(const std::string& data,
 
     CURLcode code = curl_easy_perform(curl);
     if (code != CURLE_OK) {
-        lastError_ = curlErrorToString(code, errorBuffer);
+        m_LastError = curlErrorToString(code, errorBuffer);
         return false;
     }
 
     return true;
 }
 
-bool suSFTPClient::downloadData(const std::string& remotePath,
+bool suSFTPClient::DownloadData(const std::string& remotePath,
                               std::string& outData) {
-    lastError_.clear();
+    m_LastError.clear();
     outData.clear();
 
     CURL* curl = curl_easy_init();
     if (!curl) {
-        lastError_ = "curl_easy_init failed";
+        m_LastError = "curl_easy_init failed";
         return false;
     }
 
@@ -302,23 +302,23 @@ bool suSFTPClient::downloadData(const std::string& remotePath,
 
     CURLcode code = curl_easy_perform(curl);
     if (code != CURLE_OK) {
-        lastError_ = curlErrorToString(code, errorBuffer);
+        m_LastError = curlErrorToString(code, errorBuffer);
         return false;
     }
 
     return true;
 }
 
-bool suSFTPClient::listDirectory(const std::string& remoteDir,
+bool suSFTPClient::ListDirectory(const std::string& remoteDir,
                                std::vector<std::string>& outLines) {
-    lastError_.clear();
+    m_LastError.clear();
     outLines.clear();
 
     std::string listing;
 
     CURL* curl = curl_easy_init();
     if (!curl) {
-        lastError_ = "curl_easy_init failed";
+        m_LastError = "curl_easy_init failed";
         return false;
     }
 
@@ -341,7 +341,7 @@ bool suSFTPClient::listDirectory(const std::string& remoteDir,
 
     CURLcode code = curl_easy_perform(curl);
     if (code != CURLE_OK) {
-        lastError_ = curlErrorToString(code, errorBuffer);
+        m_LastError = curlErrorToString(code, errorBuffer);
         return false;
     }
 
@@ -360,31 +360,31 @@ bool suSFTPClient::listDirectory(const std::string& remoteDir,
     return true;
 }
 
-bool suSFTPClient::createDirectory(const std::string& remoteDir) {
+bool suSFTPClient::CreateDir(const std::string& remoteDir) {
     return performQuoteCommand("mkdir " + remoteDir);
 }
 
-bool suSFTPClient::removeDirectory(const std::string& remoteDir) {
+bool suSFTPClient::RemoveDir(const std::string& remoteDir) {
     return performQuoteCommand("rmdir " + remoteDir);
 }
 
-bool suSFTPClient::deleteFile(const std::string& remotePath) {
+bool suSFTPClient::DelFile(const std::string& remotePath) {
     return performQuoteCommand("rm " + remotePath);
 }
 
-bool suSFTPClient::rename(const std::string& oldRemotePath,
+bool suSFTPClient::Rename(const std::string& oldRemotePath,
                         const std::string& newRemotePath) {
     return performQuoteCommand("rename " + oldRemotePath + " " + newRemotePath);
 }
 
-bool suSFTPClient::getFileSize(const std::string& remotePath,
+bool suSFTPClient::GetFileSize(const std::string& remotePath,
                              std::int64_t& outSize) {
-    lastError_.clear();
+    m_LastError.clear();
     outSize = -1;
 
     CURL* curl = curl_easy_init();
     if (!curl) {
-        lastError_ = "curl_easy_init failed";
+        m_LastError = "curl_easy_init failed";
         return false;
     }
 
@@ -401,14 +401,14 @@ bool suSFTPClient::getFileSize(const std::string& remotePath,
 
     CURLcode code = curl_easy_perform(curl);
     if (code != CURLE_OK) {
-        lastError_ = curlErrorToString(code, errorBuffer);
+        m_LastError = curlErrorToString(code, errorBuffer);
         return false;
     }
 
     curl_off_t contentLength = -1;
     code = curl_easy_getinfo(curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD_T, &contentLength);
     if (code != CURLE_OK || contentLength < 0) {
-        lastError_ = "Failed to get remote file size";
+        m_LastError = "Failed to get remote file size";
         return false;
     }
 
@@ -416,18 +416,18 @@ bool suSFTPClient::getFileSize(const std::string& remotePath,
     return true;
 }
 
-std::string suSFTPClient::lastError() const {
-    return lastError_;
+std::string suSFTPClient::LastError() const {
+    return m_LastError;
 }
 
 std::string suSFTPClient::buildUrl(const std::string& remotePath) const {
     std::ostringstream oss;
 
     oss << "sftp://";
-    oss << host_;
+    oss << m_Host;
 
-    if (port_ > 0) {
-        oss << ":" << port_;
+    if (m_Port > 0) {
+        oss << ":" << m_Port;
     }
 
     if (!remotePath.empty() && remotePath.front() != '/') {
@@ -440,11 +440,11 @@ std::string suSFTPClient::buildUrl(const std::string& remotePath) const {
 }
 
 bool suSFTPClient::performQuoteCommand(const std::string& command) {
-    lastError_.clear();
+    m_LastError.clear();
 
     CURL* curl = curl_easy_init();
     if (!curl) {
-        lastError_ = "curl_easy_init failed";
+        m_LastError = "curl_easy_init failed";
         return false;
     }
 
@@ -468,7 +468,7 @@ bool suSFTPClient::performQuoteCommand(const std::string& command) {
 
     CURLcode code = curl_easy_perform(curl);
     if (code != CURLE_OK) {
-        lastError_ = curlErrorToString(code, errorBuffer);
+        m_LastError = curlErrorToString(code, errorBuffer);
         return false;
     }
 
@@ -478,35 +478,35 @@ bool suSFTPClient::performQuoteCommand(const std::string& command) {
 void suSFTPClient::resetCommonOptions(void* handle) {
     CURL* curl = static_cast<CURL*>(handle);
 
-    curl_easy_setopt(curl, CURLOPT_USERNAME, username_.c_str());
+    curl_easy_setopt(curl, CURLOPT_USERNAME, m_UserName.c_str());
 
-    if (authMode_ == AuthMode::Password) {
-        curl_easy_setopt(curl, CURLOPT_PASSWORD, password_.c_str());
+    if (m_AuthMode == AuthMode::Password) {
+        curl_easy_setopt(curl, CURLOPT_PASSWORD, m_Password.c_str());
     } else {
-        curl_easy_setopt(curl, CURLOPT_SSH_PRIVATE_KEYFILE, privateKeyFile_.c_str());
+        curl_easy_setopt(curl, CURLOPT_SSH_PRIVATE_KEYFILE, m_PrivateKeyFile_.c_str());
 
-        if (!publicKeyFile_.empty()) {
-            curl_easy_setopt(curl, CURLOPT_SSH_PUBLIC_KEYFILE, publicKeyFile_.c_str());
+        if (!m_PublicKeyFile.empty()) {
+            curl_easy_setopt(curl, CURLOPT_SSH_PUBLIC_KEYFILE, m_PublicKeyFile.c_str());
         }
 
-        if (!passphrase_.empty()) {
-            curl_easy_setopt(curl, CURLOPT_KEYPASSWD, passphrase_.c_str());
+        if (!m_Passphrase.empty()) {
+            curl_easy_setopt(curl, CURLOPT_KEYPASSWD, m_Passphrase.c_str());
         }
     }
 
-    if (connectTimeoutSeconds_ > 0) {
-        curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, connectTimeoutSeconds_);
+    if (m_ConnectTimeoutSeconds > 0) {
+        curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, m_ConnectTimeoutSeconds);
     }
 
-    if (timeoutSeconds_ > 0) {
-        curl_easy_setopt(curl, CURLOPT_TIMEOUT, timeoutSeconds_);
+    if (m_TimeoutSeconds > 0) {
+        curl_easy_setopt(curl, CURLOPT_TIMEOUT, m_TimeoutSeconds);
     }
 
-    curl_easy_setopt(curl, CURLOPT_VERBOSE, verbose_ ? 1L : 0L);
+    curl_easy_setopt(curl, CURLOPT_VERBOSE, m_Verbose ? 1L : 0L);
 
-    if (hostKeyVerifyMode_ == HostKeyVerifyMode::Strict) {
-        if (!knownHostsFile_.empty()) {
-            curl_easy_setopt(curl, CURLOPT_SSH_KNOWNHOSTS, knownHostsFile_.c_str());
+    if (m_HostKeyVerifyMode == HostKeyVerifyMode::Strict) {
+        if (!m_KnownHostsFile.empty()) {
+            curl_easy_setopt(curl, CURLOPT_SSH_KNOWNHOSTS, m_KnownHostsFile.c_str());
         }
 
         curl_easy_setopt(curl, CURLOPT_SSH_HOSTKEYFUNCTION, nullptr);

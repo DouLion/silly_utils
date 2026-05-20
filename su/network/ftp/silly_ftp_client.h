@@ -38,54 +38,54 @@ public:
 
     suFTPClient& operator=(const suFTPClient&) = delete;
 
-    bool connect(const std::string& host,
-                 int port,
+    bool Connect(const std::string& host,
+                 const int& port,
                  const std::string& username,
                  const std::string& password,
-                 SecurityMode security = SecurityMode::None);
+                 const SecurityMode& security = SecurityMode::None);
 
-    void disconnect();
+    void Disconnect();
 
-    void setTimeout(long seconds);
+    void SetTimeout(long seconds);
 
-    void setConnectTimeout(long seconds);
+    void SetConnectTimeout(long seconds);
 
-    void setTransferMode(TransferMode mode);
+    void SetTransferMode(TransferMode mode);
 
-    void setVerbose(bool enabled);
+    void SetVerbose(bool enabled);
 
-    void setVerifyPeer(bool enabled);
+    void SetVerifyPeer(bool enabled);
 
-    void setVerifyHost(bool enabled);
+    void SetVerifyHost(bool enabled);
 
-    bool uploadFile(const std::string& localPath,
+    bool UploadFile(const std::string& localPath,
                     const std::string& remotePath);
 
-    bool downloadFile(const std::string& remotePath,
+    bool DownloadFile(const std::string& remotePath,
                       const std::string& localPath);
 
-    bool uploadData(const std::string& data,
+    bool UploadData(const std::string& data,
                     const std::string& remotePath);
 
-    bool downloadData(const std::string& remotePath,
+    bool DownloadData(const std::string& remotePath,
                       std::string& outData);
 
-    bool listDirectory(const std::string& remoteDir,
+    bool ListDirectory(const std::string& remoteDir,
                        std::vector<std::string>& outLines);
 
-    bool createDirectory(const std::string& remoteDir);
+    bool CreateDir(const std::string& remoteDir);
 
-    bool removeDirectory(const std::string& remoteDir);
+    bool RemoveDir(const std::string& remoteDir);
 
-    bool deleteFile(const std::string& remotePath);
+    bool DelFile(const std::string& remotePath);
 
-    bool rename(const std::string& oldRemotePath,
+    bool Rename(const std::string& oldRemotePath,
                 const std::string& newRemotePath);
 
-    bool getFileSize(const std::string& remotePath,
+    bool GetFileSize(const std::string& remotePath,
                      std::int64_t& outSize);
 
-    std::string lastError() const;
+    std::string LastError() const;
 
 private:
     std::string buildUrl(const std::string& remotePath) const;
@@ -95,22 +95,22 @@ private:
     void resetCommonOptions(void* curl);
 
 private:
-    std::string host_;
-    int port_;
-    std::string username_;
-    std::string password_;
-    SecurityMode securityMode_;
-    TransferMode transferMode_;
+    std::string m_Host;
+    int m_Port;
+    std::string m_UserName;
+    std::string m_Password;
+    SecurityMode m_SecurityMode;
+    TransferMode m_TransferMode;
 
-    long timeoutSeconds_;
-    long connectTimeoutSeconds_;
+    long m_TimeoutSeconds;
+    long m_ConnectTimeoutSeconds;
 
-    bool verbose_;
-    bool verifyPeer_;
-    bool verifyHost_;
-    bool connected_;
+    bool m_Verbose;
+    bool m_VerifyPeer;
+    bool m_VerifyHost;
+    bool m_Connected;
 
-    std::string lastError_;
+    std::string m_LastError;
 };
 
 #endif  // SILLY_FTP_CLIENT_H
