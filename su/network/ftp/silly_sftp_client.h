@@ -3,60 +3,57 @@
  * reserved. 北京天智祥信息科技有限公司版权所有
  * @website: http://www.tianzhixiang.com.cn/
  * @author: dou li yang
- * @date: 2024-09-11
- * @file: silly_ftp_client.h
- * @description: silly_ftp_client 类声明
- * @version: v1.0.1 2024-09-11 dou li yang
+ * @date: 2026-05-20
+ * @file: silly_sftp_client.h
+ * @description: silly_sftp_client 头文件
+ * @version: v1.0.1 2026-05-20 dou li yang
  */
-#ifndef SILLY_FTP_CLIENT_H
-#define SILLY_FTP_CLIENT_H
+#ifndef SILLY_SFTP_CLIENT_H
+#define SILLY_SFTP_CLIENT_H
+
+#include <cstdint>
 #include <string>
 #include <vector>
-#include <cstdint>
 
-class suFTPClient
-{
+class suSFTPClient {
 public:
-    enum class SecurityMode
-    {
-        None,       // ftp://
-        ExplicitTLS // ftps via AUTH TLS
+    enum class AuthMode {
+        Password,
+        PrivateKey
     };
 
-    enum class TransferMode
-    {
-        Passive,
-        Active
+    enum class HostKeyVerifyMode {
+        Disabled,
+        Strict
     };
 
 public:
-    suFTPClient();
+    suSFTPClient();
+    ~suSFTPClient();
 
-    ~suFTPClient();
+    suSFTPClient(const suSFTPClient&) = delete;
+    suSFTPClient& operator=(const suSFTPClient&) = delete;
 
-    suFTPClient(const suFTPClient&) = delete;
+    bool connectWithPassword(const std::string& host,
+                             int port,
+                             const std::string& username,
+                             const std::string& password);
 
-    suFTPClient& operator=(const suFTPClient&) = delete;
-
-    bool connect(const std::string& host,
-                 int port,
-                 const std::string& username,
-                 const std::string& password,
-                 SecurityMode security = SecurityMode::None);
+    bool connectWithPrivateKey(const std::string& host,
+                               int port,
+                               const std::string& username,
+                               const std::string& privateKeyFile,
+                               const std::string& publicKeyFile = "",
+                               const std::string& passphrase = "");
 
     void disconnect();
 
     void setTimeout(long seconds);
-
     void setConnectTimeout(long seconds);
-
-    void setTransferMode(TransferMode mode);
-
     void setVerbose(bool enabled);
 
-    void setVerifyPeer(bool enabled);
-
-    void setVerifyHost(bool enabled);
+    void setHostKeyVerifyMode(HostKeyVerifyMode mode);
+    void setKnownHostsFile(const std::string& knownHostsFile);
 
     bool uploadFile(const std::string& localPath,
                     const std::string& remotePath);
@@ -74,9 +71,7 @@ public:
                        std::vector<std::string>& outLines);
 
     bool createDirectory(const std::string& remoteDir);
-
     bool removeDirectory(const std::string& remoteDir);
-
     bool deleteFile(const std::string& remotePath);
 
     bool rename(const std::string& oldRemotePath,
@@ -89,28 +84,31 @@ public:
 
 private:
     std::string buildUrl(const std::string& remotePath) const;
-
     bool performQuoteCommand(const std::string& command);
-
     void resetCommonOptions(void* curl);
 
 private:
     std::string host_;
     int port_;
+
     std::string username_;
     std::string password_;
-    SecurityMode securityMode_;
-    TransferMode transferMode_;
+
+    std::string privateKeyFile_;
+    std::string publicKeyFile_;
+    std::string passphrase_;
+
+    AuthMode authMode_;
+    HostKeyVerifyMode hostKeyVerifyMode_;
+
+    std::string knownHostsFile_;
 
     long timeoutSeconds_;
     long connectTimeoutSeconds_;
 
     bool verbose_;
-    bool verifyPeer_;
-    bool verifyHost_;
     bool connected_;
 
     std::string lastError_;
 };
-
-#endif  // SILLY_FTP_CLIENT_H
+#endif //SILLY_SFTP_CLIENT_H

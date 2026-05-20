@@ -151,8 +151,8 @@
 #include <metadata/silly_grid_algo.h>   // 网格数据常用的统计算法
 
 // network (网络)
-#include <network/ftp/silly_ftp_client.h>              // 未实现
-#include <network/ftp/silly_ftp_server.h>              // 未实现
+#include <network/ftp/silly_ftp_client.h>              // ftp客户端
+#include <network/ftp/silly_sftp_client.h>             // sftp客户端
 #include <network/http/silly_http_client.h>            // http(https)客户端 类声明
 #include <network/http/silly_http_headers.h>           // 未实现
 #include <network/http/silly_http_server.h>            // drogon请求头宏定义
